@@ -59,6 +59,7 @@ def build_www(js, css, out):
 <meta name="apple-mobile-web-app-title" content="Axle">
 <title>Axle – gratis øving i ingeniørfag: matte, fysikk, mekanikk og elektro</title>
 <link rel="canonical" href="https://axle.no/">
+<meta name="google-site-verification" content="j54Juhy7GF-aUyFcZUlrv9hU12YIX0HtdH2GT5nl7aM">
 <meta property="og:title" content="Axle – gratis øving i ingeniørfag">
 <meta property="og:description" content="{cfg['description_nb']}">
 <meta property="og:url" content="https://axle.no/">
