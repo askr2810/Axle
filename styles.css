@@ -1116,3 +1116,39 @@ a.srow{text-decoration:none;color:inherit}
 .bk-unit-tps{margin:4px 0 16px}.bk-unit-tps .tiles2{margin-top:8px}
 .bk-grid.one{margin-top:14px}.bk-hit.tp small{color:var(--accent)}
 .libu .kbtn svg{width:16px;height:16px}
+
+/* ---------- fellesskapskurs ---------- */
+.cc-tabs{margin:10px 0}
+.cc-sort{margin:8px 0}
+.cc-list{display:grid;gap:8px;margin-top:10px}
+.cc-card{display:flex;align-items:center;gap:12px;width:100%;text-align:left;padding:12px;border-radius:16px;border:2px solid var(--line);border-bottom-width:4px;background:var(--card);color:var(--ink);font:inherit}
+.cc-card:active{transform:translateY(2px);border-bottom-width:2px}
+.cc-emo{flex:none;width:46px;height:46px;border-radius:14px;display:grid;place-items:center;font-size:24px;background:var(--accent-soft)}
+.cc-emo.big{width:64px;height:64px;font-size:34px}
+.cc-t{flex:1;min-width:0;display:grid;gap:1px}.cc-t b{font-size:15.5px}.cc-t span{font-size:13px;color:var(--muted)}.cc-t small{font-size:12px;color:var(--muted)}
+.cc-stats{display:grid;gap:2px;text-align:right;font-size:12.5px;color:var(--muted);font-weight:700}.cc-stats .on{color:var(--bad)}
+.cc-detail{display:grid;gap:10px}.cc-dh{display:flex;gap:12px;align-items:center}.cc-dh h2{margin:0;font-family:var(--display);font-size:22px}.cc-dh span{color:var(--muted);font-size:14px}
+.cc-meta{display:flex;flex-wrap:wrap;gap:6px}.cc-meta span{background:var(--accent-soft);color:var(--accent);font-weight:700;font-size:13px;padding:4px 10px;border-radius:99px}
+.big.liked{color:var(--bad)!important}
+.cc-limit{font-size:13px;color:var(--muted);margin:6px 0}
+.cc-ed{padding-bottom:130px}.cc-ed .fr-card{display:grid;gap:12px}
+.cc-lbl{display:grid;gap:6px;font-weight:700;font-size:14px}
+.cc-lbl input,.cc-lbl textarea,.cc-lbl select,.cc-opt input,.dialog textarea#ccimp{width:100%;box-sizing:border-box;font:inherit;font-weight:400;font-size:16px;border:2px solid var(--line);border-radius:12px;padding:10px 12px;background:var(--paper);color:var(--ink)}
+.cc-lbl textarea{min-height:80px;resize:vertical}
+.cc-help{font-weight:400;color:var(--muted);font-size:12.5px}
+.cc-emojis{display:grid;grid-template-columns:repeat(8,1fr);gap:6px}.cc-emojis button{border:2px solid var(--line);background:var(--card);border-radius:10px;font-size:20px;padding:4px 0}.cc-emojis button.on{border-color:var(--accent);background:var(--accent-soft)}
+.cc-row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}.cc-row3{display:grid;grid-template-columns:1.4fr 1fr 1fr;gap:8px}
+.cc-qh{display:flex;justify-content:space-between;align-items:center;margin:18px 0 6px}.cc-qh h3{margin:0;font-family:var(--display)}.cc-cnt{font-size:13px;color:var(--muted);font-weight:700}
+.cc-qs{display:grid;gap:8px}
+.cc-q{display:grid;grid-template-columns:auto 1fr;gap:8px 10px;padding:10px;border:2px solid var(--line);border-radius:14px;background:var(--card)}
+.cc-qn{width:28px;height:28px;border-radius:50%;display:grid;place-items:center;background:var(--accent);color:#fff;font-weight:800;font-size:13px}
+.cc-qb{min-width:0}.cc-qtype{font-size:11px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--accent)}.cc-qtext{font-weight:600;margin:2px 0}.cc-qans{font-size:13.5px;color:var(--ok);font-weight:700}
+.cc-qa{grid-column:1/-1;display:flex;gap:6px;justify-content:flex-end}.cc-qa button{min-width:36px;height:34px;border-radius:10px;border:2px solid var(--line);background:var(--card);color:var(--ink);font-weight:800;display:grid;place-items:center}.cc-qa button svg{width:16px;height:16px}.cc-qa button:disabled{opacity:.35}
+.cc-add{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:12px 0}
+.cc-types{margin:12px 0}
+.cc-opt{display:flex;align-items:center;gap:8px}.cc-radio{flex:none;width:32px;height:32px;border-radius:50%;border:2px solid var(--line);background:var(--card);color:#fff;font-weight:900}.cc-radio.on{background:var(--ok);border-color:var(--ok)}
+.cc-x{flex:none;border:0;background:none;color:var(--muted)}.cc-x svg{width:16px;height:16px}
+.cc-prev{margin-top:14px;padding:12px;border-radius:14px;border:2px dashed var(--line)}.cc-prev-h{font-size:11px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
+.cc-prev .opt{pointer-events:none}
+.cc-ex{font-size:12.5px;white-space:pre-wrap}
+.cc-entry{margin-top:12px}

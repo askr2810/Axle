@@ -397,7 +397,7 @@ function awardXP(gained){
 function finishLesson(){
   const s = sub(L.code);
   const firstTry = L.total - L.firstWrong.size;
-  const gained = L.kind==="challenge" ? dcXP(firstTry, L.total) : (L.kind==="unit" ? LEVELS[L.meta.k].xp : L.kind==="jump" ? 20 : 10) + firstTry;
+  const gained = L.kind==="community" ? ccXP(firstTry) : L.kind==="challenge" ? dcXP(firstTry, L.total) : (L.kind==="unit" ? LEVELS[L.meta.k].xp : L.kind==="jump" ? 20 : 10) + firstTry;
   const xpBefore = S.xp, lvBefore = levelInfo(S.xp).lv;
   const st = awardXP(gained + (L.bonus||0));
   if(L.kind==="unit") s.done[L.meta.u+"-"+L.meta.k] = true;
@@ -406,7 +406,7 @@ function finishLesson(){
   if(L.kind==="drill") drRecord();
   noteNightLesson();
   const wrong = new Set(s.wrong);
-  if(L.kind!=="challenge" && L.kind!=="drill") L.firstWrong.forEach(id=>wrong.add(id)); // utfordringen blander fag, feil der havner ikke i «Repeter feil»
+  if(L.kind!=="challenge" && L.kind!=="drill" && L.kind!=="community") L.firstWrong.forEach(id=>wrong.add(id)); // utfordringen blander fag, feil der havner ikke i «Repeter feil»
   if(L.kind==="review") [...L.solved].forEach(id=>{ if(!L.firstWrong.has(id)) wrong.delete(id); });
   s.wrong = [...wrong];
   if(L.firstWrong.size === 0) bdgStat("flawless");
@@ -421,7 +421,7 @@ function correctText(it){ return it.type==="mc" ? it.opts.find(o=>o.ok).t : nf(i
 function renderLesson(){
   const it = L.queue[0];
   const pct = (L.maxHearts ? (L.done + (L.answered?1:0)) : L.solved.size) / L.total * 100;
-  const lvl = L.kind==="unit" ? `${lvShort(L.meta.k)} · ${lvName(L.meta.k)} · ` : L.kind==="jump" ? t("jumpTest")+" · " : L.kind==="review" ? t("review")+" · " : L.kind==="challenge" ? t("dcTitle")+" · " : L.kind==="drill" ? t("drTitle")+" · "+(it.drTag ? T(DR_TAGS[it.drTag][0], DR_TAGS[it.drTag][1])+" · " : "") : "";
+  const lvl = L.kind==="unit" ? `${lvShort(L.meta.k)} · ${lvName(L.meta.k)} · ` : L.kind==="jump" ? t("jumpTest")+" · " : L.kind==="review" ? t("review")+" · " : L.kind==="challenge" ? t("dcTitle")+" · " : L.kind==="drill" ? t("drTitle")+" · "+(it.drTag ? T(DR_TAGS[it.drTag][0], DR_TAGS[it.drTag][1])+" · " : "") : L.kind==="community" ? (L.meta.title||t("ccTitle"))+" · " : "";
   let body = `<div class="krow"><p class="kicker">${esc(lvl)}${it.type==="mc"?t("pickAnswer"):t("writeAnswer")}</p><button class="kbtn" data-a="scratch">${I.pencil}${t("scratch")}</button></div><div class="prompt">${rich(it.prompt)}</div>`;
   if(it.type==="mc"){
     body += `<div class="opts" role="radiogroup">` + it.opts.map((o,i)=>{
@@ -455,7 +455,7 @@ function renderLesson(){
 }
 function renderDone(){
   const r = L.result, m = Math.floor(r.secs/60), sec = r.secs%60, c = COURSE(L.code), u = L.meta && L.meta.u;
-  const title = L.kind==="drill" ? t("drDoneTitle") : L.kind==="challenge" ? t("dcDoneTitle") : L.kind==="jump" ? t("doneJump") : (L.kind==="unit" && L.meta.k===3) ? t("doneCrown") : r.acc===100 ? t("doneFlawless") : L.kind==="review" ? t("doneReview") : t("doneLevel", lvShort(L.meta.k));
+  const title = L.kind==="community" ? t("ccDoneTitle") : L.kind==="drill" ? t("drDoneTitle") : L.kind==="challenge" ? t("dcDoneTitle") : L.kind==="jump" ? t("doneJump") : (L.kind==="unit" && L.meta.k===3) ? t("doneCrown") : r.acc===100 ? t("doneFlawless") : L.kind==="review" ? t("doneReview") : t("doneLevel", lvShort(L.meta.k));
   const sub2 = L.kind==="drill" ? t("drDoneSub", L.total - L.firstWrong.size, L.total) : L.kind==="jump" ? t("jumpUnlocked", unitTitle(c,u)) : (L.kind==="unit" && L.meta.k===3) ? t("crownWon", unitTitle(c,u)) : null;
   $app.innerHTML = `<main class="wrap finish pop">
     ${r.goalHit ? goalCelebrateHTML(L.code, r) : teacherBubble(L.code, esc(pickLine(t(r.acc === 100 ? "tchFlawless" : r.acc >= 70 ? "tchDone" : "tchDoneLow"))), 64, "tch-done")}
@@ -804,6 +804,7 @@ function renderOverlay(){
   else if(overlay.frmod) d.innerHTML = frModHTML(overlay.frmod);
   else if(overlay.frrep) d.innerHTML = frReportHTML(overlay.frrep);
   else if("frblocks" in overlay) d.innerHTML = frBlocksHTML(overlay.frblocks);
+  else if(overlay.ccimport) d.innerHTML = ccImportHTML();
   else if(overlay.stat) d.innerHTML = statSheetHTML(overlay.stat);
   else if(overlay.pre) d.innerHTML = `<div class="dialog pop pre-dlg" role="dialog">${preCardHTML(COURSE(S.current)) || `<p>${esc(t("preDone"))}</p>`}<p class="ss-note">${esc(t("preText"))}</p><button class="big" data-a="closeov">${esc(t("cont"))}</button></div>`;
   else if(overlay.pfname){ d.innerHTML = nameDialogHTML(); setTimeout(()=>{ const i=document.getElementById("pfnamein"); if(i){ i.focus(); i.addEventListener("keydown", e=>{ if(e.key==="Enter") document.querySelector('[data-a="pfnamesave"]')?.click(); }); } }, 0); }
@@ -876,6 +877,8 @@ function render(){
   else if(screen==="fail") renderFail();
   else if(screen==="theory") renderTheory();
   else if(screen==="guided") renderGuided();
+  else if(screen==="community") renderCommunity();
+  else if(screen==="ccedit") renderCCEdit();
   else if(screen==="book") renderBook();
   else if(screen==="friends") renderFriends();
   else if(screen==="avatar") renderAvatarEditor();
@@ -895,6 +898,11 @@ document.addEventListener("click", async e=>{
   const a = b.dataset.a;
   if(examClick(a, b)) return; // eksamensmodus (handlinger som starter med "ex")
   if(guidedClick(a, b)) return; // steg for steg
+  if(communityClick(a, b)) return; // fellesskapskurs
+  if(a==="community"){ openCommunity(); return; }
+  if(a==="home" && L && L.kind==="community" && (screen==="done" || screen==="fail")){ const back = CC.edit ? "ccedit" : "community"; L = null; screen = back; render(); window.scrollTo(0,0); return; }
+  if(a==="quitok" && L && L.kind==="community"){ const back = CC.edit ? "ccedit" : "community"; overlay = null; L = null; screen = back; render(); window.scrollTo(0,0); return; }
+  if(a==="report" && L && L.kind==="community"){ if(L.meta.cid && L.meta.cid !== "preview"){ overlay = { frrep: { kind: "course", id: null, target: L.meta.cid, reason: null } }; renderOverlay(); } else toast(t("ccPreviewNoReport")); return; }
   if(bookClick(a, b)) return; // teoriboka (handlinger som starter med "bk")
   if(friendsClick(a, b)) return; // venner (handlinger som starter med "fr")
   if(avatarClick(a, b)) return; // avatar-bygger (handlinger som starter med "av")

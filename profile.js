@@ -5,7 +5,7 @@
 //  - Profilside med avatar, navn, statistikk, merker og fag.
 // ============================================================
 const TABS = [["home", "book2", "tabLearn"], ["practice", "bolt", "tabPractice"], ["book", "book", "tabTheory"], ["friends", "users", "tabFriends"], ["profile", "person", "tabProfile"]];
-function tabOf(){ return screen === "home" ? "home" : screen === "practice" ? "practice" : screen === "book" && BK.v !== "unit" ? "book" : screen === "friends" ? "friends" : (screen === "profile" || screen === "badges") ? "profile" : null; }
+function tabOf(){ return screen === "home" ? "home" : (screen === "practice" || screen === "community") ? "practice" : screen === "book" && BK.v !== "unit" && BK.v !== "topic" ? "book" : screen === "friends" ? "friends" : (screen === "profile" || screen === "badges") ? "profile" : null; }
 function tabbarHTML(active){
   return `<nav class="tabbar" aria-label="${esc(t("tabNav"))}"><div class="wrap">${TABS.map(([k, ic, lab]) =>
     `<button class="${k === active ? "on" : ""}" data-a="tab" data-t="${k}" aria-current="${k === active ? "page" : "false"}">${(k === "practice" && !dcDoneToday()) || (k === "friends" && FR.reqs && FR.reqs.length) ? `<i class="tab-dot"></i>` : ""}${k === "profile" && hasMeAv() ? meAvHTML(26, "tab-av") : I[ic]}<span>${esc(t(lab))}</span></button>`).join("")}</div></nav>`;
@@ -114,6 +114,7 @@ function renderPractice(){
       ${dcCardHTML()}
       ${drCardHTML()}
       ${todayCardHTML(c, today, goal, week)}
+      ${ccCardPracticeHTML()}
       ${wrongN ? `<button class="qt-row rev" data-a="review"><span class="qt-ic">${I.redo}</span><span><b>${esc(t("reviewBtn", wrongN))}</b><small>${esc(t("prRevSub"))}</small></span>${I.chevron}</button>`
                : `<p class="prac-empty">${esc(t("prRevNone"))}</p>`}
       ${examHomeActions(c) ? `<div class="actions">${examHomeActions(c)}</div>` : ""}

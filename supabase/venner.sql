@@ -294,7 +294,9 @@ stable
 security definer
 set search_path = ''
 as $$
-  select exists (select 1 from public.user_blocks where (blocker = a and blocked = b) or (blocker = b and blocked = a));
+  -- svarer bare om blokkeringer som gjelder den innloggede brukeren selv
+  select (a = auth.uid() or b = auth.uid())
+     and exists (select 1 from public.user_blocks where (blocker = a and blocked = b) or (blocker = b and blocked = a));
 $$;
 
 create or replace function public.block_user(fid uuid)
@@ -459,12 +461,19 @@ begin
       else update public.profiles set display_name = 'Bruker', username = null where user_id = p_target_user; end if;
       update public.content_reports set handled = true where target_user = p_target_user and kind = p_kind;
     end if;
+  elsif p_kind = 'course' and p_target_id is not null and to_regclass('public.community_courses') is not null then
+    select count(distinct reporter) into n from public.content_reports where kind = 'course' and target_id = p_target_id and not handled;
+    if n >= 3 then
+      execute 'update public.community_courses set hidden = true where id::text = $1' using p_target_id;
+      update public.content_reports set handled = true where kind = 'course' and target_id = p_target_id;
+    end if;
   end if;
 end;
 $$;
 
 revoke all on function public.is_clean(text)                                   from public, anon;
-revoke all on function public.is_blocked_between(uuid, uuid)                   from public, anon, authenticated;
+revoke all on function public.is_blocked_between(uuid, uuid)                   from public, anon;
+grant execute on function public.is_blocked_between(uuid, uuid)                to authenticated;
 revoke all on function public.block_user(uuid)                                 from public, anon;
 revoke all on function public.unblock_user(uuid)                               from public, anon;
 revoke all on function public.get_blocks()                                     from public, anon;
