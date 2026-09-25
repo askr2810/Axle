@@ -361,7 +361,7 @@ function checkAnswer(){
   else { if(!L.input.trim()) return; const v = parseNum(L.input); ok = Number.isFinite(v) && Math.abs(v - it.n) <= Math.max(it.tol, 1e-9); }
   L.answered = true; L.ok = ok; buzz(ok); L.tline = pickLine(t(ok ? "tchRight" : "tchWrong"));
   const firstTime = !L.seen.has(it.id); L.seen.add(it.id);
-  if(ok){ L.solved.add(it.id); L.combo++; }
+  if(ok){ L.solved.add(it.id); L.combo++; if(L.combo >= 3 && firstTime){ L.bonus = (L.bonus||0) + 1; L.bonusNow = true; } else L.bonusNow = false; }
   else { L.combo = 0; if(firstTime) L.firstWrong.add(it.id); if(L.maxHearts) L.hearts--; }
   render();
 }
@@ -389,7 +389,8 @@ function finishLesson(){
   const s = sub(L.code);
   const firstTry = L.total - L.firstWrong.size;
   const gained = L.kind==="challenge" ? dcXP(firstTry, L.total) : (L.kind==="unit" ? LEVELS[L.meta.k].xp : L.kind==="jump" ? 20 : 10) + firstTry;
-  const st = awardXP(gained);
+  const xpBefore = S.xp, lvBefore = levelInfo(S.xp).lv;
+  const st = awardXP(gained + (L.bonus||0));
   if(L.kind==="unit") s.done[L.meta.u+"-"+L.meta.k] = true;
   if(L.kind==="jump") for(let uu=0; uu<L.meta.u; uu++) for(let k=0;k<REQ;k++) s.done[uu+"-"+k] = true;
   if(L.kind==="challenge"){ S.dc = { day: L.meta.day, right: firstTry, n: L.total }; bdgStat("challenges"); }
@@ -401,7 +402,7 @@ function finishLesson(){
   if(L.kind === "review") bdgStat("reviews");
   const newBadges = checkBadges();
   save();
-  L.result = { goalHit: st.goalHit, newBadges, gained, acc: Math.round(firstTry/L.total*100), secs: Math.round((Date.now()-L.start)/1000), streak: st.streak, streakUp: st.streakUp };
+  L.result = { xpBefore, levelUp: levelInfo(S.xp).lv > lvBefore ? levelInfo(S.xp).lv : 0, streakMile: st.streakUp && STREAK_MILES.includes(st.streak) ? st.streak : 0, bonus: L.bonus||0, goalHit: st.goalHit, newBadges, gained: gained + (L.bonus||0), acc: Math.round(firstTry/L.total*100), secs: Math.round((Date.now()-L.start)/1000), streak: st.streak, streakUp: st.streakUp };
   screen = "done"; render();
 }
 function correctText(it){ return it.type==="mc" ? it.opts.find(o=>o.ok).t : nf(it.n,3)+(it.u?" "+it.u:""); }
@@ -426,7 +427,7 @@ function renderLesson(){
     foot = `<div class="lfoot"><div class="wrap"><button class="big" data-a="check" ${can?"":"disabled"}>${t("check")}</button></div></div>`;
   } else {
     foot = `<div class="lfoot ${L.ok?"ok":"bad"} pop"><div class="wrap">
-      <div class="fb-h">${L.ok?I.okc:I.badc}${L.ok?(L.combo>=3?t("streakN",L.combo):t("correct")):t("notQuite")}</div>
+      <div class="fb-h ${L.ok&&L.combo>=3?"combo":""}">${L.ok?(L.combo>=3?`<span class="combo-fire">${I.fire}</span>`:I.okc):I.badc}${L.ok?(L.combo>=3?t("streakN",L.combo):t("correct")):t("notQuite")}${L.ok&&L.bonusNow?`<span class="combo-xp">+1 XP</span>`:""}</div>
       ${L.ok?"":`<div class="fb-a">${t("rightAnswer")} ${rich(correctText(it))}</div>`}
       ${L.tline && L.kind !== "exam" ? teacherBubble(L.code, esc(L.tline), 34, "tch-fb") : ""}
       ${it.expl?`<div class="fb-e">${rich(it.expl)}</div>`:""}
@@ -446,18 +447,23 @@ function renderDone(){
   const sub2 = L.kind==="jump" ? t("jumpUnlocked", unitTitle(c,u)) : (L.kind==="unit" && L.meta.k===3) ? t("crownWon", unitTitle(c,u)) : null;
   $app.innerHTML = `<main class="wrap finish pop">
     ${r.goalHit ? goalCelebrateHTML(L.code, r) : teacherBubble(L.code, esc(pickLine(t(r.acc === 100 ? "tchFlawless" : r.acc >= 70 ? "tchDone" : "tchDoneLow"))), 64, "tch-done")}
+    ${r.levelUp ? levelUpHTML(r.levelUp) : ""}
+    ${r.streakMile ? streakMileHTML(r.streakMile) : ""}
     <h1>${esc(title)}</h1>
     ${sub2?`<p>${esc(sub2)}</p>`:""}
     <p>${r.streakUp?esc(t("streakLine",r.streak)):esc(courseName(c))}</p>
     <div class="tiles">
-      <div class="tile t1"><small>${t("tileXp")}</small><b>+${r.gained}</b></div>
-      <div class="tile t2"><small>${t("tileFirst")}</small><b>${r.acc}%</b></div>
+      <div class="tile t1"><small>${t("tileXp")}</small><b data-count="${r.gained}" data-pre="+">+${r.gained}</b></div>
+      <div class="tile t2"><small>${t("tileFirst")}</small><b data-count="${r.acc}" data-suf="%">${r.acc}%</b></div>
       <div class="tile t3"><small>${t("tileTime")}</small><b>${m}:${pad(sec)}</b></div>
     </div>
+    ${r.bonus ? `<p class="dx-bonus">${I.fire}${esc(t("comboBonus", r.bonus))}</p>` : ""}
+    ${levelBarHTML(r.xpBefore ?? S.xp, S.xp)}
     ${r.newBadges && r.newBadges.length ? `<div class="dx-badges"><small>${esc(t("bdgNewTitle"))}</small><div>${r.newBadges.map(b => `<button class="dx-badge" data-a="badges">${badgeIcon(b, 54)}<b>${esc(bdgName(b))}</b></button>`).join("")}</div></div>` : ""}
     ${doneExtrasHTML(c, u, r)}
     <button class="big" data-a="home">${t("cont")}</button>
   </main>`;
+  if(!r.animated){ r.animated = true; countUp(); if(r.levelUp && !r.goalHit) setTimeout(confetti, 300); }
 }
 // «I dag»-kortet: læreren med neste steg, dagsmålet som ring og ukas dager.
 function todayCardHTML(c, today, goal, week){
