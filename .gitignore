@@ -1,0 +1,8 @@
+node_modules/
+release/
+dist/
+vendor/fonts/
+vendor/fonts.css
+ios/App/App/public/
+android/app/src/main/assets/public/
+.DS_Store

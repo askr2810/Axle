@@ -1,0 +1,11 @@
+{
+  "appId": "no.axle.app",
+  "appName": "Axle",
+  "webDir": "release/www",
+  "backgroundColor": "#EEF2EC",
+  "ios": { "contentInset": "never" },
+  "android": { "allowMixedContent": false },
+  "plugins": {
+    "LocalNotifications": { "iconColor": "#2B59C3" }
+  }
+}

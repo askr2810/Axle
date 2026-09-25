@@ -1,0 +1,32 @@
+{
+  "name": "axle",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Axle – daglig ingeniørtrening (nett, iOS og Android)",
+  "scripts": {
+    "build": "node tools/vendor.mjs && python3 build.py",
+    "test": "node tools/test_content.js 300 && node tools/test_katex.js 20",
+    "icons": "python3 tools/make_icons.py",
+    "assets": "npx capacitor-assets generate --iconBackgroundColor \"#2B59C3\" --iconBackgroundColorDark \"#1C3F91\" --splashBackgroundColor \"#EEF2EC\" --splashBackgroundColorDark \"#0F1720\"",
+    "sync": "npm run build && npx cap sync",
+    "ios": "npm run sync && npx cap open ios",
+    "android": "npm run sync && npx cap open android",
+    "serve": "npx http-server release/www -p 8080 -c-1"
+  },
+  "dependencies": {
+    "@capacitor/android": "latest",
+    "@capacitor/app": "latest",
+    "@capacitor/core": "latest",
+    "@capacitor/haptics": "latest",
+    "@capacitor/ios": "latest",
+    "@capacitor/local-notifications": "latest",
+    "@capacitor/preferences": "latest",
+    "@fontsource/bricolage-grotesque": "latest",
+    "@fontsource/figtree": "latest",
+    "@fontsource/jetbrains-mono": "latest"
+  },
+  "devDependencies": {
+    "@capacitor/assets": "latest",
+    "@capacitor/cli": "latest"
+  }
+}
