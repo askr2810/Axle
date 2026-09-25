@@ -110,8 +110,8 @@ function renderPractice(){
   $app.innerHTML = `<div class="top"><div class="wrap"><div class="th-t"><small>${esc(courseName(c))}</small><b>${esc(t("tabPractice"))}</b></div>
       <button class="chip mini-chip" data-a="pick" aria-label="${esc(t("switchCourse"))}"><span class="code">${esc(courseShort(c))}</span>${I.down}</button></div></div>
     <main class="wrap prac">
-      ${todayCardHTML(c, today, goal, week)}
       ${dcCardHTML()}
+      ${todayCardHTML(c, today, goal, week)}
       ${wrongN ? `<button class="qt-row rev" data-a="review"><span class="qt-ic">${I.redo}</span><span><b>${esc(t("reviewBtn", wrongN))}</b><small>${esc(t("prRevSub"))}</small></span>${I.chevron}</button>`
                : `<p class="prac-empty">${esc(t("prRevNone"))}</p>`}
       ${examHomeActions(c) ? `<div class="actions">${examHomeActions(c)}</div>` : ""}

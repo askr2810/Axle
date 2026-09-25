@@ -3,7 +3,9 @@
 //  Utvalget er likt hele dagen (seedet på datoen), tallene i generatorene er nye hver gang.
 //  Gir ekstra XP én gang per dag. Status lagres i S.dc = { day, right, n }.
 // ============================================================
-const DC_N = 3;
+// Antall oppgaver følger dagsmålet: 10 XP → 3, 20 → 4, 30 → 5, 50 → 8. Alt riktig på første forsøk gir hele dagsmålet.
+const dcN = () => Math.max(3, Math.min(10, Math.round((S.goal || 10) / 6)));
+const dcXP = (right, n) => Math.round((S.goal || 10) * (0.5 + 0.5 * right / n));
 function dcCourses(){
   const list = COURSES.filter(c => c.code === S.current || courseProgress(c).d > 0);
   return list.length ? list : [COURSE(S.current)];
@@ -11,7 +13,7 @@ function dcCourses(){
 function dcPlan(){
   const day = dayKey(), rng = exRng(exHash("dc:" + day)), cs = dcCourses();
   const order = exShuffle(cs.slice(), rng), plan = [];
-  for(let i = 0; i < DC_N; i++){
+  for(let i = 0, N = dcN(); i < N; i++){
     const c = order[i % order.length], nx = nextNode(c), maxU = nx ? nx[0] : c.units.length - 1;
     const u = Math.floor(rng() * (maxU + 1)), P = poolIds(c, [u]);
     const pool = P.gen.length ? P.gen : P.num.concat(P.mc); if(!pool.length) continue;
@@ -33,6 +35,6 @@ function dcCardHTML(){
   const plan = dcPlan(), done = dcDoneToday();
   const chips = [...new Set(plan.map(p => p.code))].map(code => { const c = COURSE(code); return `<span class="dc-chip">${esc(courseShort(c))}</span>`; }).join("");
   return `<div class="dc-card ${done ? "done" : ""}"><div class="dc-ic">${done ? I.checkS : I.bolt}</div>
-    <div class="dc-t"><b>${esc(t("dcTitle"))}</b><span>${esc(done ? t("dcDone", S.dc.right, S.dc.n) : t("dcSub", DC_N))}</span><div class="dc-chips">${chips}</div></div>
+    <div class="dc-t"><b>${esc(t("dcTitle"))}</b><span>${esc(done ? t("dcDone", S.dc.right, S.dc.n) : t("dcSub", dcN(), S.goal || 10))}</span><div class="dc-chips">${chips}</div></div>
     ${done ? "" : `<button class="dc-go" data-a="dcstart">${esc(t("dcStart"))}</button>`}</div>`;
 }

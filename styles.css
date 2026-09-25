@@ -748,7 +748,7 @@ body.has-tabs .toast{bottom:calc(84px + env(safe-area-inset-bottom,0px))}
 .sheet>.wrap{padding-bottom:calc(32px + env(safe-area-inset-bottom,0px))}
 
 /* ---------- ny forside ---------- */
-.today{margin-top:14px;background:var(--card);border:2px solid var(--line);border-radius:18px;padding:12px 14px 10px;display:grid;gap:10px}
+.todaycard{margin-top:14px;background:var(--card);border:2px solid var(--line);border-radius:18px;padding:12px 14px 10px;display:grid;gap:10px}
 .today-top{display:flex;align-items:center;gap:10px}
 .today-msg{flex:1;min-width:0;display:grid;gap:1px;font-size:14px;line-height:1.35}
 .today-msg b{font-family:var(--display);font-weight:800;font-size:14px;color:var(--accent)}
@@ -760,9 +760,9 @@ body.has-tabs .toast{bottom:calc(84px + env(safe-area-inset-bottom,0px))}
 .ring span{position:absolute;inset:0;display:grid;place-content:center;justify-items:center;line-height:1}
 .ring b{font-family:var(--display);font-weight:800;font-size:16px}
 .ring small{font-size:9px;color:var(--muted);margin-top:2px}
-.today .week{background:none;border:0;padding:0;width:100%;color:var(--muted);font:inherit;font-size:11px}
-.today .week .dot{width:18px;height:18px}
-.today .week .dot svg{width:10px;height:10px}
+.todaycard .week{background:none;border:0;padding:0;width:100%;color:var(--muted);font:inherit;font-size:11px}
+.todaycard .week .dot{width:18px;height:18px}
+.todaycard .week .dot svg{width:10px;height:10px}
 .quick{display:grid;grid-template-columns:repeat(auto-fit,minmax(0,1fr));gap:8px;margin-top:10px}
 .qt{display:grid;justify-items:start;align-content:start;gap:1px;text-align:left;border:2px solid var(--line);border-bottom-width:4px;background:var(--card);border-radius:16px;padding:10px 11px;color:var(--ink);min-width:0}
 .qt:active{transform:translateY(2px);border-bottom-width:2px}
@@ -803,4 +803,23 @@ body.has-tabs .toast{bottom:calc(84px + env(safe-area-inset-bottom,0px))}
 .bubble.side-l{left:auto;right:calc(100% + 12px);transform:translateY(-50%)}
 @keyframes bobx{0%,100%{translate:0 0}50%{translate:0 -4px}}
 .prac .dc-card{margin-top:12px}
+.prac>.dc-card:first-child{margin-top:14px}
 .prac .qt-row{margin-top:12px}
+
+/* ---------- feiring: dagsmål nådd ---------- */
+.gc{display:grid;justify-items:center;gap:6px}
+.gc-ring{position:relative;width:120px;height:120px}
+.gc-ring .ring-bg{fill:none;stroke:var(--line);stroke-width:10}
+.gc-fg{fill:none;stroke:var(--ok);stroke-width:10;stroke-linecap:round;stroke-dashoffset:var(--len);animation:gcdraw 1s .15s cubic-bezier(.4,.1,.2,1) forwards}
+.gc-check{position:absolute;inset:0;display:grid;place-items:center;color:var(--ok);transform:scale(0);animation:gcpop .5s 1.05s cubic-bezier(.3,1.6,.5,1) forwards}
+.gc-check svg{width:52px;height:52px;stroke-width:3.4}
+.gc-t{margin:4px 0 0;font-family:var(--display);font-weight:800;font-size:28px;color:var(--ok);opacity:0;animation:gcup .5s 1.2s ease-out forwards}
+.gc-s{margin:0;opacity:0;animation:gcup .5s 1.35s ease-out forwards}
+.gc-tch{opacity:0;animation:gcup .5s 1.6s ease-out forwards;margin-top:6px}
+@keyframes gcdraw{to{stroke-dashoffset:0}}
+@keyframes gcpop{0%{transform:scale(0)}100%{transform:scale(1)}}
+@keyframes gcup{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.confetti{position:fixed;inset:0;pointer-events:none;z-index:60;overflow:hidden}
+.confetti i{position:absolute;top:-4vh;border-radius:2px;animation-name:cffall;animation-timing-function:cubic-bezier(.3,.3,.6,1);animation-fill-mode:forwards}
+@keyframes cffall{from{transform:translate(0,0) rotate(0)}to{transform:translate(var(--dx),110vh) rotate(var(--r))}}
+@media (prefers-reduced-motion: reduce){.gc-fg{animation:none;stroke-dashoffset:0}.gc-check,.gc-t,.gc-s,.gc-tch{animation:none;opacity:1;transform:none}}

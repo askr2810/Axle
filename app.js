@@ -379,16 +379,16 @@ function nextQuestion(){
 }
 // XP, dagsmål og rekke (brukes av leksjoner og eksamen). Kalleren lagrer.
 function awardXP(gained){
-  const td = dayKey(), y = dayKey(addDays(new Date(),-1)), before = streakNow();
+  const td = dayKey(), y = dayKey(addDays(new Date(),-1)), before = streakNow(), goal = S.goal||10, had = S.daily[td]||0;
   if(S.streak.last !== td){ S.streak.count = (S.streak.last===y ? S.streak.count : 0) + 1; S.streak.last = td; }
   S.xp += gained; S.daily[td] = (S.daily[td]||0) + gained;
   const keys = Object.keys(S.daily).sort(); while(keys.length>60) delete S.daily[keys.shift()];
-  return { streak: streakNow(), streakUp: streakNow()>before };
+  return { streak: streakNow(), streakUp: streakNow()>before, goalHit: had < goal && had + gained >= goal };
 }
 function finishLesson(){
   const s = sub(L.code);
   const firstTry = L.total - L.firstWrong.size;
-  const gained = L.kind==="challenge" ? 15 + 5*firstTry : (L.kind==="unit" ? LEVELS[L.meta.k].xp : L.kind==="jump" ? 20 : 10) + firstTry;
+  const gained = L.kind==="challenge" ? dcXP(firstTry, L.total) : (L.kind==="unit" ? LEVELS[L.meta.k].xp : L.kind==="jump" ? 20 : 10) + firstTry;
   const st = awardXP(gained);
   if(L.kind==="unit") s.done[L.meta.u+"-"+L.meta.k] = true;
   if(L.kind==="jump") for(let uu=0; uu<L.meta.u; uu++) for(let k=0;k<REQ;k++) s.done[uu+"-"+k] = true;
@@ -401,7 +401,7 @@ function finishLesson(){
   if(L.kind === "review") bdgStat("reviews");
   const newBadges = checkBadges();
   save();
-  L.result = { newBadges, gained, acc: Math.round(firstTry/L.total*100), secs: Math.round((Date.now()-L.start)/1000), streak: st.streak, streakUp: st.streakUp };
+  L.result = { goalHit: st.goalHit, newBadges, gained, acc: Math.round(firstTry/L.total*100), secs: Math.round((Date.now()-L.start)/1000), streak: st.streak, streakUp: st.streakUp };
   screen = "done"; render();
 }
 function correctText(it){ return it.type==="mc" ? it.opts.find(o=>o.ok).t : nf(it.n,3)+(it.u?" "+it.u:""); }
@@ -445,7 +445,7 @@ function renderDone(){
   const title = L.kind==="challenge" ? t("dcDoneTitle") : L.kind==="jump" ? t("doneJump") : (L.kind==="unit" && L.meta.k===3) ? t("doneCrown") : r.acc===100 ? t("doneFlawless") : L.kind==="review" ? t("doneReview") : t("doneLevel", lvShort(L.meta.k));
   const sub2 = L.kind==="jump" ? t("jumpUnlocked", unitTitle(c,u)) : (L.kind==="unit" && L.meta.k===3) ? t("crownWon", unitTitle(c,u)) : null;
   $app.innerHTML = `<main class="wrap finish pop">
-    ${teacherBubble(L.code, esc(pickLine(t(r.acc === 100 ? "tchFlawless" : r.acc >= 70 ? "tchDone" : "tchDoneLow"))), 64, "tch-done")}
+    ${r.goalHit ? goalCelebrateHTML(L.code, r) : teacherBubble(L.code, esc(pickLine(t(r.acc === 100 ? "tchFlawless" : r.acc >= 70 ? "tchDone" : "tchDoneLow"))), 64, "tch-done")}
     <h1>${esc(title)}</h1>
     ${sub2?`<p>${esc(sub2)}</p>`:""}
     <p>${r.streakUp?esc(t("streakLine",r.streak)):esc(courseName(c))}</p>
@@ -463,7 +463,7 @@ function renderDone(){
 function todayCardHTML(c, today, goal, week){
   const nx = nextNode(c), tc = teacherOf(c.code), pct = Math.min(1, today / goal), R = 22, L = 2 * Math.PI * R;
   const line = nx ? t(nx[1] === 0 && !(S.theorySeen||{})[c.code + ":" + nx[0]] ? "tchHomeTheory" : "tchHomeNext", unitTitle(c, nx[0]), lvShort(nx[1])) : t("tchHomeDone");
-  return `<div class="today"><div class="today-top">${avatarSVG(tc.av, 46, "tch-av")}
+  return `<div class="todaycard"><div class="today-top">${avatarSVG(tc.av, 46, "tch-av")}
       <div class="today-msg"><b>${esc(tc.name)}</b><span>${esc(line)}</span></div>
       <button class="ring ${pct >= 1 ? "full" : ""}" data-a="statinfo" data-k="xp" aria-label="${esc(t("dailyGoal"))}: ${Math.min(today, goal)} / ${goal} XP">
         <svg width="58" height="58" viewBox="0 0 58 58"><circle cx="29" cy="29" r="${R}" class="ring-bg"/><circle cx="29" cy="29" r="${R}" class="ring-fg" stroke-dasharray="${(L * pct).toFixed(1)} ${L.toFixed(1)}" transform="rotate(-90 29 29)"/></svg>
@@ -476,11 +476,27 @@ function homeTeacherHTML(c){
   const line = nx ? t(nx[1] === 0 && !(S.theorySeen||{})[c.code + ":" + nx[0]] ? "tchHomeTheory" : "tchHomeNext", unitTitle(c, nx[0]), lvShort(nx[1])) : t("tchHomeDone");
   return `<div class="tch tch-home">${avatarSVG(tc.av, 56, "tch-av")}<div class="tch-b"><b>${esc(tc.name)} <em>${esc(t("tchRole", T(tc.nb, tc.en)))}</em></b><span>${esc(line)}</span></div></div>`;
 }
+// Dagsmålet nådd: ring som fylles, hake, konfetti og en hyggelig kommentar fra læreren.
+function goalCelebrateHTML(code, r){
+  if(!r.celebrated){ r.celebrated = true; r.goalLine = pickLine(t("tchGoal")); setTimeout(confetti, 350); buzz(true); }
+  const R = 46, Lc = (2 * Math.PI * R).toFixed(1);
+  return `<div class="gc"><div class="gc-ring"><svg width="120" height="120" viewBox="0 0 120 120"><circle cx="60" cy="60" r="${R}" class="ring-bg"/><circle cx="60" cy="60" r="${R}" class="gc-fg" style="--len:${Lc}" stroke-dasharray="${Lc}" transform="rotate(-90 60 60)"/></svg>
+    <span class="gc-check">${I.checkS}</span></div><h2 class="gc-t">${esc(t("goalHitTitle"))}</h2><p class="gc-s">${esc(t("goalHitSub", S.goal || 10))}</p>
+    ${teacherBubble(code, esc(r.goalLine), 60, "tch-done gc-tch")}</div>`;
+}
+function confetti(){
+  if(window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  document.querySelector(".confetti")?.remove();
+  const cols = ["#F2B51D", "#2B59C3", "#0F8A83", "#E86A92", "#7A4BC2", "#2E9E5B", "#F07A1A"], w = document.createElement("div"); w.className = "confetti"; w.setAttribute("aria-hidden", "true");
+  w.innerHTML = Array.from({ length: 70 }, () => { const x = Math.random() * 100, d = Math.random() * 0.8, dur = 2.2 + Math.random() * 1.8, r = Math.random() * 720 - 360, s = 6 + Math.random() * 7, drift = Math.random() * 30 - 15;
+    return `<i style="left:${x.toFixed(1)}%;width:${s.toFixed(1)}px;height:${(s * 0.45).toFixed(1)}px;background:${cols[Math.floor(Math.random() * cols.length)]};animation-delay:${d.toFixed(2)}s;animation-duration:${dur.toFixed(2)}s;--r:${r.toFixed(0)}deg;--dx:${drift.toFixed(0)}vw"></i>`; }).join("");
+  document.body.appendChild(w); setTimeout(() => w.remove(), 5000);
+}
 // Etter leksjonen: dagsmål, feil som havner i «Repeter feil», og neste steg.
 function doneExtrasHTML(c, u, r){
   const today = S.daily[dayKey()] || 0, goal = S.goal || 10, pct = Math.min(100, today / goal * 100);
   const wrongN = L.firstWrong.size, here = c.code === S.current, nx = here ? nextNode(c) : null;
-  let h = `<div class="dx-goal"><div class="goal-h"><b>${today >= goal ? t("goalReached") : t("dailyGoal")}</b><span>${Math.min(today, goal)} / ${goal} XP</span></div><div class="meter"><i style="width:${pct}%"></i></div></div>`;
+  let h = r.goalHit ? "" : `<div class="dx-goal"><div class="goal-h"><b>${today >= goal ? t("goalReached") : t("dailyGoal")}</b><span>${Math.min(today, goal)} / ${goal} XP</span></div><div class="meter"><i style="width:${pct}%"></i></div></div>`;
   if(wrongN) h += `<p class="dx-wrong">${esc(t("dxWrong", wrongN))}</p>`;
   const btns = [];
   if(here && u != null && r.acc < 60 && theoryOf(c.code, u)) btns.push(`<button class="pill" data-a="theory" data-u="${u}">${I.book}${t("dxTheory")}</button>`);

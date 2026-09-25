@@ -204,7 +204,7 @@ function examSubmit(auto, go) {
     minutes: r.minutes, extra: r.extra || 0, untimed: r.deadline == null, auto: !!auto, xp, added,
     newBest: prevBest != null && pct > prevBest, streakUp: !!(st && st.streakUp), streak: st ? st.streak : 0, unseen: !go };
   S.examRun = null; EX.scr = {}; EX.filter = "all";
-  bdgToast(checkBadges());
+  bdgToast(checkBadges()); if (st && st.goalHit) { setTimeout(confetti, 300); toast(t("goalHitTitle")); }
   save(); examStopTicker();
   if (go) { overlay = null; screen = "examResult"; render(); window.scrollTo(0, 0); }
 }

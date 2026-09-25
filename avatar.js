@@ -79,6 +79,7 @@ const TEACHERS = {
   "Programmering og data":       { name: "Kai",        av: "4-7-0-3-0-3-0-0-0", nb: "programmering",            en: "programming" },
   "Energi og strømning":         { name: "Tina",       av: "0-1-4-0-1-5-7-1-0", nb: "energi og strømning",      en: "energy and fluids" },
   "Produktutvikling og økonomi": { name: "Dina",       av: "5-6-3-2-0-1-3-7-0", nb: "produktutvikling",         en: "product development" },
+  "Bygg og anlegg":              { name: "Berit",      av: "2-6-1-0-1-2-6-4-0", nb: "bygg",                     en: "civil engineering" },
   "Samfunn og bærekraft":        { name: "Gro",        av: "1-3-4-1-0-0-1-5-0", nb: "bærekraft",                en: "sustainability" }
 };
 function teacherOf(code){ const c = COURSE(code); return TEACHERS[c.group] || TEACHERS["Matematikk og fysikk"]; }
