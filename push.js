@@ -13,7 +13,7 @@ function pushNote(){ // forklaring under bryteren når push ikke går
 }
 // Service workeren sier fra når en push-melding kom fram. Da vet vi at serveren og nettleseren snakker sammen.
 if("serviceWorker" in navigator) navigator.serviceWorker.addEventListener("message", ev => {
-  if(ev.data && ev.data.type === "axle-push") toast(t("pushGot", ev.data.title || "Axle"));
+  if(ev.data && ev.data.type === "axle-push" && Date.now() - PUSH_TEST_AT < 60000) toast(t("pushGot", ev.data.title || "Axle"));
 });
 function b64uToBytes(s){ const p = "=".repeat((4 - s.length % 4) % 4), b = atob((s + p).replace(/-/g, "+").replace(/_/g, "/")); return Uint8Array.from(b, c => c.charCodeAt(0)); }
 const pushTz = () => { try{ return Intl.DateTimeFormat().resolvedOptions().timeZone || "Europe/Oslo"; }catch(e){ return "Europe/Oslo"; } };
@@ -47,30 +47,23 @@ async function pushResync(force){
   if(!force && S.pushSynced === dayKey()) return;
   try{ const reg = await navigator.serviceWorker.ready, sub = await reg.pushManager.getSubscription(); if(sub) await pushSave(sub); else await pushEnable(); }catch(e){}
 }
+let PUSH_TEST_AT = 0; // tidspunkt for siste testvarsel (da vises «mottatt»-beskjed)
 async function pushTest(){
-  // 1) Lokalt varsel rett fra nettleseren (viser om maskinen i det hele tatt viser varsler fra Chrome).
-  try{ const reg = await navigator.serviceWorker.ready; await reg.showNotification(t("pushLocalTitle"), { body: t("pushLocalBody"), icon: "icons/icon-192.png", tag: "axle-local" }); }catch(e){}
-  // 2) Varsel via serveren (Supabase → push-tjenesten → nettleseren). Registrer nettleserens nåværende abonnement først.
-  let mine = "";
-  try{ const reg = await navigator.serviceWorker.ready; let sub = await reg.pushManager.getSubscription();
+  PUSH_TEST_AT = Date.now();
+  try{ // registrer nettleserens nåværende abonnement først, så serveren sender hit
+    const reg = await navigator.serviceWorker.ready; let sub = await reg.pushManager.getSubscription();
     if(!sub) sub = await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: b64uToBytes(CONFIG.vapidPublicKey) });
-    await pushSave(sub); mine = "…" + sub.endpoint.slice(-10); }catch(e){ alert(t("pushTestFailed") + "\n\n" + t("pushFailed") + " (" + (e && (e.message || e.code) || e) + ")"); return; }
+    await pushSave(sub);
+  }catch(e){ alert(t("pushTestFailed") + "\n\n" + t("pushFailed") + " (" + (e && (e.message || e.code) || e) + ")"); return; }
   try{
     const tok = await authToken(); if(!tok) throw 0;
     const r = await fetch(CONFIG.supabaseUrl + "/functions/v1/varsler", { method: "POST", headers: { "Content-Type": "application/json", Authorization: "Bearer " + tok, apikey: CONFIG.supabaseKey }, body: JSON.stringify({ test: true }) });
     const j = await r.json().catch(() => ({}));
-    if(r.ok && j.sent){
-      toast(t("pushTestSent"));
-      if(j.targets && !j.targets.includes(mine)) alert("Axle\n\n" + t("pushTestMismatch") + "\n\n" + mine + " ≠ " + j.targets.join(", "));
-      console.log("push-test", mine, j);
-    }
-    else if(r.status === 404 && !j.error) toast(t("pushNoFn"));
-    else {
-      const e = String(j.error || j.message || j.msg || ("HTTP " + r.status));
-      const hint = /no_subs/.test(e) ? t("pushHintResub") : /missing_vapid|bad_vapid/.test(e) ? t("pushHintKeys") : /^push: 40[13]/.test(e) ? t("pushHintMismatch") : /auth|401/.test(e) ? t("pushHintAuth") : "";
-      if(/no_subs/.test(e)) pushResync(true);
-      alert(t("pushTestFailed") + "\n\n" + e + (hint ? "\n\n" + hint : ""));
-    }
+    if(r.ok && j.sent){ toast(t("pushTestSent")); return; } // sendt til minst én nettleser: alt i orden
+    if(r.status === 404 && !j.error){ toast(t("pushNoFn")); return; }
+    const e = String(j.error || j.message || j.msg || ("HTTP " + r.status));
+    const hint = /no_subs/.test(e) ? t("pushHintResub") : /missing_vapid|bad_vapid/.test(e) ? t("pushHintKeys") : /^push: 40[13]/.test(e) ? t("pushHintMismatch") : /auth|401/.test(e) ? t("pushHintAuth") : "";
+    alert(t("pushTestFailed") + "\n\n" + e + (hint ? "\n\n" + hint : ""));
   }catch(e){ alert(t("pushTestFailed") + "\n\n" + t("pushHintNet") + "\n\n(" + (e && e.message || e) + ")"); }
 }
 // Slår påminnelser av/på: appen bruker lokale varsler, nettleseren web push.
