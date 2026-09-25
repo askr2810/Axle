@@ -62,7 +62,7 @@ function renderBadges(){
     return `<div class="bdg-card ${got ? "got" : ""}">${badgeIcon(b, 62, !got)}<b>${esc(bdgName(b))}</b><span>${esc(bdgDesc(b))}</span>
       ${got ? `<small class="bdg-date">${esc(new Date(have[b[0]]).toLocaleDateString(LANG === "en" ? "en-GB" : "nb-NO"))}</small>` : `<div class="mini"><i style="width:${v / b[4] * 100}%"></i></div><small>${nf(v, 0)} / ${nf(b[4], 0)}</small>`}</div>`;
   }).join("");
-  $app.innerHTML = `<div class="top"><div class="wrap"><button class="iconbtn" data-a="home" aria-label="${esc(t("back"))}">${I.x}</button>
+  $app.innerHTML = `<div class="top"><div class="wrap"><button class="iconbtn" data-a="profile" aria-label="${esc(t("back"))}">${I.left}</button>
       <div class="th-t"><small>${esc(t("bdgCount", n, BADGES.length))}</small><b>${esc(t("bdgTitle"))}</b></div><span class="th-ic" aria-hidden="true">${I.trophyS}</span></div></div>
     <main class="wrap bdgs"><div class="meter bdg-meter"><i style="width:${n / BADGES.length * 100}%"></i></div><div class="bdg-grid">${cards}</div></main>`;
 }

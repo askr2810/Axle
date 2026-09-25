@@ -45,6 +45,7 @@ async function frLoad(){
   try{
     try{ const tok = await authToken(); if(tok) await frPushStats(tok); }catch(e){}
     FR.rows = (await frRpc("get_friends")) || [];
+    const meRow = FR.rows.find(r => r.is_me); if(meRow && meRow.display_name && meRow.display_name !== S.name){ S.name = meRow.display_name; save(); }
     const nf_ = FR.rows.filter(r => !r.is_me).length; S.stats ||= {};
     if(nf_ > (+S.stats.friends || 0)){ S.stats.friends = nf_; bdgToast(checkBadges()); save(); }
     const pend = (()=>{ try{ return localStorage.getItem(FR_PENDING); }catch(e){ return null; } })();
@@ -66,7 +67,7 @@ async function frSaveName(name){
     else { const post = b => sbFetch("/rest/v1/profiles", { method: "POST", headers: { Prefer: "return=minimal" }, body: JSON.stringify(Object.assign({ user_id: AUTH.uid, display_name: name }, b)) }, tok);
       try{ await post(frBody()); } catch(e){ if(!FR_OLD_DB && /PGRST204|42703/.test(e.code || "")){ FR_OLD_DB = true; await post(frBody()); } else throw e; } }
     if(!me && !S.avatar){ S.avatar = avRandom(); save(); } // alle får en avatar de kan endre
-    FR.editName = false; FR.busy = false; await frLoad();
+    S.name = name; save(); FR.editName = false; FR.busy = false; await frLoad();
   }catch(e){ FR.busy = false; toast(frErr(e)); frRender(); }
 }
 async function frAdd(code, fromLink){
@@ -127,7 +128,7 @@ function frAgo(iso){
 function frCourseName(code){ const c = COURSES.find(x => x.code === code); return c ? courseName(c) : ""; }
 
 function renderFriends(){
-  const head = `<div class="top"><div class="wrap"><button class="iconbtn" data-a="home" aria-label="${esc(t("back"))}">${I.x}</button>
+  const head = `<div class="top"><div class="wrap">
     <div class="th-t"><small>${esc(t("frSub"))}</small><b>${esc(t("frTitle"))}</b></div><span class="th-ic" aria-hidden="true">${I.users}</span></div></div>`;
   let body = "";
   if(!CLOUD_ON){ body = `<div class="fr-card"><p>${esc(t("frNoCloud"))}</p></div>`; }

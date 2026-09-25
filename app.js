@@ -94,6 +94,8 @@ const I = {
   dice: svg('<rect x="3.5" y="3.5" width="17" height="17" rx="4"/><circle cx="8.5" cy="8.5" r="1.3" fill="currentColor"/><circle cx="15.5" cy="15.5" r="1.3" fill="currentColor"/><circle cx="15.5" cy="8.5" r="1.3" fill="currentColor"/><circle cx="8.5" cy="15.5" r="1.3" fill="currentColor"/><circle cx="12" cy="12" r="1.3" fill="currentColor"/>',22),
   docB: svg('<path d="M7 3h7l5 5v13H7z"/><path d="M14 3v5h5M10 13h6M10 17h6"/>',26),
   trophyS: svg('<path d="M8 3h8v6a4 4 0 0 1-8 0zM8 5H4v2a3 3 0 0 0 4 3M16 5h4v2a3 3 0 0 1-4 3M12 13v4M8 21h8M9 17h6v4H9z"/>',22),
+  book2: svg('<path d="M4 20V10l8-6 8 6v10h-5v-6H9v6z"/>',22),
+  person: svg('<circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/>',22),
   checkS: svg('<path d="m5 12.5 4.5 4.5L19 7.5"/>',16,false,3.2),
   book: svg('<path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v15H6.5A2.5 2.5 0 0 0 4 20.5z"/><path d="M4 20.5A2.5 2.5 0 0 0 6.5 23H20v-5"/>',18),
   steps: svg('<path d="M4 20h5v-5h5v-5h6"/>',18),
@@ -189,10 +191,9 @@ function renderHome(){
   $app.innerHTML = `
   <div class="top"><div class="wrap">
     <button class="chip" data-a="pick" aria-label="${t("switchCourse")}"><span class="code">${esc(courseShort(c))}</span><span class="nm">${esc(courseName(c))}</span>${I.down}</button>
-    <span class="stat fire ${st?"":"off"}" title="${t("streakTitle")}">${I.fire}${st}</span>
-    <span class="stat crowns" title="${t("crownsTitle")}">${I.crown}${crowns(c)}</span>
-    <span class="stat xp" title="${t("xpTitle")}">${I.bolt}${S.xp}</span>
-    <button class="iconbtn" data-a="settings" aria-label="${t("settings")}">${I.gear}</button>
+    <button class="stat fire ${st?"":"off"}" data-a="statinfo" data-k="streak" aria-label="${t("streakTitle")}: ${st}">${I.fire}${st}</button>
+    <button class="stat crowns" data-a="statinfo" data-k="crowns" aria-label="${t("crownsTitle")}: ${crowns(c)}">${I.crown}${crowns(c)}</button>
+    <button class="stat xp" data-a="statinfo" data-k="xp" aria-label="${t("xpTitle")}: ${S.xp}">${I.bolt}${S.xp}</button>
   </div></div>
   <main class="wrap">
     <div class="goal">
@@ -203,7 +204,7 @@ function renderHome(){
     ${homeTeacherHTML(c)}
     ${dcCardHTML()}
     ${preCardHTML(c)}
-    <div class="actions"><button class="pill" data-a="book">${I.book}${t("bkTitle")}</button><button class="pill" data-a="friends">${I.users}${t("frTitle")}</button><button class="pill bdg-pill" data-a="badges">${I.trophyS}${t("bdgTitle")} <small>${Object.keys(S.badges||{}).length}/${BADGES.length}</small></button>${examHomeActions(c)}${wrongN?`<button class="pill rev" data-a="review">${I.redo}${t("reviewBtn",wrongN)}</button>`:""}${examHomeJump()}</div>
+    <div class="actions">${examHomeActions(c)}${wrongN?`<button class="pill rev" data-a="review">${I.redo}${t("reviewBtn",wrongN)}</button>`:""}${examHomeJump()}</div>
     ${path}
     ${examHomeSection(c)}
     <p class="foot-note">${esc(t("foot1",courseName(c),nQ,nG))}<br>${d===tot?(crowns(c)===c.units.length?t("allCrowns"):t("allLevels")):esc(t("foot2",d,tot,crowns(c),c.units.length))}</p>
@@ -242,7 +243,7 @@ function acErr(e, sending){ const k = e && e.kind;
 function renderSettings(){
   const goalOpts = [10,20,30,50], rem = S.reminder;
   $app.innerHTML = `<div class="sheet"><div class="wrap settings">
-    <div class="sheet-h"><h1>${t("setTitle")}</h1><button class="iconbtn" data-a="home" aria-label="${t("back")}">${I.x}</button></div>
+    <div class="sheet-h"><h1>${t("setTitle")}</h1><button class="iconbtn" data-a="profile" aria-label="${t("back")}">${I.x}</button></div>
     <div class="sgroup"><button class="srow set-av" data-a="avedit">${S.avatar ? avatarSVG(S.avatar, 48) : `<span class="set-av0">${I.users}</span>`}<span class="lbl">${t(S.avatar ? "avEdit" : "avMake")}<span class="sub">${t("avSetSub")}</span></span>${I.chevron}</button></div>
     <div class="sgroup">
       <div class="srow"><span class="lbl">${t("setLang")}</span><div class="seg"><button class="${LANG==="nb"?"on":""}" data-a="setlang" data-l="nb">Norsk</button><button class="${LANG==="en"?"on":""}" data-a="setlang" data-l="en">English</button></div></div>
@@ -756,6 +757,8 @@ function renderOverlay(){
         <button class="big" data-a="lgsend" ${o.busy?"disabled":""}>${t("acSend")}</button><button class="big ghost" data-a="closeov">${t("cancel")}</button>
         <p class="lgnote">${t("acPrivacyNote")}</p></div>`; }
   else if(overlay.friend) d.innerHTML = frDetailHTML(overlay.friend);
+  else if(overlay.stat) d.innerHTML = statSheetHTML(overlay.stat);
+  else if(overlay.pfname){ d.innerHTML = nameDialogHTML(); setTimeout(()=>{ const i=document.getElementById("pfnamein"); if(i){ i.focus(); i.addEventListener("keydown", e=>{ if(e.key==="Enter") document.querySelector('[data-a="pfnamesave"]')?.click(); }); } }, 0); }
   else if(overlay==="acdelete") d.innerHTML = `<div class="dialog pop" role="dialog" aria-label="${t("acDelTitle")}"><h3>${t("acDelTitle")}</h3><p>${t("acDelText")}</p><button class="big" data-a="closeov">${t("cancel")}</button><button class="big ghost" data-a="acdeleteok" style="color:var(--bad)">${t("acDelOk")}</button></div>`;
   else if(overlay.backup==="out") d.innerHTML = `<div class="dialog pop" role="dialog" aria-label="${t("bkMake")}"><h3>${t("bkMake")}</h3><p>${t("bkOutText")}</p>
       <textarea id="bkcode" readonly aria-label="${esc(t("bkMake"))}">${esc(overlay.code)}</textarea>
@@ -828,10 +831,12 @@ function render(){
   else if(screen==="friends") renderFriends();
   else if(screen==="avatar") renderAvatarEditor();
   else if(screen==="badges") renderBadges();
+  else if(screen==="profile") renderProfile();
   else if(screen==="examSetup") renderExamSetup();
   else if(screen==="exam") renderExam();
   else if(screen==="examResult") renderExamResult();
   else if(screen==="examReview") renderExamReview();
+  renderTabbar();
   renderOverlay();
 }
 function goHome(){ screen="home"; L=null; overlay=null; render(); window.scrollTo(0,0); }
@@ -842,9 +847,10 @@ document.addEventListener("click", async e=>{
   if(bookClick(a, b)) return; // teoriboka (handlinger som starter med "bk")
   if(friendsClick(a, b)) return; // venner (handlinger som starter med "fr")
   if(avatarClick(a, b)) return; // avatar-bygger (handlinger som starter med "av")
+  if(profileClick(a, b)) return; // tab-meny, profil og infoark
   if(a==="pick"){ screen="pick"; render(); window.scrollTo(0,0); }
   else if(a==="home"){ goHome(); }
-  else if(a==="settings"){ screen="settings"; render(); window.scrollTo(0,0); }
+  else if(a==="settings"){ overlay=null; screen="settings"; render(); window.scrollTo(0,0); }
   else if(a==="dcstart"){ if(!dcDoneToday()) startChallenge(); }
   else if(a==="badges"){ screen="badges"; render(); window.scrollTo(0,0); }
   else if(a==="choose"){ S.current=b.dataset.c; save(); goHome(); }

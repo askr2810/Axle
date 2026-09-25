@@ -118,8 +118,8 @@ function avatarClick(a, b){
   else if(a === "avtab"){ AVE.tab = b.dataset.t; render(); }
   else if(a === "avset"){ const o = avParse(AVE.code); o[AVE.tab] = +b.dataset.i; AVE.code = avCode(o); render(); }
   else if(a === "avrandom"){ AVE.code = avRandom(); render(); }
-  else if(a === "avsave"){ S.avatar = AVE.code; save(); const back = AVE.back; AVE = null; toast(t("avSaved")); screen = back === "friends" ? "friends" : "settings"; if(screen === "friends") FR.rows = null; render(); window.scrollTo(0, 0); }
-  else if(a === "avcancel"){ const back = AVE.back; AVE = null; screen = back === "friends" ? "friends" : "settings"; render(); }
+  else if(a === "avsave"){ S.avatar = AVE.code; save(); const back = AVE.back; AVE = null; toast(t("avSaved")); screen = ["friends", "profile"].includes(back) ? back : "settings"; if(screen === "friends") FR.rows = null; render(); window.scrollTo(0, 0); }
+  else if(a === "avcancel"){ const back = AVE.back; AVE = null; screen = ["friends", "profile"].includes(back) ? back : "settings"; render(); }
   else return false;
   return true;
 }

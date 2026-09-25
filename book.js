@@ -69,7 +69,7 @@ function bkResultsHTML(){
 }
 
 function bkTop(back, small, title){
-  return `<div class="top"><div class="wrap"><button class="iconbtn" data-a="${back}" aria-label="${esc(t("back"))}">${back === "home" ? I.x : I.left}</button>
+  return `<div class="top"><div class="wrap">${back === "home" ? "" : `<button class="iconbtn" data-a="${back}" aria-label="${esc(t("back"))}">${I.left}</button>`}
     <div class="th-t"><small>${esc(small)}</small><b>${esc(title)}</b></div><span class="th-ic" aria-hidden="true">${I.book}</span></div></div>`;
 }
 function renderBook(){

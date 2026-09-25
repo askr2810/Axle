@@ -668,3 +668,80 @@ input[type="time"]{font:inherit;font-weight:700;border:2px solid var(--line);bor
 .fig .fg-i{font-style:italic;font-family:"Times New Roman",Georgia,serif;font-size:15px}
 .fig .fg-b{font-weight:700;fill:var(--ink)}
 .fig .fg-acct{fill:var(--accent)}.fig .fg-redt{fill:var(--bad)}.fig .fg-okt{fill:var(--ok)}
+
+/* ---------- tab-meny ---------- */
+body.has-tabs{padding-bottom:calc(70px + env(safe-area-inset-bottom,0px))}
+.tabbar{position:fixed;left:0;right:0;bottom:0;z-index:20;background:color-mix(in srgb,var(--card) 94%,transparent);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom,0px)}
+.tabbar .wrap{display:grid;grid-template-columns:repeat(4,1fr);padding-block:6px}
+.tabbar button{display:flex;flex-direction:column;align-items:center;gap:2px;background:none;border:0;color:var(--muted);font-size:11.5px;font-weight:700;padding:4px 0;border-radius:12px}
+.tabbar button svg{width:24px;height:24px}
+.tabbar button.on{color:var(--accent)}
+.tabbar button.on::before{content:"";position:absolute;width:44px;height:30px;border-radius:12px;background:var(--accent-soft);z-index:-1;transform:translateY(-1px)}
+.tabbar button{position:relative;z-index:0}
+.tabbar .tab-av{border-radius:50%;box-shadow:0 0 0 2px var(--line)}
+.tabbar button.on .tab-av{box-shadow:0 0 0 2px var(--accent)}
+.stat{background:none;border:0;padding:6px 4px;border-radius:10px;color:inherit;font:inherit;font-weight:700}
+.stat:active{background:var(--accent-soft)}
+/* ---------- infoark ---------- */
+.sheet-stat{text-align:center}
+.sheet-stat h3{margin:4px 0 0}
+.ss-big{display:flex;align-items:center;justify-content:center;gap:8px;font-family:var(--display);font-weight:800;font-size:44px;line-height:1}
+.ss-big svg{width:40px;height:40px}
+.ss-big.fire{color:#F07A1A}.ss-big.crowns{color:var(--gold)}.ss-big.xp{color:var(--accent)}
+.ss-row{display:flex;gap:8px}
+.ss-row>div{flex:1;background:var(--paper);border-radius:12px;padding:8px 4px;display:grid;gap:2px}
+.ss-row b{font-family:var(--display);font-weight:800;font-size:18px}
+.ss-row span{font-size:11.5px;color:var(--muted)}
+.ss-note{font-size:13px;color:var(--muted)}
+.cal{display:grid;grid-template-columns:repeat(7,1fr);gap:5px}
+.cal-h{font-size:11px;color:var(--muted);font-weight:700}
+.cal-d{aspect-ratio:1;display:grid;place-items:center;border-radius:50%;font-size:12px;background:var(--paper);color:var(--muted)}
+.cal-d.on{background:#F07A1A;color:#fff;font-weight:700}
+.cal-d.today{box-shadow:0 0 0 2px var(--accent)}
+.cal-d.fut{opacity:.35}
+.cr-list{list-style:none;margin:0;padding:0;display:grid;gap:6px;text-align:left}
+.cr-list li{display:flex;align-items:center;gap:10px;background:var(--paper);border-radius:10px;padding:7px 10px;font-size:14px;color:var(--muted)}
+.cr-list li.on{color:var(--ink);font-weight:600}
+.cr-list li svg{width:20px;height:20px;color:var(--gold);flex:none}
+.cr-empty{width:20px;height:20px;border-radius:50%;border:2px dashed var(--line);flex:none}
+.bars{position:relative;display:grid;grid-template-columns:repeat(7,1fr);gap:6px;height:110px;align-items:end;padding-top:6px}
+.xbar{display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;gap:3px}
+.xbar i{display:block;width:70%;border-radius:6px 6px 3px 3px;background:color-mix(in srgb,var(--accent) 35%,var(--paper))}
+.xbar i.ok{background:var(--accent)}
+.xbar small{font-size:11px;color:var(--muted)}
+/* ---------- profil ---------- */
+.pf{padding-top:14px;padding-bottom:30px;display:grid;gap:16px}
+.pf-head{display:flex;align-items:center;gap:16px}
+.pf-av{position:relative;background:none;border:0;padding:0;flex:none}
+.pf-av .av{box-shadow:0 5px 0 var(--line)}
+.set-av0.big{width:104px;height:104px}.set-av0.big svg{width:48px;height:48px}
+.pf-edit{position:absolute;right:0;bottom:4px;display:grid;place-items:center;width:30px;height:30px;border-radius:50%;background:var(--accent);color:#fff;box-shadow:0 0 0 3px var(--paper)}
+.pf-edit svg{width:16px;height:16px}
+.pf-id{display:grid;gap:2px;justify-items:start;min-width:0}
+.pf-id>b{font-family:var(--display);font-weight:800;font-size:24px;line-height:1.15;word-break:break-word}
+.pf-acc{font-size:13px;color:var(--muted);display:flex;align-items:center;gap:4px;flex-wrap:wrap}
+.pf-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.pf-tile{display:grid;justify-items:center;gap:2px;background:var(--card);border:2px solid var(--line);border-bottom-width:4px;border-radius:14px;padding:10px 4px;color:var(--ink)}
+.pf-tile:disabled{opacity:1}
+.pf-tile svg{width:22px;height:22px}
+.pf-tile:nth-child(1) svg,.pf-tile:nth-child(2) svg{color:#F07A1A}.pf-tile:nth-child(3) svg{color:var(--accent)}.pf-tile:nth-child(4) svg{color:var(--gold)}.pf-tile:nth-child(5) svg{color:var(--u2)}.pf-tile:nth-child(6) svg{color:var(--gold-deep)}
+.pf-tile b{font-family:var(--display);font-weight:800;font-size:19px}
+.pf-tile span{font-size:11.5px;color:var(--muted)}
+.pf-sec{display:grid;gap:8px}
+.pf-sh{display:flex;justify-content:space-between;align-items:center}
+.pf-sh b{font-family:var(--display);font-weight:800;font-size:18px}
+.pf-badges{display:flex;gap:10px;overflow-x:auto;padding:4px 2px 6px;scrollbar-width:none}
+.pf-badges button{display:grid;justify-items:center;gap:4px;background:none;border:0;color:var(--ink);width:70px;flex:none}
+.pf-badges small{font-size:11px;line-height:1.2;text-align:center}
+.pf-empty{color:var(--muted);font-size:14px;margin:0}
+.pf-course{display:flex;align-items:center;gap:10px;width:100%;text-align:left;background:var(--card);border:2px solid var(--line);border-radius:14px;padding:8px 10px;color:var(--ink)}
+.pf-course.sel{border-color:var(--accent)}
+.pf-course .badge{width:38px;height:38px;border-radius:10px;display:grid;place-items:center;font-family:var(--display);font-weight:800;color:#fff;font-size:13px;flex:none}
+.pf-course .t{flex:1;min-width:0;display:grid;gap:5px}
+.pf-course .t b{font-size:14.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pf-bar{height:7px;border-radius:9px;background:var(--line);overflow:hidden}
+.pf-bar i{display:block;height:100%;background:var(--ok)}
+.pf-course .n{font-family:var(--mono);font-size:12.5px;color:var(--muted);flex:none}
+.pf-links .srow{gap:10px}
+.pf-links .srow>svg:first-child{color:var(--muted);width:20px;height:20px}
+body.has-tabs .toast{bottom:calc(84px + env(safe-area-inset-bottom,0px))}
