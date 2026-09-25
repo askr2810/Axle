@@ -8,7 +8,7 @@ import os, shutil, json
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
 JS = ["config.js", "i18n.js", "data.js", "gens.js","gens_b.js", "more.js", "more2.js", "more2_b.js", "subjects2.js", "subjects2_b.js", "more3.js",
-      "en_static_*.js", "learn.js", "add_*.js", "exam.js", "backup.js", "app.js"]
+      "en_static_*.js", "learn.js", "add_*.js", "exam.js", "backup.js", "cloud.js", "app.js"]
 FONTS = '<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Figtree:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap">'
 KATEX_CDN = "https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js"
 
@@ -31,7 +31,9 @@ def build_artifact(js, css):
 def build_www(js, css, out):
     os.makedirs(out, exist_ok=True)
     cfg = json.loads(read("release_meta.json"))
-    import base64, hashlib
+    import base64, hashlib, re
+    m = re.search(r'supabaseUrl:\s*"(https://[^"]+)"', read("config.js"))
+    supa = (" " + m.group(1).rstrip("/")) if m else ""
     fallback = "if(!window.katex){document.write('<script src=\"" + KATEX_CDN + "\"><\\/script>');}"
     fb_hash = base64.b64encode(hashlib.sha256(fallback.encode("utf-8")).digest()).decode()
     # Innholdssikkerhetsregel: bare våre egne filer, KaTeX-reserven og skjemaet for tilbakemeldinger er tillatt.
@@ -40,7 +42,7 @@ def build_www(js, css, out):
            "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com; "
            "font-src 'self' data: https://fonts.gstatic.com https://cdnjs.cloudflare.com; "
            "img-src 'self' data: blob:; "
-           "connect-src 'self' https://api.web3forms.com; "
+           f"connect-src 'self' https://api.web3forms.com{supa}; "
            "worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self' https://api.web3forms.com")
     head = f"""<!doctype html>
 <html lang="nb">

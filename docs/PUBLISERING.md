@@ -57,6 +57,22 @@ Test lokalt: `npm run serve` og åpne http://localhost:8080 i nettleseren.
 
 Tips: Tilbyr domene.no e-postvideresending, lag f.eks. `kontakt@axle.no` → engidrilli@gmail.com og bytt `contactEmail` i `config.js`. Det ser mer profesjonelt ut i butikkene.
 
+## 2b. Kontoer (Supabase) – valgfritt for brukeren
+
+Appen virker uten konto. Logger brukeren inn med kode på e-post, synkroniseres fremgangen mellom enhetene.
+`supabaseUrl` og `supabaseKey` (den offentlige *publishable*-nøkkelen) står i `config.js`. Den hemmelige *secret*-nøkkelen skal aldri inn i appen.
+
+Én gang i Supabase:
+1. **SQL Editor → New query**: lim inn hele `supabase/oppsett.sql` og trykk **Run**. Det lager tabellen `progress`, reglene som gjør at hver bruker bare ser sine egne data, og funksjonen bak «Slett konto».
+2. **Authentication → URL Configuration → Site URL**: `https://axle.no`.
+3. **Egen e-postutsending (påkrevd)**: Uten egen SMTP sender Supabase bare til eierne av prosjektet. Bruk Resend (gratis): legg til domenet `axle.no` (region Ireland), legg DNS-postene inn hos domene.no, lag en API-nøkkel og fyll inn i **Authentication → Emails → Set up SMTP**: host `smtp.resend.com`, port `465`, brukernavn `resend`, passord = API-nøkkelen, avsender `noreply@axle.no`.
+4. **Authentication → Emails → Magic Link**: emne `Din kode til Axle`, innhold med `{{ .Token }}` (koden brukeren skriver inn).
+
+Personvernsvar i butikkene når kontoer er på:
+- *Google Play → Datasikkerhet*: E-postadresse (samles inn, påkrevd for konto, ikke delt, formål: kontoadministrasjon) og Appaktivitet → annen brukeraktivitet (fremgang, formål: appfunksjonalitet). Kryptert under overføring. Brukeren kan be om sletting (i appen).
+- *App Store → App-personvern*: Kontaktinfo → E-postadresse og Brukerinnhold → Annet brukerinnhold, begge knyttet til brukeren, formål *App-funksjonalitet*, ikke brukt til sporing.
+- Kontosletting finnes i appen: Innstillinger → Slett konto.
+
 ## 3. Ikon og splash (én gang)
 Ikonene ligger allerede i `assets/`, `web/icons/` og `store/`. Etter at iOS/Android er lagt til (steg 4 og 5):
 ```

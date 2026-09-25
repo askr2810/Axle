@@ -11,6 +11,10 @@ const CONFIG = {
   siteUrl: "https://axle.no",
   // Kontaktadresse (vises i appen). Brukes også som reserve: uten Web3Forms-nøkkel åpnes e-postappen med rapporten ferdig utfylt.
   contactEmail: "engidrilli@gmail.com",
+  // Kontoer og synkronisering (Supabase). Den offentlige «publishable»-nøkkelen skal ligge her.
+  // Den hemmelige «secret»-nøkkelen skal ALDRI inn i appen. Tomme verdier = ingen kontoer.
+  supabaseUrl: "https://yhzgdipjpdmovegbkybx.supabase.co",
+  supabaseKey: "sb_publishable_p-YFBer52Oq_e8KMGBzzkQ_VVhkLIqT",
   appName: { nb: "Axle", en: "Axle" },
   storeName: { nb: "Axle – ingeniørtrening", en: "Axle: Engineering Practice" }
 };

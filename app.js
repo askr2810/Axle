@@ -119,7 +119,7 @@ function pushRemote(){
   remoteChain = remoteChain.then(()=>remoteRef.set({ state: snap })).catch(()=>{});
 }
 function nativeSave(){ if(PL.Preferences) PL.Preferences.set({ key: LS_KEY, value: JSON.stringify(S) }).catch(()=>{}); }
-function save(){ S.updatedAt = Date.now(); saveLocal(); nativeSave(); pushRemote(); }
+function save(){ S.updatedAt = Date.now(); saveLocal(); nativeSave(); pushRemote(); cloudSchedule(); }
 async function nativeLoad(){
   if(!PL.Preferences) return;
   try{
@@ -224,6 +224,7 @@ function renderPick(){
 }
 
 // ---------- innstillinger ----------
+function acErr(e){ const k = e && e.kind; return t(k==="offline" ? "acErrOffline" : k==="rate" ? "acErrRate" : k==="badcode" ? "acBadCode" : "acError"); }
 function renderSettings(){
   const goalOpts = [10,20,30,50], rem = S.reminder;
   $app.innerHTML = `<div class="sheet"><div class="wrap settings">
@@ -235,6 +236,14 @@ function renderSettings(){
       ${NATIVE&&rem.on?`<div class="srow"><span class="lbl">${t("setReminderTime")}</span><input type="time" id="remtime" value="${esc(rem.time)}"></div>`:""}
       <div class="srow"><span class="lbl">${t("setHaptics")}</span><button class="tog ${S.haptics?"on":""}" data-a="haptoggle" role="switch" aria-checked="${!!S.haptics}" aria-label="${t("setHaptics")}"></button></div>
     </div>
+    ${CLOUD_ON ? (AUTH ? `<div class="sgroup">
+      <div class="srow"><span class="lbl">${esc(AUTH.email||"")}<span class="sub">${esc(cloudStatusText())}</span></span></div>
+      <button class="srow" data-a="acsync"><span class="lbl">${t("acSyncNow")}</span>${I.chevron}</button>
+      <button class="srow" data-a="aclogout"><span class="lbl">${t("acLogout")}</span></button>
+      <button class="srow danger" data-a="acdelete"><span class="lbl">${t("acDelete")}</span></button>
+    </div>` : `<div class="sgroup">
+      <button class="srow" data-a="aclogin"><span class="lbl">${t("acLogin")}<span class="sub">${t("acLoginSub")}</span></span>${I.chevron}</button>
+    </div>`) : ""}
     <div class="sgroup">
       <button class="srow" data-a="backup"><span class="lbl">${t("bkMake")}<span class="sub">${t("bkMakeSub")}</span></span>${I.chevron}</button>
       <button class="srow" data-a="restore"><span class="lbl">${t("bkLoad")}<span class="sub">${t("bkLoadSub")}</span></span>${I.chevron}</button>
@@ -693,6 +702,18 @@ function renderOverlay(){
   if(overlay.jump!=null){ const c=COURSE(S.current); d.innerHTML = `<div class="dialog pop" role="dialog" aria-label="${t("jumpHere")}"><h3>${esc(t("jumpTitle",unitTitle(c,overlay.jump)))}</h3><p>${t("jumpText")}</p><button class="big" data-a="jumpok">${t("startTest")}</button><button class="big ghost" data-a="closeov">${t("cancel")}</button></div>`; }
   else if(overlay==="quit") d.innerHTML = `<div class="dialog pop" role="dialog" aria-label="${t("quitTitle")}"><h3>${t("quitTitle")}</h3><p>${t("quitText")}</p><button class="big" data-a="stay">${t("keepGoing")}</button><button class="big ghost" data-a="quitok" style="color:var(--bad)">${t("quit")}</button></div>`;
   else if(overlay==="reset") d.innerHTML = `<div class="dialog pop" role="dialog" aria-label="${t("resetTitle")}"><h3>${t("resetTitle")}</h3><p>${t("resetText")}</p><button class="big" data-a="closeov">${t("cancel")}</button><button class="big ghost" data-a="resetok" style="color:var(--bad)">${t("reset")}</button></div>`;
+  else if(overlay.login){ const o = overlay;
+    d.innerHTML = o.step==="code"
+      ? `<div class="dialog pop" role="dialog" aria-label="${t("acLogin")}"><h3>${t("acCodeTitle")}</h3><p>${esc(t("acCodeText", o.email))}</p>
+        <input type="text" id="lgcode" inputmode="numeric" autocomplete="one-time-code" maxlength="10" placeholder="123456" aria-label="${esc(t("acCodeTitle"))}">
+        ${o.err?`<p class="lgerr">${esc(o.err)}</p>`:""}
+        <button class="big" data-a="lgverify" ${o.busy?"disabled":""}>${t("acVerify")}</button><button class="big ghost" data-a="lgback" ${o.busy?"disabled":""}>${t("acOtherEmail")}</button><button class="big ghost" data-a="closeov">${t("cancel")}</button></div>`
+      : `<div class="dialog pop" role="dialog" aria-label="${t("acLogin")}"><h3>${t("acLogin")}</h3><p>${t("acLoginText")}</p>
+        <input type="email" id="lgmail" autocomplete="email" placeholder="${esc(t("acEmail"))}" aria-label="${esc(t("acEmail"))}" value="${esc(o.email||"")}">
+        ${o.err?`<p class="lgerr">${esc(o.err)}</p>`:""}
+        <button class="big" data-a="lgsend" ${o.busy?"disabled":""}>${t("acSend")}</button><button class="big ghost" data-a="closeov">${t("cancel")}</button>
+        <p class="lgnote">${t("acPrivacyNote")}</p></div>`; }
+  else if(overlay==="acdelete") d.innerHTML = `<div class="dialog pop" role="dialog" aria-label="${t("acDelTitle")}"><h3>${t("acDelTitle")}</h3><p>${t("acDelText")}</p><button class="big" data-a="closeov">${t("cancel")}</button><button class="big ghost" data-a="acdeleteok" style="color:var(--bad)">${t("acDelOk")}</button></div>`;
   else if(overlay.backup==="out") d.innerHTML = `<div class="dialog pop" role="dialog" aria-label="${t("bkMake")}"><h3>${t("bkMake")}</h3><p>${t("bkOutText")}</p>
       <textarea id="bkcode" readonly aria-label="${esc(t("bkMake"))}">${esc(overlay.code)}</textarea>
       <button class="big" data-a="bkcopy">${t("bkCopy")}</button>${NATIVE?(navigator.share?`<button class="big ghost" data-a="bkshare">${t("bkShare")}</button>`:""):`<button class="big ghost" data-a="bkfile">${t("bkFile")}</button>`}<button class="big ghost" data-a="closeov">${t("cont")}</button></div>`;
@@ -713,6 +734,8 @@ function renderOverlay(){
       <button class="big" data-a="repsend">${t("send")}</button><button class="big ghost" data-a="closeov">${t("cancel")}</button></div>`;
   }
   document.body.appendChild(d);
+  const lg = document.getElementById("lgcode") || document.getElementById("lgmail");
+  if(lg){ lg.focus(); lg.addEventListener("keydown", e=>{ if(e.key==="Enter"){ e.preventDefault(); d.querySelector('[data-a="lgverify"],[data-a="lgsend"]')?.click(); } }); }
   const fi = document.getElementById("bkfilein");
   if(fi) fi.addEventListener("change", async ()=>{ const f = fi.files && fi.files[0]; if(!f) return; document.getElementById("bkin").value = await f.text(); });
 }
@@ -801,7 +824,23 @@ document.addEventListener("click", async e=>{
   else if(a==="bkshare") navigator.share({ title: backupFileName(), text: overlay.code }).catch(()=>{});
   else if(a==="bkimport"){ const v = document.getElementById("bkin").value; if(!v.trim()){ toast(t("bkEmpty")); return; }
     if(importBackup(v)){ LANG = S.lang || LANG; overlay = null; renderOverlay(); render(); toast(t("bkDone")); } else toast(t("bkBad")); }
-  else if(a==="resetok"){ const keep={current:S.current, lang:S.lang, goal:S.goal, reminder:S.reminder, haptics:S.haptics, outbox:S.outbox, examPrefs:S.examPrefs}; S=Object.assign(blank(),keep); save(); examStopTicker(); EX.res=null; goHome(); toast(t("resetDone")); }
+  else if(a==="aclogin"){ overlay = { login:1, step:"email", email:"" }; renderOverlay(); }
+  else if(a==="lgsend"){ const email = (document.getElementById("lgmail").value||"").trim().toLowerCase();
+    if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){ overlay.err = t("acBadEmail"); renderOverlay(); return; }
+    overlay = { login:1, step:"email", email, busy:true }; renderOverlay();
+    cloudSendCode(email).then(()=>{ if(overlay && overlay.login){ overlay = { login:1, step:"code", email }; renderOverlay(); } },
+      e=>{ if(overlay && overlay.login){ overlay = { login:1, step:"email", email, err: acErr(e) }; renderOverlay(); } }); }
+  else if(a==="lgverify"){ const code = (document.getElementById("lgcode").value||"").replace(/\D/g,""), email = overlay.email;
+    if(code.length < 6){ overlay.err = t("acBadCode"); renderOverlay(); return; }
+    overlay = { login:1, step:"code", email, busy:true }; renderOverlay();
+    cloudVerify(email, code).then(()=>{ LANG = S.lang || LANG; overlay = null; renderOverlay(); render(); toast(t("acLoggedIn", email)); },
+      e=>{ if(overlay && overlay.login){ overlay = { login:1, step:"code", email, err: acErr(e) }; renderOverlay(); } }); }
+  else if(a==="lgback"){ overlay = { login:1, step:"email", email: overlay.email }; renderOverlay(); }
+  else if(a==="acsync"){ cloudSync().then(()=>{ if(CLOUD.status==="ok") toast(t("acSyncedToast")); else if(CLOUD.status==="offline") toast(t("acOffline")); else if(CLOUD.status==="error") toast(t("acError")); }); }
+  else if(a==="aclogout"){ clearTimeout(CLOUD.timer); cloudSync().finally(()=>cloudSignOut().then(()=>{ render(); toast(t("acLoggedOut")); })); }
+  else if(a==="acdelete"){ overlay = "acdelete"; renderOverlay(); }
+  else if(a==="acdeleteok"){ cloudDeleteAccount().then(()=>{ overlay = null; renderOverlay(); render(); toast(t("acDeleted")); }, e=>{ toast(acErr(e)); }); }
+  else if(a==="resetok"){ const keep={current:S.current, lang:S.lang, goal:S.goal, reminder:S.reminder, haptics:S.haptics, outbox:S.outbox, examPrefs:S.examPrefs}; S=Object.assign(blank(),keep); save(); clearTimeout(CLOUD.timer); cloudSync(true); examStopTicker(); EX.res=null; goHome(); toast(t("resetDone")); }
   // innstillinger
   else if(a==="setlang"){ LANG = b.dataset.l; S.lang = LANG; save(); render(); if(S.reminder.on) scheduleReminder(); }
   else if(a==="setgoal"){ S.goal = +b.dataset.g; save(); render(); }
@@ -855,6 +894,7 @@ examBoot(true); // pågående eksamen: fortsett, eller lever hvis tiden gikk ut 
 render();
 flushOutbox();
 window.addEventListener("online", flushOutbox);
+cloudBoot();
 
 // ---------- app (Capacitor) ----------
 if(NATIVE){

@@ -102,6 +102,15 @@ const UI = {
     bkOutText: "Kopier koden eller lagre den som fil, og åpne «Hent sikkerhetskopi» på den andre enheten. Koden inneholder bare fremgangen din.",
     bkInText: "Lim inn koden eller velg fila. Fremgangen slås sammen med den som allerede er her, og ingenting overskrives.",
     bkCopy: "Kopier kode", bkShare: "Del", bkFile: "Last ned fil", bkPick: "Velg fil", bkImport: "Hent", bkCopied: "Koden er kopiert.",
+    acLogin: "Logg inn", acLoginSub: "Samme fremgang på mobil og PC. Valgfritt.", acLoginText: "Skriv inn e-posten din, så sender vi deg en kode. Du trenger ikke passord.",
+    acEmail: "E-postadresse", acSend: "Send kode", acCodeTitle: "Skriv inn koden", acCodeText: e => `Vi har sendt en kode til ${e}. Sjekk også søppelpost.`,
+    acVerify: "Logg inn", acOtherEmail: "Bruk en annen e-post", acBadEmail: "Skriv inn en gyldig e-postadresse.", acBadCode: "Koden er feil eller utløpt. Prøv igjen eller be om en ny.",
+    acErrOffline: "Ingen nettforbindelse. Prøv igjen når du er på nett.", acErrRate: "For mange forsøk. Vent litt og prøv igjen.", acError: "Noe gikk galt med synkroniseringen. Prøv igjen senere.",
+    acLoggedIn: e => `Logget inn som ${e}. Fremgangen er synkronisert.`, acLoggedOut: "Du er logget ut. Fremgangen ligger fortsatt på denne enheten.",
+    acSyncNow: "Synkroniser nå", acSyncing: "Synkroniserer …", acSynced: h => `Synkronisert kl. ${h}`, acSyncedToast: "Fremgangen er synkronisert.", acOffline: "Ikke synkronisert – ingen nett", acSyncOn: "Synkronisering er på",
+    acLogout: "Logg ut", acDelete: "Slett konto", acDelTitle: "Slette kontoen?", acDelOk: "Slett konto",
+    acDelText: "Kontoen og fremgangen som er lagret hos oss slettes for godt. Fremgangen på denne enheten blir liggende til du nullstiller den eller sletter appen.",
+    acDeleted: "Kontoen er slettet.", acPrivacyNote: "Vi lagrer bare e-postadressen og fremgangen din, i EU. Du kan slette kontoen når som helst.",
     bkEmpty: "Lim inn en kode eller velg en fil først.", bkBad: "Fant ingen gyldig sikkerhetskopi i det du limte inn.", bkDone: "Fremgangen er hentet og slått sammen.",
     about: v => `Axle, versjon ${v}. Oppgavene er laget med hjelp av KI og testet automatisk. Finner du en feil, trykk på flagget i oppgaven – det hjelper alle. Kontakt: ${CONFIG.contactEmail}`,
     // Rapport
@@ -199,6 +208,15 @@ const UI = {
     bkOutText: "Copy the code or save it as a file, then open «Restore backup» on the other device. The code only contains your progress.",
     bkInText: "Paste the code or choose the file. It is merged with the progress already here, and nothing is overwritten.",
     bkCopy: "Copy code", bkShare: "Share", bkFile: "Download file", bkPick: "Choose file", bkImport: "Restore", bkCopied: "Code copied.",
+    acLogin: "Log in", acLoginSub: "Same progress on phone and computer. Optional.", acLoginText: "Enter your email and we'll send you a code. No password needed.",
+    acEmail: "Email address", acSend: "Send code", acCodeTitle: "Enter the code", acCodeText: e => `We sent a code to ${e}. Check your spam folder too.`,
+    acVerify: "Log in", acOtherEmail: "Use another email", acBadEmail: "Enter a valid email address.", acBadCode: "The code is wrong or expired. Try again or request a new one.",
+    acErrOffline: "No internet connection. Try again when you're online.", acErrRate: "Too many attempts. Wait a moment and try again.", acError: "Something went wrong while syncing. Try again later.",
+    acLoggedIn: e => `Logged in as ${e}. Your progress is synced.`, acLoggedOut: "You're logged out. Your progress is still on this device.",
+    acSyncNow: "Sync now", acSyncing: "Syncing …", acSynced: h => `Synced at ${h}`, acSyncedToast: "Progress synced.", acOffline: "Not synced – offline", acSyncOn: "Sync is on",
+    acLogout: "Log out", acDelete: "Delete account", acDelTitle: "Delete your account?", acDelOk: "Delete account",
+    acDelText: "Your account and the progress stored with us are permanently deleted. The progress on this device stays until you reset it or delete the app.",
+    acDeleted: "Your account has been deleted.", acPrivacyNote: "We only store your email address and your progress, in the EU. You can delete your account at any time.",
     bkEmpty: "Paste a code or choose a file first.", bkBad: "No valid backup found in what you pasted.", bkDone: "Progress restored and merged.",
     about: v => `Axle, version ${v}. The questions were made with the help of AI and tested automatically. If you find a mistake, tap the flag on the question – it helps everyone. Contact: ${CONFIG.contactEmail}`,
     repTitle: "Report a problem", fbTitle: "Send feedback", repWhat: "What is wrong?",
@@ -264,13 +282,15 @@ const t = (key, ...a) => { const v = (UI[LANG] && UI[LANG][key] !== undefined) ?
 
 // Personvernerklæring (vises i appen og som egen side)
 const PRIVACY = {
-  nb: `<p><b>Kort fortalt:</b> Appen har ingen konto, ingen reklame og ingen sporing.</p>
-<p><b>Fremgang</b> (XP, dager på rad, fullførte nivåer, innstillinger) lagres bare lokalt på enheten din. Den sendes ikke til oss.</p>
+  nb: `<p><b>Kort fortalt:</b> Appen har ingen reklame og ingen sporing. Konto er valgfritt.</p>
+<p><b>Fremgang</b> (XP, dager på rad, fullførte nivåer, innstillinger) lagres lokalt på enheten din. Uten konto sendes den ikke til oss.</p>
+<p><b>Konto (valgfritt).</b> Logger du inn, lagrer vi e-postadressen din og en kopi av fremgangen, slik at du får samme fremgang på alle enhetene dine. Dataene lagres hos Supabase i EU (Frankfurt). E-posten med innloggingskoden sendes via tjenesten Resend. Vi bruker dataene bare til innlogging og synkronisering, deler dem ikke med andre og bruker dem ikke til reklame. Du kan slette kontoen under Innstillinger → Slett konto. Da slettes e-postadressen og fremgangen hos oss for godt.</p>
 <p><b>Feilrapporter og tilbakemeldinger</b> sendes bare når du selv trykker «Send». Rapporten inneholder det du skriver, hvilken oppgave det gjelder, svaret ditt, språk, appversjon og plattform. Oppgir du e-post, brukes den bare til å svare deg. Rapportene sendes via tjenesten Web3Forms (eller e-postappen din) til utviklerens e-post og slettes når de er behandlet.</p>
 <p><b>Påminnelser</b> planlegges lokalt på telefonen. Ingen data sendes ut.</p>
 <p>Du kan når som helst slette all fremgang under Innstillinger, eller slette appen. Spørsmål om personvern kan sendes via «Send tilbakemelding» eller til engidrilli@gmail.com.</p>`,
-  en: `<p><b>In short:</b> The app has no account, no ads and no tracking.</p>
-<p><b>Progress</b> (XP, streak, completed levels, settings) is stored only locally on your device. It is not sent to us.</p>
+  en: `<p><b>In short:</b> The app has no ads and no tracking. An account is optional.</p>
+<p><b>Progress</b> (XP, streak, completed levels, settings) is stored locally on your device. Without an account it is not sent to us.</p>
+<p><b>Account (optional).</b> If you log in, we store your email address and a copy of your progress so you get the same progress on all your devices. The data is stored with Supabase in the EU (Frankfurt). The email with your login code is sent through the Resend service. We use the data only for login and syncing, do not share it and do not use it for advertising. You can delete your account under Settings → Delete account, which permanently deletes your email address and progress from our systems.</p>
 <p><b>Error reports and feedback</b> are sent only when you tap “Send”. A report contains what you write, which question it concerns, your answer, language, app version and platform. If you give an email address, it is used only to reply to you. Reports are delivered through the Web3Forms service (or your own email app) to the developer's email and deleted once handled.</p>
 <p><b>Reminders</b> are scheduled locally on your phone. No data is sent anywhere.</p>
 <p>You can delete all progress at any time under Settings, or delete the app. Privacy questions can be sent through “Send feedback” or to engidrilli@gmail.com.</p>`
