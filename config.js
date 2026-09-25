@@ -15,6 +15,8 @@ const CONFIG = {
   // Den hemmelige «secret»-nøkkelen skal ALDRI inn i appen. Tomme verdier = ingen kontoer.
   supabaseUrl: "https://yhzgdipjpdmovegbkybx.supabase.co",
   supabaseKey: "sb_publishable_p-YFBer52Oq_e8KMGBzzkQ_VVhkLIqT",
+  // Offentlig VAPID-nøkkel for påminnelser i nettleseren (web push). Den private nøkkelen ligger bare i Supabase (Edge Function-secret).
+  vapidPublicKey: "BNyz9NRf8XCFb7UuP384TEXYjqDZ6An2io4EYv4JJtQePWcPeFQeXD8UK94kdPEdLXZ1SIxFlFutUmbjQP0iTy0",
   appName: { nb: "Axle", en: "Axle" },
   storeName: { nb: "Axle – ingeniørtrening", en: "Axle: Engineering Practice" }
 };

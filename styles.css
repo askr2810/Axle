@@ -1021,3 +1021,10 @@ body.has-tabs .toast{bottom:calc(84px + env(safe-area-inset-bottom,0px))}
 .dr-b em{position:absolute;top:-7px;right:-5px;font-style:normal;font-size:12px;min-width:20px;height:20px;padding:0 5px;border-radius:99px;background:var(--bad);color:#fff;display:grid;place-items:center;border:2px solid var(--card)}
 .dr-tag{display:block;width:max-content;font-size:11.5px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--accent);background:var(--accent-soft);padding:3px 9px;border-radius:99px;margin-bottom:8px}
 .dr-ic svg{color:#fff;stroke:#fff;opacity:1}
+
+/* ---------- påminnelse-spørsmål etter leksjon ---------- */
+.rem-ask{display:flex;align-items:center;gap:10px;margin-top:14px;padding:12px;border-radius:16px;background:color-mix(in srgb,#ff8a1f 12%,var(--card));border:2px solid color-mix(in srgb,#ff8a1f 40%,var(--line));text-align:left}
+.rem-ic{flex:none;width:40px;height:40px;border-radius:12px;display:grid;place-items:center;background:#ff8a1f;color:#fff}
+.rem-ask>div{flex:1;display:grid;gap:2px}.rem-ask b{font-size:15px}.rem-ask span{font-size:13px;color:var(--muted)}
+.rem-go{border:0;border-radius:12px;padding:10px 14px;font:inherit;font-weight:800;color:#fff;background:#ff8a1f;box-shadow:0 3px 0 #c9650c}
+.rem-x{border:0;background:none;color:var(--muted);padding:4px}

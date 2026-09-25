@@ -247,8 +247,8 @@ function renderSettings(){
     <div class="sgroup">
       <div class="srow"><span class="lbl">${t("setLang")}</span><div class="seg"><button class="${LANG==="nb"?"on":""}" data-a="setlang" data-l="nb">Norsk</button><button class="${LANG==="en"?"on":""}" data-a="setlang" data-l="en">English</button></div></div>
       <div class="srow"><span class="lbl">${t("setGoal")}<span class="sub">${t("setGoalUnit")}</span></span><div class="seg">${goalOpts.map(g=>`<button class="${(S.goal||10)===g?"on":""}" data-a="setgoal" data-g="${g}">${g}</button>`).join("")}</div></div>
-      <div class="srow"><span class="lbl">${t("setReminder")}${NATIVE?"":`<span class="sub">${t("setReminderNote")}</span>`}</span><button class="tog ${rem.on&&NATIVE?"on":""}" data-a="remtoggle" role="switch" aria-checked="${rem.on&&NATIVE}" aria-label="${t("setReminder")}" ${NATIVE?"":"disabled"}></button></div>
-      ${NATIVE&&rem.on?`<div class="srow"><span class="lbl">${t("setReminderTime")}</span><input type="time" id="remtime" value="${esc(rem.time)}"></div>`:""}
+      <div class="srow"><span class="lbl">${t("setReminder")}<span class="sub">${esc(pushNote() || t(NATIVE ? "setReminderSubApp" : "setReminderSubWeb"))}</span></span><button class="tog ${rem.on&&(NATIVE||pushSupported())?"on":""}" data-a="remtoggle" role="switch" aria-checked="${!!(rem.on&&(NATIVE||pushSupported()))}" aria-label="${t("setReminder")}" ${NATIVE||pushSupported()?"":"disabled"}></button></div>
+      ${rem.on&&(NATIVE||pushSupported())?`<div class="srow"><span class="lbl">${t("setReminderTime")}</span><input type="time" id="remtime" value="${esc(rem.time)}"></div>${NATIVE?"":`<button class="srow" data-a="pushtest"><span class="lbl">${t("pushTest")}<span class="sub">${t("pushTestSub")}</span></span>${I.chevron}</button>`}`:""}
       <div class="srow"><span class="lbl">${t("setHaptics")}</span><button class="tog ${S.haptics?"on":""}" data-a="haptoggle" role="switch" aria-checked="${!!S.haptics}" aria-label="${t("setHaptics")}"></button></div>
     </div>
     ${CLOUD_ON ? (AUTH ? `<div class="sgroup">
@@ -272,7 +272,7 @@ function renderSettings(){
     <div class="sgroup"><button class="srow danger" data-a="reset"><span class="lbl">${t("setReset")}</span></button></div>
   </div></div>`;
   const tm = document.getElementById("remtime");
-  if(tm) tm.addEventListener("change", async ()=>{ S.reminder.time = tm.value || "19:00"; save(); if(await scheduleReminder()) toast(t("reminderOn", S.reminder.time)); });
+  if(tm) tm.addEventListener("change", async ()=>{ S.reminder.time = tm.value || "19:00"; save(); if(NATIVE){ if(await scheduleReminder()) toast(t("reminderOn", S.reminder.time)); } else { await pushResync(true); toast(t("reminderOn", S.reminder.time)); } });
 }
 async function scheduleReminder(){
   const LN = PL.LocalNotifications; if(!LN) return false;
@@ -517,7 +517,7 @@ function doneExtrasHTML(c, u, r){
   if(here && L.kind !== "review" && (sub(c.code).wrong || []).length) btns.push(`<button class="pill rev" data-a="review">${I.redo}${t("reviewBtn", sub(c.code).wrong.length)}</button>`);
   if(nx && L.kind !== "review") btns.push(`<button class="pill dx-next" data-a="node" data-u="${nx[0]}" data-k="${nx[1]}">${I.bolt}${esc(t("dxNext", lvShort(nx[1]), unitTitle(c, nx[0])))}</button>`);
   if(btns.length) h += `<div class="actions dx-acts">${btns.join("")}</div>`;
-  return h;
+  return h + reminderPromptHTML();
 }
 function renderFail(){
   $app.innerHTML = `<main class="wrap finish pop">
@@ -949,10 +949,13 @@ document.addEventListener("click", async e=>{
   else if(a==="acdeleteok"){ cloudDeleteAccount().then(()=>{ overlay = null; renderOverlay(); render(); toast(t("acDeleted")); }, e=>{ toast(acErr(e)); }); }
   else if(a==="resetok"){ const keep={current:S.current, lang:S.lang, goal:S.goal, reminder:S.reminder, haptics:S.haptics, outbox:S.outbox, examPrefs:S.examPrefs}; S=Object.assign(blank(),keep); save(); clearTimeout(CLOUD.timer); cloudSync(true); examStopTicker(); EX.res=null; goHome(); toast(t("resetDone")); }
   // innstillinger
-  else if(a==="setlang"){ LANG = b.dataset.l; S.lang = LANG; save(); render(); if(S.reminder.on) scheduleReminder(); }
+  else if(a==="setlang"){ LANG = b.dataset.l; S.lang = LANG; save(); render(); if(S.reminder.on){ scheduleReminder(); pushResync(true); } }
   else if(a==="setgoal"){ S.goal = +b.dataset.g; save(); render(); }
   else if(a==="haptoggle"){ S.haptics = !S.haptics; save(); render(); if(S.haptics) buzz(true); }
-  else if(a==="remtoggle"){ S.reminder.on = !S.reminder.on; save(); render(); if(await scheduleReminder() && S.reminder.on) toast(t("reminderOn", S.reminder.time)); }
+  else if(a==="remtoggle"){ await reminderToggle(); }
+  else if(a==="pushtest"){ pushTest(); }
+  else if(a==="remask"){ S.remPromptAt = Date.now(); save(); await reminderToggle(); render(); }
+  else if(a==="remasknot"){ S.remPromptAt = Date.now(); S.remPromptN = (+S.remPromptN || 0) + 1; if(S.remPromptN >= 2) S.remPromptOff = 1; save(); render(); }
   else if(a==="privacy"){ overlay="privacy"; renderOverlay(); }
   else if(a==="feedback"){ openReport("feedback"); }
   else if(a==="inbox"){ let items=[]; try{ const snap = await claudeDb.collection("feedback").orderBy("time","desc").limit(100).get(); items = snap.docs.map(d=>d.data()); }catch(err){} overlay={inbox:true, items}; renderOverlay(); }
@@ -1001,7 +1004,7 @@ examBoot(true); // pågående eksamen: fortsett, eller lever hvis tiden gikk ut 
 if(frBootLink()) screen = "friends";
 if(checkBadges().length) saveLocal(); // merker for fremgang fra før merkene fantes (uten varsel)
 render();
-AUTH_READY.then(()=>setTimeout(bootPrompts, 900)); // innlogging og dagens utfordring som popup ved første åpning i dag
+AUTH_READY.then(()=>{ setTimeout(bootPrompts, 900); pushResync(); }); // innlogging og dagens utfordring som popup ved første åpning i dag
 flushOutbox();
 window.addEventListener("online", flushOutbox);
 cloudBoot();
