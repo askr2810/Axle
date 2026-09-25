@@ -1,9 +1,9 @@
 // Service worker for nettversjonen: appen virker offline etter første besøk.
 const CACHE = "axle-__BUILD__";
-const CORE = ["./", "index.html", "app.bundle.js", "manifest.webmanifest", "privacy.html",
+const CORE = ["./", "index.html", "app.bundle.js?v=__BUILD__", "manifest.webmanifest", "privacy.html",
   "icons/icon-192.png", "icons/icon-512.png", "icons/apple-touch-icon.png", "vendor/katex.min.js", "vendor/fonts.css"];
 self.addEventListener("install", e => {
-  e.waitUntil(caches.open(CACHE).then(c => Promise.all(CORE.map(u => c.add(u).catch(() => null)))).then(() => self.skipWaiting()));
+  e.waitUntil(caches.open(CACHE).then(c => Promise.all(CORE.map(u => c.add(new Request(u, { cache: "reload" })).catch(() => null)))).then(() => self.skipWaiting()));
 });
 self.addEventListener("activate", e => {
   e.waitUntil(caches.keys().then(keys => Promise.all(keys.filter(k => k !== CACHE).map(k => caches.delete(k)))).then(() => self.clients.claim()));

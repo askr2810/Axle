@@ -32,6 +32,7 @@ def build_www(js, css, out):
     os.makedirs(out, exist_ok=True)
     cfg = json.loads(read("release_meta.json"))
     import base64, hashlib, re
+    stamp = hashlib.sha1((js + css).encode("utf-8")).hexdigest()[:10]  # ny verdi ved hver endring
     m = re.search(r'supabaseUrl:\s*"(https://[^"]+)"', read("config.js"))
     supa = (" " + m.group(1).rstrip("/")) if m else ""
     fallback = "if(!window.katex){document.write('<script src=\"" + KATEX_CDN + "\"><\\/script>');}"
@@ -72,7 +73,7 @@ img{{max-width:100%}}
 </head>
 <body>
 <div id="app"></div>
-<script src="app.bundle.js"></script>
+<script src="app.bundle.js?v={stamp}"></script>
 </body>
 </html>
 """
@@ -80,7 +81,6 @@ img{{max-width:100%}}
     open(os.path.join(out, "app.bundle.js"), "w", encoding="utf-8").write(js)
     # statiske filer
     import hashlib
-    stamp = hashlib.sha1(js.encode("utf-8")).hexdigest()[:10]
     for f in ["manifest.webmanifest", "sw.js", "privacy.html"]:
         src = os.path.join(ROOT, "web", f)
         if os.path.exists(src):

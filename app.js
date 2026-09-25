@@ -925,7 +925,13 @@ if(NATIVE){
 }
 // ---------- nettversjon: offline og installerbar ----------
 if(!NATIVE && !window.claude && "serviceWorker" in navigator && /^https?:$/.test(location.protocol)){
-  navigator.serviceWorker.register("sw.js").catch(()=>{});
+  navigator.serviceWorker.register("sw.js", { updateViaCache: "none" }).catch(()=>{});
+  // Ny versjon tatt i bruk: last siden på nytt når det ikke avbryter en leksjon eller eksamen.
+  let swReloaded = false; const hadSW = !!navigator.serviceWorker.controller;
+  navigator.serviceWorker.addEventListener("controllerchange", ()=>{
+    if(!hadSW || swReloaded) return;
+    if(["home","pick","settings","book","friends","theory"].includes(screen) && !overlay){ swReloaded = true; location.reload(); }
+  });
 }
 // ---------- valgfritt: Claude-artifact (synk og rapporter) ----------
 (async ()=>{
