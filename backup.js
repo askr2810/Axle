@@ -34,6 +34,7 @@ function mergeState(a, b){
   m.badges = Object.assign({}, isObj(b.badges) ? b.badges : {}, a.badges || {});
   m.stats = Object.assign({}, a.stats || {}); if(isObj(b.stats)) for(const k in b.stats) m.stats[k] = Math.max(+m.stats[k] || 0, +b.stats[k] || 0);
   if(isObj(b.dc) && (!m.dc || String(b.dc.day) > String(m.dc.day))) m.dc = b.dc;
+  m.weekWins = Object.assign({}, isObj(b.weekWins) ? b.weekWins : {}, a.weekWins || {});
   m.bestStreak = Math.max(+a.bestStreak || 0, +b.bestStreak || 0);
   m.xp = Math.max(+a.xp||0, +b.xp||0);
   m.daily = Object.assign({}, a.daily);
