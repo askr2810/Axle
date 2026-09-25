@@ -1028,3 +1028,13 @@ body.has-tabs .toast{bottom:calc(84px + env(safe-area-inset-bottom,0px))}
 .rem-ask>div{flex:1;display:grid;gap:2px}.rem-ask b{font-size:15px}.rem-ask span{font-size:13px;color:var(--muted)}
 .rem-go{border:0;border-radius:12px;padding:10px 14px;font:inherit;font-weight:800;color:#fff;background:#ff8a1f;box-shadow:0 3px 0 #c9650c}
 .rem-x{border:0;background:none;color:var(--muted);padding:4px}
+
+/* ---------- samling (opplåsbare avatar-ting) ---------- */
+.ave-opt.locked{opacity:.75;background:repeating-linear-gradient(135deg,var(--card),var(--card) 6px,color-mix(in srgb,var(--line) 60%,var(--card)) 6px,color-mix(in srgb,var(--line) 60%,var(--card)) 12px)}
+.ave-lock{width:60px;height:60px;border-radius:50%;display:grid;place-items:center;background:var(--line);color:var(--muted);font-weight:900;font-size:26px}
+.ave-lock svg{width:24px;height:24px}
+.ave-opt.secret .ave-lock{background:linear-gradient(135deg,#7A4BC2,#E86A92);color:#fff}
+.ave-cnt{font-style:normal;font-size:11px;opacity:.75}
+.ave-prev{cursor:pointer;-webkit-tap-highlight-color:transparent}
+.ave-prev.wob{animation:aveWob .35s}
+@keyframes aveWob{30%{transform:scale(.94) rotate(-4deg)}60%{transform:scale(1.04) rotate(3deg)}}

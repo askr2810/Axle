@@ -402,6 +402,7 @@ function finishLesson(){
   if(L.kind==="jump") for(let uu=0; uu<L.meta.u; uu++) for(let k=0;k<REQ;k++) s.done[uu+"-"+k] = true;
   if(L.kind==="challenge"){ S.dc = { day: L.meta.day, right: firstTry, n: L.total }; bdgStat("challenges"); }
   if(L.kind==="drill") drRecord();
+  noteNightLesson();
   const wrong = new Set(s.wrong);
   if(L.kind!=="challenge" && L.kind!=="drill") L.firstWrong.forEach(id=>wrong.add(id)); // utfordringen blander fag, feil der havner ikke i «Repeter feil»
   if(L.kind==="review") [...L.solved].forEach(id=>{ if(!L.firstWrong.has(id)) wrong.delete(id); });
@@ -409,6 +410,7 @@ function finishLesson(){
   if(L.firstWrong.size === 0) bdgStat("flawless");
   if(L.kind === "review") bdgStat("reviews");
   const newBadges = checkBadges();
+  checkUnlocks();
   save();
   L.result = { xpBefore, levelUp: levelInfo(S.xp).lv > lvBefore ? levelInfo(S.xp).lv : 0, streakMile: st.streakUp && STREAK_MILES.includes(st.streak) ? st.streak : 0, bonus: L.bonus||0, goalHit: st.goalHit, newBadges, gained: gained + (L.bonus||0), acc: Math.round(firstTry/L.total*100), secs: Math.round((Date.now()-L.start)/1000), streak: st.streak, streakUp: st.streakUp };
   screen = "done"; render();

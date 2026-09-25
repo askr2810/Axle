@@ -17,10 +17,13 @@ const AV_NAMES = {
   g: [["Ingen", "None"], ["Vanlige", "Classic"], ["Solbriller", "Sunglasses"], ["Aviator", "Aviator"], ["Cartier-stil", "Cartier style"], ["Cat-eye", "Cat-eye"], ["Runde retro", "Round retro"], ["Sportsvisir", "Sport shield"], ["Hjerter", "Hearts"], ["Nerd", "Nerd"]],
   a: [["Ingen", "None"], ["Lue", "Beanie"], ["Hjelm", "Hard hat"], ["Hodetelefoner", "Headphones"], ["Vernebriller", "Goggles"], ["Caps", "Cap"], ["Krone", "Crown"], ["Bøttehatt", "Bucket hat"], ["Caps bakvendt", "Backwards cap"], ["Cowboyhatt", "Cowboy hat"], ["Hårbånd", "Headband"], ["Partyhatt", "Party hat"], ["Hijab", "Hijab"], ["Vikinghjelm", "Viking helmet"], ["Kokkelue", "Chef hat"]],
   o: [["T-skjorte", "T-shirt"], ["Hettegenser", "Hoodie"], ["Dress", "Suit"], ["Labfrakk", "Lab coat"], ["Astronaut", "Astronaut"], ["Superhelt", "Superhero"], ["Hawaiiskjorte", "Hawaiian shirt"], ["Refleksvest", "Hi-vis vest"], ["Rullekrage", "Turtleneck"], ["Smoking", "Tuxedo"], ["Fotballdrakt", "Football kit"]],
-  x: [["Ingen", "None"], ["Øredobber", "Earrings"], ["Gullkjede", "Gold chain"], ["Fregner", "Freckles"], ["AirPods", "AirPods"], ["Nesering", "Nose ring"], ["Dråpeøredobber", "Drop earrings"], ["Perlekjede", "Pearl necklace"]]
+  x: [["Ingen", "None"], ["Øredobber", "Earrings"], ["Gullkjede", "Gold chain"], ["Fregner", "Freckles"], ["AirPods", "AirPods"], ["Nesering", "Nose ring"], ["Dråpeøredobber", "Drop earrings"], ["Perlekjede", "Pearl necklace"]],
+  // Samling: ting du låser opp (se unlocks.js). Rekkefølgen må aldri endres, bare legges til på slutten.
+  p: [["Ingen", "None"], ["Regnbue", "Rainbow"], ["Øgle", "Lizard"], ["Tannhjul", "Gear buddy"], ["Lyndrone", "Spark drone"], ["Robot", "Robot"], ["Pi-ugle", "Pi owl"], ["Vindturbin", "Wind turbine"],
+      ["Trafikkjegle", "Traffic cone"], ["Lyspære", "Light bulb"], ["Spire", "Sprout"], ["Pokal", "Trophy"], ["Flammeaura", "Flame aura"], ["Glorie", "Halo"], ["Stjernestøv", "Stardust"], ["UFO", "UFO"], ["Nattmåne", "Night moon"]]
 };
-const AV_PARTS = { s: AV_SKIN.length, h: AV_NAMES.h.length, hc: AV_HAIRC.length, e: AV_NAMES.e.length, m: AV_NAMES.m.length, a: AV_NAMES.a.length, bg: AV_BG.length, sh: AV_SHIRT.length, f: AV_NAMES.f.length, g: AV_NAMES.g.length, o: AV_NAMES.o.length, x: AV_NAMES.x.length };
-const AV_KEYS = ["s", "h", "hc", "e", "m", "a", "bg", "sh", "f", "g", "o", "x"];
+const AV_PARTS = { s: AV_SKIN.length, h: AV_NAMES.h.length, hc: AV_HAIRC.length, e: AV_NAMES.e.length, m: AV_NAMES.m.length, a: AV_NAMES.a.length, bg: AV_BG.length, sh: AV_SHIRT.length, f: AV_NAMES.f.length, g: AV_NAMES.g.length, o: AV_NAMES.o.length, x: AV_NAMES.x.length, p: AV_NAMES.p.length };
+const AV_KEYS = ["s", "h", "hc", "e", "m", "a", "bg", "sh", "f", "g", "o", "x", "p"];
 
 function avParse(code){
   const v = String(code || "").split("-").map(n => parseInt(n, 10));
@@ -32,6 +35,7 @@ const avCode = o => AV_KEYS.map(k => o[k] || 0).join("-");
 function avRandom(){
   const o = {}; AV_KEYS.forEach(k => { o[k] = Math.floor(Math.random() * AV_PARTS[k]); });
   if(Math.random() < 0.7) o.f = 0; if(Math.random() < 0.5) o.g = 0; if(Math.random() < 0.5) o.a = 0; if(Math.random() < 0.6) o.x = 0;
+  o.p = typeof unlockedPets === "function" ? (AVE && avParse(AVE.code).p) || 0 : 0; // behold det du har låst opp
   return avCode(o);
 }
 
@@ -154,12 +158,12 @@ function avatarSVG(code, size = 48, extraClass = ""){
   }
   const nose = `<path d="M49 50.5q1.2 2.2 2.4 0" stroke="rgba(0,0,0,.18)" stroke-width="1.4" fill="none" stroke-linecap="round"/>`;
   return `<svg class="av ${extraClass}" width="${size}" height="${size}" viewBox="0 0 100 100" aria-hidden="true"><defs><clipPath id="${id}"><circle cx="50" cy="50" r="50"/></clipPath></defs>
-    <g clip-path="url(#${id})"><rect width="100" height="100" fill="${AV_BG[o.bg]}"/>${hatBack}${o.a === 12 ? "" : hb}${ob}
+    <g clip-path="url(#${id})"><rect width="100" height="100" fill="${AV_BG[o.bg]}"/>${o.p && typeof petBack === "function" ? petBack(o.p, id) : ""}${hatBack}${o.a === 12 ? "" : hb}${ob}
     ${body}<path d="M43 60h14v13q-7 5-14 0z" fill="${skin}"/>${exBody}${o.a === 12 ? "" : hf}
     <circle cx="29.5" cy="47" r="4.5" fill="${skin}"/><circle cx="70.5" cy="47" r="4.5" fill="${skin}"/>
     <ellipse cx="50" cy="45" rx="20.5" ry="22.5" fill="${skin}"/>${beard}
     <circle cx="37" cy="53" r="3.6" fill="#F28B82" opacity=".35"/><circle cx="63" cy="53" r="3.6" fill="#F28B82" opacity=".35"/>
-    ${nose}${eyes}${mouth}${o.a === 12 ? "" : ht}${glasses}${ex}${hat}</g></svg>`;
+    ${nose}${eyes}${mouth}${o.a === 12 ? "" : ht}${glasses}${ex}${hat}${o.p && typeof petFront === "function" ? petFront(o.p) : ""}</g></svg>`;
 }
 
 // ---------- lærerne ----------
@@ -184,7 +188,7 @@ const myAvatar = () => S.avatar || null;
 
 // ---------- avatar-bygger ----------
 let AVE = null; // { code, tab }
-const AVE_TABS = [["h", "avHair"], ["hc", "avHairColor"], ["g", "avGlasses"], ["a", "avAcc"], ["o", "avOutfit"], ["sh", "avShirt"], ["x", "avExtra"], ["e", "avEyes"], ["m", "avMouth"], ["f", "avBeard"], ["s", "avSkin"], ["bg", "avBg"]];
+const AVE_TABS = [["p", "avPets"], ["h", "avHair"], ["hc", "avHairColor"], ["g", "avGlasses"], ["a", "avAcc"], ["o", "avOutfit"], ["sh", "avShirt"], ["x", "avExtra"], ["e", "avEyes"], ["m", "avMouth"], ["f", "avBeard"], ["s", "avSkin"], ["bg", "avBg"]];
 let AVE_LAST_TAB = "h"; // husker fanen du sist var på
 function openAvatarEditor(){ AVE = { code: S.avatar || avRandom(), tab: AVE_LAST_TAB, back: screen }; screen = "avatar"; overlay = null; render(); window.scrollTo(0, 0); aveTabIntoView(); }
 // ---------- profilbilde (valgfritt, vises i stedet for avataren) ----------
@@ -228,6 +232,10 @@ function aveOptsHTML(){
     if(colorTab) return `<button class="ave-sw ${on ? "on" : ""}" data-a="avset" data-i="${i}" aria-label="${i + 1}" style="background:${colorTab[i]}"></button>`;
     const oo = Object.assign({}, o, { [k]: i });
     const nm = AV_NAMES[k] && AV_NAMES[k][i] ? T(AV_NAMES[k][i][0], AV_NAMES[k][i][1]) : String(i + 1);
+    if(k === "p" && !unlockedPets().has(i)){ // låst: vis hengelås og hint (hemmelige heter «???»)
+      const pet = PETS.find(p => p[0] === i), secret = pet && pet[2];
+      return `<button class="ave-opt locked ${secret ? "secret" : ""}" data-a="avlocked" data-i="${i}" aria-label="${esc(secret ? "???" : nm)}"><span class="ave-lock">${secret ? "?" : I.lock}</span><small>${esc(secret ? "???" : nm)}</small></button>`;
+    }
     return `<button class="ave-opt ${on ? "on" : ""}" data-a="avset" data-i="${i}" aria-label="${esc(nm)}">${avatarSVG(avCode(oo), 60)}<small>${esc(nm)}</small></button>`;
   }).join("");
   return { opts, colorTab };
@@ -236,9 +244,11 @@ function aveOptsHTML(){
 function aveUpdate(){
   const prev = document.querySelector(".ave-prev"), grid = document.querySelector(".ave-grid");
   if(!prev || !grid){ render(); return; }
+  checkUnlocks(avParse(AVE.code)); // fargepåskeegg sjekkes mens du bygger
   const { opts, colorTab } = aveOptsHTML();
   prev.innerHTML = avatarSVG(AVE.code, 150); grid.innerHTML = opts; grid.classList.toggle("colors", !!colorTab);
   document.querySelectorAll(".ave-tabs button").forEach(b => b.classList.toggle("on", b.dataset.t === AVE.tab));
+  const cnt = document.querySelector(".ave-cnt"); if(cnt) cnt.textContent = `${unlockedPets().size - 1}/${PETS.length}`;
 }
 function renderAvatarEditor(){
   if(!AVE){ goHome(); return; }
@@ -249,8 +259,8 @@ function renderAvatarEditor(){
       <div class="th-t"><small>${esc(t("avSub"))}</small><b>${esc(t("avTitle"))}</b></div><button class="iconbtn" data-a="avrandom" aria-label="${esc(t("avRandom"))}" title="${esc(t("avRandom"))}">${I.dice}</button></div></div>
     <main class="wrap ave">
       ${photoCard}
-      <div class="ave-prev">${avatarSVG(AVE.code, 150)}</div>
-      <div class="ave-tabs">${AVE_TABS.map(([kk, lab]) => `<button class="${kk === k ? "on" : ""}" data-a="avtab" data-t="${kk}">${esc(t(lab))}</button>`).join("")}</div>
+      <div class="ave-prev" data-a="avpreview">${avatarSVG(AVE.code, 150)}</div>
+      <div class="ave-tabs">${AVE_TABS.map(([kk, lab]) => `<button class="${kk === k ? "on" : ""}" data-a="avtab" data-t="${kk}">${esc(t(lab))}${kk === "p" ? ` <em class="ave-cnt">${unlockedPets().size - 1}/${PETS.length}</em>` : ""}</button>`).join("")}</div>
       <div class="ave-grid ${colorTab ? "colors" : ""}">${opts}</div>
     </main>
     <div class="lfoot"><div class="wrap"><button class="big" data-a="avsave">${esc(t(ph ? "avSaveUse" : "avSave"))}</button></div></div>`;
@@ -261,6 +271,9 @@ function avatarClick(a, b){
   else if(a === "avtab"){ AVE.tab = AVE_LAST_TAB = b.dataset.t; aveUpdate(); b.scrollIntoView({ block: "nearest", inline: "center", behavior: "smooth" }); }
   else if(a === "avset"){ const o = avParse(AVE.code); o[AVE.tab] = +b.dataset.i; AVE.code = avCode(o); aveUpdate(); }
   else if(a === "avrandom"){ AVE.code = avRandom(); aveUpdate(); }
+  else if(a === "avlocked"){ const pet = PETS.find(p => p[0] === +b.dataset.i); if(pet) toast((pet[2] ? "🤫 " : "🔒 ") + T(pet[4], pet[5])); }
+  else if(a === "avpreview"){ AVE.taps = (AVE.taps || 0) + 1; const el = document.querySelector(".ave-prev"); if(el){ el.classList.remove("wob"); void el.offsetWidth; el.classList.add("wob"); }
+    if(AVE.taps >= 7 && !(S.unlocks || {}).ufo){ S.stats ||= {}; S.stats.ufo = 1; checkUnlocks(); aveUpdate(); } }
   else if(a === "avphotodel"){ S.photo = null; toast(t("avPhotoRemoved")); avPhotoSaved(); }
   else if(a === "avsave"){ S.avatar = AVE.code; S.photo = null; save(); if(typeof frPushSoon === "function") frPushSoon(); const back = AVE.back; AVE = null; toast(t("avSaved")); screen = ["friends", "profile"].includes(back) ? back : "settings"; if(screen === "friends") FR.rows = null; render(); window.scrollTo(0, 0); }
   else if(a === "avcancel"){ const back = AVE.back; AVE = null; screen = ["friends", "profile"].includes(back) ? back : "settings"; render(); }
