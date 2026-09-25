@@ -8,7 +8,7 @@ import os, shutil, json
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
 JS = ["config.js", "i18n.js", "data.js", "gens.js","gens_b.js", "more.js", "more2.js", "more2_b.js", "subjects2.js", "subjects2_b.js", "more3.js",
-      "en_static_*.js", "learn.js", "add_*.js", "exam.js", "backup.js", "cloud.js", "book.js", "friends.js", "avatar.js", "badges.js", "app.js"]
+      "en_static_*.js", "learn.js", "add_*.js", "exam.js", "backup.js", "cloud.js", "book.js", "friends.js", "avatar.js", "badges.js", "challenge.js", "app.js"]
 FONTS = '<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Figtree:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap">'
 KATEX_CDN = "https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js"
 

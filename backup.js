@@ -33,6 +33,7 @@ function mergeState(a, b){
   if(!m.avatar && typeof b.avatar === "string") m.avatar = b.avatar;
   m.badges = Object.assign({}, isObj(b.badges) ? b.badges : {}, a.badges || {});
   m.stats = Object.assign({}, a.stats || {}); if(isObj(b.stats)) for(const k in b.stats) m.stats[k] = Math.max(+m.stats[k] || 0, +b.stats[k] || 0);
+  if(isObj(b.dc) && (!m.dc || String(b.dc.day) > String(m.dc.day))) m.dc = b.dc;
   m.bestStreak = Math.max(+a.bestStreak || 0, +b.bestStreak || 0);
   m.xp = Math.max(+a.xp||0, +b.xp||0);
   m.daily = Object.assign({}, a.daily);

@@ -200,6 +200,7 @@ function renderHome(){
       <div class="week">${week}</div>
     </div>
     ${homeTeacherHTML(c)}
+    ${dcCardHTML()}
     ${preCardHTML(c)}
     <div class="actions"><button class="pill" data-a="book">${I.book}${t("bkTitle")}</button><button class="pill" data-a="friends">${I.users}${t("frTitle")}</button><button class="pill bdg-pill" data-a="badges">${I.trophyS}${t("bdgTitle")} <small>${Object.keys(S.badges||{}).length}/${BADGES.length}</small></button>${examHomeActions(c)}${wrongN?`<button class="pill rev" data-a="review">${I.redo}${t("reviewBtn",wrongN)}</button>`:""}${examHomeJump()}</div>
     ${path}
@@ -393,12 +394,13 @@ function awardXP(gained){
 function finishLesson(){
   const s = sub(L.code);
   const firstTry = L.total - L.firstWrong.size;
-  const gained = (L.kind==="unit" ? LEVELS[L.meta.k].xp : L.kind==="jump" ? 20 : 10) + firstTry;
+  const gained = L.kind==="challenge" ? 15 + 5*firstTry : (L.kind==="unit" ? LEVELS[L.meta.k].xp : L.kind==="jump" ? 20 : 10) + firstTry;
   const st = awardXP(gained);
   if(L.kind==="unit") s.done[L.meta.u+"-"+L.meta.k] = true;
   if(L.kind==="jump") for(let uu=0; uu<L.meta.u; uu++) for(let k=0;k<REQ;k++) s.done[uu+"-"+k] = true;
+  if(L.kind==="challenge"){ S.dc = { day: L.meta.day, right: firstTry, n: L.total }; bdgStat("challenges"); }
   const wrong = new Set(s.wrong);
-  L.firstWrong.forEach(id=>wrong.add(id));
+  if(L.kind!=="challenge") L.firstWrong.forEach(id=>wrong.add(id)); // utfordringen blander fag, feil der havner ikke i «Repeter feil»
   if(L.kind==="review") [...L.solved].forEach(id=>{ if(!L.firstWrong.has(id)) wrong.delete(id); });
   s.wrong = [...wrong];
   if(L.firstWrong.size === 0) bdgStat("flawless");
@@ -412,7 +414,7 @@ function correctText(it){ return it.type==="mc" ? it.opts.find(o=>o.ok).t : nf(i
 function renderLesson(){
   const it = L.queue[0];
   const pct = (L.maxHearts ? (L.done + (L.answered?1:0)) : L.solved.size) / L.total * 100;
-  const lvl = L.kind==="unit" ? `${lvShort(L.meta.k)} · ${lvName(L.meta.k)} · ` : L.kind==="jump" ? t("jumpTest")+" · " : L.kind==="review" ? t("review")+" · " : "";
+  const lvl = L.kind==="unit" ? `${lvShort(L.meta.k)} · ${lvName(L.meta.k)} · ` : L.kind==="jump" ? t("jumpTest")+" · " : L.kind==="review" ? t("review")+" · " : L.kind==="challenge" ? t("dcTitle")+" · " : "";
   let body = `<div class="krow"><p class="kicker">${esc(lvl)}${it.type==="mc"?t("pickAnswer"):t("writeAnswer")}</p><button class="kbtn" data-a="scratch">${I.pencil}${t("scratch")}</button></div><div class="prompt">${rich(it.prompt)}</div>`;
   if(it.type==="mc"){
     body += `<div class="opts" role="radiogroup">` + it.opts.map((o,i)=>{
@@ -446,7 +448,7 @@ function renderLesson(){
 }
 function renderDone(){
   const r = L.result, m = Math.floor(r.secs/60), sec = r.secs%60, c = COURSE(L.code), u = L.meta && L.meta.u;
-  const title = L.kind==="jump" ? t("doneJump") : (L.kind==="unit" && L.meta.k===3) ? t("doneCrown") : r.acc===100 ? t("doneFlawless") : L.kind==="review" ? t("doneReview") : t("doneLevel", lvShort(L.meta.k));
+  const title = L.kind==="challenge" ? t("dcDoneTitle") : L.kind==="jump" ? t("doneJump") : (L.kind==="unit" && L.meta.k===3) ? t("doneCrown") : r.acc===100 ? t("doneFlawless") : L.kind==="review" ? t("doneReview") : t("doneLevel", lvShort(L.meta.k));
   const sub2 = L.kind==="jump" ? t("jumpUnlocked", unitTitle(c,u)) : (L.kind==="unit" && L.meta.k===3) ? t("crownWon", unitTitle(c,u)) : null;
   $app.innerHTML = `<main class="wrap finish pop">
     ${teacherBubble(L.code, esc(pickLine(t(r.acc === 100 ? "tchFlawless" : r.acc >= 70 ? "tchDone" : "tchDoneLow"))), 64, "tch-done")}
@@ -842,6 +844,7 @@ document.addEventListener("click", async e=>{
   if(a==="pick"){ screen="pick"; render(); window.scrollTo(0,0); }
   else if(a==="home"){ goHome(); }
   else if(a==="settings"){ screen="settings"; render(); window.scrollTo(0,0); }
+  else if(a==="dcstart"){ if(!dcDoneToday()) startChallenge(); }
   else if(a==="badges"){ screen="badges"; render(); window.scrollTo(0,0); }
   else if(a==="choose"){ S.current=b.dataset.c; save(); goHome(); }
   else if(a==="node"){ const c = COURSE(S.current), u=+b.dataset.u, k=+b.dataset.k;

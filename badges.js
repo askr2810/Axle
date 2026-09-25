@@ -7,7 +7,7 @@ function bdgStats(){
   for(const c of COURSES){ const p = courseProgress(c); levels += p.d; cr += crowns(c); if(p.d) started++; if(p.tot && p.d === p.tot) completed++; }
   const st = S.stats || {};
   return { levels, crowns: cr, started, completed, xp: +S.xp || 0, streak: Math.max(+S.bestStreak || 0, streakNow()),
-    theory: Object.keys(S.theorySeen || {}).length, exams: (S.examLog || []).length, flawless: +st.flawless || 0, reviews: +st.reviews || 0, friends: +st.friends || 0 };
+    theory: Object.keys(S.theorySeen || {}).length, challenges: +st.challenges || 0, exams: (S.examLog || []).length, flawless: +st.flawless || 0, reviews: +st.reviews || 0, friends: +st.friends || 0 };
 }
 // [id, nivå (1 bronse, 2 sølv, 3 gull), ikon, statistikk, mål, nb-navn, en-navn, nb-beskrivelse, en-beskrivelse]
 const BADGES = [
@@ -31,6 +31,8 @@ const BADGES = [
   ["exam5",   3, "doc",    "exams",    5,     "Eksamensveteran","Exam veteran",    "Fullfør 5 prøveeksamener",             "Complete 5 practice exams"],
   ["multi3",  1, "steps",  "started",  3,     "Allsidig",       "All-rounder",     "Kom i gang med 3 fag",                 "Make progress in 3 courses"],
   ["rev5",    1, "redo",   "reviews",  5,     "Lærer av feil",  "Learning from mistakes", "Repeter feil 5 ganger",         "Review your mistakes 5 times"],
+  ["dc5",     1, "bolt",   "challenges", 5,   "Utfordrer",      "Challenger",      "Fullfør 5 daglige utfordringer",       "Complete 5 daily challenges"],
+  ["dc25",    3, "bolt",   "challenges", 25,  "Mester",         "Master",          "Fullfør 25 daglige utfordringer",      "Complete 25 daily challenges"],
   ["fr1",     1, "users",  "friends",  1,     "Sosial",         "Social",          "Legg til en venn",                     "Add a friend"],
   ["fr5",     2, "users",  "friends",  5,     "Populær",        "Popular",         "Ha 5 venner",                          "Have 5 friends"]
 ];
