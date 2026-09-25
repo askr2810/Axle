@@ -1038,3 +1038,12 @@ body.has-tabs .toast{bottom:calc(84px + env(safe-area-inset-bottom,0px))}
 .ave-prev{cursor:pointer;-webkit-tap-highlight-color:transparent}
 .ave-prev.wob{animation:aveWob .35s}
 @keyframes aveWob{30%{transform:scale(.94) rotate(-4deg)}60%{transform:scale(1.04) rotate(3deg)}}
+
+/* ---------- moderering ---------- */
+.fr-more{border:0;background:none;color:var(--muted);font-size:20px;font-weight:900;padding:4px 6px;line-height:1;border-radius:10px}
+.fr-more:hover{background:var(--accent-soft)}
+.fr-repl{display:inline-flex;align-items:center;gap:6px;justify-self:center;color:var(--muted)!important}
+.fr-repl svg{width:16px;height:16px}
+.dialog .srow{display:flex;justify-content:space-between;align-items:center;width:100%;border:2px solid var(--line);border-radius:14px;background:var(--card);padding:12px 14px;font:inherit;color:var(--ink);text-align:left}
+.dialog .srow svg{width:18px;height:18px;color:var(--muted)}
+a.srow{text-decoration:none;color:inherit}

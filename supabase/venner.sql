@@ -236,3 +236,245 @@ grant execute on function public.search_users(text)                   to authent
 grant execute on function public.request_friend(uuid)                 to authenticated;
 grant execute on function public.get_friend_requests()                to authenticated;
 grant execute on function public.answer_friend_request(uuid, boolean) to authenticated;
+
+-- ============================================================
+-- Moderering (krav fra App Store og Google Play for innhold brukerne lager selv):
+-- ordfilter på navn og brukernavn, blokkering og rapportering.
+-- Rapporter ligger i tabellen content_reports (se dem i Table Editor).
+-- Et navn/brukernavn eller profilbilde som får rapporter fra 3 forskjellige brukere, skjules automatisk.
+-- ============================================================
+
+-- Ordfilter. Teksten normaliseres (små bokstaver, 0→o, 1→i, 3→e, 4→a, 5→s, 7→t, @→a, $→s) før sjekk.
+create or replace function public.is_clean(txt text)
+returns boolean
+language sql
+immutable
+set search_path = ''
+as $$
+  with n as (
+    select translate(lower(coalesce(txt, '')), '013457@$', 'oieaastas') as t
+  ), s as (
+    select regexp_replace(t, '[^a-zæøå]', '', 'g') as squashed, regexp_replace(t, '[^a-zæøå]+', ' ', 'g') as words from n
+  )
+  select not (
+    squashed ~ '(fuck|fukk|føkk|cunt|nigg|fagg|retard|hitler|porn|whore|slut|bitch|fitte|jævl|jaevl|pikk|kukk|horunge|motherf|asshole|bastard|wank|dildo|penis|vagina|nazi|kkk)'
+    or (' ' || words || ' ') ~ ' (sex|sexy|dick|cock|pussy|kuk|hore|faen|neger|mongo|rape|shit|tits|anal|cum|piss|homse) '
+  ) from s;
+$$;
+
+create or replace function public.profiles_clean()
+returns trigger
+language plpgsql
+set search_path = ''
+as $$
+begin
+  if not public.is_clean(new.display_name) or not public.is_clean(new.username) then raise exception 'bad_word'; end if;
+  return new;
+end;
+$$;
+drop trigger if exists profiles_clean on public.profiles;
+create trigger profiles_clean before insert or update of display_name, username on public.profiles
+  for each row execute function public.profiles_clean();
+
+-- Blokkering.
+create table if not exists public.user_blocks (
+  blocker    uuid not null references auth.users (id) on delete cascade,
+  blocked    uuid not null references auth.users (id) on delete cascade,
+  created_at timestamptz not null default now(),
+  primary key (blocker, blocked),
+  check (blocker <> blocked)
+);
+alter table public.user_blocks enable row level security;
+revoke all on public.user_blocks from anon, authenticated;
+
+create or replace function public.is_blocked_between(a uuid, b uuid)
+returns boolean
+language sql
+stable
+security definer
+set search_path = ''
+as $$
+  select exists (select 1 from public.user_blocks where (blocker = a and blocked = b) or (blocker = b and blocked = a));
+$$;
+
+create or replace function public.block_user(fid uuid)
+returns void
+language plpgsql
+security definer
+set search_path = ''
+as $$
+declare me uuid := auth.uid();
+begin
+  if me is null then raise exception 'not_logged_in'; end if;
+  if fid = me then raise exception 'self'; end if;
+  insert into public.user_blocks (blocker, blocked) values (me, fid) on conflict do nothing;
+  delete from public.friendships where (user_id = me and friend_id = fid) or (user_id = fid and friend_id = me);
+  delete from public.friend_requests where (from_id = me and to_id = fid) or (from_id = fid and to_id = me);
+end;
+$$;
+
+create or replace function public.unblock_user(fid uuid)
+returns void
+language sql
+security definer
+set search_path = ''
+as $$
+  delete from public.user_blocks where blocker = auth.uid() and blocked = fid;
+$$;
+
+drop function if exists public.get_blocks();
+create function public.get_blocks()
+returns table (user_id uuid, display_name text, username text)
+language sql
+stable
+security definer
+set search_path = ''
+as $$
+  select b.blocked, coalesce(p.display_name, '?'), p.username
+  from public.user_blocks b left join public.profiles p on p.user_id = b.blocked
+  where b.blocker = auth.uid()
+  order by b.created_at desc;
+$$;
+
+-- Søk, forespørsler og venne-kode tar hensyn til blokkering.
+drop function if exists public.search_users(text);
+create function public.search_users(q text)
+returns table (user_id uuid, display_name text, username text, avatar text, photo text, status text)
+language sql
+stable
+security definer
+set search_path = ''
+as $$
+  select p.user_id, p.display_name, p.username, p.avatar, p.photo,
+         case when exists (select 1 from public.friendships f where f.user_id = auth.uid() and f.friend_id = p.user_id) then 'friend'
+              when exists (select 1 from public.friend_requests r where r.from_id = auth.uid() and r.to_id = p.user_id) then 'sent'
+              when exists (select 1 from public.friend_requests r where r.from_id = p.user_id and r.to_id = auth.uid()) then 'incoming'
+              else 'none' end
+  from public.profiles p
+  where auth.uid() is not null
+    and char_length(btrim(coalesce(q, ''))) >= 2
+    and p.user_id <> auth.uid()
+    and not public.is_blocked_between(auth.uid(), p.user_id)
+    and (starts_with(p.username, lower(regexp_replace(btrim(q), '^@', '')))
+         or starts_with(lower(p.display_name), lower(btrim(q))))
+  order by (p.username = lower(regexp_replace(btrim(q), '^@', ''))) desc, p.username nulls last, p.display_name
+  limit 12;
+$$;
+
+drop function if exists public.get_friend_requests();
+create function public.get_friend_requests()
+returns table (user_id uuid, display_name text, username text, avatar text, photo text, created_at timestamptz)
+language sql
+stable
+security definer
+set search_path = ''
+as $$
+  select p.user_id, p.display_name, p.username, p.avatar, p.photo, r.created_at
+  from public.friend_requests r join public.profiles p on p.user_id = r.from_id
+  where r.to_id = auth.uid() and not public.is_blocked_between(auth.uid(), r.from_id)
+  order by r.created_at desc;
+$$;
+
+create or replace function public.request_friend(fid uuid)
+returns text
+language plpgsql
+security definer
+set search_path = ''
+as $$
+declare me uuid := auth.uid();
+begin
+  if me is null then raise exception 'not_logged_in'; end if;
+  if fid = me then raise exception 'self'; end if;
+  if not exists (select 1 from public.profiles where user_id = me) then raise exception 'no_profile'; end if;
+  if not exists (select 1 from public.profiles where user_id = fid) or public.is_blocked_between(me, fid) then raise exception 'not_found'; end if;
+  if exists (select 1 from public.friendships where user_id = me and friend_id = fid) then return 'friend'; end if;
+  if exists (select 1 from public.friend_requests where from_id = fid and to_id = me) then
+    delete from public.friend_requests where (from_id = fid and to_id = me) or (from_id = me and to_id = fid);
+    insert into public.friendships (user_id, friend_id) values (me, fid), (fid, me) on conflict do nothing;
+    return 'friend';
+  end if;
+  if (select count(*) from public.friend_requests where from_id = me) >= 50 then raise exception 'too_many'; end if;
+  insert into public.friend_requests (from_id, to_id) values (me, fid) on conflict do nothing;
+  return 'sent';
+end;
+$$;
+
+create or replace function public.add_friend(code text)
+returns text
+language plpgsql
+security definer
+set search_path = ''
+as $$
+declare
+  me uuid := auth.uid();
+  fid uuid;
+  fname text;
+begin
+  if me is null then raise exception 'not_logged_in'; end if;
+  if not exists (select 1 from public.profiles where user_id = me) then raise exception 'no_profile'; end if;
+  select p.user_id, p.display_name into fid, fname
+    from public.profiles p
+    where p.friend_code = upper(regexp_replace(coalesce(code, ''), '[^A-Za-z0-9]', '', 'g'));
+  if fid is null or public.is_blocked_between(me, fid) then raise exception 'not_found'; end if;
+  if fid = me then raise exception 'self'; end if;
+  if (select count(*) from public.friendships where user_id = me) >= 200 then raise exception 'too_many'; end if;
+  insert into public.friendships (user_id, friend_id) values (me, fid), (fid, me) on conflict do nothing;
+  return fname;
+end;
+$$;
+
+-- Rapporter. kind: 'name' (navn/brukernavn), 'photo', 'user' (oppførsel), 'course' (fellesskapskurs).
+create table if not exists public.content_reports (
+  id          bigint generated always as identity primary key,
+  reporter    uuid not null references auth.users (id) on delete cascade,
+  target_user uuid references auth.users (id) on delete cascade,
+  kind        text not null check (kind in ('name', 'photo', 'user', 'course')),
+  target_id   text check (char_length(target_id) < 100),
+  reason      text not null check (char_length(reason) < 60),
+  note        text check (char_length(note) <= 500),
+  handled     boolean not null default false,
+  created_at  timestamptz not null default now()
+);
+create index if not exists content_reports_target_idx on public.content_reports (target_user, kind);
+alter table public.content_reports enable row level security;
+revoke all on public.content_reports from anon, authenticated;
+
+create or replace function public.report_content(p_kind text, p_target_user uuid, p_target_id text, p_reason text, p_note text)
+returns void
+language plpgsql
+security definer
+set search_path = ''
+as $$
+declare me uuid := auth.uid(); n int;
+begin
+  if me is null then raise exception 'not_logged_in'; end if;
+  if (select count(*) from public.content_reports where reporter = me and created_at > now() - interval '1 day') >= 20 then raise exception 'too_many'; end if;
+  insert into public.content_reports (reporter, target_user, kind, target_id, reason, note)
+  values (me, p_target_user, p_kind, left(p_target_id, 99), left(coalesce(p_reason, ''), 59), left(p_note, 500));
+  -- Automatisk skjuling ved rapporter fra 3 forskjellige brukere.
+  if p_target_user is not null and p_kind in ('name', 'photo') then
+    select count(distinct reporter) into n from public.content_reports where target_user = p_target_user and kind = p_kind and not handled;
+    if n >= 3 then
+      if p_kind = 'photo' then update public.profiles set photo = null where user_id = p_target_user;
+      else update public.profiles set display_name = 'Bruker', username = null where user_id = p_target_user; end if;
+      update public.content_reports set handled = true where target_user = p_target_user and kind = p_kind;
+    end if;
+  end if;
+end;
+$$;
+
+revoke all on function public.is_clean(text)                                   from public, anon;
+revoke all on function public.is_blocked_between(uuid, uuid)                   from public, anon, authenticated;
+revoke all on function public.block_user(uuid)                                 from public, anon;
+revoke all on function public.unblock_user(uuid)                               from public, anon;
+revoke all on function public.get_blocks()                                     from public, anon;
+revoke all on function public.search_users(text)                               from public, anon;
+revoke all on function public.get_friend_requests()                            from public, anon;
+revoke all on function public.report_content(text, uuid, text, text, text)     from public, anon;
+grant execute on function public.is_clean(text)                                to authenticated;
+grant execute on function public.block_user(uuid)                              to authenticated;
+grant execute on function public.unblock_user(uuid)                            to authenticated;
+grant execute on function public.get_blocks()                                  to authenticated;
+grant execute on function public.search_users(text)                            to authenticated;
+grant execute on function public.get_friend_requests()                         to authenticated;
+grant execute on function public.report_content(text, uuid, text, text, text)  to authenticated;

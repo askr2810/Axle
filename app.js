@@ -265,6 +265,8 @@ function renderSettings(){
     </div>
     <div class="sgroup">
       <button class="srow" data-a="feedback"><span class="lbl">${t("setFeedback")}</span>${I.chevron}</button>
+      ${CLOUD_ON && AUTH ? `<button class="srow" data-a="frblocks"><span class="lbl">${t("blockList")}<span class="sub">${t("blockListSub")}</span></span>${I.chevron}</button>` : ""}
+      <a class="srow" href="mailto:${esc(CONFIG.contactEmail)}?subject=${encodeURIComponent("Axle: rapport om misbruk")}"><span class="lbl">${t("abuseContact")}<span class="sub">${esc(CONFIG.contactEmail)}</span></span>${I.chevron}</a>
       <button class="srow" data-a="privacy"><span class="lbl">${t("setPrivacy")}</span>${I.chevron}</button>
       ${claudeDb&&isOwner?`<button class="srow" data-a="inbox"><span class="lbl">${t("setInbox","…")}</span>${I.chevron}</button>`:""}
     </div>
@@ -799,6 +801,9 @@ function renderOverlay(){
         <button class="big" data-a="lgsend" ${o.busy?"disabled":""}>${t("acSend")}</button><button class="big ghost" data-a="closeov">${t("cancel")}</button>
         <p class="lgnote">${t("acPrivacyNote")}</p></div>`; }
   else if(overlay.friend) d.innerHTML = frDetailHTML(overlay.friend);
+  else if(overlay.frmod) d.innerHTML = frModHTML(overlay.frmod);
+  else if(overlay.frrep) d.innerHTML = frReportHTML(overlay.frrep);
+  else if("frblocks" in overlay) d.innerHTML = frBlocksHTML(overlay.frblocks);
   else if(overlay.stat) d.innerHTML = statSheetHTML(overlay.stat);
   else if(overlay.pre) d.innerHTML = `<div class="dialog pop pre-dlg" role="dialog">${preCardHTML(COURSE(S.current)) || `<p>${esc(t("preDone"))}</p>`}<p class="ss-note">${esc(t("preText"))}</p><button class="big" data-a="closeov">${esc(t("cont"))}</button></div>`;
   else if(overlay.pfname){ d.innerHTML = nameDialogHTML(); setTimeout(()=>{ const i=document.getElementById("pfnamein"); if(i){ i.focus(); i.addEventListener("keydown", e=>{ if(e.key==="Enter") document.querySelector('[data-a="pfnamesave"]')?.click(); }); } }, 0); }
