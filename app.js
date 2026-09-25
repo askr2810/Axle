@@ -196,6 +196,7 @@ function renderHome(){
     <button class="stat xp" data-a="statinfo" data-k="xp" aria-label="${t("xpTitle")}: ${S.xp}">${I.bolt}${S.xp}</button>
   </div></div>
   <main class="wrap">
+    ${dcDoneToday() ? "" : dcCardHTML()}
     ${examHomeActions(c) ? `<div class="actions">${examHomeActions(c)}</div>` : ""}
     ${preBarHTML(c)}
     ${path}
