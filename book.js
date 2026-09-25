@@ -131,6 +131,7 @@ function renderBookUnit(){
   $app.innerHTML = `${bkTop("bkback", courseName(c) + " · " + t("unit", u + 1), unitTitle(c, u))}
     <main class="wrap theory bk-unit">
       ${secs.length > 1 ? `<nav class="bk-toc" aria-label="${esc(t("bkToc"))}">${secs.map((s, k) => `<button data-a="bksec" data-i="${k}">${esc(plain(s))}</button>`).join("")}</nav>` : ""}
+      ${teacherBubble(c.code, esc(t("tchTheory", unitTitle(c, u))), 52, "tch-th")}
       ${tyKeyHTML(src)}
       ${f.length ? `<div class="bk-glance"><div class="bk-glance-h">${esc(t("bkGlance"))}</div>${f.map(x => `<div class="dmath">${texD(x)}</div>`).join("")}</div>` : ""}
       ${html}

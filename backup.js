@@ -30,6 +30,7 @@ function unionFlags(a, b){ const o = Object.assign({}, isObj(b)?b:{}); if(isObj(
 function mergeState(a, b){
   const m = JSON.parse(JSON.stringify(a));
   if(!isObj(b)) return m;
+  if(!m.avatar && typeof b.avatar === "string") m.avatar = b.avatar;
   m.xp = Math.max(+a.xp||0, +b.xp||0);
   m.daily = Object.assign({}, a.daily);
   if(isObj(b.daily)) for(const k in b.daily) m.daily[k] = Math.max(+m.daily[k]||0, +b.daily[k]||0);

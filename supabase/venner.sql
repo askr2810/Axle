@@ -38,6 +38,9 @@ create table if not exists public.friendships (
   check (user_id <> friend_id)
 );
 
+-- Avatar (tegnet figur, lagret som kort kode). Legges til også hvis tabellen fantes fra før.
+alter table public.profiles add column if not exists avatar text check (avatar is null or avatar ~ '^[0-9]{1,2}(-[0-9]{1,2}){3,12}$');
+
 alter table public.profiles    enable row level security;
 alter table public.friendships enable row level security;
 
@@ -51,17 +54,18 @@ create policy "egen profil - endre" on public.profiles for update to authenticat
 
 revoke all on public.profiles from anon, authenticated;
 grant select on public.profiles to authenticated;
-grant insert (user_id, display_name, xp, streak, streak_last, week_xp, week_key, crowns, levels, course, updated_at) on public.profiles to authenticated;
-grant update (display_name, xp, streak, streak_last, week_xp, week_key, crowns, levels, course, updated_at) on public.profiles to authenticated;
+grant insert (user_id, display_name, xp, streak, streak_last, week_xp, week_key, crowns, levels, course, avatar, updated_at) on public.profiles to authenticated;
+grant update (display_name, xp, streak, streak_last, week_xp, week_key, crowns, levels, course, avatar, updated_at) on public.profiles to authenticated;
 
 -- Vennskap endres bare via funksjonene under.
 revoke all on public.friendships from anon, authenticated;
 
 -- Deg selv og vennene dine, med tallene til poengtavla. Venne-koden vises bare for deg selv.
-create or replace function public.get_friends()
+drop function if exists public.get_friends();
+create function public.get_friends()
 returns table (
   user_id uuid, display_name text, friend_code text, xp integer, streak integer, streak_last text,
-  week_xp integer, week_key text, crowns integer, levels integer, course text, updated_at timestamptz, is_me boolean
+  week_xp integer, week_key text, crowns integer, levels integer, course text, avatar text, updated_at timestamptz, is_me boolean
 )
 language sql
 stable
@@ -70,7 +74,7 @@ set search_path = ''
 as $$
   select p.user_id, p.display_name,
          case when p.user_id = auth.uid() then p.friend_code end,
-         p.xp, p.streak, p.streak_last, p.week_xp, p.week_key, p.crowns, p.levels, p.course, p.updated_at,
+         p.xp, p.streak, p.streak_last, p.week_xp, p.week_key, p.crowns, p.levels, p.course, p.avatar, p.updated_at,
          p.user_id = auth.uid()
   from public.profiles p
   where p.user_id = auth.uid()

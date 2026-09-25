@@ -28,9 +28,13 @@ async function frRpc(name, args){
   const tok = await authToken(); if(!tok) throw new CloudError(AUTH ? "offline" : "auth", 0);
   return sbFetch("/rest/v1/rpc/" + name, { method: "POST", body: JSON.stringify(args || {}) }, tok);
 }
+let FR_NO_AVATAR_COL = false; // databasen mangler kolonnen «avatar» (gammel venner.sql)
 async function frPushStats(tok){
   if(!AUTH) return;
-  await sbFetch("/rest/v1/profiles?user_id=eq." + encodeURIComponent(AUTH.uid), { method: "PATCH", headers: { Prefer: "return=minimal" }, body: JSON.stringify(myStats()) }, tok);
+  const body = myStats(); if(S.avatar && !FR_NO_AVATAR_COL) body.avatar = S.avatar;
+  const url = "/rest/v1/profiles?user_id=eq." + encodeURIComponent(AUTH.uid), opt = b => ({ method: "PATCH", headers: { Prefer: "return=minimal" }, body: JSON.stringify(b) });
+  try{ await sbFetch(url, opt(body), tok); }
+  catch(e){ if(body.avatar && /PGRST204|42703/.test(e.code || "")){ FR_NO_AVATAR_COL = true; delete body.avatar; await sbFetch(url, opt(body), tok); } else throw e; }
 }
 async function frLoad(){
   if(!CLOUD_ON || !AUTH || FR.loading) return;
@@ -55,6 +59,7 @@ async function frSaveName(name){
     const me = (FR.rows || []).find(r => r.is_me);
     if(me) await sbFetch("/rest/v1/profiles?user_id=eq." + encodeURIComponent(AUTH.uid), { method: "PATCH", headers: { Prefer: "return=minimal" }, body: JSON.stringify({ display_name: name }) }, tok);
     else await sbFetch("/rest/v1/profiles", { method: "POST", headers: { Prefer: "return=minimal" }, body: JSON.stringify(Object.assign({ user_id: AUTH.uid, display_name: name }, myStats())) }, tok);
+    if(!me && !S.avatar){ S.avatar = avRandom(); save(); } // alle får en avatar de kan endre
     FR.editName = false; FR.busy = false; await frLoad();
   }catch(e){ FR.busy = false; toast(frErr(e)); frRender(); }
 }
@@ -79,7 +84,8 @@ function frErr(e){
 }
 function frRender(){ if(screen === "friends" && !overlay) render(); }
 
-function frAvatar(name, i){
+function frAvatar(name, i, av, size){
+  if(av && /^\d+(-\d+){3,}$/.test(av)) return avatarSVG(av, size || 40, "fr-avs");
   const cols = ["var(--u0)", "var(--u1)", "var(--u2)", "var(--gold-deep)", "var(--ok)"];
   const ch = (String(name || "?").trim()[0] || "?").toUpperCase();
   return `<span class="fr-av" style="background:${cols[i % cols.length]}">${esc(ch)}</span>`;
@@ -115,16 +121,23 @@ function renderFriends(){
       const rows = FR.rows.map(frLive), key = FR.tab === "total" ? "xp" : FR.tab === "streak" ? "streak" : "week_xp";
       rows.sort((a, b) => (b[key] - a[key]) || (b.xp - a.xp) || String(a.display_name).localeCompare(b.display_name));
       const unit = r => FR.tab === "streak" ? `${r.streak}<small>${esc(t("frDays"))}</small>` : `${r[key]}<small>XP</small>`;
-      const board = rows.map((r, i) => `<button class="fr-row ${r.is_me ? "me" : ""}" ${r.is_me ? "" : `data-a="frdetail" data-id="${esc(r.user_id)}"`}>
-          <span class="fr-rank r${i + 1}">${i + 1}</span>${frAvatar(r.display_name, i)}
+      const avOf = r => r.is_me ? (S.avatar || r.avatar) : r.avatar;
+      const podium = rows.length >= 2 ? `<div class="podium">${[1, 0, 2].map(i => { const r = rows[i]; if(!r) return `<div class="pd-col p${i + 1} empty"></div>`;
+          return `<button class="pd-col p${i + 1} ${r.is_me ? "me" : ""}" ${r.is_me ? "" : `data-a="frdetail" data-id="${esc(r.user_id)}"`}>
+            <span class="pd-av">${i === 0 ? `<span class="pd-crown">${I.crown}</span>` : ""}${frAvatar(r.display_name, i, avOf(r), i === 0 ? 72 : 58)}</span>
+            <b class="pd-name">${esc(r.display_name)}</b><span class="pd-val">${unit(r)}</span>
+            <span class="pd-block"><span class="pd-medal">${i + 1}</span></span></button>`; }).join("")}</div>` : "";
+      const listRows = rows.length >= 2 ? rows.slice(3) : rows, off = rows.length >= 2 ? 3 : 0;
+      const board = listRows.map((r, j) => { const i = j + off; return `<button class="fr-row ${r.is_me ? "me" : ""}" ${r.is_me ? "" : `data-a="frdetail" data-id="${esc(r.user_id)}"`}>
+          <span class="fr-rank r${i + 1}">${i + 1}</span>${frAvatar(r.display_name, i, avOf(r))}
           <span class="fr-t"><b>${esc(r.display_name)}${r.is_me ? ` <em>${esc(t("frYou"))}</em>` : ""}</b><span>${esc(frCourseName(r.course))}${r.crowns ? ` · ${r.crowns} ${esc(t("frCrownsShort"))}` : ""}</span></span>
-          <span class="fr-v">${unit(r)}</span></button>`).join("");
-      body = `<div class="fr-card fr-me">${frAvatar(me.display_name, 0)}<div class="fr-me-t"><b>${esc(me.display_name)}</b><button class="exlink" data-a="freditname">${esc(t("frEditName"))}</button></div></div>
+          <span class="fr-v">${unit(r)}</span></button>`; }).join("");
+      body = `<div class="fr-card fr-me">${frAvatar(me.display_name, 0, S.avatar || me.avatar, 56)}<div class="fr-me-t"><b>${esc(me.display_name)}</b><span class="fr-links"><button class="exlink" data-a="freditname">${esc(t("frEditName"))}</button><button class="exlink" data-a="avedit">${esc(t("avEdit"))}</button></span></div></div>
         <div class="fr-card fr-code"><small>${esc(t("frYourCode"))}</small><div class="fr-codev">${esc(frFmtCode(me.friend_code))}</div>
           <p>${esc(t("frCodeText"))}</p><button class="big" data-a="frshare">${esc(t(navigator.share ? "frShare" : "frCopy"))}</button></div>
         <div class="fr-add"><input type="text" id="fradd" maxlength="12" autocapitalize="characters" autocomplete="off" placeholder="${esc(t("frAddPh"))}" aria-label="${esc(t("frAddPh"))}"><button class="big" data-a="fradd" ${FR.busy ? "disabled" : ""}>${esc(t("frAdd"))}</button></div>
         <div class="seg fr-tabs" role="tablist">${["week", "total", "streak"].map(k => `<button role="tab" aria-selected="${FR.tab === k}" class="${FR.tab === k ? "on" : ""}" data-a="frtab" data-t="${k}">${esc(t("frTab_" + k))}</button>`).join("")}</div>
-        <div class="fr-board">${board}</div>
+        ${podium}<div class="fr-board">${board}</div>
         ${rows.length < 2 ? `<p class="fr-hint">${esc(t("frEmpty"))}</p>` : ""}
         <button class="exlink fr-refresh" data-a="frreload">${FR.loading ? esc(t("frLoading")) : esc(t("frRefresh"))}</button>`;
     }
@@ -136,7 +149,7 @@ function renderFriends(){
 function frDetailHTML(id){
   const r0 = (FR.rows || []).find(x => x.user_id === id); if(!r0) return "";
   const r = frLive(r0), st = (label, v) => `<div class="fr-st"><b>${v}</b><span>${esc(label)}</span></div>`;
-  return `<div class="dialog pop" role="dialog" aria-label="${esc(r.display_name)}"><div class="fr-dh">${frAvatar(r.display_name, 1)}<h3>${esc(r.display_name)}</h3></div>
+  return `<div class="dialog pop" role="dialog" aria-label="${esc(r.display_name)}"><div class="fr-dh">${frAvatar(r.display_name, 1, r.avatar, 56)}<h3>${esc(r.display_name)}</h3></div>
     <div class="fr-stats">${st(t("frTab_week"), r.week_xp + " XP")}${st(t("frTab_total"), r.xp + " XP")}${st(t("frTab_streak"), r.streak + " " + t("frDays"))}${st(t("frCrowns"), r.crowns)}${st(t("frLevels"), r.levels)}${st(t("frLast"), esc(frAgo(r.updated_at)))}</div>
     ${r.course ? `<p class="fr-now">${esc(t("frNow", frCourseName(r.course)))}</p>` : ""}
     <button class="big" data-a="closeov">${esc(t("cont"))}</button>

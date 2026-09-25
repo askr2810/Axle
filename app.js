@@ -90,6 +90,7 @@ const I = {
   users: svg('<circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0"/><path d="M16 4.5a3.5 3.5 0 0 1 0 7M18 14.2a6.5 6.5 0 0 1 3.5 5.8"/>',20),
   trophy: svg('<path d="M8 3h8v6a4 4 0 0 1-8 0zM8 5H4v2a3 3 0 0 0 4 3M16 5h4v2a3 3 0 0 1-4 3M12 13v4M8 21h8M9 17h6v4H9z"/>',44,false,1.8),
   star16: svg('<path d="m12 2.5 2.9 6 6.6.8-4.9 4.6 1.3 6.6L12 17.2l-5.9 3.3 1.3-6.6-4.9-4.6 6.6-.8z"/>',16,true),
+  dice: svg('<rect x="3.5" y="3.5" width="17" height="17" rx="4"/><circle cx="8.5" cy="8.5" r="1.3" fill="currentColor"/><circle cx="15.5" cy="15.5" r="1.3" fill="currentColor"/><circle cx="15.5" cy="8.5" r="1.3" fill="currentColor"/><circle cx="8.5" cy="15.5" r="1.3" fill="currentColor"/><circle cx="12" cy="12" r="1.3" fill="currentColor"/>',22),
   checkS: svg('<path d="m5 12.5 4.5 4.5L19 7.5"/>',16,false,3.2),
   book: svg('<path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v15H6.5A2.5 2.5 0 0 0 4 20.5z"/><path d="M4 20.5A2.5 2.5 0 0 0 6.5 23H20v-5"/>',18),
   steps: svg('<path d="M4 20h5v-5h5v-5h6"/>',18),
@@ -196,6 +197,7 @@ function renderHome(){
       <div class="meter"><i style="width:${Math.min(100,today/goal*100)}%"></i></div>
       <div class="week">${week}</div>
     </div>
+    ${homeTeacherHTML(c)}
     ${preCardHTML(c)}
     <div class="actions"><button class="pill" data-a="book">${I.book}${t("bkTitle")}</button><button class="pill" data-a="friends">${I.users}${t("frTitle")}</button>${examHomeActions(c)}${wrongN?`<button class="pill rev" data-a="review">${I.redo}${t("reviewBtn",wrongN)}</button>`:""}${examHomeJump()}</div>
     ${path}
@@ -237,6 +239,7 @@ function renderSettings(){
   const goalOpts = [10,20,30,50], rem = S.reminder;
   $app.innerHTML = `<div class="sheet"><div class="wrap settings">
     <div class="sheet-h"><h1>${t("setTitle")}</h1><button class="iconbtn" data-a="home" aria-label="${t("back")}">${I.x}</button></div>
+    <div class="sgroup"><button class="srow set-av" data-a="avedit">${S.avatar ? avatarSVG(S.avatar, 48) : `<span class="set-av0">${I.users}</span>`}<span class="lbl">${t(S.avatar ? "avEdit" : "avMake")}<span class="sub">${t("avSetSub")}</span></span>${I.chevron}</button></div>
     <div class="sgroup">
       <div class="srow"><span class="lbl">${t("setLang")}</span><div class="seg"><button class="${LANG==="nb"?"on":""}" data-a="setlang" data-l="nb">Norsk</button><button class="${LANG==="en"?"on":""}" data-a="setlang" data-l="en">English</button></div></div>
       <div class="srow"><span class="lbl">${t("setGoal")}<span class="sub">${t("setGoalUnit")}</span></span><div class="seg">${goalOpts.map(g=>`<button class="${(S.goal||10)===g?"on":""}" data-a="setgoal" data-g="${g}">${g}</button>`).join("")}</div></div>
@@ -359,7 +362,7 @@ function checkAnswer(){
   const it = L.queue[0]; let ok;
   if(it.type==="mc"){ if(L.sel==null) return; ok = it.opts[L.sel].ok; }
   else { if(!L.input.trim()) return; const v = parseNum(L.input); ok = Number.isFinite(v) && Math.abs(v - it.n) <= Math.max(it.tol, 1e-9); }
-  L.answered = true; L.ok = ok; buzz(ok);
+  L.answered = true; L.ok = ok; buzz(ok); L.tline = pickLine(t(ok ? "tchRight" : "tchWrong"));
   const firstTime = !L.seen.has(it.id); L.seen.add(it.id);
   if(ok){ L.solved.add(it.id); L.combo++; }
   else { L.combo = 0; if(firstTime) L.firstWrong.add(it.id); if(L.maxHearts) L.hearts--; }
@@ -424,6 +427,7 @@ function renderLesson(){
     foot = `<div class="lfoot ${L.ok?"ok":"bad"} pop"><div class="wrap">
       <div class="fb-h">${L.ok?I.okc:I.badc}${L.ok?(L.combo>=3?t("streakN",L.combo):t("correct")):t("notQuite")}</div>
       ${L.ok?"":`<div class="fb-a">${t("rightAnswer")} ${rich(correctText(it))}</div>`}
+      ${L.tline && L.kind !== "exam" ? teacherBubble(L.code, esc(L.tline), 34, "tch-fb") : ""}
       ${it.expl?`<div class="fb-e">${rich(it.expl)}</div>`:""}
       ${L.ok || !theoryOf(L.code,+it.id.split(".")[0]) ? "" : `<button class="fb-th" data-a="thov">${I.book}${t("readTheory")}</button>`}
       ${L.ok?"":`<button class="fb-rep" data-a="report">${t("thinkWrong")} ${t("reportShort")}</button>`}
@@ -440,6 +444,7 @@ function renderDone(){
   const title = L.kind==="jump" ? t("doneJump") : (L.kind==="unit" && L.meta.k===3) ? t("doneCrown") : r.acc===100 ? t("doneFlawless") : L.kind==="review" ? t("doneReview") : t("doneLevel", lvShort(L.meta.k));
   const sub2 = L.kind==="jump" ? t("jumpUnlocked", unitTitle(c,u)) : (L.kind==="unit" && L.meta.k===3) ? t("crownWon", unitTitle(c,u)) : null;
   $app.innerHTML = `<main class="wrap finish pop">
+    ${teacherBubble(L.code, esc(pickLine(t(r.acc === 100 ? "tchFlawless" : r.acc >= 70 ? "tchDone" : "tchDoneLow"))), 64, "tch-done")}
     <h1>${esc(title)}</h1>
     ${sub2?`<p>${esc(sub2)}</p>`:""}
     <p>${r.streakUp?esc(t("streakLine",r.streak)):esc(courseName(c))}</p>
@@ -451,6 +456,12 @@ function renderDone(){
     ${doneExtrasHTML(c, u, r)}
     <button class="big" data-a="home">${t("cont")}</button>
   </main>`;
+}
+// Læreren i faget hilser på forsiden og peker på neste steg.
+function homeTeacherHTML(c){
+  const nx = nextNode(c), tc = teacherOf(c.code);
+  const line = nx ? t(nx[1] === 0 && !(S.theorySeen||{})[c.code + ":" + nx[0]] ? "tchHomeTheory" : "tchHomeNext", unitTitle(c, nx[0]), lvShort(nx[1])) : t("tchHomeDone");
+  return `<div class="tch tch-home">${avatarSVG(tc.av, 56, "tch-av")}<div class="tch-b"><b>${esc(tc.name)} <em>${esc(t("tchRole", T(tc.nb, tc.en)))}</em></b><span>${esc(line)}</span></div></div>`;
 }
 // Etter leksjonen: dagsmål, feil som havner i «Repeter feil», og neste steg.
 function doneExtrasHTML(c, u, r){
@@ -773,7 +784,7 @@ function renderTheory(){
   const c = COURSE(TH.code);
   $app.innerHTML = `<div class="top"><div class="wrap"><button class="iconbtn" data-a="home" aria-label="${esc(t("back"))}">${I.x}</button>
       <div class="th-t"><small>${esc(courseName(c))} · ${esc(t("unit", TH.u+1))}</small><b>${esc(unitTitle(c, TH.u))}</b></div><span class="th-ic" aria-hidden="true">${I.book}</span></div></div>
-    <main class="wrap theory">${theoryBody(TH.code, TH.u, true)}</main>
+    <main class="wrap theory">${teacherBubble(TH.code, esc(t("tchTheory", unitTitle(c, TH.u))), 52, "tch-th")}${theoryBody(TH.code, TH.u, true)}</main>
     <div class="lfoot"><div class="wrap"><button class="big" data-a="thstart">${esc(t(TH.go ? "thStartFirst" : "thStart"))}</button></div></div>`;
 }
 function theorySheetHTML(o){
@@ -806,6 +817,7 @@ function render(){
   else if(screen==="theory") renderTheory();
   else if(screen==="book") renderBook();
   else if(screen==="friends") renderFriends();
+  else if(screen==="avatar") renderAvatarEditor();
   else if(screen==="examSetup") renderExamSetup();
   else if(screen==="exam") renderExam();
   else if(screen==="examResult") renderExamResult();
@@ -819,6 +831,7 @@ document.addEventListener("click", async e=>{
   if(examClick(a, b)) return; // eksamensmodus (handlinger som starter med "ex")
   if(bookClick(a, b)) return; // teoriboka (handlinger som starter med "bk")
   if(friendsClick(a, b)) return; // venner (handlinger som starter med "fr")
+  if(avatarClick(a, b)) return; // avatar-bygger (handlinger som starter med "av")
   if(a==="pick"){ screen="pick"; render(); window.scrollTo(0,0); }
   else if(a==="home"){ goHome(); }
   else if(a==="settings"){ screen="settings"; render(); window.scrollTo(0,0); }
