@@ -538,3 +538,11 @@ input[type="time"]{font:inherit;font-weight:700;border:2px solid var(--line);bor
 .cy-e.bad{background:color-mix(in srgb,var(--bad) 12%,transparent)}
 .cy-e b{display:block;margin-bottom:2px}
 .cy-score{font-weight:700;text-align:center;margin:14px 0 10px}
+
+/* ---------- resultatskjerm ---------- */
+.dx-goal{background:var(--card);border:2px solid var(--line);border-radius:16px;padding:12px 14px;text-align:left}
+.dx-goal .goal-h{display:flex;justify-content:space-between;margin-bottom:8px}
+.dx-wrong{font-size:14.5px}
+.dx-acts{margin-top:0}
+.dx-acts .pill{flex:1 1 100%}
+.dx-next{color:var(--accent)}

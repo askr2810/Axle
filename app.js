@@ -12,7 +12,7 @@ function inline(s){
   return s.split(/(`[^`]+`|\$[^$]+\$)/g).map(p=>{
     if(p.startsWith("`")&&p.endsWith("`")&&p.length>1) return "<code>"+esc(p.slice(1,-1))+"</code>";
     if(p.startsWith("$")&&p.endsWith("$")&&p.length>1) return tex(p.slice(1,-1));
-    return esc(p);
+    return esc(p).replace(/(\d) (%|‰|°C|°|kr\b|kWh\b|kW\b|kN\b|mm\b|cm\b|m\/s\b|m\b|s\b|N\b|W\b|V\b|A\b|J\b|Hz\b|kg\b|g\b)/g, "$1\u00a0$2"); // tall og enhet på samme linje
   }).join("");
 }
 function rich(s){
@@ -448,8 +448,22 @@ function renderDone(){
       <div class="tile t2"><small>${t("tileFirst")}</small><b>${r.acc}%</b></div>
       <div class="tile t3"><small>${t("tileTime")}</small><b>${m}:${pad(sec)}</b></div>
     </div>
+    ${doneExtrasHTML(c, u, r)}
     <button class="big" data-a="home">${t("cont")}</button>
   </main>`;
+}
+// Etter leksjonen: dagsmål, feil som havner i «Repeter feil», og neste steg.
+function doneExtrasHTML(c, u, r){
+  const today = S.daily[dayKey()] || 0, goal = S.goal || 10, pct = Math.min(100, today / goal * 100);
+  const wrongN = L.firstWrong.size, here = c.code === S.current, nx = here ? nextNode(c) : null;
+  let h = `<div class="dx-goal"><div class="goal-h"><b>${today >= goal ? t("goalReached") : t("dailyGoal")}</b><span>${Math.min(today, goal)} / ${goal} XP</span></div><div class="meter"><i style="width:${pct}%"></i></div></div>`;
+  if(wrongN) h += `<p class="dx-wrong">${esc(t("dxWrong", wrongN))}</p>`;
+  const btns = [];
+  if(here && u != null && r.acc < 60 && theoryOf(c.code, u)) btns.push(`<button class="pill" data-a="theory" data-u="${u}">${I.book}${t("dxTheory")}</button>`);
+  if(here && L.kind !== "review" && (sub(c.code).wrong || []).length) btns.push(`<button class="pill rev" data-a="review">${I.redo}${t("reviewBtn", sub(c.code).wrong.length)}</button>`);
+  if(nx && L.kind !== "review") btns.push(`<button class="pill dx-next" data-a="node" data-u="${nx[0]}" data-k="${nx[1]}">${I.bolt}${esc(t("dxNext", lvShort(nx[1]), unitTitle(c, nx[0])))}</button>`);
+  if(btns.length) h += `<div class="actions dx-acts">${btns.join("")}</div>`;
+  return h;
 }
 function renderFail(){
   $app.innerHTML = `<main class="wrap finish pop">
