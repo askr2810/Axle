@@ -236,6 +236,10 @@ function renderSettings(){
       <div class="srow"><span class="lbl">${t("setHaptics")}</span><button class="tog ${S.haptics?"on":""}" data-a="haptoggle" role="switch" aria-checked="${!!S.haptics}" aria-label="${t("setHaptics")}"></button></div>
     </div>
     <div class="sgroup">
+      <button class="srow" data-a="backup"><span class="lbl">${t("bkMake")}<span class="sub">${t("bkMakeSub")}</span></span>${I.chevron}</button>
+      <button class="srow" data-a="restore"><span class="lbl">${t("bkLoad")}<span class="sub">${t("bkLoadSub")}</span></span>${I.chevron}</button>
+    </div>
+    <div class="sgroup">
       <button class="srow" data-a="feedback"><span class="lbl">${t("setFeedback")}</span>${I.chevron}</button>
       <button class="srow" data-a="privacy"><span class="lbl">${t("setPrivacy")}</span>${I.chevron}</button>
       ${claudeDb&&isOwner?`<button class="srow" data-a="inbox"><span class="lbl">${t("setInbox","…")}</span>${I.chevron}</button>`:""}
@@ -689,6 +693,13 @@ function renderOverlay(){
   if(overlay.jump!=null){ const c=COURSE(S.current); d.innerHTML = `<div class="dialog pop" role="dialog" aria-label="${t("jumpHere")}"><h3>${esc(t("jumpTitle",unitTitle(c,overlay.jump)))}</h3><p>${t("jumpText")}</p><button class="big" data-a="jumpok">${t("startTest")}</button><button class="big ghost" data-a="closeov">${t("cancel")}</button></div>`; }
   else if(overlay==="quit") d.innerHTML = `<div class="dialog pop" role="dialog" aria-label="${t("quitTitle")}"><h3>${t("quitTitle")}</h3><p>${t("quitText")}</p><button class="big" data-a="stay">${t("keepGoing")}</button><button class="big ghost" data-a="quitok" style="color:var(--bad)">${t("quit")}</button></div>`;
   else if(overlay==="reset") d.innerHTML = `<div class="dialog pop" role="dialog" aria-label="${t("resetTitle")}"><h3>${t("resetTitle")}</h3><p>${t("resetText")}</p><button class="big" data-a="closeov">${t("cancel")}</button><button class="big ghost" data-a="resetok" style="color:var(--bad)">${t("reset")}</button></div>`;
+  else if(overlay.backup==="out") d.innerHTML = `<div class="dialog pop" role="dialog" aria-label="${t("bkMake")}"><h3>${t("bkMake")}</h3><p>${t("bkOutText")}</p>
+      <textarea id="bkcode" readonly aria-label="${esc(t("bkMake"))}">${esc(overlay.code)}</textarea>
+      <button class="big" data-a="bkcopy">${t("bkCopy")}</button>${NATIVE?(navigator.share?`<button class="big ghost" data-a="bkshare">${t("bkShare")}</button>`:""):`<button class="big ghost" data-a="bkfile">${t("bkFile")}</button>`}<button class="big ghost" data-a="closeov">${t("cont")}</button></div>`;
+  else if(overlay.backup==="in") d.innerHTML = `<div class="dialog pop" role="dialog" aria-label="${t("bkLoad")}"><h3>${t("bkLoad")}</h3><p>${t("bkInText")}</p>
+      <textarea id="bkin" placeholder="AXLE1:…" aria-label="${esc(t("bkLoad"))}"></textarea>
+      <label class="big ghost bkpick">${t("bkPick")}<input type="file" id="bkfilein" accept=".txt,.json,text/plain,application/json" hidden></label>
+      <button class="big" data-a="bkimport">${t("bkImport")}</button><button class="big ghost" data-a="closeov">${t("cancel")}</button></div>`;
   else if(overlay==="privacy") d.innerHTML = `<div class="dialog pop privacy" role="dialog" aria-label="${t("privacyTitle")}"><h3>${t("privacyTitle")}</h3>${PRIVACY[LANG]}<button class="big" data-a="closeov">${t("cont")}</button></div>`;
   else if(overlay.exam) d.innerHTML = examOverlayHTML();
   else if(overlay.inbox){ d.innerHTML = `<div class="dialog pop" role="dialog"><h3>${t("setInbox",overlay.items.length)}</h3><div class="inbox">${overlay.items.length?overlay.items.map(x=>`<div><b>${esc(x.category||"")}</b> · ${esc(x.course||"")} ${esc(x.qid||"")} · ${esc((x.time||"").slice(0,16))}<br>${esc(x.message||"")}${x.prompt?`<br><i>${esc(String(x.prompt).slice(0,160))}</i>`:""}</div>`).join(""):`<p>${t("inboxEmpty")}</p>`}</div><button class="big" data-a="closeov">${t("cont")}</button></div>`; }
@@ -702,6 +713,8 @@ function renderOverlay(){
       <button class="big" data-a="repsend">${t("send")}</button><button class="big ghost" data-a="closeov">${t("cancel")}</button></div>`;
   }
   document.body.appendChild(d);
+  const fi = document.getElementById("bkfilein");
+  if(fi) fi.addEventListener("change", async ()=>{ const f = fi.files && fi.files[0]; if(!f) return; document.getElementById("bkin").value = await f.text(); });
 }
 
 // ---------- teori og forkunnskaper ----------
@@ -781,6 +794,13 @@ document.addEventListener("click", async e=>{
   else if(a==="stay" || a==="closeov"){ overlay=null; renderOverlay(); }
   else if(a==="quitok"){ goHome(); }
   else if(a==="reset"){ overlay="reset"; renderOverlay(); }
+  else if(a==="backup"){ overlay = { backup:"out", code: bkEncode(backupSnapshot()) }; renderOverlay(); }
+  else if(a==="restore"){ overlay = { backup:"in" }; renderOverlay(); }
+  else if(a==="bkcopy"){ const ta = document.getElementById("bkcode"); ta.select(); (navigator.clipboard ? navigator.clipboard.writeText(overlay.code) : Promise.reject()).then(()=>toast(t("bkCopied")), ()=>{ try{ document.execCommand("copy"); toast(t("bkCopied")); }catch(e){} }); }
+  else if(a==="bkfile") downloadBackup(overlay.code);
+  else if(a==="bkshare") navigator.share({ title: backupFileName(), text: overlay.code }).catch(()=>{});
+  else if(a==="bkimport"){ const v = document.getElementById("bkin").value; if(!v.trim()){ toast(t("bkEmpty")); return; }
+    if(importBackup(v)){ LANG = S.lang || LANG; overlay = null; renderOverlay(); render(); toast(t("bkDone")); } else toast(t("bkBad")); }
   else if(a==="resetok"){ const keep={current:S.current, lang:S.lang, goal:S.goal, reminder:S.reminder, haptics:S.haptics, outbox:S.outbox, examPrefs:S.examPrefs}; S=Object.assign(blank(),keep); save(); examStopTicker(); EX.res=null; goHome(); toast(t("resetDone")); }
   // innstillinger
   else if(a==="setlang"){ LANG = b.dataset.l; S.lang = LANG; save(); render(); if(S.reminder.on) scheduleReminder(); }
