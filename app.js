@@ -224,7 +224,9 @@ function renderPick(){
 }
 
 // ---------- innstillinger ----------
-function acErr(e){ const k = e && e.kind; return t(k==="offline" ? "acErrOffline" : k==="rate" ? "acErrRate" : k==="badcode" ? "acBadCode" : "acError"); }
+function acErr(e, sending){ const k = e && e.kind;
+  const msg = t(k==="offline" ? "acErrOffline" : k==="rate" ? "acErrRate" : k==="badcode" ? "acBadCode" : sending ? "acErrSend" : "acError");
+  return e && e.status && k!=="badcode" && k!=="rate" ? msg + " (" + e.status + (e.code ? " " + e.code : "") + ")" : msg; }
 function renderSettings(){
   const goalOpts = [10,20,30,50], rem = S.reminder;
   $app.innerHTML = `<div class="sheet"><div class="wrap settings">
@@ -829,7 +831,7 @@ document.addEventListener("click", async e=>{
     if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){ overlay.err = t("acBadEmail"); renderOverlay(); return; }
     overlay = { login:1, step:"email", email, busy:true }; renderOverlay();
     cloudSendCode(email).then(()=>{ if(overlay && overlay.login){ overlay = { login:1, step:"code", email }; renderOverlay(); } },
-      e=>{ if(overlay && overlay.login){ overlay = { login:1, step:"email", email, err: acErr(e) }; renderOverlay(); } }); }
+      e=>{ if(overlay && overlay.login){ overlay = { login:1, step:"email", email, err: acErr(e, true) }; renderOverlay(); } }); }
   else if(a==="lgverify"){ const code = (document.getElementById("lgcode").value||"").replace(/\D/g,""), email = overlay.email;
     if(code.length < 6){ overlay.err = t("acBadCode"); renderOverlay(); return; }
     overlay = { login:1, step:"code", email, busy:true }; renderOverlay();

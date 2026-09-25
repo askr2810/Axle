@@ -16,7 +16,7 @@ function authFromSession(s){
   return { at: s.access_token, rt: s.refresh_token, exp, uid: s.user && s.user.id, email: s.user && s.user.email };
 }
 
-class CloudError extends Error { constructor(kind, status){ super(kind); this.kind = kind; this.status = status; } }
+class CloudError extends Error { constructor(kind, status, code){ super(kind); this.kind = kind; this.status = status; this.code = code; } }
 async function sbFetch(path, opts, token){
   const headers = { apikey: CONFIG.supabaseKey, "Content-Type": "application/json" };
   if(token) headers.Authorization = "Bearer " + token;
@@ -30,7 +30,7 @@ async function sbFetch(path, opts, token){
     const kind = r.status === 429 || /rate/i.test(code) ? "rate"
       : /otp_expired|invalid|token/i.test(code) && path.startsWith("/auth/v1/verify") ? "badcode"
       : r.status === 401 || r.status === 403 ? "auth" : "server";
-    throw new CloudError(kind, r.status);
+    throw new CloudError(kind, r.status, code.slice(0, 40));
   }
   if(r.status === 204) return null;
   const txt = await r.text(); return txt ? JSON.parse(txt) : null;
