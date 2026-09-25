@@ -170,7 +170,8 @@ function decide(sub, state, now) {
 async function send(sub, msg, errs) {
   const payload = JSON.stringify({ title: msg.title, body: msg.body, url: "/", tag: "axle-" + msg.kind });
   try {
-    await sendPush({ endpoint: sub.endpoint, keys: { p256dh: sub.p256dh, auth: sub.auth } }, payload, VAPID, { TTL: 4 * 3600, urgency: "high" });
+    const st = await sendPush({ endpoint: sub.endpoint, keys: { p256dh: sub.p256dh, auth: sub.auth } }, payload, VAPID, { TTL: 4 * 3600, urgency: "high" });
+    if (errs) errs.push(`ok ${st} …${sub.endpoint.slice(-10)}`);
     return true;
   } catch (e) {
     if (errs) errs.push(`${e && e.statusCode || "?"} ${String(e && (e.body || e.message) || e).slice(0, 160)}`);
@@ -188,7 +189,7 @@ Deno.serve(async (req) => {
     let setupErr = null; try { await setup(); } catch (e) { setupErr = String(e && e.message || e); }
     const vErr = setupErr ? null : await initVapid();
     let subs = null; if (!setupErr) { const r = await sb.from("push_subs").select("endpoint", { count: "exact", head: true }); subs = r.error ? "db-feil: " + r.error.message : r.count; }
-    return J({ ok: !setupErr && !vErr, versjon: "2026-09-25c", nokkel_database: setupErr || "ok", vapid: vErr || "ok", pameldte_nettlesere: subs });
+    return J({ ok: !setupErr && !vErr, versjon: "2026-09-25d", nokkel_database: setupErr || "ok", vapid: vErr || "ok", pameldte_nettlesere: subs });
   }
   const now = new Date();
   await setup();
@@ -206,7 +207,8 @@ Deno.serve(async (req) => {
     if (!subs || !subs.length) return J({ sent: 0, subs: 0, error: "no_subs: fant ingen påmeldte nettlesere for deg" });
     let sent = 0; const errs = [];
     for (const s of subs) { const T = TXT[s.lang === "en" ? "en" : "nb"].test; if (await send(s, { kind: "test", title: T[0], body: T[1] }, errs)) sent++; }
-    return J({ sent, subs: subs.length, error: errs[0] ? "push: " + errs[0] : undefined });
+    const fails = errs.filter((x) => !x.startsWith("ok "));
+    return J({ sent, subs: subs.length, targets: subs.map((s) => "…" + s.endpoint.slice(-10)), log: errs, error: fails[0] ? "push: " + fails[0] : undefined });
   }
 
   // Vanlig kjøring fra cron.
