@@ -100,24 +100,25 @@ function bkResultsHTML(){
     : `<button class="bk-hit" data-a="bkunit" data-c="${esc(it.code)}" data-u="${it.u}"><small>${esc(it.course)} · ${esc(t("unit", it.u + 1))}</small><b>${esc(it.title)}</b><span>${bkMark(snip, BK.q)}</span></button>`).join("");
 }
 
-function bkTop(back, small, title){
+function bkTop(back, small, title, right){
   return `<div class="top"><div class="wrap">${back === "home" ? "" : `<button class="iconbtn" data-a="${back}" aria-label="${esc(t("back"))}">${I.left}</button>`}
-    <div class="th-t"><small>${esc(small)}</small><b>${esc(title)}</b></div><span class="th-ic" aria-hidden="true">${I.book}</span></div></div>`;
+    <div class="th-t"><small>${esc(small)}</small><b>${esc(title)}</b></div>${right || `<span class="th-ic" aria-hidden="true">${I.book}</span>`}</div></div>`;
 }
 function renderBook(){
   if(BK.v === "topic") return renderBookTopic();
   if(BK.v === "unit") return renderBookUnit();
   if(BK.v === "course") return renderBookCourse();
-  const groups = new Map();
+  const groups = new Map(), favs = bkCourses().filter(c => isFav(c.code));
+  if(favs.length) groups.set("★", favs); // favorittene øverst (står også i sin vanlige gruppe)
   for(const c of bkCourses()){ const g = c.group; if(!groups.has(g)) groups.set(g, []); groups.get(g).push(c); }
-  const order = [...groups.keys()].sort((a, b) => (a === "Forkurs" ? -1 : 0) - (b === "Forkurs" ? -1 : 0));
+  const order = [...groups.keys()].sort((a, b) => (a === "★" ? -2 : a === "Forkurs" ? -1 : 0) - (b === "★" ? -2 : b === "Forkurs" ? -1 : 0));
   let list = "";
   for(const g of order){
-    list += `<div class="grp">${esc(groupName(g))}</div><div class="bk-courses">`;
+    list += `<div class="grp ${g === "★" ? "grp-fav" : ""}">${g === "★" ? I_STAR_F + esc(t("favTitle")) : esc(groupName(g))}</div><div class="bk-courses">`;
     for(const c of groups.get(g)){
       const n = bkUnits(c).length, seen = bkUnits(c).filter(u => (S.theorySeen || {})[c.code + ":" + u]).length;
-      list += `<button class="bk-course" data-a="bkcourse" data-c="${esc(c.code)}"><span class="badge" style="background:${bkCol(c)}">${esc(courseShort(c))}</span>
-        <span class="t"><b>${esc(courseName(c))}</b><span>${esc(t("bkTopics", n))}${seen ? " · " + esc(t("bkReadN", seen)) : ""}</span></span>${I.chevron}</button>`;
+      list += `<div class="fav-row"><button class="bk-course" data-a="bkcourse" data-c="${esc(c.code)}"><span class="badge" style="background:${bkCol(c)}">${esc(courseShort(c))}</span>
+        <span class="t"><b>${esc(courseName(c))}</b><span>${esc(t("bkTopics", n))}${seen ? " · " + esc(t("bkReadN", seen)) : ""}</span></span>${I.chevron}</button>${favStarHTML(c.code)}</div>`;
     }
     list += `</div>`;
   }
@@ -155,7 +156,7 @@ function renderBookCourse(){
         ${f ? `<span class="bk-fx" aria-hidden="true">${texD(f)}</span>` : `<span class="bk-lead">${esc(bkLead(src).slice(0, 240))}</span>`}</button></div>`;
     }).join("");
   }
-  $app.innerHTML = `${bkTop("bkback", t("bkTitle"), courseName(c))}
+  $app.innerHTML = `${bkTop("bkback", t("bkTitle"), courseName(c), favStarHTML(c.code))}
     <main class="wrap bk">
       <div class="seg bk-tabs" role="tablist"><button role="tab" aria-selected="${BK.tab !== "sheet"}" class="${BK.tab !== "sheet" ? "on" : ""}" data-a="bktab" data-t="topics">${esc(t("bkTopicsTab"))}</button><button role="tab" aria-selected="${BK.tab === "sheet"}" class="${BK.tab === "sheet" ? "on" : ""}" data-a="bktab" data-t="sheet">${esc(t("bkSheet"))}</button></div>
       ${body}

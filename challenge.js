@@ -6,24 +6,29 @@
 // Antall oppgaver følger dagsmålet: 10 XP → 3, 20 → 4, 30 → 5, 50 → 8. Alt riktig på første forsøk gir hele dagsmålet.
 const dcN = () => Math.max(3, Math.min(10, Math.round((S.goal || 10) / 6)));
 const dcXP = (right, n) => Math.round((S.goal || 10) * (0.5 + 0.5 * right / n));
-function dcCourses(){
-  const list = COURSES.filter(c => c.code === S.current || courseProgress(c).d > 0);
-  return list.length ? list : [COURSE(S.current)];
-}
+// Kildene (fag og/eller grunnbegreper) velges i favs.js (dcSources). Grunnbegreper foretrekker kort som er «på tur» i terpinga.
 function dcPlan(){
-  const day = dayKey(), rng = exRng(exHash("dc:" + day)), cs = dcCourses();
-  const order = exShuffle(cs.slice(), rng), plan = [];
-  for(let i = 0, N = dcN(); i < N; i++){
-    const c = order[i % order.length], nx = nextNode(c), maxU = nx ? nx[0] : c.units.length - 1;
+  const day = dayKey(), rng = exRng(exHash("dc:" + day)), srcs = dcSources(), td = dayKey();
+  const order = exShuffle(srcs.slice(), rng), plan = [], used = new Set(), st = typeof drState === "function" ? drState() : {};
+  for(let i = 0, N = dcN(), tries = 0; plan.length < N && tries < N * 6; tries++, i++){
+    const x = order[i % order.length];
+    if(FAV_DRILL[x]){
+      const pool = drPool(FAV_DRILL[x][2]).filter(c => !used.has("dr:" + c[0])), due = pool.filter(c => st[c[0]] && st[c[0]].due <= td), from = due.length ? due : pool;
+      if(!from.length) continue; const c = from[Math.floor(rng() * from.length)]; used.add("dr:" + c[0]); plan.push({ code: x, dr: c[0] }); continue;
+    }
+    const c = COURSE(x), nx = nextNode(c), maxU = nx ? nx[0] : c.units.length - 1;
     const u = Math.floor(rng() * (maxU + 1)), P = poolIds(c, [u]);
     const pool = P.gen.length ? P.gen : P.num.concat(P.mc); if(!pool.length) continue;
-    plan.push({ code: c.code, id: pool[Math.floor(rng() * pool.length)] });
+    const id = pool[Math.floor(rng() * pool.length)]; if(used.has(x + ":" + id)) continue; used.add(x + ":" + id);
+    plan.push({ code: x, id });
   }
   return plan;
 }
 const dcDoneToday = () => !!(S.dc && S.dc.day === dayKey());
 function startChallenge(){
-  const items = dcPlan().map(p => { const it = itemFromId(COURSE(p.code), p.id); if(it){ it.id = p.code + ":" + it.id; it.dcCode = p.code; } return it; }).filter(Boolean);
+  const items = dcPlan().map(p => {
+    if(p.dr){ const c = DRILL.find(d => d[0] === p.dr); if(!c) return null; const it = drItem(c); it.dcCode = p.code; return it; }
+    const it = itemFromId(COURSE(p.code), p.id); if(it){ it.id = p.code + ":" + it.id; it.dcCode = p.code; } return it; }).filter(Boolean);
   if(!items.length) return;
   startLesson("challenge", S.current, items, { day: dayKey() });
 }
@@ -33,7 +38,8 @@ function dcTileHTML(){
 }
 function dcCardHTML(){
   const plan = dcPlan(), done = dcDoneToday();
-  const chips = [...new Set(plan.map(p => p.code))].map(code => { const c = COURSE(code); return `<span class="dc-chip">${esc(courseShort(c))}</span>`; }).join("");
+  const chips = [...new Set(plan.map(p => p.code))].map(code => `<span class="dc-chip">${esc(srcShort(code))}</span>`).join("") +
+    (done ? "" : `<button class="dc-chip dc-src" data-a="dcsrcopen" aria-label="${esc(t("dcSrcTitle"))}">${I_STAR_O}${esc(t("dcSrcBtn"))}</button>`);
   return `<div class="dc-card ${done ? "done" : ""}"><div class="dc-ic">${done ? I.checkS : I.bolt}</div>
     <div class="dc-t"><b>${esc(t("dcTitle"))}</b><span>${esc(done ? t("dcDone", S.dc.right, S.dc.n) : t("dcSub", dcN(), S.goal || 10))}</span><div class="dc-chips">${chips}</div></div>
     ${done ? "" : `<button class="dc-go" data-a="dcstart">${esc(t("dcStart"))}</button>`}</div>`;

@@ -1176,3 +1176,40 @@ a.srow{text-decoration:none;color:inherit}
 .sim-gbtn{justify-self:start;font:inherit;font-weight:800;font-size:14px;border:0;border-radius:12px;padding:8px 14px;background:var(--ok);color:#fff;box-shadow:0 3px 0 var(--ok-deep);cursor:pointer}
 .sim-gbtn.ghost{background:transparent;color:var(--ok);box-shadow:none;border:2px solid var(--ok);padding:6px 12px}
 .sim .sim-svg{overflow:hidden} /* tegningen holder seg innenfor rammen uansett verdier */
+/* Favoritter */
+.fav-row{position:relative}
+.fav-row>.subj,.fav-row>.bk-course{padding-right:52px}
+.fav-btn{position:absolute;right:6px;top:50%;translate:0 -50%;width:40px;height:40px;display:grid;place-items:center;border:0;background:transparent;color:var(--muted);border-radius:12px;cursor:pointer}
+.fav-row .fav-btn{top:calc(50% - 5px)}
+.fav-btn.on{color:var(--gold)}
+.fav-btn:hover{background:color-mix(in srgb,var(--gold) 14%,transparent)}
+.top .fav-btn{position:static;translate:none;flex:none}
+.fav-row>.subj .p{margin-right:2px}
+.grp-fav{display:flex;align-items:center;gap:6px;color:var(--gold-deep)}.grp-fav svg{width:16px;height:16px;color:var(--gold)}
+.favnote{display:flex;align-items:center;gap:8px}.favnote svg{flex:none;width:18px;height:18px;color:var(--gold)}
+.subj .badge.core{background:linear-gradient(135deg,var(--u2),var(--accent));font-size:22px}
+.favbar{display:flex;align-items:center;gap:6px;overflow-x:auto;scrollbar-width:none;margin:10px 0 2px;padding:2px 0}
+.favbar::-webkit-scrollbar{display:none}
+.favbar-ic{flex:none;display:grid;place-items:center;color:var(--gold)}.favbar-ic svg{width:18px;height:18px}
+.favchip{flex:none;font:inherit;font-weight:800;font-size:13px;padding:6px 12px;border-radius:99px;border:2px solid var(--line);background:var(--card);color:var(--ink);cursor:pointer;white-space:nowrap}
+.favchip.on{border-color:var(--accent);color:var(--accent)}
+.favchip.dr{background:color-mix(in srgb,var(--u2) 12%,var(--card));border-color:color-mix(in srgb,var(--u2) 40%,transparent)}
+/* Kilder til dagens utfordring */
+.dc-chip.dc-src{display:inline-flex;align-items:center;gap:4px;font:inherit;font-size:12px;font-weight:800;cursor:pointer;border:1.5px dashed rgba(255,255,255,.7);background:transparent;color:inherit}
+.dc-chip.dc-src svg{width:13px;height:13px}
+.dcsrc{max-height:min(86vh,720px);display:flex;flex-direction:column}
+.dcs-opts{display:grid;gap:8px;margin:4px 0 10px}
+.dcs-opt{display:flex;align-items:center;gap:12px;text-align:left;font:inherit;padding:10px 12px;border-radius:14px;border:2px solid var(--line);background:var(--card);color:var(--ink);cursor:pointer}
+.dcs-opt b{display:block}.dcs-opt small{color:var(--muted);font-size:12.5px}
+.dcs-opt.on{border-color:var(--accent);background:var(--accent-soft)}
+.dcs-dot{flex:none;width:18px;height:18px;border-radius:50%;border:2px solid var(--muted)}
+.dcs-opt.on .dcs-dot{border:6px solid var(--accent)}
+.dcs-list{overflow-y:auto;min-height:120px;flex:1 1 auto;display:grid;gap:4px;margin-bottom:10px;border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:6px 0}
+.dcs-item{display:flex;align-items:center;gap:10px;text-align:left;font:inherit;padding:8px 6px;border:0;border-radius:10px;background:transparent;color:var(--ink);cursor:pointer}
+.dcs-item:hover{background:var(--accent-soft)}
+.dcs-box{flex:none;width:22px;height:22px;border-radius:6px;border:2px solid var(--muted);display:grid;place-items:center;color:#fff}
+.dcs-item.on .dcs-box{background:var(--accent);border-color:var(--accent)}.dcs-box svg{width:14px;height:14px}
+.dcs-code{flex:none;min-width:64px;font-family:var(--mono);font-size:12px;font-weight:700;color:var(--muted)}
+.dcs-nm{flex:1;min-width:0;font-size:14.5px}
+.dcs-star{flex:none;color:var(--gold)}.dcs-star svg{width:15px;height:15px}
+.dcs-warn{font-size:13px;color:var(--gold-deep);margin:0 0 10px}

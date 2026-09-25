@@ -34,6 +34,10 @@ function mergeState(a, b){
   if(!("photo" in m) && typeof b.photo === "string") m.photo = b.photo;
   if(isObj(b.drill)){ m.drill = Object.assign({}, m.drill || {}); for(const k in b.drill){ const x = b.drill[k], y = m.drill[k]; if(isObj(x) && (!y || (+x.at || 0) > (+y.at || 0))) m.drill[k] = x; } }
   m.gdDone = Object.assign({}, isObj(b.gdDone) ? b.gdDone : {}, a.gdDone || {});
+  const strs = x => Array.isArray(x) ? x.filter(y => typeof y === "string" && y.length < 20).slice(0, 80) : null;
+  if(!Array.isArray(a.favs) && strs(b.favs)) m.favs = strs(b.favs);              // favoritter og kilder: enheten som ikke har valgt noe, arver
+  if(!a.dcSrc && ["auto", "favs", "pick"].includes(b.dcSrc)){ m.dcSrc = b.dcSrc; if(strs(b.dcPick)) m.dcPick = strs(b.dcPick); }
+  m.simGoals = Object.assign({}, a.simGoals || {}); if(isObj(b.simGoals)) for(const k in b.simGoals) m.simGoals[k] = Math.max(+m.simGoals[k] || 0, +b.simGoals[k] || 0);
   if(!m.name && typeof b.name === "string") m.name = b.name;
   m.badges = Object.assign({}, isObj(b.badges) ? b.badges : {}, a.badges || {});
   m.stats = Object.assign({}, a.stats || {}); if(isObj(b.stats)) for(const k in b.stats) m.stats[k] = Math.max(+m.stats[k] || 0, +b.stats[k] || 0);

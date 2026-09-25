@@ -202,6 +202,7 @@ function renderHome(){
     <button class="stat xp" data-a="statinfo" data-k="xp" aria-label="${t("xpTitle")}: ${S.xp}">${I.bolt}${S.xp}</button>
   </div></div>
   <main class="wrap">
+    ${favBarHTML()}
     ${dcDoneToday() ? "" : dcCardHTML()}
     ${examHomeActions(c) ? `<div class="actions">${examHomeActions(c)}</div>` : ""}
     ${preBarHTML(c)}
@@ -211,25 +212,31 @@ function renderHome(){
 }
 
 // ---------- fagvelger ----------
+function pickRowHTML(c){
+  const {d,tot} = courseProgress(c);
+  const col = c.group==="Forkurs" ? "var(--ok)" : ["var(--u0)","var(--u1)","var(--u2)","var(--gold-deep)"][COURSES.indexOf(c)%4];
+  const eq = courseEq(c), need = knownCodes(preOf(c.code).need);
+  return `<div class="fav-row"><button class="subj ${c.code===S.current?"sel":""}" data-a="choose" data-c="${c.code}">
+    <span class="badge" style="background:${col}">${esc(courseShort(c))}</span>
+    <span class="t"><b>${esc(courseName(c))}${c.isNew?`<span class="newtag">${t("newTag")}</span>`:""}</b>${eq?`<span>${esc(eq)}</span>`:""}${need.length?`<span class="pre">${esc(t("builtOn"))}: ${esc(need.map(k=>courseName(COURSE(k))).join(", "))}</span>`:""}</span>
+    <span class="p">${d}/${tot}<div class="mini"><i style="width:${d/tot*100}%"></i></div></span></button>${favStarHTML(c.code)}</div>`;
+}
+
 function renderPick(){
   const order = S.pickMode==="order", groups = new Map();
   const add = (k,c) => { if(!groups.has(k)) groups.set(k,[]); groups.get(k).push(c); };
   if(order){ [...COURSES].map((c,i)=>[courseStep(c.code)*1000 + (c.group==="Forkurs"?0:500) + i, c]).sort((a,b)=>a[0]-b[0]).forEach(([k,c])=>add("s"+Math.floor(k/1000),c)); }
   else { COURSES.filter(c=>c.group==="Forkurs").forEach(c=>add(c.group,c)); COURSES.filter(c=>c.group!=="Forkurs").forEach(c=>add(c.group,c)); }
+  const favs = COURSES.filter(c=>isFav(c.code)); // favorittene øverst (står også i sin vanlige gruppe)
   let h = `<div class="sheet"><div class="wrap"><div class="sheet-h"><h1>${t("pickTitle")}</h1><button class="iconbtn" data-a="home" aria-label="${t("back")}">${I.x}</button></div>
     <div class="seg pickseg" role="radiogroup"><button role="radio" aria-checked="${!order}" class="${order?"":"on"}" data-a="pickmode" data-m="theme">${esc(t("pickTheme"))}</button><button role="radio" aria-checked="${order}" class="${order?"on":""}" data-a="pickmode" data-m="order">${esc(t("pickOrder"))}</button></div>
-    ${order?`<p class="picknote">${esc(t("orderNote"))}</p>`:""}`;
+    ${order?`<p class="picknote">${esc(t("orderNote"))}</p>`:""}
+    <p class="picknote favnote">${I_STAR_O}<span>${esc(t("favHint"))}</span></p>
+    ${favs.length?`<div class="grp grp-fav">${I_STAR_F}${esc(t("favTitle"))}</div>${favs.map(pickRowHTML).join("")}`:""}
+    <div class="grp">${esc(t("favCore"))}</div>${Object.keys(FAV_DRILL).map(x=>`<div class="fav-row"><button class="subj" data-a="drstart" data-t="${FAV_DRILL[x][2]}"><span class="badge core">${FAV_DRILL[x][3]}</span><span class="t"><b>${esc(srcName(x))}</b><span>${esc(t("favCoreSub"))}</span></span><span class="p">${esc(t("drCountN", drCounts(FAV_DRILL[x][2]).known, drCounts(FAV_DRILL[x][2]).total))}</span></button>${favStarHTML(x)}</div>`).join("")}`;
   groups.forEach((list,g)=>{
     h += `<div class="grp">${esc(order ? t("stepN", +g.slice(1)) : groupName(g))}</div>`;
-    list.forEach(c=>{
-      const {d,tot} = courseProgress(c);
-      const col = c.group==="Forkurs" ? "var(--ok)" : ["var(--u0)","var(--u1)","var(--u2)","var(--gold-deep)"][COURSES.indexOf(c)%4];
-      const eq = courseEq(c), need = knownCodes(preOf(c.code).need);
-      h += `<button class="subj ${c.code===S.current?"sel":""}" data-a="choose" data-c="${c.code}">
-        <span class="badge" style="background:${col}">${esc(courseShort(c))}</span>
-        <span class="t"><b>${esc(courseName(c))}${c.isNew?`<span class="newtag">${t("newTag")}</span>`:""}</b>${eq?`<span>${esc(eq)}</span>`:""}${need.length?`<span class="pre">${esc(t("builtOn"))}: ${esc(need.map(k=>courseName(COURSE(k))).join(", "))}</span>`:""}</span>
-        <span class="p">${d}/${tot}<div class="mini"><i style="width:${d/tot*100}%"></i></div></span></button>`;
-    });
+    list.forEach(c=>{ h += pickRowHTML(c); });
   });
   h += `</div></div>`;
   $app.innerHTML = h;
@@ -247,6 +254,7 @@ function renderSettings(){
     <div class="sgroup">
       <div class="srow"><span class="lbl">${t("setLang")}</span><div class="seg"><button class="${LANG==="nb"?"on":""}" data-a="setlang" data-l="nb">Norsk</button><button class="${LANG==="en"?"on":""}" data-a="setlang" data-l="en">English</button></div></div>
       <div class="srow"><span class="lbl">${t("setGoal")}<span class="sub">${t("setGoalUnit")}</span></span><div class="seg">${goalOpts.map(g=>`<button class="${(S.goal||10)===g?"on":""}" data-a="setgoal" data-g="${g}">${g}</button>`).join("")}</div></div>
+      <button class="srow" data-a="dcsrcopen"><span class="lbl">${t("dcSrcSet")}<span class="sub">${esc(dcSrcLabel())}</span></span>${I.chevron}</button>
       <div class="srow"><span class="lbl">${t("setReminder")}<span class="sub">${esc(pushNote() || t(NATIVE ? "setReminderSubApp" : "setReminderSubWeb"))}</span></span><button class="tog ${rem.on&&(NATIVE||pushSupported())?"on":""}" data-a="remtoggle" role="switch" aria-checked="${!!(rem.on&&(NATIVE||pushSupported()))}" aria-label="${t("setReminder")}" ${NATIVE||pushSupported()?"":"disabled"}></button></div>
       ${rem.on&&(NATIVE||pushSupported())?`<div class="srow"><span class="lbl">${t("setReminderTime")}</span><input type="time" id="remtime" value="${esc(rem.time)}"></div>${NATIVE?"":`<button class="srow" data-a="pushtest"><span class="lbl">${t("pushTest")}<span class="sub">${t("pushTestSub")}</span></span>${I.chevron}</button>`}`:""}
       <div class="srow"><span class="lbl">${t("setHaptics")}</span><button class="tog ${S.haptics?"on":""}" data-a="haptoggle" role="switch" aria-checked="${!!S.haptics}" aria-label="${t("setHaptics")}"></button></div>
@@ -403,7 +411,7 @@ function finishLesson(){
   if(L.kind==="unit") s.done[L.meta.u+"-"+L.meta.k] = true;
   if(L.kind==="jump") for(let uu=0; uu<L.meta.u; uu++) for(let k=0;k<REQ;k++) s.done[uu+"-"+k] = true;
   if(L.kind==="challenge"){ S.dc = { day: L.meta.day, right: firstTry, n: L.total }; bdgStat("challenges"); }
-  if(L.kind==="drill") drRecord();
+  if(L.kind==="drill" || L.kind==="challenge") drRecord(); // grunnbegreper i utfordringen teller også i terpinga
   noteNightLesson();
   const wrong = new Set(s.wrong);
   if(L.kind!=="challenge" && L.kind!=="drill" && L.kind!=="community") L.firstWrong.forEach(id=>wrong.add(id)); // utfordringen blander fag, feil der havner ikke i «Repeter feil»
@@ -804,6 +812,7 @@ function renderOverlay(){
   else if(overlay.frmod) d.innerHTML = frModHTML(overlay.frmod);
   else if(overlay.frrep) d.innerHTML = frReportHTML(overlay.frrep);
   else if("frblocks" in overlay) d.innerHTML = frBlocksHTML(overlay.frblocks);
+  else if(overlay.dcsrc) d.innerHTML = dcSrcHTML();
   else if(overlay.ccimport) d.innerHTML = ccImportHTML();
   else if(overlay.stat) d.innerHTML = statSheetHTML(overlay.stat);
   else if(overlay.pre) d.innerHTML = `<div class="dialog pop pre-dlg" role="dialog">${preCardHTML(COURSE(S.current)) || `<p>${esc(t("preDone"))}</p>`}<p class="ss-note">${esc(t("preText"))}</p><button class="big" data-a="closeov">${esc(t("cont"))}</button></div>`;
@@ -903,6 +912,7 @@ document.addEventListener("click", async e=>{
   if(a==="home" && L && L.kind==="community" && (screen==="done" || screen==="fail")){ const back = CC.edit ? "ccedit" : "community"; L = null; screen = back; render(); window.scrollTo(0,0); return; }
   if(a==="quitok" && L && L.kind==="community"){ const back = CC.edit ? "ccedit" : "community"; overlay = null; L = null; screen = back; render(); window.scrollTo(0,0); return; }
   if(a==="report" && L && L.kind==="community"){ if(L.meta.cid && L.meta.cid !== "preview"){ overlay = { frrep: { kind: "course", id: null, target: L.meta.cid, reason: null } }; renderOverlay(); } else toast(t("ccPreviewNoReport")); return; }
+  if(favClick(a, b)) return; // favoritter og kilder til dagens utfordring
   if(bookClick(a, b)) return; // teoriboka (handlinger som starter med "bk")
   if(friendsClick(a, b)) return; // venner (handlinger som starter med "fr")
   if(avatarClick(a, b)) return; // avatar-bygger (handlinger som starter med "av")
