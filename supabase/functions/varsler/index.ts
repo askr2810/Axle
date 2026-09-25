@@ -5,19 +5,61 @@
 //  - «Siste sjanse» kl. 22 hvis rekka di står i fare (du har en rekke, men har ikke øvd i dag).
 // Maks én av hver per dag. Med { "test": true } og innloggingstoken sendes et testvarsel til deg selv.
 // Hemmeligheter (Edge Functions → Secrets): VAPID_PUBLIC_KEY og VAPID_PRIVATE_KEY.
-import webpushMod from "npm:web-push@3.6.7";
 import { createClient } from "npm:@supabase/supabase-js@2";
-import { createECDH } from "node:crypto";
 
 // Alt settes opp inne i forespørselen, så en feil gir et forklarende svar i stedet for at funksjonen ikke starter.
-let webpush = null, sb = null;
+// ---------- web push med WebCrypto (RFC 8291 aes128gcm + RFC 8292 VAPID), uten npm-pakker ----------
+const te = new TextEncoder();
+const b64uDec = (s) => Uint8Array.from(atob(s.replace(/-/g, "+").replace(/_/g, "/") + "=".repeat((4 - s.length % 4) % 4)), (c) => c.charCodeAt(0));
+const b64uEnc = (b) => { let s = ""; for (const x of new Uint8Array(b)) s += String.fromCharCode(x); return btoa(s).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, ""); };
+const cat = (...a) => { const out = new Uint8Array(a.reduce((n, x) => n + x.length, 0)); let o = 0; for (const x of a) { out.set(x, o); o += x.length; } return out; };
+async function hkdf(salt, ikm, info, len) {
+  const k = await crypto.subtle.importKey("raw", ikm, "HKDF", false, ["deriveBits"]);
+  return new Uint8Array(await crypto.subtle.deriveBits({ name: "HKDF", hash: "SHA-256", salt, info }, k, len * 8));
+}
+// Krypterer payload til ett abonnement. Returnerer kroppen som skal POST-es.
+async function encrypt(payload, p256dh, authSecret) {
+  const ua = b64uDec(p256dh), auth = b64uDec(authSecret);
+  const uaKey = await crypto.subtle.importKey("raw", ua, { name: "ECDH", namedCurve: "P-256" }, false, []);
+  const as = await crypto.subtle.generateKey({ name: "ECDH", namedCurve: "P-256" }, true, ["deriveBits"]);
+  const asPub = new Uint8Array(await crypto.subtle.exportKey("raw", as.publicKey));
+  const secret = new Uint8Array(await crypto.subtle.deriveBits({ name: "ECDH", public: uaKey }, as.privateKey, 256));
+  const ikm = await hkdf(auth, secret, cat(te.encode("WebPush: info\0"), ua, asPub), 32);
+  const salt = crypto.getRandomValues(new Uint8Array(16));
+  const cek = await hkdf(salt, ikm, te.encode("Content-Encoding: aes128gcm\0"), 16);
+  const nonce = await hkdf(salt, ikm, te.encode("Content-Encoding: nonce\0"), 12);
+  const key = await crypto.subtle.importKey("raw", cek, "AES-GCM", false, ["encrypt"]);
+  const ct = new Uint8Array(await crypto.subtle.encrypt({ name: "AES-GCM", iv: nonce }, key, cat(te.encode(payload), new Uint8Array([2]))));
+  const header = new Uint8Array(21); header.set(salt, 0); new DataView(header.buffer).setUint32(16, 4096); header[20] = asPub.length;
+  return cat(header, asPub, ct);
+}
+// VAPID: signert JWT for push-tjenestens adresse.
+async function vapidHeader(endpoint, pub, priv, subject) {
+  const p = b64uDec(pub);
+  const jwk = { kty: "EC", crv: "P-256", x: b64uEnc(p.slice(1, 33)), y: b64uEnc(p.slice(33, 65)), d: priv, ext: true };
+  const key = await crypto.subtle.importKey("jwk", jwk, { name: "ECDSA", namedCurve: "P-256" }, false, ["sign"]);
+  const head = b64uEnc(te.encode(JSON.stringify({ typ: "JWT", alg: "ES256" })));
+  const body = b64uEnc(te.encode(JSON.stringify({ aud: new URL(endpoint).origin, exp: Math.floor(Date.now() / 1000) + 12 * 3600, sub: subject })));
+  const sig = await crypto.subtle.sign({ name: "ECDSA", hash: "SHA-256" }, key, te.encode(head + "." + body));
+  return `vapid t=${head}.${body}.${b64uEnc(sig)}, k=${pub}`;
+}
+// Sender ett varsel. Kaster en feil med statusCode hvis push-tjenesten sier nei.
+async function sendPush(sub, payload, vapid, opts = {}) {
+  const body = await encrypt(payload, sub.keys.p256dh, sub.keys.auth);
+  const r = await fetch(sub.endpoint, { method: "POST", body, headers: {
+    "Content-Encoding": "aes128gcm", "Content-Type": "application/octet-stream", TTL: String(opts.TTL ?? 14400), Urgency: opts.urgency ?? "normal",
+    Authorization: await vapidHeader(sub.endpoint, vapid.pub, vapid.priv, vapid.subject) } });
+  if (!r.ok) { const e = new Error(`${r.status} ${(await r.text()).slice(0, 200)}`); e.statusCode = r.status; throw e; }
+  return r.status;
+}
+
+let sb = null, VAPID = null;
 function serviceKey() {
   const legacy = (Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "").trim();
   if (legacy) return legacy;
   try { const j = JSON.parse(Deno.env.get("SUPABASE_SECRET_KEYS") ?? "{}"); return String(j.default ?? Object.values(j)[0] ?? ""); } catch { return ""; } // nye API-nøkler (sb_secret_…)
 }
 async function setup() {
-  if (!webpush) webpush = webpushMod;
   if (!sb) {
     const url = Deno.env.get("SUPABASE_URL") ?? "", key = serviceKey();
     if (!url || !key) throw new Error("missing_service_key: fant verken SUPABASE_SERVICE_ROLE_KEY eller SUPABASE_SECRET_KEYS");
@@ -33,13 +75,14 @@ async function initVapid() {
   if (!pub || !priv) return (vapidErr = "missing_vapid: legg inn VAPID_PUBLIC_KEY og VAPID_PRIVATE_KEY under Edge Functions → Secrets");
   if (priv.length !== 43) return (vapidErr = `bad_vapid: VAPID_PRIVATE_KEY har ${priv.length} tegn, skal ha 43`);
   try {
-    // Sjekk at den private nøkkelen hører til den offentlige.
-    const b64u = (x) => Uint8Array.from(atob(x.replace(/-/g, "+").replace(/_/g, "/") + "=".repeat((4 - x.length % 4) % 4)), (c) => c.charCodeAt(0));
-    const ec = createECDH("prime256v1"); ec.setPrivateKey(b64u(priv));
-    const got = btoa(String.fromCharCode(...ec.getPublicKey())).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
-    if (got !== pub) return (vapidErr = "bad_vapid: VAPID_PRIVATE_KEY passer ikke med VAPID_PUBLIC_KEY");
-  } catch { /* sjekken er bare en hjelp */ }
-  try { webpush.setVapidDetails("https://axle.no", pub, priv); } catch (e) { vapidErr = "bad_vapid: " + (e && e.message || e); }
+    // Sjekk at den private nøkkelen hører til den offentlige: signer med paret og verifiser med bare den offentlige.
+    const p = b64uDec(pub), x = b64uEnc(p.slice(1, 33)), y = b64uEnc(p.slice(33, 65));
+    const sk = await crypto.subtle.importKey("jwk", { kty: "EC", crv: "P-256", x, y, d: priv, ext: true }, { name: "ECDSA", namedCurve: "P-256" }, false, ["sign"]);
+    const pk = await crypto.subtle.importKey("jwk", { kty: "EC", crv: "P-256", x, y, ext: true }, { name: "ECDSA", namedCurve: "P-256" }, false, ["verify"]);
+    const data = te.encode("axle"), sig = await crypto.subtle.sign({ name: "ECDSA", hash: "SHA-256" }, sk, data);
+    if (!(await crypto.subtle.verify({ name: "ECDSA", hash: "SHA-256" }, pk, sig, data))) return (vapidErr = "bad_vapid: VAPID_PRIVATE_KEY passer ikke med VAPID_PUBLIC_KEY");
+    VAPID = { pub, priv, subject: "https://axle.no" };
+  } catch (e) { vapidErr = "bad_vapid: " + (e && e.message || e); }
   return vapidErr;
 }
 
@@ -127,7 +170,7 @@ function decide(sub, state, now) {
 async function send(sub, msg, errs) {
   const payload = JSON.stringify({ title: msg.title, body: msg.body, url: "/", tag: "axle-" + msg.kind });
   try {
-    await webpush.sendNotification({ endpoint: sub.endpoint, keys: { p256dh: sub.p256dh, auth: sub.auth } }, payload, { TTL: 4 * 3600, urgency: "normal" });
+    await sendPush({ endpoint: sub.endpoint, keys: { p256dh: sub.p256dh, auth: sub.auth } }, payload, VAPID, { TTL: 4 * 3600, urgency: "high" });
     return true;
   } catch (e) {
     if (errs) errs.push(`${e && e.statusCode || "?"} ${String(e && (e.body || e.message) || e).slice(0, 160)}`);
@@ -145,7 +188,7 @@ Deno.serve(async (req) => {
     let setupErr = null; try { await setup(); } catch (e) { setupErr = String(e && e.message || e); }
     const vErr = setupErr ? null : await initVapid();
     let subs = null; if (!setupErr) { const r = await sb.from("push_subs").select("endpoint", { count: "exact", head: true }); subs = r.error ? "db-feil: " + r.error.message : r.count; }
-    return J({ ok: !setupErr && !vErr, versjon: "2026-09-25b", nokkel_database: setupErr || "ok", vapid: vErr || "ok", pameldte_nettlesere: subs });
+    return J({ ok: !setupErr && !vErr, versjon: "2026-09-25c", nokkel_database: setupErr || "ok", vapid: vErr || "ok", pameldte_nettlesere: subs });
   }
   const now = new Date();
   await setup();
