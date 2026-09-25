@@ -7,6 +7,7 @@
 // Hemmeligheter (Edge Functions → Secrets): VAPID_PUBLIC_KEY og VAPID_PRIVATE_KEY.
 import webpush from "npm:web-push@3.6.7";
 import { createClient } from "npm:@supabase/supabase-js@2";
+import { createECDH } from "node:crypto";
 
 const SB_URL = Deno.env.get("SUPABASE_URL") ?? "";
 const SB_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
@@ -18,7 +19,12 @@ function initVapid() {
   vapidDone = true;
   const pub = (Deno.env.get("VAPID_PUBLIC_KEY") ?? "").trim(), priv = (Deno.env.get("VAPID_PRIVATE_KEY") ?? "").trim();
   if (!pub || !priv) return (vapidErr = "missing_vapid: legg inn VAPID_PUBLIC_KEY og VAPID_PRIVATE_KEY under Edge Functions → Secrets");
-  try { webpush.setVapidDetails("https://axle.no", pub, priv); } catch (e) { vapidErr = "bad_vapid: " + (e && e.message || e); }
+  try {
+    // Sjekk at den private nøkkelen hører til den offentlige (vanlig feil: første tegn, f.eks. «-», falt bort ved kopiering).
+    const ec = createECDH("prime256v1"); ec.setPrivateKey(Buffer.from(priv, "base64url"));
+    if (ec.getPublicKey("base64url") !== pub) return (vapidErr = `bad_vapid: VAPID_PRIVATE_KEY passer ikke med VAPID_PUBLIC_KEY (privatnøkkelen har ${priv.length} tegn, skal ha 43)`);
+    webpush.setVapidDetails("https://axle.no", pub, priv);
+  } catch (e) { vapidErr = `bad_vapid: ${e && e.message || e} (privatnøkkelen har ${priv.length} tegn, skal ha 43)`; }
   return vapidErr;
 }
 
