@@ -24,9 +24,13 @@ self.addEventListener("fetch", e => {
 // Påminnelser (web push) fra Supabase-funksjonen «varsler».
 self.addEventListener("push", e => {
   let d = {}; try { d = e.data ? e.data.json() : {}; } catch (x) { d = { title: "Axle", body: e.data ? e.data.text() : "" }; }
-  e.waitUntil(self.registration.showNotification(d.title || "Axle", {
-    body: d.body || "", icon: "icons/icon-192.png", badge: "icons/icon-192.png", tag: d.tag || "axle", renotify: true, data: { url: d.url || "./" }
-  }));
+  const title = d.title || "Axle";
+  // Vis varselet. Feiler det med alle valgene, prøv igjen med bare tittel og tekst.
+  const show = self.registration.showNotification(title, { body: d.body || "", icon: "icons/icon-192.png", tag: d.tag || "axle", data: { url: d.url || "./" } })
+    .catch(() => self.registration.showNotification(title, { body: d.body || "" }));
+  // Si fra til åpne faner at meldingen kom fram (brukes av «Send et testvarsel»).
+  const tell = self.clients.matchAll({ type: "window", includeUncontrolled: true }).then(cs => cs.forEach(c => c.postMessage({ type: "axle-push", title, sw: CACHE })));
+  e.waitUntil(Promise.all([show, tell]));
 });
 self.addEventListener("notificationclick", e => {
   e.notification.close();

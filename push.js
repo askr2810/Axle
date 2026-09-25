@@ -11,6 +11,10 @@ function pushNote(){ // forklaring under bryteren når push ikke går
   if(IS_IOS && !IS_STANDALONE) return t("pushIosHint");
   return t("pushUnsupported");
 }
+// Service workeren sier fra når en push-melding kom fram. Da vet vi at serveren og nettleseren snakker sammen.
+if("serviceWorker" in navigator) navigator.serviceWorker.addEventListener("message", ev => {
+  if(ev.data && ev.data.type === "axle-push") toast(t("pushGot", ev.data.title || "Axle"));
+});
 function b64uToBytes(s){ const p = "=".repeat((4 - s.length % 4) % 4), b = atob((s + p).replace(/-/g, "+").replace(/_/g, "/")); return Uint8Array.from(b, c => c.charCodeAt(0)); }
 const pushTz = () => { try{ return Intl.DateTimeFormat().resolvedOptions().timeZone || "Europe/Oslo"; }catch(e){ return "Europe/Oslo"; } };
 async function pushSave(sub){
