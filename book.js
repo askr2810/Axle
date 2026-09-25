@@ -7,9 +7,38 @@
 let BK = { v: "home", code: null, u: 0, tab: "topics", q: "" };
 
 const bkDoc = (code, u) => { const d = theoryOf(code, u); return d ? withSims(code, u, withFigs(code, u, String(d[LANG] || d.nb))) : ""; };
-const bkCourses = () => COURSES.filter(c => (THEORY_DB[c.code] || []).some(Boolean));
-const bkUnits = c => c.units.map((_, u) => u).filter(u => theoryOf(c.code, u));
+const bkCourses = () => COURSES.filter(c => (THEORY_DB[c.code] || []).some(Boolean) || (TOPIC_DB[c.code] || []).some(l => l && l.length));
+const bkUnits = c => c.units.map((_, u) => u).filter(u => theoryOf(c.code, u) || topicsOf(c.code, u).length);
 const bkCol = c => c.group === "Forkurs" ? "var(--ok)" : ["var(--u0)","var(--u1)","var(--u2)","var(--gold-deep)"][COURSES.indexOf(c) % 4];
+// ---------- emnesider (TOPIC_DB fra topics.js og top_*.js): ett begrep per side ----------
+const tpText = tp => tp[LANG] || tp.nb;
+const tpFx = s => LANG === "en" ? String(s).replace(/\{,\}/g, ".") : String(s);
+function tpTileHTML(code, tp, label){
+  const x = tpText(tp), key = x.f && x.f[0] ? x.f[0][0] : "";
+  const art = tp.fig ? `<span class="tfig" aria-hidden="true">${tp.fig}</span>` : `<span class="tfx" aria-hidden="true">${key ? tex(tpFx(key)) : ""}</span>`;
+  const seen = (S.topicSeen || {})[code + ":" + tp.id];
+  return `<button class="tptile ${seen ? "seen" : ""}" data-a="bktopic" data-c="${esc(code)}" data-id="${esc(tp.id)}">${art}${label ? `<span class="tc">${esc(label)}</span>` : ""}<span class="tt">${esc(x.t)}</span></button>`;
+}
+function renderBookTopic(){
+  const c = COURSE(BK.code), hit = topicFind(c.code, BK.topic);
+  if(!hit){ BK.v = "course"; return renderBookCourse(); }
+  const x = tpText(hit.tp), flat = topicsFlat(c.code), idx = flat.findIndex(f => f.tp.id === hit.tp.id), prev = flat[idx - 1], next = flat[idx + 1];
+  const formulas = (x.f || []).map(([l, d]) => `<div class="fbox"><div class="fm">${texD(tpFx(l))}</div>${d ? `<div class="fd">${rich(d)}</div>` : ""}</div>`).join("");
+  const legend = (x.legend || []).length ? `<table class="legend"><tbody>${x.legend.map(([s, m, un]) => `<tr><td class="ls">${tex(tpFx(s))}</td><td>${rich(m)}</td><td class="lu">${esc(un || "")}</td></tr>`).join("")}</tbody></table>` : "";
+  const ex = x.ex ? `<div class="exbox"><div class="exbox-h">${esc(t("tpExample"))}</div>${String(x.ex).split("\n").map(l => `<p>${rich(l)}</p>`).join("")}</div>` : "";
+  const nav = (tpx, dir) => tpx ? `<button class="tnav ${dir}" data-a="bktopic" data-c="${esc(c.code)}" data-id="${esc(tpx.tp.id)}"><small>${esc(t(dir === "prev" ? "bkPrev" : "bkNext"))}</small><b>${esc(tpText(tpx.tp).t)}</b></button>` : `<span></span>`;
+  $app.innerHTML = `${bkTop("bkback", courseName(c) + " · " + unitTitle(c, hit.u), x.t)}
+    <main class="wrap topic">
+      <h1>${esc(x.t)}</h1>
+      ${hit.tp.fig ? `<figure class="tpfig" aria-hidden="true">${hit.tp.fig}</figure>` : ""}
+      <p class="intro">${rich(x.intro)}</p>
+      ${formulas}${legend}${ex}
+      ${x.tip ? `<div class="callout">${rich(x.tip)}</div>` : ""}
+      <div class="tnavs">${nav(prev, "prev")}${nav(next, "next")}</div>
+      ${theoryOf(c.code, hit.u) ? `<button class="big ghost" data-a="bkunit" data-c="${esc(c.code)}" data-u="${hit.u}">${esc(t("tpFull"))}</button>` : ""}
+    </main>
+    <div class="lfoot"><div class="wrap"><button class="big" data-a="bktopicpractice" data-c="${esc(c.code)}" data-u="${hit.u}">${esc(t("thStart"))}</button></div></div>`;
+}
 // Formler fra forklaringen, ikke fra utregninger i eksempler eller «slik løser du»-delen.
 const BK_SKIP = /eksempel|example|slik løser|how to solve|vanlige feil|common mistakes|løsning|solution/i;
 function bkFormulas(src){
@@ -38,6 +67,8 @@ function bkIndex(){
   for(const c of bkCourses()) for(const u of bkUnits(c)){
     const src = bkDoc(c.code, u);
     BK_INDEX.push({ code: c.code, u, title: unitTitle(c, u), course: courseName(c), text: plain(src).replace(/\*\*/g, "").replace(/#+ /g, "") });
+    for(const tp of topicsOf(c.code, u)){ const x = tpText(tp); // emnesidene: tittel, ingress og symbolforklaringer
+      BK_INDEX.push({ code: c.code, u, id: tp.id, title: x.t, course: courseName(c) + " · " + unitTitle(c, u), text: plain([x.intro, ...(x.legend || []).map(l => l[1]), ...(x.f || []).map(f => f[1]), x.tip].join(" ")) }); }
   }
   return BK_INDEX;
 }
@@ -47,7 +78,7 @@ function bkSearch(q){
   for(const it of bkIndex()){
     const title = (it.title + " " + it.course).toLowerCase(), text = it.text.toLowerCase();
     if(!words.every(w => title.includes(w) || text.includes(w))) continue;
-    let score = 0; for(const w of words){ if(title.includes(w)) score += 10; let i = -1, n = 0; while((i = text.indexOf(w, i + 1)) >= 0 && n < 20) n++; score += n; }
+    let score = it.id ? 3 : 0; for(const w of words){ if(title.includes(w)) score += it.id ? 14 : 10; let i = -1, n = 0; while((i = text.indexOf(w, i + 1)) >= 0 && n < 20) n++; score += n; }
     const i = text.indexOf(words[0]), from = Math.max(0, i - 60);
     const snip = i < 0 ? it.text.slice(0, 140) : (from ? "…" : "") + it.text.slice(from, from + 160) + "…";
     hits.push({ it, score, snip });
@@ -65,7 +96,8 @@ function bkResultsHTML(){
   const hits = bkSearch(BK.q);
   if(!hits.length) return `<p class="bk-empty">${esc(t("bkNoHits"))}</p>`;
   return `<p class="bk-count">${esc(t("bkHits", hits.length))}</p>` + hits.map(({ it, snip }) =>
-    `<button class="bk-hit" data-a="bkunit" data-c="${esc(it.code)}" data-u="${it.u}"><small>${esc(it.course)} · ${esc(t("unit", it.u + 1))}</small><b>${esc(it.title)}</b><span>${bkMark(snip, BK.q)}</span></button>`).join("");
+    it.id ? `<button class="bk-hit tp" data-a="bktopic" data-c="${esc(it.code)}" data-id="${esc(it.id)}"><small>${esc(t("tpTopic"))} · ${esc(it.course)}</small><b>${esc(it.title)}</b><span>${bkMark(snip, BK.q)}</span></button>`
+    : `<button class="bk-hit" data-a="bkunit" data-c="${esc(it.code)}" data-u="${it.u}"><small>${esc(it.course)} · ${esc(t("unit", it.u + 1))}</small><b>${esc(it.title)}</b><span>${bkMark(snip, BK.q)}</span></button>`).join("");
 }
 
 function bkTop(back, small, title){
@@ -73,6 +105,7 @@ function bkTop(back, small, title){
     <div class="th-t"><small>${esc(small)}</small><b>${esc(title)}</b></div><span class="th-ic" aria-hidden="true">${I.book}</span></div></div>`;
 }
 function renderBook(){
+  if(BK.v === "topic") return renderBookTopic();
   if(BK.v === "unit") return renderBookUnit();
   if(BK.v === "course") return renderBookCourse();
   const groups = new Map();
@@ -103,19 +136,24 @@ function renderBookCourse(){
   let body;
   if(BK.tab === "sheet"){
     body = `<div class="bk-sheet">` + units.map(u => {
-      const src = bkDoc(c.code, u), f = bkFormulas(src), r = bkRemember(src);
-      if(!f.length && !r.length) return "";
+      const src = bkDoc(c.code, u), tps = topicsOf(c.code, u), f = tps.length ? [] : bkFormulas(src), r = bkRemember(src);
+      const tf = tps.flatMap(tp => (tpText(tp).f || []).map(([l, d]) => `<div class="fbox sm"><div class="fm">${texD(tpFx(l))}</div><div class="fd"><button class="bk-link sm" data-a="bktopic" data-c="${esc(c.code)}" data-id="${esc(tp.id)}">${esc(tpText(tp).t)}</button>${d ? " · " + rich(d) : ""}</div></div>`));
+      if(!f.length && !r.length && !tf.length) return "";
       return `<section><h3><button class="bk-link" data-a="bkunit" data-c="${esc(c.code)}" data-u="${u}"><span class="bk-num" style="background:${col}">${u + 1}</span>${esc(unitTitle(c, u))}</button></h3>
-        ${f.map(x => `<div class="dmath">${texD(x)}</div>`).join("")}${r.map(x => `<div class="callout">${inline(x).replace(/\*\*([^*]+?)\*\*/g, "<b>$1</b>")}</div>`).join("")}</section>`;
+        ${tf.join("")}${f.map(x => `<div class="dmath">${texD(x)}</div>`).join("")}${r.map(x => `<div class="callout">${inline(x).replace(/\*\*([^*]+?)\*\*/g, "<b>$1</b>")}</div>`).join("")}</section>`;
     }).join("") + `</div>`;
   } else {
-    body = `<div class="bk-grid">` + units.map(u => {
-      const src = bkDoc(c.code, u), fs = bkFormulas(src), f = fs.find(x => x.length <= 60) || null, seen = (S.theorySeen || {})[c.code + ":" + u];
-      return `<button class="bk-tile" data-a="bkunit" data-c="${esc(c.code)}" data-u="${u}">
+    body = units.map(u => {
+      const tps = topicsOf(c.code, u), seen = (S.theorySeen || {})[c.code + ":" + u];
+      if(tps.length) return `<section class="libu" id="bku${u}"><div class="libu-h"><div><small>${esc(t("unit", u + 1))}</small><h2>${esc(unitTitle(c, u))}</h2></div>
+          ${theoryOf(c.code, u) ? `<button class="kbtn" data-a="bkunit" data-c="${esc(c.code)}" data-u="${u}">${seen ? I.checkS : I.book}${esc(t("tpFullShort"))}</button>` : ""}</div>
+          <div class="tiles2">${tps.map(tp => tpTileHTML(c.code, tp)).join("")}</div></section>`;
+      const src = bkDoc(c.code, u), fs = bkFormulas(src), f = fs.find(x => x.length <= 60) || null;
+      return `<div class="bk-grid one"><button class="bk-tile" data-a="bkunit" data-c="${esc(c.code)}" data-u="${u}">
         <span class="bk-tile-h"><span class="bk-num" style="background:${col}">${u + 1}</span>${seen ? `<span class="bk-seen" title="${esc(t("bkRead"))}">${I.checkS}</span>` : ""}</span>
         <b>${esc(unitTitle(c, u))}</b>
-        ${f ? `<span class="bk-fx" aria-hidden="true">${texD(f)}</span>` : `<span class="bk-lead">${esc(bkLead(src).slice(0, 240))}</span>`}</button>`;
-    }).join("") + `</div>`;
+        ${f ? `<span class="bk-fx" aria-hidden="true">${texD(f)}</span>` : `<span class="bk-lead">${esc(bkLead(src).slice(0, 240))}</span>`}</button></div>`;
+    }).join("");
   }
   $app.innerHTML = `${bkTop("bkback", t("bkTitle"), courseName(c))}
     <main class="wrap bk">
@@ -133,6 +171,7 @@ function renderBookUnit(){
       ${secs.length > 1 ? `<nav class="bk-toc" aria-label="${esc(t("bkToc"))}">${secs.map((s, k) => `<button data-a="bksec" data-i="${k}">${esc(plain(s))}</button>`).join("")}</nav>` : ""}
       ${teacherBubble(c.code, esc(t("tchTheory", unitTitle(c, u))), 52, "tch-th")}
       <button class="gd-cta" data-a="bkguided">${I.steps}<span><b>${esc(t("gdCta"))}</b><small>${esc(t("gdCtaSub"))}</small></span>${I.chevron}</button>
+      ${topicsOf(c.code, u).length ? `<div class="bk-unit-tps"><div class="bk-glance-h">${esc(t("tpInUnit"))}</div><div class="tiles2">${topicsOf(c.code, u).map(tp => tpTileHTML(c.code, tp)).join("")}</div></div>` : ""}
       ${tyKeyHTML(src)}
       ${f.length ? `<div class="bk-glance"><div class="bk-glance-h">${esc(t("bkGlance"))}</div>${f.map(x => `<div class="dmath">${texD(x)}</div>`).join("")}</div>` : ""}
       ${html}
@@ -146,6 +185,8 @@ function renderBookUnit(){
 }
 function openBook(){ BK = { v: "home", code: null, u: 0, tab: "topics", q: BK.q || "" }; screen = "book"; overlay = null; render(); window.scrollTo(0, 0); }
 function bookBack(){
+  if(BK.v === "topic"){ const u = (topicFind(BK.code, BK.topic) || {}).u; BK.v = BK.from === "unit" ? "unit" : "course"; render();
+    const el = BK.v === "course" && document.getElementById("bku" + u); if(el) el.scrollIntoView({ block: "start" }); else window.scrollTo(0, 0); return; }
   if(BK.v === "unit"){ BK.v = "course"; }
   else if(BK.v === "course"){ BK.v = "home"; }
   else { goHome(); return; }
@@ -161,6 +202,14 @@ function bookClick(a, b){
   else if(a === "bkunit"){ BK.v = "unit"; BK.code = b.dataset.c; BK.u = +b.dataset.u; (S.theorySeen ||= {})[BK.code + ":" + BK.u] = 1; bdgToast(checkBadges()); save(); render(); window.scrollTo(0, 0); }
   else if(a === "bksec"){ const h = document.getElementById("bk-s" + b.dataset.i); if(h) window.scrollTo({ top: h.getBoundingClientRect().top + window.scrollY - 76, behavior: "smooth" }); }
   else if(a === "bkguided"){ gdOpen(BK.code, BK.u, null); }
+  else if(a === "bktopic"){ if(BK.v !== "topic") BK.from = BK.v; BK.v = "topic"; BK.code = b.dataset.c; BK.topic = b.dataset.id; (S.topicSeen ||= {})[BK.code + ":" + BK.topic] = 1; save(); render(); window.scrollTo(0, 0); }
+  else if(a === "bktopicpractice"){
+    const code = b.dataset.c, u = +b.dataset.u, c = COURSE(code);
+    if(S.current !== code){ S.current = code; save(); }
+    let k = 0; const nn = nextNode(c); if(nn && nn[0] === u) k = nn[1]; else if(sub(code).done[u + "-2"]) k = 3;
+    if(!isUnlocked(c, u, k)){ goHome(); toast(t("lockedNode")); return true; }
+    startUnitLesson(code, u, k);
+  }
   else if(a === "bkpractice"){
     const code = BK.code, u = BK.u; S.current = code; save(); goHome();
     const sec = document.querySelectorAll("main section")[u]; if(sec) sec.scrollIntoView({ block: "start" });

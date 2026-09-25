@@ -5,7 +5,7 @@
   "description": "Axle – daglig ingeniørtrening (nett, iOS og Android)",
   "scripts": {
     "build": "node tools/vendor.mjs && python3 build.py && node tools/minify.mjs",
-    "test": "node tools/test_content.js 300 && node tools/test_katex.js 20 && node tools/test_drill.js",
+    "test": "node tools/test_content.js 300 && node tools/test_katex.js 20 && node tools/test_drill.js && node tools/test_topics_all.js",
     "icons": "python3 tools/make_icons.py",
     "assets": "npx capacitor-assets generate --iconBackgroundColor \"#2B59C3\" --iconBackgroundColorDark \"#1C3F91\" --splashBackgroundColor \"#EEF2EC\" --splashBackgroundColorDark \"#0F1720\"",
     "sync": "npm run build && npx cap sync",
