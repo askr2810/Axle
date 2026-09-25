@@ -42,6 +42,8 @@ async function frLoad(){
   try{
     try{ const tok = await authToken(); if(tok) await frPushStats(tok); }catch(e){}
     FR.rows = (await frRpc("get_friends")) || [];
+    const nf_ = FR.rows.filter(r => !r.is_me).length; S.stats ||= {};
+    if(nf_ > (+S.stats.friends || 0)){ S.stats.friends = nf_; bdgToast(checkBadges()); save(); }
     const pend = (()=>{ try{ return localStorage.getItem(FR_PENDING); }catch(e){ return null; } })();
     if(pend && FR.rows.some(r => r.is_me)){
       try{ localStorage.removeItem(FR_PENDING); }catch(e){}

@@ -91,6 +91,8 @@ const I = {
   trophy: svg('<path d="M8 3h8v6a4 4 0 0 1-8 0zM8 5H4v2a3 3 0 0 0 4 3M16 5h4v2a3 3 0 0 1-4 3M12 13v4M8 21h8M9 17h6v4H9z"/>',44,false,1.8),
   star16: svg('<path d="m12 2.5 2.9 6 6.6.8-4.9 4.6 1.3 6.6L12 17.2l-5.9 3.3 1.3-6.6-4.9-4.6 6.6-.8z"/>',16,true),
   dice: svg('<rect x="3.5" y="3.5" width="17" height="17" rx="4"/><circle cx="8.5" cy="8.5" r="1.3" fill="currentColor"/><circle cx="15.5" cy="15.5" r="1.3" fill="currentColor"/><circle cx="15.5" cy="8.5" r="1.3" fill="currentColor"/><circle cx="8.5" cy="15.5" r="1.3" fill="currentColor"/><circle cx="12" cy="12" r="1.3" fill="currentColor"/>',22),
+  docB: svg('<path d="M7 3h7l5 5v13H7z"/><path d="M14 3v5h5M10 13h6M10 17h6"/>',26),
+  trophyS: svg('<path d="M8 3h8v6a4 4 0 0 1-8 0zM8 5H4v2a3 3 0 0 0 4 3M16 5h4v2a3 3 0 0 1-4 3M12 13v4M8 21h8M9 17h6v4H9z"/>',22),
   checkS: svg('<path d="m5 12.5 4.5 4.5L19 7.5"/>',16,false,3.2),
   book: svg('<path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v15H6.5A2.5 2.5 0 0 0 4 20.5z"/><path d="M4 20.5A2.5 2.5 0 0 0 6.5 23H20v-5"/>',18),
   steps: svg('<path d="M4 20h5v-5h5v-5h6"/>',18),
@@ -199,7 +201,7 @@ function renderHome(){
     </div>
     ${homeTeacherHTML(c)}
     ${preCardHTML(c)}
-    <div class="actions"><button class="pill" data-a="book">${I.book}${t("bkTitle")}</button><button class="pill" data-a="friends">${I.users}${t("frTitle")}</button>${examHomeActions(c)}${wrongN?`<button class="pill rev" data-a="review">${I.redo}${t("reviewBtn",wrongN)}</button>`:""}${examHomeJump()}</div>
+    <div class="actions"><button class="pill" data-a="book">${I.book}${t("bkTitle")}</button><button class="pill" data-a="friends">${I.users}${t("frTitle")}</button><button class="pill bdg-pill" data-a="badges">${I.trophyS}${t("bdgTitle")} <small>${Object.keys(S.badges||{}).length}/${BADGES.length}</small></button>${examHomeActions(c)}${wrongN?`<button class="pill rev" data-a="review">${I.redo}${t("reviewBtn",wrongN)}</button>`:""}${examHomeJump()}</div>
     ${path}
     ${examHomeSection(c)}
     <p class="foot-note">${esc(t("foot1",courseName(c),nQ,nG))}<br>${d===tot?(crowns(c)===c.units.length?t("allCrowns"):t("allLevels")):esc(t("foot2",d,tot,crowns(c),c.units.length))}</p>
@@ -399,8 +401,11 @@ function finishLesson(){
   L.firstWrong.forEach(id=>wrong.add(id));
   if(L.kind==="review") [...L.solved].forEach(id=>{ if(!L.firstWrong.has(id)) wrong.delete(id); });
   s.wrong = [...wrong];
+  if(L.firstWrong.size === 0) bdgStat("flawless");
+  if(L.kind === "review") bdgStat("reviews");
+  const newBadges = checkBadges();
   save();
-  L.result = { gained, acc: Math.round(firstTry/L.total*100), secs: Math.round((Date.now()-L.start)/1000), streak: st.streak, streakUp: st.streakUp };
+  L.result = { newBadges, gained, acc: Math.round(firstTry/L.total*100), secs: Math.round((Date.now()-L.start)/1000), streak: st.streak, streakUp: st.streakUp };
   screen = "done"; render();
 }
 function correctText(it){ return it.type==="mc" ? it.opts.find(o=>o.ok).t : nf(it.n,3)+(it.u?" "+it.u:""); }
@@ -453,6 +458,7 @@ function renderDone(){
       <div class="tile t2"><small>${t("tileFirst")}</small><b>${r.acc}%</b></div>
       <div class="tile t3"><small>${t("tileTime")}</small><b>${m}:${pad(sec)}</b></div>
     </div>
+    ${r.newBadges && r.newBadges.length ? `<div class="dx-badges"><small>${esc(t("bdgNewTitle"))}</small><div>${r.newBadges.map(b => `<button class="dx-badge" data-a="badges">${badgeIcon(b, 54)}<b>${esc(bdgName(b))}</b></button>`).join("")}</div></div>` : ""}
     ${doneExtrasHTML(c, u, r)}
     <button class="big" data-a="home">${t("cont")}</button>
   </main>`;
@@ -776,7 +782,7 @@ function renderOverlay(){
 
 // ---------- teori og forkunnskaper ----------
 let TH = null; // {code, u, go:{u,k}|null}
-function openTheory(code, u, go){ TH = { code, u, go }; (S.theorySeen ||= {})[code+":"+u] = 1; save(); overlay = null; screen = "theory"; render(); window.scrollTo(0,0); }
+function openTheory(code, u, go){ TH = { code, u, go }; (S.theorySeen ||= {})[code+":"+u] = 1; bdgToast(checkBadges()); save(); overlay = null; screen = "theory"; render(); window.scrollTo(0,0); }
 function theoryBody(code, u, quiz){ const doc = theoryOf(code, u); if(!doc) return `<p>${esc(t("noTheory"))}</p>`; const src = doc[LANG] || doc.nb;
   return tyKeyHTML(src) + richDoc(src) + (quiz ? cyHTML(code, u) : ""); }
 function renderTheory(){
@@ -818,6 +824,7 @@ function render(){
   else if(screen==="book") renderBook();
   else if(screen==="friends") renderFriends();
   else if(screen==="avatar") renderAvatarEditor();
+  else if(screen==="badges") renderBadges();
   else if(screen==="examSetup") renderExamSetup();
   else if(screen==="exam") renderExam();
   else if(screen==="examResult") renderExamResult();
@@ -835,6 +842,7 @@ document.addEventListener("click", async e=>{
   if(a==="pick"){ screen="pick"; render(); window.scrollTo(0,0); }
   else if(a==="home"){ goHome(); }
   else if(a==="settings"){ screen="settings"; render(); window.scrollTo(0,0); }
+  else if(a==="badges"){ screen="badges"; render(); window.scrollTo(0,0); }
   else if(a==="choose"){ S.current=b.dataset.c; save(); goHome(); }
   else if(a==="node"){ const c = COURSE(S.current), u=+b.dataset.u, k=+b.dataset.k;
     if(!isUnlocked(c,u,k)){ toast(k===3 ? t("lockedMaster") : t("lockedNode")); return; }
@@ -933,6 +941,7 @@ document.addEventListener("keydown", e=>{
 
 examBoot(true); // pågående eksamen: fortsett, eller lever hvis tiden gikk ut mens appen var lukket
 if(frBootLink()) screen = "friends";
+if(checkBadges().length) saveLocal(); // merker for fremgang fra før merkene fantes (uten varsel)
 render();
 flushOutbox();
 window.addEventListener("online", flushOutbox);
