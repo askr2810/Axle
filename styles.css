@@ -868,3 +868,31 @@ body.has-tabs .toast{bottom:calc(84px + env(safe-area-inset-bottom,0px))}
 .ave-opt small{font-size:11px;line-height:1.15;text-align:center;color:var(--muted);font-weight:600}
 .ave-opt.on small{color:var(--accent)}
 .ave-grid{grid-template-columns:repeat(auto-fill,minmax(76px,1fr))}
+
+/* ---------- popup: dagens utfordring ---------- */
+.scrim.center{place-items:center;animation:scrimIn .25s ease}
+@keyframes scrimIn{from{background:rgba(10,15,20,0)}}
+.dcpop{max-width:380px;text-align:center;justify-items:center;padding:26px 22px 18px;animation:dcpopIn .5s cubic-bezier(.2,1.4,.4,1)}
+@keyframes dcpopIn{from{opacity:0;transform:scale(.7) translateY(30px)}}
+.dcpop-hero{position:relative;width:96px;height:96px;display:grid;place-items:center;margin-top:-4px}
+.dcpop-glow{position:absolute;inset:-14px;border-radius:50%;background:radial-gradient(circle,color-mix(in srgb,var(--gold) 55%,transparent),transparent 68%);animation:dcglow 2s ease-in-out infinite}
+@keyframes dcglow{50%{transform:scale(1.18);opacity:.6}}
+.dcpop-ic{position:relative;width:88px;height:88px;border-radius:28px;display:grid;place-items:center;color:#fff;background:linear-gradient(135deg,var(--u2),var(--accent));box-shadow:0 6px 0 var(--accent-deep);animation:dcbob 2.4s ease-in-out infinite}
+.dcpop-ic svg{width:48px;height:48px}
+@keyframes dcbob{50%{transform:translateY(-5px) rotate(-4deg)}}
+.dcpop-k{font-family:"JetBrains Mono",ui-monospace,monospace;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);font-weight:700}
+.dcpop h3{font-size:26px;margin-top:-6px}
+.dcpop-facts{display:flex;flex-wrap:wrap;justify-content:center;gap:6px}
+.dcpop-facts span{display:inline-flex;align-items:center;gap:4px;padding:5px 11px;border-radius:99px;background:var(--accent-soft);color:var(--accent);font-weight:800;font-size:14px}
+.dcpop-facts svg{width:15px;height:15px}
+.dcpop-facts .fire{background:color-mix(in srgb,#ff8a1f 16%,transparent);color:#e5670b}
+.dcpop-tch{text-align:left;width:100%;margin:2px 0}
+.dcpop-go{position:relative;overflow:hidden;width:100%;border:0;border-radius:18px;padding:19px 14px;margin-top:4px;font:inherit;font-family:var(--display);font-weight:800;font-size:20px;letter-spacing:.02em;color:#fff;cursor:pointer;
+  background:linear-gradient(135deg,var(--ok),color-mix(in srgb,var(--ok) 70%,#1fd1a0));box-shadow:0 6px 0 var(--ok-deep),0 10px 24px color-mix(in srgb,var(--ok) 40%,transparent);animation:dcgoPulse 1.8s ease-in-out .6s infinite;transition:transform .08s,box-shadow .08s}
+.dcpop-go span{position:relative;z-index:1}
+.dcpop-go::after{content:"";position:absolute;top:0;bottom:0;left:-60%;width:40%;background:linear-gradient(100deg,transparent,rgba(255,255,255,.55),transparent);transform:skewX(-20deg);animation:dcshine 2.6s ease-in-out 1s infinite}
+@keyframes dcshine{0%,55%{left:-60%}100%{left:130%}}
+@keyframes dcgoPulse{50%{transform:scale(1.035)}}
+.dcpop-go:active{transform:translateY(6px) scale(1);box-shadow:0 0 0 var(--ok-deep);animation:none}
+.dcpop-later{border:0;background:none;font:inherit;font-weight:700;color:var(--muted);padding:8px 16px;cursor:pointer}
+@media (prefers-reduced-motion: reduce){.dcpop,.dcpop-glow,.dcpop-ic,.dcpop-go,.dcpop-go::after{animation:none}}

@@ -38,3 +38,22 @@ function dcCardHTML(){
     <div class="dc-t"><b>${esc(t("dcTitle"))}</b><span>${esc(done ? t("dcDone", S.dc.right, S.dc.n) : t("dcSub", dcN(), S.goal || 10))}</span><div class="dc-chips">${chips}</div></div>
     ${done ? "" : `<button class="dc-go" data-a="dcstart">${esc(t("dcStart"))}</button>`}</div>`;
 }
+
+// Popup når appen åpnes første gang i løpet av dagen og utfordringen ikke er tatt. Vises bare én gang per dag.
+function dcMaybePrompt(){
+  if(dcDoneToday() || S.dcAsked === dayKey() || screen !== "home" || overlay) return;
+  S.dcAsked = dayKey(); saveLocal();
+  overlay = "dcpop"; renderOverlay();
+}
+function dcPopupHTML(){
+  const n = dcN(), g = S.goal || 10, st = streakNow(), tc = teacherOf(S.current), done = (S.daily[dayKey()] || 0) >= g;
+  return `<div class="dialog dcpop" role="dialog" aria-label="${esc(t("dcTitle"))}">
+    <div class="dcpop-hero"><div class="dcpop-glow"></div><div class="dcpop-ic">${I.bolt}</div></div>
+    <small class="dcpop-k">${esc(t("dcPopKick"))}</small>
+    <h3>${esc(t("dcTitle"))}</h3>
+    <div class="dcpop-facts"><span>${esc(t("dcPopQs", n))}</span><span>${I.bolt} +${g} XP</span>${st ? `<span class="fire">${I.fire}${st}</span>` : ""}</div>
+    <div class="tch dcpop-tch">${avatarSVG(tc.av, 44, "tch-av")}<div class="tch-b"><b>${esc(tc.name)}</b><span>${esc(pickLine(t(st ? "dcPopTchSt" : "dcPopTch")).replace("{n}", st))}</span></div></div>
+    <button class="dcpop-go" data-a="dcpopgo"><span>${esc(t("dcPopGo"))}</span></button>
+    <button class="dcpop-later" data-a="dclater">${esc(t("dcPopLater"))}</button>
+  </div>`;
+}

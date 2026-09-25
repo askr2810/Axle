@@ -767,8 +767,9 @@ function renderOverlay(){
   if(!overlay) return;
   if(overlay.theory){ const w = document.createElement("div"); w.innerHTML = theorySheetHTML(overlay.theory); document.body.appendChild(w.firstElementChild); return; }
   if(overlay.scratch){ const w = document.createElement("div"); w.innerHTML = scratchHTML(); document.body.appendChild(w.firstElementChild); mountScratch(); return; }
-  const d = document.createElement("div"); d.className = "scrim";
-  if(overlay.jump!=null){ const c=COURSE(S.current); d.innerHTML = `<div class="dialog pop" role="dialog" aria-label="${t("jumpHere")}"><h3>${esc(t("jumpTitle",unitTitle(c,overlay.jump)))}</h3><p>${t("jumpText")}</p><button class="big" data-a="jumpok">${t("startTest")}</button><button class="big ghost" data-a="closeov">${t("cancel")}</button></div>`; }
+  const d = document.createElement("div"); d.className = overlay==="dcpop" ? "scrim center" : "scrim";
+  if(overlay==="dcpop") d.innerHTML = dcPopupHTML();
+  else if(overlay.jump!=null){ const c=COURSE(S.current); d.innerHTML = `<div class="dialog pop" role="dialog" aria-label="${t("jumpHere")}"><h3>${esc(t("jumpTitle",unitTitle(c,overlay.jump)))}</h3><p>${t("jumpText")}</p><button class="big" data-a="jumpok">${t("startTest")}</button><button class="big ghost" data-a="closeov">${t("cancel")}</button></div>`; }
   else if(overlay==="quit") d.innerHTML = `<div class="dialog pop" role="dialog" aria-label="${t("quitTitle")}"><h3>${t("quitTitle")}</h3><p>${t("quitText")}</p><button class="big" data-a="stay">${t("keepGoing")}</button><button class="big ghost" data-a="quitok" style="color:var(--bad)">${t("quit")}</button></div>`;
   else if(overlay==="reset") d.innerHTML = `<div class="dialog pop" role="dialog" aria-label="${t("resetTitle")}"><h3>${t("resetTitle")}</h3><p>${t("resetText")}</p><button class="big" data-a="closeov">${t("cancel")}</button><button class="big ghost" data-a="resetok" style="color:var(--bad)">${t("reset")}</button></div>`;
   else if(overlay.login){ const o = overlay;
@@ -880,6 +881,8 @@ document.addEventListener("click", async e=>{
   else if(a==="home"){ goHome(); }
   else if(a==="settings"){ overlay=null; screen="settings"; render(); window.scrollTo(0,0); }
   else if(a==="dcstart"){ if(!dcDoneToday()) startChallenge(); }
+  else if(a==="dcpopgo"){ buzz(true); overlay=null; renderOverlay(); if(!dcDoneToday()) startChallenge(); }
+  else if(a==="dclater"){ overlay=null; renderOverlay(); toast(t("dcPopLaterToast")); }
   else if(a==="badges"){ screen="badges"; render(); window.scrollTo(0,0); }
   else if(a==="choose"){ S.current=b.dataset.c; save(); goHome(); }
   else if(a==="node"){ const c = COURSE(S.current), u=+b.dataset.u, k=+b.dataset.k;
@@ -981,6 +984,7 @@ examBoot(true); // pågående eksamen: fortsett, eller lever hvis tiden gikk ut 
 if(frBootLink()) screen = "friends";
 if(checkBadges().length) saveLocal(); // merker for fremgang fra før merkene fantes (uten varsel)
 render();
+setTimeout(dcMaybePrompt, 450); // dagens utfordring som popup ved første åpning i dag
 flushOutbox();
 window.addEventListener("online", flushOutbox);
 cloudBoot();
