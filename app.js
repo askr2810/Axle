@@ -243,7 +243,7 @@ function renderSettings(){
   const goalOpts = [10,20,30,50], rem = S.reminder;
   $app.innerHTML = `<div class="sheet"><div class="wrap settings">
     <div class="sheet-h"><h1>${t("setTitle")}</h1><button class="iconbtn" data-a="profile" aria-label="${t("back")}">${I.x}</button></div>
-    <div class="sgroup"><button class="srow set-av" data-a="avedit">${S.avatar ? avatarSVG(S.avatar, 48) : `<span class="set-av0">${I.users}</span>`}<span class="lbl">${t(S.avatar ? "avEdit" : "avMake")}<span class="sub">${t("avSetSub")}</span></span>${I.chevron}</button></div>
+    <div class="sgroup"><button class="srow set-av" data-a="avedit">${hasMeAv() ? meAvHTML(48) : `<span class="set-av0">${I.users}</span>`}<span class="lbl">${t(hasMeAv() ? "avEdit" : "avMake")}<span class="sub">${t("avSetSub")}</span></span>${I.chevron}</button></div>
     <div class="sgroup">
       <div class="srow"><span class="lbl">${t("setLang")}</span><div class="seg"><button class="${LANG==="nb"?"on":""}" data-a="setlang" data-l="nb">Norsk</button><button class="${LANG==="en"?"on":""}" data-a="setlang" data-l="en">English</button></div></div>
       <div class="srow"><span class="lbl">${t("setGoal")}<span class="sub">${t("setGoalUnit")}</span></span><div class="seg">${goalOpts.map(g=>`<button class="${(S.goal||10)===g?"on":""}" data-a="setgoal" data-g="${g}">${g}</button>`).join("")}</div></div>

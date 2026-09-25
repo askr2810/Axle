@@ -57,13 +57,13 @@ function avatarSVG(code, size = 48, extraClass = ""){
     case 9: ht = `${fadeSides}<path d="M32 33C32 20 41 15 51 15s18 5 18 18c-4-4-9-5-18-5s-15 1-19 5z" fill="${hair}"/><path d="M38 22l4 3M46 18l3 4M55 18l2 4M62 21l1 4" stroke="rgba(0,0,0,.25)" stroke-width="1.4" stroke-linecap="round"/>`; break;
     case 10: ht = `<path d="M29.6 42C29.6 27 38 22.6 50 22.6S70.4 27 70.4 42C66 32.5 58 29.5 50 29.5S34 32.5 29.6 42Z" fill="${hair}" opacity=".7"/>`; break;
     case 11: ht = `<path d="M29 42C29 22 39 15 50 15s21 7 21 27c-4-9-12-13-21-13s-17 4-21 13z" fill="${hair}"/><path d="M50 15v14" stroke="rgba(0,0,0,.2)" stroke-width="1.4"/>`;
-             hf = [30, 70].map(x => `<g fill="${hair}">${[48, 55, 62, 69, 76].map((y, i) => `<ellipse cx="${x + (x < 50 ? -1 : 1) * i * 0.6}" cy="${y}" rx="${4.4 - i * 0.3}" ry="4"/>`).join("")}<circle cx="${x + (x < 50 ? -3 : 3)}" cy="81" r="1.8" fill="${AV_SHIRT[(o.sh + 4) % 8]}"/></g>`).join(""); break;
+             hf = [30, 70].map(x => `<g fill="${hair}">${[48, 55, 62, 69, 76].map((y, i) => `<ellipse cx="${x + (x < 50 ? -1 : 1) * i * 0.6}" cy="${y}" rx="${4.4 - i * 0.3}" ry="4"/>`).join("")}<circle cx="${x + (x < 50 ? -3 : 3)}" cy="81" r="1.8" fill="${sh}"/></g>`).join(""); break;
     case 12: hb = `<circle cx="50" cy="36" r="29" fill="${hair}"/>`; ht = `<path d="M30 38C31 26 40 21 50 21s19 5 20 17c-5-5-12-7-20-7s-15 2-20 7z" fill="${hair}"/>`; break;
     case 13: ht = `${fadeSides}<path d="M32 33C32 22 41 17 51 17s17 5 17 16c-4-3-9-4-17-4s-14 1-19 4z" fill="${hair}"/><circle cx="50" cy="14" r="7" fill="${hair}"/><path d="M45 15h10" stroke="rgba(0,0,0,.25)" stroke-width="1.6"/>`; break;
     case 14: ht = `<path d="M29 40C29 22 40 15 52 15c11 0 19 7 19 23-3-8-9-12-17-12-4 0-6 1-8 3-5-3-11-4-17 11z" fill="${hair}"/><path d="M44 17c-2 5-2 9 0 12" stroke="rgba(255,255,255,.3)" stroke-width="1.4" fill="none"/>`; break;
     case 15: ht = `<path d="M29 41C29 21 39 15 50 15s21 6 21 26c-1-4-2-6-4-7H33c-2 1-3 3-4 7z" fill="${hair}"/>`; break;
     case 16: hb = `<path d="M62 20c15 3 17 22 13 38-2 7-7 7-7 1 2-12 2-24-6-30z" fill="${hair}"/>`;
-             ht = `<path d="M29 42C29 22 39 15 50 15s21 7 21 27c-4-9-12-13-21-13s-17 4-21 13z" fill="${hair}"/><circle cx="66" cy="24" r="3" fill="${AV_SHIRT[(o.sh + 4) % 8]}"/>`; break;
+             ht = `<path d="M29 42C29 22 39 15 50 15s21 7 21 27c-4-9-12-13-21-13s-17 4-21 13z" fill="${hair}"/><circle cx="66" cy="24" r="3" fill="${sh}"/>`; break;
     case 17: ht = `${fadeSides}<g fill="${hair}">${[[35,28],[41,22],[48,19],[55,20],[62,23],[66,30],[44,26],[53,25]].map(([x,y]) => `<circle cx="${x}" cy="${y}" r="5.5"/>`).join("")}</g>`; break;
     case 18: hb = `<path d="M27 44C27 19 39 13 50 13s23 6 23 31c2 8-2 12 1 20s-2 16-8 18c-2-6 1-10-2-14H38c-3 4 0 8-2 14-6-2-11-10-8-18s-3-12-1-20z" fill="${hair}"/>`;
              ht = `<path d="M29 42C29 22 39 15 50 15s21 7 21 27c-3-8-8-12-14-13-6 4-17 5-28 13z" fill="${hair}"/>`; break;
@@ -77,13 +77,13 @@ function avatarSVG(code, size = 48, extraClass = ""){
     case 1: body = `<path d="M30 78c4-5 10-7 20-7s16 2 20 7l-4 4c-4-3-9-4-16-4s-12 1-16 4z" fill="${sh}"/><path d="M30 78c4-5 10-7 20-7s16 2 20 7l-4 4c-4-3-9-4-16-4s-12 1-16 4z" fill="rgba(0,0,0,0.15)"/><path d="${bodyPath}" fill="${sh}"/><path d="M36 76c4 5 9 7 14 7s10-2 14-7" stroke="rgba(0,0,0,.25)" stroke-width="2" fill="none"/><path d="M45 82v10M55 82v10" stroke="#fff" stroke-width="1.6" stroke-linecap="round"/><path d="M38 96h24v8H38z" fill="rgba(0,0,0,.12)"/>`; break;
     case 2: body = `<path d="${bodyPath}" fill="${sh}"/><path d="${bodyPath}" fill="rgba(0,0,0,0.4)"/><path d="M42 72l8 18 8-18z" fill="#F4F4F4"/><path d="M48.5 76h3l1.5 3-1.5 17h-3L47 79z" fill="#C0392B"/><path d="M42 72l-6 6 10 26M58 72l6 6-10 26" stroke="rgba(0,0,0,.35)" stroke-width="1.6" fill="none"/>`; break;
     case 3: body = `<path d="${bodyPath}" fill="#F7F8FA"/><path d="M42 72l8 12 8-12z" fill="${sh}"/><path d="M42 72l-7 8 9 24M58 72l7 8-9 24" stroke="#C8CED4" stroke-width="1.6" fill="none"/><rect x="60" y="88" width="9" height="7" rx="1" fill="none" stroke="#C8CED4" stroke-width="1.4"/><path d="M63 85v6" stroke="#2B59C3" stroke-width="1.8" stroke-linecap="round"/>`; break;
-    case 4: body = `<path d="${bodyPath}" fill="#EEF1F4"/><path d="M34 76c5-4 11-6 16-6s11 2 16 6l-2 5c-4-3-9-4-14-4s-10 1-14 4z" fill="#AEB7C0"/><rect x="58" y="86" width="12" height="8" rx="1.5" fill="#2B59C3"/><path d="M58 90h12" stroke="#fff" stroke-width="1.2"/><circle cx="38" cy="92" r="3" fill="#D2452F"/>`; break;
+    case 4: body = `<path d="${bodyPath}" fill="#EEF1F4"/><path d="M34 76c5-4 11-6 16-6s11 2 16 6l-2 5c-4-3-9-4-14-4s-10 1-14 4z" fill="#AEB7C0"/><rect x="58" y="86" width="12" height="8" rx="1.5" fill="${sh}"/><path d="M58 90h12" stroke="#fff" stroke-width="1.2"/><circle cx="38" cy="92" r="3" fill="#D2452F"/>`; break;
     case 5: ob = `<path d="M22 80c-4 10-5 20-6 26h68c-1-6-2-16-6-26-9-5-19-7-28-7s-19 2-28 7z" fill="#C0392B"/>`;
             body = `<path d="${bodyPath}" fill="${sh}"/><path d="M50 82l7 4v6l-7 5-7-5v-6z" fill="#F2B51D"/><path d="M51 84l-3 5h3l-2 5 5-7h-3l2-3z" fill="${sh}"/>`; break;
     case 6: body = `<path d="${bodyPath}" fill="${sh}"/><path d="M43 72l7 9 7-9" stroke="#fff" stroke-width="2" fill="none"/>${[[30,88],[40,98],[62,86],[70,97],[52,100],[34,100]].map(([x, y]) => `<g fill="#FFD166"><circle cx="${x}" cy="${y}" r="2.6"/><circle cx="${x + 3}" cy="${y - 1}" r="2"/><circle cx="${x - 2}" cy="${y + 2}" r="2"/></g><circle cx="${x}" cy="${y}" r="1" fill="#E86A92"/>`).join("")}`; break;
-    case 7: body = `<path d="${bodyPath}" fill="#546E7A"/><path d="M26 86c3-8 8-12 14-14l4 32H24c0-7 0-12 2-18zM74 86c-3-8-8-12-14-14l-4 32h20c0-7 0-12-2-18z" fill="#D7F22B"/><path d="M25 94h19M56 94h19" stroke="#D9E1E6" stroke-width="3"/>`; break;
+    case 7: body = `<path d="${bodyPath}" fill="${sh}"/><path d="M26 86c3-8 8-12 14-14l4 32H24c0-7 0-12 2-18zM74 86c-3-8-8-12-14-14l-4 32h20c0-7 0-12-2-18z" fill="#D7F22B"/><path d="M25 94h19M56 94h19" stroke="#D9E1E6" stroke-width="3"/>`; break;
     case 8: body = `<path d="${bodyPath}" fill="${sh}"/><path d="M41 64h18v12q-9 4-18 0z" fill="${sh}"/><path d="M41 64h18v12q-9 4-18 0z" fill="rgba(0,0,0,0.1)"/><path d="M42 68h16M42 72h16" stroke="rgba(0,0,0,.15)" stroke-width="1.2"/>`; break;
-    case 9: body = `<path d="${bodyPath}" fill="#1B1F24"/><path d="M42 72l8 22 8-22z" fill="#F4F4F4"/><path d="M44 76l6 3-6 3zM56 76l-6 3 6 3z" fill="#111"/><circle cx="50" cy="79" r="1.6" fill="#111"/><path d="M42 72l-6 6 10 26M58 72l6 6-10 26" stroke="#3A4048" stroke-width="1.8" fill="none"/>`; break;
+    case 9: body = `<path d="${bodyPath}" fill="#1B1F24"/><path d="M42 72l8 22 8-22z" fill="#F4F4F4"/><path d="M44 76l6 3-6 3zM56 76l-6 3 6 3z" fill="${sh}"/><circle cx="50" cy="79" r="1.8" fill="${sh}"/><path d="M60 84l6-1 1 4-6 1z" fill="${sh}"/><path d="M42 72l-6 6 10 26M58 72l6 6-10 26" stroke="#3A4048" stroke-width="1.8" fill="none"/>`; break;
     case 10: body = `<path d="${bodyPath}" fill="${sh}"/><path d="M34 76v28M44 72v32M56 72v32M66 76v28" stroke="rgba(255,255,255,.55)" stroke-width="3"/><text x="50" y="98" text-anchor="middle" font-family="Arial,sans-serif" font-weight="800" font-size="11" fill="#fff">10</text><path d="M43 72q7 5 14 0" stroke="#fff" stroke-width="2" fill="none"/>`; break;
   }
   const eyes = [
@@ -122,7 +122,7 @@ function avatarSVG(code, size = 48, extraClass = ""){
     `<rect x="34" y="41.5" width="14" height="9.5" rx="1.5" fill="rgba(255,255,255,.12)" stroke="#111" stroke-width="3"/><rect x="52" y="41.5" width="14" height="9.5" rx="1.5" fill="rgba(255,255,255,.12)" stroke="#111" stroke-width="3"/><path d="M48 45h4" stroke="#111" stroke-width="2.4"/>`
   ][o.g];
   // ---------- hodeplagg ----------
-  const hatC = AV_SHIRT[(o.sh + 3) % AV_SHIRT.length];
+  const hatC = sh; // hodeplagg følger klesfargen du velger
   let hat = "", hatBack = "";
   switch(o.a){
     case 1: hat = `<path d="M28 39c0-15 10-23 22-23s22 8 22 23z" fill="${hatC}"/><path d="M27 34h46v7H27z" fill="${hatC}"/><path d="M27 34h46v7H27z" fill="rgba(0,0,0,0.2)"/><circle cx="50" cy="14" r="5" fill="#fff"/>`; break;
@@ -185,9 +185,42 @@ const myAvatar = () => S.avatar || null;
 // ---------- avatar-bygger ----------
 let AVE = null; // { code, tab }
 const AVE_TABS = [["h", "avHair"], ["hc", "avHairColor"], ["g", "avGlasses"], ["a", "avAcc"], ["o", "avOutfit"], ["sh", "avShirt"], ["x", "avExtra"], ["e", "avEyes"], ["m", "avMouth"], ["f", "avBeard"], ["s", "avSkin"], ["bg", "avBg"]];
-function openAvatarEditor(){ AVE = { code: S.avatar || avRandom(), tab: "h", back: screen }; screen = "avatar"; overlay = null; render(); window.scrollTo(0, 0); }
-function renderAvatarEditor(){
-  if(!AVE){ goHome(); return; }
+let AVE_LAST_TAB = "h"; // husker fanen du sist var på
+function openAvatarEditor(){ AVE = { code: S.avatar || avRandom(), tab: AVE_LAST_TAB, back: screen }; screen = "avatar"; overlay = null; render(); window.scrollTo(0, 0); aveTabIntoView(); }
+// ---------- profilbilde (valgfritt, vises i stedet for avataren) ----------
+const PHOTO_RE = /^data:image\/jpeg;base64,[A-Za-z0-9+/=]+$/;
+const isPhoto = p => typeof p === "string" && p.length < 24000 && PHOTO_RE.test(p);
+function photoImg(src, size, cls = ""){ return `<img class="av-photo ${cls}" src="${src}" width="${size}" height="${size}" alt="" draggable="false">`; }
+// Din egen figur: profilbilde hvis du har ett, ellers avatar.
+function meAvHTML(size, cls = ""){ return isPhoto(S.photo) ? photoImg(S.photo, size, cls) : S.avatar ? avatarSVG(S.avatar, size, cls) : ""; }
+const hasMeAv = () => isPhoto(S.photo) || !!S.avatar;
+function photoFromFile(file){
+  return new Promise((ok, bad) => {
+    if(!file || !/^image\//.test(file.type)) return bad(new Error("type"));
+    const url = URL.createObjectURL(file), img = new Image();
+    img.onload = () => {
+      const N = 160, c = document.createElement("canvas"); c.width = c.height = N;
+      const g = c.getContext("2d"), s = Math.min(img.naturalWidth, img.naturalHeight);
+      g.fillStyle = "#fff"; g.fillRect(0, 0, N, N);
+      g.drawImage(img, (img.naturalWidth - s) / 2, (img.naturalHeight - s) / 2, s, s, 0, 0, N, N);
+      URL.revokeObjectURL(url);
+      let q = 0.82, d = c.toDataURL("image/jpeg", q);
+      while(d.length > 22000 && q > 0.3){ q -= 0.12; d = c.toDataURL("image/jpeg", q); }
+      isPhoto(d) ? ok(d) : bad(new Error("size"));
+    };
+    img.onerror = () => { URL.revokeObjectURL(url); bad(new Error("load")); };
+    img.src = url;
+  });
+}
+function avPhotoSaved(){ save(); if(typeof frPushSoon === "function") frPushSoon(); render(); }
+document.addEventListener("change", e => {
+  if(e.target && e.target.id === "avfile"){
+    const f = e.target.files && e.target.files[0]; e.target.value = "";
+    photoFromFile(f).then(d => { S.photo = d; toast(t("avPhotoSaved")); avPhotoSaved(); }, () => toast(t("avPhotoBad")));
+  }
+});
+function aveTabIntoView(){ const el = document.querySelector(".ave-tabs button.on"); if(el) el.scrollIntoView({ block: "nearest", inline: "center" }); }
+function aveOptsHTML(){
   const o = avParse(AVE.code), k = AVE.tab;
   const colorTab = { s: AV_SKIN, hc: AV_HAIRC, sh: AV_SHIRT, bg: AV_BG }[k];
   const opts = Array.from({ length: AV_PARTS[k] }, (_, i) => {
@@ -197,22 +230,39 @@ function renderAvatarEditor(){
     const nm = AV_NAMES[k] && AV_NAMES[k][i] ? T(AV_NAMES[k][i][0], AV_NAMES[k][i][1]) : String(i + 1);
     return `<button class="ave-opt ${on ? "on" : ""}" data-a="avset" data-i="${i}" aria-label="${esc(nm)}">${avatarSVG(avCode(oo), 60)}<small>${esc(nm)}</small></button>`;
   }).join("");
+  return { opts, colorTab };
+}
+// Oppdaterer bare forhåndsvisningen og valgene, så fanene og rullingen står stille.
+function aveUpdate(){
+  const prev = document.querySelector(".ave-prev"), grid = document.querySelector(".ave-grid");
+  if(!prev || !grid){ render(); return; }
+  const { opts, colorTab } = aveOptsHTML();
+  prev.innerHTML = avatarSVG(AVE.code, 150); grid.innerHTML = opts; grid.classList.toggle("colors", !!colorTab);
+  document.querySelectorAll(".ave-tabs button").forEach(b => b.classList.toggle("on", b.dataset.t === AVE.tab));
+}
+function renderAvatarEditor(){
+  if(!AVE){ goHome(); return; }
+  const k = AVE.tab, { opts, colorTab } = aveOptsHTML(), ph = isPhoto(S.photo);
+  const photoCard = `<div class="ave-photo">${ph ? photoImg(S.photo, 52) : `<span class="ave-ph0">${I.person}</span>`}<div class="ave-pt"><b>${esc(t(ph ? "avPhotoOn" : "avPhotoTitle"))}</b><small>${esc(t(ph ? "avPhotoOnSub" : "avPhotoSub"))}</small></div>
+      <label class="ave-pbtn">${esc(t(ph ? "avPhotoChange" : "avPhotoUpload"))}<input type="file" id="avfile" accept="image/*" hidden></label>${ph ? `<button class="ave-pbtn ghost" data-a="avphotodel">${esc(t("avPhotoRemove"))}</button>` : ""}</div>`;
   $app.innerHTML = `<div class="top"><div class="wrap"><button class="iconbtn" data-a="avcancel" aria-label="${esc(t("back"))}">${I.x}</button>
       <div class="th-t"><small>${esc(t("avSub"))}</small><b>${esc(t("avTitle"))}</b></div><button class="iconbtn" data-a="avrandom" aria-label="${esc(t("avRandom"))}" title="${esc(t("avRandom"))}">${I.dice}</button></div></div>
     <main class="wrap ave">
+      ${photoCard}
       <div class="ave-prev">${avatarSVG(AVE.code, 150)}</div>
       <div class="ave-tabs">${AVE_TABS.map(([kk, lab]) => `<button class="${kk === k ? "on" : ""}" data-a="avtab" data-t="${kk}">${esc(t(lab))}</button>`).join("")}</div>
       <div class="ave-grid ${colorTab ? "colors" : ""}">${opts}</div>
     </main>
-    <div class="lfoot"><div class="wrap"><button class="big" data-a="avsave">${esc(t("avSave"))}</button></div></div>`;
+    <div class="lfoot"><div class="wrap"><button class="big" data-a="avsave">${esc(t(ph ? "avSaveUse" : "avSave"))}</button></div></div>`;
 }
 function avatarClick(a, b){
   if(!a.startsWith("av")) return false;
   if(a === "avedit") openAvatarEditor();
-  else if(a === "avtab"){ AVE.tab = b.dataset.t; render(); }
-  else if(a === "avset"){ const o = avParse(AVE.code); o[AVE.tab] = +b.dataset.i; AVE.code = avCode(o); render(); }
-  else if(a === "avrandom"){ AVE.code = avRandom(); render(); }
-  else if(a === "avsave"){ S.avatar = AVE.code; save(); const back = AVE.back; AVE = null; toast(t("avSaved")); screen = ["friends", "profile"].includes(back) ? back : "settings"; if(screen === "friends") FR.rows = null; render(); window.scrollTo(0, 0); }
+  else if(a === "avtab"){ AVE.tab = AVE_LAST_TAB = b.dataset.t; aveUpdate(); b.scrollIntoView({ block: "nearest", inline: "center", behavior: "smooth" }); }
+  else if(a === "avset"){ const o = avParse(AVE.code); o[AVE.tab] = +b.dataset.i; AVE.code = avCode(o); aveUpdate(); }
+  else if(a === "avrandom"){ AVE.code = avRandom(); aveUpdate(); }
+  else if(a === "avphotodel"){ S.photo = null; toast(t("avPhotoRemoved")); avPhotoSaved(); }
+  else if(a === "avsave"){ S.avatar = AVE.code; S.photo = null; save(); if(typeof frPushSoon === "function") frPushSoon(); const back = AVE.back; AVE = null; toast(t("avSaved")); screen = ["friends", "profile"].includes(back) ? back : "settings"; if(screen === "friends") FR.rows = null; render(); window.scrollTo(0, 0); }
   else if(a === "avcancel"){ const back = AVE.back; AVE = null; screen = ["friends", "profile"].includes(back) ? back : "settings"; render(); }
   else return false;
   return true;

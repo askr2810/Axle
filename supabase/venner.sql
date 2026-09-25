@@ -43,6 +43,8 @@ alter table public.profiles add column if not exists prev_week_xp integer not nu
 alter table public.profiles add column if not exists prev_week_key text;
 alter table public.profiles add column if not exists username text check (username is null or username ~ '^[a-z0-9_.]{3,20}$');
 create unique index if not exists profiles_username_key on public.profiles (username);
+-- Profilbilde (valgfritt): lite JPEG-bilde (160×160) lagret som data-URL, vises bare for vennene dine.
+alter table public.profiles add column if not exists photo text check (photo is null or (char_length(photo) < 24000 and photo ~ '^data:image/jpeg;base64,[A-Za-z0-9+/=]+$'));
 alter table public.profiles add column if not exists avatar text check (avatar is null or avatar ~ '^[0-9]{1,2}(-[0-9]{1,2}){3,12}$');
 
 alter table public.profiles    enable row level security;
@@ -58,8 +60,8 @@ create policy "egen profil - endre" on public.profiles for update to authenticat
 
 revoke all on public.profiles from anon, authenticated;
 grant select on public.profiles to authenticated;
-grant insert (user_id, display_name, username, xp, streak, streak_last, week_xp, week_key, crowns, levels, course, avatar, prev_week_xp, prev_week_key, updated_at) on public.profiles to authenticated;
-grant update (display_name, username, xp, streak, streak_last, week_xp, week_key, crowns, levels, course, avatar, prev_week_xp, prev_week_key, updated_at) on public.profiles to authenticated;
+grant insert (user_id, display_name, username, photo, xp, streak, streak_last, week_xp, week_key, crowns, levels, course, avatar, prev_week_xp, prev_week_key, updated_at) on public.profiles to authenticated;
+grant update (display_name, username, photo, xp, streak, streak_last, week_xp, week_key, crowns, levels, course, avatar, prev_week_xp, prev_week_key, updated_at) on public.profiles to authenticated;
 
 -- Vennskap endres bare via funksjonene under.
 revoke all on public.friendships from anon, authenticated;
@@ -69,7 +71,7 @@ drop function if exists public.get_friends();
 create function public.get_friends()
 returns table (
   user_id uuid, display_name text, username text, friend_code text, xp integer, streak integer, streak_last text,
-  week_xp integer, week_key text, crowns integer, levels integer, course text, avatar text, prev_week_xp integer, prev_week_key text, updated_at timestamptz, is_me boolean
+  week_xp integer, week_key text, crowns integer, levels integer, course text, avatar text, photo text, prev_week_xp integer, prev_week_key text, updated_at timestamptz, is_me boolean
 )
 language sql
 stable
@@ -78,7 +80,7 @@ set search_path = ''
 as $$
   select p.user_id, p.display_name, p.username,
          case when p.user_id = auth.uid() then p.friend_code end,
-         p.xp, p.streak, p.streak_last, p.week_xp, p.week_key, p.crowns, p.levels, p.course, p.avatar, p.prev_week_xp, p.prev_week_key, p.updated_at,
+         p.xp, p.streak, p.streak_last, p.week_xp, p.week_key, p.crowns, p.levels, p.course, p.avatar, p.photo, p.prev_week_xp, p.prev_week_key, p.updated_at,
          p.user_id = auth.uid()
   from public.profiles p
   where p.user_id = auth.uid()
@@ -147,14 +149,15 @@ alter table public.friend_requests enable row level security;
 revoke all on public.friend_requests from anon, authenticated;
 
 -- Søk: minst 2 tegn, maks 12 treff, ikke deg selv.
-create or replace function public.search_users(q text)
-returns table (user_id uuid, display_name text, username text, avatar text, status text)
+drop function if exists public.search_users(text);
+create function public.search_users(q text)
+returns table (user_id uuid, display_name text, username text, avatar text, photo text, status text)
 language sql
 stable
 security definer
 set search_path = ''
 as $$
-  select p.user_id, p.display_name, p.username, p.avatar,
+  select p.user_id, p.display_name, p.username, p.avatar, p.photo,
          case when exists (select 1 from public.friendships f where f.user_id = auth.uid() and f.friend_id = p.user_id) then 'friend'
               when exists (select 1 from public.friend_requests r where r.from_id = auth.uid() and r.to_id = p.user_id) then 'sent'
               when exists (select 1 from public.friend_requests r where r.from_id = p.user_id and r.to_id = auth.uid()) then 'incoming'
@@ -195,14 +198,15 @@ end;
 $$;
 
 -- Innkommende forespørsler.
-create or replace function public.get_friend_requests()
-returns table (user_id uuid, display_name text, username text, avatar text, created_at timestamptz)
+drop function if exists public.get_friend_requests();
+create function public.get_friend_requests()
+returns table (user_id uuid, display_name text, username text, avatar text, photo text, created_at timestamptz)
 language sql
 stable
 security definer
 set search_path = ''
 as $$
-  select p.user_id, p.display_name, p.username, p.avatar, r.created_at
+  select p.user_id, p.display_name, p.username, p.avatar, p.photo, r.created_at
   from public.friend_requests r join public.profiles p on p.user_id = r.from_id
   where r.to_id = auth.uid()
   order by r.created_at desc;

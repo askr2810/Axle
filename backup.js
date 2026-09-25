@@ -31,6 +31,8 @@ function mergeState(a, b){
   const m = JSON.parse(JSON.stringify(a));
   if(!isObj(b)) return m;
   if(!m.avatar && typeof b.avatar === "string") m.avatar = b.avatar;
+  if(!("photo" in m) && typeof b.photo === "string") m.photo = b.photo;
+  m.gdDone = Object.assign({}, isObj(b.gdDone) ? b.gdDone : {}, a.gdDone || {});
   if(!m.name && typeof b.name === "string") m.name = b.name;
   m.badges = Object.assign({}, isObj(b.badges) ? b.badges : {}, a.badges || {});
   m.stats = Object.assign({}, a.stats || {}); if(isObj(b.stats)) for(const k in b.stats) m.stats[k] = Math.max(+m.stats[k] || 0, +b.stats[k] || 0);

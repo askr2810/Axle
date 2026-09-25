@@ -31,13 +31,18 @@ async function frRpc(name, args){
 }
 // Kolonner som kom i senere versjoner av venner.sql. Mangler de i databasen, sendes de ikke.
 const FR_NEW_COLS = ["avatar", "prev_week_xp", "prev_week_key"];
-let FR_OLD_DB = false;
-function frBody(){ const b = myStats(); if(S.avatar) b.avatar = S.avatar; if(FR_OLD_DB) FR_NEW_COLS.forEach(k => delete b[k]); return b; }
+let FR_OLD_DB = false, FR_NO_PHOTO = false;
+function frBody(){ const b = myStats(); if(S.avatar) b.avatar = S.avatar; if(!FR_NO_PHOTO) b.photo = isPhoto(S.photo) ? S.photo : null; if(FR_OLD_DB) FR_NEW_COLS.forEach(k => delete b[k]); return b; }
+// Sender profilen (f.eks. nytt bilde) til venner litt etter en endring.
+let frPushTimer = null;
+function frPushSoon(){ if(!CLOUD_ON || !AUTH) return; clearTimeout(frPushTimer); frPushTimer = setTimeout(async () => { try{ const tok = await authToken(); if(tok) await frPushStats(tok); }catch(e){} }, 800); }
 async function frPushStats(tok){
   if(!AUTH) return;
   const url = "/rest/v1/profiles?user_id=eq." + encodeURIComponent(AUTH.uid), opt = b => ({ method: "PATCH", headers: { Prefer: "return=minimal" }, body: JSON.stringify(b) });
   try{ await sbFetch(url, opt(frBody()), tok); }
-  catch(e){ if(!FR_OLD_DB && /PGRST204|42703/.test(e.code || "")){ FR_OLD_DB = true; await sbFetch(url, opt(frBody()), tok); } else throw e; }
+  catch(e){
+    if(/PGRST204|42703/.test(e.code || "") && !FR_NO_PHOTO){ FR_NO_PHOTO = true; return frPushStats(tok); }
+    if(!FR_OLD_DB && /PGRST204|42703/.test(e.code || "")){ FR_OLD_DB = true; await sbFetch(url, opt(frBody()), tok); } else throw e; }
 }
 async function frLoad(){
   if(!CLOUD_ON || !AUTH || FR.loading) return;
@@ -66,7 +71,7 @@ async function frSaveName(name){
     const me = (FR.rows || []).find(r => r.is_me);
     if(me) await sbFetch("/rest/v1/profiles?user_id=eq." + encodeURIComponent(AUTH.uid), { method: "PATCH", headers: { Prefer: "return=minimal" }, body: JSON.stringify({ display_name: name }) }, tok);
     else { const post = b => sbFetch("/rest/v1/profiles", { method: "POST", headers: { Prefer: "return=minimal" }, body: JSON.stringify(Object.assign({ user_id: AUTH.uid, display_name: name }, b)) }, tok);
-      try{ await post(frBody()); } catch(e){ if(!FR_OLD_DB && /PGRST204|42703/.test(e.code || "")){ FR_OLD_DB = true; await post(frBody()); } else throw e; } }
+      try{ await post(frBody()); } catch(e){ if(/PGRST204|42703/.test(e.code || "")){ FR_NO_PHOTO = true; try{ await post(frBody()); } catch(e2){ if(!FR_OLD_DB && /PGRST204|42703/.test(e2.code || "")){ FR_OLD_DB = true; await post(frBody()); } else throw e2; } } else throw e; } }
     if(!me && !S.avatar){ S.avatar = avRandom(); save(); } // alle får en avatar de kan endre
     S.name = name; save(); FR.editName = false; FR.busy = false; await frLoad();
   }catch(e){ FR.busy = false; toast(frErr(e)); frRender(); }
@@ -125,7 +130,7 @@ function frResHTML(){
       : r.status === "sent" ? `<span class="fr-pill">${esc(t("frSent"))}</span>`
       : r.status === "incoming" ? `<button class="fr-act" data-a="fracc" data-id="${esc(r.user_id)}">${esc(t("frAccept"))}</button>`
       : `<button class="fr-act" data-a="frreq" data-id="${esc(r.user_id)}" data-n="${esc(r.display_name)}">${I.plus}${esc(t("frReq"))}</button>`;
-    return `<div class="fr-hit">${frAvatar(r.display_name, i, r.avatar, 40)}<span class="fr-t"><b>${esc(r.display_name)}</b><span>${r.username ? "@" + esc(r.username) : ""}</span></span>${act}</div>`;
+    return `<div class="fr-hit">${frAvatar(r.display_name, i, r.avatar, 40, r.photo)}<span class="fr-t"><b>${esc(r.display_name)}</b><span>${r.username ? "@" + esc(r.username) : ""}</span></span>${act}</div>`;
   }).join("");
 }
 function frResUpdate(){ const el = document.getElementById("frres"); if(el) el.innerHTML = frResHTML(); }
@@ -187,12 +192,13 @@ function frCountdown(){
 function frLeagueHTML(rows){
   const win = frLeague(rows);
   return `<div class="fr-card lg"><div class="lg-h"><b>${I.trophyS}${esc(t("lgTitle"))}</b><span>${esc(frCountdown())}</span></div>
-    ${win ? `<div class="lg-win">${frAvatar(win.r.display_name, 0, win.r.is_me ? (S.avatar || win.r.avatar) : win.r.avatar, 40)}<span><small>${esc(t("lgLastWinner"))}</small><b>${esc(win.r.display_name)}${win.r.is_me ? " " + esc(t("frYou")) : ""}</b></span><em>${win.xp} XP</em></div>`
+    ${win ? `<div class="lg-win">${frAvatar(win.r.display_name, 0, win.r.is_me ? (S.avatar || win.r.avatar) : win.r.avatar, 40, win.r.is_me ? S.photo : win.r.photo)}<span><small>${esc(t("lgLastWinner"))}</small><b>${esc(win.r.display_name)}${win.r.is_me ? " " + esc(t("frYou")) : ""}</b></span><em>${win.xp} XP</em></div>`
           : `<p>${esc(t("lgNoWinner"))}</p>`}</div>`;
 }
 function frRender(){ if(screen === "friends" && !overlay) render(); }
 
-function frAvatar(name, i, av, size){
+function frAvatar(name, i, av, size, photo){
+  if(isPhoto(photo)) return photoImg(photo, size || 40, "fr-avs");
   if(av && /^\d+(-\d+){3,}$/.test(av)) return avatarSVG(av, size || 40, "fr-avs");
   const cols = ["var(--u0)", "var(--u1)", "var(--u2)", "var(--gold-deep)", "var(--ok)"];
   const ch = (String(name || "?").trim()[0] || "?").toUpperCase();
@@ -229,23 +235,23 @@ function renderFriends(){
       const rows = FR.rows.map(frLive), key = FR.tab === "total" ? "xp" : FR.tab === "streak" ? "streak" : "week_xp";
       rows.sort((a, b) => (b[key] - a[key]) || (b.xp - a.xp) || String(a.display_name).localeCompare(b.display_name));
       const unit = r => FR.tab === "streak" ? `${r.streak}<small>${esc(t("frDays"))}</small>` : `${r[key]}<small>XP</small>`;
-      const avOf = r => r.is_me ? (S.avatar || r.avatar) : r.avatar;
+      const avOf = r => r.is_me ? (S.avatar || r.avatar) : r.avatar, phOf = r => r.is_me ? S.photo : r.photo;
       const podium = rows.length >= 2 ? `<div class="podium">${[1, 0, 2].map(i => { const r = rows[i]; if(!r) return `<div class="pd-col p${i + 1} empty"></div>`;
           return `<button class="pd-col p${i + 1} ${r.is_me ? "me" : ""}" ${r.is_me ? "" : `data-a="frdetail" data-id="${esc(r.user_id)}"`}>
-            <span class="pd-av">${i === 0 ? `<span class="pd-crown">${I.crown}</span>` : ""}${frAvatar(r.display_name, i, avOf(r), i === 0 ? 72 : 58)}</span>
+            <span class="pd-av">${i === 0 ? `<span class="pd-crown">${I.crown}</span>` : ""}${frAvatar(r.display_name, i, avOf(r), i === 0 ? 72 : 58, phOf(r))}</span>
             <b class="pd-name">${esc(r.display_name)}</b><span class="pd-val">${unit(r)}</span>
             <span class="pd-block"><span class="pd-medal">${i + 1}</span></span></button>`; }).join("")}</div>` : "";
       const listRows = rows.length >= 2 ? rows.slice(3) : rows, off = rows.length >= 2 ? 3 : 0;
       const board = listRows.map((r, j) => { const i = j + off; return `<button class="fr-row ${r.is_me ? "me" : ""}" ${r.is_me ? "" : `data-a="frdetail" data-id="${esc(r.user_id)}"`}>
-          <span class="fr-rank r${i + 1}">${i + 1}</span>${frAvatar(r.display_name, i, avOf(r))}
+          <span class="fr-rank r${i + 1}">${i + 1}</span>${frAvatar(r.display_name, i, avOf(r), 40, phOf(r))}
           <span class="fr-t"><b>${esc(r.display_name)}${r.is_me ? ` <em>${esc(t("frYou"))}</em>` : ""}</b><span>${esc(frCourseName(r.course))}${r.crowns ? ` · ${r.crowns} ${esc(t("frCrownsShort"))}` : ""}</span></span>
           <span class="fr-v">${unit(r)}</span></button>`; }).join("");
-      const meCard = `<div class="fr-card fr-me">${frAvatar(me.display_name, 0, S.avatar || me.avatar, 56)}<div class="fr-me-t"><b>${esc(me.display_name)}</b>${me.username ? `<span class="fr-uname">@${esc(me.username)}</span>` : ""}<span class="fr-links"><button class="exlink" data-a="fredituser">${esc(t(me.username ? "frEditUser" : "frPickUser"))}</button><button class="exlink" data-a="freditname">${esc(t("frEditName"))}</button><button class="exlink" data-a="avedit">${esc(t("avEdit"))}</button></span></div></div>`;
+      const meCard = `<div class="fr-card fr-me">${frAvatar(me.display_name, 0, S.avatar || me.avatar, 56, S.photo)}<div class="fr-me-t"><b>${esc(me.display_name)}</b>${me.username ? `<span class="fr-uname">@${esc(me.username)}</span>` : ""}<span class="fr-links"><button class="exlink" data-a="fredituser">${esc(t(me.username ? "frEditUser" : "frPickUser"))}</button><button class="exlink" data-a="freditname">${esc(t("frEditName"))}</button><button class="exlink" data-a="avedit">${esc(t("avEdit"))}</button></span></div></div>`;
       const userCard = (FR.editUser || (!me.username && !FR.userLater)) ? `<div class="fr-card fr-user"><h2>${esc(t(me.username ? "frEditUser" : "frPickUser"))}</h2><p>${esc(t("frUserText"))}</p>
           <div class="fr-at"><span>@</span><input type="text" id="fruser" maxlength="20" autocapitalize="none" autocomplete="username" spellcheck="false" value="${esc(me.username || frUserSuggest(me.display_name))}"></div>
           <button class="big" data-a="frsaveuser" ${FR.busy ? "disabled" : ""}>${esc(t("frSave"))}</button><button class="big ghost" data-a="frlateruser">${esc(t(me.username ? "cancel" : "frLater"))}</button></div>` : "";
       const reqCard = FR.reqs.length ? `<div class="fr-card fr-reqs"><h3>${esc(t("frReqs"))} <span class="fr-n">${FR.reqs.length}</span></h3>${FR.reqs.map((r, i) =>
-          `<div class="fr-hit">${frAvatar(r.display_name, i, r.avatar, 40)}<span class="fr-t"><b>${esc(r.display_name)}</b><span>${r.username ? "@" + esc(r.username) : ""}</span></span><button class="fr-act" data-a="fracc" data-id="${esc(r.user_id)}">${esc(t("frAccept"))}</button><button class="fr-act ghost" data-a="frdec" data-id="${esc(r.user_id)}" aria-label="${esc(t("frDecline"))}">${I.x}</button></div>`).join("")}</div>` : "";
+          `<div class="fr-hit">${frAvatar(r.display_name, i, r.avatar, 40, r.photo)}<span class="fr-t"><b>${esc(r.display_name)}</b><span>${r.username ? "@" + esc(r.username) : ""}</span></span><button class="fr-act" data-a="fracc" data-id="${esc(r.user_id)}">${esc(t("frAccept"))}</button><button class="fr-act ghost" data-a="frdec" data-id="${esc(r.user_id)}" aria-label="${esc(t("frDecline"))}">${I.x}</button></div>`).join("")}</div>` : "";
       const codeCard = `<div class="fr-card fr-find"><h3>${esc(t("frFind"))}</h3>
           <div class="fr-search">${I.search}<input type="search" id="frsearch" autocapitalize="none" autocomplete="off" spellcheck="false" placeholder="${esc(t("frSearchPh"))}" aria-label="${esc(t("frSearchPh"))}" value="${esc(FR.search.q)}"></div>
           <div id="frres" class="fr-res">${frResHTML()}</div>
@@ -270,7 +276,7 @@ function renderFriends(){
 function frDetailHTML(id){
   const r0 = (FR.rows || []).find(x => x.user_id === id); if(!r0) return "";
   const r = frLive(r0), st = (label, v) => `<div class="fr-st"><b>${v}</b><span>${esc(label)}</span></div>`;
-  return `<div class="dialog pop" role="dialog" aria-label="${esc(r.display_name)}"><div class="fr-dh">${frAvatar(r.display_name, 1, r.avatar, 56)}<h3>${esc(r.display_name)}</h3></div>
+  return `<div class="dialog pop" role="dialog" aria-label="${esc(r.display_name)}"><div class="fr-dh">${frAvatar(r.display_name, 1, r.avatar, 56, r.photo)}<h3>${esc(r.display_name)}</h3></div>
     <div class="fr-stats">${st(t("frTab_week"), r.week_xp + " XP")}${st(t("frTab_total"), r.xp + " XP")}${st(t("frTab_streak"), r.streak + " " + t("frDays"))}${st(t("frCrowns"), r.crowns)}${st(t("frLevels"), r.levels)}${st(t("frLast"), esc(frAgo(r.updated_at)))}</div>
     ${r.course ? `<p class="fr-now">${esc(t("frNow", frCourseName(r.course)))}</p>` : ""}
     <button class="big" data-a="closeov">${esc(t("cont"))}</button>

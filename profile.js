@@ -8,7 +8,7 @@ const TABS = [["home", "book2", "tabLearn"], ["practice", "bolt", "tabPractice"]
 function tabOf(){ return screen === "home" ? "home" : screen === "practice" ? "practice" : screen === "book" && BK.v !== "unit" ? "book" : screen === "friends" ? "friends" : (screen === "profile" || screen === "badges") ? "profile" : null; }
 function tabbarHTML(active){
   return `<nav class="tabbar" aria-label="${esc(t("tabNav"))}"><div class="wrap">${TABS.map(([k, ic, lab]) =>
-    `<button class="${k === active ? "on" : ""}" data-a="tab" data-t="${k}" aria-current="${k === active ? "page" : "false"}">${(k === "practice" && !dcDoneToday()) || (k === "friends" && FR.reqs && FR.reqs.length) ? `<i class="tab-dot"></i>` : ""}${k === "profile" && S.avatar ? avatarSVG(S.avatar, 26, "tab-av") : I[ic]}<span>${esc(t(lab))}</span></button>`).join("")}</div></nav>`;
+    `<button class="${k === active ? "on" : ""}" data-a="tab" data-t="${k}" aria-current="${k === active ? "page" : "false"}">${(k === "practice" && !dcDoneToday()) || (k === "friends" && FR.reqs && FR.reqs.length) ? `<i class="tab-dot"></i>` : ""}${k === "profile" && hasMeAv() ? meAvHTML(26, "tab-av") : I[ic]}<span>${esc(t(lab))}</span></button>`).join("")}</div></nav>`;
 }
 function renderTabbar(){
   document.querySelector(".tabbar")?.remove();
@@ -64,7 +64,7 @@ function renderProfile(){
   $app.innerHTML = `<div class="top"><div class="wrap"><div class="th-t"><small>${esc(t("tabProfile"))}</small><b>${esc(S.name || t("pfYou"))}</b></div>
       <button class="iconbtn" data-a="settings" aria-label="${esc(t("settings"))}">${I.gear}</button></div></div>
     <main class="wrap pf">
-      <div class="pf-head"><button class="pf-av" data-a="avedit" aria-label="${esc(t(S.avatar ? "avEdit" : "avMake"))}">${S.avatar ? avatarSVG(S.avatar, 104) : `<span class="set-av0 big">${I.person}</span>`}<span class="pf-edit">${I.pencil}</span></button>
+      <div class="pf-head"><button class="pf-av" data-a="avedit" aria-label="${esc(t(hasMeAv() ? "avEdit" : "avMake"))}">${hasMeAv() ? meAvHTML(104) : `<span class="set-av0 big">${I.person}</span>`}<span class="pf-edit">${I.pencil}</span></button>
         <div class="pf-id"><b>${esc(S.name || t("pfYou"))}</b><span class="pf-lv">${esc(t("lvName", levelInfo(S.xp).lv))}</span><button class="exlink" data-a="pfname">${esc(t(S.name ? "frEditName" : "pfSetName"))}</button>
         <span class="pf-acc">${AUTH ? esc(AUTH.email || "") : `${esc(t("pfNotLogged"))} · <button class="exlink" data-a="aclogin">${esc(t("acLogin"))}</button>`}</span></div></div>
       ${levelBarHTML(S.xp, S.xp)}
