@@ -127,10 +127,12 @@ async function cloudFromLink(){
     return true;
   }catch(e){ return false; }
 }
+let authReadyRes; const AUTH_READY = new Promise(r => authReadyRes = r); // løses når vi vet om brukeren er logget inn
 async function cloudBoot(){
-  if(!CLOUD_ON) return;
+  if(!CLOUD_ON){ authReadyRes(); return; }
   if(!AUTH && PL.Preferences){ try{ const { value } = await PL.Preferences.get({ key: AUTH_KEY }); if(value){ AUTH = JSON.parse(value); authStore(); } }catch(e){} }
   const viaLink = await cloudFromLink();
+  authReadyRes();
   if(AUTH){ await cloudSync(); if(viaLink) toast(t("acLoggedIn", AUTH.email)); }
   document.addEventListener("visibilitychange", ()=>{ if(document.visibilityState === "visible") cloudSync(); });
   window.addEventListener("online", ()=>cloudSync());

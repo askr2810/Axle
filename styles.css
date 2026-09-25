@@ -896,3 +896,12 @@ body.has-tabs .toast{bottom:calc(84px + env(safe-area-inset-bottom,0px))}
 .dcpop-go:active{transform:translateY(6px) scale(1);box-shadow:0 0 0 var(--ok-deep);animation:none}
 .dcpop-later{border:0;background:none;font:inherit;font-weight:700;color:var(--muted);padding:8px 16px;cursor:pointer}
 @media (prefers-reduced-motion: reduce){.dcpop,.dcpop-glow,.dcpop-ic,.dcpop-go,.dcpop-go::after{animation:none}}
+
+/* ---------- popup: logg inn / lag bruker ---------- */
+.lgintro{text-align:center}
+.lgi-ic{width:64px;height:64px;margin:0 auto;border-radius:20px;display:grid;place-items:center;color:#fff;background:linear-gradient(135deg,var(--accent),var(--u2));box-shadow:0 5px 0 var(--accent-deep)}
+.lgi-ic svg{width:34px;height:34px}
+.lgi-list{list-style:none;margin:0;padding:0;display:grid;gap:8px;text-align:left}
+.lgi-list li{display:flex;gap:10px;align-items:flex-start;font-weight:600}
+.lgi-list svg{flex:none;width:20px;height:20px;padding:3px;border-radius:50%;background:var(--ok-soft);color:var(--ok)}
+.lgintro .lgnote{text-align:center}

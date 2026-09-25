@@ -764,7 +764,7 @@ function calcKey(e){
 function renderOverlay(){
   document.querySelector(".scrim")?.remove(); document.querySelector(".sc")?.remove(); document.querySelector(".thsheet")?.remove();
   if(SCR){ if(SCR.ro) SCR.ro.disconnect(); cancelAnimationFrame(SCR.raf); } SCR = null;
-  if(!overlay) return;
+  if(!overlay){ dcAfterOverlay(); return; }
   if(overlay.theory){ const w = document.createElement("div"); w.innerHTML = theorySheetHTML(overlay.theory); document.body.appendChild(w.firstElementChild); return; }
   if(overlay.scratch){ const w = document.createElement("div"); w.innerHTML = scratchHTML(); document.body.appendChild(w.firstElementChild); mountScratch(); return; }
   const d = document.createElement("div"); d.className = overlay==="dcpop" ? "scrim center" : "scrim";
@@ -778,6 +778,12 @@ function renderOverlay(){
         <input type="text" id="lgcode" inputmode="numeric" autocomplete="one-time-code" maxlength="10" placeholder="123456" aria-label="${esc(t("acCodeTitle"))}">
         ${o.err?`<p class="lgerr">${esc(o.err)}</p>`:""}
         <button class="big" data-a="lgverify" ${o.busy?"disabled":""}>${t("acVerify")}</button><button class="big ghost" data-a="lgback" ${o.busy?"disabled":""}>${t("acOtherEmail")}</button><button class="big ghost" data-a="closeov">${t("cancel")}</button></div>`
+      : o.intro ? `<div class="dialog pop lgintro" role="dialog" aria-label="${t("acIntroTitle")}"><div class="lgi-ic">${I.users}</div><h3>${t("acIntroTitle")}</h3>
+        <ul class="lgi-list">${t("acIntroPts").map(p=>`<li>${I.checkS}<span>${esc(p)}</span></li>`).join("")}</ul><p>${t("acLoginText")}</p>
+        <input type="email" id="lgmail" autocomplete="email" placeholder="${esc(t("acEmail"))}" aria-label="${esc(t("acEmail"))}" value="${esc(o.email||"")}">
+        ${o.err?`<p class="lgerr">${esc(o.err)}</p>`:""}
+        <button class="big" data-a="lgsend" ${o.busy?"disabled":""}>${t("acIntroGo")}</button><button class="big ghost" data-a="closeov">${t("acIntroLater")}</button>
+        <p class="lgnote">${t("acPrivacyNote")}</p></div>`
       : `<div class="dialog pop" role="dialog" aria-label="${t("acLogin")}"><h3>${t("acLogin")}</h3><p>${t("acLoginText")}</p>
         <input type="email" id="lgmail" autocomplete="email" placeholder="${esc(t("acEmail"))}" aria-label="${esc(t("acEmail"))}" value="${esc(o.email||"")}">
         ${o.err?`<p class="lgerr">${esc(o.err)}</p>`:""}
@@ -984,7 +990,7 @@ examBoot(true); // pågående eksamen: fortsett, eller lever hvis tiden gikk ut 
 if(frBootLink()) screen = "friends";
 if(checkBadges().length) saveLocal(); // merker for fremgang fra før merkene fantes (uten varsel)
 render();
-setTimeout(dcMaybePrompt, 450); // dagens utfordring som popup ved første åpning i dag
+AUTH_READY.then(()=>setTimeout(bootPrompts, 450)); // innlogging og dagens utfordring som popup ved første åpning i dag
 flushOutbox();
 window.addEventListener("online", flushOutbox);
 cloudBoot();

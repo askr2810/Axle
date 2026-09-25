@@ -39,6 +39,17 @@ function dcCardHTML(){
     ${done ? "" : `<button class="dc-go" data-a="dcstart">${esc(t("dcStart"))}</button>`}</div>`;
 }
 
+// Ved oppstart: først «logg inn / lag bruker» (om man ikke er innlogget, maks én gang per dag), deretter dagens utfordring.
+let DC_NEXT = false;
+function bootPrompts(){
+  if(screen !== "home" || overlay) return;
+  if(CLOUD_ON && !AUTH && S.loginAsked !== dayKey()){
+    S.loginAsked = dayKey(); saveLocal(); DC_NEXT = true;
+    overlay = { login: 1, step: "email", email: "", intro: true }; renderOverlay(); return;
+  }
+  dcMaybePrompt();
+}
+function dcAfterOverlay(){ if(DC_NEXT){ DC_NEXT = false; setTimeout(dcMaybePrompt, 350); } }
 // Popup når appen åpnes første gang i løpet av dagen og utfordringen ikke er tatt. Vises bare én gang per dag.
 function dcMaybePrompt(){
   if(dcDoneToday() || S.dcAsked === dayKey() || screen !== "home" || overlay) return;
