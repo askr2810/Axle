@@ -5,7 +5,11 @@
 //  - «Siste sjanse» kl. 22 hvis rekka di står i fare (du har en rekke, men har ikke øvd i dag).
 // Maks én av hver per dag. Med { "test": true } og innloggingstoken sendes et testvarsel til deg selv.
 // Hemmeligheter (Edge Functions → Secrets): VAPID_PUBLIC_KEY og VAPID_PRIVATE_KEY.
-// Alt lastes og settes opp inne i forespørselen, så en feil gir et forklarende svar i stedet for at funksjonen ikke starter.
+import webpushMod from "npm:web-push@3.6.7";
+import { createClient } from "npm:@supabase/supabase-js@2";
+import { createECDH } from "node:crypto";
+
+// Alt settes opp inne i forespørselen, så en feil gir et forklarende svar i stedet for at funksjonen ikke starter.
 let webpush = null, sb = null;
 function serviceKey() {
   const legacy = (Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "").trim();
@@ -13,9 +17,8 @@ function serviceKey() {
   try { const j = JSON.parse(Deno.env.get("SUPABASE_SECRET_KEYS") ?? "{}"); return String(j.default ?? Object.values(j)[0] ?? ""); } catch { return ""; } // nye API-nøkler (sb_secret_…)
 }
 async function setup() {
-  if (!webpush) webpush = (await import("npm:web-push@3.6.7")).default;
+  if (!webpush) webpush = webpushMod;
   if (!sb) {
-    const { createClient } = await import("npm:@supabase/supabase-js@2");
     const url = Deno.env.get("SUPABASE_URL") ?? "", key = serviceKey();
     if (!url || !key) throw new Error("missing_service_key: fant verken SUPABASE_SERVICE_ROLE_KEY eller SUPABASE_SECRET_KEYS");
     sb = createClient(url, key, { auth: { persistSession: false } });
@@ -31,7 +34,6 @@ async function initVapid() {
   if (priv.length !== 43) return (vapidErr = `bad_vapid: VAPID_PRIVATE_KEY har ${priv.length} tegn, skal ha 43`);
   try {
     // Sjekk at den private nøkkelen hører til den offentlige.
-    const { createECDH } = await import("node:crypto");
     const b64u = (x) => Uint8Array.from(atob(x.replace(/-/g, "+").replace(/_/g, "/") + "=".repeat((4 - x.length % 4) % 4)), (c) => c.charCodeAt(0));
     const ec = createECDH("prime256v1"); ec.setPrivateKey(b64u(priv));
     const got = btoa(String.fromCharCode(...ec.getPublicKey())).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
@@ -138,6 +140,13 @@ Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: CORS });
   const J = (o, status = 200) => new Response(JSON.stringify(o), { status, headers: { ...CORS, "Content-Type": "application/json" } });
   try {
+  // Åpnes adressen i nettleseren (GET), vises bare en statussjekk. Ingenting sendes.
+  if (req.method === "GET") {
+    let setupErr = null; try { await setup(); } catch (e) { setupErr = String(e && e.message || e); }
+    const vErr = setupErr ? null : await initVapid();
+    let subs = null; if (!setupErr) { const r = await sb.from("push_subs").select("endpoint", { count: "exact", head: true }); subs = r.error ? "db-feil: " + r.error.message : r.count; }
+    return J({ ok: !setupErr && !vErr, versjon: "2026-09-25b", nokkel_database: setupErr || "ok", vapid: vErr || "ok", pameldte_nettlesere: subs });
+  }
   const now = new Date();
   await setup();
   const vErr = await initVapid(); if (vErr) return J({ error: vErr }, 500);
