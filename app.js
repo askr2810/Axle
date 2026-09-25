@@ -39,6 +39,7 @@ function richDoc(src){
     if(!L){ fAll(); continue; }
     let m;
     if((m = L.match(/^(#{2,3})\s+(.*)$/))){ fAll(); const h = m[1].length===2 ? "h3" : "h4"; out.push(`<${h}>${inl(m[2])}</${h}>`); continue; }
+    if((m = L.match(/^!\[fig:(\w+)\]$/))){ fAll(); out.push(figureHTML(m[1])); continue; }
     if((m = L.match(/^\$\$(.+)\$\$$/))){ fPara(); fList(); fBox(); out.push('<div class="dmath">'+texD(m[1])+"</div>"); continue; }
     if((m = L.match(/^>\s?(.*)$/))){ fPara(); fList(); box.push(m[1]); continue; }
     if((m = L.match(/^-\s+(.*)$/)) || (m = L.match(/^\d+[.)]\s+(.*)$/))){ fPara(); fBox(); const tp = /^-/.test(L) ? "ul" : "ol";
@@ -785,7 +786,7 @@ function renderOverlay(){
 // ---------- teori og forkunnskaper ----------
 let TH = null; // {code, u, go:{u,k}|null}
 function openTheory(code, u, go){ TH = { code, u, go }; (S.theorySeen ||= {})[code+":"+u] = 1; bdgToast(checkBadges()); save(); overlay = null; screen = "theory"; render(); window.scrollTo(0,0); }
-function theoryBody(code, u, quiz){ const doc = theoryOf(code, u); if(!doc) return `<p>${esc(t("noTheory"))}</p>`; const src = doc[LANG] || doc.nb;
+function theoryBody(code, u, quiz){ const doc = theoryOf(code, u); if(!doc) return `<p>${esc(t("noTheory"))}</p>`; const src = withFigs(code, u, doc[LANG] || doc.nb);
   return tyKeyHTML(src) + richDoc(src) + (quiz ? cyHTML(code, u) : ""); }
 function renderTheory(){
   if(!TH){ screen = "home"; renderHome(); return; }

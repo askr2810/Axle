@@ -6,7 +6,7 @@
 // ============================================================
 let BK = { v: "home", code: null, u: 0, tab: "topics", q: "" };
 
-const bkDoc = (code, u) => { const d = theoryOf(code, u); return d ? String(d[LANG] || d.nb) : ""; };
+const bkDoc = (code, u) => { const d = theoryOf(code, u); return d ? withFigs(code, u, String(d[LANG] || d.nb)) : ""; };
 const bkCourses = () => COURSES.filter(c => (THEORY_DB[c.code] || []).some(Boolean));
 const bkUnits = c => c.units.map((_, u) => u).filter(u => theoryOf(c.code, u));
 const bkCol = c => c.group === "Forkurs" ? "var(--ok)" : ["var(--u0)","var(--u1)","var(--u2)","var(--gold-deep)"][COURSES.indexOf(c) % 4];
@@ -27,7 +27,7 @@ function bkRemember(src){ const out = []; for(const L of src.split("\n")){ const
 function bkSections(src){ const out = []; for(const L of src.split("\n")){ const m = L.trim().match(/^##\s+(.+)$/); if(m) out.push(m[1]); } return out; }
 // Det første avsnittet under første overskrift: en kort ingress til flisene og søket.
 function bkLead(src){
-  const p = src.split(/\n\s*\n/).map(x => x.replace(/^##.*\n?/, "").trim()).find(x => x && !/^(#|>|-|\d+[.)]|\$\$|```)/.test(x) && !/\\|\{/.test(x.replace(/\$[^$]*\$/g, "")) && !/^(svar|answer)\b/i.test(x));
+  const p = src.split(/\n\s*\n/).map(x => x.replace(/^##.*\n?/, "").trim()).find(x => x && !/^(#|>|-|!\[|\d+[.)]|\$\$|```)/.test(x) && !/\\|\{/.test(x.replace(/\$[^$]*\$/g, "")) && !/^(svar|answer)\b/i.test(x));
   return p ? plain(p.replace(/\$[^$]*\$/g, "").replace(/\s+([,.])/g, "$1")).replace(/\*\*/g, "") : "";
 }
 

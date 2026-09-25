@@ -641,3 +641,30 @@ input[type="time"]{font:inherit;font-weight:700;border:2px solid var(--line);bor
 .lg-win b{font-family:var(--display);font-weight:800}
 .lg-win em{font-style:normal;font-family:var(--display);font-weight:800;color:var(--gold-deep)}
 .lg p{font-size:13.5px}
+
+/* ---------- figurer ---------- */
+.fig{margin:14px 0 18px;background:var(--card);border:2px solid var(--line);border-radius:16px;padding:10px 10px 8px}
+.fig svg{display:block;width:100%;height:auto;max-height:260px;overflow:visible}
+.fig figcaption{font-size:13.5px;color:var(--muted);line-height:1.45;margin-top:6px;text-align:center}
+.fig .fg-line,.fig .fg-box{stroke:var(--ink);stroke-width:2;fill:none}
+.fig .fg-box{fill:var(--card)}
+.fig .fg-mut,.fig .fg-mut line{stroke:var(--muted);stroke-width:1.4;fill:none}
+.fig .fg-ax line{stroke:var(--muted)}.fig .fg-ax polygon{fill:var(--muted)}
+.fig .fg-acc,.fig .fg-acc line{stroke:var(--accent);fill:none}.fig g.fg-acc polygon{fill:var(--accent);stroke:none}
+.fig .fg-red,.fig .fg-red line{stroke:var(--bad);fill:none}.fig g.fg-red polygon{fill:var(--bad);stroke:none}
+.fig .fg-ok,.fig .fg-ok line{stroke:var(--ok);fill:none}.fig g.fg-ok polygon{fill:var(--ok);stroke:none}
+.fig g.fg-line line{stroke:var(--ink)}.fig g.fg-line polygon{fill:var(--ink);stroke:none}
+.fig .fg-mutd line{stroke:var(--muted)}.fig .fg-mutd polygon{fill:var(--muted)}
+.fig .fg-fill{fill:var(--accent-soft)}
+.fig .fg-fill2{fill:color-mix(in srgb,var(--accent) 22%,transparent)}
+.fig .fg-mfill{fill:color-mix(in srgb,var(--accent) 16%,transparent)}
+.fig .fg-water{fill:color-mix(in srgb,var(--accent) 55%,transparent)}
+.fig .fg-weld{fill:color-mix(in srgb,var(--gold) 55%,transparent);stroke:var(--gold-deep);stroke-width:1.6}
+.fig .fg-hot{fill:color-mix(in srgb,var(--bad) 16%,var(--card));stroke:var(--bad);stroke-width:2}
+.fig .fg-cold{fill:color-mix(in srgb,var(--accent) 16%,var(--card));stroke:var(--accent);stroke-width:2}
+.fig .fg-dot{fill:var(--ink)}.fig .fg-dot2{fill:var(--card);stroke:var(--ink);stroke-width:2}
+.fig text{fill:var(--ink);font-family:var(--body,inherit);font-size:13px}
+.fig .fg-s{font-size:11.5px;fill:var(--muted)}
+.fig .fg-i{font-style:italic;font-family:"Times New Roman",Georgia,serif;font-size:15px}
+.fig .fg-b{font-weight:700;fill:var(--ink)}
+.fig .fg-acct{fill:var(--accent)}.fig .fg-redt{fill:var(--bad)}.fig .fg-okt{fill:var(--ok)}
