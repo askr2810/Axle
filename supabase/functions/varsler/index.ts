@@ -5,26 +5,39 @@
 //  - «Siste sjanse» kl. 22 hvis rekka di står i fare (du har en rekke, men har ikke øvd i dag).
 // Maks én av hver per dag. Med { "test": true } og innloggingstoken sendes et testvarsel til deg selv.
 // Hemmeligheter (Edge Functions → Secrets): VAPID_PUBLIC_KEY og VAPID_PRIVATE_KEY.
-import webpush from "npm:web-push@3.6.7";
-import { createClient } from "npm:@supabase/supabase-js@2";
-import { createECDH } from "node:crypto";
-
-const SB_URL = Deno.env.get("SUPABASE_URL") ?? "";
-const SB_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
-const sb = createClient(SB_URL, SB_KEY, { auth: { persistSession: false } });
-// Nøklene settes ved første kall, så en manglende/feil nøkkel gir en forklarende feilmelding i stedet for krasj.
+// Alt lastes og settes opp inne i forespørselen, så en feil gir et forklarende svar i stedet for at funksjonen ikke starter.
+let webpush = null, sb = null;
+function serviceKey() {
+  const legacy = (Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "").trim();
+  if (legacy) return legacy;
+  try { const j = JSON.parse(Deno.env.get("SUPABASE_SECRET_KEYS") ?? "{}"); return String(j.default ?? Object.values(j)[0] ?? ""); } catch { return ""; } // nye API-nøkler (sb_secret_…)
+}
+async function setup() {
+  if (!webpush) webpush = (await import("npm:web-push@3.6.7")).default;
+  if (!sb) {
+    const { createClient } = await import("npm:@supabase/supabase-js@2");
+    const url = Deno.env.get("SUPABASE_URL") ?? "", key = serviceKey();
+    if (!url || !key) throw new Error("missing_service_key: fant verken SUPABASE_SERVICE_ROLE_KEY eller SUPABASE_SECRET_KEYS");
+    sb = createClient(url, key, { auth: { persistSession: false } });
+  }
+}
+// VAPID-nøklene settes ved første kall, så en manglende/feil nøkkel gir en forklarende feilmelding.
 let vapidErr = null, vapidDone = false;
-function initVapid() {
+async function initVapid() {
   if (vapidDone) return vapidErr;
   vapidDone = true;
   const pub = (Deno.env.get("VAPID_PUBLIC_KEY") ?? "").trim(), priv = (Deno.env.get("VAPID_PRIVATE_KEY") ?? "").trim();
   if (!pub || !priv) return (vapidErr = "missing_vapid: legg inn VAPID_PUBLIC_KEY og VAPID_PRIVATE_KEY under Edge Functions → Secrets");
+  if (priv.length !== 43) return (vapidErr = `bad_vapid: VAPID_PRIVATE_KEY har ${priv.length} tegn, skal ha 43`);
   try {
-    // Sjekk at den private nøkkelen hører til den offentlige (vanlig feil: første tegn, f.eks. «-», falt bort ved kopiering).
-    const ec = createECDH("prime256v1"); ec.setPrivateKey(Buffer.from(priv, "base64url"));
-    if (ec.getPublicKey("base64url") !== pub) return (vapidErr = `bad_vapid: VAPID_PRIVATE_KEY passer ikke med VAPID_PUBLIC_KEY (privatnøkkelen har ${priv.length} tegn, skal ha 43)`);
-    webpush.setVapidDetails("https://axle.no", pub, priv);
-  } catch (e) { vapidErr = `bad_vapid: ${e && e.message || e} (privatnøkkelen har ${priv.length} tegn, skal ha 43)`; }
+    // Sjekk at den private nøkkelen hører til den offentlige.
+    const { createECDH } = await import("node:crypto");
+    const b64u = (x) => Uint8Array.from(atob(x.replace(/-/g, "+").replace(/_/g, "/") + "=".repeat((4 - x.length % 4) % 4)), (c) => c.charCodeAt(0));
+    const ec = createECDH("prime256v1"); ec.setPrivateKey(b64u(priv));
+    const got = btoa(String.fromCharCode(...ec.getPublicKey())).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+    if (got !== pub) return (vapidErr = "bad_vapid: VAPID_PRIVATE_KEY passer ikke med VAPID_PUBLIC_KEY");
+  } catch { /* sjekken er bare en hjelp */ }
+  try { webpush.setVapidDetails("https://axle.no", pub, priv); } catch (e) { vapidErr = "bad_vapid: " + (e && e.message || e); }
   return vapidErr;
 }
 
@@ -126,8 +139,8 @@ Deno.serve(async (req) => {
   const J = (o, status = 200) => new Response(JSON.stringify(o), { status, headers: { ...CORS, "Content-Type": "application/json" } });
   try {
   const now = new Date();
-  const vErr = initVapid(); if (vErr) return J({ error: vErr }, 500);
-  if (!SB_URL || !SB_KEY) return J({ error: "missing_service_key: SUPABASE_URL / SUPABASE_SERVICE_ROLE_KEY mangler" }, 500);
+  await setup();
+  const vErr = await initVapid(); if (vErr) return J({ error: vErr }, 500);
   let body = {};
   try { body = await req.json(); } catch { /* tom body fra cron */ }
 
