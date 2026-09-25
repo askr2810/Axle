@@ -118,7 +118,7 @@ ${body}
 const SLUGS = new Map();
 function courseSlug(c){
   if(SLUGS.has(c.code)) return SLUGS.get(c.code);
-  let s = slug(name(c)) || c.code.toLowerCase(); const used = new Set(SLUGS.values()); if(used.has(s) || ['fag', 'icons', 'vendor'].includes(s)) s += '-' + c.code.toLowerCase();
+  let s = slug(name(c)) || c.code.toLowerCase(); const used = new Set(SLUGS.values()); if(used.has(s) || ['fag', 'icons', 'vendor', 'en', 'english'].includes(s)) s += '-' + c.code.toLowerCase();
   SLUGS.set(c.code, s); return s;
 }
 const appLink = c => `/?fag=${encodeURIComponent(c.code)}`;
@@ -212,5 +212,11 @@ for(const c of COURSES){
 }
 const today = new Date().toISOString().slice(0, 10);
 write('sitemap.xml', `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls.map(u => `<url><loc>${SITE}${u}</loc><lastmod>${today}</lastmod></url>`).join('\n')}\n</urlset>\n`);
+// axle.no/en og axle.no/english: starter appen på engelsk (appen leser ?lang=en og husker valget).
+const enPage = `<!doctype html><html lang="en"><head><meta charset="utf-8"><title>Axle – free engineering practice in English</title>
+<meta name="viewport" content="width=device-width, initial-scale=1"><meta name="robots" content="noindex"><link rel="canonical" href="${SITE}/">
+<meta http-equiv="refresh" content="0; url=/?lang=en"><script>location.replace("/?lang=en" + location.hash)</script></head>
+<body><p><a href="/?lang=en">Open Axle in English</a></p></body></html>`;
+write('en/index.html', enPage); write('english/index.html', enPage);
 write('robots.txt', `User-agent: *\nAllow: /\n\nSitemap: ${SITE}/sitemap.xml\n`);
-console.log(`  seo: ${COURSES.length} fagsider, ${nTopic} emnesider, oversikt, sitemap.xml og robots.txt`);
+console.log(`  seo: ${COURSES.length} fagsider, ${nTopic} emnesider, oversikt, /en, sitemap.xml og robots.txt`);

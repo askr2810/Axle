@@ -2,10 +2,14 @@
 //  Språk: norsk bokmål (nb) og engelsk (en)
 // ============================================================
 const LS_KEY = "ingeniordrill.v1";
+// Språk: lagret valg → lenke (?lang=en, eller axle.no/en som sender hit) → norsk. Norsk er standard;
+// har nettleseren et annet språk, spør appen én gang ved første åpning (langAsk i challenge.js).
+const LANG_URL = (() => { try { const q = new URLSearchParams(location.search).get("lang"); return q === "en" || q === "nb" ? q : null; } catch (e) { return null; } })();
+const LANG_BROWSER_NB = (() => { try { const l = [...(navigator.languages || []), navigator.language || ""].map(x => String(x).toLowerCase()); return l.some(x => /^(nb|nn|no)\b/.test(x)); } catch (e) { return true; } })();
 let LANG = (() => {
+  if (LANG_URL) return LANG_URL;
   try { const s = JSON.parse(localStorage.getItem(LS_KEY)); if (s && (s.lang === "nb" || s.lang === "en")) return s.lang; } catch (e) {}
-  const n = ((typeof navigator !== "undefined" && (navigator.languages && navigator.languages[0] || navigator.language)) || "nb").toLowerCase();
-  return /^(nb|nn|no)\b/.test(n) ? "nb" : "en";
+  return "nb";
 })();
 const T = (nb, en) => (LANG === "en" ? en : nb);
 

@@ -49,12 +49,21 @@ function dcCardHTML(){
 let DC_NEXT = false;
 function bootPrompts(){
   if(screen !== "home" || overlay) return;
+  if(!S.langSet && !LANG_BROWSER_NB){ overlay = "langpick"; renderOverlay(); return; } // språk først (bare når nettleseren ikke er norsk)
   if(AUTH && !S.acEver){ S.acEver = 1; saveLocal(); } // denne enheten har vært innlogget: aldri vis innloggings-popupen
   if(CLOUD_ON && !AUTH && !S.acEver && S.loginAsked !== dayKey()){
     S.loginAsked = dayKey(); saveLocal(); DC_NEXT = true;
     overlay = { login: 1, step: "email", email: "", intro: true }; renderOverlay(); return;
   }
   dcMaybePrompt();
+}
+// Tospråklig, siden vi ennå ikke vet hvilket språk personen leser.
+function langPickHTML(){
+  return `<div class="dialog pop langpick" role="dialog" aria-label="Velg språk / Choose language">
+    <div class="lp-ic" aria-hidden="true">🌍</div><h3>Velg språk<br><small>Choose language</small></h3>
+    <button class="lp-btn" data-a="langpick" data-l="nb"><span class="lp-flag" aria-hidden="true">🇳🇴</span><span><b>Norsk</b><small>Bokmål</small></span></button>
+    <button class="lp-btn" data-a="langpick" data-l="en"><span class="lp-flag" aria-hidden="true">🇬🇧</span><span><b>English</b><small>All courses and theory in English</small></span></button>
+    <p class="lp-note">Kan endres i Innstillinger · Can be changed in Settings</p></div>`;
 }
 function dcAfterOverlay(){ if(DC_NEXT){ DC_NEXT = false; setTimeout(dcMaybePrompt, 350); } }
 // Popup når appen åpnes første gang i løpet av dagen og utfordringen ikke er tatt. Vises bare én gang per dag.

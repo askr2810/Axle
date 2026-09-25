@@ -127,7 +127,7 @@ const blank = () => ({ v:1, current:"GMAT", theorySeen:{}, preHidden:{}, pickMod
   examPrefs:{time:"rec", custom:90, extra:0}, exams:{}, examLog:[], examRun:null });
 function loadLocal(){ try{ const r = JSON.parse(localStorage.getItem(LS_KEY)); if(r && r.v===1) return Object.assign(blank(), r); }catch(e){} return blank(); }
 function saveLocal(){ try{ localStorage.setItem(LS_KEY, JSON.stringify(S)); }catch(e){} }
-let S = loadLocal(); LANG = S.lang || LANG;
+let S = loadLocal(); if(LANG_URL){ S.lang = LANG_URL; S.langSet = 1; saveLocal(); } LANG = S.lang || LANG; // langSet = valgt selv (spør ikke igjen)
 const sub = code => (S.subjects[code] ||= { done:{}, wrong:[] });
 
 let remoteRef = null, remoteChain = Promise.resolve(), claudeDb = null, isOwner = false;
@@ -786,8 +786,9 @@ function renderOverlay(){
   if(!overlay){ dcAfterOverlay(); return; }
   if(overlay.theory){ const w = document.createElement("div"); w.innerHTML = theorySheetHTML(overlay.theory); document.body.appendChild(w.firstElementChild); return; }
   if(overlay.scratch){ const w = document.createElement("div"); w.innerHTML = scratchHTML(); document.body.appendChild(w.firstElementChild); mountScratch(); return; }
-  const d = document.createElement("div"); d.className = overlay==="dcpop" ? "scrim center" : "scrim";
+  const d = document.createElement("div"); d.className = overlay==="dcpop" || overlay==="langpick" ? "scrim center" : "scrim";
   if(overlay==="dcpop") d.innerHTML = dcPopupHTML();
+  else if(overlay==="langpick") d.innerHTML = langPickHTML();
   else if(overlay.jump!=null){ const c=COURSE(S.current); d.innerHTML = `<div class="dialog pop" role="dialog" aria-label="${t("jumpHere")}"><h3>${esc(t("jumpTitle",unitTitle(c,overlay.jump)))}</h3><p>${t("jumpText")}</p><button class="big" data-a="jumpok">${t("startTest")}</button><button class="big ghost" data-a="closeov">${t("cancel")}</button></div>`; }
   else if(overlay==="quit") d.innerHTML = `<div class="dialog pop" role="dialog" aria-label="${t("quitTitle")}"><h3>${t("quitTitle")}</h3><p>${t("quitText")}</p><button class="big" data-a="stay">${t("keepGoing")}</button><button class="big ghost" data-a="quitok" style="color:var(--bad)">${t("quit")}</button></div>`;
   else if(overlay==="reset") d.innerHTML = `<div class="dialog pop" role="dialog" aria-label="${t("resetTitle")}"><h3>${t("resetTitle")}</h3><p>${t("resetText")}</p><button class="big" data-a="closeov">${t("cancel")}</button><button class="big ghost" data-a="resetok" style="color:var(--bad)">${t("reset")}</button></div>`;
@@ -974,7 +975,8 @@ document.addEventListener("click", async e=>{
   else if(a==="acdeleteok"){ cloudDeleteAccount().then(()=>{ overlay = null; renderOverlay(); render(); toast(t("acDeleted")); }, e=>{ toast(acErr(e)); }); }
   else if(a==="resetok"){ const keep={current:S.current, lang:S.lang, goal:S.goal, reminder:S.reminder, haptics:S.haptics, outbox:S.outbox, examPrefs:S.examPrefs}; S=Object.assign(blank(),keep); save(); clearTimeout(CLOUD.timer); cloudSync(true); examStopTicker(); EX.res=null; goHome(); toast(t("resetDone")); }
   // innstillinger
-  else if(a==="setlang"){ LANG = b.dataset.l; S.lang = LANG; save(); render(); if(S.reminder.on){ scheduleReminder(); pushResync(true); } }
+  else if(a==="setlang"){ LANG = b.dataset.l; S.lang = LANG; S.langSet = 1; save(); render(); if(S.reminder.on){ scheduleReminder(); pushResync(true); } }
+  else if(a==="langpick"){ LANG = b.dataset.l; S.lang = LANG; S.langSet = 1; save(); overlay = null; renderOverlay(); render(); setTimeout(bootPrompts, 250); }
   else if(a==="setgoal"){ S.goal = +b.dataset.g; save(); render(); }
   else if(a==="haptoggle"){ S.haptics = !S.haptics; save(); render(); if(S.haptics) buzz(true); }
   else if(a==="remtoggle"){ await reminderToggle(); }
@@ -1027,6 +1029,9 @@ document.addEventListener("keydown", e=>{
 
 examBoot(true); // pågående eksamen: fortsett, eller lever hvis tiden gikk ut mens appen var lukket
 if(frBootLink()) screen = "friends";
+(function langLink(){ // ?lang=en er allerede brukt (i18n.js); fjern det fra adressen
+  if(!LANG_URL) return; try{ const q = new URLSearchParams(location.search); q.delete("lang"); history.replaceState(null, "", location.pathname + (q.toString() ? "?" + q : "") + location.hash); }catch(e){}
+})();
 (function fagLink(){ // axle.no/?fag=KODE fra de åpne fagsidene: velg faget
   let code = null; try{ code = new URLSearchParams(location.search).get("fag"); }catch(e){}
   if(!code) return;
