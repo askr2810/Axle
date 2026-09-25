@@ -44,6 +44,9 @@ async function pushResync(force){
   try{ const reg = await navigator.serviceWorker.ready, sub = await reg.pushManager.getSubscription(); if(sub) await pushSave(sub); else await pushEnable(); }catch(e){}
 }
 async function pushTest(){
+  // 1) Lokalt varsel rett fra nettleseren (viser om maskinen i det hele tatt viser varsler fra Chrome).
+  try{ const reg = await navigator.serviceWorker.ready; await reg.showNotification(t("pushLocalTitle"), { body: t("pushLocalBody"), icon: "icons/icon-192.png", tag: "axle-local" }); }catch(e){}
+  // 2) Varsel via serveren (Supabase → push-tjenesten → nettleseren).
   try{
     const tok = await authToken(); if(!tok) throw 0;
     const r = await fetch(CONFIG.supabaseUrl + "/functions/v1/varsler", { method: "POST", headers: { "Content-Type": "application/json", Authorization: "Bearer " + tok, apikey: CONFIG.supabaseKey }, body: JSON.stringify({ test: true }) });
