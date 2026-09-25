@@ -1,0 +1,101 @@
+// ============================================================
+//  STEG FOR STEG – teorien i små kort med korte spørsmål innimellom (i stil med Brilliant).
+//  Kortene lages automatisk fra teorien: ett kort per ##/###-avsnitt, figurer og «Prøv selv» får egne kort.
+//  Spørsmålene hentes fra enhetens egne oppgaver. Gale svar kan prøves igjen.
+// ============================================================
+let GD = null; // { code, u, go, cards: [{ kind: "text", src } | { kind: "q", it, wrong: [], done }], i }
+function gdSections(src){
+  const secs = []; let cur = [], later = [];
+  const push = () => { if(cur.some(l => l.trim() && !/^#{2,3}\s/.test(l.trim()))) secs.push(cur.join("\n")); cur = []; secs.push(...later); later = []; };
+  for(const line of src.split("\n")){
+    const L = line.trim();
+    if(/^#{2,3}\s/.test(L)){ push(); cur.push(line); continue; }
+    if(/^!\[(fig|sim):/.test(L)){ later.push(line); continue; } // figur og simulering får eget kort etter avsnittet
+    cur.push(line);
+  }
+  push();
+  // Slå sammen et kort som bare er en overskrift + én kort linje med neste kort.
+  const out = [];
+  for(const s of secs){
+    const body = s.split("\n").filter(l => l.trim() && !/^#{2,3}\s/.test(l.trim()));
+    if(out.length && body.length === 1 && body[0].length < 60 && !/^!\[/.test(body[0].trim()) && !/^!\[/.test(out[out.length - 1].trim())) out[out.length - 1] += "\n\n" + s;
+    else out.push(s);
+  }
+  return out;
+}
+function gdQuestions(code, u, n){
+  const c = COURSE(code), P = poolIds(c, [u]), ids = [], items = [];
+  pick(ids, P.gen, Math.ceil(n / 2)); pick(ids, P.mc, n); pick(ids, P.num, n + 2);
+  for(const id of shuffle(ids)){ if(items.length >= n) break; try{ const it = itemFromId(c, id, { mc: true }); if(it && it.type === "mc" && it.opts.length >= 2) items.push(it); }catch(e){} }
+  return items;
+}
+function gdOpen(code, u, go){
+  const doc = theoryOf(code, u); if(!doc){ if(go) startUnitLesson(code, go.u, go.k); return; }
+  const src = withSims(code, u, withFigs(code, u, doc[LANG] || doc.nb)), secs = gdSections(src);
+  const qs = gdQuestions(code, u, Math.min(4, Math.max(1, Math.floor(secs.length / 2)))), cards = [];
+  const every = Math.max(2, Math.floor(secs.length / (qs.length + 1)));
+  secs.forEach((s, i) => { cards.push({ kind: "text", src: s }); if((i + 1) % every === 0 && i < secs.length - 1 && qs.length) cards.push({ kind: "q", it: qs.shift(), wrong: [], done: false }); });
+  while(qs.length) cards.push({ kind: "q", it: qs.shift(), wrong: [], done: false });
+  cards.push({ kind: "end" });
+  GD = { code, u, go, cards, i: 0, from: screen, right: 0, asked: cards.filter(c => c.kind === "q").length };
+  (S.theorySeen ||= {})[code + ":" + u] = 1; bdgToast(checkBadges()); save();
+  overlay = null; screen = "guided"; render(); window.scrollTo(0, 0);
+}
+function gdCardHTML(card, c){
+  if(card.kind === "text"){
+    const first = GD.i === 0;
+    return `${first ? teacherBubble(GD.code, esc(t("gdHello", unitTitle(c, GD.u))), 48, "tch-th") : ""}<div class="gd-text theory">${richDoc(card.src)}</div>`;
+  }
+  if(card.kind === "q"){
+    const it = card.it, right = card.done && !card.gaveUp;
+    return `<div class="gd-q"><div class="gd-qh">${I.star16}${esc(t("gdCheck"))}</div><div class="gd-p">${rich(it.prompt)}</div><div class="opts">` +
+      it.opts.map((o, i) => { const w = card.wrong.includes(i), show = card.done && o.ok;
+        return `<button class="opt ${show ? "right" : w ? "wrong" : ""}" data-a="gdans" data-i="${i}" ${card.done || w ? "disabled" : ""}><span class="k">${"ABCD"[i] || i + 1}</span><span>${rich(o.t)}</span></button>`; }).join("") +
+      `</div>${card.wrong.length && !card.done ? `<p class="gd-try">${esc(t("gdTryAgain"))}</p>` : ""}
+      ${card.done ? `<div class="cy-e ${right ? "ok" : "bad"}"><b>${esc(t(right ? (card.wrong.length ? "gdRightNow" : "cyRight") : "gdAnswer"))}</b> ${it.expl ? rich(it.expl) : ""}</div>` : ""}</div>`;
+  }
+  // slutt
+  const first = !(S.gdDone || {})[GD.code + ":" + GD.u];
+  return `<div class="gd-end"><div class="gd-end-ic">${I.checkS}</div><h2>${esc(t("gdDoneTitle"))}</h2><p>${esc(t("gdDoneSub", unitTitle(c, GD.u)))}</p>
+    ${GD.asked ? `<div class="gd-score"><b>${GD.right}/${GD.asked}</b><span>${esc(t("gdScore"))}</span></div>` : ""}
+    ${GD.xp ? `<div class="gd-xp">${I.bolt}+${GD.xp} XP</div>` : ""}
+    ${teacherBubble(GD.code, esc(pickLine(t("gdTchEnd"))), 44, "gd-tch")}</div>`;
+}
+function renderGuided(){
+  if(!GD){ screen = "home"; renderHome(); return; }
+  const c = COURSE(GD.code), card = GD.cards[GD.i], n = GD.cards.length, isEnd = card.kind === "end";
+  const canNext = card.kind !== "q" || card.done;
+  const segs = GD.cards.map((k, i) => `<i class="${i < GD.i ? "on" : i === GD.i ? "cur" : ""} ${k.kind === "q" ? "q" : ""}"></i>`).join("");
+  $app.innerHTML = `<div class="top gd-top"><div class="wrap"><button class="iconbtn" data-a="gdclose" aria-label="${esc(t("back"))}">${I.x}</button>
+      <div class="gd-prog" role="progressbar" aria-valuemin="0" aria-valuemax="${n}" aria-valuenow="${GD.i + 1}">${segs}</div>
+      <button class="gd-full" data-a="gdfull">${esc(t("gdFull"))}</button></div></div>
+    <main class="wrap gd"><div class="gd-card gd-in">${gdCardHTML(card, c)}</div></main>
+    <div class="lfoot ${card.kind === "q" && card.done ? (card.gaveUp ? "bad" : "ok") : ""}"><div class="wrap gd-foot">
+      ${GD.i > 0 && !isEnd ? `<button class="gd-back" data-a="gdprev" aria-label="${esc(t("back"))}">${I.left}</button>` : ""}
+      ${isEnd ? `<button class="big" data-a="gdpractice">${esc(t(GD.go ? "thStartFirst" : "thStart"))}</button>`
+              : `<button class="big" data-a="gdnext" ${canNext ? "" : "disabled"}>${esc(t(card.kind === "q" && !card.done ? "gdPick" : "cont"))}</button>`}
+    </div></div>`;
+}
+function gdFinish(){
+  const key = GD.code + ":" + GD.u; S.gdDone ||= {};
+  if(!S.gdDone[key]){ S.gdDone[key] = Date.now(); GD.xp = 5 + GD.right; const st = awardXP(GD.xp); if(st.goalHit) setTimeout(() => toast(t("goalHitTitle")), 600); }
+  bdgStat("guided"); bdgToast(checkBadges()); save(); setTimeout(confetti, 200); buzz(true);
+}
+function guidedClick(a, b){
+  if(!a.startsWith("gd") || !GD) return false;
+  const card = GD.cards[GD.i];
+  if(a === "gdclose"){ const from = GD.from; GD = null; if(from === "book" || (from === "theory" && TH)){ screen = from; render(); window.scrollTo(0, 0); } else goHome(); return true; }
+  if(a === "gdfull"){ const { code, u, go } = GD; GD = null; openTheory(code, u, go); return true; }
+  if(a === "gdans" && card.kind === "q" && !card.done){
+    const i = +b.dataset.i, ok = card.it.opts[i].ok; buzz(ok);
+    if(ok){ card.done = true; if(!card.wrong.length) GD.right++; }
+    else { card.wrong.push(i); if(card.wrong.length >= Math.min(2, card.it.opts.length - 1)){ card.done = true; card.gaveUp = true; } }
+    render(); return true;
+  }
+  if(a === "gdnext" && (card.kind !== "q" || card.done)){ GD.i++; if(GD.cards[GD.i].kind === "end") gdFinish(); render(); window.scrollTo(0, 0); return true; }
+  if(a === "gdprev" && GD.i > 0){ GD.i--; render(); window.scrollTo(0, 0); return true; }
+  if(a === "gdpractice"){ const { code, u, go } = GD; GD = null; TH = { code, u, go }; const c = COURSE(code), nn = nextNode(c); let uu = u, k = 0;
+    if(go){ uu = go.u; k = go.k; } else if(nn && nn[0] === u) k = nn[1]; else if(sub(code).done[u + "-2"]) k = 3;
+    TH = null; if(!isUnlocked(c, uu, k)){ goHome(); toast(t("lockedNode")); return true; } startUnitLesson(code, uu, k); return true; }
+  return false;
+}

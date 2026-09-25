@@ -6,7 +6,7 @@
 // ============================================================
 let BK = { v: "home", code: null, u: 0, tab: "topics", q: "" };
 
-const bkDoc = (code, u) => { const d = theoryOf(code, u); return d ? withFigs(code, u, String(d[LANG] || d.nb)) : ""; };
+const bkDoc = (code, u) => { const d = theoryOf(code, u); return d ? withSims(code, u, withFigs(code, u, String(d[LANG] || d.nb))) : ""; };
 const bkCourses = () => COURSES.filter(c => (THEORY_DB[c.code] || []).some(Boolean));
 const bkUnits = c => c.units.map((_, u) => u).filter(u => theoryOf(c.code, u));
 const bkCol = c => c.group === "Forkurs" ? "var(--ok)" : ["var(--u0)","var(--u1)","var(--u2)","var(--gold-deep)"][COURSES.indexOf(c) % 4];
@@ -132,6 +132,7 @@ function renderBookUnit(){
     <main class="wrap theory bk-unit">
       ${secs.length > 1 ? `<nav class="bk-toc" aria-label="${esc(t("bkToc"))}">${secs.map((s, k) => `<button data-a="bksec" data-i="${k}">${esc(plain(s))}</button>`).join("")}</nav>` : ""}
       ${teacherBubble(c.code, esc(t("tchTheory", unitTitle(c, u))), 52, "tch-th")}
+      <button class="gd-cta" data-a="bkguided">${I.steps}<span><b>${esc(t("gdCta"))}</b><small>${esc(t("gdCtaSub"))}</small></span>${I.chevron}</button>
       ${tyKeyHTML(src)}
       ${f.length ? `<div class="bk-glance"><div class="bk-glance-h">${esc(t("bkGlance"))}</div>${f.map(x => `<div class="dmath">${texD(x)}</div>`).join("")}</div>` : ""}
       ${html}
@@ -159,6 +160,7 @@ function bookClick(a, b){
   else if(a === "bktab"){ BK.tab = b.dataset.t; render(); }
   else if(a === "bkunit"){ BK.v = "unit"; BK.code = b.dataset.c; BK.u = +b.dataset.u; (S.theorySeen ||= {})[BK.code + ":" + BK.u] = 1; bdgToast(checkBadges()); save(); render(); window.scrollTo(0, 0); }
   else if(a === "bksec"){ const h = document.getElementById("bk-s" + b.dataset.i); if(h) window.scrollTo({ top: h.getBoundingClientRect().top + window.scrollY - 76, behavior: "smooth" }); }
+  else if(a === "bkguided"){ gdOpen(BK.code, BK.u, null); }
   else if(a === "bkpractice"){
     const code = BK.code, u = BK.u; S.current = code; save(); goHome();
     const sec = document.querySelectorAll("main section")[u]; if(sec) sec.scrollIntoView({ block: "start" });

@@ -40,6 +40,7 @@ function richDoc(src){
     let m;
     if((m = L.match(/^(#{2,3})\s+(.*)$/))){ fAll(); const h = m[1].length===2 ? "h3" : "h4"; out.push(`<${h}>${inl(m[2])}</${h}>`); continue; }
     if((m = L.match(/^!\[fig:(\w+)\]$/))){ fAll(); out.push(figureHTML(m[1])); continue; }
+    if((m = L.match(/^!\[sim:(\w+)\]$/))){ fAll(); out.push(simHTML(m[1])); continue; }
     if((m = L.match(/^\$\$(.+)\$\$$/))){ fPara(); fList(); fBox(); out.push('<div class="dmath">'+texD(m[1])+"</div>"); continue; }
     if((m = L.match(/^>\s?(.*)$/))){ fPara(); fList(); box.push(m[1]); continue; }
     if((m = L.match(/^-\s+(.*)$/)) || (m = L.match(/^\d+[.)]\s+(.*)$/))){ fPara(); fBox(); const tp = /^-/.test(L) ? "ul" : "ol";
@@ -823,14 +824,14 @@ function renderOverlay(){
 // ---------- teori og forkunnskaper ----------
 let TH = null; // {code, u, go:{u,k}|null}
 function openTheory(code, u, go){ TH = { code, u, go }; (S.theorySeen ||= {})[code+":"+u] = 1; bdgToast(checkBadges()); save(); overlay = null; screen = "theory"; render(); window.scrollTo(0,0); }
-function theoryBody(code, u, quiz){ const doc = theoryOf(code, u); if(!doc) return `<p>${esc(t("noTheory"))}</p>`; const src = withFigs(code, u, doc[LANG] || doc.nb);
+function theoryBody(code, u, quiz){ const doc = theoryOf(code, u); if(!doc) return `<p>${esc(t("noTheory"))}</p>`; const src = withSims(code, u, withFigs(code, u, doc[LANG] || doc.nb));
   return tyKeyHTML(src) + richDoc(src) + (quiz ? cyHTML(code, u) : ""); }
 function renderTheory(){
   if(!TH){ screen = "home"; renderHome(); return; }
   const c = COURSE(TH.code);
   $app.innerHTML = `<div class="top"><div class="wrap"><button class="iconbtn" data-a="home" aria-label="${esc(t("back"))}">${I.x}</button>
       <div class="th-t"><small>${esc(courseName(c))} · ${esc(t("unit", TH.u+1))}</small><b>${esc(unitTitle(c, TH.u))}</b></div><span class="th-ic" aria-hidden="true">${I.book}</span></div></div>
-    <main class="wrap theory">${teacherBubble(TH.code, esc(t("tchTheory", unitTitle(c, TH.u))), 52, "tch-th")}${theoryBody(TH.code, TH.u, true)}</main>
+    <main class="wrap theory">${teacherBubble(TH.code, esc(t("tchTheory", unitTitle(c, TH.u))), 52, "tch-th")}<button class="gd-cta" data-a="thguided">${I.steps}<span><b>${esc(t("gdCta"))}</b><small>${esc(t("gdCtaSub"))}</small></span>${I.chevron}</button>${theoryBody(TH.code, TH.u, true)}</main>
     <div class="lfoot"><div class="wrap"><button class="big" data-a="thstart">${esc(t(TH.go ? "thStartFirst" : "thStart"))}</button></div></div>`;
 }
 function theorySheetHTML(o){
@@ -861,6 +862,7 @@ function render(){
   else if(screen==="done") renderDone();
   else if(screen==="fail") renderFail();
   else if(screen==="theory") renderTheory();
+  else if(screen==="guided") renderGuided();
   else if(screen==="book") renderBook();
   else if(screen==="friends") renderFriends();
   else if(screen==="avatar") renderAvatarEditor();
@@ -879,6 +881,7 @@ document.addEventListener("click", async e=>{
   const b = e.target.closest("[data-a]"); if(!b) return;
   const a = b.dataset.a;
   if(examClick(a, b)) return; // eksamensmodus (handlinger som starter med "ex")
+  if(guidedClick(a, b)) return; // steg for steg
   if(bookClick(a, b)) return; // teoriboka (handlinger som starter med "bk")
   if(friendsClick(a, b)) return; // venner (handlinger som starter med "fr")
   if(avatarClick(a, b)) return; // avatar-bygger (handlinger som starter med "av")
@@ -893,9 +896,10 @@ document.addEventListener("click", async e=>{
   else if(a==="choose"){ S.current=b.dataset.c; save(); goHome(); }
   else if(a==="node"){ const c = COURSE(S.current), u=+b.dataset.u, k=+b.dataset.k;
     if(!isUnlocked(c,u,k)){ toast(k===3 ? t("lockedMaster") : t("lockedNode")); return; }
-    if(k===0 && !sub(c.code).done[u+"-0"] && theoryOf(c.code,u) && !(S.theorySeen||{})[c.code+":"+u]){ openTheory(c.code,u,{u,k}); return; }
+    if(k===0 && !sub(c.code).done[u+"-0"] && theoryOf(c.code,u) && !(S.theorySeen||{})[c.code+":"+u]){ gdOpen(c.code,u,{u,k}); return; }
     startUnitLesson(c.code,u,k); }
-  else if(a==="theory"){ openTheory(S.current, +b.dataset.u, null); }
+  else if(a==="theory"){ gdOpen(S.current, +b.dataset.u, null); }
+  else if(a==="thguided"){ const th=TH; if(th) gdOpen(th.code, th.u, th.go); }
   else if(a==="thstart"){ const th=TH; if(!th) return; const c=COURSE(th.code); const nn=nextNode(c); let u=th.u, k=0;
     if(th.go) { u=th.go.u; k=th.go.k; } else if(nn && nn[0]===th.u) k=nn[1]; else if(sub(c.code).done[th.u+"-2"]) k=3;
     if(!isUnlocked(c,u,k)){ goHome(); toast(t("lockedNode")); return; } TH=null; startUnitLesson(c.code,u,k); }

@@ -7,7 +7,7 @@ function bdgStats(){
   for(const c of COURSES){ const p = courseProgress(c); levels += p.d; cr += crowns(c); if(p.d) started++; if(p.tot && p.d === p.tot) completed++; }
   const st = S.stats || {};
   return { levels, crowns: cr, started, completed, xp: +S.xp || 0, streak: Math.max(+S.bestStreak || 0, streakNow()),
-    theory: Object.keys(S.theorySeen || {}).length, challenges: +st.challenges || 0, weekwins: +st.weekwins || 0, exams: (S.examLog || []).length, flawless: +st.flawless || 0, reviews: +st.reviews || 0, friends: +st.friends || 0 };
+    theory: Object.keys(S.theorySeen || {}).length, challenges: +st.challenges || 0, weekwins: +st.weekwins || 0, exams: (S.examLog || []).length, flawless: +st.flawless || 0, reviews: +st.reviews || 0, friends: +st.friends || 0, guided: +st.guided || 0, sims: +st.sims || 0 };
 }
 // [id, nivå (1 bronse, 2 sølv, 3 gull), ikon, statistikk, mål, nb-navn, en-navn, nb-beskrivelse, en-beskrivelse]
 const BADGES = [
@@ -35,6 +35,9 @@ const BADGES = [
   ["dc25",    3, "bolt",   "challenges", 25,  "Mester",         "Master",          "Fullfør 25 daglige utfordringer",      "Complete 25 daily challenges"],
   ["ww1",     3, "crown",  "weekwins", 1,     "Ukevinner",      "Weekly winner",   "Vinn ukeligaen blant vennene dine",    "Win the weekly league among your friends"],
   ["ww5",     3, "trophy", "weekwins", 5,     "Ligamester",     "League master",   "Vinn ukeligaen 5 ganger",              "Win the weekly league 5 times"],
+  ["gd3",     1, "steps",  "guided",   3,     "Steg for steg",  "Step by step",    "Fullfør 3 steg-for-steg-gjennomganger", "Complete 3 step-by-step walkthroughs"],
+  ["gd15",    2, "steps",  "guided",   15,    "Nysgjerrig",     "Curious mind",    "Fullfør 15 steg-for-steg-gjennomganger", "Complete 15 step-by-step walkthroughs"],
+  ["sim5",    1, "bolt",   "sims",     5,     "Eksperimentator","Experimenter",    "Lek med 5 «Prøv selv»-simuleringer",   "Play with 5 \"Try it\" simulations"],
   ["fr1",     1, "users",  "friends",  1,     "Sosial",         "Social",          "Legg til en venn",                     "Add a friend"],
   ["fr5",     2, "users",  "friends",  5,     "Populær",        "Popular",         "Ha 5 venner",                          "Have 5 friends"]
 ];
