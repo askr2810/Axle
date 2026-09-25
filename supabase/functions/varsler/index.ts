@@ -11,7 +11,16 @@ import { createClient } from "npm:@supabase/supabase-js@2";
 const SB_URL = Deno.env.get("SUPABASE_URL") ?? "";
 const SB_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
 const sb = createClient(SB_URL, SB_KEY, { auth: { persistSession: false } });
-webpush.setVapidDetails("https://axle.no", Deno.env.get("VAPID_PUBLIC_KEY") ?? "", Deno.env.get("VAPID_PRIVATE_KEY") ?? "");
+// Nøklene settes ved første kall, så en manglende/feil nøkkel gir en forklarende feilmelding i stedet for krasj.
+let vapidErr = null, vapidDone = false;
+function initVapid() {
+  if (vapidDone) return vapidErr;
+  vapidDone = true;
+  const pub = (Deno.env.get("VAPID_PUBLIC_KEY") ?? "").trim(), priv = (Deno.env.get("VAPID_PRIVATE_KEY") ?? "").trim();
+  if (!pub || !priv) return (vapidErr = "missing_vapid: legg inn VAPID_PUBLIC_KEY og VAPID_PRIVATE_KEY under Edge Functions → Secrets");
+  try { webpush.setVapidDetails("https://axle.no", pub, priv); } catch (e) { vapidErr = "bad_vapid: " + (e && e.message || e); }
+  return vapidErr;
+}
 
 const CORS = { "Access-Control-Allow-Origin": "*", "Access-Control-Allow-Headers": "authorization, content-type, apikey, x-client-info", "Access-Control-Allow-Methods": "POST, OPTIONS" };
 const LATE = "22:00";
@@ -94,12 +103,13 @@ function decide(sub, state, now) {
   return null;
 }
 
-async function send(sub, msg) {
+async function send(sub, msg, errs) {
   const payload = JSON.stringify({ title: msg.title, body: msg.body, url: "/", tag: "axle-" + msg.kind });
   try {
     await webpush.sendNotification({ endpoint: sub.endpoint, keys: { p256dh: sub.p256dh, auth: sub.auth } }, payload, { TTL: 4 * 3600, urgency: "normal" });
     return true;
   } catch (e) {
+    if (errs) errs.push(`${e && e.statusCode || "?"} ${String(e && (e.body || e.message) || e).slice(0, 160)}`);
     if (e && (e.statusCode === 404 || e.statusCode === 410)) await sb.from("push_subs").delete().eq("endpoint", sub.endpoint); // utløpt abonnement
     return false;
   }
@@ -107,7 +117,11 @@ async function send(sub, msg) {
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: CORS });
+  const J = (o, status = 200) => new Response(JSON.stringify(o), { status, headers: { ...CORS, "Content-Type": "application/json" } });
+  try {
   const now = new Date();
+  const vErr = initVapid(); if (vErr) return J({ error: vErr }, 500);
+  if (!SB_URL || !SB_KEY) return J({ error: "missing_service_key: SUPABASE_URL / SUPABASE_SERVICE_ROLE_KEY mangler" }, 500);
   let body = {};
   try { body = await req.json(); } catch { /* tom body fra cron */ }
 
@@ -115,11 +129,13 @@ Deno.serve(async (req) => {
   if (body && body.test) {
     const tok = (req.headers.get("Authorization") || "").replace(/^Bearer\s+/i, "");
     const { data: u } = await sb.auth.getUser(tok);
-    if (!u || !u.user) return new Response(JSON.stringify({ error: "auth" }), { status: 401, headers: { ...CORS, "Content-Type": "application/json" } });
-    const { data: subs } = await sb.from("push_subs").select("*").eq("user_id", u.user.id);
-    let sent = 0;
-    for (const s of subs || []) { const T = TXT[s.lang === "en" ? "en" : "nb"].test; if (await send(s, { kind: "test", title: T[0], body: T[1] })) sent++; }
-    return new Response(JSON.stringify({ sent }), { headers: { ...CORS, "Content-Type": "application/json" } });
+    if (!u || !u.user) return J({ error: "auth: innloggingen ble ikke godkjent" }, 401);
+    const { data: subs, error: e1 } = await sb.from("push_subs").select("*").eq("user_id", u.user.id);
+    if (e1) return J({ error: "db: " + e1.message }, 500);
+    if (!subs || !subs.length) return J({ sent: 0, subs: 0, error: "no_subs: fant ingen påmeldte nettlesere for deg" });
+    let sent = 0; const errs = [];
+    for (const s of subs) { const T = TXT[s.lang === "en" ? "en" : "nb"].test; if (await send(s, { kind: "test", title: T[0], body: T[1] }, errs)) sent++; }
+    return J({ sent, subs: subs.length, error: errs[0] ? "push: " + errs[0] : undefined });
   }
 
   // Vanlig kjøring fra cron.
@@ -141,5 +157,6 @@ Deno.serve(async (req) => {
     if (!claimed || !claimed.length) continue;
     if (await send(sub, msg)) sent++;
   }
-  return new Response(JSON.stringify({ checked: (subs || []).length, sent }), { headers: { "Content-Type": "application/json" } });
+  return J({ checked: (subs || []).length, sent });
+  } catch (e) { return J({ error: "crash: " + String(e && e.message || e).slice(0, 200) }, 500); }
 });

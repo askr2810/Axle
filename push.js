@@ -48,8 +48,15 @@ async function pushTest(){
     const tok = await authToken(); if(!tok) throw 0;
     const r = await fetch(CONFIG.supabaseUrl + "/functions/v1/varsler", { method: "POST", headers: { "Content-Type": "application/json", Authorization: "Bearer " + tok, apikey: CONFIG.supabaseKey }, body: JSON.stringify({ test: true }) });
     const j = await r.json().catch(() => ({}));
-    toast(r.ok && j.sent ? t("pushTestSent") : r.status === 404 ? t("pushNoFn") : t("pushTestFailed"));
-  }catch(e){ toast(t("pushTestFailed")); }
+    if(r.ok && j.sent) toast(t("pushTestSent"));
+    else if(r.status === 404 && !j.error) toast(t("pushNoFn"));
+    else {
+      const e = String(j.error || j.message || j.msg || ("HTTP " + r.status));
+      const hint = /no_subs/.test(e) ? t("pushHintResub") : /missing_vapid|bad_vapid/.test(e) ? t("pushHintKeys") : /^push: 40[13]/.test(e) ? t("pushHintMismatch") : /auth|401/.test(e) ? t("pushHintAuth") : "";
+      if(/no_subs/.test(e)) pushResync(true);
+      alert(t("pushTestFailed") + "\n\n" + e + (hint ? "\n\n" + hint : ""));
+    }
+  }catch(e){ alert(t("pushTestFailed") + "\n\n" + t("pushHintNet") + "\n\n(" + (e && e.message || e) + ")"); }
 }
 // Slår påminnelser av/på: appen bruker lokale varsler, nettleseren web push.
 async function reminderToggle(){
