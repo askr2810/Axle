@@ -53,6 +53,8 @@ function statSheetHTML(k){
 
 // ---------- profil ----------
 function renderProfile(){
+  // Navnet ligger i venneprofilen: hent det i bakgrunnen hvis det mangler lokalt.
+  if(AUTH && CLOUD_ON && !S.name && FR.rows === null && !FR.loading) frLoad().then(() => { if(screen === "profile" && S.name) render(); });
   let lv = 0; for(const c of COURSES) lv += courseProgress(c).d;
   const st = streakNow(), best = Math.max(+S.bestStreak || 0, st), cr = COURSES.reduce((s, x) => s + crowns(x), 0), have = S.badges || {};
   const nB = BADGES.filter(b => have[b[0]]).length;
