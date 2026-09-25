@@ -746,3 +746,61 @@ body.has-tabs #app{padding-bottom:calc(88px + env(safe-area-inset-bottom,0px))} 
 .pf-links .srow>svg:first-child{color:var(--muted);width:20px;height:20px}
 body.has-tabs .toast{bottom:calc(84px + env(safe-area-inset-bottom,0px))}
 .sheet>.wrap{padding-bottom:calc(32px + env(safe-area-inset-bottom,0px))}
+
+/* ---------- ny forside ---------- */
+.today{margin-top:14px;background:var(--card);border:2px solid var(--line);border-radius:18px;padding:12px 14px 10px;display:grid;gap:10px}
+.today-top{display:flex;align-items:center;gap:10px}
+.today-msg{flex:1;min-width:0;display:grid;gap:1px;font-size:14px;line-height:1.35}
+.today-msg b{font-family:var(--display);font-weight:800;font-size:14px;color:var(--accent)}
+.ring{position:relative;flex:none;background:none;border:0;padding:0;width:58px;height:58px;color:var(--ink)}
+.ring svg{position:absolute;inset:0}
+.ring-bg{fill:none;stroke:var(--line);stroke-width:6}
+.ring-fg{fill:none;stroke:var(--gold);stroke-width:6;stroke-linecap:round;transition:stroke-dasharray .4s}
+.ring.full .ring-fg{stroke:var(--ok)}
+.ring span{position:absolute;inset:0;display:grid;place-content:center;justify-items:center;line-height:1}
+.ring b{font-family:var(--display);font-weight:800;font-size:16px}
+.ring small{font-size:9px;color:var(--muted);margin-top:2px}
+.today .week{background:none;border:0;padding:0;width:100%;color:var(--muted);font:inherit;font-size:11px}
+.today .week .dot{width:18px;height:18px}
+.today .week .dot svg{width:10px;height:10px}
+.quick{display:grid;grid-template-columns:repeat(auto-fit,minmax(0,1fr));gap:8px;margin-top:10px}
+.qt{display:grid;justify-items:start;align-content:start;gap:1px;text-align:left;border:2px solid var(--line);border-bottom-width:4px;background:var(--card);border-radius:16px;padding:10px 11px;color:var(--ink);min-width:0}
+.qt:active{transform:translateY(2px);border-bottom-width:2px}
+.qt-ic{display:grid;place-items:center;width:30px;height:30px;border-radius:10px;margin-bottom:5px}
+.qt-ic svg{width:18px;height:18px}
+.qt b{font-size:13.5px;line-height:1.2}
+.qt small{font-size:11.5px;color:var(--muted);line-height:1.25}
+.qt.dc{background:linear-gradient(135deg,var(--u2),var(--accent));border-color:transparent;border-bottom-color:var(--accent-deep);color:#fff}
+.qt.dc small{color:rgba(255,255,255,.85)}
+.qt.dc .qt-ic{background:rgba(255,255,255,.22)}
+.qt.dc.done{background:var(--card);border-color:var(--line);color:var(--ink)}
+.qt.dc.done small{color:var(--muted)}
+.qt.dc.done .qt-ic{background:color-mix(in srgb,var(--ok) 18%,transparent);color:var(--ok)}
+.qt.ex .qt-ic{background:var(--accent-soft);color:var(--accent)}
+.qt.rev .qt-ic{background:color-mix(in srgb,var(--bad) 14%,transparent);color:var(--bad)}
+.precard{padding:10px 12px}
+.precard .prechips{gap:6px}
+
+.tabbar .wrap{grid-template-columns:repeat(5,1fr)}
+.tab-dot{position:absolute;top:3px;left:calc(50% + 8px);width:9px;height:9px;border-radius:50%;background:var(--bad);box-shadow:0 0 0 2px var(--card)}
+.prac{padding-top:4px;padding-bottom:20px}
+.prac-h{font-family:var(--display);font-weight:800;font-size:18px;margin:20px 0 0}
+.prac .dc-card{margin-top:8px}
+.prac-empty{color:var(--muted);font-size:14px;margin:8px 0 0}
+.qt-row{display:flex;align-items:center;gap:12px;width:100%;margin-top:8px;text-align:left;background:var(--card);border:2px solid var(--line);border-bottom-width:4px;border-radius:16px;padding:10px 12px;color:var(--ink)}
+.qt-row>span:nth-child(2){flex:1;display:grid;gap:1px}
+.qt-row small{font-size:12.5px;color:var(--muted)}
+.qt-row .qt-ic{margin:0;background:color-mix(in srgb,var(--bad) 14%,transparent);color:var(--bad)}
+.mini-chip{flex:none}
+.prebar{display:flex;align-items:center;gap:8px;width:100%;margin-top:12px;background:var(--card);border:2px solid var(--line);border-radius:12px;padding:8px 12px;color:var(--muted);font-size:13.5px;text-align:left}
+.prebar span{flex:1}.prebar b{color:var(--ink)}
+.prebar svg{color:var(--accent);flex:none}
+.pre-dlg .precard{margin:0;border:0;padding:0}
+
+/* START-merket ved siden av noden (ikke over, der det dekket navnet på noden over) */
+.bubble.side-r,.bubble.side-l{bottom:auto;top:50%;animation:bobx 1.6s ease-in-out infinite}
+.bubble.side-r{left:calc(100% + 12px);transform:translateY(-50%)}
+.bubble.side-l{left:auto;right:calc(100% + 12px);transform:translateY(-50%)}
+@keyframes bobx{0%,100%{translate:0 0}50%{translate:0 -4px}}
+.prac .dc-card{margin-top:12px}
+.prac .qt-row{margin-top:12px}

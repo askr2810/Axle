@@ -4,11 +4,11 @@
 //  - Infoark når du trykker på rekke, kroner eller XP.
 //  - Profilside med avatar, navn, statistikk, merker og fag.
 // ============================================================
-const TABS = [["home", "book2", "tabLearn"], ["book", "book", "tabTheory"], ["friends", "users", "tabFriends"], ["profile", "person", "tabProfile"]];
-function tabOf(){ return screen === "home" ? "home" : screen === "book" && BK.v !== "unit" ? "book" : screen === "friends" ? "friends" : (screen === "profile" || screen === "badges") ? "profile" : null; }
+const TABS = [["home", "book2", "tabLearn"], ["practice", "bolt", "tabPractice"], ["book", "book", "tabTheory"], ["friends", "users", "tabFriends"], ["profile", "person", "tabProfile"]];
+function tabOf(){ return screen === "home" ? "home" : screen === "practice" ? "practice" : screen === "book" && BK.v !== "unit" ? "book" : screen === "friends" ? "friends" : (screen === "profile" || screen === "badges") ? "profile" : null; }
 function tabbarHTML(active){
   return `<nav class="tabbar" aria-label="${esc(t("tabNav"))}"><div class="wrap">${TABS.map(([k, ic, lab]) =>
-    `<button class="${k === active ? "on" : ""}" data-a="tab" data-t="${k}" aria-current="${k === active ? "page" : "false"}">${k === "profile" && S.avatar ? avatarSVG(S.avatar, 26, "tab-av") : I[ic]}<span>${esc(t(lab))}</span></button>`).join("")}</div></nav>`;
+    `<button class="${k === active ? "on" : ""}" data-a="tab" data-t="${k}" aria-current="${k === active ? "page" : "false"}">${k === "practice" && !dcDoneToday() ? `<i class="tab-dot"></i>` : ""}${k === "profile" && S.avatar ? avatarSVG(S.avatar, 26, "tab-av") : I[ic]}<span>${esc(t(lab))}</span></button>`).join("")}</div></nav>`;
 }
 function renderTabbar(){
   document.querySelector(".tabbar")?.remove();
@@ -20,7 +20,7 @@ function goTab(k){
   if(k === "home") return goHome();
   if(k === "book") return openBook();
   if(k === "friends") return openFriends();
-  if(k === "profile"){ screen = "profile"; render(); window.scrollTo(0, 0); }
+  if(k === "profile" || k === "practice"){ screen = k; render(); window.scrollTo(0, 0); }
 }
 
 // ---------- infoark: rekke, kroner og XP ----------
@@ -90,6 +90,7 @@ function nameDialogHTML(){
 function profileClick(a, b){
   if(a === "tab"){ goTab(b.dataset.t); return true; }
   if(a === "statinfo"){ overlay = { stat: b.dataset.k }; renderOverlay(); return true; }
+  if(a === "preopen"){ overlay = { pre: 1 }; renderOverlay(); return true; }
   if(a === "profile"){ goTab("profile"); return true; }
   if(a === "pfname"){
     if(AUTH && CLOUD_ON){ FR.editName = true; openFriends(); }   // navnet ligger i venneprofilen
@@ -98,4 +99,28 @@ function profileClick(a, b){
   }
   if(a === "pfnamesave"){ const v = ((document.getElementById("pfnamein") || {}).value || "").replace(/\s+/g, " ").trim().slice(0, 24); S.name = v || null; save(); overlay = null; renderOverlay(); render(); return true; }
   return false;
+}
+
+// ---------- Øv-fanen: dagsmål, dagens utfordring, repetisjon og prøveeksamener ----------
+function renderPractice(){
+  const c = COURSE(S.current), today = S.daily[dayKey()] || 0, goal = S.goal || 10, wrongN = sub(c.code).wrong.length;
+  const now = new Date(), dow = (now.getDay() + 6) % 7, monday = addDays(now, -dow);
+  const week = t("days").map((d, i) => { const k = dayKey(addDays(monday, i)), on = (S.daily[k] || 0) > 0;
+    return `<div><span class="dot ${on ? "on" : ""} ${i === dow && !on ? "today" : ""}">${on ? I.checkS : ""}</span>${d}</div>`; }).join("");
+  $app.innerHTML = `<div class="top"><div class="wrap"><div class="th-t"><small>${esc(courseName(c))}</small><b>${esc(t("tabPractice"))}</b></div>
+      <button class="chip mini-chip" data-a="pick" aria-label="${esc(t("switchCourse"))}"><span class="code">${esc(courseShort(c))}</span>${I.down}</button></div></div>
+    <main class="wrap prac">
+      ${todayCardHTML(c, today, goal, week)}
+      ${dcCardHTML()}
+      ${wrongN ? `<button class="qt-row rev" data-a="review"><span class="qt-ic">${I.redo}</span><span><b>${esc(t("reviewBtn", wrongN))}</b><small>${esc(t("prRevSub"))}</small></span>${I.chevron}</button>`
+               : `<p class="prac-empty">${esc(t("prRevNone"))}</p>`}
+      ${examHomeActions(c) ? `<div class="actions">${examHomeActions(c)}</div>` : ""}
+      ${examHomeSection(c)}
+    </main>`;
+}
+// «Bygger på»: en liten knapp på forsiden, detaljene i et eget ark.
+function preBarHTML(c){
+  if(!preCardHTML(c)) return "";
+  const need = knownCodes(preOf(c.code).need).filter(k => !preReady(k));
+  return `<button class="prebar" data-a="preopen">${I.steps}<span>${esc(t("preBar"))}: <b>${need.map(k => esc(courseShort(COURSE(k)))).join(" · ")}</b></span>${I.chevron}</button>`;
 }

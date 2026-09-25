@@ -340,7 +340,7 @@ function renderExamSetup() {
   const tasks = bp.tasks.map((tk, i) => `<li><span class="n">${esc(t("exTask", i + 1))}</span><span class="tt">${esc(unitTitle(c, tk.u))}</span><span class="m">${esc(t("exParts", tk.parts.length))} · ${esc(t("exPts", tk.pts))}</span></li>`).join("");
   const running = r ? `<div class="exnote-run" role="note"><p>${esc(t("exRunningNote", t("exName", r.v), courseName(COURSE(r.code))))}</p><button class="kbtn" data-a="exresume">${esc(t("exResumeIt"))}</button></div>` : "";
   $app.innerHTML = `<main class="wrap exsetup">
-    <div class="sheet-h"><div class="exttl"><small>${esc(courseName(c))}</small><h1>${esc(t("exName", st.v))}</h1></div><button class="iconbtn" data-a="home" aria-label="${esc(t("back"))}">${I.x}</button></div>
+    <div class="sheet-h"><div class="exttl"><small>${esc(courseName(c))}</small><h1>${esc(t("exName", st.v))}</h1></div><button class="iconbtn" data-a="tab" data-t="practice" aria-label="${esc(t("back"))}">${I.x}</button></div>
     ${running}
     <div class="sgroup"><ol class="extasks">${tasks}</ol><div class="extot">${esc(t("exTotal", bp.nParts, bp.pts))}</div></div>
     ${h && h.best ? `<p class="exhist">${esc(t("exBestLine", h.best.grade, h.best.pct, h.attempts || 0))}</p>` : ""}
@@ -461,7 +461,7 @@ function renderExamResult() {
     ${R.added ? `<p class="exsub">${esc(t("exWrongAdded", R.added))}</p>` : ""}
     <button class="big" data-a="exreview">${esc(t("exReview"))}</button>
     <button class="big ghost" data-a="exretake">${esc(t("exRetake"))}</button>
-    <button class="big ghost" data-a="home">${esc(t("exHome"))}</button>
+    <button class="big ghost" data-a="tab" data-t="practice">${esc(t("exHome"))}</button>
   </main>`;
 }
 

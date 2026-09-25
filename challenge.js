@@ -25,6 +25,10 @@ function startChallenge(){
   if(!items.length) return;
   startLesson("challenge", S.current, items, { day: dayKey() });
 }
+function dcTileHTML(){
+  const done = dcDoneToday();
+  return `<button class="qt dc ${done ? "done" : ""}" ${done ? "disabled" : `data-a="dcstart"`}><span class="qt-ic">${done ? I.checkS : I.bolt}</span><b>${esc(t("dcTitle"))}</b><small>${esc(done ? t("qtDcDone", S.dc.right, S.dc.n) : t("qtDcSub"))}</small></button>`;
+}
 function dcCardHTML(){
   const plan = dcPlan(), done = dcDoneToday();
   const chips = [...new Set(plan.map(p => p.code))].map(code => { const c = COURSE(code); return `<span class="dc-chip">${esc(courseShort(c))}</span>`; }).join("");

@@ -182,7 +182,7 @@ function renderHome(){
       const cls = done ? (master?"done master":"done") : cur ? "cur" : (master&&open) ? "open master" : "locked";
       const icon = master ? I.crownBig : done ? I.check : cur ? I.star : I.lock;
       const label = `${lvShort(k)}, ${lvName(k)}${done?t("nodeDone"):open?t("nodeOpen"):t("nodeLocked")}`;
-      path += `<div class="nwrap" style="translate:${off}px 0"><button class="node ${cls}" style="--c:${col}" data-a="node" data-u="${ui}" data-k="${k}" aria-label="${esc(label)}">${cur?`<span class="bubble">${t("start")}</span>`:""}${icon}</button><span class="ncap">${lvName(k)}</span></div>`;
+      path += `<div class="nwrap" style="translate:${off}px 0"><button class="node ${cls}" style="--c:${col}" data-a="node" data-u="${ui}" data-k="${k}" aria-label="${esc(label)}">${cur?`<span class="bubble ${off>0?"side-l":"side-r"}">${t("start")}</span>`:""}${icon}</button><span class="ncap">${lvName(k)}</span></div>`;
     }
     path += `</div></section>`;
   });
@@ -196,17 +196,9 @@ function renderHome(){
     <button class="stat xp" data-a="statinfo" data-k="xp" aria-label="${t("xpTitle")}: ${S.xp}">${I.bolt}${S.xp}</button>
   </div></div>
   <main class="wrap">
-    <div class="goal">
-      <div class="goal-h"><b>${today>=goal?t("goalReached"):t("dailyGoal")}</b><span>${Math.min(today,goal)} / ${goal} XP</span></div>
-      <div class="meter"><i style="width:${Math.min(100,today/goal*100)}%"></i></div>
-      <div class="week">${week}</div>
-    </div>
-    ${homeTeacherHTML(c)}
-    ${dcCardHTML()}
-    ${preCardHTML(c)}
-    <div class="actions">${examHomeActions(c)}${wrongN?`<button class="pill rev" data-a="review">${I.redo}${t("reviewBtn",wrongN)}</button>`:""}${examHomeJump()}</div>
+    ${examHomeActions(c) ? `<div class="actions">${examHomeActions(c)}</div>` : ""}
+    ${preBarHTML(c)}
     ${path}
-    ${examHomeSection(c)}
     <p class="foot-note">${esc(t("foot1",courseName(c),nQ,nG))}<br>${d===tot?(crowns(c)===c.units.length?t("allCrowns"):t("allLevels")):esc(t("foot2",d,tot,crowns(c),c.units.length))}</p>
   </main>`;
 }
@@ -467,7 +459,18 @@ function renderDone(){
     <button class="big" data-a="home">${t("cont")}</button>
   </main>`;
 }
-// Læreren i faget hilser på forsiden og peker på neste steg.
+// «I dag»-kortet: læreren med neste steg, dagsmålet som ring og ukas dager.
+function todayCardHTML(c, today, goal, week){
+  const nx = nextNode(c), tc = teacherOf(c.code), pct = Math.min(1, today / goal), R = 22, L = 2 * Math.PI * R;
+  const line = nx ? t(nx[1] === 0 && !(S.theorySeen||{})[c.code + ":" + nx[0]] ? "tchHomeTheory" : "tchHomeNext", unitTitle(c, nx[0]), lvShort(nx[1])) : t("tchHomeDone");
+  return `<div class="today"><div class="today-top">${avatarSVG(tc.av, 46, "tch-av")}
+      <div class="today-msg"><b>${esc(tc.name)}</b><span>${esc(line)}</span></div>
+      <button class="ring ${pct >= 1 ? "full" : ""}" data-a="statinfo" data-k="xp" aria-label="${esc(t("dailyGoal"))}: ${Math.min(today, goal)} / ${goal} XP">
+        <svg width="58" height="58" viewBox="0 0 58 58"><circle cx="29" cy="29" r="${R}" class="ring-bg"/><circle cx="29" cy="29" r="${R}" class="ring-fg" stroke-dasharray="${(L * pct).toFixed(1)} ${L.toFixed(1)}" transform="rotate(-90 29 29)"/></svg>
+        <span><b>${Math.min(today, goal)}</b><small>/${goal} XP</small></span></button></div>
+    <button class="week" data-a="statinfo" data-k="streak" aria-label="${esc(t("streakTitle"))}">${week}</button></div>`;
+}
+// (eldre) Læreren i faget hilser på forsiden og peker på neste steg.
 function homeTeacherHTML(c){
   const nx = nextNode(c), tc = teacherOf(c.code);
   const line = nx ? t(nx[1] === 0 && !(S.theorySeen||{})[c.code + ":" + nx[0]] ? "tchHomeTheory" : "tchHomeNext", unitTitle(c, nx[0]), lvShort(nx[1])) : t("tchHomeDone");
@@ -758,6 +761,7 @@ function renderOverlay(){
         <p class="lgnote">${t("acPrivacyNote")}</p></div>`; }
   else if(overlay.friend) d.innerHTML = frDetailHTML(overlay.friend);
   else if(overlay.stat) d.innerHTML = statSheetHTML(overlay.stat);
+  else if(overlay.pre) d.innerHTML = `<div class="dialog pop pre-dlg" role="dialog">${preCardHTML(COURSE(S.current)) || `<p>${esc(t("preDone"))}</p>`}<p class="ss-note">${esc(t("preText"))}</p><button class="big" data-a="closeov">${esc(t("cont"))}</button></div>`;
   else if(overlay.pfname){ d.innerHTML = nameDialogHTML(); setTimeout(()=>{ const i=document.getElementById("pfnamein"); if(i){ i.focus(); i.addEventListener("keydown", e=>{ if(e.key==="Enter") document.querySelector('[data-a="pfnamesave"]')?.click(); }); } }, 0); }
   else if(overlay==="acdelete") d.innerHTML = `<div class="dialog pop" role="dialog" aria-label="${t("acDelTitle")}"><h3>${t("acDelTitle")}</h3><p>${t("acDelText")}</p><button class="big" data-a="closeov">${t("cancel")}</button><button class="big ghost" data-a="acdeleteok" style="color:var(--bad)">${t("acDelOk")}</button></div>`;
   else if(overlay.backup==="out") d.innerHTML = `<div class="dialog pop" role="dialog" aria-label="${t("bkMake")}"><h3>${t("bkMake")}</h3><p>${t("bkOutText")}</p>
@@ -814,7 +818,7 @@ function preCardHTML(c){
     return `<button class="prechip ${ok?"ok":""}" data-a="choose" data-c="${esc(k)}" aria-label="${esc(courseName(cc)+": "+(ok?t("preDone"):Math.round(d/tot*100)+" %"))}"><span class="badge">${esc(courseShort(cc))}</span><span class="n">${esc(courseName(cc))}</span><span class="pc">${ok?"✓":Math.round(d/tot*100)+" %"}</span></button>`; }).join("");
   const nice = knownCodes(P.nice);
   return `<div class="precard"><div class="precard-h">${I.steps}<b>${esc(t("preTitle"))}</b><button class="exlink" data-a="prehide">${esc(t("preHide"))}</button></div>
-    <p>${esc(t("preText"))}</p><div class="prechips">${chips}</div>${nice.length?`<p class="prenice">${esc(t("preNice", nice.map(k=>courseName(COURSE(k))).join(", ")))}</p>`:""}</div>`;
+    <div class="prechips">${chips}</div>${nice.length?`<p class="prenice">${esc(t("preNice", nice.map(k=>courseName(COURSE(k))).join(", ")))}</p>`:""}</div>`;
 }
 // ---------- render og hendelser ----------
 function render(){
@@ -832,6 +836,7 @@ function render(){
   else if(screen==="avatar") renderAvatarEditor();
   else if(screen==="badges") renderBadges();
   else if(screen==="profile") renderProfile();
+  else if(screen==="practice") renderPractice();
   else if(screen==="examSetup") renderExamSetup();
   else if(screen==="exam") renderExam();
   else if(screen==="examResult") renderExamResult();
