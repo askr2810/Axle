@@ -13,8 +13,10 @@ self.addEventListener("fetch", e => {
   const url = new URL(req.url); if (url.origin !== location.origin) return; // skjemaer o.l. går rett til nettet
   // nettverk først for selve siden (nye versjoner), cache først for resten
   if (req.mode === "navigate") {
-    e.respondWith(fetch(req).then(r => { const c = r.clone(); caches.open(CACHE).then(x => x.put("index.html", c)); return r; })
-      .catch(() => caches.match("index.html")));
+    // Bare selve appen (/ eller /index.html) lagres som «index.html»; de åpne fagsidene (/elementmetoden/ osv.) hentes fra nett.
+    const p = new URL(req.url).pathname, app = p === "/" || p === "/index.html";
+    e.respondWith(fetch(req).then(r => { if (app && r.ok) { const c = r.clone(); caches.open(CACHE).then(x => x.put("index.html", c)); } return r; })
+      .catch(() => app ? caches.match("index.html") : caches.match(req).then(h => h || caches.match("index.html"))));
     return;
   }
   e.respondWith(caches.match(req).then(hit => hit || fetch(req).then(r => {

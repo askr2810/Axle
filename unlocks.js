@@ -14,9 +14,10 @@ function avColors(o){ const f = new Set(); for(const k in AV_FAM){ const x = AV_
 function groupDone(g){ return COURSES.some(c => c.group === g && (() => { const p = courseProgress(c); return p.tot > 0 && p.d === p.tot; })()); }
 function coursesDone(){ return COURSES.filter(c => { const p = courseProgress(c); return p.tot > 0 && p.d === p.tot; }).length; }
 // [indeks i AV_NAMES.p, id, hemmelig?, sjekk(o = avatar som vises i byggeren), hint nb, hint en]
+// Hemmelige påskeegg har bare en kort kode som hint – man må prøve seg fram.
 const PETS = [
-  [1, "rainbow", true, o => avColors(o) >= 5, "Bruk minst fem forskjellige farger i avataren.", "Use at least five different colours in your avatar."],
-  [2, "lizard", true, o => o.hc === 9 && o.sh === 5 && o.bg === 1, "Kle deg i grønt fra topp til tå (hår, klær og bakgrunn).", "Go green from head to toe (hair, clothes and background)."],
+  [1, "rainbow", true, o => avColors(o) >= 5, "🎨 ≥ 5", "🎨 ≥ 5"],
+  [2, "lizard", true, o => o.hc === 9 && o.sh === 5 && o.bg === 1, "H10 · K6 · B2", "H10 · C6 · B2"],
   [3, "gear", false, () => groupDone("Mekanikk og konstruksjon"), "Fullfør et emne i Mekanikk og konstruksjon.", "Complete a course in Mechanics and Design."],
   [4, "spark", false, () => groupDone("Elektro og automasjon"), "Fullfør et emne i Elektro og automasjon.", "Complete a course in Electrical and Automation."],
   [5, "robot", false, () => groupDone("Programmering og data"), "Fullfør et emne i Programmering og data.", "Complete a course in Programming."],
@@ -29,8 +30,8 @@ const PETS = [
   [12, "flame", false, () => Math.max(+S.bestStreak || 0, streakNow()) >= 14, "Øv 14 dager på rad.", "Practise 14 days in a row."],
   [13, "halo", false, () => COURSES.reduce((n, c) => n + crowns(c), 0) >= 10, "Vinn 10 kroner.", "Win 10 crowns."],
   [14, "stardust", false, () => (+(S.stats || {}).flawless || 0) >= 10, "Fullfør 10 leksjoner uten feil.", "Finish 10 lessons without mistakes."],
-  [15, "ufo", true, () => (S.stats || {}).ufo > 0, "Noe skjer hvis du trykker mange ganger på avataren din …", "Something happens if you tap your avatar many times …"],
-  [16, "moon", true, () => (S.stats || {}).night > 0, "Noen lærer best når alle andre sover.", "Some learn best while everyone else is asleep."]
+  [15, "ufo", true, () => (S.stats || {}).ufo > 0, "👆 ⁷", "👆 ⁷"],
+  [16, "moon", true, () => (S.stats || {}).night > 0, "00 → 04", "00 → 04"]
 ];
 const unlockedPets = () => new Set([0, ...PETS.filter(p => (S.unlocks || {})[p[1]]).map(p => p[0])]);
 // Sjekker og lagrer nye opplåsinger. o = avataren i byggeren (for fargepåskeeggene). Returnerer de nye.

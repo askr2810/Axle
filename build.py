@@ -56,7 +56,13 @@ def build_www(js, css, out):
 <meta name="description" content="{cfg['description_nb']}">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
-<title>Axle</title>
+<meta name="apple-mobile-web-app-title" content="Axle">
+<title>Axle – gratis øving i ingeniørfag: matte, fysikk, mekanikk og elektro</title>
+<link rel="canonical" href="https://axle.no/">
+<meta property="og:title" content="Axle – gratis øving i ingeniørfag">
+<meta property="og:description" content="{cfg['description_nb']}">
+<meta property="og:url" content="https://axle.no/">
+<meta property="og:image" content="https://axle.no/icons/icon-512.png">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" type="image/png" href="icons/icon-192.png">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
@@ -73,10 +79,17 @@ img{{max-width:100%}}
 </head>
 <body>
 <div id="app"></div>
+<noscript><p><a href="fag/">Alle fag i Axle – teori og oppgaver</a></p></noscript>
 <script src="app.bundle.js?v={stamp}"></script>
 </body>
 </html>
 """
+    # fjern åpne fagsider fra en tidligere «npm run build:web» – de skal ikke med i iOS/Android-appen
+    for d in os.listdir(out):
+        pd = os.path.join(out, d)
+        if d not in ("icons", "vendor") and os.path.isdir(pd) and os.path.exists(os.path.join(pd, "index.html")): shutil.rmtree(pd)
+    for f in ("sitemap.xml", "robots.txt"):
+        if os.path.exists(os.path.join(out, f)): os.remove(os.path.join(out, f))
     open(os.path.join(out, "index.html"), "w", encoding="utf-8").write(head)
     open(os.path.join(out, "app.bundle.js"), "w", encoding="utf-8").write(js)
     # statiske filer

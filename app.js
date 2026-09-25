@@ -1017,6 +1017,12 @@ document.addEventListener("keydown", e=>{
 
 examBoot(true); // pågående eksamen: fortsett, eller lever hvis tiden gikk ut mens appen var lukket
 if(frBootLink()) screen = "friends";
+(function fagLink(){ // axle.no/?fag=KODE fra de åpne fagsidene: velg faget
+  let code = null; try{ code = new URLSearchParams(location.search).get("fag"); }catch(e){}
+  if(!code) return;
+  if(COURSES.some(c => c.code === code)){ S.current = code; saveLocal(); }
+  try{ const q = new URLSearchParams(location.search); q.delete("fag"); history.replaceState(null, "", location.pathname + (q.toString() ? "?" + q : "") + location.hash); }catch(e){}
+})();
 if(checkBadges().length) saveLocal(); // merker for fremgang fra før merkene fantes (uten varsel)
 render();
 AUTH_READY.then(()=>{ setTimeout(bootPrompts, 900); pushResync(); }); // innlogging og dagens utfordring som popup ved første åpning i dag

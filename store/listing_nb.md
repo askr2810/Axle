@@ -15,8 +15,8 @@ START FRA BUNNEN
 • Grunnleggende matematikk og fysikk tar deg fra brøk, potenser og ligninger til nivået du trenger i kalkulus og mekanikk.
 • «Bygger på» viser hvilke fag du bør ta først, og fagvelgeren kan sortere alt i anbefalt rekkefølge.
 
-29 FAG
-Kalkulus, lineær algebra, flervariabel analyse, Laplace og Fourier, statistikk, numeriske metoder, statikk og dynamikk, fasthetslære, maskinkonstruksjon, svingninger, termodynamikk, fluidmekanikk, varmeoverføring, elementmetoden (FEM), elektriske kretser, elektronikk, reguleringsteknikk, robotikk, innebygde systemer, materialteknologi, kjemi, Python, ingeniørøkonomi, produktutvikling og mer. Hvert fag viser tilsvarende emner ved OsloMet, NTNU og NMBU.
+35 FAG
+Kalkulus, lineær algebra, flervariabel analyse, Laplace og Fourier, statistikk, numeriske metoder, statikk og dynamikk, fasthetslære, maskinkonstruksjon, svingninger, termodynamikk, fluidmekanikk, varmeoverføring, elementmetoden (FEM), elektriske kretser, elektronikk, reguleringsteknikk, robotikk, innebygde systemer, materialteknologi, kjemi, Python, ingeniørøkonomi, produktutvikling, geoteknikk, elkraft, databaser, diskret matematikk, maskinlæring og mer. Hvert fag viser tilsvarende emner ved OsloMet, NTNU og NMBU.
 
 LÆR, ØV OG TEST DEG
 • Teori til hver del med gjennomregnede eksempler og vanlige feil
@@ -32,12 +32,13 @@ NORSK OG ENGELSK
 Hele appen finnes på norsk og engelsk.
 
 PERSONVERN
-Ingen konto, ingen sporing. Fremgangen lagres bare på telefonen din.
+Ingen sporing eller reklame. Konto er valgfritt – uten konto lagres fremgangen bare på telefonen din.
 
 Finner du en feil i en oppgave? Trykk på flagget – rapporten går rett til utvikleren.
 
 **Nøkkelord (App Store, maks 100 tegn, kommaseparert):**
-ingeniør,matte,fysikk,kalkulus,mekanikk,statikk,eksamen,FEM,regulering,termodynamikk,elektro,studie
+fasthetslære,elementmetoden,kalkulus,statikk,eksamen,termodynamikk,regulering,elektro,fluid,oppgaver
+(Ord som står i navnet og undertittelen – ingeniør, matte, fysikk, mekanikk – teller allerede i App Store-søket og skal ikke gjentas her.)
 
 **Støtte-URL / markedsførings-URL:** https://axle.no
 **Personvern-URL:** https://axle.no/privacy.html

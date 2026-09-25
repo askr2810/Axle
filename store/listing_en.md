@@ -15,7 +15,7 @@ START FROM SCRATCH
 • Foundations of Mathematics and Physics take you from fractions, powers and equations to the level you need for calculus and mechanics.
 • "Builds on" shows which courses to take first, and the course picker can sort everything in the recommended order.
 
-29 COURSES
+35 COURSES
 Calculus, linear algebra, multivariable calculus, Laplace and Fourier, statistics, numerical methods, statics and dynamics, strength of materials, machine design, vibrations, thermodynamics, fluid mechanics, heat transfer, the finite element method (FEM), electric circuits, electronics, control engineering, robotics, embedded systems, materials, chemistry, Python, engineering economics, product development and more.
 
 LEARN, PRACTISE AND TEST YOURSELF
@@ -32,7 +32,7 @@ ENGLISH AND NORWEGIAN
 The whole app is available in English and Norwegian.
 
 PRIVACY
-No account, no tracking. Your progress is stored only on your phone.
+No tracking or ads. An account is optional – without one, your progress is stored only on your phone.
 
 Found a mistake in a question? Tap the flag – the report goes straight to the developer.
 
