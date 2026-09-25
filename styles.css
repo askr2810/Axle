@@ -3,7 +3,7 @@
   --accent:#2B59C3; --accent-deep:#1C3F91; --accent-soft:#DCE5F8;
   --gold:#E9A100; --gold-deep:#B77C00; --locked:#C9D1C8; --locked-deep:#A9B3A8;
   --ok:#1E9A5E; --ok-deep:#157045; --ok-soft:#D8F1E3; --bad:#D23F3A; --bad-deep:#A42C28; --bad-soft:#FBE0DE;
-  --u0:#2B59C3; --u1:#0F8A83; --u2:#7A4BC2; --shadow:rgba(22,32,42,.10);
+  --u0:#2B59C3; --u1:#0F8A83; --u2:#7A4BC2; --shadow:rgba(22,32,42,.10); --c1:#D1453B; --c2:#DB7400; --c3:#2B6FD6; --c4:#0F8A5F; --c5:#8A4FD0;
   --display:"Bricolage Grotesque", "Trebuchet MS", system-ui, sans-serif;
   --body:"Figtree", system-ui, -apple-system, "Segoe UI", sans-serif;
   --mono:"JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
@@ -15,7 +15,7 @@
     --accent:#5E8BF0; --accent-deep:#3A64C4; --accent-soft:#1D2A44;
     --gold:#F0B429; --gold-deep:#B98612; --locked:#2E3A44; --locked-deep:#222C35;
     --ok:#3CC47E; --ok-deep:#259458; --ok-soft:#133526; --bad:#F06560; --bad-deep:#B8403C; --bad-soft:#3A1B1B;
-    --u0:#3F6ED8; --u1:#138F88; --u2:#8458CC; --shadow:rgba(0,0,0,.35);
+    --u0:#3F6ED8; --u1:#138F88; --u2:#8458CC; --shadow:rgba(0,0,0,.35); --c1:#F0706A; --c2:#F5A142; --c3:#6FA0FF; --c4:#3CC48B; --c5:#B48CF0;
   }
 }
 :root[data-theme="dark"]{
@@ -24,7 +24,7 @@
   --accent:#5E8BF0; --accent-deep:#3A64C4; --accent-soft:#1D2A44;
   --gold:#F0B429; --gold-deep:#B98612; --locked:#2E3A44; --locked-deep:#222C35;
   --ok:#3CC47E; --ok-deep:#259458; --ok-soft:#133526; --bad:#F06560; --bad-deep:#B8403C; --bad-soft:#3A1B1B;
-  --u0:#3F6ED8; --u1:#138F88; --u2:#8458CC; --shadow:rgba(0,0,0,.35);
+  --u0:#3F6ED8; --u1:#138F88; --u2:#8458CC; --shadow:rgba(0,0,0,.35); --c1:#F0706A; --c2:#F5A142; --c3:#6FA0FF; --c4:#3CC48B; --c5:#B48CF0;
 }
 *{box-sizing:border-box}
 html,body{height:100%}
@@ -1152,3 +1152,27 @@ a.srow{text-decoration:none;color:inherit}
 .cc-prev .opt{pointer-events:none}
 .cc-ex{font-size:12.5px;white-space:pre-wrap}
 .cc-entry{margin-top:12px}
+
+/* Prøv selv: farge per glidebryter, samme farge i tegningen */
+.sim-ctl label.sc1{--sc:var(--c1)}.sim-ctl label.sc2{--sc:var(--c2)}.sim-ctl label.sc3{--sc:var(--c3)}.sim-ctl label.sc4{--sc:var(--c4)}.sim-ctl label.sc5{--sc:var(--c5)}
+.sim-ctl label[class^=sc] .sim-l{color:var(--sc);display:inline-flex;align-items:center;gap:6px}
+.sim-ctl label[class^=sc] .sim-l::before{content:"";width:10px;height:10px;border-radius:50%;background:var(--sc);flex:none}
+.sim-ctl label[class^=sc] input[type=range]{accent-color:var(--sc)}
+.sim-ctl label[class^=sc] output{color:var(--sc)}
+.fig .fg-c1,.fig .fg-c1 line{stroke:var(--c1);fill:none}.fig g.fg-c1 polygon{fill:var(--c1);stroke:none}.fig .fg-c1t{fill:var(--c1);font-weight:700}
+.fig .fg-c2,.fig .fg-c2 line{stroke:var(--c2);fill:none}.fig g.fg-c2 polygon{fill:var(--c2);stroke:none}.fig .fg-c2t{fill:var(--c2);font-weight:700}
+.fig .fg-c3,.fig .fg-c3 line{stroke:var(--c3);fill:none}.fig g.fg-c3 polygon{fill:var(--c3);stroke:none}.fig .fg-c3t{fill:var(--c3);font-weight:700}
+.fig .fg-c4,.fig .fg-c4 line{stroke:var(--c4);fill:none}.fig g.fg-c4 polygon{fill:var(--c4);stroke:none}.fig .fg-c4t{fill:var(--c4);font-weight:700}
+.fig .fg-c5,.fig .fg-c5 line{stroke:var(--c5);fill:none}.fig g.fg-c5 polygon{fill:var(--c5);stroke:none}.fig .fg-c5t{fill:var(--c5);font-weight:700}
+/* Prøv selv: oppgaver */
+.sim-goal{margin-top:10px;padding:10px 12px;border-radius:14px;border:2px solid color-mix(in srgb,var(--gold) 45%,transparent);background:color-mix(in srgb,var(--gold) 10%,transparent);display:grid;gap:6px}
+.sim-goal p{margin:0;font-weight:700;font-size:15px;line-height:1.4}
+.sim-gh{display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:12px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--gold-deep)}
+.sim-dots{display:flex;gap:4px}.sim-dots i{width:9px;height:9px;border-radius:50%;background:color-mix(in srgb,var(--gold) 30%,transparent)}.sim-dots i.on{background:var(--ok)}
+.sim-ghint{color:var(--muted);font-size:12.5px}
+.sim-goal.ok,.sim-goal.done{border-color:var(--ok);background:var(--ok-soft)}
+.sim-goal.ok .sim-gh,.sim-goal.done .sim-gh{color:var(--ok)}
+.sim-gok{display:flex;align-items:center;gap:8px;color:var(--ok);font-size:16px}.sim-gok span{font-weight:800;font-size:13px;background:var(--ok);color:#fff;border-radius:99px;padding:2px 8px}
+.sim-gbtn{justify-self:start;font:inherit;font-weight:800;font-size:14px;border:0;border-radius:12px;padding:8px 14px;background:var(--ok);color:#fff;box-shadow:0 3px 0 var(--ok-deep);cursor:pointer}
+.sim-gbtn.ghost{background:transparent;color:var(--ok);box-shadow:none;border:2px solid var(--ok);padding:6px 12px}
+.sim .sim-svg{overflow:hidden} /* tegningen holder seg innenfor rammen uansett verdier */

@@ -27,6 +27,20 @@ function smPlot(fns, xr, yr, lx, ly, extra){
 const smDot = (x, y, cls = "fg-dot", r = 4.5) => `<circle class="${cls}" cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${r}"/>`;
 const smLine = (x1, y1, x2, y2, cls = "fg-mut", dash) => `<line class="${cls}" x1="${x1.toFixed(1)}" y1="${y1.toFixed(1)}" x2="${x2.toFixed(1)}" y2="${y2.toFixed(1)}" ${dash ? `stroke-dasharray="${dash}"` : ""} stroke-width="1.6"/>`;
 
+// Målestrek mellom to punkter, forskjøvet «off» px til siden, med etikett i fargen cls (fg-c1 … fg-c5).
+function smDim(x1, y1, x2, y2, off, cls, label){
+  const L = Math.hypot(x2 - x1, y2 - y1) || 1, nx = -(y2 - y1) / L * off, ny = (x2 - x1) / L * off, a = [x1 + nx, y1 + ny], b = [x2 + nx, y2 + ny], tx = -(y2 - y1) / L * 4, ty = (x2 - x1) / L * 4;
+  return `<g class="${cls}" stroke-width="1.6"><line x1="${a[0].toFixed(1)}" y1="${a[1].toFixed(1)}" x2="${b[0].toFixed(1)}" y2="${b[1].toFixed(1)}"/>` +
+    `<line x1="${(a[0] - tx).toFixed(1)}" y1="${(a[1] - ty).toFixed(1)}" x2="${(a[0] + tx).toFixed(1)}" y2="${(a[1] + ty).toFixed(1)}"/><line x1="${(b[0] - tx).toFixed(1)}" y1="${(b[1] - ty).toFixed(1)}" x2="${(b[0] + tx).toFixed(1)}" y2="${(b[1] + ty).toFixed(1)}"/></g>` +
+    `<g class="fg-mut" stroke-width="1" stroke-dasharray="2 2"><line x1="${x1.toFixed(1)}" y1="${y1.toFixed(1)}" x2="${a[0].toFixed(1)}" y2="${a[1].toFixed(1)}"/><line x1="${x2.toFixed(1)}" y1="${y2.toFixed(1)}" x2="${b[0].toFixed(1)}" y2="${b[1].toFixed(1)}"/></g>` +
+    (label ? fgT(((a[0] + b[0]) / 2 + nx / Math.abs(off || 1) * 11).toFixed(1), ((a[1] + b[1]) / 2 + ny / Math.abs(off || 1) * 11 + 4).toFixed(1), label, "fg-s " + cls + "t") : "");
+}
+// Vinkelbue med sentrum (cx, cy), fra vinkel a0 til a1 (grader, mot klokka, 0 = høyre).
+function smArc(cx, cy, r, a0, a1, cls, label){
+  const P = a => [cx + r * Math.cos(a * Math.PI / 180), cy - r * Math.sin(a * Math.PI / 180)], [x0, y0] = P(a0), [x1, y1] = P(a1), m = P((a0 + a1) / 2);
+  return `<path class="${cls}" fill="none" stroke-width="2" d="M${x0.toFixed(1)} ${y0.toFixed(1)} A${r} ${r} 0 ${Math.abs(a1 - a0) > 180 ? 1 : 0} 0 ${x1.toFixed(1)} ${y1.toFixed(1)}"/>` +
+    (label ? fgT((cx + (r + 10) * Math.cos((a0 + a1) / 2 * Math.PI / 180)).toFixed(1), (cy - (r + 10) * Math.sin((a0 + a1) / 2 * Math.PI / 180) + 4).toFixed(1), label, "fg-s " + cls + "t") : "");
+}
 const SIMS = {
   // ---------- elektro ----------
   ohm: { t: ["Ohms lov", "Ohm's law"], p: [["U", "U", 1, 24, 1, 12, "V"], ["R", "R", 2, 60, 1, 12, "Ω"]],
@@ -83,13 +97,13 @@ const SIMS = {
       return { out: [[T("maske", "mask"), mask.join(".")], [T("adresser", "addresses"), nf(2 ** host, 0)], [T("brukbare verter", "usable hosts"), nf(Math.max(0, 2 ** host - 2), 0)]], svg:
         cells + fgT(12 + v.n * 4.7, 50, T("nettverk", "network") + " (" + v.n + " bit)", "fg-s fg-acct") + fgT(310 - host * 4.7, 112, T("vert", "host") + " (" + host + " bit)", "fg-s") }; } },
   // ---------- mekanikk og fysikk ----------
-  projectile: { t: ["Skrått kast", "Projectile motion"], p: [["v", "v₀", 5, 30, 1, 20, "m/s"], ["a", "θ", 5, 85, 1, 45, "°"]],
+  projectile: { t: ["Skrått kast", "Projectile motion"], p: [["v", "v₀", 5, 30, 1, 20, "m/s", 1], ["a", "θ", 5, 85, 1, 45, "°", 2]],
     q: ["Hvilken vinkel gir lengst kast? Prøv 30° og 60°. Hva merker du?", "Which angle gives the longest throw? Try 30° and 60°. What do you notice?"],
     f: v => { const g = 9.81, r = v.a * Math.PI / 180, vx = v.v * Math.cos(r), vy = v.v * Math.sin(r), tf = 2 * vy / g, Rg = vx * tf, H = vy * vy / (2 * g);
       const gp = smPlot([], [0, 95], [0, 48], "x (m)", "y (m)", (X, Y) => `<path class="fg-acc" stroke-width="2.4" fill="none" d="${fgPath(s => { const t = s * tf; return [X(vx * t), Y(vy * t - g * t * t / 2)]; }, 0, 1, 60)}"/>` +
-        smDot(X(Rg), Y(0), "fg-dot") + smLine(X(Rg / 2), Y(0), X(Rg / 2), Y(H), "fg-mut", "3 3") + fgAr(X(0), Y(0), X(0) + vx * 1.6, Y(0) - vy * 1.6, "fg-red", 2));
+        smDot(X(Rg), Y(0), "fg-dot") + smLine(X(Rg / 2), Y(0), X(Rg / 2), Y(H), "fg-mut", "3 3") + fgAr(X(0), Y(0), X(0) + vx * 1.6, Y(0) - vy * 1.6, "fg-c1", 2.6) + fgT(X(0) + vx * 1.6 + 4, Y(0) - vy * 1.6 - 4, "v₀", "fg-s fg-c1t", "start") + smArc(X(0), Y(0), 22, 0, v.a, "fg-c2", "θ"));
       return { out: [[T("lengde", "range"), smN(Rg) + " m"], [T("maks høyde", "max height"), smN(H) + " m"], [T("tid i lufta", "time of flight"), smN(tf) + " s"]], svg: gp.svg }; } },
-  incline: { t: ["Kloss på skråplan", "Block on an incline"], p: [["a", "θ", 0, 60, 1, 25, "°"], ["mu", "μ", 0, 1, 0.05, 0.3, ""]],
+  incline: { t: ["Kloss på skråplan", "Block on an incline"], p: [["a", "θ", 0, 60, 1, 25, "°", 2], ["mu", "μ", 0, 1, 0.05, 0.3, "", 4]],
     q: ["Finn vinkelen der klossen akkurat begynner å gli. Sjekk at tan θ = μ.", "Find the angle where the block just starts to slide. Check that tan θ = μ."],
     f: v => { const r = v.a * Math.PI / 180, g = 9.81, drive = g * Math.sin(r), fric = v.mu * g * Math.cos(r), slides = drive > fric + 1e-9, acc = slides ? drive - fric : 0;
       const x0 = 30, y0 = 150, L = 250, x1 = x0 + L * Math.cos(r), y1 = y0 - L * Math.sin(r), cx = x0 + 0.55 * L * Math.cos(r), cy = y0 - 0.55 * L * Math.sin(r);
@@ -99,36 +113,38 @@ const SIMS = {
         <rect class="${slides ? "fg-hot" : "fg-box"}" x="${bx - 16}" y="${by - 12}" width="32" height="24" rx="3" transform="rotate(${-v.a} ${bx.toFixed(1)} ${by.toFixed(1)})"/>
         ${fgAr(bx, by, bx, by + 50, "fg-red")}${fgT(bx + 6, by + 50, "G", "fg-i fg-redt", "start")}
         ${fgAr(bx, by, bx + nx * 48 * Math.cos(r), by + ny * 48 * Math.cos(r))}${fgT(bx + nx * 52, by + ny * 52, "N", "fg-i fg-acct")}
-        ${v.mu > 0 ? fgAr(bx, by, bx + Math.cos(r) * 40 * Math.min(1, fric / Math.max(drive, 0.01)), by - Math.sin(r) * 40 * Math.min(1, fric / Math.max(drive, 0.01)), "fg-ok") + fgT(bx + Math.cos(r) * 44, by - Math.sin(r) * 44 - 6, "R", "fg-i fg-okt") : ""}` }; } },
-  lever: { t: ["Moment og vippe", "Moment and a see-saw"], p: [["F1", "F₁", 10, 100, 5, 60, "N"], ["a1", "a₁", 0.2, 2, 0.1, 1, "m"], ["F2", "F₂", 10, 100, 5, 40, "N"], ["a2", "a₂", 0.2, 2, 0.1, 1.5, "m"]],
+        ${v.mu > 0 ? fgAr(bx, by, bx + Math.cos(r) * 40 * Math.min(1, fric / Math.max(drive, 0.01)), by - Math.sin(r) * 40 * Math.min(1, fric / Math.max(drive, 0.01)), "fg-c4", 2.6) + fgT(bx + Math.cos(r) * 44, by - Math.sin(r) * 44 - 6, "R = μN", "fg-s fg-c4t") : ""}${v.a > 0 ? smArc(x0, y0, 44, 0, v.a, "fg-c2", "θ") : ""}` }; } },
+  lever: { t: ["Moment og vippe", "Moment and a see-saw"], p: [["F1", "F₁", 10, 100, 5, 60, "N", 1], ["a1", "a₁", 0.2, 2, 0.1, 1, "m", 2], ["F2", "F₂", 10, 100, 5, 40, "N", 3], ["a2", "a₂", 0.2, 2, 0.1, 1.5, "m", 4]],
     q: ["Få vippa i balanse. Hva må være likt på begge sider?", "Balance the see-saw. What must be equal on both sides?"],
-    f: v => { const M1 = v.F1 * v.a1, M2 = v.F2 * v.a2, tilt = Math.max(-14, Math.min(14, (M1 - M2) / 4)), r = tilt * Math.PI / 180, c = [160, 100], sc = 60;
-      const P = d => [c[0] + d * sc * Math.cos(r), c[1] + d * sc * Math.sin(r)], A = P(-v.a1), B = P(v.a2), E1 = P(-2.2), E2 = P(2.2);
+    f: v => { const M1 = v.F1 * v.a1, M2 = v.F2 * v.a2, tilt = Math.max(-12, Math.min(12, (M1 - M2) / 4)), r = tilt * Math.PI / 180, c = [160, 92], sc = 60;
+      const P = d => [c[0] + d * sc * Math.cos(r), c[1] + d * sc * Math.sin(r)], A = P(-v.a1), B = P(v.a2), E1 = P(-2.3), E2 = P(2.3), h1 = 14 + v.F1 * 0.5, h2 = 14 + v.F2 * 0.5;
       return { out: [["M₁ = F₁a₁", smN(M1) + " Nm"], ["M₂ = F₂a₂", smN(M2) + " Nm"], ["ΣM", Math.abs(M1 - M2) < 0.01 ? T("0 – balanse!", "0 – balanced!") : smN(M1 - M2) + " Nm"]], svg: `
         <line class="fg-line" x1="${E1[0].toFixed(1)}" y1="${E1[1].toFixed(1)}" x2="${E2[0].toFixed(1)}" y2="${E2[1].toFixed(1)}" stroke-width="5"/>
-        <polygon class="fg-fill" points="160,104 146,136 174,136"/><polygon class="fg-line" points="160,104 146,136 174,136" fill="none"/>${fgGround(160, 136, 60)}
-        ${fgAr(A[0], A[1] - 12 - v.F1 * 0.5, A[0], A[1] - 4, "fg-red")}${fgT(A[0], A[1] - 18 - v.F1 * 0.5, "F₁", "fg-i fg-redt")}
-        ${fgAr(B[0], B[1] - 12 - v.F2 * 0.5, B[0], B[1] - 4, "fg-red")}${fgT(B[0], B[1] - 18 - v.F2 * 0.5, "F₂", "fg-i fg-redt")}` }; } },
-  beam: { t: ["Bjelke med punktlast", "Beam with a point load"], p: [["P", "P", 5, 50, 1, 20, "kN"], ["a", "a", 0.5, 5.5, 0.1, 2, "m"]],
+        <polygon class="fg-fill" points="160,96 146,128 174,128"/><polygon class="fg-line" points="160,96 146,128 174,128" fill="none"/>${fgGround(160, 128, 60)}
+        ${smDim(...c, ...A, -50, "fg-c2", "")}${smDim(...c, ...B, 50, "fg-c4", "")}${fgT(A[0] - 5, A[1] + 54, "a₁ = " + smN(v.a1, 1) + " m", "fg-s fg-c2t", "end")}${fgT(B[0] + 5, B[1] + 54, "a₂ = " + smN(v.a2, 1) + " m", "fg-s fg-c4t", "start")}
+        ${fgAr(A[0], A[1] - 4 - h1, A[0], A[1] - 4, "fg-c1", 2.6)}${fgT(Math.max(A[0] - 6, 70), A[1] - 10 - h1, "F₁ = " + v.F1 + " N", "fg-s fg-c1t", "end")}
+        ${fgAr(B[0], B[1] - 4 - h2, B[0], B[1] - 4, "fg-c3", 2.6)}${fgT(Math.min(B[0] + 6, 250), B[1] - 10 - h2, "F₂ = " + v.F2 + " N", "fg-s fg-c3t", "start")}
+        ${smDot(A[0], A[1], "fg-dot", 3.5)}${smDot(B[0], B[1], "fg-dot", 3.5)}${fgT(160, 176, Math.abs(M1 - M2) < 0.01 ? T("⚖ i balanse", "⚖ balanced") : M1 > M2 ? T("↺ vipper mot venstre", "↺ tips to the left") : T("↻ vipper mot høyre", "↻ tips to the right"), Math.abs(M1 - M2) < 0.01 ? "fg-b fg-okt" : "fg-s")}` }; } },
+  beam: { t: ["Bjelke med punktlast", "Beam with a point load"], p: [["P", "P", 5, 50, 1, 20, "kN", 1], ["a", "a", 0.5, 5.5, 0.1, 2, "m", 2]],
     q: ["Hvor skal lasten stå for at momentet skal bli størst mulig?", "Where should the load be for the moment to be as large as possible?"],
     f: v => { const L = 6, b = L - v.a, RA = v.P * b / L, RB = v.P * v.a / L, M = v.P * v.a * b / L, X = x => 40 + x / L * 240, sc = 50 / 75;
       return { out: [["A = Pb/L", smN(RA) + " kN"], ["B = Pa/L", smN(RB) + " kN"], ["M_maks = Pab/L", smN(M) + " kNm"]], svg: `
         <rect class="fg-fill" x="40" y="40" width="240" height="10" rx="2"/><rect class="fg-line" x="40" y="40" width="240" height="10" rx="2" fill="none"/>
         <polygon class="fg-line" points="40,50 31,64 49,64" fill="none"/><circle class="fg-line" cx="280" cy="57" r="6" fill="none"/>
-        ${fgAr(X(v.a), 6, X(v.a), 38, "fg-red")}${fgT(X(v.a) + 8, 18, smN(v.P, 0) + " kN", "fg-s fg-redt", "start")}
+        ${fgAr(X(v.a), 36 - Math.min(30, 6 + v.P * 0.5), X(v.a), 38, "fg-c1", 2.6)}${fgT(X(v.a) + 8, 18, "P = " + smN(v.P, 0) + " kN", "fg-s fg-c1t", "start")}${smDim(40, 50, X(v.a), 50, 22, "fg-c2", "a = " + smN(v.a, 1) + " m")}
         ${fgAr(40, 72 + RA, 40, 66)}${fgAr(280, 72 + RB, 280, 66)}
         <line class="fg-mut" x1="40" y1="122" x2="280" y2="122"/><polygon class="fg-mfill" points="40,122 ${X(v.a).toFixed(1)},${(122 + M * sc).toFixed(1)} 280,122"/>
         <polyline class="fg-acc" points="40,122 ${X(v.a).toFixed(1)},${(122 + M * sc).toFixed(1)} 280,122" fill="none" stroke-width="2.2"/>${fgT(30, 126, "M", "fg-i", "end")}` }; } },
-  hooke: { t: ["Spenning og tøyning i en stålstav", "Stress and strain in a steel bar"], p: [["F", "F", 1, 200, 1, 50, "kN"], ["d", "d", 5, 40, 1, 16, "mm"]],
+  hooke: { t: ["Spenning og tøyning i en stålstav", "Stress and strain in a steel bar"], p: [["F", "F", 1, 200, 1, 50, "kN", 1], ["d", "d", 5, 40, 1, 16, "mm", 2]],
     q: ["Finn diameteren der spenningen passerer flytegrensen 355 MPa for F = 100 kN.", "Find the diameter where the stress passes the 355 MPa yield strength for F = 100 kN."],
     f: v => { const A = Math.PI * v.d * v.d / 4, sig = v.F * 1000 / A, eps = sig / 210000, over = sig > 355, x = Math.min(sig, 500) / 500;
       return { out: [["A = πd²/4", smN(A) + " mm²"], ["σ = F/A", smN(sig) + " MPa"], ["ε = σ/E", smN(eps * 1000, 3) + " ‰"]], svg: `
         <rect class="${over ? "fg-hot" : "fg-fill"}" x="60" y="${80 - v.d * 0.8}" width="${150 + eps * 8000}" height="${v.d * 1.6}" rx="3"/>
-        ${fgAr(60, 80, 26, 80, "fg-red")}${fgAr(210 + eps * 8000, 80, 250 + eps * 8000, 80, "fg-red")}
+        ${fgAr(60, 80, 26, 80, "fg-c1", 2.6)}${fgAr(210 + eps * 8000, 80, 250 + eps * 8000, 80, "fg-c1", 2.6)}${fgT(24, 70, "F", "fg-s fg-c1t", "start")}${smDim(60, 80 - v.d * 0.8, 60, 80 + v.d * 0.8, 10, "fg-c2", "")}${fgT(76, 80 + v.d * 0.8 + 14, "d", "fg-s fg-c2t")}
         <rect class="fg-box" x="40" y="140" width="240" height="12" rx="6"/><rect x="40" y="140" width="${(240 * x).toFixed(1)}" height="12" rx="6" fill="${over ? "var(--bad)" : "var(--ok)"}"/>
         <line class="fg-line" x1="${40 + 240 * 355 / 500}" y1="134" x2="${40 + 240 * 355 / 500}" y2="158"/>${fgT(40 + 240 * 355 / 500, 172, "f_y = 355", "fg-s")}
         ${over ? fgT(160, 30, T("Over flytegrensen!", "Above the yield strength!"), "fg-b fg-redt") : ""}` }; } },
-  spring: { t: ["Masse–fjær-svingning", "Mass–spring oscillation"], p: [["m", "m", 0.5, 10, 0.5, 2, "kg"], ["k", "k", 50, 1000, 10, 200, "N/m"], ["z", "ζ", 0, 0.5, 0.02, 0.05, ""]],
+  spring: { t: ["Masse–fjær-svingning", "Mass–spring oscillation"], p: [["m", "m", 0.5, 10, 0.5, 2, "kg"], ["k", "k", 50, 1000, 10, 200, "N/m"], ["z", "ζ", 0, 0.5, 0.02, 0.06, ""]],
     q: ["Firedobl massen. Hva skjer med perioden?", "Quadruple the mass. What happens to the period?"],
     f: v => { const wn = Math.sqrt(v.k / v.m), wd = wn * Math.sqrt(1 - v.z * v.z), T0 = 2 * Math.PI / wn;
       const g = smPlot([[t => Math.exp(-v.z * wn * t) * Math.cos(wd * t)], [t => Math.exp(-v.z * wn * t), "fg-mut", 1], [t => -Math.exp(-v.z * wn * t), "fg-mut", 1]], [0, 3], [-1.1, 1.1], "t (s)", "x");
@@ -154,7 +170,7 @@ const SIMS = {
         <path class="fg-line" fill="none" d="M20 ${80 - h1} L110 ${80 - h1} L150 ${80 - h2} L190 ${80 - h2} L230 ${80 - h1} L300 ${80 - h1} M20 ${80 + h1} L110 ${80 + h1} L150 ${80 + h2} L190 ${80 + h2} L230 ${80 + h1} L300 ${80 + h1}"/>
         ${fgAr(40, 80, 40 + v.v1 * 10, 80, "fg-acc")}${fgAr(150, 80, 150 + Math.min(120, v2 * 10), 80, "fg-red")}
         ${fgT(55, 160, "v₁ = " + smN(v.v1), "fg-s")}${fgT(170, 160, "v₂ = " + smN(v2), "fg-s fg-redt")}` }; } },
-  wall: { t: ["Varmetap gjennom en vegg", "Heat loss through a wall"], p: [["d", ["isolasjon d", "insulation d"], 50, 400, 10, 200, "mm"], ["lam", "λ", 0.02, 0.1, 0.005, 0.037, "W/mK"], ["dT", "ΔT", 5, 40, 1, 25, "K"]],
+  wall: { t: ["Varmetap gjennom en vegg", "Heat loss through a wall"], p: [["d", ["isolasjon d", "insulation d"], 50, 400, 10, 200, "mm"], ["lam", "λ", 0.02, 0.1, 0.001, 0.037, "W/mK"], ["dT", "ΔT", 5, 40, 1, 25, "K"]],
     q: ["Dobl isolasjonstykkelsen. Hvor mye går varmetapet ned?", "Double the insulation thickness. How much does the heat loss drop?"],
     f: v => { const U = v.lam / (v.d / 1000), q = U * v.dT, w = 20 + v.d / 400 * 110;
       return { out: [["U ≈ λ/d", smN(U, 3) + " W/m²K"], ["q = UΔT", smN(q) + " W/m²"], [T("per år (10 m², 5000 h)", "per year (10 m², 5000 h)"), smN(q * 10 * 5000 / 1000) + " kWh"]], svg: `
@@ -173,7 +189,7 @@ const SIMS = {
     q: ["Hva skjer med grafen når a er negativ? Og når a = 0?", "What happens to the graph when a is negative? And when a = 0?"],
     f: v => { const g = smPlot([[x => v.a * x + v.b]], [-5, 5], [-8, 8], "x", "y", (X, Y) => smDot(X(0), Y(v.b)) + (v.a ? smLine(X(0), Y(v.b), X(1), Y(v.b), "fg-red") + smLine(X(1), Y(v.b), X(1), Y(v.a + v.b), "fg-red") + fgT(X(1) + 5, Y(v.b + v.a / 2) + 4, "a", "fg-i fg-redt", "start") : ""));
       return { out: [["y", `${smN(v.a)}x ${v.b < 0 ? "−" : "+"} ${smN(Math.abs(v.b))}`], [T("nullpunkt", "zero"), v.a ? "x = " + smN(-v.b / v.a) : "–"]], svg: g.svg }; } },
-  tangent: { t: ["Den deriverte som stigningstall", "The derivative as a slope"], p: [["x", "x₀", -2.5, 2.5, 0.1, 1, ""]],
+  tangent: { t: ["Den deriverte som stigningstall", "The derivative as a slope"], p: [["x", "x₀", -2.5, 2.5, 0.1, 1.5, ""]],
     q: ["Finn punktet der tangenten er vannrett. Hva er f′(x₀) der?", "Find the point where the tangent is horizontal. What is f′(x₀) there?"],
     f: v => { const f = x => x * x * x / 3 - x, d = x => x * x - 1, m = d(v.x), y0 = f(v.x);
       const g = smPlot([[f], [x => y0 + m * (x - v.x), "fg-red", 2]], [-3, 3], [-4, 4], "x", "y", (X, Y) => smDot(X(v.x), Y(y0)));
@@ -195,13 +211,13 @@ const SIMS = {
       const share = erf(v.k / Math.SQRT2);
       const g = smPlot([[pdf]], [-5, 5], [0, 1.05], "x", "f(x)", (X, Y) => `<path class="fg-fill2" d="${fgPath(s => [X(s), Y(pdf(s))], v.mu - v.k * v.s, v.mu + v.k * v.s, 50)} L${X(v.mu + v.k * v.s).toFixed(1)} ${Y(0)} L${X(v.mu - v.k * v.s).toFixed(1)} ${Y(0)}Z"/>`);
       return { out: [[T("andel innenfor", "share within"), smN(share * 100, 1) + " %"]], svg: g.svg }; } },
-  vector: { t: ["Vektoraddisjon", "Vector addition"], p: [["a", "|a|", 1, 5, 0.5, 4, ""], ["th", "θ", 0, 180, 5, 60, "°"]],
+  vector: { t: ["Vektoraddisjon", "Vector addition"], p: [["a", "|a|", 1, 5, 0.5, 4, "", 1], ["th", "θ", 0, 180, 5, 60, "°", 2]],
     q: ["Hvilken vinkel gir den lengste summen? Og den korteste?", "Which angle gives the longest sum? And the shortest?"],
     f: v => { const r = v.th * Math.PI / 180, b = [3, 0], a = [v.a * Math.cos(r), v.a * Math.sin(r)], s = [a[0] + b[0], a[1] + b[1]], S = 26, O = [70, 140];
       const P = p => [O[0] + p[0] * S, O[1] - p[1] * S];
       return { out: [["|a + b|", smN(Math.hypot(s[0], s[1]))], ["a·b", smN(a[0] * b[0] + a[1] * b[1])]], svg:
-        fgAr(...O, ...P(b), "fg-acc") + fgAr(...P(b), ...P(s), "fg-mutd", 1.8) + fgAr(...O, ...P(a), "fg-ok") + fgAr(...O, ...P(s), "fg-red", 2.6) +
-        fgT(...P([1.5, -0.5]), "b", "fg-i fg-acct") + fgT(P(a)[0] - 8, P(a)[1], "a", "fg-i fg-okt", "end") + fgT(P(s)[0] + 8, P(s)[1], "a + b", "fg-i fg-redt", "start") }; } },
+        fgAr(...O, ...P(b), "fg-acc") + fgAr(...P(b), ...P(s), "fg-mutd", 1.8) + fgAr(...O, ...P(a), "fg-c1", 2.6) + (v.th > 0 ? smArc(...O, 20, 0, v.th, "fg-c2", "θ") : "") + fgAr(...O, ...P(s), "fg-red", 2.6) +
+        fgT(...P([1.5, -0.5]), "b", "fg-i fg-acct") + fgT(P(a)[0] - 8, P(a)[1], "a", "fg-i fg-c1t", "end") + fgT(P(s)[0] + 8, P(s)[1], "a + b", "fg-i fg-redt", "start") }; } },
   combi: { t: ["Kombinasjoner og permutasjoner", "Combinations and permutations"], p: [["n", "n", 1, 20, 1, 10, ""], ["k", "k", 0, 20, 1, 3, ""]],
     q: ["Hvorfor er C(10, 3) = C(10, 7)?", "Why is C(10, 3) = C(10, 7)?"],
     f: v => { const k = Math.min(v.k, v.n), fact = m => { let r = 1; for(let i = 2; i <= m; i++) r *= i; return r; }, C = Math.round(fact(v.n) / fact(k) / fact(v.n - k)), P = Math.round(fact(v.n) / fact(v.n - k));
@@ -242,20 +258,36 @@ const SIM_MAP = {
   "MEK2200:1": "normal", "GEO:1": "pressure", "GEO:2": "earth", "ML:1": "line", "ML:2": "threshold", "GMAT:6": "vector", "DISK:1": "combi", "ELFT2400:1": "pctrl"
 };
 function withSims(code, u, src){
-  const name = SIM_MAP[code + ":" + u]; if(!name || src.includes("![sim:")) return src;
+  const m = SIM_MAP[code + ":" + u]; if(!m || src.includes("![sim:")) return src;
+  const add = [].concat(m).flatMap(n => ["![sim:" + n + "]", ""]);
   const lines = src.split("\n"); let i = lines.findIndex(l => /^!\[fig:/.test(l.trim()));
   if(i < 0){ const h = lines.findIndex(l => /^##\s+(Begreper og formler|Concepts and formulas)/.test(l.trim()));
     if(h >= 0){ i = lines.findIndex((l, k) => k > h && /^##\s/.test(l.trim())) - 1; if(i < 0) i = lines.length - 1; } }
-  if(i < 0) return src + "\n\n![sim:" + name + "]";
-  lines.splice(i + 1, 0, "", "![sim:" + name + "]", "");
+  if(i < 0) return src + "\n\n" + add.join("\n");
+  lines.splice(i + 1, 0, "", ...add);
   return lines.join("\n");
 }
+// Oppgave nr. (0, 1, …) i en simulering; S.simGoals[navn] = antall løste.
+const simGi = name => Math.min(((S.simGoals || {})[name] | 0), (SIMS[name].g || []).length);
 function simVals(name, el){
-  const S0 = SIMS[name], v = {};
+  const S0 = SIMS[name], v = { _g: simGi(name) };
   for(const p of S0.p){ const inp = el && el.querySelector(`input[data-k="${p[0]}"]`); v[p[0]] = inp ? +inp.value : p[5]; }
   return v;
 }
 function simOutHTML(r){ return r.out.map(([k, x]) => `<div><small>${esc(k)}</small><b>${esc(x)}</b></div>`).join(""); }
+function simGoalHTML(name, solved){ // solved = nr. på oppgaven som akkurat ble løst
+  const g = SIMS[name].g; if(!g || !g.length) return "";
+  const k = solved != null ? solved : simGi(name), dots = g.map((_, i) => `<i class="${i < k || (solved != null && i === k) ? "on" : ""}"></i>`).join("");
+  if(k >= g.length) return `<div class="sim-goal done"><div class="sim-gh"><span>🎯 ${esc(g.length === 1 ? t("simGoalOne") : t("simGoalAll", g.length))}</span><span class="sim-dots">${dots}</span></div>
+    <button class="sim-gbtn ghost" data-simreset="${name}">${esc(t("simGoalAgain"))}</button></div>`;
+  return `<div class="sim-goal ${solved != null ? "ok pop" : ""}"><div class="sim-gh"><span>🎯 ${esc(t("simGoalN", k + 1, g.length))}</span><span class="sim-dots">${dots}</span></div>
+    <p>${esc(T(g[k][0], g[k][1]))}</p>
+    ${solved != null ? `<div class="sim-gok"><b>✓ ${esc(t("simGoalOk"))}</b> <span>+${SIM_XP} XP</span></div><button class="sim-gbtn" data-simnext="${name}">${esc(t(k + 1 < g.length ? "simGoalNext" : "simGoalFinish"))}</button>`
+      : `<small class="sim-ghint">${esc(t("simGoalHint"))}</small>`}</div>`;
+}
+const SIM_XP = 3;
+// Farge per glidebryter (p[7] = 1–5): samme farge på etiketten og på det den styrer i tegningen (klassene sc1–sc5).
+const simCol = p => p[7] ? ` class="sc${p[7]}"` : "";
 function simHTML(name){
   const S0 = SIMS[name]; if(!S0) return "";
   let r; try{ r = S0.f(simVals(name)); }catch(e){ return ""; }
@@ -263,8 +295,9 @@ function simHTML(name){
   return `<div class="sim fig" data-sim="${name}"><div class="sim-h"><span class="sim-tag">${I.bolt}${esc(t("simTry"))}</span><b>${esc(T(S0.t[0], S0.t[1]))}</b></div>
     <svg class="sim-svg" viewBox="0 0 320 180" role="img" aria-label="${esc(T(S0.t[0], S0.t[1]))}">${r.svg}</svg>
     <div class="sim-out">${simOutHTML(r)}</div>
-    <div class="sim-ctl">${S0.p.map(p => `<label><span class="sim-l">${esc(lbl(p))}</span><input type="range" min="${p[2]}" max="${p[3]}" step="${p[4]}" value="${p[5]}" data-k="${p[0]}" aria-label="${esc(lbl(p))}"><output>${esc(nf(p[5], 2) + unit(p))}</output></label>`).join("")}</div>
-    ${S0.q ? `<p class="sim-q"><b>${esc(t("simQ"))}</b> ${esc(T(S0.q[0], S0.q[1]))}</p>` : ""}</div>`;
+    <div class="sim-ctl">${S0.p.map(p => `<label${simCol(p)}><span class="sim-l">${esc(lbl(p))}</span><input type="range" min="${p[2]}" max="${p[3]}" step="${p[4]}" value="${p[5]}" data-k="${p[0]}" aria-label="${esc(lbl(p))}"><output>${esc(nf(p[5], 2) + unit(p))}</output></label>`).join("")}</div>
+    ${S0.q && !S0.g ? `<p class="sim-q"><b>${esc(t("simQ"))}</b> ${esc(T(S0.q[0], S0.q[1]))}</p>` : ""}
+    <div class="sim-gw">${simGoalHTML(name)}</div></div>`;
 }
 function simUpdate(el){
   const name = el.dataset.sim, S0 = SIMS[name]; if(!S0) return;
@@ -272,5 +305,25 @@ function simUpdate(el){
   el.querySelector(".sim-svg").innerHTML = r.svg; el.querySelector(".sim-out").innerHTML = simOutHTML(r);
   el.querySelectorAll(".sim-ctl label").forEach((lb, i) => { const p = S0.p[i]; lb.querySelector("output").textContent = nf(v[p[0]], 2) + (p[6] ? " " + p[6] : ""); });
   if(!el.dataset.played){ el.dataset.played = 1; S.stats ||= {}; S.stats.sims = (+S.stats.sims || 0) + 1; }
+  return r;
 }
+// Oppgaven sjekkes når glidebryteren slippes (change), så man ikke «løser» den ved å dra forbi svaret.
+function simCheck(el){
+  const name = el.dataset.sim, S0 = SIMS[name]; if(!S0 || !S0.g || el.dataset.solved) return;
+  const k = simGi(name); if(k >= S0.g.length) return;
+  const v = simVals(name, el); let ok = false; try{ const r = S0.f(v); ok = !!S0.g[k][2](v, r.m || {}); }catch(e){ ok = false; }
+  if(!ok) return;
+  el.dataset.solved = 1; (S.simGoals ||= {})[name] = k + 1; S.stats ||= {}; S.stats.simGoals = (+S.stats.simGoals || 0) + 1;
+  const st = awardXP(SIM_XP); save(); buzz(true);
+  el.querySelector(".sim-gw").innerHTML = simGoalHTML(name, k); if(st.goalHit) setTimeout(() => toast(t("goalHitTitle")), 600);
+}
+function simRefreshGoal(el){ delete el.dataset.solved; el.querySelector(".sim-gw").innerHTML = simGoalHTML(el.dataset.sim); simUpdate(el); }
 document.addEventListener("input", e => { const el = e.target.closest && e.target.closest(".sim"); if(el) simUpdate(el); });
+document.addEventListener("change", e => { const el = e.target.closest && e.target.closest(".sim"); if(el && e.target.type === "range"){ simUpdate(el); simCheck(el); } });
+document.addEventListener("click", e => {
+  const b = e.target.closest && e.target.closest("[data-simnext],[data-simreset]"); if(!b) return;
+  const el = b.closest(".sim"); if(!el) return; e.stopPropagation();
+  if(b.dataset.simreset){ (S.simGoals ||= {})[b.dataset.simreset] = 0; save(); }
+  simRefreshGoal(el);
+  document.querySelectorAll(`.sim[data-sim="${el.dataset.sim}"]`).forEach(o => { if(o !== el) simRefreshGoal(o); });
+});
