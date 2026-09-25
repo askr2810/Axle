@@ -89,6 +89,7 @@ const I = {
   search: svg('<circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/>',20),
   users: svg('<circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0"/><path d="M16 4.5a3.5 3.5 0 0 1 0 7M18 14.2a6.5 6.5 0 0 1 3.5 5.8"/>',20),
   trophy: svg('<path d="M8 3h8v6a4 4 0 0 1-8 0zM8 5H4v2a3 3 0 0 0 4 3M16 5h4v2a3 3 0 0 1-4 3M12 13v4M8 21h8M9 17h6v4H9z"/>',44,false,1.8),
+  star16: svg('<path d="m12 2.5 2.9 6 6.6.8-4.9 4.6 1.3 6.6L12 17.2l-5.9 3.3 1.3-6.6-4.9-4.6 6.6-.8z"/>',16,true),
   checkS: svg('<path d="m5 12.5 4.5 4.5L19 7.5"/>',16,false,3.2),
   book: svg('<path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v15H6.5A2.5 2.5 0 0 0 4 20.5z"/><path d="M4 20.5A2.5 2.5 0 0 0 6.5 23H20v-5"/>',18),
   steps: svg('<path d="M4 20h5v-5h5v-5h6"/>',18),
@@ -751,13 +752,14 @@ function renderOverlay(){
 // ---------- teori og forkunnskaper ----------
 let TH = null; // {code, u, go:{u,k}|null}
 function openTheory(code, u, go){ TH = { code, u, go }; (S.theorySeen ||= {})[code+":"+u] = 1; save(); overlay = null; screen = "theory"; render(); window.scrollTo(0,0); }
-function theoryBody(code, u){ const doc = theoryOf(code, u); return doc ? richDoc(doc[LANG] || doc.nb) : `<p>${esc(t("noTheory"))}</p>`; }
+function theoryBody(code, u, quiz){ const doc = theoryOf(code, u); if(!doc) return `<p>${esc(t("noTheory"))}</p>`; const src = doc[LANG] || doc.nb;
+  return tyKeyHTML(src) + richDoc(src) + (quiz ? cyHTML(code, u) : ""); }
 function renderTheory(){
   if(!TH){ screen = "home"; renderHome(); return; }
   const c = COURSE(TH.code);
   $app.innerHTML = `<div class="top"><div class="wrap"><button class="iconbtn" data-a="home" aria-label="${esc(t("back"))}">${I.x}</button>
       <div class="th-t"><small>${esc(courseName(c))} · ${esc(t("unit", TH.u+1))}</small><b>${esc(unitTitle(c, TH.u))}</b></div><span class="th-ic" aria-hidden="true">${I.book}</span></div></div>
-    <main class="wrap theory">${theoryBody(TH.code, TH.u)}</main>
+    <main class="wrap theory">${theoryBody(TH.code, TH.u, true)}</main>
     <div class="lfoot"><div class="wrap"><button class="big" data-a="thstart">${esc(t(TH.go ? "thStartFirst" : "thStart"))}</button></div></div>`;
 }
 function theorySheetHTML(o){

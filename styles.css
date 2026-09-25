@@ -519,3 +519,22 @@ input[type="time"]{font:inherit;font-weight:700;border:2px solid var(--line);bor
 .fr-st b{font-family:var(--display);font-weight:800;font-size:17px}
 .fr-st span{font-size:11.5px;color:var(--muted)}
 .fr-now{margin:0;color:var(--muted);font-size:14px}
+
+/* ---------- lettere teori ---------- */
+.ty-key{background:color-mix(in srgb,var(--gold) 16%,var(--card));border:2px solid color-mix(in srgb,var(--gold) 55%,transparent);border-radius:16px;padding:10px 14px 4px;margin:8px 0 12px}
+.ty-h{display:flex;align-items:center;gap:6px;font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--gold-deep);font-weight:700;margin-bottom:6px}
+.ty-key p{margin:0 0 8px;font-weight:600;font-size:15.5px;line-height:1.5}
+.cy{margin-top:30px;padding-top:6px;border-top:2px dashed var(--line)}
+.cy h3{margin-top:14px}
+.cy-sub{color:var(--muted);font-size:14px}
+.cy-q{background:var(--card);border:2px solid var(--line);border-radius:16px;padding:12px;margin:12px 0}
+.cy-p{display:flex;gap:10px;align-items:flex-start;font-size:15.5px}
+.cy-p p{margin:0}
+.cy-n{flex:none;display:grid;place-items:center;width:24px;height:24px;border-radius:50%;background:var(--accent);color:#fff;font-family:var(--mono);font-size:12px;font-weight:700;margin-top:1px}
+.cy .opts{margin-top:10px;gap:8px}
+.cy .opt{font-size:15px;min-height:46px;padding:9px 12px}
+.cy-e{margin-top:10px;border-radius:12px;padding:10px 12px;font-size:14.5px;line-height:1.5}
+.cy-e.ok{background:color-mix(in srgb,var(--ok) 14%,transparent)}
+.cy-e.bad{background:color-mix(in srgb,var(--bad) 12%,transparent)}
+.cy-e b{display:block;margin-bottom:2px}
+.cy-score{font-weight:700;text-align:center;margin:14px 0 10px}

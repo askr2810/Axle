@@ -131,8 +131,10 @@ function renderBookUnit(){
   $app.innerHTML = `${bkTop("bkback", courseName(c) + " · " + t("unit", u + 1), unitTitle(c, u))}
     <main class="wrap theory bk-unit">
       ${secs.length > 1 ? `<nav class="bk-toc" aria-label="${esc(t("bkToc"))}">${secs.map((s, k) => `<button data-a="bksec" data-i="${k}">${esc(plain(s))}</button>`).join("")}</nav>` : ""}
+      ${tyKeyHTML(src)}
       ${f.length ? `<div class="bk-glance"><div class="bk-glance-h">${esc(t("bkGlance"))}</div>${f.map(x => `<div class="dmath">${texD(x)}</div>`).join("")}</div>` : ""}
       ${html}
+      ${cyHTML(c.code, u)}
       <div class="bk-nav">
         ${prev != null ? `<button class="bk-pn" data-a="bkunit" data-c="${esc(c.code)}" data-u="${prev}"><small>${esc(t("bkPrev"))}</small><b>${esc(unitTitle(c, prev))}</b></button>` : "<span></span>"}
         ${next != null ? `<button class="bk-pn nx" data-a="bkunit" data-c="${esc(c.code)}" data-u="${next}"><small>${esc(t("bkNext"))}</small><b>${esc(unitTitle(c, next))}</b></button>` : "<span></span>"}
@@ -148,6 +150,7 @@ function bookBack(){
   render(); window.scrollTo(0, 0);
 }
 function bookClick(a, b){
+  if(a.startsWith("cy")) return cyClick(a, b);
   if(!a.startsWith("bk") && a !== "book") return false;
   if(a === "book") openBook();
   else if(a === "bkback") bookBack();
@@ -160,5 +163,42 @@ function bookClick(a, b){
     const sec = document.querySelectorAll("main section")[u]; if(sec) sec.scrollIntoView({ block: "start" });
   }
   else return false;
+  return true;
+}
+
+// ============================================================
+//  LETTERE Å LÆRE: «Det viktigste» øverst og «Sjekk deg selv» nederst på teorisidene.
+// ============================================================
+function tyKeyHTML(src){
+  const r = bkRemember(src); if(!r.length) return "";
+  return `<div class="ty-key"><div class="ty-h">${I.star16}${esc(t("tyKey"))}</div>${r.map(x => `<p>${inline(x).replace(/\*\*([^*]+?)\*\*/g, "<b>$1</b>")}</p>`).join("")}</div>`;
+}
+let CY = { key: null, items: [], sel: [] };
+function cyBuild(code, u){
+  const c = COURSE(code), P = poolIds(c, [u]), ids = [];
+  pick(ids, P.mc, 3); pick(ids, P.num, 3); pick(ids, P.gen, 3);
+  const items = []; for(const id of ids){ try{ const it = itemFromId(c, id, { mc: true }); if(it && it.type === "mc") items.push(it); }catch(e){} }
+  CY = { key: code + ":" + u + ":" + LANG, items, sel: items.map(() => null) };
+}
+function cyHTML(code, u){
+  if(CY.key !== code + ":" + u + ":" + LANG) cyBuild(code, u);
+  if(!CY.items.length) return "";
+  const done = CY.sel.filter(x => x != null).length, right = CY.items.filter((it, i) => CY.sel[i] != null && it.opts[CY.sel[i]].ok).length;
+  return `<section class="cy" id="cyq" data-code="${esc(code)}" data-u="${u}"><h3>${esc(t("cyTitle"))}</h3><p class="cy-sub">${esc(t("cySub"))}</p>` +
+    CY.items.map((it, q) => {
+      const s = CY.sel[q];
+      return `<div class="cy-q"><div class="cy-p"><span class="cy-n">${q + 1}</span><div>${rich(it.prompt)}</div></div><div class="opts">` +
+        it.opts.map((o, i) => `<button class="opt ${s == null ? "" : o.ok ? "right" : s === i ? "wrong" : ""}" data-a="cyans" data-q="${q}" data-i="${i}" ${s == null ? "" : "disabled"}><span class="k">${"ABCD"[i] || i + 1}</span><span>${rich(o.t)}</span></button>`).join("") +
+        `</div>${s != null && it.expl ? `<div class="cy-e ${it.opts[s].ok ? "ok" : "bad"}"><b>${esc(t(it.opts[s].ok ? "cyRight" : "cyWrong"))}</b> ${rich(it.expl)}</div>` : ""}</div>`;
+    }).join("") +
+    `${done === CY.items.length ? `<p class="cy-score">${esc(t("cyScore", right, CY.items.length))}</p>` : ""}<button class="big ghost" data-a="cynew">${esc(t("cyNew"))}</button></section>`;
+}
+function cyClick(a, b){
+  const box = document.getElementById("cyq"); if(!box) return false;
+  const code = box.dataset.code, u = +box.dataset.u;
+  if(a === "cyans"){ const q = +b.dataset.q; if(CY.sel[q] == null){ CY.sel[q] = +b.dataset.i; buzz(CY.items[q].opts[CY.sel[q]].ok); } }
+  else if(a === "cynew") cyBuild(code, u);
+  else return false;
+  box.outerHTML = cyHTML(code, u);
   return true;
 }
