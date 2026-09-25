@@ -85,6 +85,9 @@ const I = {
   zout: svg('<circle cx="11" cy="11" r="7"/><path d="M8 11h6M20 20l-4-4"/>',20),
   fit: svg('<path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/>',20),
   chevron: svg('<path d="m9 6 6 6-6 6"/>',18),
+  left: svg('<path d="m15 5-7 7 7 7"/>',22,false,2.6),
+  search: svg('<circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/>',20),
+  checkS: svg('<path d="m5 12.5 4.5 4.5L19 7.5"/>',16,false,3.2),
   book: svg('<path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v15H6.5A2.5 2.5 0 0 0 4 20.5z"/><path d="M4 20.5A2.5 2.5 0 0 0 6.5 23H20v-5"/>',18),
   steps: svg('<path d="M4 20h5v-5h5v-5h6"/>',18),
   okc:'<svg width="28" height="28" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="11" fill="currentColor"/><path d="m7 12.5 3.3 3.3L17 9" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>',
@@ -191,7 +194,7 @@ function renderHome(){
       <div class="week">${week}</div>
     </div>
     ${preCardHTML(c)}
-    <div class="actions">${examHomeActions(c)}${wrongN?`<button class="pill rev" data-a="review">${I.redo}${t("reviewBtn",wrongN)}</button>`:""}${examHomeJump()}</div>
+    <div class="actions"><button class="pill" data-a="book">${I.book}${t("bkTitle")}</button>${examHomeActions(c)}${wrongN?`<button class="pill rev" data-a="review">${I.redo}${t("reviewBtn",wrongN)}</button>`:""}${examHomeJump()}</div>
     ${path}
     ${examHomeSection(c)}
     <p class="foot-note">${esc(t("foot1",courseName(c),nQ,nG))}<br>${d===tot?(crowns(c)===c.units.length?t("allCrowns"):t("allLevels")):esc(t("foot2",d,tot,crowns(c),c.units.length))}</p>
@@ -782,6 +785,7 @@ function render(){
   else if(screen==="done") renderDone();
   else if(screen==="fail") renderFail();
   else if(screen==="theory") renderTheory();
+  else if(screen==="book") renderBook();
   else if(screen==="examSetup") renderExamSetup();
   else if(screen==="exam") renderExam();
   else if(screen==="examResult") renderExamResult();
@@ -793,6 +797,7 @@ document.addEventListener("click", async e=>{
   const b = e.target.closest("[data-a]"); if(!b) return;
   const a = b.dataset.a;
   if(examClick(a, b)) return; // eksamensmodus (handlinger som starter med "ex")
+  if(bookClick(a, b)) return; // teoriboka (handlinger som starter med "bk")
   if(a==="pick"){ screen="pick"; render(); window.scrollTo(0,0); }
   else if(a==="home"){ goHome(); }
   else if(a==="settings"){ screen="settings"; render(); window.scrollTo(0,0); }
@@ -906,6 +911,7 @@ if(NATIVE){
     else if(screen==="lesson"){ overlay="quit"; renderOverlay(); }
     else if(screen==="exam"){ examFlush(); overlay={exam:"close"}; renderOverlay(); }
     else if(screen==="examReview"){ screen="examResult"; render(); window.scrollTo(0,0); }
+    else if(screen==="book"){ bookBack(); }
     else if(screen!=="home"){ goHome(); }
     else PL.App.exitApp();
   });
