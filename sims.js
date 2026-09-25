@@ -207,6 +207,24 @@ const SIMS = {
     f: v => { const k = Math.min(v.k, v.n), fact = m => { let r = 1; for(let i = 2; i <= m; i++) r *= i; return r; }, C = Math.round(fact(v.n) / fact(k) / fact(v.n - k)), P = Math.round(fact(v.n) / fact(v.n - k));
       return { out: [["C(n,k)", nf(C, 0)], ["P(n,k)", nf(P, 0)]], svg: Array.from({ length: v.n }, (_, i) => `<circle cx="${22 + (i % 10) * 30}" cy="${60 + Math.floor(i / 10) * 40}" r="12" class="${i < k ? "fg-bit1" : "fg-box"}"/>`).join("") +
         fgT(160, 160, T(`velg ${k} av ${v.n}`, `choose ${k} of ${v.n}`), "fg-s") }; } },
+  earth: { t: ["Jordtrykk mot en mur", "Earth pressure on a wall"], p: [["phi", "φ", 20, 45, 1, 30, "°"], ["H", "H", 1, 8, 0.5, 4, "m"], ["g", "γ", 15, 22, 0.5, 18, "kN/m³"]],
+    q: ["Hvor mye mindre blir kraften når φ går fra 25° til 40°?", "How much smaller does the force get when φ goes from 25° to 40°?"],
+    f: v => { const sn = Math.sin(v.phi * Math.PI / 180), Ka = (1 - sn) / (1 + sn), Pa = 0.5 * Ka * v.g * v.H * v.H, h = v.H / 8 * 120, pmax = Ka * v.g * v.H, w = Math.min(120, pmax * 2.2);
+      return { out: [["K_a", smN(Ka, 3)], ["K_p = 1/K_a", smN(1 / Ka, 3)], ["P_a = ½K_aγH²", smN(Pa) + " kN/m"]], svg: `
+        <rect class="fg-fill" x="150" y="${150 - h}" width="150" height="${h}"/><line class="fg-line" x1="150" y1="150" x2="300" y2="150"/>
+        <rect class="fg-box" x="132" y="${150 - h - 6}" width="18" height="${h + 6}"/>${fgGround(120, 156, 90)}
+        <polygon points="150,${150 - h} 150,150 ${150 + w},150" fill="color-mix(in srgb,var(--bad) 22%,transparent)" stroke="var(--bad)" stroke-width="1.6"/>
+        ${fgAr(150 + w / 2 + 40, 150 - h / 3, 152, 150 - h / 3, "fg-red", 2.4)}${fgT(150 + w / 2 + 44, 150 - h / 3 + 4, "P_a", "fg-i fg-redt", "start")}
+        ${fgT(262, 150 - h + 16, T("jord", "soil"), "fg-s")}${fgT(141, 172, "H = " + smN(v.H) + " m", "fg-s")}` }; } },
+  threshold: { t: ["Terskel, presisjon og gjenkalling", "Threshold, precision and recall"], p: [["th", ["terskel", "threshold"], 0.05, 0.95, 0.05, 0.5, ""]],
+    q: ["Finn en terskel som gir gjenkalling over 0,9. Hva skjer med presisjonen?", "Find a threshold that gives recall above 0.9. What happens to the precision?"],
+    f: v => { const neg = x => Math.exp(-((x - 0.35) ** 2) / (2 * 0.12 ** 2)), pos = x => 0.6 * Math.exp(-((x - 0.65) ** 2) / (2 * 0.12 ** 2));
+      let TP = 0, FP = 0, FN = 0, TN = 0; for(let i = 0; i <= 200; i++){ const x = i / 200; if(x >= v.th){ TP += pos(x); FP += neg(x); } else { FN += pos(x); TN += neg(x); } }
+      const P = TP / (TP + FP || 1), Rc = TP / (TP + FN || 1);
+      const g = smPlot([[neg, "fg-mut", 2.2], [pos, "fg-acc", 2.4]], [0, 1], [0, 1.1], T("modellens sannsynlighet", "model probability"), "", (X, Y) =>
+        `<rect x="${X(v.th).toFixed(1)}" y="${Y(1.1)}" width="${(X(1) - X(v.th)).toFixed(1)}" height="${Y(0) - Y(1.1)}" fill="color-mix(in srgb,var(--ok) 12%,transparent)"/>` + smLine(X(v.th), Y(0), X(v.th), Y(1.1), "fg-red") +
+        fgT(X(0.35), Y(1.02), T("negative", "negatives"), "fg-s") + fgT(X(0.7), Y(0.7), T("positive", "positives"), "fg-s fg-acct") + fgT(X(v.th) + 4, Y(1.06), T("sier ja →", "says yes →"), "fg-s fg-okt", "start"));
+      return { out: [[T("presisjon", "precision"), smN(P, 3)], [T("gjenkalling", "recall"), smN(Rc, 3)], ["F1", smN(2 * P * Rc / (P + Rc || 1), 3)]], svg: g.svg }; } },
   pctrl: { t: ["P-regulator på et førsteordens system", "P-controller on a first-order system"], p: [["K", "K_p", 0.5, 20, 0.5, 2, ""], ["tau", "τ", 0.5, 5, 0.5, 2, "s"]],
     q: ["Øk K_p. Blir det stasjonære avviket noen gang null?", "Increase K_p. Does the steady-state error ever become zero?"],
     f: v => { const ys = v.K / (1 + v.K), tc = v.tau / (1 + v.K);
@@ -221,7 +239,7 @@ const SIM_MAP = {
   "MAPE1300:3": "beam", "FAST:1": "beam", "FAST:0": "hooke", "MATS1500:1": "hooke", "SVING:0": "spring", "SVING:1": "spring", "MEK1400:0": "spring", "SVING:2": "resonance",
   "FLUID:0": "pressure", "GFYS:4": "pressure", "FLUID:1": "venturi", "VARME:0": "wall", "BYGG:1": "wall", "KJEMI:3": "gas",
   "GMAT:3": "line", "MEK1000:0": "tangent", "GMAT:7": "tangent", "MEK1000:3": "tangent", "MEK1000:1": "riemann", "GMAT:4": "expo", "OKON:0": "expo",
-  "MEK2200:1": "normal", "GMAT:6": "vector", "DISK:1": "combi", "ELFT2400:1": "pctrl"
+  "MEK2200:1": "normal", "GEO:1": "pressure", "GEO:2": "earth", "ML:1": "line", "ML:2": "threshold", "GMAT:6": "vector", "DISK:1": "combi", "ELFT2400:1": "pctrl"
 };
 function withSims(code, u, src){
   const name = SIM_MAP[code + ":" + u]; if(!name || src.includes("![sim:")) return src;

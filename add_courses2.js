@@ -251,7 +251,7 @@ GEN("DBNET", 1,
      T(S`Blokkstørrelse $2^{${32 - p}} = ${blk}$. $\lfloor ${last}/${blk} \rfloor = ${net / blk}$, så nettverksadressen slutter på $${net / blk}\cdot ${blk} = ${net}$.`, S`Block size $2^{${32 - p}} = ${blk}$. $\lfloor ${last}/${blk} \rfloor = ${net / blk}$, so the network address ends in $${net / blk}\cdot ${blk} = ${net}$.`)]; },
  () => { const need = R.i(3, 1000); let p = 30; while(Math.pow(2, 32 - p) - 2 < need) p--;
    return [T(`Et subnett skal ha plass til ${need} maskiner. Hva er det største prefikset (/p) som holder?`, `A subnet must have room for ${need} machines. What is the largest prefix (/p) that is enough?`), { n: p, tol: 0, u: "" },
-     S`/${p} gir $2^{${32 - p}} - 2 = ${Math.pow(2, 32 - p) - 2}$ verter, mens /${p + 1} bare gir ${Math.pow(2, 31 - p) - 2}.`]; }
+     T(S`/${p} gir $2^{${32 - p}} - 2 = ${Math.pow(2, 32 - p) - 2}$ verter, mens /${p + 1} bare gir ${Math.pow(2, 31 - p) - 2}.`, S`/${p} gives $2^{${32 - p}} - 2 = ${Math.pow(2, 32 - p) - 2}$ hosts, while /${p + 1} only gives ${Math.pow(2, 31 - p) - 2}.`)]; }
 );
 
 // ================= DBNET 2: IKT-sikkerhet =================
