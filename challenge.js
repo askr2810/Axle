@@ -43,7 +43,8 @@ function dcCardHTML(){
 let DC_NEXT = false;
 function bootPrompts(){
   if(screen !== "home" || overlay) return;
-  if(CLOUD_ON && !AUTH && S.loginAsked !== dayKey()){
+  if(AUTH && !S.acEver){ S.acEver = 1; saveLocal(); } // denne enheten har vært innlogget: aldri vis innloggings-popupen
+  if(CLOUD_ON && !AUTH && !S.acEver && S.loginAsked !== dayKey()){
     S.loginAsked = dayKey(); saveLocal(); DC_NEXT = true;
     overlay = { login: 1, step: "email", email: "", intro: true }; renderOverlay(); return;
   }

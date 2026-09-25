@@ -32,6 +32,7 @@ function mergeState(a, b){
   if(!isObj(b)) return m;
   if(!m.avatar && typeof b.avatar === "string") m.avatar = b.avatar;
   if(!("photo" in m) && typeof b.photo === "string") m.photo = b.photo;
+  if(isObj(b.drill)){ m.drill = Object.assign({}, m.drill || {}); for(const k in b.drill){ const x = b.drill[k], y = m.drill[k]; if(isObj(x) && (!y || (+x.at || 0) > (+y.at || 0))) m.drill[k] = x; } }
   m.gdDone = Object.assign({}, isObj(b.gdDone) ? b.gdDone : {}, a.gdDone || {});
   if(!m.name && typeof b.name === "string") m.name = b.name;
   m.badges = Object.assign({}, isObj(b.badges) ? b.badges : {}, a.badges || {});

@@ -401,8 +401,9 @@ function finishLesson(){
   if(L.kind==="unit") s.done[L.meta.u+"-"+L.meta.k] = true;
   if(L.kind==="jump") for(let uu=0; uu<L.meta.u; uu++) for(let k=0;k<REQ;k++) s.done[uu+"-"+k] = true;
   if(L.kind==="challenge"){ S.dc = { day: L.meta.day, right: firstTry, n: L.total }; bdgStat("challenges"); }
+  if(L.kind==="drill") drRecord();
   const wrong = new Set(s.wrong);
-  if(L.kind!=="challenge") L.firstWrong.forEach(id=>wrong.add(id)); // utfordringen blander fag, feil der havner ikke i «Repeter feil»
+  if(L.kind!=="challenge" && L.kind!=="drill") L.firstWrong.forEach(id=>wrong.add(id)); // utfordringen blander fag, feil der havner ikke i «Repeter feil»
   if(L.kind==="review") [...L.solved].forEach(id=>{ if(!L.firstWrong.has(id)) wrong.delete(id); });
   s.wrong = [...wrong];
   if(L.firstWrong.size === 0) bdgStat("flawless");
@@ -416,7 +417,7 @@ function correctText(it){ return it.type==="mc" ? it.opts.find(o=>o.ok).t : nf(i
 function renderLesson(){
   const it = L.queue[0];
   const pct = (L.maxHearts ? (L.done + (L.answered?1:0)) : L.solved.size) / L.total * 100;
-  const lvl = L.kind==="unit" ? `${lvShort(L.meta.k)} · ${lvName(L.meta.k)} · ` : L.kind==="jump" ? t("jumpTest")+" · " : L.kind==="review" ? t("review")+" · " : L.kind==="challenge" ? t("dcTitle")+" · " : "";
+  const lvl = L.kind==="unit" ? `${lvShort(L.meta.k)} · ${lvName(L.meta.k)} · ` : L.kind==="jump" ? t("jumpTest")+" · " : L.kind==="review" ? t("review")+" · " : L.kind==="challenge" ? t("dcTitle")+" · " : L.kind==="drill" ? t("drTitle")+" · "+(it.drTag ? T(DR_TAGS[it.drTag][0], DR_TAGS[it.drTag][1])+" · " : "") : "";
   let body = `<div class="krow"><p class="kicker">${esc(lvl)}${it.type==="mc"?t("pickAnswer"):t("writeAnswer")}</p><button class="kbtn" data-a="scratch">${I.pencil}${t("scratch")}</button></div><div class="prompt">${rich(it.prompt)}</div>`;
   if(it.type==="mc"){
     body += `<div class="opts" role="radiogroup">` + it.opts.map((o,i)=>{
@@ -450,8 +451,8 @@ function renderLesson(){
 }
 function renderDone(){
   const r = L.result, m = Math.floor(r.secs/60), sec = r.secs%60, c = COURSE(L.code), u = L.meta && L.meta.u;
-  const title = L.kind==="challenge" ? t("dcDoneTitle") : L.kind==="jump" ? t("doneJump") : (L.kind==="unit" && L.meta.k===3) ? t("doneCrown") : r.acc===100 ? t("doneFlawless") : L.kind==="review" ? t("doneReview") : t("doneLevel", lvShort(L.meta.k));
-  const sub2 = L.kind==="jump" ? t("jumpUnlocked", unitTitle(c,u)) : (L.kind==="unit" && L.meta.k===3) ? t("crownWon", unitTitle(c,u)) : null;
+  const title = L.kind==="drill" ? t("drDoneTitle") : L.kind==="challenge" ? t("dcDoneTitle") : L.kind==="jump" ? t("doneJump") : (L.kind==="unit" && L.meta.k===3) ? t("doneCrown") : r.acc===100 ? t("doneFlawless") : L.kind==="review" ? t("doneReview") : t("doneLevel", lvShort(L.meta.k));
+  const sub2 = L.kind==="drill" ? t("drDoneSub", L.total - L.firstWrong.size, L.total) : L.kind==="jump" ? t("jumpUnlocked", unitTitle(c,u)) : (L.kind==="unit" && L.meta.k===3) ? t("crownWon", unitTitle(c,u)) : null;
   $app.innerHTML = `<main class="wrap finish pop">
     ${r.goalHit ? goalCelebrateHTML(L.code, r) : teacherBubble(L.code, esc(pickLine(t(r.acc === 100 ? "tchFlawless" : r.acc >= 70 ? "tchDone" : "tchDoneLow"))), 64, "tch-done")}
     ${r.levelUp ? levelUpHTML(r.levelUp) : ""}
@@ -895,6 +896,7 @@ document.addEventListener("click", async e=>{
   else if(a==="home"){ goHome(); }
   else if(a==="settings"){ overlay=null; screen="settings"; render(); window.scrollTo(0,0); }
   else if(a==="dcstart"){ if(!dcDoneToday()) startChallenge(); }
+  else if(a==="drstart"){ startDrill(b.dataset.t || "all"); }
   else if(a==="dcpopgo"){ buzz(true); overlay=null; renderOverlay(); if(!dcDoneToday()) startChallenge(); }
   else if(a==="dclater"){ overlay=null; renderOverlay(); toast(t("dcPopLaterToast")); }
   else if(a==="badges"){ screen="badges"; render(); window.scrollTo(0,0); }
@@ -938,7 +940,7 @@ document.addEventListener("click", async e=>{
   else if(a==="lgverify"){ const code = (document.getElementById("lgcode").value||"").replace(/\D/g,""), email = overlay.email;
     if(code.length < 6){ overlay.err = t("acBadCode"); renderOverlay(); return; }
     overlay = { login:1, step:"code", email, busy:true }; renderOverlay();
-    cloudVerify(email, code).then(()=>{ LANG = S.lang || LANG; overlay = null; renderOverlay(); render(); toast(t("acLoggedIn", email)); },
+    cloudVerify(email, code).then(()=>{ LANG = S.lang || LANG; S.acEver = 1; saveLocal(); overlay = null; renderOverlay(); render(); toast(t("acLoggedIn", email)); },
       e=>{ if(overlay && overlay.login){ overlay = { login:1, step:"code", email, err: acErr(e) }; renderOverlay(); } }); }
   else if(a==="lgback"){ overlay = { login:1, step:"email", email: overlay.email }; renderOverlay(); }
   else if(a==="acsync"){ cloudSync().then(()=>{ if(CLOUD.status==="ok") toast(t("acSyncedToast")); else if(CLOUD.status==="offline") toast(t("acOffline")); else if(CLOUD.status==="error") toast(t("acError")); }); }
@@ -999,7 +1001,7 @@ examBoot(true); // pågående eksamen: fortsett, eller lever hvis tiden gikk ut 
 if(frBootLink()) screen = "friends";
 if(checkBadges().length) saveLocal(); // merker for fremgang fra før merkene fantes (uten varsel)
 render();
-AUTH_READY.then(()=>setTimeout(bootPrompts, 450)); // innlogging og dagens utfordring som popup ved første åpning i dag
+AUTH_READY.then(()=>setTimeout(bootPrompts, 900)); // innlogging og dagens utfordring som popup ved første åpning i dag
 flushOutbox();
 window.addEventListener("online", flushOutbox);
 cloudBoot();
