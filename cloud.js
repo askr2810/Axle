@@ -133,7 +133,7 @@ async function cloudBoot(){
   if(!AUTH && PL.Preferences){ try{ const { value } = await PL.Preferences.get({ key: AUTH_KEY }); if(value){ AUTH = JSON.parse(value); authStore(); } }catch(e){} }
   const viaLink = await cloudFromLink();
   authReadyRes();
-  if(AUTH){ await cloudSync(); if(viaLink) toast(t("acLoggedIn", AUTH.email)); }
+  if(AUTH){ await cloudSync(); if(viaLink) toast(t("acLoggedIn", AUTH.email)); frPollReqs(); }
   document.addEventListener("visibilitychange", ()=>{ if(document.visibilityState === "visible") cloudSync(); });
   window.addEventListener("online", ()=>cloudSync());
 }

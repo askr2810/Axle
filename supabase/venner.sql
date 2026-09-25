@@ -41,6 +41,8 @@ create table if not exists public.friendships (
 -- Avatar (tegnet figur, lagret som kort kode). Legges til også hvis tabellen fantes fra før.
 alter table public.profiles add column if not exists prev_week_xp integer not null default 0 check (prev_week_xp >= 0);
 alter table public.profiles add column if not exists prev_week_key text;
+alter table public.profiles add column if not exists username text check (username is null or username ~ '^[a-z0-9_.]{3,20}$');
+create unique index if not exists profiles_username_key on public.profiles (username);
 alter table public.profiles add column if not exists avatar text check (avatar is null or avatar ~ '^[0-9]{1,2}(-[0-9]{1,2}){3,12}$');
 
 alter table public.profiles    enable row level security;
@@ -56,8 +58,8 @@ create policy "egen profil - endre" on public.profiles for update to authenticat
 
 revoke all on public.profiles from anon, authenticated;
 grant select on public.profiles to authenticated;
-grant insert (user_id, display_name, xp, streak, streak_last, week_xp, week_key, crowns, levels, course, avatar, prev_week_xp, prev_week_key, updated_at) on public.profiles to authenticated;
-grant update (display_name, xp, streak, streak_last, week_xp, week_key, crowns, levels, course, avatar, prev_week_xp, prev_week_key, updated_at) on public.profiles to authenticated;
+grant insert (user_id, display_name, username, xp, streak, streak_last, week_xp, week_key, crowns, levels, course, avatar, prev_week_xp, prev_week_key, updated_at) on public.profiles to authenticated;
+grant update (display_name, username, xp, streak, streak_last, week_xp, week_key, crowns, levels, course, avatar, prev_week_xp, prev_week_key, updated_at) on public.profiles to authenticated;
 
 -- Vennskap endres bare via funksjonene under.
 revoke all on public.friendships from anon, authenticated;
@@ -66,7 +68,7 @@ revoke all on public.friendships from anon, authenticated;
 drop function if exists public.get_friends();
 create function public.get_friends()
 returns table (
-  user_id uuid, display_name text, friend_code text, xp integer, streak integer, streak_last text,
+  user_id uuid, display_name text, username text, friend_code text, xp integer, streak integer, streak_last text,
   week_xp integer, week_key text, crowns integer, levels integer, course text, avatar text, prev_week_xp integer, prev_week_key text, updated_at timestamptz, is_me boolean
 )
 language sql
@@ -74,7 +76,7 @@ stable
 security definer
 set search_path = ''
 as $$
-  select p.user_id, p.display_name,
+  select p.user_id, p.display_name, p.username,
          case when p.user_id = auth.uid() then p.friend_code end,
          p.xp, p.streak, p.streak_last, p.week_xp, p.week_key, p.crowns, p.levels, p.course, p.avatar, p.prev_week_xp, p.prev_week_key, p.updated_at,
          p.user_id = auth.uid()
@@ -128,3 +130,105 @@ grant execute on function public.gen_friend_code()   to authenticated;
 grant execute on function public.get_friends()       to authenticated;
 grant execute on function public.add_friend(text)    to authenticated;
 grant execute on function public.remove_friend(uuid) to authenticated;
+
+-- ============================================================
+-- Brukernavn, søk og venneforespørsler.
+-- Søk finner andre på brukernavn eller navn. Å legge til via søk sender en forespørsel
+-- som den andre må godta. Deler du koden eller lenken din, blir dere venner med en gang.
+-- ============================================================
+create table if not exists public.friend_requests (
+  from_id    uuid not null references auth.users (id) on delete cascade,
+  to_id      uuid not null references auth.users (id) on delete cascade,
+  created_at timestamptz not null default now(),
+  primary key (from_id, to_id),
+  check (from_id <> to_id)
+);
+alter table public.friend_requests enable row level security;
+revoke all on public.friend_requests from anon, authenticated;
+
+-- Søk: minst 2 tegn, maks 12 treff, ikke deg selv.
+create or replace function public.search_users(q text)
+returns table (user_id uuid, display_name text, username text, avatar text, status text)
+language sql
+stable
+security definer
+set search_path = ''
+as $$
+  select p.user_id, p.display_name, p.username, p.avatar,
+         case when exists (select 1 from public.friendships f where f.user_id = auth.uid() and f.friend_id = p.user_id) then 'friend'
+              when exists (select 1 from public.friend_requests r where r.from_id = auth.uid() and r.to_id = p.user_id) then 'sent'
+              when exists (select 1 from public.friend_requests r where r.from_id = p.user_id and r.to_id = auth.uid()) then 'incoming'
+              else 'none' end
+  from public.profiles p
+  where auth.uid() is not null
+    and char_length(btrim(coalesce(q, ''))) >= 2
+    and p.user_id <> auth.uid()
+    and (starts_with(p.username, lower(regexp_replace(btrim(q), '^@', '')))
+         or starts_with(lower(p.display_name), lower(btrim(q))))
+  order by (p.username = lower(regexp_replace(btrim(q), '^@', ''))) desc, p.username nulls last, p.display_name
+  limit 12;
+$$;
+
+-- Send forespørsel. Har den andre allerede spurt deg, blir dere venner med en gang.
+create or replace function public.request_friend(fid uuid)
+returns text
+language plpgsql
+security definer
+set search_path = ''
+as $$
+declare me uuid := auth.uid();
+begin
+  if me is null then raise exception 'not_logged_in'; end if;
+  if fid = me then raise exception 'self'; end if;
+  if not exists (select 1 from public.profiles where user_id = me) then raise exception 'no_profile'; end if;
+  if not exists (select 1 from public.profiles where user_id = fid) then raise exception 'not_found'; end if;
+  if exists (select 1 from public.friendships where user_id = me and friend_id = fid) then return 'friend'; end if;
+  if exists (select 1 from public.friend_requests where from_id = fid and to_id = me) then
+    delete from public.friend_requests where (from_id = fid and to_id = me) or (from_id = me and to_id = fid);
+    insert into public.friendships (user_id, friend_id) values (me, fid), (fid, me) on conflict do nothing;
+    return 'friend';
+  end if;
+  if (select count(*) from public.friend_requests where from_id = me) >= 50 then raise exception 'too_many'; end if;
+  insert into public.friend_requests (from_id, to_id) values (me, fid) on conflict do nothing;
+  return 'sent';
+end;
+$$;
+
+-- Innkommende forespørsler.
+create or replace function public.get_friend_requests()
+returns table (user_id uuid, display_name text, username text, avatar text, created_at timestamptz)
+language sql
+stable
+security definer
+set search_path = ''
+as $$
+  select p.user_id, p.display_name, p.username, p.avatar, r.created_at
+  from public.friend_requests r join public.profiles p on p.user_id = r.from_id
+  where r.to_id = auth.uid()
+  order by r.created_at desc;
+$$;
+
+-- Godta eller avslå.
+create or replace function public.answer_friend_request(fid uuid, accept boolean)
+returns void
+language plpgsql
+security definer
+set search_path = ''
+as $$
+declare me uuid := auth.uid();
+begin
+  if me is null then raise exception 'not_logged_in'; end if;
+  if not exists (select 1 from public.friend_requests where from_id = fid and to_id = me) then raise exception 'not_found'; end if;
+  delete from public.friend_requests where (from_id = fid and to_id = me) or (from_id = me and to_id = fid);
+  if accept then insert into public.friendships (user_id, friend_id) values (me, fid), (fid, me) on conflict do nothing; end if;
+end;
+$$;
+
+revoke all on function public.search_users(text)                    from public, anon;
+revoke all on function public.request_friend(uuid)                  from public, anon;
+revoke all on function public.get_friend_requests()                 from public, anon;
+revoke all on function public.answer_friend_request(uuid, boolean)  from public, anon;
+grant execute on function public.search_users(text)                   to authenticated;
+grant execute on function public.request_friend(uuid)                 to authenticated;
+grant execute on function public.get_friend_requests()                to authenticated;
+grant execute on function public.answer_friend_request(uuid, boolean) to authenticated;
