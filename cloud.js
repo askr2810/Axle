@@ -29,8 +29,8 @@ async function sbFetch(path, opts, token){
     const code = String(body.error_code || body.code || body.error || "");
     const kind = r.status === 429 || /rate/i.test(code) ? "rate"
       : /otp_expired|invalid|token/i.test(code) && path.startsWith("/auth/v1/verify") ? "badcode"
-      : r.status === 401 || r.status === 403 ? "auth" : "server";
-    throw new CloudError(kind, r.status, code.slice(0, 40));
+      : r.status === 401 || /jwt|session_not_found|refresh_token/i.test(code) ? "auth" : "server";
+    const err = new CloudError(kind, r.status, code.slice(0, 40)); err.msg = String(body.message || body.msg || ""); throw err;
   }
   if(r.status === 204) return null;
   const txt = await r.text(); return txt ? JSON.parse(txt) : null;
@@ -62,13 +62,13 @@ async function cloudVerify(email, code){
 }
 async function cloudSignOut(){
   const tok = AUTH && AUTH.at;
-  AUTH = null; authStore(); CLOUD.status = "idle";
+  AUTH = null; authStore(); CLOUD.status = "idle"; FR.rows = null;
   if(tok) sbFetch("/auth/v1/logout", { method: "POST" }, tok).catch(()=>{});
 }
 async function cloudDeleteAccount(){
   const tok = await authToken(); if(!tok) throw new CloudError(AUTH ? "offline" : "auth", 0);
   await sbFetch("/rest/v1/rpc/delete_my_account", { method: "POST", body: "{}" }, tok);
-  AUTH = null; authStore(); CLOUD.status = "idle";
+  AUTH = null; authStore(); CLOUD.status = "idle"; FR.rows = null;
 }
 
 function cloudSnapshot(){ const s = JSON.parse(JSON.stringify(S)); delete s.outbox; delete s.examRun; return s; }
@@ -95,6 +95,7 @@ function cloudSync(overwrite){
         }
       }
       await cloudPush(tok);
+      try{ await frPushStats(tok); }catch(e){} // tallene vennene ser (ingen profil ennå = ingenting skjer)
       CLOUD.status = "ok"; CLOUD.at = Date.now();
     }catch(e){
       if(e.kind === "auth"){ AUTH = null; authStore(); CLOUD.status = "idle"; }

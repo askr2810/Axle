@@ -102,6 +102,19 @@ const UI = {
     bkOutText: "Kopier koden eller lagre den som fil, og åpne «Hent sikkerhetskopi» på den andre enheten. Koden inneholder bare fremgangen din.",
     bkInText: "Lim inn koden eller velg fila. Fremgangen slås sammen med den som allerede er her, og ingenting overskrives.",
     bkCopy: "Kopier kode", bkShare: "Del", bkFile: "Last ned fil", bkPick: "Velg fil", bkImport: "Hent", bkCopied: "Koden er kopiert.",
+    frTitle: "Venner", frSub: "Poengtavle", frNoCloud: "Venner krever konto, og kontoer er ikke slått på i denne versjonen.",
+    frIntroTitle: "Konkurrer med venner", frIntroText: "Logg inn, lag et navn og del venne-koden din. Da ser dere hverandres XP, rekke og hvor langt dere har kommet.",
+    frLoading: "Henter venner …", frRetry: "Prøv igjen", frRefresh: "Oppdater", frPickName: "Hva vil du hete?", frEditName: "Endre navn",
+    frNameText: "Navnet vises bare for vennene dine. Bruk gjerne fornavn eller kallenavn.", frNamePh: "F.eks. Ola", frSave: "Lagre", frNameEmpty: "Skriv inn et navn.",
+    frYourCode: "Din venne-kode", frCodeText: "Gi koden til vennene dine. Når de legger den inn, blir dere venner og ser hverandres fremgang.",
+    frShare: "Del koden", frCopy: "Kopier koden", frCopied: "Koden er kopiert.", frShareText: (c, u) => `Bli venn med meg i Axle! Legg inn koden ${c}, eller åpne ${u}`,
+    frAddPh: "Vennens kode", frAdd: "Legg til", frAdded: n => `Du og ${n} er nå venner.`, frBadCode: "En venne-kode har 8 tegn.",
+    frNotFound: "Fant ingen med den koden. Sjekk at den er skrevet riktig.", frSelf: "Det er din egen kode.", frTooMany: "Du har nådd grensen på 200 venner.",
+    frNotSetUp: "Venner er ikke satt opp i databasen ennå (kjør supabase/venner.sql).",
+    frTab_week: "Denne uka", frTab_total: "Totalt", frTab_streak: "Rekke", frDays: "dager", frYou: "(deg)", frCrownsShort: "kroner",
+    frEmpty: "Ingen venner ennå. Del koden din eller legg inn koden til en venn.", frCrowns: "Kroner", frLevels: "Fullførte nivåer", frLast: "Sist aktiv",
+    frNow: c => `Øver nå på: ${c}`, frToday: "i dag", frYesterday: "i går", frDaysAgo: n => `for ${n} dager siden`,
+    frRemove: "Fjern venn", frRemoveSure: "Trykk igjen for å fjerne", frRemoved: "Vennen er fjernet.",
     bkTitle: "Teoribok", bkSub: "All teorien samlet", bkSearch: "Søk i all teori …", bkTopics: n => `${n} emner`, bkReadN: n => `${n} lest`, bkRead: "Lest",
     bkTopicsTab: "Emner", bkSheet: "Formelark", bkGlance: "Formler på ett blikk", bkToc: "Innhold", bkPrev: "← Forrige", bkNext: "Neste →",
     bkNoHits: "Ingen treff. Prøv et annet ord.", bkHits: n => n === 1 ? "1 treff" : `${n} treff`,
@@ -211,6 +224,19 @@ const UI = {
     bkOutText: "Copy the code or save it as a file, then open «Restore backup» on the other device. The code only contains your progress.",
     bkInText: "Paste the code or choose the file. It is merged with the progress already here, and nothing is overwritten.",
     bkCopy: "Copy code", bkShare: "Share", bkFile: "Download file", bkPick: "Choose file", bkImport: "Restore", bkCopied: "Code copied.",
+    frTitle: "Friends", frSub: "Leaderboard", frNoCloud: "Friends require an account, and accounts are not enabled in this version.",
+    frIntroTitle: "Compete with friends", frIntroText: "Log in, pick a name and share your friend code. Then you can see each other's XP, streak and how far you've come.",
+    frLoading: "Loading friends …", frRetry: "Try again", frRefresh: "Refresh", frPickName: "What should we call you?", frEditName: "Change name",
+    frNameText: "Your name is only shown to your friends. A first name or nickname works well.", frNamePh: "E.g. Alex", frSave: "Save", frNameEmpty: "Enter a name.",
+    frYourCode: "Your friend code", frCodeText: "Give the code to your friends. When they enter it, you become friends and can see each other's progress.",
+    frShare: "Share code", frCopy: "Copy code", frCopied: "Code copied.", frShareText: (c, u) => `Be my friend on Axle! Enter the code ${c}, or open ${u}`,
+    frAddPh: "Friend's code", frAdd: "Add", frAdded: n => `You and ${n} are now friends.`, frBadCode: "A friend code has 8 characters.",
+    frNotFound: "No one has that code. Check that it is typed correctly.", frSelf: "That's your own code.", frTooMany: "You have reached the limit of 200 friends.",
+    frNotSetUp: "Friends are not set up in the database yet (run supabase/venner.sql).",
+    frTab_week: "This week", frTab_total: "All time", frTab_streak: "Streak", frDays: "days", frYou: "(you)", frCrownsShort: "crowns",
+    frEmpty: "No friends yet. Share your code or enter a friend's code.", frCrowns: "Crowns", frLevels: "Levels completed", frLast: "Last active",
+    frNow: c => `Practising: ${c}`, frToday: "today", frYesterday: "yesterday", frDaysAgo: n => `${n} days ago`,
+    frRemove: "Remove friend", frRemoveSure: "Tap again to remove", frRemoved: "Friend removed.",
     bkTitle: "Theory book", bkSub: "All the theory in one place", bkSearch: "Search all theory …", bkTopics: n => `${n} topics`, bkReadN: n => `${n} read`, bkRead: "Read",
     bkTopicsTab: "Topics", bkSheet: "Formula sheet", bkGlance: "Formulas at a glance", bkToc: "Contents", bkPrev: "← Previous", bkNext: "Next →",
     bkNoHits: "No results. Try another word.", bkHits: n => n === 1 ? "1 result" : `${n} results`,
@@ -291,12 +317,14 @@ const PRIVACY = {
   nb: `<p><b>Kort fortalt:</b> Appen har ingen reklame og ingen sporing. Konto er valgfritt.</p>
 <p><b>Fremgang</b> (XP, dager på rad, fullførte nivåer, innstillinger) lagres lokalt på enheten din. Uten konto sendes den ikke til oss.</p>
 <p><b>Konto (valgfritt).</b> Logger du inn, lagrer vi e-postadressen din og en kopi av fremgangen, slik at du får samme fremgang på alle enhetene dine. Dataene lagres hos Supabase i EU (Frankfurt). E-posten med innloggingskoden sendes via tjenesten Resend. Vi bruker dataene bare til innlogging og synkronisering, deler dem ikke med andre og bruker dem ikke til reklame. Du kan slette kontoen under Innstillinger → Slett konto. Da slettes e-postadressen og fremgangen hos oss for godt.</p>
+<p><b>Venner (valgfritt).</b> Bruker du Venner, lagrer vi et visningsnavn du velger selv og en venne-kode. Vennene dine ser navnet ditt, XP, rekke, kroner, antall fullførte nivåer, hvilket fag du øver på og når du sist var aktiv. Dere blir bare venner når en av dere legger inn den andres kode, og du kan fjerne venner når som helst. Navnet, koden og vennelisten slettes sammen med kontoen.</p>
 <p><b>Feilrapporter og tilbakemeldinger</b> sendes bare når du selv trykker «Send». Rapporten inneholder det du skriver, hvilken oppgave det gjelder, svaret ditt, språk, appversjon og plattform. Oppgir du e-post, brukes den bare til å svare deg. Rapportene sendes via tjenesten Web3Forms (eller e-postappen din) til utviklerens e-post og slettes når de er behandlet.</p>
 <p><b>Påminnelser</b> planlegges lokalt på telefonen. Ingen data sendes ut.</p>
 <p>Du kan når som helst slette all fremgang under Innstillinger, eller slette appen. Spørsmål om personvern kan sendes via «Send tilbakemelding» eller til engidrilli@gmail.com.</p>`,
   en: `<p><b>In short:</b> The app has no ads and no tracking. An account is optional.</p>
 <p><b>Progress</b> (XP, streak, completed levels, settings) is stored locally on your device. Without an account it is not sent to us.</p>
 <p><b>Account (optional).</b> If you log in, we store your email address and a copy of your progress so you get the same progress on all your devices. The data is stored with Supabase in the EU (Frankfurt). The email with your login code is sent through the Resend service. We use the data only for login and syncing, do not share it and do not use it for advertising. You can delete your account under Settings → Delete account, which permanently deletes your email address and progress from our systems.</p>
+<p><b>Friends (optional).</b> If you use Friends, we store a display name you choose and a friend code. Your friends see your name, XP, streak, crowns, number of completed levels, the course you are practising and when you were last active. You only become friends when one of you enters the other's code, and you can remove friends at any time. Your name, code and friend list are deleted together with your account.</p>
 <p><b>Error reports and feedback</b> are sent only when you tap “Send”. A report contains what you write, which question it concerns, your answer, language, app version and platform. If you give an email address, it is used only to reply to you. Reports are delivered through the Web3Forms service (or your own email app) to the developer's email and deleted once handled.</p>
 <p><b>Reminders</b> are scheduled locally on your phone. No data is sent anywhere.</p>
 <p>You can delete all progress at any time under Settings, or delete the app. Privacy questions can be sent through “Send feedback” or to engidrilli@gmail.com.</p>`

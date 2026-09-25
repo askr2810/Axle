@@ -1,0 +1,173 @@
+// ============================================================
+//  VENNER OG POENGTAVLE (krever konto, se cloud.js og supabase/venner.sql).
+//  Hver bruker har et visningsnavn og en venne-kode. Legger du inn koden til en venn,
+//  blir dere venner begge veier og ser hverandres XP, rekke, kroner og fag.
+// ============================================================
+let FR = { rows: null, loading: false, err: null, tab: "week", editName: false, busy: false };
+const FR_PENDING = "axle.pendingFriend";
+
+// Uke = mandagens dato (lokal tid), f.eks. "2026-09-21".
+function weekKeyOf(d){ const x = new Date(d); x.setHours(12, 0, 0, 0); x.setDate(x.getDate() - ((x.getDay() + 6) % 7)); return dayKey(x); }
+function myStats(){
+  const wk = weekKeyOf(new Date()); let week = 0;
+  for(const k in S.daily || {}){ const [y, m, dd] = k.split("-").map(Number); if(weekKeyOf(new Date(y, m - 1, dd)) === wk) week += +S.daily[k] || 0; }
+  let cr = 0, lv = 0; for(const c of COURSES){ cr += crowns(c); lv += courseProgress(c).d; }
+  return { xp: +S.xp || 0, streak: streakNow(), streak_last: S.streak && S.streak.last || null, week_xp: week, week_key: wk, crowns: cr, levels: lv, course: S.current, updated_at: new Date().toISOString() };
+}
+// Tall slik de gjelder nå (rekke og ukes-XP kan være utdatert hvis vennen ikke har åpnet appen).
+function frLive(r){
+  const td = dayKey(), y = dayKey(addDays(new Date(), -1));
+  return Object.assign({}, r, {
+    streak: (r.streak_last === td || r.streak_last === y) ? r.streak : 0,
+    week_xp: r.week_key === weekKeyOf(new Date()) ? r.week_xp : 0
+  });
+}
+const frFmtCode = c => c ? c.slice(0, 4) + "-" + c.slice(4) : "";
+
+async function frRpc(name, args){
+  const tok = await authToken(); if(!tok) throw new CloudError(AUTH ? "offline" : "auth", 0);
+  return sbFetch("/rest/v1/rpc/" + name, { method: "POST", body: JSON.stringify(args || {}) }, tok);
+}
+async function frPushStats(tok){
+  if(!AUTH) return;
+  await sbFetch("/rest/v1/profiles?user_id=eq." + encodeURIComponent(AUTH.uid), { method: "PATCH", headers: { Prefer: "return=minimal" }, body: JSON.stringify(myStats()) }, tok);
+}
+async function frLoad(){
+  if(!CLOUD_ON || !AUTH || FR.loading) return;
+  FR.loading = true; FR.err = null; frRender();
+  try{
+    try{ const tok = await authToken(); if(tok) await frPushStats(tok); }catch(e){}
+    FR.rows = (await frRpc("get_friends")) || [];
+    const pend = (()=>{ try{ return localStorage.getItem(FR_PENDING); }catch(e){ return null; } })();
+    if(pend && FR.rows.some(r => r.is_me)){
+      try{ localStorage.removeItem(FR_PENDING); }catch(e){}
+      FR.loading = false; await frAdd(pend, true); return;
+    }
+  }catch(e){ FR.err = frErr(e); }
+  FR.loading = false; frRender();
+}
+async function frSaveName(name){
+  name = name.replace(/\s+/g, " ").trim().slice(0, 24);
+  if(!name){ toast(t("frNameEmpty")); return; }
+  FR.busy = true; frRender();
+  try{
+    const tok = await authToken(); if(!tok) throw new CloudError("offline", 0);
+    const me = (FR.rows || []).find(r => r.is_me);
+    if(me) await sbFetch("/rest/v1/profiles?user_id=eq." + encodeURIComponent(AUTH.uid), { method: "PATCH", headers: { Prefer: "return=minimal" }, body: JSON.stringify({ display_name: name }) }, tok);
+    else await sbFetch("/rest/v1/profiles", { method: "POST", headers: { Prefer: "return=minimal" }, body: JSON.stringify(Object.assign({ user_id: AUTH.uid, display_name: name }, myStats())) }, tok);
+    FR.editName = false; FR.busy = false; await frLoad();
+  }catch(e){ FR.busy = false; toast(frErr(e)); frRender(); }
+}
+async function frAdd(code, fromLink){
+  const clean = String(code || "").toUpperCase().replace(/[^A-Z0-9]/g, "");
+  if(clean.length !== 8){ toast(t("frBadCode")); return; }
+  FR.busy = true; frRender();
+  try{ const name = await frRpc("add_friend", { code: clean }); toast(t("frAdded", name || "")); FR.busy = false; await frLoad(); }
+  catch(e){ FR.busy = false; toast(frErr(e)); if(fromLink) await frLoad(); else frRender(); }
+}
+async function frRemove(uid){
+  try{ await frRpc("remove_friend", { fid: uid }); overlay = null; renderOverlay(); toast(t("frRemoved")); await frLoad(); }
+  catch(e){ toast(frErr(e)); }
+}
+function frErr(e){
+  const m = (e && e.msg) || "";
+  if(/not_found/.test(m)) return t("frNotFound");
+  if(/self/.test(m)) return t("frSelf");
+  if(/too_many/.test(m)) return t("frTooMany");
+  if(e && (e.status === 404 || /PGRST202|PGRST205|42P01|42883/.test(e.code || ""))) return t("frNotSetUp");
+  return acErr(e);
+}
+function frRender(){ if(screen === "friends" && !overlay) render(); }
+
+function frAvatar(name, i){
+  const cols = ["var(--u0)", "var(--u1)", "var(--u2)", "var(--gold-deep)", "var(--ok)"];
+  const ch = (String(name || "?").trim()[0] || "?").toUpperCase();
+  return `<span class="fr-av" style="background:${cols[i % cols.length]}">${esc(ch)}</span>`;
+}
+function frAgo(iso){
+  if(!iso) return "";
+  const d = Math.floor((new Date(dayKey()).getTime() - new Date(dayKey(new Date(iso))).getTime()) / 864e5);
+  return d <= 0 ? t("frToday") : d === 1 ? t("frYesterday") : t("frDaysAgo", d);
+}
+function frCourseName(code){ const c = COURSES.find(x => x.code === code); return c ? courseName(c) : ""; }
+
+function renderFriends(){
+  const head = `<div class="top"><div class="wrap"><button class="iconbtn" data-a="home" aria-label="${esc(t("back"))}">${I.x}</button>
+    <div class="th-t"><small>${esc(t("frSub"))}</small><b>${esc(t("frTitle"))}</b></div><span class="th-ic" aria-hidden="true">${I.users}</span></div></div>`;
+  let body = "";
+  if(!CLOUD_ON){ body = `<div class="fr-card"><p>${esc(t("frNoCloud"))}</p></div>`; }
+  else if(!AUTH){
+    body = `<div class="fr-card fr-intro"><span class="fr-big">${I.trophy}</span><h2>${esc(t("frIntroTitle"))}</h2><p>${esc(t("frIntroText"))}</p>
+      <button class="big" data-a="aclogin">${esc(t("acLogin"))}</button></div>`;
+  }
+  else if(FR.rows === null){
+    if(!FR.loading && !FR.err) setTimeout(frLoad, 0);
+    body = FR.err ? `<div class="fr-card"><p>${esc(FR.err)}</p><button class="big" data-a="frreload">${esc(t("frRetry"))}</button></div>` : `<p class="fr-wait">${esc(t("frLoading"))}</p>`;
+  }
+  else {
+    const me = FR.rows.find(r => r.is_me);
+    if(!me || FR.editName){
+      body = `<div class="fr-card"><h2>${esc(t(me ? "frEditName" : "frPickName"))}</h2><p>${esc(t("frNameText"))}</p>
+        <input type="text" id="frname" maxlength="24" autocomplete="nickname" placeholder="${esc(t("frNamePh"))}" value="${esc(me ? me.display_name : "")}">
+        <button class="big" data-a="frsavename" ${FR.busy ? "disabled" : ""}>${esc(t("frSave"))}</button>
+        ${me ? `<button class="big ghost" data-a="frcancelname">${esc(t("cancel"))}</button>` : ""}</div>`;
+    } else {
+      const rows = FR.rows.map(frLive), key = FR.tab === "total" ? "xp" : FR.tab === "streak" ? "streak" : "week_xp";
+      rows.sort((a, b) => (b[key] - a[key]) || (b.xp - a.xp) || String(a.display_name).localeCompare(b.display_name));
+      const unit = r => FR.tab === "streak" ? `${r.streak}<small>${esc(t("frDays"))}</small>` : `${r[key]}<small>XP</small>`;
+      const board = rows.map((r, i) => `<button class="fr-row ${r.is_me ? "me" : ""}" ${r.is_me ? "" : `data-a="frdetail" data-id="${esc(r.user_id)}"`}>
+          <span class="fr-rank r${i + 1}">${i + 1}</span>${frAvatar(r.display_name, i)}
+          <span class="fr-t"><b>${esc(r.display_name)}${r.is_me ? ` <em>${esc(t("frYou"))}</em>` : ""}</b><span>${esc(frCourseName(r.course))}${r.crowns ? ` · ${r.crowns} ${esc(t("frCrownsShort"))}` : ""}</span></span>
+          <span class="fr-v">${unit(r)}</span></button>`).join("");
+      body = `<div class="fr-card fr-me">${frAvatar(me.display_name, 0)}<div class="fr-me-t"><b>${esc(me.display_name)}</b><button class="exlink" data-a="freditname">${esc(t("frEditName"))}</button></div></div>
+        <div class="fr-card fr-code"><small>${esc(t("frYourCode"))}</small><div class="fr-codev">${esc(frFmtCode(me.friend_code))}</div>
+          <p>${esc(t("frCodeText"))}</p><button class="big" data-a="frshare">${esc(t(navigator.share ? "frShare" : "frCopy"))}</button></div>
+        <div class="fr-add"><input type="text" id="fradd" maxlength="12" autocapitalize="characters" autocomplete="off" placeholder="${esc(t("frAddPh"))}" aria-label="${esc(t("frAddPh"))}"><button class="big" data-a="fradd" ${FR.busy ? "disabled" : ""}>${esc(t("frAdd"))}</button></div>
+        <div class="seg fr-tabs" role="tablist">${["week", "total", "streak"].map(k => `<button role="tab" aria-selected="${FR.tab === k}" class="${FR.tab === k ? "on" : ""}" data-a="frtab" data-t="${k}">${esc(t("frTab_" + k))}</button>`).join("")}</div>
+        <div class="fr-board">${board}</div>
+        ${rows.length < 2 ? `<p class="fr-hint">${esc(t("frEmpty"))}</p>` : ""}
+        <button class="exlink fr-refresh" data-a="frreload">${FR.loading ? esc(t("frLoading")) : esc(t("frRefresh"))}</button>`;
+    }
+  }
+  $app.innerHTML = `${head}<main class="wrap fr">${body}</main>`;
+  const nm = document.getElementById("frname"); if(nm){ nm.focus(); nm.addEventListener("keydown", e => { if(e.key === "Enter") frSaveName(nm.value); }); }
+  const ad = document.getElementById("fradd"); if(ad) ad.addEventListener("keydown", e => { if(e.key === "Enter") frAdd(ad.value); });
+}
+function frDetailHTML(id){
+  const r0 = (FR.rows || []).find(x => x.user_id === id); if(!r0) return "";
+  const r = frLive(r0), st = (label, v) => `<div class="fr-st"><b>${v}</b><span>${esc(label)}</span></div>`;
+  return `<div class="dialog pop" role="dialog" aria-label="${esc(r.display_name)}"><div class="fr-dh">${frAvatar(r.display_name, 1)}<h3>${esc(r.display_name)}</h3></div>
+    <div class="fr-stats">${st(t("frTab_week"), r.week_xp + " XP")}${st(t("frTab_total"), r.xp + " XP")}${st(t("frTab_streak"), r.streak + " " + t("frDays"))}${st(t("frCrowns"), r.crowns)}${st(t("frLevels"), r.levels)}${st(t("frLast"), esc(frAgo(r.updated_at)))}</div>
+    ${r.course ? `<p class="fr-now">${esc(t("frNow", frCourseName(r.course)))}</p>` : ""}
+    <button class="big" data-a="closeov">${esc(t("cont"))}</button>
+    <button class="big ghost" data-a="frremove" data-id="${esc(id)}" style="color:var(--bad)">${esc(overlay.confirm ? t("frRemoveSure") : t("frRemove"))}</button></div>`;
+}
+function openFriends(){ screen = "friends"; overlay = null; FR.rows = null; FR.err = null; render(); window.scrollTo(0, 0); }
+function friendsClick(a, b){
+  if(!a.startsWith("fr") && a !== "friends") return false;
+  if(a === "friends") openFriends();
+  else if(a === "frreload"){ FR.rows = FR.rows || null; frLoad(); }
+  else if(a === "frsavename") frSaveName((document.getElementById("frname") || {}).value || "");
+  else if(a === "freditname"){ FR.editName = true; render(); }
+  else if(a === "frcancelname"){ FR.editName = false; render(); }
+  else if(a === "frtab"){ FR.tab = b.dataset.t; render(); }
+  else if(a === "fradd") frAdd((document.getElementById("fradd") || {}).value || "");
+  else if(a === "frshare"){
+    const me = (FR.rows || []).find(r => r.is_me); if(!me) return true;
+    const text = t("frShareText", frFmtCode(me.friend_code), CONFIG.siteUrl + "/?venn=" + me.friend_code);
+    if(navigator.share) navigator.share({ text }).catch(()=>{});
+    else (navigator.clipboard ? navigator.clipboard.writeText(text) : Promise.reject()).then(()=>toast(t("frCopied")), ()=>{});
+  }
+  else if(a === "frdetail"){ overlay = { friend: b.dataset.id }; renderOverlay(); }
+  else if(a === "frremove"){ if(overlay && overlay.confirm) frRemove(b.dataset.id); else { overlay = { friend: b.dataset.id, confirm: true }; renderOverlay(); } }
+  else return false;
+  return true;
+}
+// Lenke fra en venn: axle.no/?venn=KODE → husk koden og åpne Venner.
+function frBootLink(){
+  let code = null; try{ code = new URLSearchParams(location.search).get("venn"); }catch(e){}
+  if(!code) return false;
+  try{ localStorage.setItem(FR_PENDING, code); }catch(e){}
+  try{ history.replaceState(null, "", location.pathname + location.hash); }catch(e){}
+  return true;
+}

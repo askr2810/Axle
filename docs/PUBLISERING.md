@@ -68,9 +68,12 @@ Appen virker uten konto. Logger brukeren inn med kode på e-post, synkroniseres 
 3. **Egen e-postutsending (påkrevd)**: Uten egen SMTP sender Supabase bare til eierne av prosjektet. Bruk Resend (gratis): legg til domenet `axle.no` (region Ireland), legg DNS-postene inn hos domene.no, lag en API-nøkkel og fyll inn i **Authentication → Emails → Set up SMTP**: host `smtp.resend.com`, port `465`, brukernavn `resend`, passord = API-nøkkelen, avsender `noreply@axle.no`.
 4. **Authentication → Emails → Magic Link**: emne `Din kode til Axle`, innhold med `{{ .Token }}` (koden brukeren skriver inn).
 
+5. **Venner og poengtavle**: kjør også `supabase/venner.sql` i SQL Editor (etter `oppsett.sql`).
+
 Personvernsvar i butikkene når kontoer er på:
 - *Google Play → Datasikkerhet*: E-postadresse (samles inn, påkrevd for konto, ikke delt, formål: kontoadministrasjon) og Appaktivitet → annen brukeraktivitet (fremgang, formål: appfunksjonalitet). Kryptert under overføring. Brukeren kan be om sletting (i appen).
 - *App Store → App-personvern*: Kontaktinfo → E-postadresse og Brukerinnhold → Annet brukerinnhold, begge knyttet til brukeren, formål *App-funksjonalitet*, ikke brukt til sporing.
+- Med Venner kommer i tillegg *Personlig info → Navn* (visningsnavnet, valgfritt, vises bare for venner, formål: appfunksjonalitet). I App Store: *Kontaktinfo → Navn*, knyttet til brukeren, ikke sporing.
 - Kontosletting finnes i appen: Innstillinger → Slett konto.
 
 ## 3. Ikon og splash (én gang)

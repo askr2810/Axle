@@ -87,6 +87,8 @@ const I = {
   chevron: svg('<path d="m9 6 6 6-6 6"/>',18),
   left: svg('<path d="m15 5-7 7 7 7"/>',22,false,2.6),
   search: svg('<circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/>',20),
+  users: svg('<circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0"/><path d="M16 4.5a3.5 3.5 0 0 1 0 7M18 14.2a6.5 6.5 0 0 1 3.5 5.8"/>',20),
+  trophy: svg('<path d="M8 3h8v6a4 4 0 0 1-8 0zM8 5H4v2a3 3 0 0 0 4 3M16 5h4v2a3 3 0 0 1-4 3M12 13v4M8 21h8M9 17h6v4H9z"/>',44,false,1.8),
   checkS: svg('<path d="m5 12.5 4.5 4.5L19 7.5"/>',16,false,3.2),
   book: svg('<path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v15H6.5A2.5 2.5 0 0 0 4 20.5z"/><path d="M4 20.5A2.5 2.5 0 0 0 6.5 23H20v-5"/>',18),
   steps: svg('<path d="M4 20h5v-5h5v-5h6"/>',18),
@@ -194,7 +196,7 @@ function renderHome(){
       <div class="week">${week}</div>
     </div>
     ${preCardHTML(c)}
-    <div class="actions"><button class="pill" data-a="book">${I.book}${t("bkTitle")}</button>${examHomeActions(c)}${wrongN?`<button class="pill rev" data-a="review">${I.redo}${t("reviewBtn",wrongN)}</button>`:""}${examHomeJump()}</div>
+    <div class="actions"><button class="pill" data-a="book">${I.book}${t("bkTitle")}</button><button class="pill" data-a="friends">${I.users}${t("frTitle")}</button>${examHomeActions(c)}${wrongN?`<button class="pill rev" data-a="review">${I.redo}${t("reviewBtn",wrongN)}</button>`:""}${examHomeJump()}</div>
     ${path}
     ${examHomeSection(c)}
     <p class="foot-note">${esc(t("foot1",courseName(c),nQ,nG))}<br>${d===tot?(crowns(c)===c.units.length?t("allCrowns"):t("allLevels")):esc(t("foot2",d,tot,crowns(c),c.units.length))}</p>
@@ -718,6 +720,7 @@ function renderOverlay(){
         ${o.err?`<p class="lgerr">${esc(o.err)}</p>`:""}
         <button class="big" data-a="lgsend" ${o.busy?"disabled":""}>${t("acSend")}</button><button class="big ghost" data-a="closeov">${t("cancel")}</button>
         <p class="lgnote">${t("acPrivacyNote")}</p></div>`; }
+  else if(overlay.friend) d.innerHTML = frDetailHTML(overlay.friend);
   else if(overlay==="acdelete") d.innerHTML = `<div class="dialog pop" role="dialog" aria-label="${t("acDelTitle")}"><h3>${t("acDelTitle")}</h3><p>${t("acDelText")}</p><button class="big" data-a="closeov">${t("cancel")}</button><button class="big ghost" data-a="acdeleteok" style="color:var(--bad)">${t("acDelOk")}</button></div>`;
   else if(overlay.backup==="out") d.innerHTML = `<div class="dialog pop" role="dialog" aria-label="${t("bkMake")}"><h3>${t("bkMake")}</h3><p>${t("bkOutText")}</p>
       <textarea id="bkcode" readonly aria-label="${esc(t("bkMake"))}">${esc(overlay.code)}</textarea>
@@ -786,6 +789,7 @@ function render(){
   else if(screen==="fail") renderFail();
   else if(screen==="theory") renderTheory();
   else if(screen==="book") renderBook();
+  else if(screen==="friends") renderFriends();
   else if(screen==="examSetup") renderExamSetup();
   else if(screen==="exam") renderExam();
   else if(screen==="examResult") renderExamResult();
@@ -798,6 +802,7 @@ document.addEventListener("click", async e=>{
   const a = b.dataset.a;
   if(examClick(a, b)) return; // eksamensmodus (handlinger som starter med "ex")
   if(bookClick(a, b)) return; // teoriboka (handlinger som starter med "bk")
+  if(friendsClick(a, b)) return; // venner (handlinger som starter med "fr")
   if(a==="pick"){ screen="pick"; render(); window.scrollTo(0,0); }
   else if(a==="home"){ goHome(); }
   else if(a==="settings"){ screen="settings"; render(); window.scrollTo(0,0); }
@@ -898,6 +903,7 @@ document.addEventListener("keydown", e=>{
 });
 
 examBoot(true); // pågående eksamen: fortsett, eller lever hvis tiden gikk ut mens appen var lukket
+if(frBootLink()) screen = "friends";
 render();
 flushOutbox();
 window.addEventListener("online", flushOutbox);
