@@ -39,6 +39,15 @@ function NEWCOURSE(d) {
 }
 GROUP_NAMES["Forkurs"] = ["Start her: grunnlag", "Start here: foundations"];
 
+// ---------- nye enheter i eksisterende fag ----------
+// ADDUNIT(kode, nbTittel, enTittel) → nummeret til den nye enheten (legges sist, så fremgangen i de andre enhetene beholdes)
+function ADDUNIT(code, nb, en) {
+  const c = COURSES.find(x => x.code === code); if (!c) throw new Error("ADDUNIT: ukjent fag " + code);
+  c.units.push({ title: nb, qs: [], gen: [] });
+  const m = META[code]; if (m) { m.units ||= []; m.units[c.units.length - 1] = en; }
+  return c.units.length - 1;
+}
+
 NEWCOURSE({ code: "GMAT", group: "Forkurs", nb: "Grunnleggende matematikk", en: "Foundations of Mathematics", s: ["GM", "FM"],
   eqText: { nb: "Fra grunnskole til R2-nivå – start her", en: "From the basics to pre-university level – start here" },
   units: [

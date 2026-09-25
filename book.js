@@ -19,7 +19,7 @@ function bkFormulas(src){
     if(h){ if(h[1] === "##"){ s2 = BK_SKIP.test(h[2]); s3 = false; } else s3 = BK_SKIP.test(h[2]); continue; }
     const m = L.match(/^\$\$(.+)\$\$$/);
     // hopp over talluttrykk som «B·6 − 12·2 = 0» (utregninger)
-    if(m && !s2 && !s3 && !/\d\s*(\\cdot|[-+·*])\s*\d/.test(m[1])) out.push(m[1]);
+    if(m && !s2 && !s3 && !/\d\s*(\\cdot|[-+·*])\s*\d/.test(m[1])) out.push(...m[1].split(/,?\s*\\qquad\s*/).map(x => x.trim().replace(/,$/, "")).filter(Boolean)); // én formel per linje
   }
   return out;
 }
