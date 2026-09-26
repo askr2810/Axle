@@ -59,7 +59,7 @@ const groupName = g => (GROUP_NAMES[g] ? GROUP_NAMES[g][LANG === "en" ? 1 : 0] :
 const courseEq = c => (!META[c.code] ? "" : META[c.code].eqText ? META[c.code].eqText[LANG] : META[c.code].eq.map(([s, k]) => s + " " + k).join(" · "));
 
 // Enheter i svar (brukes når en fast oppgave vises på engelsk)
-const UNIT_EN = { "stk":"pcs", "år":"years", "ganger":"times", "mill. omdr.":"million rev.", "kr":"NOK", "rad/enhet":"rad/unit", "‰":"‰", "o/min":"rpm" };
+const UNIT_EN = { "stk":"pcs", "år":"years", "ganger":"times", "mill. omdr.":"million rev.", "kr":"NOK", "rad/enhet":"rad/unit", "‰":"‰", "o/min":"rpm", "uker":"weeks", "måneder":"months" };
 
 // Engelske oversettelser av faste oppgaver: ENQ[kode][enhet][nr] = [tekst, alternativer|null, forklaring]
 const ENQ = {};

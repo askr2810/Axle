@@ -12,7 +12,9 @@ const STUDIES = [
   { id: "vgs", nb: "Videregående", en: "Upper secondary", ic: "🎒", home: "VG1T", tab: ["VGS", "Upper sec."], slug: ["videregaende", "upper-secondary"],
     sub: ["Studiespesialisering: 1T, R1, R2, S1, S2, fysikk, kjemi og biologi", "General studies: maths 1T, R1, R2, S1, S2, physics, chemistry and biology"] },
   { id: "oko", nb: "Økonomi og administrasjon", en: "Business and administration", ic: "📊", home: "OBED", tab: ["Økonomi", "Business"], slug: ["okonomi", "business"],
-    sub: ["Bedriftsøkonomi, regnskap, matte, statistikk og samfunnsøkonomi", "Business economics, accounting, maths, statistics and economics"] }
+    sub: ["Bedriftsøkonomi, regnskap, matte, statistikk og samfunnsøkonomi", "Business economics, accounting, maths, statistics and economics"] },
+  { id: "jus", nb: "Rettsvitenskap", en: "Law", ic: "⚖️", home: "JMET", tab: ["Jus", "Law"], slug: ["jus", "law"],
+    sub: ["Juridisk metode, statsrett, avtaler, erstatning, forvaltning og strafferett", "Legal method, constitutional, contract, tort, administrative and criminal law"] }
 ];
 // Fag som passer i flere studier (grunnkursene brukes både av ingeniører og på videregående).
 for(const code of ["GMAT", "GFYS"]){ const c = COURSES.find(x => x.code === code); if(c) c.study = ["ing", "vgs"]; }
