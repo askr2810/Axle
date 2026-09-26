@@ -1231,3 +1231,25 @@ a.srow{text-decoration:none;color:inherit}
 .crop-ring{position:absolute;inset:0;border-radius:50%;box-shadow:0 0 0 400px rgba(0,0,0,.55);outline:2px solid rgba(255,255,255,.85);outline-offset:-2px;pointer-events:none}
 .crop-zl{display:flex;align-items:center;gap:10px;margin:0 4px 12px;font-weight:800;font-size:20px;color:var(--muted)}
 .crop-zl input{flex:1;accent-color:var(--accent)}
+/* Venner/grupper-fane, forslag og grupper */
+.fr-view{margin:2px 0 4px}
+.fr-pub{display:flex;align-items:center;gap:12px}.fr-pub-t{flex:1;display:grid;gap:2px}.fr-pub-t small{color:var(--muted);font-size:13px}
+.fr-sugg h3,.fr-reqs h3{margin:0 0 6px}
+.fr-fof .fr-res{max-height:52vh;overflow-y:auto;margin-bottom:12px}
+.fr-own{font-style:normal;font-size:11px;font-weight:800;color:var(--gold-deep);background:color-mix(in srgb,var(--gold) 16%,transparent);border-radius:99px;padding:1px 7px;margin-left:4px}
+.gr-intro h2{margin:0 0 4px}.gr-intro p{margin:0 0 12px;color:var(--muted)}
+.gr-btns{display:grid;gap:8px}.gr-btns .big svg{vertical-align:-3px;margin-right:6px}
+.gr-list{display:grid;gap:8px}
+.gr-item{display:flex;align-items:center;gap:12px;width:100%;text-align:left;font:inherit;color:var(--ink);background:var(--card);border:2px solid var(--line);border-bottom-width:4px;border-radius:16px;padding:12px 14px;cursor:pointer}
+.gr-item .fr-t{flex:1}
+.gr-emo{flex:none;width:44px;height:44px;border-radius:14px;display:grid;place-items:center;font-size:24px;background:var(--accent-soft)}
+.gr-emo.big{width:52px;height:52px;font-size:28px}.gr-emo.huge{width:72px;height:72px;font-size:40px;margin:0 auto 6px;border-radius:20px}
+.gr-head{display:flex;align-items:center;gap:12px}.gr-head .fr-t{flex:1}.gr-head .fr-t b{font-size:19px}
+.gr-back{display:inline-flex;align-items:center;gap:4px;margin:2px 0}
+.gr-sum{margin:6px 0 0;font-weight:700;color:var(--accent)}
+.gr-emos{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0 10px}
+.gr-emos button{width:42px;height:42px;font-size:22px;border-radius:12px;border:2px solid var(--line);background:var(--card);cursor:pointer}
+.gr-emos button.on{border-color:var(--accent);background:var(--accent-soft)}
+.gr-dlg{text-align:center}.gr-dlg input{text-align:center}
+.gr-edit input{margin-bottom:10px}
+.seg.fr-view{display:grid;grid-template-columns:1fr 1fr;width:100%}

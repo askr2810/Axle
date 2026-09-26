@@ -3,7 +3,7 @@
 //  Hver bruker har et visningsnavn og en venne-kode. Legger du inn koden til en venn,
 //  blir dere venner begge veier og ser hverandres XP, rekke, kroner og fag.
 // ============================================================
-let FR = { rows: null, loading: false, err: null, tab: "week", editName: false, busy: false, reqs: [], editUser: false, userLater: false, search: { q: "", rows: null, busy: false, err: null } };
+let FR = { rows: null, loading: false, err: null, tab: "week", view: "friends", sugg: [], fof: null, editName: false, busy: false, reqs: [], editUser: false, userLater: false, search: { q: "", rows: null, busy: false, err: null } };
 const FR_PENDING = "axle.pendingFriend";
 
 // Uke = mandagens dato (lokal tid), f.eks. "2026-09-21".
@@ -31,8 +31,8 @@ async function frRpc(name, args){
 }
 // Kolonner som kom i senere versjoner av venner.sql. Mangler de i databasen, sendes de ikke.
 const FR_NEW_COLS = ["avatar", "prev_week_xp", "prev_week_key"];
-let FR_OLD_DB = false, FR_NO_PHOTO = false;
-function frBody(){ const b = myStats(); if(S.avatar) b.avatar = S.avatar; if(!FR_NO_PHOTO) b.photo = isPhoto(S.photo) ? S.photo : null; if(FR_OLD_DB) FR_NEW_COLS.forEach(k => delete b[k]); return b; }
+let FR_OLD_DB = false, FR_NO_PHOTO = false, FR_NO_FP = false;
+function frBody(){ const b = myStats(); if(S.avatar) b.avatar = S.avatar; if(!FR_NO_PHOTO) b.photo = isPhoto(S.photo) ? S.photo : null; if(!FR_NO_FP) b.friends_public = !!S.friendsPublic; if(FR_OLD_DB) FR_NEW_COLS.forEach(k => delete b[k]); return b; }
 // Sender profilen (f.eks. nytt bilde) til venner litt etter en endring.
 let frPushTimer = null;
 function frPushSoon(){ if(!CLOUD_ON || !AUTH) return; clearTimeout(frPushTimer); frPushTimer = setTimeout(async () => { try{ const tok = await authToken(); if(tok) await frPushStats(tok); }catch(e){} }, 800); }
@@ -41,6 +41,7 @@ async function frPushStats(tok){
   const url = "/rest/v1/profiles?user_id=eq." + encodeURIComponent(AUTH.uid), opt = b => ({ method: "PATCH", headers: { Prefer: "return=minimal" }, body: JSON.stringify(b) });
   try{ await sbFetch(url, opt(frBody()), tok); }
   catch(e){
+    if(/PGRST204|42703/.test(e.code || "") && !FR_NO_FP){ FR_NO_FP = true; return frPushStats(tok); } // grupper.sql ikke kjørt ennå
     if(/PGRST204|42703/.test(e.code || "") && !FR_NO_PHOTO){ FR_NO_PHOTO = true; return frPushStats(tok); }
     if(!FR_OLD_DB && /PGRST204|42703/.test(e.code || "")){ FR_OLD_DB = true; await sbFetch(url, opt(frBody()), tok); } else throw e; }
 }
@@ -51,6 +52,8 @@ async function frLoad(){
     try{ const tok = await authToken(); if(tok) await frPushStats(tok); }catch(e){}
     FR.rows = (await frRpc("get_friends")) || [];
     try{ FR.reqs = (await frRpc("get_friend_requests")) || []; }catch(e){ FR.reqs = []; }
+    try{ FR.sugg = (await frRpc("get_suggestions")) || []; }catch(e){ FR.sugg = []; } // krever grupper.sql
+    if(typeof grPendingCheck === "function") grPendingCheck();
     const meRow = FR.rows.find(r => r.is_me); if(meRow && meRow.display_name && meRow.display_name !== S.name){ S.name = meRow.display_name; save(); }
     const nf_ = FR.rows.filter(r => !r.is_me).length; S.stats ||= {};
     if(nf_ > (+S.stats.friends || 0)){ S.stats.friends = nf_; bdgToast(checkBadges()); save(); }
@@ -96,7 +99,7 @@ function isClean(txt){
   return !BAD_SUB.test(n.replace(/[^a-zæøå]/g, "")) && !BAD_WORD.test(" " + n.replace(/[^a-zæøå]+/g, " ") + " ");
 }
 // ---------- moderering: rapportere og blokkere ----------
-const REP_REASONS = { name: ["repName", "repOffensive"], photo: ["repPhoto"], user: ["repHarass", "repSpam", "repOther"], course: ["repWrong", "repOffensive", "repSpam", "repOther"] };
+const REP_REASONS = { group: ["repName", "repOffensive"], name: ["repName", "repOffensive"], photo: ["repPhoto"], user: ["repHarass", "repSpam", "repOther"], course: ["repWrong", "repOffensive", "repSpam", "repOther"] };
 function frModHTML(o){ // meny for en annen bruker: rapporter navn/bilde/oppførsel eller blokker
   return `<div class="dialog pop" role="dialog" aria-label="${esc(o.name)}"><div class="fr-dh">${frAvatar(o.name, 1, o.avatar, 48, o.photo)}<h3>${esc(o.name)}</h3></div>
     <button class="srow" data-a="frrep" data-k="name"><span class="lbl">${esc(t("repNameBtn"))}</span>${I.flag}</button>
@@ -116,7 +119,7 @@ function frReportHTML(o){
     <p class="lgnote">${esc(t("repContact", CONFIG.contactEmail))}</p></div>`;
 }
 function frModOpen(id){ // finn brukeren i vennelista, søketreff eller forespørsler
-  const r = [...(FR.rows || []), ...(FR.search.rows || []), ...(FR.reqs || [])].find(x => x.user_id === id);
+  const r = [...(FR.rows || []), ...(FR.search.rows || []), ...(FR.reqs || []), ...(FR.sugg || []), ...(FR.fof ? FR.fof.rows || [] : []), ...(typeof GR !== "undefined" && GR.rows || [])].find(x => x.user_id === id);
   if(!r) return; overlay = { frmod: { id, name: r.display_name, avatar: r.avatar, photo: r.photo } }; renderOverlay();
 }
 async function frReportSend(){
@@ -181,19 +184,25 @@ function frResHTML(){
   if(s.err) return `<p class="fr-hint">${esc(s.err)}</p>`;
   if(s.rows === null) return s.busy ? `<p class="fr-hint">${esc(t("frSearching"))}</p>` : "";
   if(!s.rows.length) return `<p class="fr-hint">${esc(s.busy ? t("frSearching") : t("frNoHits"))}</p>`;
-  return s.rows.map((r, i) => {
+  return frHitsHTML(s.rows);
+}
+// Liste med personer og knapp for å legge til (søk, forslag, venners venner). sub(r) = linje under navnet.
+function frHitsHTML(rows, sub){
+  return rows.map((r, i) => {
+    if(r.status === "me") return "";
     const act = r.status === "friend" ? `<span class="fr-pill">${esc(t("frIsFriend"))}</span>`
       : r.status === "sent" ? `<span class="fr-pill">${esc(t("frSent"))}</span>`
       : r.status === "incoming" ? `<button class="fr-act" data-a="fracc" data-id="${esc(r.user_id)}">${esc(t("frAccept"))}</button>`
       : `<button class="fr-act" data-a="frreq" data-id="${esc(r.user_id)}" data-n="${esc(r.display_name)}">${I.plus}${esc(t("frReq"))}</button>`;
-    return `<div class="fr-hit">${frAvatar(r.display_name, i, r.avatar, 40, r.photo)}<span class="fr-t"><b>${esc(r.display_name)}</b><span>${r.username ? "@" + esc(r.username) : ""}</span></span>${act}<button class="fr-more" data-a="frmod" data-id="${esc(r.user_id)}" aria-label="${esc(t("repMore"))}">⋯</button></div>`;
+    return `<div class="fr-hit">${frAvatar(r.display_name, i, r.avatar, 40, r.photo)}<span class="fr-t"><b>${esc(r.display_name)}</b><span>${esc(sub ? sub(r) : r.username ? "@" + r.username : "")}</span></span>${act}<button class="fr-more" data-a="frmod" data-id="${esc(r.user_id)}" aria-label="${esc(t("repMore"))}">⋯</button></div>`;
   }).join("");
 }
 function frResUpdate(){ const el = document.getElementById("frres"); if(el) el.innerHTML = frResHTML(); }
 async function frRequest(id, name){
   try{
     const st = await frRpc("request_friend", { fid: id });
-    const hit = (FR.search.rows || []).find(r => r.user_id === id); if(hit) hit.status = st === "friend" ? "friend" : "sent";
+    for(const list of [FR.search.rows, FR.sugg, FR.fof && FR.fof.rows]) for(const hit of list || []) if(hit.user_id === id) hit.status = st === "friend" ? "friend" : "sent";
+    if(overlay && overlay.frfof) renderOverlay();
     toast(st === "friend" ? t("frAdded", name || "") : t("frReqSent", name || "")); buzz(true);
     if(st === "friend") await frLoad(); else frResUpdate();
   }catch(e){ toast(frErr(e)); }
@@ -289,21 +298,9 @@ function renderFriends(){
         <button class="big" data-a="frsavename" ${FR.busy ? "disabled" : ""}>${esc(t("frSave"))}</button>
         ${me ? `<button class="big ghost" data-a="frcancelname">${esc(t("cancel"))}</button>` : ""}</div>`;
     } else {
-      const rows = FR.rows.map(frLive), key = FR.tab === "total" ? "xp" : FR.tab === "streak" ? "streak" : "week_xp";
-      rows.sort((a, b) => (b[key] - a[key]) || (b.xp - a.xp) || String(a.display_name).localeCompare(b.display_name));
-      const unit = r => FR.tab === "streak" ? `${r.streak}<small>${esc(t("frDays"))}</small>` : `${r[key]}<small>XP</small>`;
-      const avOf = r => r.is_me ? (S.avatar || r.avatar) : r.avatar, phOf = r => r.is_me ? S.photo : r.photo;
-      const podium = rows.length >= 2 ? `<div class="podium">${[1, 0, 2].map(i => { const r = rows[i]; if(!r) return `<div class="pd-col p${i + 1} empty"></div>`;
-          return `<button class="pd-col p${i + 1} ${r.is_me ? "me" : ""}" ${r.is_me ? "" : `data-a="frdetail" data-id="${esc(r.user_id)}"`}>
-            <span class="pd-av">${i === 0 ? `<span class="pd-crown">${I.crown}</span>` : ""}${frAvatar(r.display_name, i, avOf(r), i === 0 ? 72 : 58, phOf(r))}</span>
-            <b class="pd-name">${esc(r.display_name)}</b><span class="pd-val">${unit(r)}</span>
-            <span class="pd-block"><span class="pd-medal">${i + 1}</span></span></button>`; }).join("")}</div>` : "";
-      const listRows = rows.length >= 2 ? rows.slice(3) : rows, off = rows.length >= 2 ? 3 : 0;
-      const board = listRows.map((r, j) => { const i = j + off; return `<button class="fr-row ${r.is_me ? "me" : ""}" ${r.is_me ? "" : `data-a="frdetail" data-id="${esc(r.user_id)}"`}>
-          <span class="fr-rank r${i + 1}">${i + 1}</span>${frAvatar(r.display_name, i, avOf(r), 40, phOf(r))}
-          <span class="fr-t"><b>${esc(r.display_name)}${r.is_me ? ` <em>${esc(t("frYou"))}</em>` : ""}</b><span>${esc(frCourseName(r.course))}${r.crowns ? ` · ${r.crowns} ${esc(t("frCrownsShort"))}` : ""}</span></span>
-          <span class="fr-v">${unit(r)}</span></button>`; }).join("");
-      const meCard = `<div class="fr-card fr-me">${frAvatar(me.display_name, 0, S.avatar || me.avatar, 56, S.photo)}<div class="fr-me-t"><b>${esc(me.display_name)}</b>${me.username ? `<span class="fr-uname">@${esc(me.username)}</span>` : ""}<span class="fr-links"><button class="exlink" data-a="fredituser">${esc(t(me.username ? "frEditUser" : "frPickUser"))}</button><button class="exlink" data-a="freditname">${esc(t("frEditName"))}</button><button class="exlink" data-a="avedit">${esc(t("avEdit"))}</button></span></div></div>`;
+      const { rows, podium, board } = frBoardHTML(FR.rows, FR.tab, "frdetail");
+      const meCard = `<div class="fr-card fr-me">${frAvatar(me.display_name, 0, S.avatar || me.avatar, 56, S.photo)}<div class="fr-me-t"><b>${esc(me.display_name)}</b>${me.username ? `<span class="fr-uname">@${esc(me.username)}</span>` : ""}<span class="fr-links"><button class="exlink" data-a="fredituser">${esc(t(me.username ? "frEditUser" : "frPickUser"))}</button><button class="exlink" data-a="freditname">${esc(t("frEditName"))}</button><button class="exlink" data-a="avedit">${esc(t("avEdit"))}</button></span></div></div>
+        <div class="fr-card fr-pub"><span class="fr-pub-t"><b>${esc(t("frPublic"))}</b><small>${esc(t("frPublicSub"))}</small></span><button class="tog ${S.friendsPublic ? "on" : ""}" data-a="frpublic" role="switch" aria-checked="${!!S.friendsPublic}" aria-label="${esc(t("frPublic"))}"></button></div>`;
       const userCard = (FR.editUser || (!me.username && !FR.userLater)) ? `<div class="fr-card fr-user"><h2>${esc(t(me.username ? "frEditUser" : "frPickUser"))}</h2><p>${esc(t("frUserText"))}</p>
           <div class="fr-at"><span>@</span><input type="text" id="fruser" maxlength="20" autocapitalize="none" autocomplete="username" spellcheck="false" value="${esc(me.username || frUserSuggest(me.display_name))}"></div>
           <button class="big" data-a="frsaveuser" ${FR.busy ? "disabled" : ""}>${esc(t("frSave"))}</button><button class="big ghost" data-a="frlateruser">${esc(t(me.username ? "cancel" : "frLater"))}</button></div>` : "";
@@ -320,15 +317,37 @@ function renderFriends(){
         <div class="seg fr-tabs" role="tablist">${["week", "total", "streak"].map(k => `<button role="tab" aria-selected="${FR.tab === k}" class="${FR.tab === k ? "on" : ""}" data-a="frtab" data-t="${k}">${esc(t("frTab_" + k))}</button>`).join("")}</div>
         ${podium}<div class="fr-board">${board}</div>
         ${rows.length < 2 ? `<p class="fr-hint">${esc(t("frEmpty"))}</p>` : ""}`;
-      body = meCard + userCard + reqCard + (rows.length >= 2 ? boardHTML + codeCard : codeCard + boardHTML) + `
+      const suggCard = FR.sugg.filter(r => r.status !== "sent").length ? `<div class="fr-card fr-sugg"><h3>${esc(t("frSugg"))}</h3>${frHitsHTML(FR.sugg.slice(0, 8), r => t("frSuggVia", r.mutual, r.via || ""))}</div>` : "";
+      body = meCard + userCard + reqCard + suggCard + (rows.length >= 2 ? boardHTML + codeCard : codeCard + boardHTML) + `
         <button class="exlink fr-refresh" data-a="frreload">${FR.loading ? esc(t("frLoading")) : esc(t("frRefresh"))}</button>`;
     }
   }
-  $app.innerHTML = `${head}<main class="wrap fr">${body}</main>`;
+  const viewSeg = CLOUD_ON && AUTH && FR.rows && FR.rows.some(r => r.is_me) && !FR.editName ? `<div class="seg fr-view" role="tablist">${["friends", "groups"].map(k => `<button role="tab" aria-selected="${FR.view === k}" class="${FR.view === k ? "on" : ""}" data-a="frview" data-v="${k}">${esc(t("frView_" + k))}</button>`).join("")}</div>` : "";
+  if(viewSeg && FR.view === "groups") body = grBodyHTML();
+  $app.innerHTML = `${head}<main class="wrap fr">${viewSeg}${body}</main>`;
   const nm = document.getElementById("frname"); if(nm){ nm.focus(); nm.addEventListener("keydown", e => { if(e.key === "Enter") frSaveName(nm.value); }); }
   const ad = document.getElementById("fradd"); if(ad) ad.addEventListener("keydown", e => { if(e.key === "Enter") frAdd(ad.value); });
   const us = document.getElementById("fruser"); if(us) us.addEventListener("keydown", e => { if(e.key === "Enter") frSaveUser(us.value); });
   const sq = document.getElementById("frsearch"); if(sq){ sq.addEventListener("input", () => frSearchInput(sq.value)); if(FR.search.focus){ FR.search.focus = false; sq.focus(); } }
+}
+// Pall og liste for en toppliste (venner eller en gruppe). act = handling når man trykker på en annen person.
+function frBoardHTML(raw, tab, act){
+  const rows = raw.map(frLive), key = tab === "total" ? "xp" : tab === "streak" ? "streak" : "week_xp";
+  rows.sort((a, b) => (b[key] - a[key]) || (b.xp - a.xp) || String(a.display_name).localeCompare(b.display_name));
+  const unit = r => tab === "streak" ? `${r.streak}<small>${esc(t("frDays"))}</small>` : `${r[key]}<small>XP</small>`;
+  const avOf = r => r.is_me ? (S.avatar || r.avatar) : r.avatar, phOf = r => r.is_me ? S.photo : r.photo;
+  const click = r => r.is_me ? "" : `data-a="${act}" data-id="${esc(r.user_id)}"`;
+  const podium = rows.length >= 2 ? `<div class="podium">${[1, 0, 2].map(i => { const r = rows[i]; if(!r) return `<div class="pd-col p${i + 1} empty"></div>`;
+      return `<button class="pd-col p${i + 1} ${r.is_me ? "me" : ""}" ${click(r)}>
+        <span class="pd-av">${i === 0 ? `<span class="pd-crown">${I.crown}</span>` : ""}${frAvatar(r.display_name, i, avOf(r), i === 0 ? 72 : 58, phOf(r))}</span>
+        <b class="pd-name">${esc(r.display_name)}</b><span class="pd-val">${unit(r)}</span>
+        <span class="pd-block"><span class="pd-medal">${i + 1}</span></span></button>`; }).join("")}</div>` : "";
+  const listRows = rows.length >= 2 ? rows.slice(3) : rows, off = rows.length >= 2 ? 3 : 0;
+  const board = listRows.map((r, j) => { const i = j + off; return `<button class="fr-row ${r.is_me ? "me" : ""}" ${click(r)}>
+      <span class="fr-rank r${i + 1}">${i + 1}</span>${frAvatar(r.display_name, i, avOf(r), 40, phOf(r))}
+      <span class="fr-t"><b>${esc(r.display_name)}${r.is_me ? ` <em>${esc(t("frYou"))}</em>` : ""}${r.is_owner ? ` <em class="fr-own">${esc(t("grOwner"))}</em>` : ""}</b><span>${esc(frCourseName(r.course))}${r.crowns ? ` · ${r.crowns} ${esc(t("frCrownsShort"))}` : ""}</span></span>
+      <span class="fr-v">${unit(r)}</span></button>`; }).join("");
+  return { rows, podium, board };
 }
 function frDetailHTML(id){
   const r0 = (FR.rows || []).find(x => x.user_id === id); if(!r0) return "";
@@ -336,9 +355,23 @@ function frDetailHTML(id){
   return `<div class="dialog pop" role="dialog" aria-label="${esc(r.display_name)}"><div class="fr-dh">${frAvatar(r.display_name, 1, r.avatar, 56, r.photo)}<h3>${esc(r.display_name)}</h3></div>
     <div class="fr-stats">${st(t("frTab_week"), r.week_xp + " XP")}${st(t("frTab_total"), r.xp + " XP")}${st(t("frTab_streak"), r.streak + " " + t("frDays"))}${st(t("frCrowns"), r.crowns)}${st(t("frLevels"), r.levels)}${st(t("frLast"), esc(frAgo(r.updated_at)))}</div>
     ${r.course ? `<p class="fr-now">${esc(t("frNow", frCourseName(r.course)))}</p>` : ""}
+    <button class="big ghost" data-a="frfof" data-id="${esc(id)}">${I.users}${esc(t("frFofBtn", r.display_name))}</button>
     <button class="big" data-a="closeov">${esc(t("cont"))}</button>
     <button class="big ghost" data-a="frremove" data-id="${esc(id)}" style="color:var(--bad)">${esc(overlay.confirm ? t("frRemoveSure") : t("frRemove"))}</button>
     <button class="exlink fr-repl" data-a="frmod" data-id="${esc(id)}">${I.flag}${esc(t("repOrBlock"))}</button></div>`;
+}
+// Vennene til en venn (hvis hen viser lista si).
+async function frFofOpen(id){
+  const r = (FR.rows || []).find(x => x.user_id === id); if(!r) return;
+  FR.fof = { id, name: r.display_name, rows: null }; overlay = { frfof: 1 }; renderOverlay();
+  try{ FR.fof.rows = (await frRpc("get_friend_friends", { fid: id })) || []; }catch(e){ FR.fof.rows = []; FR.fof.err = frErr(e); }
+  if(overlay && overlay.frfof) renderOverlay();
+}
+function frFofHTML(){
+  const f = FR.fof || {}, list = (f.rows || []).filter(r => r.status !== "me");
+  return `<div class="dialog pop fr-fof" role="dialog" aria-label="${esc(t("frFof", f.name || ""))}"><h3>${esc(t("frFof", f.name || ""))}</h3>
+    ${f.rows === null ? `<p class="fr-hint">${esc(t("frLoading"))}</p>` : f.err ? `<p class="fr-hint">${esc(f.err)}</p>` : list.length ? `<div class="fr-res">${frHitsHTML(list)}</div>` : `<p class="fr-hint">${esc(t("frFofNone", f.name || ""))}</p>`}
+    <button class="big" data-a="closeov">${esc(t("cont"))}</button></div>`;
 }
 function openFriends(){ screen = "friends"; overlay = null; FR.rows = null; FR.err = null; render(); window.scrollTo(0, 0); }
 function friendsClick(a, b){
@@ -349,6 +382,9 @@ function friendsClick(a, b){
   else if(a === "freditname"){ FR.editName = true; render(); }
   else if(a === "frcancelname"){ FR.editName = false; render(); }
   else if(a === "frtab"){ FR.tab = b.dataset.t; render(); }
+  else if(a === "frview"){ FR.view = b.dataset.v; if(FR.view === "friends") GR.cur = null; render(); window.scrollTo(0, 0); }
+  else if(a === "frpublic"){ S.friendsPublic = !S.friendsPublic; save(); frPushSoon(); render(); toast(t(S.friendsPublic ? "frPublicOn" : "frPublicOff")); }
+  else if(a === "frfof") frFofOpen(b.dataset.id);
   else if(a === "fradd") frAdd((document.getElementById("fradd") || {}).value || "");
   else if(a === "frshare" || a === "frcopy"){
     const me = frMe(); if(!me) return true;

@@ -160,7 +160,7 @@ begin
 end;
 $$;
 
--- Et kurs som rapporteres av 3 forskjellige brukere, skjules automatisk.
+-- Et kurs som rapporteres av 3 forskjellige brukere, skjules automatisk. (Samme funksjon som i grupper.sql.)
 create or replace function public.report_content(p_kind text, p_target_user uuid, p_target_id text, p_reason text, p_note text)
 returns void
 language plpgsql
@@ -185,6 +185,12 @@ begin
     if n >= 3 then
       execute 'update public.community_courses set hidden = true where id::text = $1' using p_target_id;
       update public.content_reports set handled = true where kind = 'course' and target_id = p_target_id;
+    end if;
+  elsif p_kind = 'group' and p_target_id is not null and to_regclass('public.groups') is not null then
+    select count(distinct reporter) into n from public.content_reports where kind = 'group' and target_id = p_target_id and not handled;
+    if n >= 3 then
+      execute 'update public.groups set name = ''Gruppe'', emoji = ''👥'' where id::text = $1' using p_target_id;
+      update public.content_reports set handled = true where kind = 'group' and target_id = p_target_id;
     end if;
   end if;
 end;

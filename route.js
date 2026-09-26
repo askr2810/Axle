@@ -6,7 +6,7 @@
 //  Ord på norsk eller engelsk etter språket; begge forstås når adressen leses.
 // ============================================================
 const RT = { practice: ["ov", "practice"], book: ["teori", "theory"], friends: ["venner", "friends"], profile: ["profil", "profile"], badges: ["merker", "badges"],
-  settings: ["innstillinger", "settings"], community: ["fellesskap", "community"], pick: ["fag", "courses"], theory: ["les", "read"], guided: ["steg", "steps"], topic: ["emne", "topic"], sheet: ["formler", "formulas"] };
+  settings: ["innstillinger", "settings"], community: ["fellesskap", "community"], pick: ["fag", "courses"], groups: ["grupper", "groups"], theory: ["les", "read"], guided: ["steg", "steps"], topic: ["emne", "topic"], sheet: ["formler", "formulas"] };
 const rtW = k => RT[k][LANG === "en" ? 1 : 0];
 const rtKey = w => Object.keys(RT).find(k => RT[k].includes(String(w || "").toLowerCase()));
 const rtCourse = code => COURSES.some(c => c.code === code) ? code : null;
@@ -14,7 +14,8 @@ const rtCourse = code => COURSES.some(c => c.code === code) ? code : null;
 function routeOf(){
   switch(screen){
     case "home": return "";
-    case "practice": case "friends": case "profile": case "badges": case "settings": case "pick": case "community": return rtW(screen);
+    case "friends": return FR.view === "groups" ? [rtW("groups")].concat(GR.cur ? [GR.cur] : []).join("/") : rtW("friends");
+    case "practice": case "profile": case "badges": case "settings": case "pick": case "community": return rtW(screen);
     case "avatar": return rtW("profile");
     case "ccedit": return rtW("community");
     case "book":
@@ -61,6 +62,8 @@ function routeBoot(){
     if(Number.isInteger(i) && i > 0 && i < GD.cards.length - 1) GD.i = i;
     return true;
   }
+  if(k === "groups"){ screen = "friends"; FR.view = "groups"; GR.cur = /^[0-9a-f-]{36}$/i.test(p[1] || "") ? p[1] : null; GR.rows = null; return true; }
+  if(k === "friends"){ screen = "friends"; FR.view = "friends"; return true; }
   if(k === "topic" || k === "sheet") return false;
   if(k === "community"){ screen = "community"; setTimeout(() => { if(screen === "community" && CC.rows === null) ccLoad(); }, 0); return true; }
   screen = k; return true;

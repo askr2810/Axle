@@ -812,6 +812,8 @@ function renderOverlay(){
         <button class="big" data-a="lgsend" ${o.busy?"disabled":""}>${t("acSend")}</button><button class="big ghost" data-a="closeov">${t("cancel")}</button>
         <p class="lgnote">${t("acPrivacyNote")}</p></div>`; }
   else if(overlay.friend) d.innerHTML = frDetailHTML(overlay.friend);
+  else if(overlay.frfof) d.innerHTML = frFofHTML();
+  else if(overlay.grnew || overlay.grjoin || overlay.grmember || overlay.grmenu) d.innerHTML = grOverlayHTML();
   else if(overlay.frmod) d.innerHTML = frModHTML(overlay.frmod);
   else if(overlay.frrep) d.innerHTML = frReportHTML(overlay.frrep);
   else if("frblocks" in overlay) d.innerHTML = frBlocksHTML(overlay.frblocks);
@@ -927,6 +929,7 @@ document.addEventListener("click", async e=>{
   if(a==="report" && L && L.kind==="community"){ if(L.meta.cid && L.meta.cid !== "preview"){ overlay = { frrep: { kind: "course", id: null, target: L.meta.cid, reason: null } }; renderOverlay(); } else toast(t("ccPreviewNoReport")); return; }
   if(favClick(a, b)) return; // favoritter og kilder til dagens utfordring
   if(bookClick(a, b)) return; // teoriboka (handlinger som starter med "bk")
+  if(grClick(a, b)) return; // grupper (handlinger som starter med "gr")
   if(friendsClick(a, b)) return; // venner (handlinger som starter med "fr")
   if(avatarClick(a, b)) return; // avatar-bygger (handlinger som starter med "av")
   if(profileClick(a, b)) return; // tab-meny, profil og infoark
@@ -1043,6 +1046,7 @@ document.addEventListener("keydown", e=>{
 examBoot(true); // pågående eksamen: fortsett, eller lever hvis tiden gikk ut mens appen var lukket
 routeBoot(); // #/teori/FAST/2 osv.: fortsett der man var før oppdatering
 if(frBootLink()) screen = "friends";
+if(grBootLink()) screen = "friends"; // axle.no/?gruppe=KODE
 (function langLink(){ // ?lang=en er allerede brukt (i18n.js); fjern det fra adressen
   if(!LANG_URL) return; try{ const q = new URLSearchParams(location.search); q.delete("lang"); history.replaceState(null, "", location.pathname + (q.toString() ? "?" + q : "") + location.hash); }catch(e){}
 })();

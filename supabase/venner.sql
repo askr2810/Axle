@@ -430,7 +430,7 @@ create table if not exists public.content_reports (
   id          bigint generated always as identity primary key,
   reporter    uuid not null references auth.users (id) on delete cascade,
   target_user uuid references auth.users (id) on delete cascade,
-  kind        text not null check (kind in ('name', 'photo', 'user', 'course')),
+  kind        text not null check (kind in ('name', 'photo', 'user', 'course', 'group')),
   target_id   text check (char_length(target_id) < 100),
   reason      text not null check (char_length(reason) < 60),
   note        text check (char_length(note) <= 500),
@@ -453,7 +453,6 @@ begin
   if (select count(*) from public.content_reports where reporter = me and created_at > now() - interval '1 day') >= 20 then raise exception 'too_many'; end if;
   insert into public.content_reports (reporter, target_user, kind, target_id, reason, note)
   values (me, p_target_user, p_kind, left(p_target_id, 99), left(coalesce(p_reason, ''), 59), left(p_note, 500));
-  -- Automatisk skjuling ved rapporter fra 3 forskjellige brukere.
   if p_target_user is not null and p_kind in ('name', 'photo') then
     select count(distinct reporter) into n from public.content_reports where target_user = p_target_user and kind = p_kind and not handled;
     if n >= 3 then
@@ -466,6 +465,12 @@ begin
     if n >= 3 then
       execute 'update public.community_courses set hidden = true where id::text = $1' using p_target_id;
       update public.content_reports set handled = true where kind = 'course' and target_id = p_target_id;
+    end if;
+  elsif p_kind = 'group' and p_target_id is not null and to_regclass('public.groups') is not null then
+    select count(distinct reporter) into n from public.content_reports where kind = 'group' and target_id = p_target_id and not handled;
+    if n >= 3 then
+      execute 'update public.groups set name = ''Gruppe'', emoji = ''👥'' where id::text = $1' using p_target_id;
+      update public.content_reports set handled = true where kind = 'group' and target_id = p_target_id;
     end if;
   end if;
 end;
