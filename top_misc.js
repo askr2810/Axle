@@ -397,7 +397,7 @@ TOPICS("NUM", 1, [
 ]);
 TOPICS("NUM", 2, [
 { id: "eulers-metode",
-  fig: `<svg viewBox="0 0 240 140"><path d="M25 110H225" class="dim"/><path d="M25 110V20" class="dim"/><path d="M35 95C 90 30, 150 25, 210 45" class="dash"/><path d="M35 95L80 78L125 68L170 60L210 55" class="d"/><circle cx="35" cy="95" r="3" class="af"/><circle cx="80" cy="78" r="3" class="af"/><circle cx="125" cy="68" r="3" class="af"/><circle cx="170" cy="60" r="3" class="af"/><text x="20" y="105">y₀</text></svg>`,
+  fig: `<svg viewBox="0 0 240 140"><path d="M25 110H225" class="dim"/><path d="M25 110V20" class="dim"/><path d="M35 95C 90 30, 150 25, 210 45" class="dash"/><path d="M35 95L80 78L125 68L170 60L210 55" class="d"/><circle cx="35" cy="95" r="3" class="af"/><circle cx="80" cy="78" r="3" class="af"/><circle cx="125" cy="68" r="3" class="af"/><circle cx="170" cy="60" r="3" class="af"/><text x="20" y="113">y₀</text></svg>`,
   nb: { t: "Eulers metode",
     intro: "Eulers eksplisitte metode løser en ODE $y' = f(t, y)$ numerisk ved å følge stigningstallet fra hvert punkt et lite steg $h$ fremover. Den er enkel, men har lav orden: den globale feilen er $O(h)$, så det trengs korte steg for god nøyaktighet.",
     f: [["y_{n+1} = y_n + h\\,f(t_n, y_n)", "ett Euler-steg"]],
@@ -508,7 +508,7 @@ TOPICS("MEK2200", 0, [
 ]);
 TOPICS("MEK2200", 1, [
 { id: "normalfordeling",
-  fig: `<svg viewBox="0 0 240 140"><path d="M20 115H220" class="dim"/><path d="M120 115V30" class="dim"/><path d="M30 112C 70 112, 90 20, 120 20 S 170 112, 210 112" class="d"/><path d="M76 112V60M164 112V60" class="dash"/><text x="112" y="130">μ</text><text x="70" y="128">μ-2σ</text><text x="150" y="128">μ+2σ</text></svg>`,
+  fig: `<svg viewBox="0 0 240 140"><path d="M20 115H220" class="dim"/><path d="M120 115V30" class="dim"/><path d="M30 112C 70 112, 90 20, 120 20 S 170 112, 210 112" class="d"/><path d="M76 112V60M164 112V60" class="dash"/><text x="116" y="130">μ</text><text x="70" y="128">μ-2σ</text><text x="150" y="128">μ+2σ</text></svg>`,
   nb: { t: "Normalfordeling og z-verdi",
     intro: "Normalfordelingen er klokkeformet og symmetrisk om forventningen $\\mu$, med spredning gitt av $\\sigma$. 68–95–99,7-regelen sier hvor mye sannsynlighet som ligger innenfor 1, 2 og 3 standardavvik. z-verdien standardiserer en måling til antall standardavvik fra $\\mu$.",
     f: [["z = \\frac{x - \\mu}{\\sigma}", "z-verdi (standardisert avvik)"], ["\\mu \\pm 2\\sigma \\approx 95\\%", "68–95–99,7-regelen for $\\pm1, \\pm2, \\pm3\\sigma$"]],

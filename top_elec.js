@@ -5,7 +5,7 @@
 // ================= ELPE1300 – enhet 0: Likestrøm =================
 TOPICS("ELPE1300", 0, [
 { id: "ohms-lov",
-  fig: `<svg viewBox="0 0 240 140"><path d="M40 30H200M200 30V55M200 85V110M200 110H40M40 88V110M40 30V52" class="d"/><circle cx="40" cy="70" r="18" class="d"/><rect x="185" y="55" width="30" height="30" class="d"/><text x="15" y="74">U</text><text x="192" y="45">R</text><text x="34" y="58">+</text><text x="34" y="92">-</text></svg>`,
+  fig: `<svg viewBox="0 0 240 140"><path d="M40 30H200M200 30V55M200 85V110M200 110H40M40 88V110M40 30V52" class="d"/><circle cx="40" cy="70" r="18" class="d"/><rect x="185" y="55" width="30" height="30" class="d"/><text x="15" y="74">U</text><text x="221" y="75">R</text><text x="34" y="60">+</text><text x="37" y="86">-</text></svg>`,
   nb: { t: "Ohms lov og effekt",
     intro: "Ohms lov knytter sammen spenningen over en motstand, strømmen gjennom den og motstandsverdien. Kjenner du to av de tre størrelsene, finner du alltid den tredje. Effekten som varmes opp i motstanden kan regnes ut på tre likeverdige måter, avhengig av hvilke størrelser du kjenner.",
     f: [["U = RI", "Ohms lov: spenning er motstand ganger strøm"], ["P = UI = RI^2 = \\dfrac{U^2}{R}", "effekt i en motstand, tre likeverdige former"]],
@@ -19,7 +19,7 @@ TOPICS("ELPE1300", 0, [
     ex: "$U = 12$ V across $R = 4$ Ω:\n$I = U/R = 12/4 = 3$ A.\n$P = UI = 12\\cdot3 = 36$ W.",
     tip: "Given any two of U, R and I, Ohm's law always gives the third – sketch the circuit and mark what you know." } },
 { id: "serie-parallell",
-  fig: `<svg viewBox="0 0 240 140"><path d="M30 30H210M30 110H210M30 30V52M30 88V110M90 30V55M90 85V110M170 30V55M170 85V110" class="d"/><circle cx="30" cy="70" r="18" class="d"/><rect x="75" y="55" width="30" height="30" class="d"/><rect x="155" y="55" width="30" height="30" class="d"/><text x="8" y="74">U</text><text x="82" y="48">R<tspan dy="4" font-size="10">1</tspan></text><text x="162" y="48">R<tspan dy="4" font-size="10">2</tspan></text></svg>`,
+  fig: `<svg viewBox="0 0 240 140"><path d="M30 30H210M30 110H210M30 30V52M30 88V110M90 30V55M90 85V110M170 30V55M170 85V110" class="d"/><circle cx="30" cy="70" r="18" class="d"/><rect x="75" y="55" width="30" height="30" class="d"/><rect x="155" y="55" width="30" height="30" class="d"/><text x="8" y="74">U</text><text x="110" y="74">R<tspan dy="4" font-size="10">1</tspan></text><text x="190" y="74">R<tspan dy="4" font-size="10">2</tspan></text></svg>`,
   nb: { t: "Serie- og parallellkobling",
     intro: "I en seriekobling er strømmen lik i alle komponentene, og spenningene summeres. I en parallellkobling er spenningen lik over alle grenene, og strømmene deler seg. Disse to grunnreglene brukes til å forenkle nesten enhver motstandskrets steg for steg.",
     f: [["R_{tot}=R_1+R_2+\\dots", "serie: motstandene legges sammen"], ["\\dfrac{1}{R_{tot}}=\\dfrac{1}{R_1}+\\dfrac{1}{R_2}+\\dots", "parallell: inverse motstander legges sammen"], ["U_2=U\\dfrac{R_2}{R_1+R_2}", "spenningsdeler for to motstander i serie"]],
@@ -33,7 +33,7 @@ TOPICS("ELPE1300", 0, [
     ex: "$R_1=12$ Ω and $R_2=6$ Ω in parallel:\n$1/R_{tot}=1/12+1/6=1/4$, so $R_{tot}=4$ Ω.",
     tip: "In series the current is shared, in parallel the voltage is shared – identify which quantity is common before combining." } },
 { id: "kirchhoff",
-  fig: `<svg viewBox="0 0 240 140"><circle cx="120" cy="70" r="3" class="d"/><path d="M30 40L118 68" class="a"/><path d="M118 68l-16-2 6 14z" class="af"/><path d="M30 100L118 72" class="a"/><path d="M118 72l-16 2 6-14z" class="af"/><path d="M122 70H210" class="a"/><path d="M210 70l-14-6v12z" class="af"/><text x="20" y="35">I<tspan dy="4" font-size="10">1</tspan></text><text x="20" y="112">I<tspan dy="4" font-size="10">2</tspan></text><text x="195" y="60">I<tspan dy="4" font-size="10">3</tspan></text></svg>`,
+  fig: `<svg viewBox="0 0 240 140"><circle cx="120" cy="70" r="3" class="d"/><path d="M30 40L118 68" class="a"/><path d="M118 68l-16-2 6 14z" class="af"/><path d="M30 100L118 72" class="a"/><path d="M118 72l-16 2 6-14z" class="af"/><path d="M122 70H210" class="a"/><path d="M210 70l-14-6v12z" class="af"/><text x="20" y="35">I<tspan dy="4" font-size="10">1</tspan></text><text x="19" y="111">I<tspan dy="4" font-size="10">2</tspan></text><text x="195" y="55">I<tspan dy="4" font-size="10">3</tspan></text></svg>`,
   nb: { t: "Kirchhoffs lover",
     intro: "Kirchhoffs strømlov sier at summen av strømmer inn i et knutepunkt er lik summen ut, fordi ladning er bevart. Kirchhoffs spenningslov sier at summen av spenninger rundt en hvilken som helst lukket sløyfe er null. Sammen med Ohms lov er disse to lovene nok til å løse enhver likestrømskrets.",
     f: [["\\sum I_{inn} = \\sum I_{ut}", "strømloven (KCL) i et knutepunkt"], ["\\sum U = 0", "spenningsloven (KVL) rundt en sløyfe"]],
@@ -97,7 +97,7 @@ TOPICS("ELPE1300", 1, [
 // ================= ELPE1300 – enhet 2: Vekselstrøm =================
 TOPICS("ELPE1300", 2, [
 { id: "sinus-rms",
-  fig: `<svg viewBox="0 0 240 140"><path d="M20 70H220M20 120V20" class="dim"/><path d="M20 70C45 20 65 20 90 70S135 120 160 70S205 20 220 45" class="d"/><text x="222" y="45">t</text><text x="8" y="20">u</text><text x="30" y="35">U<tspan dy="4" font-size="10">p</tspan></text></svg>`,
+  fig: `<svg viewBox="0 0 240 140"><path d="M20 70H220M20 120V20" class="dim"/><path d="M20 70C45 20 65 20 90 70S135 120 160 70S205 20 220 45" class="d"/><text x="222" y="45">t</text><text x="8" y="20">u</text><text x="30" y="34">U<tspan dy="4" font-size="10">p</tspan></text></svg>`,
   nb: { t: "Sinus og effektivverdi",
     intro: "En vekselspenning svinger sinusformet i tid, med en toppverdi og en vinkelfrekvens som avhenger av frekvensen. Fordi den skifter fortegn, bruker vi effektivverdien (RMS) til å angi en «jevn» spenning som gir samme effekt som en tilsvarende likespenning. Nettspenningen på 230 V er alltid en RMS-verdi, ikke toppverdien.",
     f: [["u(t)=U_p\\sin(\\omega t)", "sinusformet spenning med vinkelfrekvens \\omega"], ["\\omega=2\\pi f", "sammenheng mellom vinkelfrekvens og frekvens"], ["U=\\dfrac{U_p}{\\sqrt2}", "effektivverdi (RMS) for en ren sinus"]],
@@ -111,7 +111,7 @@ TOPICS("ELPE1300", 2, [
     ex: "Peak value $U_p=325$ V:\n$U=325/\\sqrt2\\approx230$ V, i.e. the usual mains voltage.",
     tip: "230 V is an RMS value – the peak of the mains voltage is actually about 325 V." } },
 { id: "reaktans-impedans",
-  fig: `<svg viewBox="0 0 240 140"><path d="M40 110H180M40 110V40" class="d"/><path d="M40 40L180 110" class="a"/><path d="M40 110h14v-14h-14z" class="dim"/><text x="100" y="128">R</text><text x="20" y="78">X</text><text x="105" y="68">Z</text></svg>`,
+  fig: `<svg viewBox="0 0 240 140"><path d="M40 110H180M40 110V40" class="d"/><path d="M40 40L180 110" class="a"/><path d="M40 110h14v-14h-14z" class="dim"/><text x="100" y="128">R</text><text x="20" y="78">X</text><text x="106" y="64">Z</text></svg>`,
   nb: { t: "Reaktans og impedans",
     intro: "I vekselstrøm får kondensatorer og spoler en frekvensavhengig «motstand» kalt reaktans. Reaktansen til en spole øker med frekvensen, mens reaktansen til en kondensator avtar. Sammen med den vanlige motstanden danner reaktansen impedansen, som bestemmer både strømmens størrelse og faseforskyvning.",
     f: [["X_L=\\omega L", "induktiv reaktans"], ["X_C=\\dfrac{1}{\\omega C}", "kapasitiv reaktans"], ["Z=\\sqrt{R^2+X^2},\\ \\varphi=\\arctan\\dfrac{X}{R}", "impedansens størrelse og fasevinkel"]],
@@ -125,7 +125,7 @@ TOPICS("ELPE1300", 2, [
     ex: "$R=30$ Ω, $X_L=31.4$ Ω:\n$Z=\\sqrt{30^2+31.4^2}\\approx43.4$ Ω.",
     tip: "$X_C$ decreases as frequency rises, while $X_L$ increases – they behave oppositely." } },
 { id: "effekttrekant",
-  fig: `<svg viewBox="0 0 240 140"><path d="M40 110H180M40 110V40" class="d"/><path d="M40 40L180 110" class="a"/><path d="M40 110h14v-14h-14z" class="dim"/><text x="100" y="128">P</text><text x="20" y="78">Q</text><text x="105" y="68">S</text></svg>`,
+  fig: `<svg viewBox="0 0 240 140"><path d="M40 110H180M40 110V40" class="d"/><path d="M40 40L180 110" class="a"/><path d="M40 110h14v-14h-14z" class="dim"/><text x="100" y="128">P</text><text x="20" y="78">Q</text><text x="106" y="64">S</text></svg>`,
   nb: { t: "Aktiv, reaktiv og tilsynelatende effekt",
     intro: "I en vekselstrømskrets skiller vi mellom tre typer effekt: den aktive effekten som gjør nyttig arbeid, den reaktive effekten som pendler fram og tilbake i reaktive komponenter, og den tilsynelatende effekten kilden faktisk må levere. Effektfaktoren forteller hvor stor andel av den tilsynelatende effekten som er nyttig.",
     f: [["P=UI\\cos\\varphi", "aktiv effekt"], ["Q=UI\\sin\\varphi", "reaktiv effekt"], ["S=UI,\\ S^2=P^2+Q^2", "tilsynelatende effekt og effekttrekanten"]],
@@ -143,7 +143,7 @@ TOPICS("ELPE1300", 2, [
 // ================= ELPE1300 – enhet 3: Nettverksanalyse =================
 TOPICS("ELPE1300", 3, [
 { id: "superposisjon",
-  fig: `<svg viewBox="0 0 240 140"><path d="M30 30H210M30 110H210M30 30V52M30 88V110M120 30V55M120 85V110M210 30V52M210 88V110" class="d"/><circle cx="30" cy="70" r="16" class="d"/><rect x="105" y="55" width="30" height="30" class="d"/><circle cx="210" cy="70" r="16" class="d"/><path d="M210 60V80" class="a"/><path d="M210 80l-5-9h10z" class="af"/><text x="8" y="74">U</text><text x="112" y="48">R</text><text x="220" y="74">I</text></svg>`,
+  fig: `<svg viewBox="0 0 240 140"><path d="M30 30H210M30 110H210M30 30V52M30 88V110M120 30V55M120 85V110M210 30V52M210 88V110" class="d"/><circle cx="30" cy="70" r="16" class="d"/><rect x="105" y="55" width="30" height="30" class="d"/><circle cx="210" cy="70" r="16" class="d"/><path d="M210 60V80" class="a"/><path d="M210 80l-5-9h10z" class="af"/><text x="5" y="74">U</text><text x="140" y="75">R</text><text x="224" y="82">I</text></svg>`,
   nb: { t: "Superposisjon",
     intro: "I en lineær krets med flere uavhengige kilder kan du finne strømmen eller spenningen i en gren ved å legge sammen bidraget fra hver kilde alene. Da slår du av alle de andre kildene: en spenningskilde kortsluttes til 0 V, og en strømkilde brytes til 0 A. Metoden gjelder aldri direkte for effekt, siden effekt er kvadratisk i strøm og spenning.",
     f: [["I=I'+I''+\\dots", "total strøm er summen av bidrag fra hver kilde alene"]],
@@ -157,7 +157,7 @@ TOPICS("ELPE1300", 3, [
     ex: "$U_1=12$ V gives $I'=1.2$ A, $I_2=2$ A gives $I''=0.8$ A:\n$I=I'+I''=1.2+0.8=2$ A.",
     tip: "Turn off sources by shorting voltage sources and opening current sources – never the other way around." } },
 { id: "thevenin",
-  fig: `<svg viewBox="0 0 240 140"><rect x="20" y="30" width="70" height="60" class="d"/><path d="M55 90V110M40 110h30" class="d"/><circle cx="40" cy="110" r="3" class="d"/><circle cx="70" cy="110" r="3" class="d"/><path d="M100 65H140" class="a"/><path d="M140 65l-10-5v10z" class="af"/><circle cx="170" cy="60" r="14" class="d"/><rect x="185" y="52" width="26" height="16" class="d"/><path d="M170 74V110M211 60H225V110M170 110H225" class="d"/><circle cx="170" cy="110" r="3" class="d"/><circle cx="225" cy="110" r="3" class="d"/><text x="35" y="60">?</text><text x="163" y="42">U<tspan dy="4" font-size="10">th</tspan></text><text x="190" y="48">R<tspan dy="4" font-size="10">th</tspan></text></svg>`,
+  fig: `<svg viewBox="0 0 240 140"><rect x="20" y="30" width="70" height="60" class="d"/><path d="M55 90V110M40 110h30" class="d"/><circle cx="40" cy="110" r="3" class="d"/><circle cx="70" cy="110" r="3" class="d"/><path d="M100 65H140" class="a"/><path d="M140 65l-10-5v10z" class="af"/><circle cx="170" cy="60" r="14" class="d"/><rect x="185" y="52" width="26" height="16" class="d"/><path d="M170 74V110M211 60H225V110M170 110H225" class="d"/><circle cx="170" cy="110" r="3" class="d"/><circle cx="225" cy="110" r="3" class="d"/><text x="35" y="60">?</text><text x="132" y="95">U<tspan dy="4" font-size="10">th</tspan></text><text x="189" y="42">R<tspan dy="4" font-size="10">th</tspan></text></svg>`,
   nb: { t: "Thévenin-ekvivalent",
     intro: "Enhver lineær krets sett fra to klemmer kan erstattes med én spenningskilde $U_{th}$ i serie med én motstand $R_{th}$. Dette forenkler kraftig når du skal analysere hvordan kretsen oppfører seg med forskjellige laster, siden du bare trenger å regne ut ekvivalenten én gang.",
     f: [["U_{th}=U_{\\text{åpen}}", "tomgangsspenningen over klemmene"], ["R_{th}=U_{\\text{åpen}}/I_{\\text{kort}}", "motstand fra åpen- og kortslutningsverdiene"]],
@@ -189,7 +189,7 @@ TOPICS("ELPE1300", 3, [
 // ================= ELEK – enhet 0: Dioder og transistorer =================
 TOPICS("ELEK", 0, [
 { id: "diode-likeretter",
-  fig: `<svg viewBox="0 0 240 140"><path d="M40 30H200M200 30V55M200 85V110M200 110H40M40 88V110M40 30V52" class="d"/><circle cx="40" cy="70" r="18" class="d"/><rect x="185" y="55" width="30" height="30" class="d"/><text x="15" y="74">U</text><text x="193" y="45">D</text></svg>`,
+  fig: `<svg viewBox="0 0 240 140"><path d="M40 30H200M200 30V55M200 85V110M200 110H40M40 88V110M40 30V52" class="d"/><circle cx="40" cy="70" r="18" class="d"/><rect x="185" y="55" width="30" height="30" class="d"/><text x="15" y="74">U</text><text x="221" y="75">D</text></svg>`,
   nb: { t: "Diode og likeretter",
     intro: "En diode slipper strøm gjennom i én retning, med et nesten konstant spenningsfall når den leder. En silisiumdiode har typisk et spenningsfall på omtrent 0,7 V uavhengig av strømmen. En brolikeretter bruker fire dioder til å gjøre begge halvperiodene av en vekselspenning om til samme polaritet.",
     f: [["V_D\\approx0{,}7\\ \\text{V}", "spenningsfall over en silisiumdiode i lederetning"], ["I=\\dfrac{V_S-V_D}{R}", "strøm gjennom en diode i serie med en motstand"]],
@@ -203,7 +203,7 @@ TOPICS("ELEK", 0, [
     ex: "$V_S=5$ V, $R=330$ Ω:\n$I=(5-0.7)/330\\approx13$ mA.",
     tip: "Reverse bias means (almost) no current – do not mix up forward and reverse bias." } },
 { id: "zenerdiode",
-  fig: `<svg viewBox="0 0 240 140"><path d="M40 30H200M200 30V55M200 85V110M200 110H40M40 88V110M40 30V52" class="d"/><circle cx="40" cy="70" r="18" class="d"/><rect x="185" y="55" width="30" height="30" class="d"/><text x="15" y="74">U</text><text x="193" y="45">Z</text></svg>`,
+  fig: `<svg viewBox="0 0 240 140"><path d="M40 30H200M200 30V55M200 85V110M200 110H40M40 88V110M40 30V52" class="d"/><circle cx="40" cy="70" r="18" class="d"/><rect x="185" y="55" width="30" height="30" class="d"/><text x="15" y="74">U</text><text x="221" y="75">Z</text></svg>`,
   nb: { t: "Zenerdiode",
     intro: "En zenerdiode kobles bakvendt, i sperreretning, og holder en fast spenning $V_Z$ over seg selv når den leder i denne retningen. Den brukes ofte som en enkel spenningsregulator: en seriemotstand tar opp resten av spenningen fra kilden, og strømmen gjennom motstanden setter zenerstrømmen.",
     f: [["R_S=\\dfrac{V_{inn}-V_Z}{I_Z}", "seriemotstand for en enkel zenerregulator"]],
@@ -235,7 +235,7 @@ TOPICS("ELEK", 0, [
 // ================= ELEK – enhet 1: Operasjonsforsterkere =================
 TOPICS("ELEK", 1, [
 { id: "opamp-grunnregler",
-  fig: `<svg viewBox="0 0 240 140"><path d="M70 35L70 105L170 70Z" class="d"/><path d="M30 50H70M30 90H70M170 70H210" class="d"/><text x="78" y="52">-</text><text x="78" y="98">+</text><text x="185" y="65">V<tspan dy="4" font-size="10">o</tspan></text></svg>`,
+  fig: `<svg viewBox="0 0 240 140"><path d="M70 35L70 105L170 70Z" class="d"/><path d="M30 50H70M30 90H70M170 70H210" class="d"/><text x="77" y="56">-</text><text x="76" y="90">+</text><text x="185" y="65">V<tspan dy="4" font-size="10">o</tspan></text></svg>`,
   nb: { t: "Op-amp: grunnregler",
     intro: "En ideell operasjonsforsterker med negativ tilbakekobling følger to enkle regler: det går ingen strøm inn i inngangene, og spenningen på de to inngangene er lik (virtuell kortslutning). Disse to reglene er nok til å utlede forsterkningen til nesten alle op-amp-kretser uten å regne med den indre forsterkningen direkte.",
     f: [["I_+=I_-=0", "ingen strøm inn i inngangene"], ["V_+=V_-", "virtuell kortslutning mellom inngangene"]],
@@ -249,7 +249,7 @@ TOPICS("ELEK", 1, [
     ex: "Non-inverting amplifier with $V_+=2$ V:\nThe virtual short gives $V_-=2$ V as well.",
     tip: "The two rules only hold with negative feedback – without it the output saturates." } },
 { id: "inverterende-forsterker",
-  fig: `<svg viewBox="0 0 240 140"><path d="M90 35L90 105L190 70Z" class="d"/><path d="M20 50H90M190 70H220" class="d"/><rect x="35" y="42" width="35" height="16" class="d"/><path d="M90 30H160V50H190" class="d"/><rect x="115" y="22" width="35" height="16" class="d"/><path d="M90 90H60V110H110" class="d"/><text x="48" y="40">R<tspan dy="4" font-size="10">i</tspan></text><text x="128" y="20">R<tspan dy="4" font-size="10">f</tspan></text></svg>`,
+  fig: `<svg viewBox="0 0 240 140"><path d="M90 35L90 105L190 70Z" class="d"/><path d="M20 50H90M190 70H220" class="d"/><rect x="35" y="42" width="35" height="16" class="d"/><path d="M90 30H160V50H190" class="d"/><rect x="115" y="22" width="35" height="16" class="d"/><path d="M90 90H60V110H110" class="d"/><text x="48" y="40">R<tspan dy="4" font-size="10">i</tspan></text><text x="127" y="20">R<tspan dy="4" font-size="10">f</tspan></text></svg>`,
   nb: { t: "Inverterende forsterker",
     intro: "I en inverterende forsterker kobles signalet inn via en motstand $R_{inn}$ til den negative inngangen, mens tilbakekoblingsmotstanden $R_f$ går fra utgangen til samme inngang. Forsterkningen er negativ, altså inverterer den signalet (180° faseskift), og bestemmes bare av forholdet mellom de to motstandene.",
     f: [["A=-\\dfrac{R_f}{R_{inn}}", "spenningsforsterkning, inverterende forsterker"]],
@@ -263,7 +263,7 @@ TOPICS("ELEK", 1, [
     ex: "$R_{in}=1$ kΩ, $R_f=10$ kΩ, $V_{in}=0.2$ V:\n$V_o=-10\\cdot0.2=-2$ V.",
     tip: "The minus sign means a 180° phase shift – do not forget it when computing the output." } },
 { id: "ikke-inverterende-forsterker",
-  fig: `<svg viewBox="0 0 240 140"><path d="M90 35L90 105L190 70Z" class="d"/><path d="M20 90H90M190 70H220" class="d"/><path d="M90 30H160V50H190" class="d"/><rect x="115" y="22" width="35" height="16" class="d"/><path d="M90 50H60V110H90" class="d"/><rect x="45" y="102" width="30" height="16" class="d"/><text x="128" y="20">R<tspan dy="4" font-size="10">f</tspan></text><text x="50" y="118">R<tspan dy="4" font-size="10">g</tspan></text></svg>`,
+  fig: `<svg viewBox="0 0 240 140"><path d="M90 35L90 105L190 70Z" class="d"/><path d="M20 90H90M190 70H220" class="d"/><path d="M90 30H160V50H190" class="d"/><rect x="115" y="22" width="35" height="16" class="d"/><path d="M90 50H60V110H90" class="d"/><rect x="45" y="102" width="30" height="16" class="d"/><text x="127" y="20">R<tspan dy="4" font-size="10">f</tspan></text><text x="50" y="117">R<tspan dy="4" font-size="10">g</tspan></text></svg>`,
   nb: { t: "Ikke-inverterende forsterker",
     intro: "I en ikke-inverterende forsterker kommer signalet rett inn på den positive inngangen, mens $R_g$ og $R_f$ danner en tilbakekoblingsdeler til den negative inngangen. Forsterkningen er alltid positiv og minst 1, og blir stor bare hvis $R_g$ er liten sammenlignet med $R_f$.",
     f: [["A=1+\\dfrac{R_f}{R_g}", "spenningsforsterkning, ikke-inverterende forsterker"]],
@@ -295,7 +295,7 @@ TOPICS("ELEK", 2, [
     ex: "$R=10$ kΩ, $C=100$ nF:\n$f_c=1/(2\\pi\\cdot10^4\\cdot10^{-7})\\approx159$ Hz.",
     tip: "At $f_c$ the gain is $1/\\sqrt2\\approx0.707$, i.e. $-3$ dB, regardless of the values of R and C." } },
 { id: "rc-hoypass",
-  fig: `<svg viewBox="0 0 240 140"><path d="M20 50H62M78 50H190" class="d"/><path d="M65 35V65M75 35V65" class="d"/><path d="M150 50V80" class="d"/><rect x="135" y="80" width="30" height="20" class="d"/><path d="M150 100V110M20 110H190M20 50V110M190 50V110" class="d"/><text x="63" y="30">C</text><text x="170" y="93">R</text><text x="192" y="54">U<tspan dy="4" font-size="10">o</tspan></text></svg>`,
+  fig: `<svg viewBox="0 0 240 140"><path d="M20 50H62M78 50H190" class="d"/><path d="M65 35V65M75 35V65" class="d"/><path d="M150 50V80" class="d"/><rect x="135" y="80" width="30" height="20" class="d"/><path d="M150 100V110M20 110H190M20 50V110M190 50V110" class="d"/><text x="63" y="28">C</text><text x="170" y="93">R</text><text x="192" y="54">U<tspan dy="4" font-size="10">o</tspan></text></svg>`,
   nb: { t: "RC-høypassfilter",
     intro: "Et RC-høypassfilter slipper gjennom høye frekvenser og demper lave, motsatt av lavpassfilteret, og brukes ofte til å fjerne et likespenningsnivå (AC-kobling). Kondensator og motstand bytter rett og slett plass i forhold til lavpassfilteret, men knekkfrekvensformelen er den samme.",
     f: [["f_c=\\dfrac{1}{2\\pi RC}", "knekkfrekvens for et RC-høypass"]],
@@ -369,7 +369,7 @@ TOPICS("ELFT2500", 0, [
 // ================= ELFT2500 – enhet 1: Mikrokontrollere =================
 TOPICS("ELFT2500", 1, [
 { id: "gpio-pullup",
-  fig: `<svg viewBox="0 0 240 140"><path d="M120 20V45" class="d"/><rect x="105" y="45" width="30" height="30" class="d"/><path d="M120 75V90" class="d"/><circle cx="120" cy="90" r="4" class="d"/><path d="M120 94V115M100 130L120 108L140 130" class="d"/><path d="M20 90H116" class="d"/><text x="112" y="15">V<tspan dy="4" font-size="10">cc</tspan></text><text x="122" y="60">R</text></svg>`,
+  fig: `<svg viewBox="0 0 240 140"><path d="M120 20V45" class="d"/><rect x="105" y="45" width="30" height="30" class="d"/><path d="M120 75V90" class="d"/><circle cx="120" cy="90" r="4" class="d"/><path d="M120 94V115M100 130L120 108L140 130" class="d"/><path d="M20 90H116" class="d"/><text x="112" y="15">V<tspan dy="4" font-size="10">cc</tspan></text><text x="121" y="60">R</text></svg>`,
   nb: { t: "Pull-up-motstand",
     intro: "En digital inngang som ikke er koblet til noe bestemt kan «flyte» og lese tilfeldige verdier. En pull-up-motstand trekker inngangen til et definert høyt nivå når ingenting annet driver den, for eksempel når en knapp er åpen. Når knappen trykkes inn, trekkes inngangen lav i stedet.",
     f: [["I = \\dfrac{V_{cc}}{R_{pu}}", "strøm gjennom pull-up-motstanden når inngangen trekkes lav (bryter lukket)"]],
@@ -383,7 +383,7 @@ TOPICS("ELFT2500", 1, [
     ex: "$V_{cc}=3.3$ V, $R_{pu}=10$ kΩ, switch closed:\n$I=3.3/10000=0.33$ mA.",
     tip: "Without a pull-up an open input floats and can read random values – always define the level." } },
 { id: "pwm",
-  fig: `<svg viewBox="0 0 240 140"><path d="M20 105H220M20 105V25" class="dim"/><path d="M20 105H40V35H90V105H110V35H160V105H180V35H220" class="d"/><text x="8" y="30">V</text><text x="222" y="110">t</text></svg>`,
+  fig: `<svg viewBox="0 0 240 140"><path d="M20 105H220M20 105V25" class="dim"/><path d="M20 105H40V35H90V105H110V35H160V105H180V35H220" class="d"/><text x="7" y="30">V</text><text x="222" y="110">t</text></svg>`,
   nb: { t: "PWM",
     intro: "Et PWM-signal svitsjer raskt mellom høy og lav spenning med en bestemt duty cycle, altså andelen av perioden signalet er høyt. Belastningen eller filteret etter signalet ser i praksis bare gjennomsnittsspenningen, som er proporsjonal med duty cyclen – dette brukes til å styre alt fra LED-lysstyrke til motorhastighet.",
     f: [["V_{gj} = D\\cdot V_{høy}", "gjennomsnittsspenning fra duty cycle D"]],
@@ -442,7 +442,7 @@ TOPICS("ELFT2500", 2, [
     ex: "Signal up to $1$ kHz:\nMinimum theoretical sampling frequency: $f_s>2\\cdot1=2$ kHz.",
     tip: "Filter out everything above $f_s/2$ *before* sampling – aliasing cannot be removed afterward." } },
 { id: "wheatstone-bro",
-  fig: `<svg viewBox="0 0 240 140"><path d="M120 20L200 70L120 120L40 70Z" class="d"/><rect x="65" y="35" width="30" height="14" class="d"/><rect x="145" y="35" width="30" height="14" class="d"/><rect x="65" y="91" width="30" height="14" class="d"/><rect x="145" y="91" width="30" height="14" class="d"/><path d="M120 20V10M120 130V120" class="d"/><path d="M40 70H20M200 70H220" class="d"/><text x="110" y="8">+</text><text x="110" y="138">-</text></svg>`,
+  fig: `<svg viewBox="0 0 240 140"><path d="M120 20L200 70L120 120L40 70Z" class="d"/><rect x="65" y="35" width="30" height="14" class="d"/><rect x="145" y="35" width="30" height="14" class="d"/><rect x="65" y="91" width="30" height="14" class="d"/><rect x="145" y="91" width="30" height="14" class="d"/><path d="M120 20V10M120 130V120" class="d"/><path d="M40 70H20M200 70H220" class="d"/><text x="108" y="17">+</text><text x="108" y="135">-</text></svg>`,
   nb: { t: "Wheatstone-bro",
     intro: "En Wheatstone-bro består av fire motstander koblet i en diamantform, og brukes til å måle svært små motstandsendringer, for eksempel fra en strekklapp. Når broen er i balanse, er utgangsspenningen null; en liten endring $\\Delta R$ i én arm gir en liten, målbar differansespenning som kan forsterkes.",
     f: [["\\Delta R = GF\\cdot\\varepsilon\\cdot R", "motstandsendring fra tøyning i en strekklapp"]],
@@ -519,7 +519,7 @@ TOPICS("ELFT2400", 1, [
     ex: "$K_p=3$, $T_i=0.5$ s:\n$K_i=K_p/T_i=3/0.5=6$.",
     tip: "More $K_p$ gives a faster response but more overshoot – add an I term instead to remove steady-state error." } },
 { id: "lukket-sloyfe",
-  fig: `<svg viewBox="0 0 240 140"><path d="M20 70H55" class="a"/><path d="M55 70l-10-5v10z" class="af"/><circle cx="65" cy="70" r="10" class="d"/><path d="M75 70H105" class="a"/><path d="M105 70l-10-5v10z" class="af"/><rect x="105" y="55" width="40" height="30" class="d"/><path d="M145 70H190" class="a"/><path d="M190 70l-10-5v10z" class="af"/><path d="M170 70V110H65V80" class="d"/><rect x="90" y="102" width="40" height="16" class="d"/><path d="M65 80l-5-8h10z" class="af"/><text x="60" y="63">+</text><text x="60" y="82">-</text><text x="120" y="75">G</text><text x="105" y="114">H</text></svg>`,
+  fig: `<svg viewBox="0 0 240 140"><path d="M20 70H55" class="a"/><path d="M55 70l-10-5v10z" class="af"/><circle cx="65" cy="70" r="10" class="d"/><path d="M75 70H105" class="a"/><path d="M105 70l-10-5v10z" class="af"/><rect x="105" y="55" width="40" height="30" class="d"/><path d="M145 70H190" class="a"/><path d="M190 70l-10-5v10z" class="af"/><path d="M170 70V110H65V80" class="d"/><rect x="90" y="102" width="40" height="16" class="d"/><path d="M65 80l-5-8h10z" class="af"/><text x="60" y="62">+</text><text x="51" y="90">-</text><text x="120" y="75">G</text><text x="105" y="113">H</text></svg>`,
   nb: { t: "Lukket sløyfe",
     intro: "I et tilbakekoblet reguleringssystem sammenlignes en målt verdi med en referanse, og avviket driver en regulator som påvirker prosessen. Sammenhengen mellom referansen og utgangen for en negativ tilbakekoblet sløyfe med forover-forsterkning $G$ og tilbakekobling $H$ er et enkelt, mye brukt uttrykk.",
     f: [["\\dfrac{Y}{R}=\\dfrac{G}{1+GH}", "lukket-sløyfe-overføringsfunksjon, negativ tilbakekobling"]],
@@ -551,7 +551,7 @@ TOPICS("ELFT2400", 1, [
 // ================= ELFT2400 – enhet 2: Frekvensanalyse =================
 TOPICS("ELFT2400", 2, [
 { id: "bode-diagram",
-  fig: `<svg viewBox="0 0 240 140"><path d="M20 100H220M20 100V20" class="dim"/><path d="M20 40H110" class="d"/><path d="M110 40L200 100" class="d"/><path d="M110 40V110M20 40H110" class="dash"/><text x="8" y="40">|G|</text><text x="105" y="128">ω<tspan dy="4" font-size="10">c</tspan></text></svg>`,
+  fig: `<svg viewBox="0 0 240 140"><path d="M20 100H220M20 100V20" class="dim"/><path d="M20 40H110" class="d"/><path d="M110 40L200 100" class="d"/><path d="M110 40V110M20 40H110" class="dash"/><text x="25" y="33">|G|</text><text x="105" y="128">ω<tspan dy="4" font-size="10">c</tspan></text></svg>`,
   nb: { t: "Bodediagram",
     intro: "Et Bodediagram viser hvordan forsterkningen (i desibel) og fasen til et system endrer seg med frekvensen, begge plottet mot en logaritmisk frekvensakse. En enkelt pol gir en asymptote som faller 20 dB per dekade over knekkfrekvensen, mens et nullpunkt gir en tilsvarende stigning. Dette lar deg lese av systemets oppførsel uten å regne responsen i tidsplanet.",
     f: [["|G|_{dB}=20\\log_{10}|G|", "forsterkning i desibel"], ["\\omega_c=1/\\tau", "knekkfrekvens for en enkel pol"]],
@@ -596,7 +596,7 @@ TOPICS("ELFT2400", 2, [
 // ================= ELVE3610 – enhet 0: Rotasjoner og transformasjoner =================
 TOPICS("ELVE3610", 0, [
 { id: "rotasjonsmatrise",
-  fig: `<svg viewBox="0 0 240 140"><path d="M40 115H210M40 115V15" class="dim"/><path d="M40 115L150 45" class="a"/><path d="M150 45l-14 3 5 11z" class="af"/><path d="M40 115L170 115" class="d"/><path d="M78 115a38 38 0 0 1-8 -24" class="t"/><text x="90" y="80">v'</text><text x="84" y="106">θ</text></svg>`,
+  fig: `<svg viewBox="0 0 240 140"><path d="M40 115H210M40 115V15" class="dim"/><path d="M40 115L150 45" class="a"/><path d="M150 45l-14 3 5 11z" class="af"/><path d="M40 115L170 115" class="d"/><path d="M78 115a38 38 0 0 1-8 -24" class="t"/><text x="83" y="72">v'</text><text x="84" y="106">θ</text></svg>`,
   nb: { t: "Rotasjonsmatrise",
     intro: "En rotasjonsmatrise dreier en vektor eller et punkt om origo uten å endre lengden. Den er ortogonal, slik at den inverse rotasjonen ganske enkelt er transponeringen. To rotasjoner kan settes sammen ved matrisemultiplikasjon, men i 3D spiller rekkefølgen som regel en rolle.",
     f: [["R(\\theta)=\\begin{pmatrix}\\cos\\theta&-\\sin\\theta\\\\\\sin\\theta&\\cos\\theta\\end{pmatrix}", "rotasjonsmatrise i planet"], ["R^{-1}=R^T,\\ \\det R=1", "rotasjonsmatriser er ortogonale"]],
@@ -610,7 +610,7 @@ TOPICS("ELVE3610", 0, [
     ex: "The point $(1,0)$ is rotated $90°$ counterclockwise:\n$(\\cos90^\\circ,\\sin90^\\circ)=(0,1)$.",
     tip: "$R^{-1}=R^T$ – transposing is a cheap way to find the opposite rotation." } },
 { id: "homogen-transformasjon",
-  fig: `<svg viewBox="0 0 240 140"><path d="M40 110H90M40 110V60" class="dim"/><path d="M150 90H200M150 90V40" class="a"/><path d="M40 110L150 90" class="d"/><circle cx="185" cy="55" r="3" class="rf"/><text x="30" y="122">A</text><text x="155" y="35">B</text></svg>`,
+  fig: `<svg viewBox="0 0 240 140"><path d="M40 110H90M40 110V60" class="dim"/><path d="M150 90H200M150 90V40" class="a"/><path d="M40 110L150 90" class="d"/><circle cx="185" cy="55" r="3" class="rf"/><text x="29" y="122">A</text><text x="155" y="35">B</text></svg>`,
   nb: { t: "Homogen transformasjon",
     intro: "En homogen transformasjonsmatrise kombinerer en rotasjon og en forflytning (translasjon) i én operasjon, og gjør det enkelt å regne koordinater om fra én ramme til en annen. Kjeder du sammen flere rammer, ledd for ledd langs en robotarm, multipliserer du transformasjonsmatrisene i riktig rekkefølge.",
     f: [["T=\\begin{pmatrix}R&\\vec p\\\\0&1\\end{pmatrix}", "homogen transformasjon: rotasjon R og translasjon \\vec p"], ["\\vec x_G=R\\vec x_L+\\vec p", "globale koordinater fra lokale"]],
@@ -641,7 +641,7 @@ TOPICS("ELVE3610", 0, [
 // ================= ELVE3610 – enhet 1: Kinematikk =================
 TOPICS("ELVE3610", 1, [
 { id: "foroverkinematikk",
-  fig: `<svg viewBox="0 0 240 140"><path d="M40 120H220" class="dim"/><circle cx="40" cy="120" r="3" class="d"/><path d="M40 120L120 60" class="b"/><circle cx="120" cy="60" r="3" class="d"/><path d="M120 60L190 90" class="b"/><circle cx="190" cy="90" r="3" class="af"/><text x="70" y="85">L<tspan dy="4" font-size="10">1</tspan></text><text x="150" y="68">L<tspan dy="4" font-size="10">2</tspan></text></svg>`,
+  fig: `<svg viewBox="0 0 240 140"><path d="M40 120H220" class="dim"/><circle cx="40" cy="120" r="3" class="d"/><path d="M40 120L120 60" class="b"/><circle cx="120" cy="60" r="3" class="d"/><path d="M120 60L190 90" class="b"/><circle cx="190" cy="90" r="3" class="af"/><text x="62" y="78">L<tspan dy="4" font-size="10">1</tspan></text><text x="152" y="62">L<tspan dy="4" font-size="10">2</tspan></text></svg>`,
   nb: { t: "Foroverkinematikk",
     intro: "Foroverkinematikk regner ut verktøyets posisjon og orientering direkte fra de kjente leddvinklene. For en planar 2-leddsarm summeres bidraget fra hvert ledd med enkel trigonometri. Dette er alltid entydig: gitt leddvinklene, er det bare én mulig verktøyposisjon.",
     f: [["x=L_1\\cos\\theta_1+L_2\\cos(\\theta_1+\\theta_2)", "x-koordinat for en planar 2-leddsarm"], ["y=L_1\\sin\\theta_1+L_2\\sin(\\theta_1+\\theta_2)", "y-koordinat for samme arm"]],
@@ -655,7 +655,7 @@ TOPICS("ELVE3610", 1, [
     ex: "$L_1=L_2=1$ m, $\\theta_1=0$, $\\theta_2=90°$:\n$x=1+\\cos90°=1$, $y=0+\\sin90°=1$.",
     tip: "Forward kinematics always has exactly one solution – it is inverse kinematics that can have several." } },
 { id: "inverskinematikk-2ledd",
-  fig: `<svg viewBox="0 0 240 140"><path d="M40 120H220" class="dim"/><circle cx="40" cy="120" r="3" class="d"/><path d="M40 120L110 65" class="b"/><circle cx="110" cy="65" r="3" class="d"/><path d="M110 65L170 100" class="b"/><path d="M170 100l6 3-3-7z" class="rf"/><circle cx="170" cy="100" r="4" class="r"/><text x="175" y="98">P</text></svg>`,
+  fig: `<svg viewBox="0 0 240 140"><path d="M40 120H220" class="dim"/><circle cx="40" cy="120" r="3" class="d"/><path d="M40 120L110 65" class="b"/><circle cx="110" cy="65" r="3" class="d"/><path d="M110 65L170 100" class="b"/><path d="M170 100l6 3-3-7z" class="rf"/><circle cx="170" cy="100" r="4" class="r"/><text x="179" y="98">P</text></svg>`,
   nb: { t: "Inverskinematikk (2 ledd)",
     intro: "Inverskinematikk går motsatt vei av foroverkinematikk: gitt en ønsket verktøyposisjon, finner vi leddvinklene som gir den. For en planar 2-leddsarm løses $\\theta_2$ med cosinussetningen, og løsningen kan gi to muligheter (albue opp eller albue ned) eller ingen løsning hvis målet ligger utenfor arbeidsområdet.",
     f: [["\\cos\\theta_2=\\dfrac{x^2+y^2-L_1^2-L_2^2}{2L_1L_2}", "cosinussetningen løst for \\theta_2"]],

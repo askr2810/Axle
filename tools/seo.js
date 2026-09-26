@@ -120,7 +120,7 @@ details{background:var(--card);border:2px solid var(--line);border-radius:14px;p
 .fbox{border:2px solid var(--acc);background:var(--accs);border-radius:14px;padding:10px 14px;margin:10px 0;text-align:center}.fbox small{display:block;color:var(--muted)}
 table{border-collapse:collapse;width:100%;background:var(--card);border:2px solid var(--line);border-radius:12px;overflow:hidden}td{padding:6px 10px;border-top:1px solid var(--line)}
 .fig{background:var(--card);border:2px solid var(--line);border-radius:14px;padding:10px;color:var(--ink)}.fig svg{display:block;width:100%;max-height:230px;overflow:visible}
-.fig svg *{fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}.fig svg text,.fig svg tspan{fill:currentColor;stroke:none;font-size:15px;font-style:italic}
+.fig svg *{fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}.fig svg text,.fig svg tspan{fill:currentColor;stroke:none;font-style:italic}.fig svg text{font-size:15px}
 .fig .b{stroke-width:5}.fig .dim{stroke:var(--muted);stroke-width:1.2}.fig .a{stroke:var(--acc);stroke-width:2.6}.fig .af{fill:var(--acc);stroke:var(--acc)}.fig .t{stroke:var(--gold)}.fig .tf{fill:var(--gold);stroke:var(--gold)}
 .fig .g{stroke:var(--ok)}.fig .gf{fill:var(--ok);stroke:var(--ok)}.fig .r{stroke:var(--bad)}.fig .rf{fill:var(--bad);stroke:var(--bad)}.fig .fill{fill:var(--accs);stroke:var(--acc)}.fig .dash{stroke-dasharray:5 5;stroke:var(--muted)}
 footer{margin-top:40px;padding-bottom:40px;font-size:14px;color:var(--muted)}footer .more a{display:inline-block;margin:0 10px 6px 0}`;

@@ -137,7 +137,7 @@ Object.assign(SIMS, {
       return { m: { det }, out: [["det A = ad − bc", smN(det)], [T("areal ganges med", "area scaled by"), smN(Math.abs(det))], [T("orientering", "orientation"), det > 0 ? T("bevart", "kept") : det < 0 ? T("speilet", "flipped") : T("klemt flat", "squashed")]], svg:
         `<g opacity=".45">${grid}</g><polygon points="${pts(Q, sq)}" fill="none" stroke="var(--muted)" stroke-dasharray="3 3" stroke-width="1.4"/>
         <polygon class="fg-fill2" points="${pts(P, sq)}" stroke="var(--accent)" stroke-width="2"/><polyline points="${pts(P, F)}" fill="none" stroke="var(--bad)" stroke-width="2.6" stroke-linejoin="round"/>
-        ${fgAr(...O, ...P(1, 0), "fg-c4", 2.8)}${fgAr(...O, ...P(0, 1), "fg-c3", 2.8)}${fgT(...P(1.2, -0.3), "Ae₁ = (a, c)", "fg-s fg-c4t")}${fgT(...P(-0.3, 1.25), "Ae₂ = (b, d)", "fg-s fg-c3t")}` }; } },
+        ${fgAr(...O, ...P(1, 0), "fg-c4", 2.8)}${fgAr(...O, ...P(0, 1), "fg-c3", 2.8)}${(() => { const l1 = P(1.2, -0.3), l2 = P(-0.3, 1.25); if(Math.abs(l1[1] - l2[1]) < 14 && Math.abs(l1[0] - l2[0]) < 80) l2[1] = l1[1] - 16; return fgT(...l1, "Ae₁ = (a, c)", "fg-s fg-c4t") + fgT(...l2, "Ae₂ = (b, d)", "fg-s fg-c3t"); })()}` }; } },
   // ---------- numerikk og maskinlæring ----------
   euler: { t: ["Eulers metode: steglengde og stabilitet", "Euler's method: step size and stability"], p: [["h", ["steglengde h", "step size h"], 0.02, 1.2, 0.02, 0.4, ""], ["meth", ["metode (0 Euler, 1 Heun)", "method (0 Euler, 1 Heun)"], 0, 1, 1, 0, ""]],
     q: ["Løser y′ = −2y. Øk h forbi 1. Hvorfor begynner løsningen å hoppe og vokse?", "Solves y′ = −2y. Increase h beyond 1. Why does the solution start to jump and grow?"],
@@ -216,7 +216,7 @@ Object.assign(SIMS, {
     f: v => { const m = { npv: smNpv(v.a, v.n, v.r) }; let lo = -0.9, hi = 5, irr = null;
       if(smNpv(v.a, v.n, 0) > 0){ for(let i = 0; i < 80; i++){ const mid = (lo + hi) / 2; if(smNpv(v.a, v.n, mid * 100) > 0) lo = mid; else hi = mid; } irr = lo * 100; }
       const top = Math.max(500, smNpv(v.a, v.n, 0) * 1.1);
-      const g = smPlot([[r => smNpv(v.a, v.n, r)]], [0, 30], [-1000, top], "r (%)", T("NPV (tusen kr)", "NPV (k NOK)"), (X, Y) => smDot(X(v.r), Y(smClamp(m.npv, -1000, top))) + (irr != null && irr <= 30 ? smLine(X(irr), Y(-1000), X(irr), Y(top), "fg-ok", "4 3") + fgT(X(irr) + 4, Y(top) + 14, "IRR", "fg-s fg-okt", "start") : ""));
+      const g = smPlot([[r => smNpv(v.a, v.n, r)]], [0, 30], [-1000, top], "r (%)", T("NPV (tusen kr)", "NPV (k NOK)"), (X, Y) => smDot(X(v.r), Y(smClamp(m.npv, -1000, top))) + (irr != null && irr <= 30 ? smLine(X(irr), Y(-1000), X(irr), Y(top), "fg-ok", "4 3") + fgT(X(irr) + 4, Y(-1000) - 6, "IRR", "fg-s fg-okt", "start") : ""));
       return { m, out: [["NPV", nf(Math.round(m.npv * 1000), 0) + " " + T("kr", "NOK")], [T("internrente", "IRR"), irr == null ? "–" : smN(irr, 1) + " %"]], svg: g.svg }; } }
 });
 function smNpv(a, n, r){ const i = r / 100; return -1000 + (Math.abs(i) < 1e-9 ? a * n : a * (1 - (1 + i) ** -n) / i); }

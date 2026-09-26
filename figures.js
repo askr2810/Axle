@@ -9,7 +9,9 @@ const fgAr = (x1, y1, x2, y2, cls = "fg-acc", w = 2.2) => {           // pil fra
   const bx = x2 - h * 0.8 * Math.cos(a), by = y2 - h * 0.8 * Math.sin(a);
   return `<g class="${cls}"><line x1="${x1}" y1="${y1}" x2="${bx.toFixed(1)}" y2="${by.toFixed(1)}" stroke-width="${w}"/><polygon points="${x2},${y2} ${p1[0].toFixed(1)},${p1[1].toFixed(1)} ${p2[0].toFixed(1)},${p2[1].toFixed(1)}"/></g>`;
 };
-const fgT = (x, y, s, cls = "fg-t", anchor = "middle") => `<text x="${x}" y="${y}" class="${cls}" text-anchor="${anchor}">${s}</text>`;
+// «X_abc» blir X med senket abc (også midt i teksten, f.eks. «u_C/U»).
+const fgSub = s => String(s).split(/_([A-Za-z0-9α-ωΑ-Ω]+)/).map((p, i) => i % 2 ? `<tspan dy="0.3em" font-size="72%">${p}</tspan>` : (i > 1 && p ? `<tspan dy="-0.216em">${p}</tspan>` : p)).join("");
+const fgT = (x, y, s, cls = "fg-t", anchor = "middle") => `<text x="${x}" y="${y}" class="${cls}" text-anchor="${anchor}">${fgSub(s)}</text>`;
 const fgPath = (fn, s0, s1, n = 60) => { let d = ""; for(let i = 0; i <= n; i++){ const s = s0 + (s1 - s0) * i / n, [x, y] = fn(s); d += (i ? "L" : "M") + x.toFixed(1) + " " + y.toFixed(1); } return d; };
 const fgAxes = (x0, y0, x1, y1, lx, ly) => fgAr(x0, y0, x1, y0, "fg-ax", 1.6) + fgAr(x0, y0, x0, y1, "fg-ax", 1.6) + fgT(x1 - 2, y0 + 16, lx, "fg-i", "end") + fgT(x0 - 8, y1 + 4, ly, "fg-i", "end");
 const fgGround = (x, y, w) => `<line class="fg-line" x1="${x - w / 2}" y1="${y}" x2="${x + w / 2}" y2="${y}"/>` + Array.from({ length: Math.floor(w / 8) }, (_, i) => `<line class="fg-mut" x1="${x - w / 2 + 4 + i * 8}" y1="${y}" x2="${x - w / 2 + i * 8}" y2="${y + 6}"/>`).join("");
@@ -45,7 +47,7 @@ const FIGS = {
     ${fgAr(160, 12, 160, 46, "fg-red")}${fgT(172, 24, "P", "fg-i fg-redt", "start")}
     <line class="fg-mut" x1="40" y1="100" x2="280" y2="100"/>
     <polygon class="fg-mfill" points="40,100 160,160 280,100"/><polyline class="fg-acc" points="40,100 160,160 280,100" fill="none" stroke-width="2.2"/>
-    ${fgT(160, 176, "M<tspan baseline-shift='sub' font-size='9'>maks</tspan> = PL/4", "fg-i fg-acct")}${fgT(30, 104, "M", "fg-i", "end")}
+    ${fgT(160, 170, "M<tspan baseline-shift='sub' font-size='9'>maks</tspan> = PL/4", "fg-i fg-acct")}${fgT(30, 104, "M", "fg-i", "end")}
     <g class="fg-mut"><line x1="40" y1="84" x2="280" y2="84"/><line x1="40" y1="79" x2="40" y2="89"/><line x1="280" y1="79" x2="280" y2="89"/></g>${fgT(160, 80, "L", "fg-i")}` }),
 
   tangent: () => {
@@ -58,7 +60,7 @@ const FIGS = {
       <g class="fg-mut" stroke-dasharray="3 3"><line x1="${P[0]}" y1="${P[1]}" x2="${Q[0]}" y2="${P[1]}"/><line x1="${Q[0]}" y1="${P[1]}" x2="${Q[0]}" y2="${Q[1]}"/></g>
       ${fgT((P[0] + Q[0]) / 2, P[1] + 14, "Δx", "fg-i")}${fgT(Q[0] + 6, (P[1] + Q[1]) / 2, "Δy", "fg-i", "start")}
       <circle class="fg-dot" cx="${P[0]}" cy="${P[1]}" r="4"/><circle class="fg-dot" cx="${Q[0]}" cy="${Q[1]}" r="4"/>
-      ${fgT(X(62), P[1] + m * (62 - 120) - 8, T("tangent", "tangent"), "fg-s fg-redt", "start")}${fgT(X(236), P[1] + (Q[1] - P[1]) / 90 * 116 - 4, T("sekant", "secant"), "fg-s", "start")}` };
+      ${fgT(X(236), P[1] + m * (236 - 120) + 16, T("tangent", "tangent"), "fg-s fg-redt", "start")}${fgT(X(236), P[1] + (Q[1] - P[1]) / 90 * 116 - 4, T("sekant", "secant"), "fg-s", "start")}` };
   },
 
   area: () => {
@@ -129,7 +131,7 @@ const FIGS = {
       <path class="fg-acc" d="${fgPath(q => [X(q), Y(pump(q))], 0, 1.05)}" fill="none" stroke-width="2.4"/>
       <path class="fg-red" d="${fgPath(q => [X(q), Y(sys(q))], 0, 1.05)}" fill="none" stroke-width="2.4"/>
       <line class="fg-mut" stroke-dasharray="3 3" x1="50" y1="${Y(0.22)}" x2="80" y2="${Y(0.22)}"/>${fgT(44, Y(0.22) + 4, "H<tspan baseline-shift='sub' font-size='9'>st</tspan>", "fg-i", "end")}
-      <circle class="fg-dot" cx="${X(qo)}" cy="${Y(pump(qo))}" r="5"/>${fgT(X(qo) + 8, Y(pump(qo)) - 8, T("driftspunkt", "operating point"), "fg-s fg-b", "start")}
+      <circle class="fg-dot" cx="${X(qo)}" cy="${Y(pump(qo))}" r="5"/>${fgT(X(qo) - 6, Y(pump(qo)) - 12, T("driftspunkt", "operating point"), "fg-s fg-b", "end")}
       ${fgT(X(0.12), Y(pump(0.12)) - 8, T("pumpekurve", "pump curve"), "fg-s fg-acct", "start")}${fgT(X(0.9), Y(sys(0.9)) - 8, T("systemkurve", "system curve"), "fg-s fg-redt", "end")}` };
   },
 
@@ -156,7 +158,7 @@ const FIGS = {
     <circle class="fg-box" cx="262" cy="88" r="20"/>${fgT(262, 92, "K", "fg-b")}<polygon class="fg-box" points="48,78 68,78 58,98"/><polygon class="fg-box" points="48,98 68,98 58,78"/>
     <g class="fg-line" fill="none"><polyline points="230,33 262,33 262,68"/><polyline points="262,108 262,143 230,143"/><polyline points="90,143 58,143 58,98"/><polyline points="58,78 58,33 90,33"/></g>
     ${fgAr(262, 60, 262, 46, "fg-line", 2)}${fgAr(58, 116, 58, 130, "fg-line", 2)}
-    ${fgAr(160, 16, 160, -2, "fg-red", 2.4)}${fgT(172, 10, "Q<tspan baseline-shift='sub' font-size='9'>H</tspan>", "fg-i fg-redt", "start")}
+    ${fgAr(160, 16, 160, -2, "fg-red", 2.4)}${fgT(174, 11, "Q<tspan baseline-shift='sub' font-size='9'>H</tspan>", "fg-i fg-redt", "start")}
     ${fgAr(160, 178, 160, 160, "fg-acc", 2.4)}${fgT(172, 174, "Q<tspan baseline-shift='sub' font-size='9'>L</tspan>", "fg-i fg-acct", "start")}
     ${fgAr(308, 88, 284, 88, "fg-ok", 2.4)}${fgT(306, 80, "W", "fg-i fg-okt", "end")}
     ${fgT(20, 92, T("strupe-", "expansion"), "fg-s", "start")}${fgT(20, 104, T("ventil", "valve"), "fg-s", "start")}` }),
@@ -179,7 +181,7 @@ const FIGS = {
       <line class="fg-mut" x1="30" y1="90" x2="300" y2="90"/>
       <path class="fg-acc" d="${fgPath(x => [X(x), Y(Math.sin(2 * Math.PI * x))], 0, 2.1, 100)}" fill="none" stroke-width="2.6"/>
       <g class="fg-mut"><line x1="${X(0.25)}" y1="30" x2="${X(1.25)}" y2="30"/><line x1="${X(0.25)}" y1="24" x2="${X(0.25)}" y2="46"/><line x1="${X(1.25)}" y1="24" x2="${X(1.25)}" y2="46"/></g>${fgT(X(0.75), 26, "λ", "fg-i fg-b")}
-      ${fgAr(X(1.75) + 14, 90, X(1.75) + 14, Y(-1), "fg-red", 1.8)}${fgT(X(1.75) + 20, 118, "A", "fg-i fg-redt", "start")}
+      ${fgAr(X(1.75) + 14, 90, X(1.75) + 14, Y(-1), "fg-red", 1.8)}${fgT(X(1.75) + 22, 128, "A", "fg-i fg-redt", "start")}
       ${fgAr(220, 158, 290, 158, "fg-ok", 2.2)}${fgT(214, 162, "v", "fg-i fg-okt", "end")}` };
   },
 

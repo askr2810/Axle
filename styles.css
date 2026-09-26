@@ -1073,7 +1073,8 @@ a.srow{text-decoration:none;color:inherit}
 /* figurer: tegnet med klasser i stedet for faste farger, så de virker i lys og mørk modus */
 .tpfig svg,.tfig svg{overflow:visible}
 .tpfig svg *,.tfig svg *{fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;vector-effect:non-scaling-stroke}
-.tpfig svg text,.tfig svg text,.tpfig svg tspan,.tfig svg tspan{fill:currentColor;stroke:none;font-family:var(--body);font-size:15px;font-style:italic;font-weight:600}
+.tpfig svg text,.tfig svg text,.tpfig svg tspan,.tfig svg tspan{fill:currentColor;stroke:none;font-family:var(--body);font-style:italic;font-weight:600}
+.tpfig svg text,.tfig svg text{font-size:15px} /* tspan arver, så font-size="10" på senket skrift (U_th) virker */
 .tpfig svg .b,.tfig svg .b{stroke-width:5}
 .tpfig svg .dim,.tfig svg .dim{stroke:var(--muted);stroke-width:1.2}
 .tpfig svg .d,.tfig svg .d{stroke:var(--ink)}

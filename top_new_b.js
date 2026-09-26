@@ -44,7 +44,7 @@ $120 + 45 + 18 = 183$ kN.`, "Swap which load is leading, and use the combination
 // ---------- BYGG 1: Bygningsfysikk ----------
 TOPICS("BYGG", 1, [
 { id: "u-verdi",
-  fig: `<svg viewBox="0 0 240 140"><rect x="95" y="15" width="50" height="110" class="fill"/><rect x="75" y="15" width="20" height="110" class="d"/><rect x="145" y="15" width="12" height="110" class="d"/><path d="M30 70H80" class="r"/><path d="M92 70l-12-6v12z" class="rf"/><path d="M160 70H210" class="r"/><path d="M222 70l-12-6v12z" class="rf"/><text x="30" y="60">Ti</text><text x="200" y="60">Tu</text></svg>`,
+  fig: `<svg viewBox="0 0 240 140"><rect x="95" y="15" width="50" height="110" class="fill"/><rect x="75" y="15" width="20" height="110" class="d"/><rect x="145" y="15" width="12" height="110" class="d"/><path d="M30 70H80" class="r"/><path d="M92 70l-12-6v12z" class="rf"/><path d="M160 70H210" class="r"/><path d="M222 70l-12-6v12z" class="rf"/><text x="30" y="60">T<tspan dy="4" font-size="10">i</tspan></text><text x="198" y="56">T<tspan dy="4" font-size="10">u</tspan></text></svg>`,
   nb: O("U-verdi", "U-verdien forteller hvor mye varme som lekker gjennom én kvadratmeter vegg for hver grad forskjell mellom inne og ute. Lav U-verdi betyr god isolasjon. Den regnes ut fra summen av varmemotstandene i alle lagene.",
     [[R`R = \frac{d}{\lambda}`, "varmemotstand for ett lag"], [R`U = \frac{1}{R_{si} + \sum R_i + R_{se}}`, "U-verdi for hele veggen"]],
     [["U", "varmegjennomgangskoeffisient", "W/m²K"], ["d", "tykkelse", "m"], [R`\lambda`, "varmeledningsevne", "W/mK"], ["R_{si},\\ R_{se}", "overgangsmotstand inne og ute", "m²K/W"]],

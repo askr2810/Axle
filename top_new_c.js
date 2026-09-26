@@ -7,7 +7,7 @@ const O = (t, intro, f, legend, ex, tip) => ({ t, intro, f, legend, ex, tip });
 // ---------- ELKR 0: Transformatoren ----------
 TOPICS("ELKR", 0, [
 { id: "omsetningsforhold",
-  fig: `<svg viewBox="0 0 240 140"><rect x="95" y="20" width="50" height="100" class="d"/><path d="M60 40c-12 0-12 10 0 10s12 10 0 10-12 10 0 10 12 10 0 10-12 10 0 10" class="a"/><path d="M180 50c12 0 12 10 0 10s-12 10 0 10 12 10 0 10" class="g"/><text x="30" y="75">U1</text><text x="196" y="75">U2</text><text x="54" y="32">N1</text><text x="176" y="42">N2</text></svg>`,
+  fig: `<svg viewBox="0 0 240 140"><rect x="95" y="20" width="50" height="100" class="d"/><path d="M60 40c-12 0-12 10 0 10s12 10 0 10-12 10 0 10 12 10 0 10-12 10 0 10" class="a"/><path d="M180 50c12 0 12 10 0 10s-12 10 0 10 12 10 0 10" class="g"/><text x="31" y="74">U<tspan dy="4" font-size="10">1</tspan></text><text x="196" y="75">U<tspan dy="4" font-size="10">2</tspan></text><text x="55" y="33">N<tspan dy="4" font-size="10">1</tspan></text><text x="176" y="43">N<tspan dy="4" font-size="10">2</tspan></text></svg>`,
   nb: O("Omsetningsforhold", "En transformator har to spoler rundt en felles jernkjerne. Vekselstrømmen i primærspolen lager et magnetfelt som gir spenning i sekundærspolen. Spenningen omsettes i samme forhold som antall vindinger.",
     [[R`\frac{U_1}{U_2} = \frac{N_1}{N_2}`, "spenning følger vindingstallet"], [R`\frac{I_1}{I_2} = \frac{N_2}{N_1}`, "strømmen omsettes motsatt"]],
     [["U_1,\\ U_2", "primær- og sekundærspenning", "V"], ["N_1,\\ N_2", "antall vindinger", ""], ["I_1,\\ I_2", "primær- og sekundærstrøm", "A"]],
@@ -117,7 +117,7 @@ at 22 kV $I \approx 45$ A and the loss is about 4.1 kW, at 11 kV the loss is fou
 // ---------- GEO 0: Jord og klassifisering ----------
 TOPICS("GEO", 0, [
 { id: "fasediagram",
-  fig: `<svg viewBox="0 0 240 140"><rect x="80" y="15" width="80" height="25" class="d"/><rect x="80" y="40" width="80" height="35" class="fill"/><rect x="80" y="75" width="80" height="50" class="dash"/><path d="M80 75H160V125H80Z" class="d"/><text x="40" y="32">Va</text><text x="40" y="62">Vw</text><text x="40" y="104">Vs</text><text x="172" y="62">mw</text><text x="172" y="104">ms</text></svg>`,
+  fig: `<svg viewBox="0 0 240 140"><rect x="80" y="15" width="80" height="25" class="d"/><rect x="80" y="40" width="80" height="35" class="fill"/><rect x="80" y="75" width="80" height="50" class="dash"/><path d="M80 75H160V125H80Z" class="d"/><text x="40" y="32">V<tspan dy="4" font-size="10">a</tspan></text><text x="40" y="62">V<tspan dy="4" font-size="10">w</tspan></text><text x="40" y="104">V<tspan dy="4" font-size="10">s</tspan></text><text x="172" y="62">m<tspan dy="4" font-size="10">w</tspan></text><text x="172" y="104">m<tspan dy="4" font-size="10">s</tspan></text></svg>`,
   nb: O("Fasediagram og vanninnhold", "Jord består av korn, vann og luft. I et fasediagram tegnes de tre delene over hverandre, slik at masser og volumer blir oversiktlige. Vanninnholdet er massen av vann delt på massen av de tørre kornene.",
     [[R`w = \frac{m_w}{m_s}`, "vanninnhold"], [R`\rho = \frac{m}{V}`, "densitet"]],
     [["w", "vanninnhold", "%"], ["m_w", "masse av vann", "g"], ["m_s", "masse av tørre korn", "g"], ["V_a,\\ V_w,\\ V_s", "volum luft, vann og korn", "m³"]],
@@ -192,7 +192,7 @@ $s = 50\cdot 4/2000 = 0.1$ m = 100 mm.`, "If the groundwater is lowered, the eff
 // ---------- GEO 2: Jordtrykk, bæreevne og stabilitet ----------
 TOPICS("GEO", 2, [
 { id: "jordtrykk",
-  fig: `<svg viewBox="0 0 240 140"><rect x="95" y="20" width="14" height="100" class="d"/><path d="M109 20H220V120H109" class="fill"/><path d="M109 20L109 120L170 120Z" class="r"/><path d="M170 87H112" class="a"/><path d="M112 87l12-6v12z" class="af"/><text x="176" y="92">Pa</text><text x="70" y="74">H</text></svg>`,
+  fig: `<svg viewBox="0 0 240 140"><rect x="95" y="20" width="14" height="100" class="d"/><path d="M109 20H220V120H109" class="fill"/><path d="M109 20L109 120L170 120Z" class="r"/><path d="M170 87H112" class="a"/><path d="M112 87l12-6v12z" class="af"/><text x="176" y="92">P<tspan dy="4" font-size="10">a</tspan></text><text x="70" y="74">H</text></svg>`,
   nb: O("Jordtrykk mot murer", "Jorda bak en støttemur skyver på muren. Gir muren litt etter, får vi aktivt jordtrykk, som er det minste. Presses muren inn mot jorda, får vi passivt jordtrykk, som er mye større. Trykket øker lineært med dybden.",
     [[R`K_a = \frac{1 - \sin\varphi}{1 + \sin\varphi}`, "aktiv jordtrykkskoeffisient"], [R`K_p = \frac{1}{K_a}`, "passiv koeffisient"], [R`P_a = \tfrac12 K_a\,\gamma\,H^2`, "aktiv kraft per meter mur"]],
     [[R`\varphi`, "friksjonsvinkel", "°"], [R`\gamma`, "tyngdetetthet", "kN/m³"], ["H", "murhøyde", "m"], ["P_a", "aktiv kraft", "kN/m"]],
@@ -276,7 +276,7 @@ TOPICS("ML", 1, [
     [["w", "weight (slope)", ""], ["b", "intercept", ""], [R`\hat y`, "model prediction", ""]],
     R`$\hat y = 2x + 1$ predicts 9 for $x = 4$.`, "Neural networks are basically many such linear terms combined with non-linear functions.") },
 { id: "gradientnedstigning",
-  fig: `<svg viewBox="0 0 240 140"><path d="M30 120H220M30 120V15" class="dim"/><path d="M40 25C80 110 160 110 200 25" class="a"/><circle cx="60" cy="58" r="5" class="rf"/><circle cx="85" cy="85" r="5" class="rf"/><circle cx="105" cy="96" r="5" class="rf"/><circle cx="120" cy="99" r="5" class="gf"/><path d="M60 58L85 85L105 96" class="dash"/><text x="212" y="134">w</text><text x="12" y="22">L</text></svg>`,
+  fig: `<svg viewBox="0 0 240 140"><path d="M30 120H220M30 120V15" class="dim"/><path d="M40 25C80 110 160 110 200 25" class="a"/><circle cx="60" cy="58" r="5" class="rf"/><circle cx="85" cy="85" r="5" class="rf"/><circle cx="105" cy="96" r="5" class="rf"/><circle cx="120" cy="99" r="5" class="gf"/><path d="M60 58L85 85L105 96" class="dash"/><text x="212" y="133">w</text><text x="12" y="22">L</text></svg>`,
   nb: O("Gradientnedstigning", "Gradientnedstigning finner vektene som gir minst tap ved å gå små steg nedover. Gradienten peker oppover mot økende tap, så vi går motsatt vei. Læringsraten bestemmer hvor lange stegene er.",
     [[R`w \leftarrow w - \eta\,\frac{\partial L}{\partial w}`, "ett steg"], [R`\frac{\partial L}{\partial w} = -\frac{2}{n}\sum x_i\,(y_i - \hat y_i)`, "gradienten for MSE"]],
     [[R`\eta`, "læringsrate", ""], ["L", "tapsfunksjon", ""], [R`\frac{\partial L}{\partial w}`, "gradient", ""]],
@@ -325,7 +325,7 @@ $P = 0{,}8$, $R \approx 0{,}67$ og $F_1 \approx 0{,}73$.`, "Ved kreftscreening e
     R`TP = 40, FP = 10, FN = 20:
 $P = 0.8$, $R \approx 0.67$ and $F_1 \approx 0.73$.`, "In cancer screening recall matters most, in a spam filter precision matters most.") },
 { id: "sigmoid-terskel",
-  fig: `<svg viewBox="0 0 240 140"><path d="M20 120H220M120 125V10" class="dim"/><path d="M20 118C80 118 95 115 120 70S160 22 220 22" class="a"/><path d="M20 70H220" class="dash"/><circle cx="120" cy="70" r="4" class="rf"/><text x="200" y="136">z</text><text x="100" y="18">σ</text></svg>`,
+  fig: `<svg viewBox="0 0 240 140"><path d="M20 120H220M120 125V10" class="dim"/><path d="M20 118C80 118 95 115 120 70S160 22 220 22" class="a"/><path d="M20 70H220" class="dash"/><circle cx="120" cy="70" r="4" class="rf"/><text x="200" y="135">z</text><text x="100" y="18">σ</text></svg>`,
   nb: O("Sigmoid og terskel", "Logistisk regresjon gjør et vilkårlig tall om til en sannsynlighet mellom 0 og 1 med sigmoidfunksjonen. Over en valgt terskel sier modellen ja. Senker du terskelen, finner modellen flere ekte tilfeller, men gir også flere falske alarmer.",
     [[R`\sigma(z) = \frac{1}{1 + e^{-z}}`, "sigmoidfunksjonen"], [R`\hat y = 1 \iff \sigma(z) \ge t`, "beslutning med terskel t"]],
     [[R`\sigma(z)`, "sannsynlighet", ""], ["z", "lineær kombinasjon av egenskapene", ""], ["t", "terskel, ofte 0,5", ""]],

@@ -1,7 +1,7 @@
 // Teoribok – referanseeksempel: Statikk og dynamikk, enhet 0 (Statikk og likevekt)
 TOPICS("MAPE1300", 0, [
 { id: "kraftkomponenter",
-  fig: `<svg viewBox="0 0 240 140"><path d="M40 115H210M40 115V15" class="dim"/><path d="M40 115L165 40" class="a"/><path d="M165 40l-14 2 7 11z" class="af"/><path d="M40 115H165" class="d"/><path d="M165 115V40" class="d"/><path d="M78 115a38 38 0 0 0-5-19" class="t"/><text x="100" y="72">F</text><text x="95" y="132">F<tspan dy="4" font-size="10">x</tspan></text><text x="172" y="82">F<tspan dy="4" font-size="10">y</tspan></text><text x="84" y="108">θ</text></svg>`,
+  fig: `<svg viewBox="0 0 240 140"><path d="M40 115H210M40 115V15" class="dim"/><path d="M40 115L165 40" class="a"/><path d="M165 40l-14 2 7 11z" class="af"/><path d="M40 115H165" class="d"/><path d="M165 115V40" class="d"/><path d="M78 115a38 38 0 0 0-5-19" class="t"/><text x="96" y="65">F</text><text x="95" y="132">F<tspan dy="4" font-size="10">x</tspan></text><text x="172" y="82">F<tspan dy="4" font-size="10">y</tspan></text><text x="84" y="108">θ</text></svg>`,
   nb: { t: "Kraftkomponenter",
     intro: "En kraft har både størrelse og retning. For å regne med den deler vi den opp i en horisontal og en vertikal del, kalt komponenter. Da kan vi summere krefter i hver retning for seg.",
     f: [["F_x = F\\cos\\theta", "horisontal komponent (θ målt fra x-aksen)"], ["F_y = F\\sin\\theta", "vertikal komponent"], ["F = \\sqrt{F_x^2 + F_y^2}", "størrelsen tilbake fra komponentene"]],
@@ -15,7 +15,7 @@ TOPICS("MAPE1300", 0, [
     ex: "$F = 200$ N at $\\theta = 30^\\circ$:\n$F_x = 200\\cos 30^\\circ \\approx 173$ N and $F_y = 200\\sin 30^\\circ = 100$ N.",
     tip: "Cosine belongs to the side next to the angle, sine to the side opposite it." } },
 { id: "moment",
-  fig: `<svg viewBox="0 0 240 140"><circle cx="50" cy="95" r="5" class="af"/><path d="M50 95H190" class="b"/><path d="M190 95V25" class="a"/><path d="M190 95l-6-13h12z" class="af"/><path d="M50 118H190M50 112v12M190 112v12" class="d"/><path d="M78 70a30 30 0 0 1 20 -20" class="t"/><path d="M98 50l-11 1 6 8z" class="tf"/><text x="40" y="84">O</text><text x="200" y="50">F</text><text x="115" y="134">d</text><text x="70" y="45">M</text></svg>`,
+  fig: `<svg viewBox="0 0 240 140"><circle cx="50" cy="95" r="5" class="af"/><path d="M50 95H190" class="b"/><path d="M190 95V25" class="a"/><path d="M190 95l-6-13h12z" class="af"/><path d="M50 118H190M50 112v12M190 112v12" class="d"/><path d="M78 70a30 30 0 0 1 20 -20" class="t"/><path d="M98 50l-11 1 6 8z" class="tf"/><text x="40" y="83">O</text><text x="200" y="50">F</text><text x="115" y="134">d</text><text x="70" y="43">M</text></svg>`,
   nb: { t: "Moment",
     intro: "Et moment er kraftens evne til å dreie noe rundt et punkt. Jo større kraft og jo lengre arm, desto større dreieeffekt. Armen er den vinkelrette avstanden fra punktet til kraftens virkelinje.",
     f: [["M = F \\cdot d", "moment om et punkt"], ["M = F\\,d\\sin\\alpha", "når kraften ikke står vinkelrett på armen"]],

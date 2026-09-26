@@ -7,7 +7,7 @@ const O = (t, intro, f, legend, ex, tip) => ({ t, intro, f, legend, ex, tip });
 // ---------- MAPE1300 4: Arbeid, energi og impuls ----------
 TOPICS("MAPE1300", 4, [
 { id: "arbeid",
-  fig: `<svg viewBox="0 0 240 140"><path d="M20 110H220" class="d"/><rect x="60" y="80" width="40" height="30" class="fill"/><path d="M100 95L170 60" class="a"/><path d="M170 60l-14 1 6 11z" class="af"/><path d="M130 95H175" class="dash"/><path d="M60 125H180M60 119v12M180 119v12" class="dim"/><text x="176" y="56">F</text><text x="115" y="90">θ</text><text x="115" y="138">s</text></svg>`,
+  fig: `<svg viewBox="0 0 240 140"><path d="M20 110H220" class="d"/><rect x="60" y="80" width="40" height="30" class="fill"/><path d="M100 95L170 60" class="a"/><path d="M170 60l-14 1 6 11z" class="af"/><path d="M130 95H175" class="dash"/><path d="M60 125H180M60 119v12M180 119v12" class="dim"/><text x="176" y="56">F</text><text x="120" y="102">θ</text><text x="115" y="135">s</text></svg>`,
   nb: O("Arbeid", "Arbeid er energi som overføres når en kraft flytter noe. Bare kraftkomponenten langs bevegelsen gjør arbeid. En kraft vinkelrett på bevegelsen, som normalkraften på et flatt gulv, gjør ikke noe arbeid.",
     [[R`W = F\,s\cos\theta`, "arbeid fra en konstant kraft"], [R`P = \frac{W}{t} = F\,v`, "effekt er arbeid per tid"]],
     [["W", "arbeid", "J"], ["F", "kraft", "N"], ["s", "strekning", "m"], [R`\theta`, "vinkel mellom kraft og bevegelse", "°"], ["P", "effekt", "W"]],
@@ -120,7 +120,7 @@ $F_s = 0{,}3\cdot 4\cdot 2\cdot 50 = 120$ kN.`, "Rust, paint and oil on the surf
 // ---------- MATS2100 3: Varmepumper og kjølemaskiner ----------
 TOPICS("MATS2100", 3, [
 { id: "cop-varmepumpe",
-  fig: `<svg viewBox="0 0 240 140"><rect x="90" y="45" width="60" height="50" class="fill"/><path d="M120 35V10" class="r"/><path d="M120 8l-6 12h12z" class="rf"/><path d="M120 130V105" class="g"/><path d="M120 105l-6 12h12z" class="gf"/><path d="M30 70H80" class="a"/><path d="M88 70l-12-6v12z" class="af"/><text x="128" y="24">QH</text><text x="128" y="126">QC</text><text x="40" y="62">W</text></svg>`,
+  fig: `<svg viewBox="0 0 240 140"><rect x="90" y="45" width="60" height="50" class="fill"/><path d="M120 35V10" class="r"/><path d="M120 8l-6 12h12z" class="rf"/><path d="M120 130V105" class="g"/><path d="M120 105l-6 12h12z" class="gf"/><path d="M30 70H80" class="a"/><path d="M88 70l-12-6v12z" class="af"/><text x="128" y="24">Q<tspan dy="4" font-size="10">H</tspan></text><text x="128" y="126">Q<tspan dy="4" font-size="10">C</tspan></text><text x="40" y="62">W</text></svg>`,
   nb: O("Varmefaktor (COP)", "En varmepumpe flytter varme fra kald uteluft eller jord inn i huset. Den bruker elektrisk arbeid for å gjøre det, men leverer mye mer varme enn den bruker strøm. Forholdet mellom levert varme og brukt arbeid kalles varmefaktor eller COP.",
     [[R`COP_{VP} = \frac{Q_H}{W}`, "varmefaktor for varmepumpe"], [R`Q_H = Q_C + W`, "energibalanse"]],
     [["Q_H", "varme levert til huset", "J"], ["Q_C", "varme hentet fra kald side", "J"], ["W", "elektrisk arbeid", "J"]],
@@ -232,7 +232,7 @@ $x_1 = 1 - (-1)/2 = 1{,}5$ and $x_2 = 1{,}5 - 0{,}25/3 \approx 1{,}4167$.`, "If 
 // ---------- MEK2200 3: Regresjon og korrelasjon ----------
 TOPICS("MEK2200", 3, [
 { id: "minste-kvadrater",
-  fig: `<svg viewBox="0 0 240 140"><path d="M30 120H220M30 120V15" class="dim"/><path d="M40 108L210 30" class="a"/><circle cx="60" cy="96" r="3" class="gf"/><circle cx="90" cy="92" r="3" class="gf"/><circle cx="115" cy="70" r="3" class="gf"/><circle cx="145" cy="66" r="3" class="gf"/><circle cx="170" cy="42" r="3" class="gf"/><circle cx="195" cy="44" r="3" class="gf"/><path d="M90 92V85M145 66V60" class="dash"/><text x="212" y="134">x</text><text x="14" y="22">y</text></svg>`,
+  fig: `<svg viewBox="0 0 240 140"><path d="M30 120H220M30 120V15" class="dim"/><path d="M40 108L210 30" class="a"/><circle cx="60" cy="96" r="3" class="gf"/><circle cx="90" cy="92" r="3" class="gf"/><circle cx="115" cy="70" r="3" class="gf"/><circle cx="145" cy="66" r="3" class="gf"/><circle cx="170" cy="42" r="3" class="gf"/><circle cx="195" cy="44" r="3" class="gf"/><path d="M90 92V85M145 66V60" class="dash"/><text x="212" y="133">x</text><text x="14" y="22">y</text></svg>`,
   nb: O("Minste kvadraters metode", "Regresjon finner linja som passer best til en punktsky. Minste kvadraters metode velger stigningstall og konstantledd slik at summen av de kvadrerte avvikene fra linja blir minst mulig. Linja går alltid gjennom punktet med gjennomsnittene.",
     [[R`\hat y = a + b x`, "regresjonslinja"], [R`b = \frac{\sum (x_i - \bar x)(y_i - \bar y)}{\sum (x_i - \bar x)^2}`, "stigningstall"], [R`a = \bar y - b\bar x`, "konstantledd"]],
     [["b", "stigningstall", ""], ["a", "konstantledd", ""], [R`\bar x,\ \bar y`, "gjennomsnitt", ""]],
@@ -307,7 +307,7 @@ $E = 1000\cdot 0{,}02 = 20$ kg CO₂e.`, "The same electricity use can give ten 
 // ---------- ELFT2400 3: Stegrespons og førsteordens systemer ----------
 TOPICS("ELFT2400", 3, [
 { id: "forsteordens",
-  fig: `<svg viewBox="0 0 240 140"><path d="M30 120H220M30 120V15" class="dim"/><path d="M30 30H215" class="dash"/><path d="M30 120C60 70 90 45 130 36S190 31 215 30" class="a"/><path d="M78 120V63" class="dash"/><circle cx="78" cy="63" r="3" class="af"/><text x="72" y="134">τ</text><text x="12" y="34">K</text></svg>`,
+  fig: `<svg viewBox="0 0 240 140"><path d="M30 120H220M30 120V15" class="dim"/><path d="M30 30H215" class="dash"/><path d="M30 120C60 70 90 45 130 36S190 31 215 30" class="a"/><path d="M78 120V63" class="dash"/><circle cx="78" cy="63" r="3" class="af"/><text x="72" y="133">τ</text><text x="11" y="34">K</text></svg>`,
   nb: O("Førsteordens system", "Et førsteordens system reagerer på et sprang med en jevn, eksponentiell overgang uten oversving. Eksempler er temperaturen i en tank eller spenningen over en kondensator. To tall beskriver det: forsterkningen K og tidskonstanten τ.",
     [[R`G(s) = \frac{K}{\tau s + 1}`, "overføringsfunksjon"], [R`y(t) = K\left(1 - e^{-t/\tau}\right)`, "respons på et enhetssprang"]],
     [["K", "stasjonær forsterkning", ""], [R`\tau`, "tidskonstant", "s"], ["t", "tid", "s"]],
@@ -356,7 +356,7 @@ i serie gir de 40 m ved 10 L/s, i parallell 20 m ved 20 L/s (før systemkurven t
     R`Two identical pumps giving 20 m head at 10 L/s:
 in series 40 m at 10 L/s, in parallel 20 m at 20 L/s (before the system curve is included).`, "Series helps with a large height, parallel helps with a large flow.") },
 { id: "systemkurve",
-  fig: `<svg viewBox="0 0 240 140"><path d="M30 120H220M30 120V15" class="dim"/><path d="M30 30C90 32 150 48 210 95" class="a"/><path d="M30 80C90 76 150 60 210 25" class="g"/><circle cx="140" cy="57" r="4" class="rf"/><text x="210" y="134">Q</text><text x="12" y="22">H</text></svg>`,
+  fig: `<svg viewBox="0 0 240 140"><path d="M30 120H220M30 120V15" class="dim"/><path d="M30 30C90 32 150 48 210 95" class="a"/><path d="M30 80C90 76 150 60 210 25" class="g"/><circle cx="140" cy="57" r="4" class="rf"/><text x="210" y="133">Q</text><text x="12" y="22">H</text></svg>`,
   nb: O("Systemkurve og driftspunkt", "Rørsystemet krever en løftehøyde som øker med volumstrømmen, fordi friksjonstapet vokser omtrent med kvadratet av farten. Pumpekurven synker med volumstrømmen. Der de to kurvene krysser hverandre, ligger driftspunktet.",
     [[R`H_{sys} = H_s + k\,Q^2`, "systemkurve"], [R`H_{pumpe}(Q) = H_{sys}(Q)`, "driftspunktet"]],
     [["H_s", "statisk løftehøyde", "m"], ["k", "tapskoeffisient", "s²/m⁵"], ["Q", "volumstrøm", "m³/s"]],
@@ -494,7 +494,7 @@ $1 - (5/6)^2 = 11/36 \approx 0.31$.`, "\"At least one\" is almost always easiest
 // ---------- GFYS 6: Bølger, lyd og lys ----------
 TOPICS("GFYS", 6, [
 { id: "bolgeligning",
-  fig: `<svg viewBox="0 0 240 140"><path d="M20 70H225" class="dim"/><path d="M20 70C40 30 60 30 80 70S120 110 140 70 180 30 200 70" class="a"/><path d="M50 22H170M50 16v12M170 16v12" class="d"/><path d="M50 40V100" class="dash"/><text x="104" y="16">λ</text><text x="206" y="44">A</text></svg>`,
+  fig: `<svg viewBox="0 0 240 140"><path d="M20 70H225" class="dim"/><path d="M20 70C40 30 60 30 80 70S120 110 140 70 180 30 200 70" class="a"/><path d="M50 22H170M50 16v12M170 16v12" class="d"/><path d="M50 40V100" class="dash"/><text x="104" y="15">λ</text><text x="206" y="44">A</text></svg>`,
   nb: O("Bølgeligningen", "En bølge flytter energi uten å flytte stoffet dit. Bølgelengden er avstanden mellom to topper, og frekvensen er antall topper som passerer per sekund. Farten er bølgelengden ganger frekvensen.",
     [[R`v = f\,\lambda`, "bølgeligningen"], [R`T = \frac{1}{f}`, "periode"]],
     [["v", "bølgefart", "m/s"], ["f", "frekvens", "Hz"], [R`\lambda`, "bølgelengde", "m"], ["T", "periode", "s"]],
@@ -517,7 +517,7 @@ $10\lg(2\cdot 10^8) \approx 83$ dB, ikke 160 dB.`, "Desibel kan ikke legges samm
     R`Two identical machines at 80 dB each:
 $10\lg(2\cdot 10^8) \approx 83$ dB, not 160 dB.`, "Decibels cannot be added directly. Convert to intensity first.") },
 { id: "brytning",
-  fig: `<svg viewBox="0 0 240 140"><path d="M20 70H220" class="d"/><path d="M120 15V125" class="dash"/><path d="M60 15L120 70" class="a"/><path d="M120 70L150 125" class="a"/><path d="M120 40a30 30 0 0 0-17-9" class="t"/><path d="M120 100a30 30 0 0 0 13 -5" class="t"/><text x="96" y="30">θ1</text><text x="134" y="112">θ2</text><text x="30" y="60">n1</text><text x="30" y="92">n2</text></svg>`,
+  fig: `<svg viewBox="0 0 240 140"><path d="M20 70H220" class="d"/><path d="M120 15V125" class="dash"/><path d="M60 15L120 70" class="a"/><path d="M120 70L150 125" class="a"/><path d="M120 40a30 30 0 0 0-17-9" class="t"/><path d="M120 100a30 30 0 0 0 13 -5" class="t"/><text x="97" y="31">θ<tspan dy="4" font-size="10">1</tspan></text><text x="136" y="118">θ<tspan dy="4" font-size="10">2</tspan></text><text x="30" y="60">n<tspan dy="4" font-size="10">1</tspan></text><text x="30" y="92">n<tspan dy="4" font-size="10">2</tspan></text></svg>`,
   nb: O("Brytning", "Når lys går fra ett stoff til et annet, endrer det fart og bøyer av. Brytningsindeksen n sier hvor mye saktere lyset går enn i vakuum. Går lyset inn i et tettere stoff, bøyer det mot normalen.",
     [[R`n_1\sin\theta_1 = n_2\sin\theta_2`, "Snells lov"], [R`n = \frac{c}{v}`, "brytningsindeks"]],
     [["n", "brytningsindeks", ""], [R`\theta`, "vinkel fra normalen", "°"], ["c", "lysfarten i vakuum", "m/s"]],
