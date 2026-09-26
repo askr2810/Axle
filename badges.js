@@ -47,11 +47,12 @@ const BADGES = [
 // Pioner-merket vises bare for dem som kan få det (medlemsnummer 1–500, eller nummer ikke kjent ennå).
 const PIONEER_MAX = 500;
 // Henter medlemsnummeret én gang (innlogget). Kalles ved oppstart, på merkesiden og i Venner.
-let PIONEER_BUSY = false, PIONEER_ERR = false;
+let PIONEER_BUSY = false, PIONEER_ERR = false, PIONEER_DONE = false; // sjekkes én gang per oppstart (nummeret kan ha blitt rettet i databasen)
 async function pioneerFetch(){
-  if(!CLOUD_ON || !AUTH || +S.memberNo > 0 || PIONEER_BUSY) return;
+  if(!CLOUD_ON || !AUTH || PIONEER_DONE || PIONEER_BUSY) return;
   PIONEER_BUSY = true;
-  try{ const no = await frRpc("my_member_number"); if(+no > 0){ S.memberNo = +no; save(); bdgToast(checkBadges()); if(screen === "badges" || screen === "profile") render(); } }
+  try{ const no = await frRpc("my_member_number"); PIONEER_DONE = true;
+    if(+no > 0 && +no !== +S.memberNo){ S.memberNo = +no; save(); bdgToast(checkBadges()); if(screen === "badges" || screen === "profile") render(); } }
   catch(e){ PIONEER_ERR = true; if(screen === "badges") render(); }
   PIONEER_BUSY = false;
 }
