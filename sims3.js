@@ -229,4 +229,8 @@ for(const [k, name] of [["VG1T:0", "quad"], ["VG1T:1", "line"], ["VG1T:1", "quad
   ["SFARM:0", "decay"], ["SFARM:0", "doses"], ["SKLIN:1", "news2"], ["SKLIN:2", "bmi"], ["SLMR:2", "drip"], ["SANA:2", "gas"]]){
   const cur = SIM_MAP[k]; SIM_MAP[k] = cur ? [].concat(cur, name).filter((x, i, a) => a.indexOf(x) === i) : name;
 }
+// Nye enheter (add_vgs_f.js) og felles enheter (SHAREUNIT) arver simuleringene til originalen.
+const simAdd = (k, name) => { const cur = SIM_MAP[k]; SIM_MAP[k] = cur ? [].concat(cur, name).filter((x, i, a) => a.indexOf(x) === i) : name; };
+for(const [k, name] of (typeof globalThis !== "undefined" && globalThis.SIM_EXTRA) || []) simAdd(k, name);
+if(typeof COURSES !== "undefined") for(const c of COURSES) c.units.forEach((u, i) => { const m = u.shared && SIM_MAP[u.shared + ":" + u.sharedU]; if(m) [].concat(m).forEach(n => simAdd(c.code + ":" + i, n)); });
 })();

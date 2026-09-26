@@ -48,6 +48,22 @@ function ADDUNIT(code, nb, en) {
   return c.units.length - 1;
 }
 
+// SHAREUNIT(tilFag, fraFag, enhet | "tittel", nbFag, enFag) → nummeret til enheten i tilFag.
+// Samme stoff i to fag (f.eks. R1 og S2): oppgavene, generatorene og teorien deles, men fremgangen er egen per fag.
+function SHAREUNIT(dst, src, u, nbSrc, enSrc) {
+  const s = COURSES.find(x => x.code === src), d = COURSES.find(x => x.code === dst);
+  if (!s || !d) throw new Error("SHAREUNIT: ukjent fag " + src + " / " + dst);
+  const k0 = typeof u === "number" ? u : s.units.findIndex(x => x.title === u); const su = s.units[k0];
+  if (!su) throw new Error("SHAREUNIT: ukjent enhet " + src + " " + u);
+  d.units.push({ title: su.title, qs: su.qs, gen: (su.gen ||= []), shared: src, sharedU: k0 });
+  const k = d.units.length - 1, m = META[dst]; if (m) { m.units ||= []; m.units[k] = META[src] && META[src].units ? META[src].units[k0] : su.title; }
+  (ENQ[dst] ||= [])[k] = ((ENQ[src] ||= [])[k0] ||= []);
+  const th = theoryOf(src, k0);
+  if (th) THEORY(dst, k, { nb: `🔗 Felles pensum med **${nbSrc}**. Oppgavene er de samme, men fremgangen din telles for hvert fag.\n\n` + th.nb,
+    en: `🔗 Shared curriculum with **${enSrc}**. The questions are the same, but your progress counts separately for each subject.\n\n` + th.en });
+  return k;
+}
+
 NEWCOURSE({ code: "GMAT", group: "Forkurs", nb: "Grunnleggende matematikk", en: "Foundations of Mathematics", s: ["GM", "FM"],
   eqText: { nb: "Fra grunnskole til R2-nivå – start her", en: "From the basics to pre-university level – start here" },
   units: [
