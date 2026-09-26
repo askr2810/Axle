@@ -1413,3 +1413,11 @@ a.srow{text-decoration:none;color:inherit}
 .bku-b svg{width:17px;height:17px;flex:none}
 .bku-b.pri{background:var(--accent);border-color:var(--accent);color:#fff}
 .fig .fg-big{font-size:30px;font-weight:800;fill:var(--ink);font-family:var(--display)}
+/* steg for steg: kortet glir inn fra siden man blar mot */
+.gd-from-r{animation:gdFromR .28s cubic-bezier(.2,.8,.3,1)}
+.gd-from-l{animation:gdFromL .28s cubic-bezier(.2,.8,.3,1)}
+@keyframes gdFromR{from{transform:translateX(40px);opacity:0}to{transform:none;opacity:1}}
+@keyframes gdFromL{from{transform:translateX(-40px);opacity:0}to{transform:none;opacity:1}}
+.gd-swipe{text-align:center;color:var(--muted);font-size:13px;margin:10px 0 0}
+.gd{touch-action:pan-y}
+@media (prefers-reduced-motion:reduce){.gd-from-r,.gd-from-l{animation:none}}

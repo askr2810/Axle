@@ -69,7 +69,8 @@ function renderGuided(){
   $app.innerHTML = `<div class="top gd-top"><div class="wrap"><button class="iconbtn" data-a="gdclose" aria-label="${esc(t("back"))}">${I.x}</button>
       <div class="gd-prog" role="progressbar" aria-valuemin="0" aria-valuemax="${n}" aria-valuenow="${GD.i + 1}">${segs}</div>
       <button class="gd-full" data-a="gdfull">${esc(t("gdFull"))}</button></div></div>
-    <main class="wrap gd"><div class="gd-card gd-in">${gdCardHTML(card, c)}</div></main>
+    <main class="wrap gd"><div class="gd-card ${GD.dir === "r" ? "gd-from-l" : GD.dir === "l" ? "gd-from-r" : "gd-in"}">${gdCardHTML(card, c)}</div>
+      ${!S.gdSwipeSeen && !isEnd ? `<p class="gd-swipe" aria-hidden="true">${esc(t("gdSwipe"))}</p>` : ""}</main>
     <div class="lfoot ${card.kind === "q" && card.done ? (card.gaveUp ? "bad" : "ok") : ""}"><div class="wrap gd-foot">
       ${GD.i > 0 && !isEnd ? `<button class="gd-back" data-a="gdprev" aria-label="${esc(t("back"))}">${I.left}</button>` : ""}
       ${isEnd ? `<button class="big" data-a="gdpractice">${esc(t(GD.go ? "thStartFirst" : "thStart"))}</button>`
@@ -92,10 +93,32 @@ function guidedClick(a, b){
     else { card.wrong.push(i); if(card.wrong.length >= Math.min(2, card.it.opts.length - 1)){ card.done = true; card.gaveUp = true; } }
     render(); return true;
   }
-  if(a === "gdnext" && (card.kind !== "q" || card.done)){ GD.i++; if(GD.cards[GD.i].kind === "end") gdFinish(); render(); window.scrollTo(0, 0); return true; }
-  if(a === "gdprev" && GD.i > 0){ GD.i--; render(); window.scrollTo(0, 0); return true; }
+  if(a === "gdnext" && (card.kind !== "q" || card.done)){ gdGo(1); return true; }
+  if(a === "gdprev" && GD.i > 0){ gdGo(-1); return true; }
   if(a === "gdpractice"){ const { code, u, go } = GD; GD = null; TH = { code, u, go }; const c = COURSE(code), nn = nextNode(c); let uu = u, k = 0;
     if(go){ uu = go.u; k = go.k; } else if(nn && nn[0] === u) k = nn[1]; else if(sub(code).done[u + "-2"]) k = 3;
     TH = null; if(!isUnlocked(c, uu, k)){ goHome(); toast(t("lockedNode")); return true; } startUnitLesson(code, uu, k); return true; }
   return false;
 }
+
+// Bla fram og tilbake: knapper, sveip (venstre = neste, høyre = forrige) og piltaster. Kort man har vært på, kan man bla til igjen.
+function gdGo(d){
+  if(!GD) return; const card = GD.cards[GD.i];
+  if(d > 0 && (card.kind === "end" || (card.kind === "q" && !card.done))) return;
+  if(d < 0 && (GD.i === 0 || card.kind === "end")) return;
+  GD.i += d; GD.dir = d > 0 ? "l" : "r";
+  if(GD.cards[GD.i].kind === "end") gdFinish();
+  render(); window.scrollTo(0, 0); GD && (GD.dir = null);
+}
+(() => {
+  let sx = 0, sy = 0, st = 0, on = false;
+  document.addEventListener("touchstart", e => { on = screen === "guided" && !!GD && !overlay && e.touches.length === 1 && !e.target.closest("input,.sim,.fig"); if(on){ sx = e.touches[0].clientX; sy = e.touches[0].clientY; st = Date.now(); } }, { passive: true });
+  document.addEventListener("touchend", e => {
+    if(!on) return; on = false; const t0 = e.changedTouches[0], dx = t0.clientX - sx, dy = t0.clientY - sy;
+    if(Math.abs(dx) < 60 || Math.abs(dy) > Math.abs(dx) * 0.6 || Date.now() - st > 800) return;
+    if(!S.gdSwipeSeen){ S.gdSwipeSeen = 1; saveLocal(); }
+    gdGo(dx < 0 ? 1 : -1);
+  }, { passive: true });
+  document.addEventListener("keydown", e => { if(screen !== "guided" || !GD || overlay || /INPUT|TEXTAREA/.test(e.target.tagName)) return;
+    if(e.key === "ArrowRight") gdGo(1); else if(e.key === "ArrowLeft") gdGo(-1); });
+})();
