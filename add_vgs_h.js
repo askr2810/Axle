@@ -46,10 +46,10 @@ BIQ("VGKJ1", 2, [
 ]);
 GEN("VGKJ1", 2,
  () => { const [f, comp, nb, en] = R.p(SUBST), M = molar(comp);
-   return [T(`Hva er molar masse for ${nb} ($\\text{${f}}$)?`, `What is the molar mass of ${en} ($\\text{${f}}$)?`), { n: M, tol: 0.05, u: "g/mol" },
+   return [T(`Hva er molar masse for ${nb} ($\\mathrm{${f}}$)?`, `What is the molar mass of ${en} ($\\mathrm{${f}}$)?`), { n: M, tol: 0.05, u: "g/mol" },
      T(`$M = ${compTxt(comp)} = ${mf(M, 2)}$ g/mol.`, `$M = ${compTxt(comp)} = ${mf(M, 2)}$ g/mol.`)]; },
  () => { const [f, comp, nb, en] = R.p(SUBST), M = molar(comp), m = R.p([1, 2.5, 5, 10, 18, 25, 50, 100]), n = m / M;
-   return [T(`Hvor mange mol er ${nf(m)} g ${nb} ($\\text{${f}}$, $M = ${mf(M, 2)}$ g/mol)?`, `How many moles are ${nf(m)} g of ${en} ($\\text{${f}}$, $M = ${mf(M, 2)}$ g/mol)?`), { n, tol: rel(n, 0.01), u: "mol" },
+   return [T(`Hvor mange mol er ${nf(m)} g ${nb} ($\\mathrm{${f}}$, $M = ${mf(M, 2)}$ g/mol)?`, `How many moles are ${nf(m)} g of ${en} ($\\mathrm{${f}}$, $M = ${mf(M, 2)}$ g/mol)?`), { n, tol: rel(n, 0.01), u: "mol" },
      T(`$n = \\dfrac{m}{M} = \\dfrac{${mf(m)}}{${mf(M, 2)}} = ${mf(n, 4)}$ mol.`, `$n = \\dfrac{m}{M} = \\dfrac{${mf(m)}}{${mf(M, 2)}} = ${mf(n, 4)}$ mol.`)]; },
  () => { const [f, comp, nb, en] = R.p(SUBST.filter(s => ["NaCl", "NaOH", "KCl", "CuSO_4", "C_6H_{12}O_6"].includes(s[0]))), M = molar(comp), c = R.p([0.1, 0.2, 0.5, 1]), V = R.p([100, 250, 500, 1000]), m = c * V / 1000 * M;
    return [T(`Hvor mange gram ${nb} ($M = ${mf(M, 2)}$ g/mol) må du løse for å lage ${V} mL av en ${nf(c)} M løsning?`, `How many grams of ${en} ($M = ${mf(M, 2)}$ g/mol) must you dissolve to make ${V} mL of a ${nf(c)} M solution?`), { n: m, tol: rel(m, 0.01), u: "g" },
@@ -138,7 +138,7 @@ BIQ("VGKJ2", 3, [
 GEN("VGKJ2", 3,
  () => { const pairs = [["Ag^+/Ag", 0.80], ["Cu^{2+}/Cu", 0.34], ["Pb^{2+}/Pb", -0.13], ["Ni^{2+}/Ni", -0.25], ["Fe^{2+}/Fe", -0.44], ["Zn^{2+}/Zn", -0.76], ["Al^{3+}/Al", -1.66], ["Mg^{2+}/Mg", -2.37]];
    const [a, b] = R.distinct(2, 0, pairs.length - 1).map(i => pairs[i]), [cat, an] = a[1] > b[1] ? [a, b] : [b, a], E = cat[1] - an[1];
-   return [T(`En galvanisk celle lages av $\\text{${a[0]}}$ ($E^\\circ = ${mf(a[1])}$ V) og $\\text{${b[0]}}$ ($E^\\circ = ${mf(b[1])}$ V). Hva er standard cellespenning?`, `A galvanic cell is made from $\\text{${a[0]}}$ ($E^\\circ = ${mf(a[1])}$ V) and $\\text{${b[0]}}$ ($E^\\circ = ${mf(b[1])}$ V). What is the standard cell voltage?`), { n: E, tol: 0.001, u: "V" },
+   return [T(`En galvanisk celle lages av $\\mathrm{${a[0]}}$ ($E^\\circ = ${mf(a[1])}$ V) og $\\mathrm{${b[0]}}$ ($E^\\circ = ${mf(b[1])}$ V). Hva er standard cellespenning?`, `A galvanic cell is made from $\\mathrm{${a[0]}}$ ($E^\\circ = ${mf(a[1])}$ V) and $\\mathrm{${b[0]}}$ ($E^\\circ = ${mf(b[1])}$ V). What is the standard cell voltage?`), { n: E, tol: 0.001, u: "V" },
      T(`Høyest $E^\\circ$ blir katode: $E = ${mf(cat[1])} - (${mf(an[1])}) = ${mf(E, 2)}$ V.`, `The highest $E^\\circ$ becomes the cathode: $E = ${mf(cat[1])} - (${mf(an[1])}) = ${mf(E, 2)}$ V.`)]; },
  () => { const I = R.p([0.5, 1, 2, 5]), tmin = R.p([10, 20, 30, 60]), q = I * tmin * 60, n = q / (2 * 96485), m = n * 63.55;
    return [T(`Kobber felles ut fra $\\text{Cu}^{2+}$ ved elektrolyse med ${nf(I)} A i ${tmin} min. Hvor mange gram kobber dannes? ($F = 96\\,485$ C/mol, $M = 63{,}55$ g/mol)`, `Copper is deposited from $\\text{Cu}^{2+}$ by electrolysis at ${nf(I)} A for ${tmin} min. How many grams of copper form? ($F = 96\\,485$ C/mol, $M = 63.55$ g/mol)`), { n: m, tol: rel(m, 0.01), u: "g" },
