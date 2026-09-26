@@ -29,14 +29,16 @@ returns void language sql security definer set search_path = ''
 as $$ insert into public.admin_log (actor, action, target_user, target_id, detail) values (auth.uid(), p_action, p_user, left(p_id, 99), left(p_detail, 300)) $$;
 revoke all on function public.admin_note(text, uuid, text, text) from public, anon, authenticated;
 
--- Admin-skinnet (Samling nr. 17) er bare for mod/admin: andre får det byttet til «ingen» når profilen lagres.
+-- Rolle-skinn i Samlingen: nr. 17 Kommandør og 19 Dino-konge bare for admin, 18 Vokter for mod og admin.
+-- Andre får det byttet til «ingen» når profilen lagres.
 create or replace function public.guard_staff_avatar()
 returns trigger language plpgsql security definer set search_path = ''
 as $$
 begin
-  if new.avatar is not null and split_part(new.avatar, '-', 13) = '17'
-     and not exists (select 1 from public.app_roles r where r.user_id = new.user_id) then
-    new.avatar := regexp_replace(new.avatar, '-17$', '-0');
+  if new.avatar is not null and (
+       (split_part(new.avatar, '-', 13) in ('17', '19') and not exists (select 1 from public.app_roles r where r.user_id = new.user_id and r.role = 'admin'))
+    or (split_part(new.avatar, '-', 13) = '18' and not exists (select 1 from public.app_roles r where r.user_id = new.user_id))) then
+    new.avatar := regexp_replace(new.avatar, '-[0-9]+$', '-0');
   end if;
   return new;
 end;
@@ -163,6 +165,7 @@ begin
     if p_action = 'remove_role' then delete from public.app_roles where user_id = uid;
     else insert into public.app_roles (user_id, role) values (uid, case p_action when 'set_admin' then 'admin' else 'mod' end)
          on conflict (user_id) do update set role = excluded.role; end if;
+    update public.profiles set avatar = avatar where user_id = uid; -- vakten over fjerner rolle-skinn brukeren ikke lenger har
   else raise exception 'bad_action';
   end if;
   perform public.admin_note(p_action, uid, null, null);

@@ -20,8 +20,8 @@ const AV_GREEN = { hc: [9], sh: [1, 5], bg: [1, 5] };
 function avColors(o){ const f = new Set(); for(const k in AV_FAM){ const x = AV_FAM[k][o[k]]; if(x) f.add(x); } return f.size; }
 function groupDone(g){ return COURSES.some(c => c.group === g && (() => { const p = courseProgress(c); return p.tot > 0 && p.d === p.tot; })()); }
 function coursesDone(){ return COURSES.filter(c => { const p = courseProgress(c); return p.tot > 0 && p.d === p.tot; }).length; }
-const ADMIN_PET = 17; // «Kommandør»: animert admin-skin (databasen fjerner det fra alle som ikke har rolle)
-// [indeks i AV_NAMES.p, id, hemmelig? (true = påskeegg, "staff" = bare mod/admin), sjekk(o = avatar som vises i byggeren), hint nb, hint en]
+const ADMIN_PET = 17, MOD_PET = 18, DINO_PET = 19; // Kommandør og Dino-konge (admin), Vokter (mod og admin). Databasen fjerner dem fra andre.
+// [indeks i AV_NAMES.p, id, hemmelig? (true = påskeegg, "staff" = mod og admin, "admin" = bare admin), sjekk(o = avatar som vises i byggeren), hint nb, hint en]
 // Hemmelige påskeegg har bare en kort kode som hint – man må prøve seg fram.
 const PETS = [
   [1, "rainbow", true, o => avColors(o) >= RAINBOW_N, "🎨 ≥ 4", "🎨 ≥ 4"],
@@ -40,13 +40,18 @@ const PETS = [
   [14, "stardust", false, () => (+(S.stats || {}).flawless || 0) >= 10, "Fullfør 10 leksjoner uten feil.", "Finish 10 lessons without mistakes."],
   [15, "ufo", true, () => (S.stats || {}).ufo > 0, "👆 ⁷", "👆 ⁷"],
   [16, "moon", true, () => (S.stats || {}).night > 0, "00 → 04", "00 → 04"],
-  [ADMIN_PET, "admin", "staff", () => false, "Bare for admin og moderatorer.", "Admins and moderators only."] // låses opp av rollen, ikke av en oppgave
+  [ADMIN_PET, "admin", "admin", () => false, "Bare for admin.", "Admins only."], // låses opp av rollen, ikke av en oppgave
+  [MOD_PET, "guardian", "staff", () => false, "Bare for moderatorer og admin.", "Moderators and admins only."],
+  [DINO_PET, "dino", "admin", () => false, "Bare for admin.", "Admins only."]
 ];
 // Mod/admin (rolle fra databasen, se app_roles i venner.sql) har alt i Samlingen.
 const isStaff = () => !!AUTH && (S.appRole === "mod" || S.appRole === "admin");
 const staffTag = role => role === "mod" || role === "admin" ? `<span class="staff-tag">🛡️ ${esc(t(role === "admin" ? "roleAdmin" : "roleMod"))}</span>` : "";
-const unlockedPets = () => new Set([0, ...PETS.filter(p => isStaff() || (p[2] !== "staff" && (S.unlocks || {})[p[1]])).map(p => p[0])]);
-const petTotal = () => PETS.filter(p => p[2] !== "staff" || isStaff()).length;
+const isAdminRole = () => isStaff() && S.appRole === "admin";
+const petRoleOk = p => p[2] === "admin" ? isAdminRole() : p[2] === "staff" ? isStaff() : true;
+const petVisible = i => { const p = PETS.find(x => x[0] === i); return !p || petRoleOk(p); };
+const unlockedPets = () => new Set([0, ...PETS.filter(p => (p[2] === "admin" || p[2] === "staff") ? petRoleOk(p) : isStaff() || (S.unlocks || {})[p[1]]).map(p => p[0])]);
+const petTotal = () => PETS.filter(petRoleOk).length;
 // Sjekker og lagrer nye opplåsinger. o = avataren i byggeren (for fargepåskeeggene). Returnerer de nye.
 function checkUnlocks(o){
   S.unlocks ||= {}; const fresh = [];
@@ -59,6 +64,7 @@ function noteNightLesson(){ const h = new Date().getHours(); if(h >= 0 && h < 4)
 // ---------- tegning (koordinater 0–100, høyre skulder rundt x 76, y 82) ----------
 function petBack(p, id){
   if(p === ADMIN_PET) return adminBack(id);
+  if(p === MOD_PET) return modBack(id);
   if(p === 1) return ["#E53935", "#FB8C00", "#FDD835", "#43A047", "#1E88E5", "#8E24AA"].map((c, i) => `<path d="M${8 + i * 3} 78A${42 - i * 3} ${42 - i * 3} 0 0 1 ${92 - i * 3} 78" fill="none" stroke="${c}" stroke-width="3.2" opacity=".85"/>`).join("");
   if(p === 12) return `<defs><radialGradient id="${id}f"><stop offset="0" stop-color="#FFD54F" stop-opacity=".95"/><stop offset=".55" stop-color="#FF8F00" stop-opacity=".55"/><stop offset="1" stop-color="#FF3D00" stop-opacity="0"/></radialGradient></defs>
     <ellipse cx="50" cy="44" rx="38" ry="40" fill="url(#${id}f)"/><path d="M22 60c-6-14 2-24 6-30 0 8 4 10 6 12-1-10 4-20 12-26-2 10 4 14 4 14s4-6 2-14c8 6 12 16 11 26 2-2 6-4 6-12 4 6 12 16 6 30z" fill="#FF7043" opacity=".45"/>`;
@@ -69,6 +75,7 @@ function petBack(p, id){
 function petFront(p, id){
   switch(p){
     case ADMIN_PET: return adminFront(id);
+    case MOD_PET: return modFront(id);
     case 2: return `<g transform="translate(0 -5)"><path d="M60 86c6-5 16-6 22-2 3 2 2 5-1 5-5-1-10 0-14 3z" fill="#43A047"/><path d="M80 84c4-2 8-1 9 2-2 2-6 2-9 1z" fill="#66BB6A"/><circle cx="85.5" cy="84.3" r=".9" fill="#1B1B1B"/>
       <path d="M62 88c-5 3-9 2-12 0 3 0 6-1 8-3" fill="none" stroke="#2E7D32" stroke-width="2.2" stroke-linecap="round"/><path d="M68 88l-1 3M74 87l1 3" stroke="#2E7D32" stroke-width="1.6" stroke-linecap="round"/>
       ${[[66, 86], [71, 85], [76, 85]].map(([x, y]) => `<circle cx="${x}" cy="${y}" r=".9" fill="#A5D6A7"/>`).join("")}</g>`;
@@ -110,4 +117,68 @@ function adminFront(id){
   return `<g transform="translate(75 81)"><circle r="9" fill="#B36EFF" opacity=".35"><animate attributeName="r" values="7;10.5;7" dur="1.8s" repeatCount="indefinite"/><animate attributeName="opacity" values=".45;.15;.45" dur="1.8s" repeatCount="indefinite"/></circle>
     <path d="M0-7.5l6.2 2.3v4.5c0 4.2-2.7 6.9-6.2 8.3-3.5-1.4-6.2-4.1-6.2-8.3v-4.5z" fill="url(#${id}as)" stroke="#FFD36E" stroke-width="1.1"/>
     <path d="M0-3.6l1.2 2.4 2.6.4-1.9 1.8.5 2.6L0 2.4l-2.4 1.2.5-2.6-1.9-1.8 2.6-.4z" fill="#FFD36E"><animate attributeName="opacity" values="1;.55;1" dur="1.8s" repeatCount="indefinite"/></path></g>`;
+}
+
+// ---------- «Vokter»: mod-skinnet ----------
+// Kjølig blågrønn aura, én roterende ring med skjoldmerker, rolig puls og et skjold med hake på brystet.
+function modBack(id){
+  return `<defs><radialGradient id="${id}mb" cx="50%" cy="42%" r="75%"><stop offset="0" stop-color="#0F8A83" stop-opacity=".25"/><stop offset=".65" stop-color="#0B3B5C" stop-opacity=".75"/><stop offset="1" stop-color="#062033" stop-opacity=".92"/></radialGradient>
+      <linearGradient id="${id}mr" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#6EFFD8"/><stop offset="1" stop-color="#3FA7FF"/></linearGradient>
+      <linearGradient id="${id}ms" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#6EE7D8"/><stop offset="1" stop-color="#1273B8"/></linearGradient></defs>
+    <rect width="100" height="100" fill="url(#${id}mb)"/>
+    <circle cx="50" cy="46" r="38" fill="none" stroke="#6EFFD8" stroke-width="1" opacity=".5"><animate attributeName="opacity" values=".15;.6;.15" dur="3s" repeatCount="indefinite"/></circle>
+    <g><circle cx="50" cy="46" r="42" fill="none" stroke="url(#${id}mr)" stroke-width="2" stroke-dasharray="22 8" stroke-linecap="round"/>
+      ${[0, 120, 240].map(r => `<path d="M50 1.5l3 1.1v2.2c0 2-1.3 3.3-3 4-1.7-.7-3-2-3-4V2.6z" fill="#6EFFD8" transform="rotate(${r} 50 46)"/>`).join("")}
+      <animateTransform attributeName="transform" type="rotate" from="0 50 46" to="360 50 46" dur="16s" repeatCount="indefinite"/></g>`;
+}
+function modFront(id){
+  return `<g transform="translate(75 81)"><circle r="8.5" fill="#6EFFD8" opacity=".3"><animate attributeName="opacity" values=".35;.1;.35" dur="2.4s" repeatCount="indefinite"/></circle>
+    <path d="M0-7l5.8 2.1v4.2c0 3.9-2.5 6.4-5.8 7.7-3.3-1.3-5.8-3.8-5.8-7.7v-4.2z" fill="url(#${id}ms)" stroke="#E6FFFA" stroke-width="1"/>
+    <path d="M-2.6.2l1.9 1.9 3.6-3.8" fill="none" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></g>`;
+}
+
+// ---------- «Dino-konge»: admin-avatar der hele figuren er en T-rex som brøler ----------
+// Kroppen får klesfargen og bakgrunnen følger bakgrunnsvalget, så den kan fortsatt tilpasses. Kjeven åpner seg
+// hvert tredje sekund (brøl), hodet vipper opp, lydbølger og en vulkan som ryker i bakgrunnen.
+function dinoSVG(o, id, size, extraClass){
+  const col = AV_SHIRT[o.sh] || "#2E7D32", bg = AV_BG[o.bg] || "#D5F0E6", dur = "3.2s";
+  const K = `keyTimes="0;.52;.6;.8;.88;1" dur="${dur}" repeatCount="indefinite"`, calc = `calcMode="spline" keySplines=".4 0 .2 1;.2 1 .4 1;0 0 1 1;.4 0 .2 1;0 0 1 1"`;
+  const upY = x => 50 - (x - 50) * 4 / 36; // underkant av overkjeven
+  const topTeeth = [55, 61, 67, 73, 79].map(x => `<path d="M${x - 1.8} ${upY(x).toFixed(1)}l1.8 4 1.8-4z" fill="#FFFDF5"/>`).join("");
+  const lowTeeth = [57, 63, 69, 75, 81].map(x => `<path d="M${x - 1.8} 50.5l1.8-3.6 1.8 3.6z" fill="#FFFDF5"/>`).join("");
+  // pigger langs ryggen og bakhodet: trekanter som står ut fra kurvene (punkt og normal på Bézier-kurven)
+  const bez = (P, t) => { const u = 1 - t, c = [u * u * u, 3 * u * u * t, 3 * u * t * t, t * t * t], d = [-3 * u * u, 3 * u * u - 6 * u * t, 6 * u * t - 3 * t * t, 3 * t * t];
+    return { x: c.reduce((s, k, i) => s + k * P[i][0], 0), y: c.reduce((s, k, i) => s + k * P[i][1], 0), dx: d.reduce((s, k, i) => s + k * P[i][0], 0), dy: d.reduce((s, k, i) => s + k * P[i][1], 0) }; };
+  const spike = (P, t, h) => { const b = bez(P, t), L = Math.hypot(b.dx, b.dy), tx = b.dx / L, ty = b.dy / L, nx = ty, ny = -tx;
+    return `<path d="M${(b.x - tx * 2.8).toFixed(1)} ${(b.y - ty * 2.8).toFixed(1)}L${(b.x + nx * h).toFixed(1)} ${(b.y + ny * h).toFixed(1)}L${(b.x + tx * 2.8).toFixed(1)} ${(b.y + ty * 2.8).toFixed(1)}z" fill="${col}" stroke="rgba(0,0,0,.25)" stroke-width=".6" stroke-linejoin="round"/>`; };
+  const back = [[14, 104], [12, 84], [18, 64], [32, 48]], skull = [[30, 40], [30, 24], [44, 17], [60, 18.5]];
+  const spikes = [.2, .4, .6, .8].map(t => spike(back, t, 5.5)).join("") + [.12, .38].map(t => spike(skull, t, 5)).join("");
+  const puff = (x, d) => `<circle cx="${x}" cy="56" r="3" fill="#9AA3AB" opacity="0"><animate attributeName="cy" values="56;34" dur="3s" begin="${d}s" repeatCount="indefinite"/><animate attributeName="r" values="2.5;6" dur="3s" begin="${d}s" repeatCount="indefinite"/><animate attributeName="opacity" values=".7;0" dur="3s" begin="${d}s" repeatCount="indefinite"/></circle>`;
+  return `<svg class="av ${extraClass}" width="${size}" height="${size}" viewBox="0 0 100 100" aria-hidden="true"><defs><clipPath id="${id}"><circle cx="50" cy="50" r="50"/></clipPath>
+      <linearGradient id="${id}ds" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FFB86B" stop-opacity=".55"/><stop offset="1" stop-color="${bg}" stop-opacity="0"/></linearGradient></defs>
+    <g clip-path="url(#${id})"><rect width="100" height="100" fill="${bg}"/><rect width="100" height="70" fill="url(#${id}ds)"/>
+      <path d="M-4 84L10 58h10l14 26z" fill="#6D4C41" opacity=".75"/><path d="M10 58l3 5 2-3 2 3 3-5z" fill="#FF7043"/>${puff(15, 0)}${puff(14, 1.5)}
+      <path d="M-5 100C10 88 30 90 45 96s35 0 60-6v12H-5z" fill="rgba(0,0,0,.12)"/>
+      <g>
+        <animateTransform attributeName="transform" type="rotate" values="0 34 62;0 34 62;-7 34 62;-7 34 62;0 34 62;0 34 62" ${K} ${calc}/>
+        <path d="M14 104C12 84 18 64 32 48l20 5c4 12 10 28 22 51z" fill="${col}"/>
+        <path d="M34 104C36 86 42 70 50 60c4 14 9 30 16 44z" fill="#FFF3C4" opacity=".55"/>
+        <path d="M46 76q9 1 11 7l-3 1.4q-3-4.4-8-4.4z" fill="${col}" stroke="rgba(0,0,0,.25)" stroke-width=".6"/>
+        ${spikes}
+        <path d="M48 50L86 46L84 55L52 58z" fill="#7A1F2B"/>
+        <g><animateTransform attributeName="transform" type="rotate" values="0 48 50;0 48 50;24 48 50;22 48 50;0 48 50;0 48 50" ${K} ${calc}/>
+          <path d="M45 48L86 50C89 52 87 57 82 58L52 60C46 60 43 55 45 48z" fill="${col}" stroke="rgba(0,0,0,.28)" stroke-width=".7"/>
+          <path d="M52 52.5q14 3 26 0" stroke="#E86A92" stroke-width="2.4" fill="none" stroke-linecap="round"/>${lowTeeth}</g>
+        <path d="M30 40C30 24 44 17 60 18.5C74 20 86 24 90 32C92 37 90 44 86 46L50 50C42 51 33 49 30 40z" fill="${col}" stroke="rgba(0,0,0,.28)" stroke-width=".7"/>
+        <path d="M34 36C38 28 48 24 58 24" stroke="rgba(255,255,255,.35)" stroke-width="2" fill="none" stroke-linecap="round"/>
+        ${topTeeth}
+        <circle cx="83" cy="33" r="1.1" fill="rgba(0,0,0,.55)"/>
+        <circle cx="58" cy="31" r="4.6" fill="#fff"/><circle cx="59.3" cy="31.4" r="2.4" fill="#1B1B1B"/><circle cx="60.2" cy="30.4" r=".8" fill="#fff"/>
+        <path d="M51.5 26.5L65 27" stroke="rgba(0,0,0,.55)" stroke-width="2" stroke-linecap="round"><animate attributeName="d" values="M51.5 26.5L65 27;M51.5 26.5L65 27;M52 25L65 28.5;M52 25L65 28.5;M51.5 26.5L65 27;M51.5 26.5L65 27" ${K}/></path>
+        <path d="M49 20l2.6-9 4.4 5.6 4-8 4 8 4.4-5.6 2.6 9z" fill="#F2B51D" stroke="#C98B00" stroke-width="1"/><circle cx="60" cy="13.5" r="1.5" fill="#E86A92"/>
+      </g>
+      <g fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" opacity="0">
+        <animate attributeName="opacity" values="0;0;.95;.95;0;0" ${K}/>
+        <path d="M91 50q3 5 0 10"/><path d="M95 46q5 9 0 18"/><path d="M99 42q7 13 0 26"/></g>
+    </g></svg>`;
 }
