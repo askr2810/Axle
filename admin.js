@@ -11,6 +11,7 @@ function admErr(e){
   if(/not_admin/.test(m)) return t("admNotAdmin");
   if(/not_staff/.test(m)) return t("admNotStaff");
   if(/not_self/.test(m)) return t("admNotSelf");
+  if(/not_allowed/.test(m)) return t("admNotAllowed");
   if(e && (e.status === 404 || /PGRST202|42883/.test(e.code || ""))) return t("admNoDb");
   return frErr(e);
 }
@@ -95,8 +96,8 @@ function admUsersHTML(){
     return `<div class="fr-card adm-user ${open ? "open" : ""}"><button class="fr-who" data-a="admopen" data-id="${esc(u.user_id)}">${admWho(u, sub)}${+u.reports ? `<em class="fr-n adm-rn">${u.reports} ⚑</em>` : ""}</button>
       ${open ? `<p class="adm-meta">${esc(t("admJoined", fmtDate(u.created_at)))} · ${esc(t("admLast", admAgo(u.last_active)))} · ${esc(String(u.xp || 0))} XP</p>
         <div class="adm-acts">${u.display_name ? `<button class="fr-act" data-a="admperson" data-id="${esc(u.user_id)}">${esc(t("admSeeProfile"))}</button>` : ""}
-          ${!me ? btn("reset_name", "admResetName", 1) + (u.photo ? btn("remove_photo", "admRemovePhoto", 1) : "") : ""}
-          ${isAdmin() && !me ? (u.app_role !== "mod" ? btn("set_mod", "admMakeMod") : "") + (u.app_role !== "admin" ? btn("set_admin", "admMakeAdmin") : "") + (u.app_role ? btn("remove_role", "admRemoveRole", 1) : "") : ""}</div>` : ""}</div>`;
+          ${!me && (u.app_role !== "admin" || isAdmin()) ? btn("reset_name", "admResetName", 1) + (u.photo ? btn("remove_photo", "admRemovePhoto", 1) : "") : ""}
+          ${isAdmin() && !me && u.app_role !== "admin" ? (u.app_role === "mod" ? btn("remove_role", "admRemoveMod", 1) : btn("set_mod", "admMakeMod")) : ""}</div>` : ""}</div>`;
   }).join("")}</div>`;
 }
 function admNoticeHTML(){
@@ -108,7 +109,7 @@ function admNoticeHTML(){
     <button class="big" data-a="admnotice" ${ADM.busy ? "disabled" : ""}>📣 ${esc(t("admNoticeSend"))}</button>
     ${n ? `<button class="big ghost adm-bad" data-a="admnoticeoff">${esc(t("admNoticeOff"))}</button>` : ""}</div>`;
 }
-const ADM_ACT = { reset_name: "admResetName", remove_photo: "admRemovePhoto", hide_course: "admHideCourse", reset_group: "admResetGroup", delete_group: "admDeleteGroup", dismiss: "admDismiss", set_mod: "admMakeMod", set_admin: "admMakeAdmin", remove_role: "admRemoveRole", notice: "admNoticeSend", notice_off: "admNoticeOff" };
+const ADM_ACT = { reset_name: "admResetName", remove_photo: "admRemovePhoto", hide_course: "admHideCourse", reset_group: "admResetGroup", delete_group: "admDeleteGroup", dismiss: "admDismiss", set_mod: "admMakeMod", remove_role: "admRemoveMod", notice: "admNoticeSend", notice_off: "admNoticeOff" };
 function admLogHTML(){
   if(ADM.log === null) return `<p class="fr-hint">${esc(t("frLoading"))}</p>`;
   if(!ADM.log.length) return `<p class="fr-hint">${esc(t("admLogNone"))}</p>`;

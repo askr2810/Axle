@@ -3,7 +3,8 @@
 -- Krever at oppsett.sql, venner.sql, fellesskap.sql og grupper.sql er kjørt først.
 --
 --   mod:   oversikt, rapporter (behandle/avvise), finne brukere, nullstille navn og bilde, skjule kurs.
---   admin: alt over + e-post i brukersøk, gi/fjerne roller, slette grupper og kunngjøringer til alle.
+--   admin: alt over + e-post i brukersøk, gjøre folk til mod og ta mod fra dem, slette grupper og kunngjøringer til alle.
+--   Admin kan ikke gis eller tas fra noen i appen – bare her i SQL Editor (se app_roles i venner.sql).
 -- Alt som gjøres, lagres i public.admin_log (hvem, hva og når).
 
 -- ---------- hjelpere ----------
@@ -150,21 +151,22 @@ begin
 end;
 $$;
 
--- Handlinger på en bruker. Roller kan bare admin endre, og ingen kan ta fra seg selv admin.
+-- Handlinger på en bruker. Bare admin kan gi og ta mod; admin-rollen kan ikke endres fra appen i det hele tatt.
+-- En mod kan ikke nullstille navn/bilde til en admin.
 create or replace function public.admin_user_action(uid uuid, p_action text)
 returns void language plpgsql security definer set search_path = ''
 as $$
-declare lvl int := public.staff_level();
+declare lvl int := public.staff_level(); target_role text := (select r.role from public.app_roles r where r.user_id = uid);
 begin
   if lvl < 1 then raise exception 'not_staff'; end if;
+  if target_role = 'admin' and (lvl < 2 or p_action in ('set_mod', 'remove_role')) then raise exception 'not_allowed'; end if;
   if p_action = 'reset_name' then update public.profiles set display_name = 'Bruker', username = null where user_id = uid;
   elsif p_action = 'remove_photo' then update public.profiles set photo = null where user_id = uid;
-  elsif p_action in ('set_mod', 'set_admin', 'remove_role') then
+  elsif p_action in ('set_mod', 'remove_role') then
     if lvl < 2 then raise exception 'not_admin'; end if;
     if uid = auth.uid() then raise exception 'not_self'; end if;
-    if p_action = 'remove_role' then delete from public.app_roles where user_id = uid;
-    else insert into public.app_roles (user_id, role) values (uid, case p_action when 'set_admin' then 'admin' else 'mod' end)
-         on conflict (user_id) do update set role = excluded.role; end if;
+    if p_action = 'remove_role' then delete from public.app_roles where user_id = uid and role = 'mod';
+    else insert into public.app_roles (user_id, role) values (uid, 'mod') on conflict (user_id) do nothing; end if;
     update public.profiles set avatar = avatar where user_id = uid; -- vakten over fjerner rolle-skinn brukeren ikke lenger har
   else raise exception 'bad_action';
   end if;
