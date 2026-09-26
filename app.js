@@ -253,6 +253,7 @@ function renderSettings(){
     <div class="sgroup"><button class="srow set-av" data-a="avedit">${hasMeAv() ? meAvHTML(48) : `<span class="set-av0">${I.users}</span>`}<span class="lbl">${t(hasMeAv() ? "avEdit" : "avMake")}<span class="sub">${t("avSetSub")}</span></span>${I.chevron}</button></div>
     <div class="sgroup">
       <div class="srow"><span class="lbl">${t("setLang")}</span><div class="seg"><button class="${LANG==="nb"?"on":""}" data-a="setlang" data-l="nb">Norsk</button><button class="${LANG==="en"?"on":""}" data-a="setlang" data-l="en">English</button></div></div>
+      <div class="srow"><span class="lbl">${t("setTheme")}</span><div class="seg">${["auto","light","dark"].map(k=>`<button class="${(S.theme||"auto")===k?"on":""}" data-a="settheme" data-m="${k}" aria-pressed="${(S.theme||"auto")===k}">${esc(t("theme_"+k))}</button>`).join("")}</div></div>
       <div class="srow"><span class="lbl">${t("setGoal")}<span class="sub">${t("setGoalUnit")}</span></span><div class="seg">${goalOpts.map(g=>`<button class="${(S.goal||10)===g?"on":""}" data-a="setgoal" data-g="${g}">${g}</button>`).join("")}</div></div>
       <button class="srow" data-a="dcsrcopen"><span class="lbl">${t("dcSrcSet")}<span class="sub">${esc(dcSrcLabel())}</span></span>${I.chevron}</button>
       <div class="srow"><span class="lbl">${t("setReminder")}<span class="sub">${esc(pushNote() || t(NATIVE ? "setReminderSubApp" : "setReminderSubWeb"))}</span></span><button class="tog ${rem.on&&(NATIVE||pushSupported())?"on":""}" data-a="remtoggle" role="switch" aria-checked="${!!(rem.on&&(NATIVE||pushSupported()))}" aria-label="${t("setReminder")}" ${NATIVE||pushSupported()?"":"disabled"}></button></div>
@@ -876,7 +877,16 @@ function preCardHTML(c){
     <div class="prechips">${chips}</div>${nice.length?`<p class="prenice">${esc(t("preNice", nice.map(k=>courseName(COURSE(k))).join(", ")))}</p>`:""}</div>`;
 }
 // ---------- render og hendelser ----------
+// Tema: "auto" følger systemet, ellers tvinges lys eller mørk (data-theme i styles.css). theme-color følger med.
+function applyTheme(){
+  const th = S.theme === "dark" || S.theme === "light" ? S.theme : null, de = document.documentElement;
+  if(th) de.setAttribute("data-theme", th); else de.removeAttribute("data-theme");
+  const dark = th ? th === "dark" : !!(window.matchMedia && matchMedia("(prefers-color-scheme: dark)").matches);
+  document.querySelector('meta[name="theme-color"]')?.setAttribute("content", dark ? "#0F151B" : "#2B59C3");
+}
+try{ matchMedia("(prefers-color-scheme: dark)").addEventListener("change", applyTheme); }catch(e){}
 function render(){
+  applyTheme();
   document.documentElement.lang = LANG==="en" ? "en" : "nb";
   document.title = T(CONFIG.appName.nb, CONFIG.appName.en);
   if(screen==="home") renderHome();
@@ -977,6 +987,7 @@ document.addEventListener("click", async e=>{
   else if(a==="resetok"){ const keep={current:S.current, lang:S.lang, goal:S.goal, reminder:S.reminder, haptics:S.haptics, outbox:S.outbox, examPrefs:S.examPrefs}; S=Object.assign(blank(),keep); save(); clearTimeout(CLOUD.timer); cloudSync(true); examStopTicker(); EX.res=null; goHome(); toast(t("resetDone")); }
   // innstillinger
   else if(a==="setlang"){ LANG = b.dataset.l; S.lang = LANG; S.langSet = 1; save(); render(); if(S.reminder.on){ scheduleReminder(); pushResync(true); } }
+  else if(a==="settheme"){ S.theme = b.dataset.m; save(); render(); }
   else if(a==="langpick"){ LANG = b.dataset.l; S.lang = LANG; S.langSet = 1; save(); overlay = null; renderOverlay(); render(); setTimeout(bootPrompts, 250); }
   else if(a==="setgoal"){ S.goal = +b.dataset.g; save(); render(); }
   else if(a==="haptoggle"){ S.haptics = !S.haptics; save(); render(); if(S.haptics) buzz(true); }

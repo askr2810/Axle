@@ -35,7 +35,9 @@ def build_www(js, css, out):
     stamp = hashlib.sha1((js + css).encode("utf-8")).hexdigest()[:10]  # ny verdi ved hver endring
     m = re.search(r'supabaseUrl:\s*"(https://[^"]+)"', read("config.js"))
     supa = (" " + m.group(1).rstrip("/")) if m else ""
-    fallback = "if(!window.katex){document.write('<script src=\"" + KATEX_CDN + "\"><\\/script>');}"
+    fallback = ("if(!window.katex){document.write('<script src=\"" + KATEX_CDN + "\"><\\/script>');}"
+                # valgt tema (lys/mørk) settes før siden tegnes, så den ikke blinker
+                "(function(){try{var t=(JSON.parse(localStorage.getItem('ingeniordrill.v1'))||{}).theme;if(t==='dark'||t==='light')document.documentElement.setAttribute('data-theme',t)}catch(e){}})();")
     fb_hash = base64.b64encode(hashlib.sha256(fallback.encode("utf-8")).digest()).decode()
     # Innholdssikkerhetsregel: bare våre egne filer, KaTeX-reserven og skjemaet for tilbakemeldinger er tillatt.
     csp = ("default-src 'self'; "
