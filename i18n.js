@@ -253,7 +253,7 @@ const UI = {
     needText: "Skriv litt først.", yourAnswer: "Ditt svar",
     // Kladd
     scDraw: "Tegn", scCalc: "Kalkulator", scPen: "Penn", scEraser: "Viskelær", scUndo: "Angre", scClear: "Tøm", scFit: "Tilpass",
-    scZoomIn: "Zoom inn", scZoomOut: "Zoom ut", scClose: "Lukk kladd", scTip: "Tegn med én finger. Zoom og flytt med to.",
+    scZoomIn: "Zoom inn", scZoomOut: "Zoom ut", scClose: "Lukk kladd", scTip: "Tegn med penn eller én finger. Zoom og flytt med to fingre, trykk med to fingre for å angre. Med penn kan du hvile hånda på skjermen.",
     calcPh: "Skriv et uttrykk, f.eks. 2*sin(30) eller sqrt(2)/4", calcUse: "Bruk som svar", calcUsed: "Satt inn i svarfeltet.",
     calcErr: "Forstår ikke uttrykket", calcEmpty: "Regn her. Pil opp henter forrige linje. «ans» er forrige svar.",
     privacyTitle: "Personvern",
@@ -479,7 +479,7 @@ const UI = {
     orderNote: "Courses are sorted by what they build on. If you are starting from scratch, take Foundations of Mathematics and Physics first.",
     needText: "Please write something first.", yourAnswer: "Your answer",
     scDraw: "Draw", scCalc: "Calculator", scPen: "Pen", scEraser: "Eraser", scUndo: "Undo", scClear: "Clear", scFit: "Fit",
-    scZoomIn: "Zoom in", scZoomOut: "Zoom out", scClose: "Close scratchpad", scTip: "Draw with one finger. Zoom and pan with two.",
+    scZoomIn: "Zoom in", scZoomOut: "Zoom out", scClose: "Close scratchpad", scTip: "Draw with a pen or one finger. Zoom and pan with two fingers, tap with two fingers to undo. With a pen you can rest your hand on the screen.",
     calcPh: "Type an expression, e.g. 2*sin(30) or sqrt(2)/4", calcUse: "Use as answer", calcUsed: "Inserted into the answer field.",
     calcErr: "Can't read the expression", calcEmpty: "Calculate here. Arrow up recalls the last line. “ans” is the last result.",
     privacyTitle: "Privacy",

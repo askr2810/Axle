@@ -633,7 +633,7 @@ function mountScratch(){
 function initCanvas(){
   const cv = document.getElementById("sccv"); if(!cv) return;
   const st = scratchState(), ctx = cv.getContext("2d");
-  SCR = { cv, ctx, ptrs:new Map(), cur:null, pinch:null, pan:null, erasing:false, pen:false, raf:0, w:1, h:1, dpr:1 };
+  SCR = { cv, ctx, ptrs:new Map(), cur:null, pinch:null, pan:null, erasing:false, pen:false, penId:null, tap2:null, base:null, dirty:true, raf:0, w:1, h:1, dpr:1 };
   const cs = getComputedStyle(document.documentElement);
   SCR.colors = INKS.map(v=>cs.getPropertyValue(v).trim()||"#222"); SCR.grid = cs.getPropertyValue("--line").trim()||"#ddd";
   const resize = () => { const r = cv.getBoundingClientRect(), dpr = window.devicePixelRatio||1; cv.width = Math.max(1,Math.round(r.width*dpr)); cv.height = Math.max(1,Math.round(r.height*dpr)); SCR.dpr=dpr; SCR.w=r.width; SCR.h=r.height; scDraw(); };
@@ -642,37 +642,57 @@ function initCanvas(){
   const toW = p => ({ x:(p.x-st.view.x)/st.view.s, y:(p.y-st.view.y)/st.view.s });
   const eraseAt = w => { const rad = 12/st.view.s; const hit=[]; st.strokes.forEach((s,i)=>{ if(s.pts.some(p=>Math.hypot(p.x-w.x,p.y-w.y)<rad)) hit.push(i); });
     if(hit.length){ const removed = hit.map(i=>({i, s:st.strokes[i]})); for(let k=hit.length-1;k>=0;k--) st.strokes.splice(hit[k],1); st.hist.push({erase:removed}); scDraw(); } };
+  // Penn (Apple Pencil o.l.): trykkfølsom strek, og håndflaten ignoreres mens pennen er nede.
+  // Finger: tegner til en penn er brukt, deretter flytter én finger arket. To fingre: zoom/flytt, et kort trykk med to fingre angrer.
+  const isPalm = e => e.pointerType==="touch" && (SCR.penId!=null || (SCR.pen && (e.width>40 || e.height>40)));
+  const touchesOf = () => [...SCR.ptrs.values()].filter(p=>p.type!=="pen");
   cv.addEventListener("pointerdown", e=>{
+    const isPen = e.pointerType==="pen";
+    if(isPen){
+      SCR.pen = true; SCR.penId = e.pointerId;
+      for(const [id,p] of SCR.ptrs) if(p.type!=="pen") SCR.ptrs.delete(id); // hånd som landet før pennen
+      if(SCR.cur && !SCR.cur.pr && SCR.cur.pts.length < 12 && st.strokes[st.strokes.length-1]===SCR.cur){ st.strokes.pop(); st.hist.pop(); SCR.cur = null; SCR.dirty = true; } // prikk fra hånda
+      SCR.pinch = null; SCR.pan = null; SCR.tap2 = null;
+    } else if(isPalm(e)) return;
     try{ cv.setPointerCapture(e.pointerId); }catch(err){}
-    if(e.pointerType==="pen") SCR.pen = true;
     SCR.ptrs.set(e.pointerId, {...pos(e), type:e.pointerType});
-    const pts = [...SCR.ptrs.values()];
-    if(pts.length===2){ // to fingre: zoom og flytt
+    const touches = touchesOf();
+    if(!isPen && touches.length===2){ // to fingre: zoom og flytt
       if(SCR.cur){ if(SCR.cur.pts.length<4){ st.strokes.pop(); st.hist.pop(); } SCR.cur=null; }
       SCR.erasing=false; SCR.pan=null;
-      const [a,b] = pts; SCR.pinch = { d0: Math.hypot(a.x-b.x,a.y-b.y)||1, m0:{x:(a.x+b.x)/2,y:(a.y+b.y)/2}, v0:{...st.view} };
+      const [a,b] = touches; SCR.pinch = { d0: Math.hypot(a.x-b.x,a.y-b.y)||1, m0:{x:(a.x+b.x)/2,y:(a.y+b.y)/2}, v0:{...st.view} };
+      SCR.tap2 = { t0: Date.now(), moved: false }; scDraw();
       return;
     }
-    if(pts.length>2) return;
+    if(!isPen && touches.length>2) return;
     const panOnly = (SCR.pen && e.pointerType==="touch") || e.button===1 || e.button===2;
     if(panOnly){ SCR.pan = { p0:pos(e), v0:{...st.view} }; return; }
     const w = toW(pos(e));
-    if(st.tool==="eraser"){ SCR.erasing = true; eraseAt(w); return; }
-    SCR.cur = { c:st.color, pts:[w] }; st.strokes.push(SCR.cur); st.hist.push({add:true}); scDraw();
+    if(st.tool==="eraser" || (isPen && ((e.buttons & 32) || e.button===5))){ SCR.erasing = true; eraseAt(w); return; } // viskeknapp på penn
+    SCR.cur = { c:st.color, pts:[isPen ? {...w, p:e.pressure||0.5} : w], pr: isPen || undefined }; st.strokes.push(SCR.cur); st.hist.push({add:true}); scDraw(true);
   });
   cv.addEventListener("pointermove", e=>{
     if(!SCR.ptrs.has(e.pointerId)) return;
     SCR.ptrs.set(e.pointerId, {...pos(e), type:e.pointerType});
-    if(SCR.pinch && SCR.ptrs.size>=2){
-      const [a,b] = [...SCR.ptrs.values()], P = SCR.pinch; const d = Math.hypot(a.x-b.x,a.y-b.y), m = {x:(a.x+b.x)/2,y:(a.y+b.y)/2};
+    if(SCR.pinch && e.pointerType!=="pen" && touchesOf().length>=2){
+      const [a,b] = touchesOf(), P = SCR.pinch; const d = Math.hypot(a.x-b.x,a.y-b.y), m = {x:(a.x+b.x)/2,y:(a.y+b.y)/2};
+      if(SCR.tap2 && (Math.abs(d-P.d0)>12 || Math.hypot(m.x-P.m0.x, m.y-P.m0.y)>12)) SCR.tap2.moved = true;
       const s = Math.min(8, Math.max(0.2, P.v0.s*d/P.d0)); const wx = (P.m0.x-P.v0.x)/P.v0.s, wy = (P.m0.y-P.v0.y)/P.v0.s;
       st.view = { s, x: m.x - wx*s, y: m.y - wy*s }; scDraw(); return;
     }
     if(SCR.pan){ const p = pos(e); st.view = { ...SCR.pan.v0, x: SCR.pan.v0.x + p.x - SCR.pan.p0.x, y: SCR.pan.v0.y + p.y - SCR.pan.p0.y }; scDraw(); return; }
     if(SCR.erasing){ eraseAt(toW(pos(e))); return; }
-    if(SCR.cur){ const evs = e.getCoalescedEvents ? e.getCoalescedEvents() : [e]; (evs.length?evs:[e]).forEach(ev=>SCR.cur.pts.push(toW(pos(ev)))); scDraw(); }
+    if(SCR.cur){ const evs = e.getCoalescedEvents ? e.getCoalescedEvents() : [e];
+      (evs.length?evs:[e]).forEach(ev=>SCR.cur.pts.push(SCR.cur.pr ? {...toW(pos(ev)), p:ev.pressure||e.pressure||0.5} : toW(pos(ev)))); scDraw(true); }
   });
-  const end = e => { SCR.ptrs.delete(e.pointerId); if(SCR.ptrs.size<2) SCR.pinch=null; if(!SCR.ptrs.size){ SCR.cur=null; SCR.pan=null; SCR.erasing=false; } };
+  const end = e => {
+    if(!SCR.ptrs.has(e.pointerId)) return;
+    SCR.ptrs.delete(e.pointerId);
+    if(e.pointerId===SCR.penId) SCR.penId = null;
+    if(touchesOf().length<2) SCR.pinch=null;
+    if(SCR.tap2 && !touchesOf().length){ const tp = SCR.tap2; SCR.tap2 = null; if(!tp.moved && Date.now()-tp.t0 < 350 && e.type==="pointerup"){ scUndo(); buzz(true); } }
+    if(!SCR.ptrs.size){ if(SCR.cur) SCR.dirty = true; SCR.cur=null; SCR.pan=null; SCR.erasing=false; scDraw(); }
+  };
   cv.addEventListener("pointerup", end); cv.addEventListener("pointercancel", end);
   cv.addEventListener("contextmenu", e=>e.preventDefault());
   cv.addEventListener("wheel", e=>{ e.preventDefault(); const p = pos(e);
@@ -692,24 +712,43 @@ function scFit(){
   const s = Math.min(4, Math.max(0.2, Math.min((SCR.w-40)/Math.max(1,x1-x0), (SCR.h-40)/Math.max(1,y1-y0))));
   st.view = { s, x: SCR.w/2 - (x0+x1)/2*s, y: SCR.h/2 - (y0+y1)/2*s }; scDraw();
 }
-function scDraw(){
-  if(!SCR) return; cancelAnimationFrame(SCR.raf);
+// Tegner kladden. Ferdige streker ligger i et mellomlager (SCR.base) som bare tegnes på nytt når noe endrer seg;
+// under en pennestrek (live) tegnes bare lageret + streken som pågår, så det holder følge også med mye kladd.
+function scStroke(ctx, s, v, colors){
+  const P = s.pts, n = P.length, base = Math.max(1, 2.4*v.s), X = p => p.x*v.s+v.x, Y = p => p.y*v.s+v.y;
+  ctx.strokeStyle = colors[s.c]||colors[0];
+  if(n===1){ ctx.lineWidth = base*(s.pr ? 0.5+P[0].p : 1); ctx.beginPath(); ctx.moveTo(X(P[0]),Y(P[0])); ctx.lineTo(X(P[0])+0.1,Y(P[0])); ctx.stroke(); return; }
+  if(s.pr){ // trykkfølsom: hvert stykke får sin egen tykkelse, med myke overganger via midtpunkter
+    let mx = X(P[0]), my = Y(P[0]);
+    for(let i=1;i<n;i++){
+      const a = P[i-1], b = P[i], nx = i<n-1 ? (X(b)+X(P[i+1]))/2 : X(b), ny = i<n-1 ? (Y(b)+Y(P[i+1]))/2 : Y(b);
+      ctx.lineWidth = base*(0.35 + 1.25*Math.min(1, ((a.p||0.5)+(b.p||0.5))/2)); ctx.beginPath(); ctx.moveTo(mx,my); ctx.quadraticCurveTo(X(b),Y(b),nx,ny); ctx.stroke(); mx = nx; my = ny;
+    }
+    return;
+  }
+  ctx.lineWidth = base; ctx.beginPath(); ctx.moveTo(X(P[0]),Y(P[0]));
+  for(let i=1;i<n-1;i++) ctx.quadraticCurveTo(X(P[i]),Y(P[i]),(X(P[i])+X(P[i+1]))/2,(Y(P[i])+Y(P[i+1]))/2);
+  ctx.lineTo(X(P[n-1]),Y(P[n-1])); ctx.stroke();
+}
+function scDraw(live){
+  if(!SCR) return; if(!live) SCR.dirty = true; cancelAnimationFrame(SCR.raf);
   SCR.raf = requestAnimationFrame(()=>{
     if(!SCR) return;
-    const st = scratchState(), {ctx, dpr} = SCR, v = st.view, W = SCR.w, H = SCR.h;
-    ctx.setTransform(dpr,0,0,dpr,0,0); ctx.clearRect(0,0,W,H);
-    const g = 24*v.s;
-    if(g>6){ ctx.strokeStyle = SCR.grid; ctx.lineWidth = 1; ctx.beginPath();
-      for(let x = ((v.x%g)+g)%g; x<W; x+=g){ ctx.moveTo(Math.round(x)+.5,0); ctx.lineTo(Math.round(x)+.5,H); }
-      for(let y = ((v.y%g)+g)%g; y<H; y+=g){ ctx.moveTo(0,Math.round(y)+.5); ctx.lineTo(W,Math.round(y)+.5); }
-      ctx.stroke(); }
-    ctx.lineCap="round"; ctx.lineJoin="round";
-    for(const s of st.strokes){
-      ctx.strokeStyle = SCR.colors[s.c]||SCR.colors[0]; ctx.lineWidth = Math.max(1, 2.4*v.s); ctx.beginPath();
-      s.pts.forEach((p,i)=>{ const x=p.x*v.s+v.x, y=p.y*v.s+v.y; if(i) ctx.lineTo(x,y); else ctx.moveTo(x,y); });
-      if(s.pts.length===1){ const p=s.pts[0]; ctx.lineTo(p.x*v.s+v.x+0.1, p.y*v.s+v.y); }
-      ctx.stroke();
+    const st = scratchState(), {ctx, dpr, cv} = SCR, v = st.view, W = SCR.w, H = SCR.h;
+    if(!SCR.base || SCR.base.width!==cv.width || SCR.base.height!==cv.height){ SCR.base = document.createElement("canvas"); SCR.base.width = cv.width; SCR.base.height = cv.height; SCR.dirty = true; }
+    if(SCR.dirty){
+      const b = SCR.base.getContext("2d"); b.setTransform(dpr,0,0,dpr,0,0); b.clearRect(0,0,W,H);
+      const g = 24*v.s;
+      if(g>6){ b.strokeStyle = SCR.grid; b.lineWidth = 1; b.beginPath();
+        for(let x = ((v.x%g)+g)%g; x<W; x+=g){ b.moveTo(Math.round(x)+.5,0); b.lineTo(Math.round(x)+.5,H); }
+        for(let y = ((v.y%g)+g)%g; y<H; y+=g){ b.moveTo(0,Math.round(y)+.5); b.lineTo(W,Math.round(y)+.5); }
+        b.stroke(); }
+      b.lineCap="round"; b.lineJoin="round";
+      for(const s of st.strokes) if(s!==SCR.cur) scStroke(b, s, v, SCR.colors);
+      SCR.dirty = false;
     }
+    ctx.setTransform(1,0,0,1,0,0); ctx.clearRect(0,0,cv.width,cv.height); ctx.drawImage(SCR.base,0,0);
+    if(SCR.cur){ ctx.setTransform(dpr,0,0,dpr,0,0); ctx.lineCap="round"; ctx.lineJoin="round"; scStroke(ctx, SCR.cur, v, SCR.colors); }
   });
 }
 function scUndo(){

@@ -1253,3 +1253,5 @@ a.srow{text-decoration:none;color:inherit}
 .gr-dlg{text-align:center}.gr-dlg input{text-align:center}
 .gr-edit input{margin-bottom:10px}
 .seg.fr-view{display:grid;grid-template-columns:1fr 1fr;width:100%}
+/* Kladdeark på nettbrett: ingen tekstmarkering, forstørrelsesglass eller meny ved lange trykk med penn/finger */
+.sc-canvas,.sc-canvas canvas,.sc-tools{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
