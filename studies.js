@@ -9,8 +9,8 @@ const STUDIES = [
     sub: ["Matte, fysikk, mekanikk, elektro, data og mer", "Maths, physics, mechanics, electrical, computing and more"] },
   { id: "syk", nb: "Sykepleie", en: "Nursing", ic: "🩺", home: "SLMR", slug: ["sykepleie", "nursing"],
     sub: ["Legemiddelregning, anatomi, farmakologi og smittevern", "Drug calculations, anatomy, pharmacology and infection control"] },
-  { id: "vgs", nb: "Videregående", en: "Upper secondary", ic: "🎒", home: "GMAT", slug: ["videregaende", "upper-secondary"],
-    sub: ["Studiespesialisering: matte, fysikk og mer", "General studies: maths, physics and more"] }
+  { id: "vgs", nb: "Videregående", en: "Upper secondary", ic: "🎒", home: "VG1T", slug: ["videregaende", "upper-secondary"],
+    sub: ["Studiespesialisering: 1T, R1, R2, fysikk, kjemi og biologi", "General studies: maths 1T–R2, physics, chemistry and biology"] }
 ];
 // Fag som passer i flere studier (grunnkursene brukes både av ingeniører og på videregående).
 for(const code of ["GMAT", "GFYS"]){ const c = COURSES.find(x => x.code === code); if(c) c.study = ["ing", "vgs"]; }

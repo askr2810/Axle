@@ -223,7 +223,7 @@ const drDeckOf = tag => Object.keys(DR_DECKS).find(k => DR_DECKS[k].tags.has(tag
 const drStudyDecks = () => Object.keys(DR_DECKS).filter(k => DR_DECKS[k].study === (typeof curStudy === "function" ? curStudy() : "ing"));
 // "all" = alle kortene i studiet ditt; ellers én stokk.
 function drPool(topic){
-  if(topic === "all"){ const ds = new Set(drStudyDecks()); return DRILL.filter(c => ds.has(drDeckOf(c[1]))); }
+  if(topic === "all"){ const tags = new Set(drStudyDecks().flatMap(k => [...DR_DECKS[k].tags])); return DRILL.filter(c => tags.has(c[1])); } // en tagg kan være med i stokker fra flere studier
   const d = DR_DECKS[topic]; return d ? DRILL.filter(c => d.tags.has(c[1])) : [];
 }
 function drCounts(topic = "all"){
