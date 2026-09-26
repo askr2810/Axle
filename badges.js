@@ -7,7 +7,7 @@ function bdgStats(){
   for(const c of COURSES){ const p = courseProgress(c); levels += p.d; cr += crowns(c); if(p.d) started++; if(p.tot && p.d === p.tot) completed++; }
   const st = S.stats || {};
   return { levels, crowns: cr, started, completed, xp: +S.xp || 0, streak: Math.max(+S.bestStreak || 0, streakNow()),
-    pioneer: +S.memberNo > 0 && +S.memberNo <= PIONEER_MAX ? 1 : 0, theory: Object.keys(S.theorySeen || {}).length, challenges: +st.challenges || 0, weekwins: +st.weekwins || 0, exams: (S.examLog || []).length, flawless: +st.flawless || 0, reviews: +st.reviews || 0, friends: +st.friends || 0, guided: +st.guided || 0, sims: +st.sims || 0, drills: +st.drills || 0, drKnown: Object.values(S.drill || {}).filter(x => x.b >= 4).length, eggs: PETS.filter(p => p[2] && (S.unlocks || {})[p[1]]).length };
+    pioneer: +S.memberNo > 0 && +S.memberNo <= PIONEER_MAX ? 1 : 0, theory: Object.keys(S.theorySeen || {}).length, challenges: +st.challenges || 0, weekwins: +st.weekwins || 0, exams: (S.examLog || []).length, flawless: +st.flawless || 0, reviews: +st.reviews || 0, friends: +st.friends || 0, guided: +st.guided || 0, sims: +st.sims || 0, drills: +st.drills || 0, drKnown: Object.values(S.drill || {}).filter(x => x.b >= 4).length, eggs: PETS.filter(p => p[2] === true && (S.unlocks || {})[p[1]]).length };
 }
 // [id, nivå (1 bronse, 2 sølv, 3 gull, 4 hemmelig regnbue-holo), ikon, statistikk, mål, nb-navn, en-navn, nb-beskrivelse, en-beskrivelse]
 const BADGES = [
@@ -56,6 +56,7 @@ async function pioneerFetch(){
     if(+no > 0 && +no !== +S.memberNo){ S.memberNo = +no; save(); bdgToast(checkBadges()); if(screen === "badges" || screen === "profile") render(); } }
   catch(e){ PIONEER_ERR = true; if(screen === "badges") render(); }
   try{ const r = await frRpc("my_app_role"), role = r === "mod" || r === "admin" ? r : null; // mod/admin (venner.sql)
+    if(!role && S.avatar && avParse(S.avatar).p === ADMIN_PET){ const o = avParse(S.avatar); o.p = 0; S.avatar = avCode(o); save(); frPushSoon(); } // admin-skinnet følger rollen
     if(role !== (S.appRole || null)){ S.appRole = role; save(); if(screen === "avatar" && typeof aveUpdate === "function") aveUpdate(); else if(screen === "profile") render(); } }
   catch(e){}
   PIONEER_BUSY = false;
@@ -79,7 +80,7 @@ function bdgToast(list){
 }
 // Feiring når påskeegg-merket låses opp.
 function eggPopHTML(){
-  const b = BADGES.find(x => x[0] === "egg"), n = bdgStats().eggs, tot = PETS.filter(p => p[2]).length;
+  const b = BADGES.find(x => x[0] === "egg"), n = bdgStats().eggs, tot = PETS.filter(p => p[2] === true).length;
   return `<div class="dialog pop egg-pop" role="dialog" aria-label="${esc(bdgName(b))}"><div class="egg-rays" aria-hidden="true"></div>${badgeIcon(b, 132)}
     <small class="egg-kick">${esc(t("eggKicker"))}</small><h3>${esc(bdgName(b))}</h3><p>${esc(t("eggText", n, tot))}</p>
     <button class="big" data-a="closeov">${esc(t("eggCool"))}</button><button class="big ghost" data-a="bdgeggsee">${esc(t("eggSee"))}</button></div>`;

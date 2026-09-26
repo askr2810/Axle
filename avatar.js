@@ -20,7 +20,7 @@ const AV_NAMES = {
   x: [["Ingen", "None"], ["Øredobber", "Earrings"], ["Gullkjede", "Gold chain"], ["Fregner", "Freckles"], ["AirPods", "AirPods"], ["Nesering", "Nose ring"], ["Dråpeøredobber", "Drop earrings"], ["Perlekjede", "Pearl necklace"]],
   // Samling: ting du låser opp (se unlocks.js). Rekkefølgen må aldri endres, bare legges til på slutten.
   p: [["Ingen", "None"], ["Regnbue", "Rainbow"], ["Øgle", "Lizard"], ["Tannhjul", "Gear buddy"], ["Lyndrone", "Spark drone"], ["Robot", "Robot"], ["Pi-ugle", "Pi owl"], ["Vindturbin", "Wind turbine"],
-      ["Trafikkjegle", "Traffic cone"], ["Lyspære", "Light bulb"], ["Spire", "Sprout"], ["Pokal", "Trophy"], ["Flammeaura", "Flame aura"], ["Glorie", "Halo"], ["Stjernestøv", "Stardust"], ["UFO", "UFO"], ["Nattmåne", "Night moon"]]
+      ["Trafikkjegle", "Traffic cone"], ["Lyspære", "Light bulb"], ["Spire", "Sprout"], ["Pokal", "Trophy"], ["Flammeaura", "Flame aura"], ["Glorie", "Halo"], ["Stjernestøv", "Stardust"], ["UFO", "UFO"], ["Nattmåne", "Night moon"], ["Kommandør", "Commander"]]
 };
 const AV_PARTS = { s: AV_SKIN.length, h: AV_NAMES.h.length, hc: AV_HAIRC.length, e: AV_NAMES.e.length, m: AV_NAMES.m.length, a: AV_NAMES.a.length, bg: AV_BG.length, sh: AV_SHIRT.length, f: AV_NAMES.f.length, g: AV_NAMES.g.length, o: AV_NAMES.o.length, x: AV_NAMES.x.length, p: AV_NAMES.p.length };
 const AV_KEYS = ["s", "h", "hc", "e", "m", "a", "bg", "sh", "f", "g", "o", "x", "p"];
@@ -163,7 +163,7 @@ function avatarSVG(code, size = 48, extraClass = ""){
     <circle cx="29.5" cy="47" r="4.5" fill="${skin}"/><circle cx="70.5" cy="47" r="4.5" fill="${skin}"/>
     <ellipse cx="50" cy="45" rx="20.5" ry="22.5" fill="${skin}"/>${beard}
     <circle cx="37" cy="53" r="3.6" fill="#F28B82" opacity=".35"/><circle cx="63" cy="53" r="3.6" fill="#F28B82" opacity=".35"/>
-    ${nose}${eyes}${mouth}${o.a === 12 ? "" : ht}${glasses}${ex}${hat}${o.p && typeof petFront === "function" ? petFront(o.p) : ""}</g></svg>`;
+    ${nose}${eyes}${mouth}${o.a === 12 ? "" : ht}${glasses}${ex}${hat}${o.p && typeof petFront === "function" ? petFront(o.p, id) : ""}</g></svg>`;
 }
 
 // ---------- lærerne ----------
@@ -274,6 +274,7 @@ function aveOptsHTML(){
     if(colorTab) return `<button class="ave-sw ${on ? "on" : ""}" data-a="avset" data-i="${i}" aria-label="${i + 1}" style="background:${colorTab[i]}"></button>`;
     const oo = Object.assign({}, o, { [k]: i });
     const nm = AV_NAMES[k] && AV_NAMES[k][i] ? T(AV_NAMES[k][i][0], AV_NAMES[k][i][1]) : String(i + 1);
+    if(k === "p" && PETS.some(p => p[0] === i && p[2] === "staff") && !isStaff()) return ""; // admin-skinnet vises bare for mod/admin
     if(k === "p" && !unlockedPets().has(i)){ // låst: vis hengelås og hint (hemmelige heter «???»)
       const pet = PETS.find(p => p[0] === i), secret = pet && pet[2];
       return `<button class="ave-opt locked ${secret ? "secret" : ""}" data-a="avlocked" data-i="${i}" aria-label="${esc(secret ? "???" : nm)}"><span class="ave-lock">${secret ? "?" : I.lock}</span><small>${esc(secret ? "???" : nm)}</small></button>`;
@@ -290,7 +291,7 @@ function aveUpdate(){
   const { opts, colorTab } = aveOptsHTML();
   prev.innerHTML = avatarSVG(AVE.code, 150); grid.innerHTML = opts; grid.classList.toggle("colors", !!colorTab);
   document.querySelectorAll(".ave-tabs button").forEach(b => b.classList.toggle("on", b.dataset.t === AVE.tab));
-  const cnt = document.querySelector(".ave-cnt"); if(cnt) cnt.textContent = `${unlockedPets().size - 1}/${PETS.length}`;
+  const cnt = document.querySelector(".ave-cnt"); if(cnt) cnt.textContent = `${unlockedPets().size - 1}/${petTotal()}`;
 }
 function renderAvatarEditor(){
   if(!AVE){ goHome(); return; }
@@ -302,7 +303,7 @@ function renderAvatarEditor(){
     <main class="wrap ave">
       ${photoCard}
       <div class="ave-prev" data-a="avpreview">${avatarSVG(AVE.code, 150)}</div>
-      <div class="ave-tabs">${AVE_TABS.map(([kk, lab]) => `<button class="${kk === k ? "on" : ""}" data-a="avtab" data-t="${kk}">${esc(t(lab))}${kk === "p" ? ` <em class="ave-cnt">${unlockedPets().size - 1}/${PETS.length}</em>` : ""}</button>`).join("")}</div>
+      <div class="ave-tabs">${AVE_TABS.map(([kk, lab]) => `<button class="${kk === k ? "on" : ""}" data-a="avtab" data-t="${kk}">${esc(t(lab))}${kk === "p" ? ` <em class="ave-cnt">${unlockedPets().size - 1}/${petTotal()}</em>` : ""}</button>`).join("")}</div>
       <div class="ave-grid ${colorTab ? "colors" : ""}">${opts}</div>
     </main>
     <div class="lfoot"><div class="wrap"><button class="big" data-a="avsave">${esc(t(ph ? "avSaveUse" : "avSave"))}</button></div></div>`;

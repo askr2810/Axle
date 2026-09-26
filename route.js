@@ -6,7 +6,7 @@
 //  Ord på norsk eller engelsk etter språket; begge forstås når adressen leses.
 // ============================================================
 const RT = { practice: ["ov", "practice"], book: ["teori", "theory"], friends: ["venner", "friends"], profile: ["profil", "profile"], badges: ["merker", "badges"],
-  settings: ["innstillinger", "settings"], community: ["fellesskap", "community"], pick: ["fag", "courses"], groups: ["grupper", "groups"], theory: ["les", "read"], guided: ["steg", "steps"], topic: ["emne", "topic"], sheet: ["formler", "formulas"], person: ["person", "person"] };
+  settings: ["innstillinger", "settings"], community: ["fellesskap", "community"], pick: ["fag", "courses"], groups: ["grupper", "groups"], theory: ["les", "read"], guided: ["steg", "steps"], topic: ["emne", "topic"], sheet: ["formler", "formulas"], person: ["person", "person"], admin: ["admin", "admin"] };
 const rtW = k => RT[k][LANG === "en" ? 1 : 0];
 const rtKey = w => Object.keys(RT).find(k => RT[k].includes(String(w || "").toLowerCase()));
 const rtCourse = code => COURSES.some(c => c.code === code) ? code : null;
@@ -18,6 +18,7 @@ function routeOf(){
     case "practice": case "profile": case "badges": case "settings": case "pick": case "community": return rtW(screen);
     case "avatar": return rtW("profile");
     case "person": return PS.id ? rtW("person") + "/" + PS.id : null;
+    case "admin": return rtW("admin") + (ADM.tab !== "overview" ? "/" + ADM.tab : "");
     case "ccedit": return rtW("community");
     case "book":
       if(BK.v === "course" && BK.code) return [rtW("book"), BK.code].concat(BK.tab === "sheet" ? [rtW("sheet")] : []).join("/");
@@ -65,6 +66,12 @@ function routeBoot(){
   }
   if(k === "groups"){ screen = "friends"; FR.view = "groups"; GR.cur = /^[0-9a-f-]{36}$/i.test(p[1] || "") ? p[1] : null; GR.rows = null; return true; }
   if(k === "friends"){ screen = "friends"; FR.view = "friends"; return true; }
+  if(k === "admin"){ // bare for mod/admin; rollen er kanskje ikke hentet ennå, så sjekk igjen etterpå
+    if(!AUTH) return false;
+    ADM.tab = ["reports", "users", "notice", "log"].includes(p[1]) ? p[1] : "overview"; screen = "admin";
+    setTimeout(() => { if(screen !== "admin") return; if(isStaff()) admLoad(); else pioneerFetch().then(() => { if(screen === "admin"){ if(isStaff()){ render(); admLoad(); } else { screen = "home"; render(); } } }); }, 0);
+    return true;
+  }
   if(k === "person"){ // en annens profil; «tilbake» går til Venner
     if(!psIsId(p[1])) return false;
     if(PS.id !== p[1]){ PS = { id: p[1], from: "friends", gid: null, row: psLocal(p[1]), busy: false, err: null, gone: false, confirm: null }; setTimeout(psLoad, 0); }

@@ -20,7 +20,8 @@ const AV_GREEN = { hc: [9], sh: [1, 5], bg: [1, 5] };
 function avColors(o){ const f = new Set(); for(const k in AV_FAM){ const x = AV_FAM[k][o[k]]; if(x) f.add(x); } return f.size; }
 function groupDone(g){ return COURSES.some(c => c.group === g && (() => { const p = courseProgress(c); return p.tot > 0 && p.d === p.tot; })()); }
 function coursesDone(){ return COURSES.filter(c => { const p = courseProgress(c); return p.tot > 0 && p.d === p.tot; }).length; }
-// [indeks i AV_NAMES.p, id, hemmelig?, sjekk(o = avatar som vises i byggeren), hint nb, hint en]
+const ADMIN_PET = 17; // «Kommandør»: animert admin-skin (databasen fjerner det fra alle som ikke har rolle)
+// [indeks i AV_NAMES.p, id, hemmelig? (true = påskeegg, "staff" = bare mod/admin), sjekk(o = avatar som vises i byggeren), hint nb, hint en]
 // Hemmelige påskeegg har bare en kort kode som hint – man må prøve seg fram.
 const PETS = [
   [1, "rainbow", true, o => avColors(o) >= RAINBOW_N, "🎨 ≥ 4", "🎨 ≥ 4"],
@@ -38,12 +39,14 @@ const PETS = [
   [13, "halo", false, () => COURSES.reduce((n, c) => n + crowns(c), 0) >= 10, "Vinn 10 kroner.", "Win 10 crowns."],
   [14, "stardust", false, () => (+(S.stats || {}).flawless || 0) >= 10, "Fullfør 10 leksjoner uten feil.", "Finish 10 lessons without mistakes."],
   [15, "ufo", true, () => (S.stats || {}).ufo > 0, "👆 ⁷", "👆 ⁷"],
-  [16, "moon", true, () => (S.stats || {}).night > 0, "00 → 04", "00 → 04"]
+  [16, "moon", true, () => (S.stats || {}).night > 0, "00 → 04", "00 → 04"],
+  [ADMIN_PET, "admin", "staff", () => false, "Bare for admin og moderatorer.", "Admins and moderators only."] // låses opp av rollen, ikke av en oppgave
 ];
 // Mod/admin (rolle fra databasen, se app_roles i venner.sql) har alt i Samlingen.
 const isStaff = () => !!AUTH && (S.appRole === "mod" || S.appRole === "admin");
 const staffTag = role => role === "mod" || role === "admin" ? `<span class="staff-tag">🛡️ ${esc(t(role === "admin" ? "roleAdmin" : "roleMod"))}</span>` : "";
-const unlockedPets = () => new Set([0, ...PETS.filter(p => isStaff() || (S.unlocks || {})[p[1]]).map(p => p[0])]);
+const unlockedPets = () => new Set([0, ...PETS.filter(p => isStaff() || (p[2] !== "staff" && (S.unlocks || {})[p[1]])).map(p => p[0])]);
+const petTotal = () => PETS.filter(p => p[2] !== "staff" || isStaff()).length;
 // Sjekker og lagrer nye opplåsinger. o = avataren i byggeren (for fargepåskeeggene). Returnerer de nye.
 function checkUnlocks(o){
   S.unlocks ||= {}; const fresh = [];
@@ -55,6 +58,7 @@ function noteNightLesson(){ const h = new Date().getHours(); if(h >= 0 && h < 4)
 
 // ---------- tegning (koordinater 0–100, høyre skulder rundt x 76, y 82) ----------
 function petBack(p, id){
+  if(p === ADMIN_PET) return adminBack(id);
   if(p === 1) return ["#E53935", "#FB8C00", "#FDD835", "#43A047", "#1E88E5", "#8E24AA"].map((c, i) => `<path d="M${8 + i * 3} 78A${42 - i * 3} ${42 - i * 3} 0 0 1 ${92 - i * 3} 78" fill="none" stroke="${c}" stroke-width="3.2" opacity=".85"/>`).join("");
   if(p === 12) return `<defs><radialGradient id="${id}f"><stop offset="0" stop-color="#FFD54F" stop-opacity=".95"/><stop offset=".55" stop-color="#FF8F00" stop-opacity=".55"/><stop offset="1" stop-color="#FF3D00" stop-opacity="0"/></radialGradient></defs>
     <ellipse cx="50" cy="44" rx="38" ry="40" fill="url(#${id}f)"/><path d="M22 60c-6-14 2-24 6-30 0 8 4 10 6 12-1-10 4-20 12-26-2 10 4 14 4 14s4-6 2-14c8 6 12 16 11 26 2-2 6-4 6-12 4 6 12 16 6 30z" fill="#FF7043" opacity=".45"/>`;
@@ -62,8 +66,9 @@ function petBack(p, id){
   if(p === 16) return `<rect width="100" height="100" fill="#1A2340" opacity=".55"/><path d="M20 12a9 9 0 1 0 8 13 7 7 0 1 1-8-13z" fill="#FFF3C4"/>${[[70, 10], [86, 22], [40, 8], [90, 40], [12, 40]].map(([x, y]) => `<circle cx="${x}" cy="${y}" r="1" fill="#fff"/>`).join("")}`;
   return "";
 }
-function petFront(p){
+function petFront(p, id){
   switch(p){
+    case ADMIN_PET: return adminFront(id);
     case 2: return `<g transform="translate(0 -5)"><path d="M60 86c6-5 16-6 22-2 3 2 2 5-1 5-5-1-10 0-14 3z" fill="#43A047"/><path d="M80 84c4-2 8-1 9 2-2 2-6 2-9 1z" fill="#66BB6A"/><circle cx="85.5" cy="84.3" r=".9" fill="#1B1B1B"/>
       <path d="M62 88c-5 3-9 2-12 0 3 0 6-1 8-3" fill="none" stroke="#2E7D32" stroke-width="2.2" stroke-linecap="round"/><path d="M68 88l-1 3M74 87l1 3" stroke="#2E7D32" stroke-width="1.6" stroke-linecap="round"/>
       ${[[66, 86], [71, 85], [76, 85]].map(([x, y]) => `<circle cx="${x}" cy="${y}" r=".9" fill="#A5D6A7"/>`).join("")}</g>`;
@@ -81,4 +86,28 @@ function petFront(p){
     case 15: return `<g><path d="M70 30l-8 26h20z" fill="#B2FF59" opacity=".25"/><ellipse cx="76" cy="28" rx="12" ry="4" fill="#90A4AE"/><path d="M70 27a6 5 0 0 1 12 0z" fill="#80DEEA" opacity=".9"/>${[68, 76, 84].map(x => `<circle cx="${x}" cy="29" r="1" fill="#FFEB3B"/>`).join("")}</g>`;
   }
   return "";
+}
+
+// ---------- «Kommandør»: admin-skinnet ----------
+// Mørk verdensrommet-bakgrunn, regnbuering som roterer, pulserende sjokkbølge, gnist i bane, blinkende stjerner,
+// svevende diamant over hodet og et glødende skjold på brystet. Animert med SVG (virker i alle nettlesere og i appen).
+function adminBack(id){
+  const spin = (from, to, dur) => `<animateTransform attributeName="transform" type="rotate" from="${from} 50 46" to="${to} 50 46" dur="${dur}s" repeatCount="indefinite"/>`;
+  const stars = [[12, 14, 0], [86, 10, .6], [8, 60, 1.2], [92, 54, .3], [24, 88, .9], [78, 90, 1.5], [66, 6, 1.1], [34, 6, .4]]
+    .map(([x, y, d]) => `<circle cx="${x}" cy="${y}" r=".9" fill="#fff"><animate attributeName="opacity" values=".15;1;.15" dur="2.2s" begin="${d}s" repeatCount="indefinite"/></circle>`).join("");
+  return `<defs><radialGradient id="${id}ab" cx="50%" cy="42%" r="72%"><stop offset="0" stop-color="#4B23A8" stop-opacity=".55"/><stop offset=".6" stop-color="#1A1050" stop-opacity=".9"/><stop offset="1" stop-color="#070A22"/></radialGradient>
+      <linearGradient id="${id}ar" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#B36EFF"/><stop offset=".35" stop-color="#6ED3FF"/><stop offset=".7" stop-color="#6EFFA0"/><stop offset="1" stop-color="#FF6EC7"/></linearGradient>
+      <linearGradient id="${id}as" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#C79BFF"/><stop offset="1" stop-color="#5B2DC2"/></linearGradient></defs>
+    <rect width="100" height="100" fill="url(#${id}ab)"/>${stars}
+    <circle cx="50" cy="46" r="30" fill="none" stroke="#B36EFF" stroke-width="1.2"><animate attributeName="r" values="24;47" dur="2.6s" repeatCount="indefinite"/><animate attributeName="opacity" values=".9;0" dur="2.6s" repeatCount="indefinite"/></circle>
+    <circle cx="50" cy="46" r="41" fill="none" stroke="url(#${id}ar)" stroke-width="2.4" stroke-dasharray="14 5 3 5" stroke-linecap="round">${spin(0, 360, 9)}</circle>
+    <circle cx="50" cy="46" r="36" fill="none" stroke="#6ED3FF" stroke-width=".9" stroke-dasharray="1.5 3.5" opacity=".8">${spin(360, 0, 14)}</circle>
+    <g><circle r="4" fill="#B36EFF" opacity=".45"/><circle r="1.8" fill="#fff"/><animateMotion dur="4.5s" repeatCount="indefinite" path="M50 5a41 41 0 1 1-.01 0"/></g>
+    <g><path d="M50 1.5l4.5 5.5-4.5 5.5-4.5-5.5z" fill="url(#${id}ar)" stroke="#fff" stroke-width=".6"/><path d="M50 1.5v11M45.5 7h9" stroke="#fff" stroke-width=".4" opacity=".7"/>
+      <animateTransform attributeName="transform" type="translate" values="0 0;0 -1.8;0 0" dur="2.4s" repeatCount="indefinite"/></g>`;
+}
+function adminFront(id){
+  return `<g transform="translate(75 81)"><circle r="9" fill="#B36EFF" opacity=".35"><animate attributeName="r" values="7;10.5;7" dur="1.8s" repeatCount="indefinite"/><animate attributeName="opacity" values=".45;.15;.45" dur="1.8s" repeatCount="indefinite"/></circle>
+    <path d="M0-7.5l6.2 2.3v4.5c0 4.2-2.7 6.9-6.2 8.3-3.5-1.4-6.2-4.1-6.2-8.3v-4.5z" fill="url(#${id}as)" stroke="#FFD36E" stroke-width="1.1"/>
+    <path d="M0-3.6l1.2 2.4 2.6.4-1.9 1.8.5 2.6L0 2.4l-2.4 1.2.5-2.6-1.9-1.8 2.6-.4z" fill="#FFD36E"><animate attributeName="opacity" values="1;.55;1" dur="1.8s" repeatCount="indefinite"/></path></g>`;
 }

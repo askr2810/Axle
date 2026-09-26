@@ -204,6 +204,7 @@ function renderHome(){
     <button class="stat xp" data-a="statinfo" data-k="xp" aria-label="${t("xpTitle")}: ${S.xp}">${I.bolt}${S.xp}</button>
   </div></div>
   <main class="wrap">
+    ${noticeHTML()}
     ${favBarHTML()}
     ${dcDoneToday() ? "" : dcCardHTML()}
     ${examHomeActions(c) ? `<div class="actions">${examHomeActions(c)}</div>` : ""}
@@ -965,6 +966,7 @@ function render(){
   else if(screen==="avatar") renderAvatarEditor();
   else if(screen==="badges") renderBadges();
   else if(screen==="person") renderPerson();
+  else if(screen==="admin") renderAdmin();
   else if(screen==="profile") renderProfile();
   else if(screen==="practice") renderPractice();
   else if(screen==="examSetup") renderExamSetup();
@@ -999,6 +1001,7 @@ document.addEventListener("click", async e=>{
   if(favClick(a, b)) return; // favoritter og kilder til dagens utfordring
   if(bookClick(a, b)) return; // teoriboka (handlinger som starter med "bk")
   if(grClick(a, b)) return; // grupper (handlinger som starter med "gr")
+  if(adminClick(a, b)) return; // adminpanel og kunngjøringer (admin.js)
   if(psClick(a, b)) return; // profilsiden til andre + hvilke merker du viser (person.js)
   if(friendsClick(a, b)) return; // venner (handlinger som starter med "fr")
   if(avatarClick(a, b)) return; // avatar-bygger (handlinger som starter med "av")
@@ -1136,7 +1139,7 @@ if(grBootLink()) screen = "friends"; // axle.no/?gruppe=KODE
 })();
 if(checkBadges().length) saveLocal(); // merker for fremgang fra før merkene fantes (uten varsel)
 render();
-AUTH_READY.then(()=>{ setTimeout(bootPrompts, 900); pushResync(); setTimeout(pioneerFetch, 1500); }); // innlogging og dagens utfordring som popup ved første åpning i dag
+AUTH_READY.then(()=>{ setTimeout(bootPrompts, 900); pushResync(); setTimeout(pioneerFetch, 1500); setTimeout(noticeFetch, 1200); }); // innlogging og dagens utfordring som popup ved første åpning i dag
 flushOutbox();
 window.addEventListener("online", flushOutbox);
 cloudBoot();

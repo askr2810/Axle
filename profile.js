@@ -5,7 +5,7 @@
 //  - Profilside med avatar, navn, statistikk, merker og fag.
 // ============================================================
 const TABS = [["home", "book2", "tabLearn"], ["practice", "bolt", "tabPractice"], ["book", "book", "tabTheory"], ["friends", "users", "tabFriends"], ["profile", "person", "tabProfile"]];
-function tabOf(){ return screen === "home" ? "home" : (screen === "practice" || screen === "community") ? "practice" : screen === "book" && BK.v !== "unit" && BK.v !== "topic" ? "book" : screen === "friends" ? "friends" : (screen === "profile" || screen === "badges") ? "profile" : screen === "person" ? (PS.from === "badges" || PS.from === "profile" ? "profile" : "friends") : null; }
+function tabOf(){ return screen === "home" ? "home" : (screen === "practice" || screen === "community") ? "practice" : screen === "book" && BK.v !== "unit" && BK.v !== "topic" ? "book" : screen === "friends" ? "friends" : (screen === "profile" || screen === "badges") ? "profile" : screen === "person" ? (["badges", "profile", "admin"].includes(PS.from) ? "profile" : "friends") : screen === "admin" ? "profile" : null; }
 function tabbarHTML(active){
   return `<nav class="tabbar" aria-label="${esc(t("tabNav"))}"><div class="wrap">${TABS.map(([k, ic, lab]) =>
     `<button class="${k === active ? "on" : ""}" data-a="tab" data-t="${k}" aria-current="${k === active ? "page" : "false"}">${(k === "practice" && !dcDoneToday()) || (k === "friends" && ((FR.reqs && FR.reqs.length) || (GR.inv && GR.inv.length))) ? `<i class="tab-dot"></i>` : ""}${k === "profile" && hasMeAv() ? meAvHTML(26, "tab-av") : I[ic]}<span>${esc(t(lab))}</span></button>`).join("")}</div></nav>`;
@@ -77,6 +77,7 @@ function renderProfile(){
       <div class="pf-sec"><div class="pf-sh"><b>${esc(t("pfCourses"))}</b><button class="exlink" data-a="pick">${esc(t("switchCourse"))}</button></div>
         ${courses.map(({ c, p }) => `<button class="pf-course ${c.code === S.current ? "sel" : ""}" data-a="choose" data-c="${esc(c.code)}"><span class="badge" style="background:${bkCol(c)}">${esc(courseShort(c))}</span>
           <span class="t"><b>${esc(courseName(c))}</b><span class="pf-bar"><i style="width:${p.d / p.tot * 100}%"></i></span></span><span class="n">${Math.round(p.d / p.tot * 100)} %</span></button>`).join("")}</div>
+      ${isStaff() ? `<button class="adm-entry" data-a="admin"><span class="adm-entry-ic">🛡️</span><span><b>${esc(t("admTitle"))}</b><small>${esc(t("admEntrySub"))}</small></span>${I.chevron}</button>` : ""}
       <div class="sgroup pf-links">
         <button class="srow" data-a="settings">${I.gear}<span class="lbl">${esc(t("settings"))}</span>${I.chevron}</button>
         <button class="srow" data-a="feedback">${I.flag}<span class="lbl">${esc(t("setFeedback"))}</span>${I.chevron}</button>

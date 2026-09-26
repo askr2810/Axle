@@ -38,7 +38,7 @@ async function psLoad(){
 function psRender(){ if(screen === "person" && !overlay) render(); }
 function psBack(){
   const f = PS.from; overlay = null;
-  if(f === "badges" || f === "profile"){ screen = f; }
+  if(f === "badges" || f === "profile" || f === "admin"){ screen = f; }
   else { screen = "friends"; FR.view = f === "groups" ? "groups" : "friends"; if(f === "groups" && PS.gid){ GR.cur = PS.gid; GR.rows = null; } }
   render(); window.scrollTo(0, 0);
 }
@@ -50,7 +50,7 @@ function psBadges(r){
 function renderPerson(){
   const r0 = PS.row, r = r0 ? frLive(r0) : null, name = r ? r.display_name : "";
   const back = `<div class="top"><div class="wrap"><button class="iconbtn" data-a="psback" aria-label="${esc(t("back"))}">${I.left}</button>
-    <div class="th-t"><small>${esc(t(PS.from === "groups" ? "psFromGroup" : PS.from === "badges" || PS.from === "profile" ? "tabProfile" : "tabFriends"))}</small><b>${esc(name || t("psTitle"))}</b></div></div></div>`;
+    <div class="th-t"><small>${esc(t(PS.from === "groups" ? "psFromGroup" : PS.from === "admin" ? "admTitle" : PS.from === "badges" || PS.from === "profile" ? "tabProfile" : "tabFriends"))}</small><b>${esc(name || t("psTitle"))}</b></div></div></div>`;
   if(!r){
     $app.innerHTML = back + `<main class="wrap pf ps">${PS.gone ? `<p class="fr-hint">${esc(t("psGone"))}</p>` : PS.err ? `<p class="fr-hint">${esc(PS.err)}</p><button class="big ghost" data-a="psreload">${esc(t("frRetry"))}</button>` : `<p class="fr-hint">${esc(t("frLoading"))}</p>`}</main>`;
     return;
