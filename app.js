@@ -1120,7 +1120,7 @@ if(grBootLink()) screen = "friends"; // axle.no/?gruppe=KODE
 })();
 if(checkBadges().length) saveLocal(); // merker for fremgang fra før merkene fantes (uten varsel)
 render();
-AUTH_READY.then(()=>{ setTimeout(bootPrompts, 900); pushResync(); }); // innlogging og dagens utfordring som popup ved første åpning i dag
+AUTH_READY.then(()=>{ setTimeout(bootPrompts, 900); pushResync(); setTimeout(pioneerFetch, 1500); }); // innlogging og dagens utfordring som popup ved første åpning i dag
 flushOutbox();
 window.addEventListener("online", flushOutbox);
 cloudBoot();

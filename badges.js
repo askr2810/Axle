@@ -46,6 +46,15 @@ const BADGES = [
 ];
 // Pioner-merket vises bare for dem som kan få det (medlemsnummer 1–500, eller nummer ikke kjent ennå).
 const PIONEER_MAX = 500;
+// Henter medlemsnummeret én gang (innlogget). Kalles ved oppstart, på merkesiden og i Venner.
+let PIONEER_BUSY = false, PIONEER_ERR = false;
+async function pioneerFetch(){
+  if(!CLOUD_ON || !AUTH || +S.memberNo > 0 || PIONEER_BUSY) return;
+  PIONEER_BUSY = true;
+  try{ const no = await frRpc("my_member_number"); if(+no > 0){ S.memberNo = +no; save(); bdgToast(checkBadges()); if(screen === "badges" || screen === "profile") render(); } }
+  catch(e){ PIONEER_ERR = true; if(screen === "badges") render(); }
+  PIONEER_BUSY = false;
+}
 const bdgAll = () => BADGES.filter(b => b[0] !== "pioneer" || !(+S.memberNo > PIONEER_MAX));
 const bdgName = b => T(b[5], b[6]), bdgDesc = b => b[0] === "pioneer" && +S.memberNo > 0 && +S.memberNo <= PIONEER_MAX ? t("pioneerDesc", S.memberNo) : T(b[7], b[8]);
 // Låser opp merker som er nådd. Returnerer de nye.
@@ -65,11 +74,12 @@ function badgeIcon(b, size = 64, locked){
   return `<span class="bdg ${locked ? "locked" : ""}" style="--b1:${c1};--b2:${c2};width:${size}px;height:${size}px">${ic}</span>`;
 }
 function renderBadges(){
+  pioneerFetch();
   const st = bdgStats(), have = S.badges || {}, ALL = bdgAll(), n = ALL.filter(b => have[b[0]]).length;
   const cards = ALL.map(b => {
     const got = !!have[b[0]], v = Math.min(st[b[3]], b[4]);
     return `<div class="bdg-card ${got ? "got" : ""}">${badgeIcon(b, 62, !got)}<b>${esc(bdgName(b))}</b><span>${esc(bdgDesc(b))}</span>
-      ${got ? `<small class="bdg-date">${esc(t("bdgGot", fmtDate(have[b[0]])))}</small>` : `<div class="mini"><i style="width:${v / b[4] * 100}%"></i></div><small>${nf(v, 0)} / ${nf(b[4], 0)}</small>`}</div>`;
+      ${got ? `<small class="bdg-date">${esc(t("bdgGot", fmtDate(have[b[0]])))}</small>` : b[0] === "pioneer" ? (!AUTH ? `<button class="exlink bdg-act" data-a="aclogin">${esc(t("acLogin"))}</button>` : `<small class="bdg-date">${esc(t(PIONEER_ERR ? "pioneerNoDb" : "pioneerWait"))}</small>`) : `<div class="mini"><i style="width:${v / b[4] * 100}%"></i></div><small>${nf(v, 0)} / ${nf(b[4], 0)}</small>`}</div>`;
   }).join("");
   $app.innerHTML = `<div class="top"><div class="wrap"><button class="iconbtn" data-a="profile" aria-label="${esc(t("back"))}">${I.left}</button>
       <div class="th-t"><small>${esc(t("bdgCount", n, ALL.length))}</small><b>${esc(t("bdgTitle"))}</b></div><span class="th-ic" aria-hidden="true">${I.trophyS}</span></div></div>

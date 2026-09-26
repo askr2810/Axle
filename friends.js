@@ -57,7 +57,7 @@ async function frLoad(){
     if(typeof grPendingCheck === "function") grPendingCheck();
     const meRow = FR.rows.find(r => r.is_me); if(meRow && meRow.display_name && meRow.display_name !== S.name){ S.name = meRow.display_name; save(); }
     if(meRow && meRow.member_since) sinceUpdate(meRow.member_since); // kontoen ble laget
-    if(!S.memberNo){ try{ const no = await frRpc("my_member_number"); if(+no > 0){ S.memberNo = +no; save(); bdgToast(checkBadges()); } }catch(e){} } // Pioner-merket
+    pioneerFetch(); // Pioner-merket
     const nf_ = FR.rows.filter(r => !r.is_me).length; S.stats ||= {};
     if(nf_ > (+S.stats.friends || 0)){ S.stats.friends = nf_; bdgToast(checkBadges()); save(); }
     const pend = (()=>{ try{ return localStorage.getItem(FR_PENDING); }catch(e){ return null; } })();
