@@ -1397,3 +1397,4 @@ a.srow{text-decoration:none;color:inherit}
 .fc-back .fc-tag{background:var(--ok);color:#fff}
 /* Faste knapper nederst i eget lag, så iOS Safari ikke plasserer dem feil når siden tegnes på nytt under scrolling */
 .lfoot,.tabbar{transform:translateZ(0);-webkit-transform:translateZ(0);will-change:transform}
+.bk-grid.one{grid-template-columns:1fr}
