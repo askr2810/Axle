@@ -80,7 +80,7 @@ function renderGuided(){
 function gdFinish(){
   const key = GD.code + ":" + GD.u; S.gdDone ||= {};
   if(!S.gdDone[key]){ S.gdDone[key] = Date.now(); GD.xp = 5 + GD.right; const st = awardXP(GD.xp); if(st.goalHit) setTimeout(() => toast(t("goalHitTitle")), 600); }
-  bdgStat("guided"); bdgToast(checkBadges()); save(); setTimeout(confetti, 200); buzz(true);
+  bdgStat("guided"); bdgToast(checkBadges()); save(); setTimeout(() => confetti(GD && GD.proof ? "proof" : "complete"), 200); buzz(true);
 }
 function guidedClick(a, b){
   if(!a.startsWith("gd") || !GD) return false;
@@ -91,7 +91,7 @@ function guidedClick(a, b){
     const i = +b.dataset.i, ok = card.it.opts[i].ok; buzz(ok);
     if(ok){ card.done = true; if(!card.wrong.length) GD.right++; }
     else { card.wrong.push(i); if(card.wrong.length >= Math.min(2, card.it.opts.length - 1)){ card.done = true; card.gaveUp = true; } }
-    render(); return true;
+    render(); sfx(ok ? "ok" : "bad", ok ? GD.right : 0); if(ok) burst(document.querySelector(".gd-q .opt.right")); return true;
   }
   if(a === "gdnext" && (card.kind !== "q" || card.done)){ gdGo(1); return true; }
   if(a === "gdprev" && GD.i > 0){ gdGo(-1); return true; }

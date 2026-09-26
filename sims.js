@@ -360,7 +360,7 @@ function simCheck(el){
   const v = simVals(name, el); let ok = false; try{ const r = S0.f(v); ok = !!S0.g[k][2](v, r.m || {}); }catch(e){ ok = false; }
   if(!ok) return;
   el.dataset.solved = 1; (S.simGoals ||= {})[name] = k + 1; S.stats ||= {}; S.stats.simGoals = (+S.stats.simGoals || 0) + 1;
-  const st = awardXP(SIM_XP); save(); buzz(true);
+  const st = awardXP(SIM_XP); save(); buzz(true); sfx("complete"); setTimeout(() => burst(el.querySelector(".sim-gok")), 60);
   el.querySelector(".sim-gw").innerHTML = simGoalHTML(name, k); if(st.goalHit) setTimeout(() => toast(t("goalHitTitle")), 600);
 }
 function simRefreshGoal(el){ delete el.dataset.solved; el.querySelector(".sim-gw").innerHTML = simGoalHTML(el.dataset.sim); simUpdate(el); }

@@ -264,6 +264,7 @@ function renderSettings(){
       <button class="srow" data-a="dcsrcopen"><span class="lbl">${t("dcSrcSet")}<span class="sub">${esc(dcSrcLabel())}</span></span>${I.chevron}</button>
       <div class="srow"><span class="lbl">${t("setReminder")}<span class="sub">${esc(pushNote() || t(NATIVE ? "setReminderSubApp" : "setReminderSubWeb"))}</span></span><button class="tog ${rem.on&&(NATIVE||pushSupported())?"on":""}" data-a="remtoggle" role="switch" aria-checked="${!!(rem.on&&(NATIVE||pushSupported()))}" aria-label="${t("setReminder")}" ${NATIVE||pushSupported()?"":"disabled"}></button></div>
       ${rem.on&&(NATIVE||pushSupported())?`<div class="srow"><span class="lbl">${t("setReminderTime")}</span><input type="time" id="remtime" value="${esc(rem.time)}"></div>${NATIVE?"":`<button class="srow" data-a="pushtest"><span class="lbl">${t("pushTest")}<span class="sub">${t("pushTestSub")}</span></span>${I.chevron}</button>`}`:""}
+      <div class="srow"><span class="lbl">${t("setSound")}</span><button class="tog ${S.sound!==false?"on":""}" data-a="sndtoggle" role="switch" aria-checked="${S.sound!==false}" aria-label="${t("setSound")}"></button></div>
       <div class="srow"><span class="lbl">${t("setHaptics")}</span><button class="tog ${S.haptics?"on":""}" data-a="haptoggle" role="switch" aria-checked="${!!S.haptics}" aria-label="${t("setHaptics")}"></button></div>
     </div>
     ${CLOUD_ON ? (AUTH ? `<div class="sgroup">
@@ -388,7 +389,8 @@ function checkAnswer(){
   const firstTime = !L.seen.has(it.id); L.seen.add(it.id);
   if(ok){ L.solved.add(it.id); L.combo++; if(L.combo >= 3 && firstTime){ L.bonus = (L.bonus||0) + 1; L.bonusNow = true; } else L.bonusNow = false; }
   else { L.combo = 0; if(firstTime) L.firstWrong.add(it.id); if(L.maxHearts) L.hearts--; }
-  render();
+  render(); sfx(ok ? "ok" : "bad", L.combo);
+  if(ok){ burst(document.querySelector(".opt.right, .num.right"), L.combo >= 3 ? 18 : 12); if(L.bonusNow) floatXP(document.querySelector(".combo-xp"), "+1 XP"); }
 }
 function nextQuestion(){
   const it = L.queue.shift(); L.scratch = null;
@@ -439,6 +441,7 @@ function flipGrade(ok){
   const it = L.queue[0]; L.answered = true; L.ok = ok; buzz(ok);
   const firstTime = !L.seen.has(it.id); L.seen.add(it.id);
   if(ok){ L.solved.add(it.id); L.combo++; } else { L.combo = 0; if(firstTime) L.firstWrong.add(it.id); }
+  sfx(ok ? "ok" : "bad", L.combo);
   L.flipShown = false; nextQuestion(); window.scrollTo(0,0);
 }
 function renderLesson(){
@@ -506,7 +509,7 @@ function renderDone(){
     ${doneExtrasHTML(c, u, r)}
     <button class="big" data-a="home">${t("cont")}</button>
   </main>`;
-  if(!r.animated){ r.animated = true; countUp(); if(r.levelUp && !r.goalHit) setTimeout(confetti, 300); }
+  if(!r.animated){ r.animated = true; countUp(); if(r.levelUp && !r.goalHit) setTimeout(() => confetti("level"), 300); else if(!r.goalHit) setTimeout(() => sfx("complete"), 150); }
 }
 // «I dag»-kortet: læreren med neste steg, dagsmålet som ring og ukas dager.
 function todayCardHTML(c, today, goal, week){
@@ -533,7 +536,8 @@ function goalCelebrateHTML(code, r){
     <span class="gc-check">${I.checkS}</span></div><h2 class="gc-t">${esc(t("goalHitTitle"))}</h2><p class="gc-s">${esc(t("goalHitSub", S.goal || 10))}</p>
     ${teacherBubble(code, esc(r.goalLine), 60, "tch-done gc-tch")}</div>`;
 }
-function confetti(){
+function confetti(snd = "complete"){
+  if(snd) sfx(snd);
   if(window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches) return;
   document.querySelector(".confetti")?.remove();
   const cols = ["#F2B51D", "#2B59C3", "#0F8A83", "#E86A92", "#7A4BC2", "#2E9E5B", "#F07A1A"], w = document.createElement("div"); w.className = "confetti"; w.setAttribute("aria-hidden", "true");
@@ -1051,10 +1055,10 @@ document.addEventListener("click", async e=>{
   else if(a==="jumpok"){ const u=overlay.jump; overlay=null; renderOverlay(); startJump(S.current,u); }
   else if(a==="retry"){ const m=L.meta, k=L.kind, code=L.code; if(k==="jump") startJump(code,m.u); else startUnitLesson(code,m.u,m.k); }
   else if(a==="review"){ startReview(S.current); }
-  else if(a==="flipshow"){ if(L && !L.flipShown){ L.flipShown = true; render(); } }
+  else if(a==="flipshow"){ if(L && !L.flipShown){ L.flipShown = true; render(); sfx("flip"); } }
   else if(a==="flipyes" || a==="flipno"){ if(L && L.flipShown) flipGrade(a==="flipyes"); }
   else if(a==="drmode"){ S.drMode = b.dataset.m === "flip" ? "flip" : "mc"; saveLocal(); render(); }
-  else if(a==="sel"){ if(!L.answered){ L.sel=+b.dataset.i; render(); } }
+  else if(a==="sel"){ if(!L.answered){ L.sel=+b.dataset.i; render(); sfx("tap"); } }
   else if(a==="check"){ checkAnswer(); }
   else if(a==="next"){ nextQuestion(); window.scrollTo(0,0); }
   else if(a==="quit"){ overlay="quit"; renderOverlay(); }
@@ -1090,12 +1094,13 @@ document.addEventListener("click", async e=>{
     o.busy = true; o.err = null; renderOverlay();
     cloudChangeEmail(v).then(()=>{ o.busy = false; o.step = "sent"; render(); }, e=>{ o.busy = false; o.err = /email_exists|already.*registered/i.test((e.code||"") + " " + (e.msg||"")) ? t("acEmailTaken") : acErr(e); renderOverlay(); }); }
   else if(a==="acdeleteok"){ cloudDeleteAccount().then(()=>{ overlay = null; renderOverlay(); render(); toast(t("acDeleted")); }, e=>{ toast(acErr(e)); }); }
-  else if(a==="resetok"){ const keep={current:S.current, lang:S.lang, goal:S.goal, reminder:S.reminder, haptics:S.haptics, outbox:S.outbox, examPrefs:S.examPrefs}; S=Object.assign(blank(),keep); save(); clearTimeout(CLOUD.timer); cloudSync(true); examStopTicker(); EX.res=null; goHome(); toast(t("resetDone")); }
+  else if(a==="resetok"){ const keep={current:S.current, lang:S.lang, goal:S.goal, reminder:S.reminder, haptics:S.haptics, sound:S.sound, outbox:S.outbox, examPrefs:S.examPrefs}; S=Object.assign(blank(),keep); save(); clearTimeout(CLOUD.timer); cloudSync(true); examStopTicker(); EX.res=null; goHome(); toast(t("resetDone")); }
   // innstillinger
   else if(a==="setlang"){ LANG = b.dataset.l; S.lang = LANG; S.langSet = 1; save(); render(); if(S.reminder.on){ scheduleReminder(); pushResync(true); } }
   else if(a==="settheme"){ S.theme = b.dataset.m; save(); render(); }
   else if(a==="langpick"){ LANG = b.dataset.l; S.lang = LANG; S.langSet = 1; save(); overlay = null; renderOverlay(); render(); setTimeout(bootPrompts, 250); }
   else if(a==="setgoal"){ S.goal = +b.dataset.g; save(); render(); }
+  else if(a==="sndtoggle"){ S.sound = S.sound === false; save(); render(); if(S.sound) sfx("ok", 3); }
   else if(a==="haptoggle"){ S.haptics = !S.haptics; save(); render(); if(S.haptics) buzz(true); }
   else if(a==="remtoggle"){ await reminderToggle(); }
   else if(a==="pushtest"){ pushTest(); }

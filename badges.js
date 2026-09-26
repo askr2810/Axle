@@ -76,8 +76,8 @@ function checkBadges(){
 }
 function bdgToast(list){
   if(!list || !list.length) return;
-  if(list.some(b => b[0] === "egg")) setTimeout(() => { if(!overlay){ overlay = { bdgegg: 1 }; renderOverlay(); confetti(); buzz(true); } else toast(t("bdgNew", bdgName(list[0]))); }, 1400); // stor feiring
-  const rest = list.filter(b => b[0] !== "egg"); if(rest.length) setTimeout(() => toast(t("bdgNew", rest.map(bdgName).join(", "))), 400);
+  if(list.some(b => b[0] === "egg")) setTimeout(() => { if(!overlay){ overlay = { bdgegg: 1 }; renderOverlay(); confetti("badge"); buzz(true); } else toast(t("bdgNew", bdgName(list[0]))); }, 1400); // stor feiring
+  const rest = list.filter(b => b[0] !== "egg"); if(rest.length) setTimeout(() => { toast(t("bdgNew", rest.map(bdgName).join(", "))); sfx("badge"); }, 400);
 }
 // Feiring når påskeegg-merket låses opp.
 function eggPopHTML(){

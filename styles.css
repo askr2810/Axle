@@ -1431,3 +1431,14 @@ a.srow{text-decoration:none;color:inherit}
 .sim-eq .q1{color:var(--c1)}.sim-eq .q2{color:var(--c2)}.sim-eq .q3{color:var(--c3)}.sim-eq .q4{color:var(--c4)}.sim-eq .q5{color:var(--c5)}
 .sim-eq .q6{color:var(--ok);font-weight:800}.sim-eq .q7{color:var(--bad);font-weight:800}.sim-eq .q9{color:var(--ink);font-weight:800}
 .sim-eq [class^=q] mn{font-weight:700}
+
+/* Juice: stjerner som spretter ut ved riktig svar, flytende XP, riste ved feil */
+.burst{position:fixed;z-index:80;pointer-events:none;width:0;height:0}
+.burst i{position:absolute;left:-4px;top:-4px;width:8px;height:8px;border-radius:2px;transform:rotate(45deg);animation:burstOut .75s cubic-bezier(.2,.7,.3,1) forwards}
+@keyframes burstOut{0%{transform:translate(0,0) rotate(45deg) scale(.4);opacity:1}70%{opacity:1}100%{transform:translate(var(--x),var(--y)) rotate(225deg) scale(.2);opacity:0}}
+.float-xp{position:fixed;z-index:81;pointer-events:none;transform:translateX(-50%);font-weight:900;color:var(--gold-deep);font-size:18px;text-shadow:0 1px 0 #fff;animation:floatUp 1.1s ease-out forwards}
+@keyframes floatUp{0%{opacity:0;translate:0 6px}20%{opacity:1}100%{opacity:0;translate:0 -46px}}
+.opt.wrong,.num.wrong{animation:gdShake .32s}
+.fb-h.combo{animation:comboPulse .5s ease-out}
+@keyframes comboPulse{0%{transform:scale(.85)}60%{transform:scale(1.08)}100%{transform:none}}
+@media (prefers-reduced-motion: reduce){.burst,.float-xp{display:none}.opt.wrong,.num.wrong,.fb-h.combo{animation:none}}
