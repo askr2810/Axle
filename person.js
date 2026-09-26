@@ -83,7 +83,7 @@ function renderPerson(){
   }
   const bl = me ? bdgShown().map(id => BADGES.find(b => b[0] === id)) : psBadges(r); // egne: slik de er valgt nå
   const badgeSec = `<div class="pf-sec"><div class="pf-sh"><b>${esc(t("bdgTitle"))}</b>${me ? `<button class="exlink" data-a="badges">${esc(t("psChoose"))}</button>` : ""}</div>
-    ${bl.length ? `<div class="ps-badges">${bl.map(b => `<button data-a="psbadge" data-id="${b[0]}" title="${esc(bdgName(b))}">${badgeIcon(b, 54, false, me ? undefined : no)}<small>${esc(bdgName(b))}</small></button>`).join("")}</div>`
+    ${bl.length ? `<div class="ps-badges">${bl.map(b => `<button data-a="psbadge" data-id="${b[0]}" title="${esc(T(b[5], b[6]))}">${badgeIcon(b, 54, false, me ? undefined : no)}<small>${esc(T(b[5], b[6]))}</small></button>`).join("")}</div>`
       : `<p class="pf-empty">${esc(me ? t(S.badgesPublic === false ? "psMeHidden" : "psMeNone") : r0.fetched || r0.badges !== undefined ? t("psNoBadges", name) : t("frLoading"))}</p>`}</div>`;
   $app.innerHTML = back + `<main class="wrap pf ps">
       <div class="pf-head"><span class="pf-av">${frAvatar(name, 1, av, 104, photo)}</span>
@@ -112,6 +112,7 @@ function bdgVisHTML(){
     <button class="tog ${on ? "on" : ""}" data-a="bdgpub" role="switch" aria-checked="${on}" aria-label="${esc(t("bdgPub"))}"></button></div>`;
 }
 function psClick(a, b){
+  if(a === "bdgeggsee"){ overlay = null; screen = "badges"; render(); window.scrollTo(0, 0); return true; }
   if(a === "bdgpub"){ S.badgesPublic = S.badgesPublic === false; save(); frPushSoon(); render(); toast(t(S.badgesPublic ? "bdgPubToastOn" : "bdgPubToastOff")); return true; }
   if(a === "bdgeye"){ const id = b.dataset.id; S.badgeHide ||= {}; if(S.badgeHide[id]) delete S.badgeHide[id]; else S.badgeHide[id] = 1; save(); frPushSoon(); render(); return true; }
   if(!a.startsWith("ps")) return false;
@@ -119,7 +120,7 @@ function psClick(a, b){
   if(a === "psback") psBack();
   else if(a === "psreload"){ PS.err = null; psLoad(); }
   else if(a === "psme"){ if(AUTH) psOpen(AUTH.uid, screen === "badges" ? "badges" : "profile"); }
-  else if(a === "psbadge"){ const bd = BADGES.find(x => x[0] === b.dataset.id); if(bd) toast(bdgName(bd) + " – " + (bd[0] === "pioneer" && +r.member_no > 0 ? t("pioneerDesc", r.member_no) : T(bd[7], bd[8]))); }
+  else if(a === "psbadge"){ const bd = BADGES.find(x => x[0] === b.dataset.id); if(bd) toast(T(bd[5], bd[6]) + " – " + (bd[0] === "pioneer" && +r.member_no > 0 ? t("pioneerDesc", r.member_no) : T(bd[7], bd[8]))); }
   else if(a === "psreq") frRequest(r.user_id, r.display_name).then(() => { if(PS.row && PS.row.user_id === r.user_id){ PS.row.status = PS.row.status === "none" || !PS.row.status ? "sent" : PS.row.status; psLoad(); } });
   else if(a === "psacc" || a === "psdec") frRpc("answer_friend_request", { fid: r.user_id, accept: a === "psacc" }).then(async () => {
       if(a === "psacc"){ buzz(true); toast(t("frAdded", r.display_name || "")); } FR.reqs = (FR.reqs || []).filter(x => x.user_id !== r.user_id); renderTabbar();

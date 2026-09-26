@@ -38,7 +38,7 @@ const unlockedPets = () => new Set([0, ...PETS.filter(p => (S.unlocks || {})[p[1
 function checkUnlocks(o){
   S.unlocks ||= {}; const fresh = [];
   for(const p of PETS) if(!S.unlocks[p[1]]){ let ok = false; try{ ok = p[3](o || avParse(S.avatar)); }catch(e){} if(ok){ S.unlocks[p[1]] = Date.now(); fresh.push(p); } }
-  if(fresh.length){ save(); setTimeout(() => { toast(t("unlNew", fresh.map(p => T(AV_NAMES.p[p[0]][0], AV_NAMES.p[p[0]][1])).join(", "))); confetti(); buzz(true); }, 500); }
+  if(fresh.length){ save(); if(fresh.some(p => p[2])) bdgToast(checkBadges()); setTimeout(() => { toast(t("unlNew", fresh.map(p => T(AV_NAMES.p[p[0]][0], AV_NAMES.p[p[0]][1])).join(", "))); confetti(); buzz(true); }, 500); }
   return fresh;
 }
 function noteNightLesson(){ const h = new Date().getHours(); if(h >= 0 && h < 4){ S.stats ||= {}; S.stats.night = (+S.stats.night || 0) + 1; } }

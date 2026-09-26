@@ -1302,3 +1302,19 @@ a.srow{text-decoration:none;color:inherit}
 .bdg-eye svg{width:16px;height:16px}
 .bdg-eye.off{color:var(--bad)}
 .bdg-card.hid>.bdg,.bdg-card.hid>b,.bdg-card.hid>span{opacity:.45}
+/* ---- hemmelig påskeegg-merke: regnbue-holo som roterer og glinser ---- */
+.bdg.holo{position:relative;overflow:hidden;isolation:isolate;background:#7B4FD6;box-shadow:inset 0 0 0 4px rgba(255,255,255,.6),0 3px 0 #5B34B0,0 0 16px rgba(179,110,255,.6)}
+.bdg.holo::before{content:"";position:absolute;inset:-30%;z-index:-2;background:conic-gradient(#ff6ec7,#ffd36e,#6effa0,#6ed3ff,#b36eff,#ff6ec7);animation:holoSpin 6s linear infinite}
+.bdg.holo::after{content:"";position:absolute;inset:0;z-index:-1;background:linear-gradient(115deg,transparent 30%,rgba(255,255,255,.75) 45%,transparent 60%);background-size:250% 100%;animation:holoSheen 2.8s ease-in-out infinite}
+.bdg.holo svg{width:58%;height:58%;filter:drop-shadow(0 2px 2px rgba(60,20,120,.45))}
+@keyframes holoSpin{to{transform:rotate(360deg)}}
+@keyframes holoSheen{0%{background-position:130% 0}60%,100%{background-position:-60% 0}}
+.bdg-card.got:has(.holo){border-color:#B36EFF;background:linear-gradient(160deg,var(--card),rgba(179,110,255,.14))}
+.egg-pop{position:relative;overflow:hidden;isolation:isolate;text-align:center;display:grid;justify-items:center;gap:8px}
+.egg-pop .bdg{margin:14px 0 4px;animation:eggPop .7s cubic-bezier(.2,1.6,.4,1) both}
+.egg-pop h3{margin:0;font-size:24px;background:linear-gradient(90deg,#ff6ec7,#b36eff,#6ed3ff);-webkit-background-clip:text;background-clip:text;color:transparent}
+.egg-pop p{margin:0}.egg-pop .big{width:100%}
+.egg-kick{font-family:var(--mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:#9B6BEF;font-weight:700}
+.egg-rays{position:absolute;left:50%;top:84px;width:420px;height:420px;margin:-210px 0 0 -210px;z-index:-1;background:repeating-conic-gradient(rgba(179,110,255,.16) 0 10deg,transparent 10deg 20deg);animation:holoSpin 18s linear infinite;border-radius:50%;pointer-events:none}
+@keyframes eggPop{0%{transform:scale(.2) rotate(-25deg);opacity:0}100%{transform:none;opacity:1}}
+@media (prefers-reduced-motion:reduce){.bdg.holo::before,.bdg.holo::after,.egg-rays,.egg-pop .bdg{animation:none}}

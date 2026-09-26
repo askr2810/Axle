@@ -837,6 +837,7 @@ function renderOverlay(){
   if(overlay==="dcpop") d.innerHTML = dcPopupHTML();
   else if(overlay==="langpick") d.innerHTML = langPickHTML();
   else if(overlay.crop) d.innerHTML = cropHTML();
+  else if(overlay.bdgegg){ d.className = "scrim center"; d.innerHTML = eggPopHTML(); }
   else if(overlay.jump!=null){ const c=COURSE(S.current); d.innerHTML = `<div class="dialog pop" role="dialog" aria-label="${t("jumpHere")}"><h3>${esc(t("jumpTitle",unitTitle(c,overlay.jump)))}</h3><p>${t("jumpText")}</p><button class="big" data-a="jumpok">${t("startTest")}</button><button class="big ghost" data-a="closeov">${t("cancel")}</button></div>`; }
   else if(overlay==="quit") d.innerHTML = `<div class="dialog pop" role="dialog" aria-label="${t("quitTitle")}"><h3>${t("quitTitle")}</h3><p>${t("quitText")}</p><button class="big" data-a="stay">${t("keepGoing")}</button><button class="big ghost" data-a="quitok" style="color:var(--bad)">${t("quit")}</button></div>`;
   else if(overlay==="reset") d.innerHTML = `<div class="dialog pop" role="dialog" aria-label="${t("resetTitle")}"><h3>${t("resetTitle")}</h3><p>${t("resetText")}</p><button class="big" data-a="closeov">${t("cancel")}</button><button class="big ghost" data-a="resetok" style="color:var(--bad)">${t("reset")}</button></div>`;
