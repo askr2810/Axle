@@ -14,7 +14,7 @@ function grid(op = 1){
   return s;
 }
 const bg = `<defs><radialGradient id="g" cx="50%" cy="42%" r="75%"><stop offset="0" stop-color="#2A5FC0"/><stop offset="1" stop-color="${BLUE_D}"/></radialGradient></defs><rect width="1024" height="1024" fill="url(#g)"/>${grid()}`;
-const word = (scale = 1) => `<text x="512" y="512" dy="0.35em" text-anchor="middle" font-family="AxleFigtree" font-weight="500" font-size="${300 * scale}" letter-spacing="${-6 * scale}" fill="#fff">Axle</text>`;
+const word = (scale = 1) => `<text x="512" y="512" dy="0.35em" text-anchor="middle" font-family="AxleFigtree" font-weight="500" font-size="${410 * scale}" letter-spacing="${-2 * scale}" fill="#fff">Axle</text>`;
 const svg = (body) => `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024">${body}</svg>`;
 const ICON = svg(bg + word());
 
@@ -40,7 +40,7 @@ const ICON = svg(bg + word());
   await render(ICON, 512, 'store/play-icon-512.png');
   for(const s of [192, 512]) await render(ICON, s, `web/icons/icon-${s}.png`);
   await render(ICON, 180, 'web/icons/apple-touch-icon.png');
-  await render(svg(bg + word(0.78)), 512, 'web/icons/icon-maskable-512.png');          // maskable: litt mindre skrift
+  await render(svg(bg + word(0.8)), 512, 'web/icons/icon-maskable-512.png');          // maskable: litt mindre skrift
   for(const [name, col] of [['splash.png', PAPER], ['splash-dark.png', '#0F1720']]){
     await p.setViewportSize({ width: 2732, height: 2732 });
     await p.setContent(`<!doctype html><html><head><style>@font-face{font-family:AxleFigtree;src:url(data:font/woff2;base64,${fontData}) format("woff2");font-weight:500}
