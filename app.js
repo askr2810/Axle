@@ -901,6 +901,7 @@ function render(){
   else if(screen==="examReview") renderExamReview();
   renderTabbar();
   renderOverlay();
+  routeSync(); // adressen følger skjermen (route.js)
 }
 function goHome(){ screen="home"; L=null; overlay=null; render(); window.scrollTo(0,0); }
 document.addEventListener("click", async e=>{
@@ -1028,6 +1029,7 @@ document.addEventListener("keydown", e=>{
 });
 
 examBoot(true); // pågående eksamen: fortsett, eller lever hvis tiden gikk ut mens appen var lukket
+routeBoot(); // #/teori/FAST/2 osv.: fortsett der man var før oppdatering
 if(frBootLink()) screen = "friends";
 (function langLink(){ // ?lang=en er allerede brukt (i18n.js); fjern det fra adressen
   if(!LANG_URL) return; try{ const q = new URLSearchParams(location.search); q.delete("lang"); history.replaceState(null, "", location.pathname + (q.toString() ? "?" + q : "") + location.hash); }catch(e){}
