@@ -151,6 +151,34 @@ Object.assign(SIMS, {
         <circle cx="${(cx + rp * Math.cos(a)).toFixed(1)}" cy="${(cy - rp * Math.sin(a)).toFixed(1)}" r="5" style="fill:var(--c2)"/>
         ${fgT(236, 70, smN(vv / 1000, 2) + " km/s", "fg-b fg-c2t")}${fgT(236, 96, smN(Th, 1) + " h", "fg-b")}${fgT(236, 120, smN(v.h, 0) + " km", "fg-s fg-c1t")}` }; } },
 
+  // ---------- Bil i sving: sentripetalkraft og friksjon ----------
+  curve: { t: ["Bil i sving", "Car in a curve"], p: [["r", ["radius", "radius"], 10, 200, 5, 50, "m", 1], ["v", ["fart", "speed"], 10, 150, 5, 60, T("km/t", "km/h"), 2],
+      ["s", ["underlag (0 is, 1 vått, 2 tørt)", "surface (0 ice, 1 wet, 2 dry)"], 0, 2, 1, 2, "", 3], ["m", ["masse", "mass"], 800, 2500, 100, 1300, "kg", 4]],
+    q: ["Doble farten: hvor mye større blir kraften som trengs? Doble radien: hva skjer da?", "Double the speed: how much larger does the required force become? Double the radius: what happens then?"],
+    g: [["Tørr asfalt, radius 50 m: finn den høyeste farten (i trinn på 5 km/t) uten å skli.", "Dry asphalt, radius 50 m: find the highest speed (in steps of 5 km/h) without skidding.", v => { const ok = sp => Math.pow(sp / 3.6, 2) / 50 <= 0.8 * 9.81; return v.s === 2 && v.r === 50 && ok(v.v) && !ok(v.v + 5); }],
+        ["Is, 40 km/t: finn den minste radiusen (i trinn på 5 m) der bilen holder seg på veien.", "Ice, 40 km/h: find the smallest radius (in steps of 5 m) where the car stays on the road.", v => { const ok = r => Math.pow(40 / 3.6, 2) / r <= 0.1 * 9.81; return v.s === 0 && v.v === 40 && ok(v.r) && !ok(v.r - 5); }]],
+    f: v => { const MU = [0.1, 0.5, 0.8], mu = MU[v.s], vs = v.v / 3.6, a = vs * vs / v.r, F = v.m * a, Fmax = mu * v.m * 9.81, vmax = Math.sqrt(mu * 9.81 * v.r) * 3.6, skid = a > mu * 9.81 + 1e-9;
+      const cx = 160, cy = 172, R = 72 + (v.r - 10) / 190 * 76, ang = 118 * Math.PI / 180, px = cx + R * Math.cos(ang), py = cy - R * Math.sin(ang), road = ["#BFE6F5", "#7F8C99", "#555D66"][v.s];
+      const arc = rr => `M${(cx + rr * Math.cos(Math.PI * 0.08)).toFixed(1)} ${(cy - rr * Math.sin(Math.PI * 0.08)).toFixed(1)} A${rr.toFixed(1)} ${rr.toFixed(1)} 0 0 0 ${(cx + rr * Math.cos(Math.PI * 0.92)).toFixed(1)} ${(cy - rr * Math.sin(Math.PI * 0.92)).toFixed(1)}`;
+      const tx = Math.sin(ang), ty = Math.cos(ang), ux = -Math.cos(ang), uy = Math.sin(ang), fl = 12 + 34 * Math.min(1.6, F / Math.max(Fmax, 1)); // tangent (mot klokka) og retning inn mot sentrum
+      const car = `<g transform="translate(${px.toFixed(1)} ${py.toFixed(1)}) rotate(${(-(ang * 180 / Math.PI) + 180).toFixed(1)})"><rect x="-7" y="-12" width="14" height="24" rx="4" style="fill:${skid ? "var(--bad)" : "var(--c2)"}"/><rect x="-5" y="-8" width="10" height="6" rx="2" style="fill:#fff;opacity:.7"/></g>`;
+      return { m: { skid }, out: [[T("a = v²/r", "a = v²/r"), smN(a, 2) + " m/s² (" + smN(a / 9.81, 2) + " g)"], [T("kraft som trengs F = ma", "force needed F = ma"), smN(F / 1000, 2) + " kN"],
+          [T("maks friksjon μmg", "max friction μmg"), smN(Fmax / 1000, 2) + " kN"], [T("maks fart", "max speed"), smN(vmax, 0) + " " + T("km/t", "km/h")]], svg: `
+        <path d="${arc(R)}" fill="none" style="stroke:${road}" stroke-width="22" stroke-linecap="round"/><path d="${arc(R)}" fill="none" stroke="#fff" stroke-width="1.4" stroke-dasharray="6 6" opacity=".8"/>
+        ${smDot(cx, cy, "fg-dot", 3)}${smLine(cx, cy, px, py, "fg-mut", "3 3")}${fgT(cx + 8, cy - 4, "r = " + v.r + " m", "fg-s fg-c1t", "start")}
+        ${skid ? `<path d="M${px.toFixed(1)} ${py.toFixed(1)}l${(-tx * 90).toFixed(1)} ${(-ty * 90).toFixed(1)}" class="fg-red" stroke-width="2" stroke-dasharray="5 4" fill="none"/>` + fgT(22, 172, T("Sklir av veien!", "Skids off the road!"), "fg-b fg-redt", "start") : ""}
+        ${fgAr(px, py, px + ux * fl, py + uy * fl, skid ? "fg-red" : "fg-ok", 2.6)}${fgAr(px, py, px - tx * 30, py - ty * 30, "fg-c2", 2)}
+        ${car}${fgT(296, 26, ["❄ " + T("is", "ice"), "💧 " + T("vått", "wet"), "☀ " + T("tørt", "dry")][v.s] + "  μ = " + smN(mu, 1), "fg-s", "end")}` }; } },
+
+  // ---------- Sentripetalakselerasjon som graf ----------
+  centri: { t: ["Sentripetalakselerasjon", "Centripetal acceleration"], p: [["r", ["radius", "radius"], 10, 200, 5, 100, "m", 1], ["v", ["fart", "speed"], 10, 150, 5, 60, T("km/t", "km/h"), 2], ["s", ["underlag (0 is, 1 vått, 2 tørt)", "surface (0 ice, 1 wet, 2 dry)"], 0, 2, 1, 1, "", 3]],
+    q: ["a = v²/r: hva skjer med a når farten dobles? Når radien dobles?", "a = v²/r: what happens to a when the speed doubles? When the radius doubles?"],
+    g: [["Vått føre, radius 100 m: finn farten der akselerasjonen treffer friksjonsgrensen.", "Wet road, radius 100 m: find the speed where the acceleration reaches the friction limit.", v => v.s === 1 && v.r === 100 && Math.abs(Math.pow(v.v / 3.6, 2) / 100 - 0.5 * 9.81) < 0.2]],
+    f: v => { const MU = [0.1, 0.5, 0.8], a = sp => Math.pow(sp / 3.6, 2) / v.r, lim = MU[v.s] * 9.81, cols = ["fg-c1", "fg-c3", "fg-c4"];
+      const g = smPlot([[a, "fg-acc", 2.6]], [0, 150], [0, 12], T("v (km/t)", "v (km/h)"), "a", (X, Y) => MU.map((mu, i) => smLine(X(0), Y(mu * 9.81), X(150), Y(mu * 9.81), cols[i], i === v.s ? "" : "4 4") +
+          fgT(X(3), Y(mu * 9.81) - 4, [T("is", "ice"), T("vått", "wet"), T("tørt", "dry")][i], "fg-s " + cols[i] + "t", "start")).join("") + smDot(X(v.v), Y(Math.min(12, a(v.v))), a(v.v) > lim ? "fg-dotr" : "fg-dot"));
+      return { out: [["a = v²/r", smN(a(v.v), 2) + " m/s²"], [T("friksjonsgrense μg", "friction limit μg"), smN(lim, 2) + " m/s²"], [T("maks fart", "max speed"), smN(Math.sqrt(lim * v.r) * 3.6, 0) + " " + T("km/t", "km/h")]], svg: g.svg }; } },
+
   // ---------- Sykepleie: NEWS2 ----------
   news2: { t: ["NEWS2-kalkulator", "NEWS2 calculator"], p: [["rr", ["resp.frekvens", "resp. rate"], 6, 32, 1, 16, "/min", 1], ["sp", "SpO₂", 85, 100, 1, 97, "%", 2], ["sbp", ["syst. BT", "syst. BP"], 80, 230, 5, 125, "mmHg", 3],
       ["hr", ["puls", "pulse"], 35, 150, 5, 75, "/min", 4], ["tp", ["temp.", "temp."], 34, 41, 0.1, 37, "°C", 5], ["o2", ["oksygen (0 nei, 1 ja)", "oxygen (0 no, 1 yes)"], 0, 1, 1, 0, ""], ["cv", ["ny forvirring (0/1)", "new confusion (0/1)"], 0, 1, 1, 0, ""]],
@@ -196,7 +224,7 @@ for(const [k, name] of [["VG1T:0", "quad"], ["VG1T:1", "line"], ["VG1T:1", "quad
   ["VGR1:0", "expo"], ["VGR1:1", "tangent"], ["VGR1:2", "vector"], ["VGR1:3", "binom"], ["VGR1:3", "combi"],
   ["VGR2:0", "riemann"], ["VGR2:1", "geoseries"], ["VGR2:2", "logistic"], ["VGR2:2", "euler"], ["VGR2:3", "trig"], ["VGR2:3", "unitcircle"],
   ["VGS1:1", "expo"], ["VGS1:2", "tangent"], ["VGS1:3", "binom"],
-  ["VGFY1:0", "vt"], ["VGFY1:1", "incline"], ["VGFY1:2", "energy"], ["VGFY1:3", "ohm"], ["VGFY1:4", "decay"], ["VGFY2:0", "projectile"], ["VGFY2:1", "orbit"],
+  ["VGFY1:0", "vt"], ["VGFY1:1", "incline"], ["VGFY1:2", "energy"], ["VGFY1:3", "ohm"], ["VGFY1:4", "decay"], ["VGFY2:0", "projectile"], ["VGFY2:1", "orbit"], ["VGFY2:1", "curve"], ["VGFY2:1", "centri"], ["VGFY1:1", "curve"], ["MAPE1300:2", "curve"], ["GFYS:2", "curve"],
   ["VGKJ1:2", "gas"], ["VGKJ1:3", "ph"], ["VGKJ2:2", "titration"], ["VGKJ2:2", "ph"], ["VGBI1:1", "punnett"], ["VGBI1:2", "logistic"],
   ["SFARM:0", "decay"], ["SFARM:0", "doses"], ["SKLIN:1", "news2"], ["SKLIN:2", "bmi"], ["SLMR:2", "drip"], ["SANA:2", "gas"]]){
   const cur = SIM_MAP[k]; SIM_MAP[k] = cur ? [].concat(cur, name).filter((x, i, a) => a.indexOf(x) === i) : name;

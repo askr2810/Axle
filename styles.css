@@ -1421,3 +1421,4 @@ a.srow{text-decoration:none;color:inherit}
 .gd-swipe{text-align:center;color:var(--muted);font-size:13px;margin:10px 0 0}
 .gd{touch-action:pan-y}
 @media (prefers-reduced-motion:reduce){.gd-from-r,.gd-from-l{animation:none}}
+.fig .fg-dotr{fill:var(--bad)}
