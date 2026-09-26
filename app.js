@@ -207,12 +207,11 @@ function renderHome(){
   <main class="wrap">
     ${noticeHTML()}
     ${duInviteHTML()}
-    ${(S.homeHide || {}).fav ? "" : favBarHTML()}
-    ${dcDoneToday() || (S.homeHide || {}).dc ? "" : dcCardHTML()}
-    ${homeGamesHTML()}
+    ${layoutHTML("home")}
     ${examHomeActions(c) ? `<div class="actions">${examHomeActions(c)}</div>` : ""}
     ${preBarHTML(c)}
     ${path}
+    ${layLinkHTML("home")}
     <p class="foot-note">${esc(t("foot1",courseName(c),nQ,nG))}<br>${d===tot?(crowns(c)===c.units.length?t("allCrowns"):t("allLevels")):esc(t("foot2",d,tot,crowns(c),c.units.length))}</p>
   </main>`;
 }
@@ -260,7 +259,7 @@ function renderSettings(){
     <div class="sheet-h"><h1>${t("setTitle")}</h1><button class="iconbtn" data-a="profile" aria-label="${t("back")}">${I.x}</button></div>
     <div class="sgroup"><button class="srow set-av" data-a="avedit">${hasMeAv() ? meAvHTML(48) : `<span class="set-av0">${I.users}</span>`}<span class="lbl">${t(hasMeAv() ? "avEdit" : "avMake")}<span class="sub">${t("avSetSub")}</span></span>${I.chevron}</button></div>
     <div class="sgroup">
-      <button class="srow" data-a="homecustom"><span class="lbl">${esc(t("gmCustom"))}<span class="sub">${esc(t("gmCustomSub"))}</span></span>${I.chevron}</button>
+      <button class="srow" data-a="homecustom"><span class="lbl">${esc(t("layTitle"))}<span class="sub">${esc(t("laySetSub"))}</span></span>${I.chevron}</button>
       <button class="srow" data-a="studyopen"><span class="lbl">${esc(t("stSetting"))}<span class="sub">${esc(STUDY(S.study).ic + " " + studyName(STUDY(S.study)))}</span></span>${I.chevron}</button>
       <div class="srow"><span class="lbl">${t("setLang")}</span><div class="seg"><button class="${LANG==="nb"?"on":""}" data-a="setlang" data-l="nb">Norsk</button><button class="${LANG==="en"?"on":""}" data-a="setlang" data-l="en">English</button></div></div>
       <div class="srow"><span class="lbl">${t("setTheme")}</span><div class="seg">${["auto","light","dark"].map(k=>`<button class="${(S.theme||"auto")===k?"on":""}" data-a="settheme" data-m="${k}" aria-pressed="${(S.theme||"auto")===k}">${esc(t("theme_"+k))}</button>`).join("")}</div></div>
@@ -874,7 +873,9 @@ function renderOverlay(){
   else if(overlay==="langpick") d.innerHTML = langPickHTML();
   else if(overlay.crop) d.innerHTML = cropHTML();
   else if(overlay.studypick) d.innerHTML = studyPickHTML(overlay.first);
-  else if(overlay.games) d.innerHTML = gamesMenuHTML(overlay.custom);
+  else if(overlay.games) d.innerHTML = gamesMenuHTML(overlay.games);
+  else if(overlay.layout) d.innerHTML = layoutEditHTML(overlay.layout);
+  else if(overlay.topics) d.innerHTML = topicPickHTML(overlay.topics);
   else if(overlay.bdgegg){ d.className = "scrim center"; d.innerHTML = eggPopHTML(); }
   else if(overlay.jump!=null){ const c=COURSE(S.current); d.innerHTML = `<div class="dialog pop" role="dialog" aria-label="${t("jumpHere")}"><h3>${esc(t("jumpTitle",unitTitle(c,overlay.jump)))}</h3><p>${t("jumpText")}</p><button class="big" data-a="jumpok">${t("startTest")}</button><button class="big ghost" data-a="closeov">${t("cancel")}</button></div>`; }
   else if(overlay==="quit") d.innerHTML = `<div class="dialog pop" role="dialog" aria-label="${t("quitTitle")}"><h3>${t("quitTitle")}</h3><p>${t("quitText")}</p><button class="big" data-a="stay">${t("keepGoing")}</button><button class="big ghost" data-a="quitok" style="color:var(--bad)">${t("quit")}</button></div>`;

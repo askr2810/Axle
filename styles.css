@@ -1610,3 +1610,24 @@ textarea.fbtext{width:100%;font:13px/1.4 var(--mono,monospace);border-radius:12p
 .lo-lock{text-align:center;color:var(--muted);font-weight:700;margin:0}
 .lo-end .lo-half{justify-items:center;text-align:center}.lo-big{font-size:48px}
 .lo-demo{display:flex;gap:10px;font-size:52px;justify-content:center}
+
+/* ---------- tilpassede menyer og temavelger ---------- */
+.lay-link{display:block;margin:18px auto 4px;font-size:13.5px}
+.lay-tabs{margin:4px 0 6px}
+.lay-list{display:grid;gap:8px}
+.lay-row{display:flex;align-items:center;gap:6px;background:var(--card);border:2px solid var(--line);border-radius:14px;padding:6px 8px 6px 12px}
+.lay-row .lbl{flex:1;font-weight:700}.lay-row.off .lbl{color:var(--muted);text-decoration:line-through}
+.lay-mv{width:34px;height:34px;font-size:16px;font-weight:800}.lay-mv:disabled{opacity:.25}
+.lay-h{margin:16px 0 8px;font-size:13px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted)}
+.lay-games{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.lay-g{display:grid;justify-items:center;gap:4px;padding:8px 4px;border:2px solid var(--line);border-radius:14px;background:var(--card);color:var(--ink);font:inherit;cursor:pointer;opacity:.6}
+.lay-g.on{opacity:1;border-color:var(--accent);background:var(--accent-soft)}.lay-g small{font-size:11.5px;text-align:center;line-height:1.2}
+.lay-reset{display:block;margin:14px auto 0}
+.du-topic{display:flex;align-items:center;gap:12px;width:100%;text-align:left;background:var(--card);border:2px solid var(--accent);border-bottom-width:4px;border-radius:16px;padding:10px 12px;color:var(--ink);font:inherit;cursor:pointer}
+.du-topic > span:nth-child(2){flex:1}.du-topic b{display:block}.du-topic small{color:var(--muted);font-size:12.5px}.du-tic{font-size:24px}
+.lo-topic{width:100%;text-align:left}
+.tp .tp-opt{display:flex;align-items:center;gap:8px;width:100%;text-align:left;background:var(--card);border:2px solid var(--line);border-radius:14px;padding:10px 12px;color:var(--ink);font:inherit;cursor:pointer}
+.tp .tp-opt > span{flex:1}.tp .tp-opt b{display:block;font-size:15px}.tp .tp-opt small{color:var(--muted);font-size:12.5px}
+.tp .tp-opt.on{border-color:var(--accent);background:var(--accent-soft)}.tp .tp-opt svg{width:18px;height:18px;color:var(--accent)}
+.tp-all{margin-top:6px}.tp-c{margin-top:8px}.tp-row{display:flex;gap:6px;align-items:stretch}.tp-exp{width:46px;height:auto;font-size:20px;font-weight:800;border:2px solid var(--line);border-radius:14px;background:var(--card)}
+.tp-units{display:grid;gap:6px;margin:6px 0 4px 16px}.tp .tp-u{padding:8px 12px}.tp .tp-u b{font-size:14px;font-weight:600}

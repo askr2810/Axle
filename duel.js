@@ -12,12 +12,25 @@ const DU_RACE_N = 10, DU_TUG_N = 40, DU_TUG_WIN = 5, DU_TUG_SECS = 90, LO_WIN = 
 
 // ---------- spørsmål ----------
 // Flervalg fra fagene i studiet (eller bare gjeldende fag) og pugge-kortene, gjort om til kompakte objekter som kan sendes.
+// Tema: "study" (hele studiet), "c:KODE" (ett fag) eller "u:KODE:n" (én enhet).
+function duScopeParse(sc){
+  sc = sc === "course" ? "c:" + S.current : String(sc || "study");
+  const [k, code, u] = sc.split(":"), c = code && COURSES.find(x => x.code === code);
+  if(k === "u" && c && c.units[+u]) return { kind: "u", c, u: +u, key: sc };
+  if(k === "c" && c) return { kind: "c", c, key: sc };
+  return { kind: "study", key: "study" };
+}
+function duScopeLabel(sc){ const p = duScopeParse(sc); return p.kind === "u" ? courseShort(p.c) + " · " + unitTitle(p.c, p.u) : p.kind === "c" ? courseName(p.c) : t("duMixed"); }
+function duUnitQuestion(c, u){ // som snQuestion, men fra én bestemt enhet
+  const P = poolIds(c, [u]), ids = [...P.mc, ...P.gen, ...P.num]; if(!ids.length) return null;
+  try{ const it = itemFromId(c, snRand(ids), { mc: true }); return it && it.type === "mc" ? { it } : null; }catch(e){ return null; }
+}
 function duQuestions(n, scope, maxLen = 260){
-  const courses = scope === "course" ? [COURSE(S.current)] : snCourses(), out = [], seen = new Set();
-  for(let k = 0; out.length < n && k < n * 8; k++){
+  const sc = duScopeParse(scope), courses = sc.kind === "study" ? snCourses() : [sc.c], out = [], seen = new Set();
+  for(let k = 0; out.length < n && k < n * 10; k++){
     let it = null;
-    if(scope !== "course" && Math.random() < 0.3){ const pool = drPool("all"); if(pool.length) it = drItem(snRand(pool), false); }
-    else { const q = snQuestion(snRand(courses)); it = q && q.it; }
+    if(sc.kind === "study" && Math.random() < 0.3){ const pool = drPool("all"); if(pool.length) it = drItem(snRand(pool), false); }
+    else { const q = sc.kind === "u" ? duUnitQuestion(sc.c, sc.u) : snQuestion(snRand(courses)); it = q && q.it; }
     if(!it || it.type !== "mc" || !it.opts || it.opts.length < 2 || String(it.prompt).length > maxLen || seen.has(it.prompt)) continue;
     const opts = it.opts.slice(0, 4); if(!opts.some(o => o.ok)) continue;
     seen.add(it.prompt); out.push({ p: it.prompt, o: opts.map(o => o.t), k: opts.findIndex(o => o.ok), e: it.expl || "" });
@@ -185,7 +198,7 @@ function renderDuel(){
     $app.innerHTML = `${duTop(t("duTitle"))}<main class="wrap du-lobby">
       ${DU.inviteName ? `<p class="du-vs">⚔️ ${esc(t("duVsFriend", DU.inviteName))}</p>` : ""}
       <h3 class="du-h">${esc(t("duPickMode"))}</h3><div class="du-modes">${mode("race", "🏁")}${mode("tug", "🪢")}</div>
-      <h3 class="du-h">${esc(t("duPickScope"))}</h3><div class="seg du-scope"><button class="${DU.scope === "course" ? "on" : ""}" data-a="duscope" data-s="course">${esc(courseShort(COURSE(S.current)))}</button><button class="${DU.scope !== "course" ? "on" : ""}" data-a="duscope" data-s="study">${esc(t("duMixed"))}</button></div>
+      <h3 class="du-h">${esc(t("duPickScope"))}</h3>${topicBtnHTML(DU.scope, "du")}
       ${DU.err ? `<p class="du-err">${esc(DU.err)}</p>` : ""}
       ${AUTH ? `<button class="big du-go" data-a="ducreate" ${DU.busy ? "disabled" : ""}>${esc(DU.busy ? t("duBusy") : t("duCreate"))}</button>` : `<button class="big du-go" data-a="aclogin">${esc(t("duLoginBtn"))}</button><p class="picknote">${esc(t("duLoginWhy"))}</p>`}
       <div class="du-join"><input id="dujoin" maxlength="6" autocapitalize="characters" autocomplete="off" placeholder="${esc(t("duCodePh"))}" value="${esc(DU.joinCode || "")}" aria-label="${esc(t("duCodePh"))}"><button class="big ghost" data-a="dujoin">${esc(t("duJoin"))}</button></div>
@@ -250,7 +263,7 @@ function duInviteHTML(){
 // ---------- Lynduell på samme mobil ----------
 function loOpen(){ if(LO) clearTimeout(LO.skip); LO = { view: "intro", s: [0, 0] }; overlay = null; if(DU){ duStopPoll(); DU = null; } screen = "local"; render(); }
 function loNext(){
-  let q = null; for(let k = 0; k < 6 && !q; k++){ const qs = duQuestions(1, "study", 170); q = qs[0] && qs[0].o.every(o => String(o).length < 70) ? qs[0] : null; }
+  let q = null; for(let k = 0; k < 6 && !q; k++){ const qs = duQuestions(1, S.loScope || "study", 170); q = qs[0] && qs[0].o.every(o => String(o).length < 70) ? qs[0] : null; }
   LO.q = q; LO.lock = [false, false]; LO.winner = null; LO.pick = [null, null]; LO.qid = (LO.qid || 0) + 1;
   const id = LO.qid; clearTimeout(LO.skip);
   LO.skip = setTimeout(() => { if(LO && LO.view === "play" && LO.qid === id && LO.winner == null){ LO.winner = -1; render(); setTimeout(() => { if(LO && LO.qid === id && LO.view === "play"){ loNext(); render(); } }, 1400); } }, 20000); // ingen svarte riktig: vis svaret og gå videre
@@ -269,7 +282,8 @@ function renderLocal(){
   if(!LO){ loOpen(); return; }
   if(LO.view === "intro"){
     $app.innerHTML = `<div class="top"><div class="wrap"><button class="iconbtn" data-a="loclose" aria-label="${esc(t("back"))}">${I.x}</button><div class="th-t"><small>${esc(t("duKicker"))}</small><b>${esc(t("loTitle"))}</b></div></div></div>
-      <main class="wrap sp-intro"><div class="lo-demo"><span>🤜</span><span>🤛</span></div><h2>${esc(t("loHead"))}</h2><p>${esc(t("loText", LO_WIN))}</p><button class="big sp-go" data-a="lostart">${esc(t("spGo"))}</button></main>`;
+      <main class="wrap sp-intro"><div class="lo-demo"><span>🤜</span><span>🤛</span></div><h2>${esc(t("loHead"))}</h2><p>${esc(t("loText", LO_WIN))}</p>
+        <div class="lo-topic"><h3 class="du-h">${esc(t("duPickScope"))}</h3>${topicBtnHTML(S.loScope || "study", "lo")}</div><button class="big sp-go" data-a="lostart">${esc(t("spGo"))}</button></main>`;
     return;
   }
   if(LO.view === "end"){
@@ -294,6 +308,9 @@ function duClick(a, b){
   if(a === "duleave"){ duLeave(); return true; }
   if(a === "dumode"){ DU.mode = b.dataset.m; render(); return true; }
   if(a === "duscope"){ DU.scope = b.dataset.s; render(); return true; }
+  if(a === "dutopics"){ overlay = { topics: { who: b.dataset.w, open: duScopeParse(b.dataset.w === "lo" ? S.loScope : DU && DU.scope).c?.code || null } }; renderOverlay(); return true; }
+  if(a === "dutopicopen"){ overlay.topics.open = overlay.topics.open === b.dataset.c ? null : b.dataset.c; renderOverlay(); return true; }
+  if(a === "dutopicset"){ const v = b.dataset.s; if(overlay.topics.who === "lo"){ S.loScope = v; } else if(DU){ DU.scope = v; S.duScope = v; } saveLocal(); overlay = null; renderOverlay(); render(); toast(t("duTopicSet", duScopeLabel(v))); return true; }
   if(a === "ducreate"){ DU.err = null; duCreate(); return true; }
   if(a === "dujoin"){ const v = (document.getElementById("dujoin") || {}).value || DU.joinCode; DU.err = null; DU.joinCode = v; duJoin(v); return true; }
   if(a === "dustart"){ duStart(); return true; }
@@ -310,3 +327,18 @@ function duClick(a, b){
 }
 // Duell fra en venns profil eller vennelista: åpne lobbyen med vennen som invitert.
 function duChallenge(id, name){ duOpen(); DU.inviteId = id; DU.inviteName = name; render(); }
+
+// ---------- temavelger (duell og lynduell) ----------
+const topicBtnHTML = (sc, who) => `<button class="du-topic" data-a="dutopics" data-w="${who}"><span class="du-tic">🎯</span><span><b>${esc(duScopeLabel(sc))}</b><small>${esc(t("duTopicChange"))}</small></span>${I.chevron}</button>`;
+function topicPickHTML(o){
+  const cur = duScopeParse(o.who === "lo" ? S.loScope : DU && DU.scope).key, list = studyCourses(curStudy()).filter(c => c.units.some(u => u.qs.length || (u.gen || []).length));
+  const favs = list.filter(c => isFav(c.code) || c.code === S.current), rest = list.filter(c => !favs.includes(c));
+  const opt = (v, label, sub, cls = "") => `<button class="tp-opt ${cls} ${cur === v ? "on" : ""}" data-a="dutopicset" data-s="${esc(v)}"><span><b>${esc(label)}</b>${sub ? `<small>${esc(sub)}</small>` : ""}</span>${cur === v ? I.check : ""}</button>`;
+  const course = c => { const open = o.open === c.code;
+    return `<div class="tp-c ${open ? "open" : ""}"><div class="tp-row">${opt("c:" + c.code, courseName(c), t("duTopicAllUnits", c.units.length))}<button class="iconbtn tp-exp" data-a="dutopicopen" data-c="${c.code}" aria-expanded="${open}" aria-label="${esc(t("duTopicUnits"))}">${open ? "−" : "+"}</button></div>
+      ${open ? `<div class="tp-units">${c.units.map((u, i) => opt("u:" + c.code + ":" + i, unitTitle(c, i), "", "tp-u")).join("")}</div>` : ""}</div>`; };
+  return `<div class="dialog gm-menu tp" role="dialog" aria-label="${esc(t("duPickScope"))}"><div class="sheet-h"><h3>${esc(t("duPickScope"))}</h3><button class="iconbtn" data-a="closeov" aria-label="${esc(t("back"))}">${I.x}</button></div>
+    ${opt("study", t("duMixed"), t("duTopicMixedSub"), "tp-all")}
+    ${favs.length ? `<h4 class="lay-h">${esc(t("duTopicYours"))}</h4>${favs.map(course).join("")}` : ""}
+    ${rest.length ? `<h4 class="lay-h">${esc(t("duTopicOther"))}</h4>${rest.map(course).join("")}` : ""}</div>`;
+}
