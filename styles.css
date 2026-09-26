@@ -1469,3 +1469,11 @@ a.srow{text-decoration:none;color:inherit}
 .pf-link>span:first-child{font-size:20px}.pf-link small{display:block;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:var(--accent)}.pf-link b{font-size:14.5px}.pf-link svg,.pf-link>:last-child{margin-left:auto}
 .pf-link.done{border-style:solid;border-color:color-mix(in srgb,var(--ok) 40%,var(--line))}
 @media (prefers-reduced-motion: reduce){.pf-cta::after,.pf-end .pf-qed{animation:none}}
+
+/* Adminpanel: tilbakemeldinger */
+.adm-fb{display:grid;gap:6px;padding:12px 14px}
+.adm-fb-h{display:flex;flex-wrap:wrap;gap:6px;align-items:baseline}.adm-fb-h span{color:var(--muted);font-size:12.5px}
+.adm-fb-m{margin:0;white-space:pre-wrap}.adm-fb-e{margin:0;color:var(--muted);font-size:13px}
+.adm-fb details{font-size:13.5px;color:var(--muted)}.adm-fb details p{margin:4px 0}
+.adm-copy{margin-left:auto}
+textarea.fbtext{width:100%;font:13px/1.4 var(--mono,monospace);border-radius:12px;border:2px solid var(--line);padding:8px;background:var(--paper,var(--card));color:var(--ink)}

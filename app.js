@@ -132,7 +132,7 @@ function saveLocal(){ try{ localStorage.setItem(LS_KEY, JSON.stringify(S)); }cat
 let S = loadLocal(); if(LANG_URL){ S.lang = LANG_URL; S.langSet = 1; saveLocal(); } LANG = S.lang || LANG; // langSet = valgt selv (spør ikke igjen)
 const sub = code => (S.subjects[code] ||= { done:{}, wrong:[] });
 
-let remoteRef = null, remoteChain = Promise.resolve(), claudeDb = null, isOwner = false;
+let remoteRef = null, remoteChain = Promise.resolve(), claudeDb = null, isOwner = false, FB_NO_DB = false;
 function pushRemote(){
   if(!remoteRef) return;
   const snap = JSON.parse(JSON.stringify(S)); delete snap.outbox;
@@ -583,6 +583,11 @@ function reportContext(it, yours, meta){
 }
 async function deliver(p){
   if(claudeDb){ await claudeDb.collection("feedback").add(p); return "sent"; }
+  // Supabase (tilbakemelding.sql): lagres i databasen og vises i adminpanelet. Mangler funksjonen, prøves de gamle veiene.
+  if(typeof CLOUD_ON !== "undefined" && CLOUD_ON && !FB_NO_DB){
+    try{ const tok = AUTH ? await authToken().catch(() => null) : null; await sbFetch("/rest/v1/rpc/submit_feedback", { method: "POST", body: JSON.stringify({ p }) }, tok || undefined); return "sent"; }
+    catch(e){ if(e && e.kind === "offline") throw e; if(e && /PGRST202|42883|404/.test(String(e.code || e.status || ""))) FB_NO_DB = true; else if(e && (e.kind === "rate" || e.msg === "rate")) throw e; }
+  }
   if(!CONFIG.web3formsKey) return "nocfg";
   const lines = Object.entries(p).filter(([k,v])=>v!==""&&v!=null&&k!=="email").map(([k,v])=>`${k}: ${v}`).join("\n");
   const body = { access_key: CONFIG.web3formsKey, subject: `${CONFIG.appName.nb}: ${p.category}${p.course?" – "+p.course+" "+p.qid:""}`,
@@ -907,6 +912,7 @@ function renderOverlay(){
       <button class="big" data-a="bkimport">${t("bkImport")}</button><button class="big ghost" data-a="closeov">${t("cancel")}</button></div>`;
   else if(overlay==="privacy") d.innerHTML = `<div class="dialog pop privacy" role="dialog" aria-label="${t("privacyTitle")}"><h3>${t("privacyTitle")}</h3>${PRIVACY[LANG]}<button class="big" data-a="closeov">${t("cont")}</button></div>`;
   else if(overlay.exam) d.innerHTML = examOverlayHTML();
+  else if(overlay.fbtext){ d.innerHTML = `<div class="dialog pop" role="dialog"><h3>${esc(t("admFbCopy"))}</h3><textarea class="fbtext" readonly rows="12">${esc(overlay.fbtext)}</textarea><button class="big" data-a="closeov">${t("cont")}</button></div>`; const ta = d.querySelector("textarea"); if(ta){ ta.focus(); ta.select(); } }
   else if(overlay.inbox){ d.innerHTML = `<div class="dialog pop" role="dialog"><h3>${t("setInbox",overlay.items.length)}</h3><div class="inbox">${overlay.items.length?overlay.items.map(x=>`<div><b>${esc(x.category||"")}</b> · ${esc(x.course||"")} ${esc(x.qid||"")} · ${esc((x.time||"").slice(0,16))}<br>${esc(x.message||"")}${x.prompt?`<br><i>${esc(String(x.prompt).slice(0,160))}</i>`:""}</div>`).join(""):`<p>${t("inboxEmpty")}</p>`}</div><button class="big" data-a="closeov">${t("cont")}</button></div>`; }
   else if(overlay.report){
     const isRep = overlay.report==="report", ctx = overlay.ctx;

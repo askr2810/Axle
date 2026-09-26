@@ -22,6 +22,7 @@ async function admLoad(force){
     if(tab === "overview" && (force || !ADM.stats)){ ADM.stats = await frRpc("admin_stats"); }
     else if(tab === "reports" && (force || !ADM.reports)){ ADM.reports = null; admRender(); ADM.reports = (await frRpc("admin_reports", { p_handled: ADM.done })) || []; }
     else if(tab === "users" && (force || !ADM.users)){ ADM.users = (await frRpc("admin_find_users", { q: ADM.q })) || []; }
+    else if(tab === "feedback" && (force || !ADM.fb)){ ADM.fb = null; admRender(); ADM.fb = (await frRpc("admin_feedback", { p_handled: ADM.fbDone })) || []; }
     else if(tab === "log" && (force || !ADM.log)){ ADM.log = (await frRpc("admin_log_list")) || []; }
     else if(tab === "notice" && (force || ADM.notice === undefined)){ ADM.notice = ((await frRpc("get_notice")) || [])[0] || null; }
   }catch(e){ ADM.err = admErr(e); }
@@ -34,7 +35,7 @@ function admWho(r, sub){ // avatar + navn for en bruker i lister
 }
 function renderAdmin(){
   if(!isStaff()){ screen = "profile"; renderProfile(); return; }
-  const tabs = [["overview", "admTabOverview"], ["reports", "admTabReports"], ["users", "admTabUsers"]].concat(isAdmin() ? [["notice", "admTabNotice"]] : []).concat([["log", "admTabLog"]]);
+  const tabs = [["overview", "admTabOverview"], ["feedback", "admTabFeedback"], ["reports", "admTabReports"], ["users", "admTabUsers"]].concat(isAdmin() ? [["notice", "admTabNotice"]] : []).concat([["log", "admTabLog"]]);
   const openN = ADM.stats ? +ADM.stats.reports_open || 0 : 0;
   let body = "";
   if(ADM.err) body = `<p class="fr-hint">${esc(ADM.err)}</p><button class="big ghost" data-a="admreload">${esc(t("frRetry"))}</button>`;
@@ -42,6 +43,7 @@ function renderAdmin(){
   else if(ADM.tab === "reports") body = admReportsHTML();
   else if(ADM.tab === "users") body = admUsersHTML();
   else if(ADM.tab === "notice") body = admNoticeHTML();
+  else if(ADM.tab === "feedback") body = admFeedbackHTML();
   else body = admLogHTML();
   $app.innerHTML = `<div class="top"><div class="wrap"><button class="iconbtn" data-a="profile" aria-label="${esc(t("back"))}">${I.left}</button>
       <div class="th-t"><small>${esc(t(S.appRole === "admin" ? "roleAdmin" : "roleMod"))}</small><b>${esc(t("admTitle"))}</b></div><button class="iconbtn" data-a="admreload" aria-label="${esc(t("frRefresh"))}">${I.redo}</button></div></div>
@@ -127,6 +129,9 @@ function adminClick(a, b){
   else if(a === "ntcclose"){ if(NOTICE){ S.noticeSeen = NOTICE.id; save(); } render(); }
   else if(a === "admtab"){ ADM.tab = b.dataset.t; ADM.confirm = null; ADM.open = null; render(); admLoad(); }
   else if(a === "admreload"){ ADM.stats = null; admLoad(true); }
+  else if(a === "admfbdone"){ ADM.fbDone = b.dataset.v === "1"; ADM.fb = null; render(); admLoad(true); }
+  else if(a === "admfbmark"){ const id = +b.dataset.id; frRpc("admin_feedback_mark", { p_id: id, p_handled: !ADM.fbDone }).then(() => { ADM.fb = (ADM.fb || []).filter(x => x.id !== id); toast(t("admOk")); admRender(); }, e => toast(admErr(e))); }
+  else if(a === "admfbcopy"){ const txt = admFeedbackText(ADM.fb || []); (navigator.clipboard ? navigator.clipboard.writeText(txt) : Promise.reject()).then(() => toast(t("admFbCopied")), () => { overlay = { fbtext: txt }; renderOverlay(); }); }
   else if(a === "admgoreports"){ ADM.tab = "reports"; ADM.done = false; render(); admLoad(true); }
   else if(a === "admdone"){ ADM.done = b.dataset.v === "1"; ADM.reports = null; render(); admLoad(true); }
   else if(a === "admopen"){ ADM.open = ADM.open === b.dataset.id ? null : b.dataset.id; ADM.confirm = null; render(); }
@@ -147,6 +152,24 @@ function adminClick(a, b){
   }
   else return false;
   return true;
+}
+// ---------- tilbakemeldinger (tilbakemelding.sql) ----------
+function admFeedbackHTML(){
+  const sw = `<div class="chips adm-sw"><button class="${!ADM.fbDone ? "on" : ""}" data-a="admfbdone" data-v="0">${esc(t("admOpen"))}</button><button class="${ADM.fbDone ? "on" : ""}" data-a="admfbdone" data-v="1">${esc(t("admDone"))}</button>
+    ${ADM.fb && ADM.fb.length ? `<button class="adm-copy" data-a="admfbcopy">📋 ${esc(t("admFbCopy"))}</button>` : ""}</div><p class="fr-hint">${esc(t("admFbHint"))}</p>`;
+  if(ADM.fb === null || ADM.fb === undefined) return sw + `<p class="fr-hint">${esc(t("frLoading"))}</p>`;
+  if(!ADM.fb.length) return sw + `<p class="fr-hint adm-empty">${esc(t("admFbNone"))}</p>`;
+  return sw + ADM.fb.map(f => `<div class="fr-card adm-fb"><div class="adm-fb-h"><b>${esc(f.category || f.kind)}</b><span>${esc(admAgo(f.created_at))}${f.course ? " · " + esc(f.course) + (f.qid ? " " + esc(f.qid) : "") : ""}${f.platform ? " · " + esc(f.platform) : ""}</span></div>
+      ${f.message ? `<p class="adm-fb-m">${esc(f.message)}</p>` : ""}
+      ${f.prompt ? `<details><summary>${esc(t("admFbQ"))}</summary><p><b>${esc(t("admFbPrompt"))}</b> ${esc(f.prompt)}</p><p><b>${esc(t("admFbCorrect"))}</b> ${esc(f.correct || "")}</p><p><b>${esc(t("admFbAnswer"))}</b> ${esc(f.user_answer || "")}</p></details>` : ""}
+      ${f.email ? `<p class="adm-fb-e">✉ ${esc(f.email)}</p>` : ""}${f.note ? `<p class="adm-fb-e">📝 ${esc(f.note)}</p>` : ""}
+      <button class="exlink" data-a="admfbmark" data-id="${f.id}">${esc(t(ADM.fbDone ? "admFbReopen" : "admFbMark"))}</button></div>`).join("");
+}
+// Teksten som kan limes rett inn til Claude: én blokk per tilbakemelding, uten e-post.
+function admFeedbackText(list){
+  return `Tilbakemeldinger fra Axle (${list.length}). Vurder hva som bør endres, og fiks det som er feil:\n\n` + list.map(f => [`#${f.id} · ${f.category || f.kind} · ${String(f.created_at || "").slice(0, 10)}${f.platform ? " · " + f.platform : ""}`,
+    f.message ? "Melding: " + f.message : "", f.course ? `Fag: ${f.course}${f.unit ? " enhet " + f.unit : ""}${f.qid ? " oppgave " + f.qid : ""}` : "", f.prompt ? "Oppgave: " + f.prompt : "",
+    f.correct ? "Fasit: " + f.correct : "", f.user_answer ? "Svar fra bruker: " + f.user_answer : ""].filter(Boolean).join("\n")).join("\n\n");
 }
 // ---------- kunngjøring for alle (banner på forsiden) ----------
 let NOTICE; // undefined = ikke hentet, null = ingen
