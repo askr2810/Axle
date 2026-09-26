@@ -166,6 +166,6 @@ function spClick(a, b){
 function snEntryHTML(){
   const best = ((S.sprintBest || {})[curStudy()]) || 0;
   return `<div class="sn-entry"><button class="sn-tile sn-t1" data-a="snopen"><span class="sn-ti">📱</span><b>${esc(t("snTitle"))}</b><small>${esc(t("snSub"))}</small></button>
-    <button class="sn-tile sn-t2" data-a="spopen"><span class="sn-ti">⚡</span><b>${esc(t("spTitle"))}</b><small>${esc(best ? t("spBest", best) : t("spSub"))}</small></button></div>${gmEntryHTML()}`;
+    <button class="sn-tile sn-t2" data-a="spopen"><span class="sn-ti">⚡</span><b>${esc(t("spTitle"))}</b><small>${esc(best ? t("spBest", best) : t("spSub"))}</small></button></div>`;
 }
 function snEntryClick(a){ if(a === "snopen"){ snOpen(); return true; } if(a === "spopen"){ spOpen(); return true; } return false; }

@@ -132,8 +132,39 @@ function gmClick(a, b){
   if(a === "tfans"){ tfAnswer(b.dataset.v === "1"); return true; }
   return false;
 }
-function gmEntryHTML(){
-  const mb = ((S.matchBest || {})[curStudy()]), tb = ((S.tfBest || {})[curStudy()]);
-  return `<div class="sn-entry"><button class="sn-tile sn-t3" data-a="mtopen"><span class="sn-ti">🧩</span><b>${esc(t("mtTitle"))}</b><small>${esc(mb ? t("mtBest", f1(mb)) : t("mtSub"))}</small></button>
-    <button class="sn-tile sn-t4" data-a="tfopen"><span class="sn-ti">👆</span><b>${esc(t("tfTitle"))}</b><small>${esc(tb ? t("spBest", tb) : t("tfSub"))}</small></button></div>`;
+
+// ---------- Lek og lær-menyen og tilpasning av forsiden ----------
+// Forsiden viser bare én knapp («Lek og lær») som åpner alle spillene. Spill man fester (S.homePins) vises som store fliser.
+// Tilpass forsiden (S.homeHide): skjul dagens utfordring og favorittlinja.
+const GAMES = [["sn", "snopen", "📱", "snTitle", "sn-t1"], ["sp", "spopen", "⚡", "spTitle", "sn-t2"], ["mt", "mtopen", "🧩", "mtTitle", "sn-t3"], ["tf", "tfopen", "👆", "tfTitle", "sn-t4"]];
+function gmSub(id){
+  const st = curStudy(), sp = (S.sprintBest || {})[st], mb = (S.matchBest || {})[st], tb = (S.tfBest || {})[st];
+  if(id === "sn") return t("snSub"); if(id === "sp") return sp ? t("spBest", sp) : t("spSub");
+  if(id === "mt") return mb ? t("mtBest", f1(mb)) : t("mtSub"); return tb ? t("spBest", tb) : t("tfSub");
+}
+const gmTile = g => `<button class="sn-tile ${g[4]}" data-a="${g[1]}"><span class="sn-ti">${g[2]}</span><b>${esc(t(g[3]))}</b><small>${esc(gmSub(g[0]))}</small></button>`;
+const homePins = () => Array.isArray(S.homePins) ? S.homePins : [];
+function homeGamesHTML(){
+  const pins = GAMES.filter(g => homePins().includes(g[0]));
+  return `${pins.length ? `<div class="sn-entry">${pins.map(gmTile).join("")}</div>` : ""}
+    <button class="qt-row gm-row" data-a="gamesmenu"><span class="gm-ics" aria-hidden="true">${GAMES.map(g => `<i class="${g[4]}">${g[2]}</i>`).join("")}</span><span><b>${esc(t("gmTitle"))}</b><small>${esc(t("gmSub"))}</small></span>${I.chevron}</button>`;
+}
+// I Øv: alle spillene som små fliser.
+const practiceGamesHTML = () => `<div class="sn-entry sn-sm">${GAMES.map(gmTile).join("")}</div>`;
+function gamesMenuHTML(custom){
+  const hide = S.homeHide || {}, tog = (k, on, lab) => `<div class="srow"><span class="lbl">${esc(lab)}</span><button class="tog ${on ? "on" : ""}" data-a="hometog" data-k="${k}" role="switch" aria-checked="${on}" aria-label="${esc(lab)}"></button></div>`;
+  return `<div class="dialog gm-menu" role="dialog" aria-label="${esc(t(custom ? "gmCustom" : "gmTitle"))}"><div class="sheet-h"><h3>${esc(t(custom ? "gmCustom" : "gmTitle"))}</h3><button class="iconbtn" data-a="closeov" aria-label="${esc(t("back"))}">${I.x}</button></div>
+    ${GAMES.map(g => { const on = homePins().includes(g[0]);
+      return `<div class="gm-item"><button class="gm-open" data-a="${g[1]}"><span class="gm-ic ${g[4]}">${g[2]}</span><span><b>${esc(t(g[3]))}</b><small>${esc(gmSub(g[0]))}</small></span></button>
+        <button class="gm-pin ${on ? "on" : ""}" data-a="gmpin" data-g="${g[0]}" aria-pressed="${on}" title="${esc(t(on ? "gmUnpin" : "gmPin"))}" aria-label="${esc(t(on ? "gmUnpin" : "gmPin"))}">📌</button></div>`; }).join("")}
+    <p class="lp-note">${esc(t("gmPinNote"))}</p>
+    ${custom ? `<div class="sgroup">${tog("dc", !hide.dc, t("gmShowDc"))}${tog("fav", !hide.fav, t("gmShowFav"))}</div>` : ""}</div>`;
+}
+function gmMenuClick(a, b){
+  if(a === "gamesmenu"){ overlay = { games: 1 }; renderOverlay(); return true; }
+  if(a === "homecustom"){ overlay = { games: 1, custom: 1 }; renderOverlay(); return true; }
+  if(a === "gmpin"){ const id = b.dataset.g, p = homePins().filter(x => x !== id); if(!homePins().includes(id)) p.push(id);
+    S.homePins = GAMES.map(g => g[0]).filter(x => p.includes(x)); save(); render(); toast(t(p.includes(id) ? "gmPinned" : "gmUnpinned")); return true; }
+  if(a === "hometog"){ S.homeHide ||= {}; S.homeHide[b.dataset.k] = !S.homeHide[b.dataset.k]; save(); render(); return true; }
+  return false;
 }

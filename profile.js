@@ -113,7 +113,7 @@ function renderPractice(){
       <button class="chip mini-chip" data-a="pick" aria-label="${esc(t("switchCourse"))}"><span class="code">${esc(courseShort(c))}</span>${I.down}</button></div></div>
     <main class="wrap prac">
       ${dcCardHTML()}
-      ${snEntryHTML()}
+      ${practiceGamesHTML()}
       ${drCardHTML()}
       ${todayCardHTML(c, today, goal, week)}
       ${ccCardPracticeHTML()}

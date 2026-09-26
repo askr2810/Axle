@@ -1549,3 +1549,17 @@ textarea.fbtext{width:100%;font:13px/1.4 var(--mono,monospace);border-radius:12p
 .tf-b{padding:16px;border-radius:16px;border:0;border-bottom:4px solid rgba(0,0,0,.25);font:inherit;font-size:18px;font-weight:800;color:#fff;cursor:pointer}
 .tf-b.no{background:var(--bad)}.tf-b.yes{background:#2e9d5b}.tf-b:disabled{opacity:.5}
 .tf-demo{display:flex;justify-content:center;gap:18px;font-size:34px;font-weight:900;margin:10px 0}.tf-demo span{width:70px;height:70px;border-radius:50%;display:grid;place-items:center;color:#fff}.tf-no{background:var(--bad)}.tf-yes{background:#2e9d5b}
+
+/* ---------- Lek og lær-menyen ---------- */
+.gm-row{margin:10px 0 14px}.gm-row b{display:block}.gm-row small{color:var(--muted);font-size:13px}.gm-row > span:nth-child(2){flex:1}
+.gm-ics{display:grid;grid-template-columns:repeat(2,22px);gap:3px;flex:none}.gm-ics i{width:22px;height:22px;border-radius:7px;display:grid;place-items:center;font-size:12px;font-style:normal}
+.gm-ics i::after,.gm-ic::after{display:none}
+.gm-menu{max-height:88vh;overflow:auto}.gm-menu .sheet-h{display:flex;align-items:center;justify-content:space-between}.gm-menu h3{margin:0}
+.gm-item{display:flex;align-items:center;gap:8px;margin-top:10px}
+.gm-open{flex:1;display:flex;align-items:center;gap:12px;text-align:left;background:var(--card);border:2px solid var(--line);border-bottom-width:4px;border-radius:16px;padding:10px 12px;color:var(--ink);font:inherit;cursor:pointer}
+.gm-open b{display:block;font-size:16px}.gm-open small{color:var(--muted);font-size:13px}
+.gm-ic{width:44px;height:44px;border-radius:12px;display:grid;place-items:center;font-size:22px;flex:none;position:relative;overflow:hidden}
+.gm-pin{width:44px;height:44px;border-radius:12px;border:2px solid var(--line);background:var(--card);font-size:18px;filter:grayscale(1);opacity:.55;cursor:pointer;flex:none}
+.gm-pin.on{filter:none;opacity:1;border-color:var(--accent);background:var(--accent-soft)}
+.gm-menu .sgroup{margin-top:14px}
+.sn-sm .sn-tile{padding:10px 12px;grid-template-columns:auto 1fr;align-items:center;column-gap:10px}.sn-sm .sn-ti{font-size:22px;grid-row:span 2}.sn-sm .sn-tile b{font-size:15px}.sn-sm .sn-tile small{font-size:11.5px}
