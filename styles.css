@@ -1258,3 +1258,6 @@ a.srow{text-decoration:none;color:inherit}
 .gr-addbtn{display:flex;align-items:center;justify-content:center;gap:8px;margin:12px 0}
 .gr-addfr p{color:var(--muted);font-size:14px}
 .gr-invs .gr-emo{width:40px;height:40px;font-size:22px}
+.sc-mode{display:inline-flex;border:2px solid var(--line);border-radius:12px;overflow:hidden;background:var(--card)}
+.sc-mode button{font:inherit;font-size:13px;font-weight:800;padding:6px 10px;border:0;background:transparent;color:var(--muted);cursor:pointer}
+.sc-mode button.on{background:var(--accent);color:#fff}

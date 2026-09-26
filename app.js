@@ -601,6 +601,8 @@ function scratchState(){
   return h.scratch;
 }
 let SCR = null; // kjøretidsobjekter for lerretet
+// Hva som tegner: "auto" (finger til en penn er brukt, så bare penn), "pen" (bare penn, fingre flytter/zoomer) eller "touch" (alt tegner, ingen håndflatefilter).
+const scMode = () => S.scInput === "pen" || S.scInput === "touch" ? S.scInput : "auto";
 function scratchHTML(){
   const host = scHost(), st = scratchState(), it = host.item;
   const draw = `<div class="sc-tools">
@@ -614,7 +616,9 @@ function scratchHTML(){
       <button class="tbtn" data-a="sczoom" data-f="0.8" aria-label="${t("scZoomOut")}" title="${t("scZoomOut")}">${I.zout}</button>
       <button class="tbtn" data-a="sczoom" data-f="1.25" aria-label="${t("scZoomIn")}" title="${t("scZoomIn")}">${I.zin}</button>
       <button class="tbtn" data-a="scfit" aria-label="${t("scFit")}" title="${t("scFit")}">${I.fit}</button>
-    </div><div class="sc-canvas"><canvas id="sccv"></canvas></div><p class="sc-tip">${t("scTip")}</p>`;
+      <span class="sc-sep"></span>
+      <div class="sc-mode" role="radiogroup" aria-label="${esc(t("scInput"))}">${["auto","pen","touch"].map(m=>`<button role="radio" aria-checked="${scMode()===m}" class="${scMode()===m?"on":""}" data-a="scinput" data-m="${m}" title="${esc(t("scInTip_"+m))}">${esc(t("scIn_"+m))}</button>`).join("")}</div>
+    </div><div class="sc-canvas"><canvas id="sccv"></canvas></div><p class="sc-tip">${t("scTip_"+scMode())}</p>`;
   const keys = ["√(","^","π","(",")","sin(","cos(","tan(","ln(","°","e"];
   const calc = `<div class="calc"><div class="calc-lines" id="calclines" aria-live="polite"></div>
       <div class="calc-keys">${keys.map(k=>`<button data-a="calckey" data-k="${esc(k)}">${esc(k.length>1?k.replace("(",""):k)}</button>`).join("")}<button class="mode" data-a="calcmode">${st.calc.mode==="deg"?"DEG":"RAD"}</button></div>
@@ -644,11 +648,11 @@ function initCanvas(){
     if(hit.length){ const removed = hit.map(i=>({i, s:st.strokes[i]})); for(let k=hit.length-1;k>=0;k--) st.strokes.splice(hit[k],1); st.hist.push({erase:removed}); scDraw(); } };
   // Penn (Apple Pencil o.l.): trykkfølsom strek, og håndflaten ignoreres mens pennen er nede.
   // Finger: tegner til en penn er brukt, deretter flytter én finger arket. To fingre: zoom/flytt, et kort trykk med to fingre angrer.
-  const isPalm = e => e.pointerType==="touch" && (SCR.penId!=null || (SCR.pen && (e.width>40 || e.height>40)));
+  const isPalm = e => scMode()!=="touch" && e.pointerType==="touch" && (SCR.penId!=null || ((SCR.pen || scMode()==="pen") && (e.width>40 || e.height>40)));
   const touchesOf = () => [...SCR.ptrs.values()].filter(p=>p.type!=="pen");
   cv.addEventListener("pointerdown", e=>{
     const isPen = e.pointerType==="pen";
-    if(isPen){
+    if(isPen && scMode()!=="touch"){
       SCR.pen = true; SCR.penId = e.pointerId;
       for(const [id,p] of SCR.ptrs) if(p.type!=="pen") SCR.ptrs.delete(id); // hånd som landet før pennen
       if(SCR.cur && !SCR.cur.pr && SCR.cur.pts.length < 12 && st.strokes[st.strokes.length-1]===SCR.cur){ st.strokes.pop(); st.hist.pop(); SCR.cur = null; SCR.dirty = true; } // prikk fra hånda
@@ -665,7 +669,7 @@ function initCanvas(){
       return;
     }
     if(!isPen && touches.length>2) return;
-    const panOnly = (SCR.pen && e.pointerType==="touch") || e.button===1 || e.button===2;
+    const panOnly = (e.pointerType==="touch" && (scMode()==="pen" || (scMode()==="auto" && SCR.pen))) || e.button===1 || e.button===2;
     if(panOnly){ SCR.pan = { p0:pos(e), v0:{...st.view} }; return; }
     const w = toW(pos(e));
     if(st.tool==="eraser" || (isPen && ((e.buttons & 32) || e.button===5))){ SCR.erasing = true; eraseAt(w); return; } // viskeknapp på penn
@@ -1055,6 +1059,7 @@ document.addEventListener("click", async e=>{
   // kladd
   else if(a==="scratch"){ overlay={scratch:true}; renderOverlay(); }
   else if(a==="scclose"){ overlay=null; renderOverlay(); render(); }
+  else if(a==="scinput"){ S.scInput = b.dataset.m; save(); renderOverlay(); toast(t("scInTip_"+scMode())); }
   else if(a==="sctab"){ scratchState().tab = b.dataset.t; renderOverlay(); }
   else if(a==="sctool"){ scratchState().tool = b.dataset.t; document.querySelectorAll('[data-a="sctool"]').forEach(x=>x.classList.toggle("on", x.dataset.t===b.dataset.t)); }
   else if(a==="sccolor"){ const st=scratchState(); st.color = +b.dataset.i; st.tool="pen"; document.querySelectorAll('[data-a="sccolor"]').forEach(x=>x.classList.toggle("on", +x.dataset.i===st.color)); document.querySelectorAll('[data-a="sctool"]').forEach(x=>x.classList.toggle("on", x.dataset.t==="pen")); }
