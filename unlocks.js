@@ -15,6 +15,8 @@ const AV_FAM = {
   x: { 2: "gul", 6: "blå" }                       // gullkjede, dråpeøredobber
 };
 const RAINBOW_N = 4;
+// Påskeegget «Øgle»: grønt hår, grønne klær og grønn bakgrunn – alle grønntoner teller (også turkisgrønn genser og bakgrunn).
+const AV_GREEN = { hc: [9], sh: [1, 5], bg: [1, 5] };
 function avColors(o){ const f = new Set(); for(const k in AV_FAM){ const x = AV_FAM[k][o[k]]; if(x) f.add(x); } return f.size; }
 function groupDone(g){ return COURSES.some(c => c.group === g && (() => { const p = courseProgress(c); return p.tot > 0 && p.d === p.tot; })()); }
 function coursesDone(){ return COURSES.filter(c => { const p = courseProgress(c); return p.tot > 0 && p.d === p.tot; }).length; }
@@ -22,7 +24,7 @@ function coursesDone(){ return COURSES.filter(c => { const p = courseProgress(c)
 // Hemmelige påskeegg har bare en kort kode som hint – man må prøve seg fram.
 const PETS = [
   [1, "rainbow", true, o => avColors(o) >= RAINBOW_N, "🎨 ≥ 4", "🎨 ≥ 4"],
-  [2, "lizard", true, o => o.hc === 9 && o.sh === 5 && o.bg === 1, "H10 · K6 · B2", "H10 · C6 · B2"],
+  [2, "lizard", true, o => AV_GREEN.hc.includes(o.hc) && AV_GREEN.sh.includes(o.sh) && AV_GREEN.bg.includes(o.bg), "🟢 H · K · B", "🟢 H · C · B"],
   [3, "gear", false, () => groupDone("Mekanikk og konstruksjon"), "Fullfør et emne i Mekanikk og konstruksjon.", "Complete a course in Mechanics and Design."],
   [4, "spark", false, () => groupDone("Elektro og automasjon"), "Fullfør et emne i Elektro og automasjon.", "Complete a course in Electrical and Automation."],
   [5, "robot", false, () => groupDone("Programmering og data"), "Fullfør et emne i Programmering og data.", "Complete a course in Programming."],
