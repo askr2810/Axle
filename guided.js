@@ -44,7 +44,9 @@ function gdOpen(code, u, go){
 function gdCardHTML(card, c){
   if(card.kind === "text"){
     const first = GD.i === 0;
-    return `${first ? teacherBubble(GD.code, esc(t("gdHello", unitTitle(c, GD.u))), 48, "tch-th") : ""}<div class="gd-text theory">${richDoc(card.src)}</div>`;
+    const p = GD.proof && pfById(GD.proof);
+    const head = !first ? "" : p ? `<div class="pf-head"><span class="pf-ic" aria-hidden="true">${p.ic}</span><div><small>${esc(t("pfKicker"))}</small><b>${rich(T(p.t[0], p.t[1]))}</b></div></div>` : teacherBubble(GD.code, esc(t("gdHello", unitTitle(c, GD.u))), 48, "tch-th");
+    return `${head}<div class="gd-text theory">${richDoc(card.src)}</div>`;
   }
   if(card.kind === "q"){
     const it = card.it, right = card.done && !card.gaveUp;
@@ -55,6 +57,10 @@ function gdCardHTML(card, c){
       ${card.done ? `<div class="cy-e ${right ? "ok" : "bad"}"><b>${esc(t(right ? (card.wrong.length ? "gdRightNow" : "cyRight") : "gdAnswer"))}</b> ${it.expl ? rich(it.expl) : ""}</div>` : ""}</div>`;
   }
   // slutt
+  if(GD.proof){ const p = pfById(GD.proof);
+    return `<div class="gd-end pf-end"><div class="pf-qed" aria-hidden="true"><span>✓</span><small>Q.E.D.</small></div><h2>${esc(t("pfDoneTitle"))}</h2><p>${rich(T(p.t[0], p.t[1]))}</p>
+      ${GD.asked ? `<div class="gd-score"><b>${GD.right}/${GD.asked}</b><span>${esc(t("gdScore"))}</span></div>` : ""}${GD.xp ? `<div class="gd-xp">${I.bolt}+${GD.xp} XP</div>` : ""}
+      <p class="pf-count-l">${esc(t("pfProgress", PROOFS.filter(x => pfDone(x.id)).length, PROOFS.length))}</p></div>`; }
   const first = !(S.gdDone || {})[GD.code + ":" + GD.u];
   return `<div class="gd-end"><div class="gd-end-ic">${I.checkS}</div><h2>${esc(t("gdDoneTitle"))}</h2><p>${esc(t("gdDoneSub", unitTitle(c, GD.u)))}</p>
     ${GD.asked ? `<div class="gd-score"><b>${GD.right}/${GD.asked}</b><span>${esc(t("gdScore"))}</span></div>` : ""}
@@ -63,28 +69,30 @@ function gdCardHTML(card, c){
 }
 function renderGuided(){
   if(!GD){ screen = "home"; renderHome(); return; }
-  const c = COURSE(GD.code), card = GD.cards[GD.i], n = GD.cards.length, isEnd = card.kind === "end";
+  const c = GD.proof ? null : COURSE(GD.code), card = GD.cards[GD.i], n = GD.cards.length, isEnd = card.kind === "end";
   const canNext = card.kind !== "q" || card.done;
   const segs = GD.cards.map((k, i) => `<i class="${i < GD.i ? "on" : i === GD.i ? "cur" : ""} ${k.kind === "q" ? "q" : ""}"></i>`).join("");
   $app.innerHTML = `<div class="top gd-top"><div class="wrap"><button class="iconbtn" data-a="gdclose" aria-label="${esc(t("back"))}">${I.x}</button>
       <div class="gd-prog" role="progressbar" aria-valuemin="0" aria-valuemax="${n}" aria-valuenow="${GD.i + 1}">${segs}</div>
-      <button class="gd-full" data-a="gdfull">${esc(t("gdFull"))}</button></div></div>
+      ${GD.proof ? `<span class="gd-full pf-tag">∎ ${esc(t("pfKicker"))}</span>` : `<button class="gd-full" data-a="gdfull">${esc(t("gdFull"))}</button>`}</div></div>
     <main class="wrap gd"><div class="gd-card ${GD.dir === "r" ? "gd-from-l" : GD.dir === "l" ? "gd-from-r" : "gd-in"}">${gdCardHTML(card, c)}</div>
       ${!S.gdSwipeSeen && !isEnd ? `<p class="gd-swipe" aria-hidden="true">${esc(t("gdSwipe"))}</p>` : ""}</main>
     <div class="lfoot ${card.kind === "q" && card.done ? (card.gaveUp ? "bad" : "ok") : ""}"><div class="wrap gd-foot">
       ${GD.i > 0 && !isEnd ? `<button class="gd-back" data-a="gdprev" aria-label="${esc(t("back"))}">${I.left}</button>` : ""}
-      ${isEnd ? `<button class="big" data-a="gdpractice">${esc(t(GD.go ? "thStartFirst" : "thStart"))}</button>`
+      ${isEnd && GD.proof ? (() => { const nx = pfNext(GD.proof); return nx ? `<button class="big" data-a="pfopen" data-id="${nx.id}">${esc(t("pfNext"))}</button><button class="big ghost pf-more" data-a="pflist">${esc(t("pfMore"))}</button>` : `<button class="big" data-a="pflist">${esc(t("pfMore"))}</button>`; })()
+      : isEnd ? `<button class="big" data-a="gdpractice">${esc(t(GD.go ? "thStartFirst" : "thStart"))}</button>`
               : `<button class="big" data-a="gdnext" ${canNext ? "" : "disabled"}>${esc(t(card.kind === "q" && !card.done ? "gdPick" : "cont"))}</button>`}
     </div></div>`;
 }
 function gdFinish(){
-  const key = GD.code + ":" + GD.u; S.gdDone ||= {};
+  const key = GD.proof ? "proof:" + GD.proof : GD.code + ":" + GD.u; S.gdDone ||= {};
   if(!S.gdDone[key]){ S.gdDone[key] = Date.now(); GD.xp = 5 + GD.right; const st = awardXP(GD.xp); if(st.goalHit) setTimeout(() => toast(t("goalHitTitle")), 600); }
   bdgStat("guided"); bdgToast(checkBadges()); save(); setTimeout(() => confetti(GD && GD.proof ? "proof" : "complete"), 200); buzz(true);
 }
 function guidedClick(a, b){
   if(!a.startsWith("gd") || !GD) return false;
   const card = GD.cards[GD.i];
+  if(a === "gdclose" && GD.proof){ const from = GD.from; GD = null; if(from === "theory" && TH){ screen = "theory"; render(); } else { screen = "proofs"; render(); } window.scrollTo(0, 0); return true; }
   if(a === "gdclose"){ const from = GD.from; GD = null; if(from === "book" || (from === "theory" && TH)){ screen = from; render(); window.scrollTo(0, 0); } else goHome(); return true; }
   if(a === "gdfull"){ const { code, u, go } = GD; GD = null; openTheory(code, u, go); return true; }
   if(a === "gdans" && card.kind === "q" && !card.done){

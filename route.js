@@ -6,7 +6,7 @@
 //  Ord på norsk eller engelsk etter språket; begge forstås når adressen leses.
 // ============================================================
 const RT = { practice: ["ov", "practice"], book: ["teori", "theory"], friends: ["venner", "friends"], profile: ["profil", "profile"], badges: ["merker", "badges"],
-  settings: ["innstillinger", "settings"], community: ["fellesskap", "community"], pick: ["fag", "courses"], groups: ["grupper", "groups"], theory: ["les", "read"], guided: ["steg", "steps"], topic: ["emne", "topic"], sheet: ["formler", "formulas"], person: ["person", "person"], admin: ["admin", "admin"] };
+  settings: ["innstillinger", "settings"], community: ["fellesskap", "community"], pick: ["fag", "courses"], groups: ["grupper", "groups"], theory: ["les", "read"], guided: ["steg", "steps"], topic: ["emne", "topic"], proofs: ["bevis", "proofs"], sheet: ["formler", "formulas"], person: ["person", "person"], admin: ["admin", "admin"] };
 const rtW = k => RT[k][LANG === "en" ? 1 : 0];
 const rtKey = w => Object.keys(RT).find(k => RT[k].includes(String(w || "").toLowerCase()));
 const rtCourse = code => COURSES.some(c => c.code === code) ? code : null;
@@ -26,7 +26,8 @@ function routeOf(){
       if(BK.v === "topic" && BK.code && BK.topic) return [rtW("book"), BK.code, rtW("topic"), BK.topic].join("/");
       return rtW("book");
     case "theory": return TH ? [rtW("theory"), TH.code, TH.u + 1].join("/") : "";
-    case "guided": return GD ? [rtW("guided"), GD.code, GD.u + 1, GD.i + 1].join("/") : null; // steg for steg, med kortnummer
+    case "proofs": return rtW("proofs");
+    case "guided": return GD ? (GD.proof ? [rtW("proofs"), GD.proof, GD.i + 1].join("/") : [rtW("guided"), GD.code, GD.u + 1, GD.i + 1].join("/")) : null; // steg for steg, med kortnummer
     default: return null;
   }
 }
@@ -63,6 +64,10 @@ function routeBoot(){
     gdOpen(code, u, null); if(!GD) return false;
     if(Number.isInteger(i) && i > 0 && i < GD.cards.length - 1) GD.i = i;
     return true;
+  }
+  if(k === "proofs"){ // #/bevis eller #/bevis/deriv/2
+    if(p[1] && typeof pfById === "function" && pfById(p[1])){ pfOpen(p[1], "proofs"); const i = parseInt(p[2], 10) - 1; if(GD && Number.isInteger(i) && i > 0 && i < GD.cards.length - 1) GD.i = i; return true; }
+    screen = "proofs"; return true;
   }
   if(k === "groups"){ screen = "friends"; FR.view = "groups"; GR.cur = /^[0-9a-f-]{36}$/i.test(p[1] || "") ? p[1] : null; GR.rows = null; return true; }
   if(k === "friends"){ screen = "friends"; FR.view = "friends"; return true; }
