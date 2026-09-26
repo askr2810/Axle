@@ -241,7 +241,9 @@ smG("hooke", [["F = 100 kN: minste diameter som ikke gir flyt.", "F = 100 kN: th
 smG("tangent", [["Finn et punkt der tangenten er vannrett.", "Find a point where the tangent is horizontal.", v => Math.abs(v.x * v.x - 1) < 1e-9], ["Finn et punkt der stigningstallet er 3.", "Find a point where the slope is 3.", v => Math.abs(v.x * v.x - 1 - 3) < 1e-9]]);
 smG("line", [["Lag linjen gjennom (0, 2) og (2, −2).", "Make the line through (0, 2) and (2, −2).", v => v.a === -2 && v.b === 2]]);
 smG("vector", [["Få |a + b| = 5 med |a| = 4.", "Get |a + b| = 5 with |a| = 4.", v => v.a === 4 && Math.abs(Math.hypot(v.a * Math.cos(v.th * Math.PI / 180) + 3, v.a * Math.sin(v.th * Math.PI / 180)) - 5) < 1e-9]]);
-smG("expo", [["Få doblingstiden under 10 år.", "Get the doubling time below 10 years.", v => Math.log(2) / Math.log(1 + v.p / 100) < 10]]);
+smG("expo", [["Få doblingstiden under 10 år.", "Get the doubling time below 10 years.", v => Math.log(2) / Math.log(1 + v.p / 100) < 10],
+  ["Sett inn 50 000 kr i 20 år: finn den laveste renten som gir minst 200 000 kr.", "Deposit 50,000 NOK for 20 years: find the lowest rate that gives at least 200,000 NOK.", v => { const K = p => 50000 * (1 + p / 100) ** 20; return v.K0 === 50000 && v.n === 20 && K(v.p) >= 200000 && K(v.p - 0.5) < 200000; }],
+  ["Fortjenesten skal bli større enn innskuddet på under 12 år. Hvilken rente trenger du?", "Make the gain larger than the deposit in under 12 years. What rate do you need?", (v, m) => v.n < 12 && m.gain > v.K0]]);
 smG("spring", [["Still inn en periode på 1 s (±0,01 s).", "Tune the period to 1 s (±0.01 s).", v => Math.abs(2 * Math.PI * Math.sqrt(v.m / v.k) - 1) <= 0.01]]);
 smG("combi", [["n = 10: finn k som gir flest kombinasjoner.", "n = 10: find the k that gives the most combinations.", v => v.n === 10 && v.k === 5]]);
 smG("normal", [["Finn k slik at over 99 % ligger innenfor ±kσ.", "Find k so that more than 99 % lies within ±kσ.", v => v.k >= 3]]);

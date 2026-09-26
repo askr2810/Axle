@@ -5,6 +5,8 @@
 //  q = en liten «prøv dette»-oppgave, f(v) → { svg, out: [[navn, verdi]] }.
 // ============================================================
 const smN = (x, d = 2) => nf(x, d);
+const smFmt = x => Math.abs(x) >= 10000 && Number.isInteger(x) ? String(x).replace(/\B(?=(\d{3})+(?!\d))/g, "\u00a0") : nf(x, 2); // 100 000
+const smKr = x => String(Math.round(x)).replace(/\B(?=(\d{3})+(?!\d))/g, "\u00a0") + " " + T("kr", "NOK"); // 4 525 926 kr
 let smSeq = 0;
 const smBox = { L: 44, R: 304, T: 14, B: 150 };
 // Graf: fns = [[fn, klasse]], xr/yr = [min, maks]. Returnerer svg og en funksjon som gjør om data → piksler.
@@ -47,6 +49,7 @@ function smArc(cx, cy, r, a0, a1, cls, label){
 const qt = String.raw;
 const qn = (x, d = 2) => nf(x, d).replace(",", "{,}").replace("−", "-");
 const qu = u => !u ? "" : /[^\x00-\x7F]/.test(u) ? qt`\,\text{${u}}` : qt`\,\mathrm{${u}}`;
+const qk = x => qn(Math.round(x), 0).replace(/\B(?=(\d{3})+(?!\d))/g, "\\,"); // 4\,525\,926
 const qc = (k, s) => qt`\textcolor{#00000${k}}{${s}}`;
 const qv = (k, x, d, u) => qc(k, qn(x, d)) + qu(u);
 const qr = (x, d, u) => qc(9, qn(x, d)) + qu(u);
@@ -221,11 +224,18 @@ const SIMS = {
     f: v => { const f = x => x * x, a = 0, b = 3, h = (b - a) / v.n; let S = 0, bars = "";
       const g = smPlot([[f]], [0, 3.3], [0, 10], "x", "y", (X, Y) => { for(let i = 0; i < v.n; i++){ const x = a + i * h + h / 2, y = f(x); S += y * h; bars += `<rect class="fg-fill2" x="${X(a + i * h).toFixed(1)}" y="${Y(y).toFixed(1)}" width="${(X(h) - X(0)).toFixed(1)}" height="${(Y(0) - Y(y)).toFixed(1)}" stroke="var(--accent)" stroke-width=".6"/>`; } return bars; });
       return { eq: [qt`\Delta x = \frac{3}{${qc(1, v.n)}} = ${qn(h, 3)}, \quad \sum_{i=1}^{${qc(1, v.n)}} f(x_i)\,\Delta x = ${qr(S, 4)}`, qt`\int_0^3 x^2\,dx = \left[\tfrac{x^3}{3}\right]_0^3 = 9`], out: [[T("sum av søyler", "sum of bars"), smN(S, 4)], ["∫₀³ x² dx", "9"], [T("feil", "error"), smN(9 - S, 4)]], svg: g.svg }; } },
-  expo: { t: ["Eksponentiell vekst", "Exponential growth"], p: [["p", ["rente", "rate"], 1, 15, 0.5, 5, "%", 1], ["n", ["år", "years"], 1, 40, 1, 20, "", 2]],
+  expo: { t: ["Eksponentiell vekst", "Exponential growth"], p: [["K0", ["startbeløp", "deposit"], 10000, 500000, 10000, 100000, T("kr", "NOK"), 3], ["p", ["rente", "rate"], 1, 15, 0.5, 5, "%", 1], ["n", ["år", "years"], 1, 40, 1, 20, "", 2]],
     q: ["Hvor mange år tar det å doble beløpet med 7 % rente? (Tips: 72/7)", "How many years does it take to double the amount at 7 %? (Hint: 72/7)"],
-    f: v => { const k = 1 + v.p / 100, K = 100000 * k ** v.n, top = Math.max(200000, K * 1.1);
-      const g = smPlot([[x => 100000 * k ** x], [x => 100000 * (1 + v.p / 100 * x), "fg-mut", 1.4]], [0, 40], [0, top], T("år", "years"), "kr", (X, Y) => smDot(X(v.n), Y(K)));
-      return { eq: [qt`K = 100\,000\cdot\left(1 + \frac{${qc(1, qn(v.p, 1))}}{100}\right)^{${qc(2, v.n)}} = ${qr(Math.round(K), 0, T("kr", "NOK"))}`, qt`n_{\text{${T("dobling", "double")}}} = \frac{\ln 2}{\ln ${qn(k, 3)}} = ${qr(Math.log(2) / Math.log(k), 1, T("år", "years"))}`], out: [[T("etter n år", "after n years"), nf(Math.round(K), 0) + " " + T("kr", "NOK")], [T("doblingstid", "doubling time"), smN(Math.log(2) / Math.log(k), 1) + " " + T("år", "years")]], svg: g.svg }; } },
+    f: v => { const k = 1 + v.p / 100, K = v.K0 * k ** v.n, gain = K - v.K0, lin = v.K0 * (1 + v.p / 100 * v.n), top = Math.max(2 * v.K0, K * 1.12);
+      const g = smPlot([[x => x <= v.n + 1e-9 ? v.K0 * k ** x : NaN], [x => x <= v.n + 1e-9 ? v.K0 * (1 + v.p / 100 * x) : NaN, "fg-mut", 1.4]], [0, 40], [0, top], T("år", "years"), "kr", (X, Y) => {
+        const right = X(v.n) < 190, ex = right ? X(v.n) + 8 : X(v.n) - 8, an = right ? "start" : "end";
+        return smLine(X(0), Y(v.K0), X(40), Y(v.K0), "fg-c3", "4 3") + fgT(X(0) + 4, Y(v.K0) + 13, T("start ", "start ") + smKr(v.K0), "fg-s fg-c3t", "start") +
+          `<line class="fg-ok" x1="${X(v.n).toFixed(1)}" y1="${Y(v.K0).toFixed(1)}" x2="${X(v.n).toFixed(1)}" y2="${Y(K).toFixed(1)}" stroke-width="3" opacity=".75"/>` +
+          smDot(X(v.n), Y(K)) + fgT(ex, Y(v.K0) - Y(K) < 20 ? Y(K) - 9 : Y(K) + 4, smKr(K), "fg-b", an) +
+          (Y(lin) - Y(K) > 16 && Y(v.K0) - Y(lin) > 16 ? fgT(ex, Y(lin) + 4, T("uten renters rente", "simple interest"), "fg-s", an) : ""); });
+      return { eq: [qt`K = K_0\cdot\left(1 + \frac{p}{100}\right)^n`, qt`= ${qc(3, qk(v.K0))}\cdot ${qc(1, qn(k, 3))}^{${qc(2, v.n)}} = ${qc(9, qk(K))}${qu(T("kr", "NOK"))}`,
+          qt`\text{${T("fortjeneste", "gain")}} = K - K_0 = ${qc(9, qk(gain))}${qu(T("kr", "NOK"))}`, qt`n_{\text{${T("dobling", "double")}}} = \frac{\ln 2}{\ln ${qc(1, qn(k, 3))}} = ${qr(Math.log(2) / Math.log(k), 1, T("år", "years"))}`],
+        m: { K, gain }, out: [[T("etter " + v.n + " år", "after " + v.n + " years"), smKr(K)], [T("fortjeneste", "gain") + " (" + smN(K / v.K0, 2) + "×)", "+" + smKr(gain)]], svg: g.svg }; } },
   normal: { t: ["Normalfordelingen", "The normal distribution"], p: [["mu", "μ", -2, 2, 0.1, 0, "", 1], ["s", "σ", 0.4, 2, 0.1, 1, "", 2], ["k", ["± kσ", "± kσ"], 0.5, 3, 0.5, 1, "", 3]],
     q: ["Hvor stor andel ligger innenfor ±2σ? Og ±3σ?", "What share lies within ±2σ? And ±3σ?"],
     f: v => { const pdf = x => Math.exp(-((x - v.mu) ** 2) / (2 * v.s * v.s)) / (v.s * Math.sqrt(2 * Math.PI));
@@ -322,7 +332,7 @@ function simHTML(name){
     <div class="sim-eq" aria-live="polite">${simEqHTML(r)}</div>
     <svg class="sim-svg" viewBox="0 0 320 180" role="img" aria-label="${esc(T(S0.t[0], S0.t[1]))}">${r.svg}</svg>
     <div class="sim-out">${simOutHTML(r)}</div>
-    <div class="sim-ctl">${S0.p.map(p => `<label${simCol(p)}><span class="sim-l">${simSub(lbl(p))}</span><input type="range" min="${p[2]}" max="${p[3]}" step="${p[4]}" value="${p[5]}" data-k="${p[0]}" aria-label="${esc(lbl(p))}"><output>${esc(nf(p[5], 2) + unit(p))}</output></label>`).join("")}</div>
+    <div class="sim-ctl">${S0.p.map(p => `<label${simCol(p)}><span class="sim-l">${simSub(lbl(p))}</span><input type="range" min="${p[2]}" max="${p[3]}" step="${p[4]}" value="${p[5]}" data-k="${p[0]}" aria-label="${esc(lbl(p))}"><output>${esc(smFmt(p[5]) + unit(p))}</output></label>`).join("")}</div>
     ${S0.q && !S0.g ? `<p class="sim-q"><b>${esc(t("simQ"))}</b> ${simSub(T(S0.q[0], S0.q[1]))}</p>` : ""}
     <div class="sim-gw">${simGoalHTML(name)}</div></div>`;
 }
@@ -339,7 +349,7 @@ function simUpdate(el){
   const name = el.dataset.sim, S0 = SIMS[name]; if(!S0) return;
   const v = simVals(name, el); let r; try{ r = S0.f(v); }catch(e){ return; }
   el.querySelector(".sim-svg").innerHTML = r.svg; simFit(el.querySelector(".sim-svg")); el.querySelector(".sim-out").innerHTML = simOutHTML(r); el.querySelector(".sim-eq").innerHTML = simEqHTML(r);
-  el.querySelectorAll(".sim-ctl label").forEach((lb, i) => { const p = S0.p[i]; lb.querySelector("output").textContent = nf(v[p[0]], 2) + (p[6] ? " " + p[6] : ""); });
+  el.querySelectorAll(".sim-ctl label").forEach((lb, i) => { const p = S0.p[i]; lb.querySelector("output").textContent = smFmt(v[p[0]]) + (p[6] ? " " + p[6] : ""); });
   if(!el.dataset.played){ el.dataset.played = 1; S.stats ||= {}; S.stats.sims = (+S.stats.sims || 0) + 1; }
   return r;
 }
