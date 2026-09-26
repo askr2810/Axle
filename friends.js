@@ -31,8 +31,8 @@ async function frRpc(name, args){
 }
 // Kolonner som kom i senere versjoner av venner.sql. Mangler de i databasen, sendes de ikke.
 const FR_NEW_COLS = ["avatar", "prev_week_xp", "prev_week_key"];
-let FR_OLD_DB = false, FR_NO_PHOTO = false, FR_NO_FP = false, FR_NO_BDG = false;
-function frBody(){ const b = myStats(); if(S.avatar) b.avatar = S.avatar; if(!FR_NO_PHOTO) b.photo = isPhoto(S.photo) ? S.photo : null; if(!FR_NO_FP) b.friends_public = !!S.friendsPublic; if(!FR_NO_BDG) b.badges = bdgShown().join(","); if(FR_OLD_DB) FR_NEW_COLS.forEach(k => delete b[k]); return b; }
+let FR_OLD_DB = false, FR_NO_PHOTO = false, FR_NO_FP = false, FR_NO_BDG = false, FR_NO_SP = false;
+function frBody(){ const b = myStats(); if(S.avatar) b.avatar = S.avatar; if(!FR_NO_PHOTO) b.photo = isPhoto(S.photo) ? S.photo : null; if(!FR_NO_FP) b.friends_public = !!S.friendsPublic; if(!FR_NO_BDG) b.badges = bdgShown().join(","); if(!FR_NO_SP) b.stats_public = S.statsPrivate === false; if(FR_OLD_DB) FR_NEW_COLS.forEach(k => delete b[k]); return b; }
 // Sender profilen (f.eks. nytt bilde) til venner litt etter en endring.
 let frPushTimer = null;
 function frPushSoon(){ if(!CLOUD_ON || !AUTH) return; clearTimeout(frPushTimer); frPushTimer = setTimeout(async () => { try{ const tok = await authToken(); if(tok) await frPushStats(tok); }catch(e){} }, 800); }
@@ -41,6 +41,7 @@ async function frPushStats(tok){
   const url = "/rest/v1/profiles?user_id=eq." + encodeURIComponent(AUTH.uid), opt = b => ({ method: "PATCH", headers: { Prefer: "return=minimal" }, body: JSON.stringify(b) });
   try{ await sbFetch(url, opt(frBody()), tok); }
   catch(e){
+    if(/PGRST204|42703/.test(e.code || "") && !FR_NO_SP && /stats_public/.test(e.msg || "")){ FR_NO_SP = true; return frPushStats(tok); }
     if(/PGRST204|42703/.test(e.code || "") && !FR_NO_BDG && /badges/.test(e.msg || "")){ FR_NO_BDG = true; return frPushStats(tok); } // profilsiden (venner.sql) ikke kjørt ennå
     if(/PGRST204|42703/.test(e.code || "") && !FR_NO_FP){ FR_NO_FP = true; return frPushStats(tok); } // grupper.sql ikke kjørt ennå
     if(/PGRST204|42703/.test(e.code || "") && !FR_NO_PHOTO){ FR_NO_PHOTO = true; return frPushStats(tok); }
@@ -79,7 +80,7 @@ async function frSaveName(name){
     const me = (FR.rows || []).find(r => r.is_me);
     if(me) await sbFetch("/rest/v1/profiles?user_id=eq." + encodeURIComponent(AUTH.uid), { method: "PATCH", headers: { Prefer: "return=minimal" }, body: JSON.stringify({ display_name: name }) }, tok);
     else { const post = b => sbFetch("/rest/v1/profiles", { method: "POST", headers: { Prefer: "return=minimal" }, body: JSON.stringify(Object.assign({ user_id: AUTH.uid, display_name: name }, b)) }, tok);
-      try{ await post(frBody()); } catch(e){ if(/PGRST204|42703/.test(e.code || "")){ FR_NO_PHOTO = FR_NO_BDG = FR_NO_FP = true; try{ await post(frBody()); } catch(e2){ if(!FR_OLD_DB && /PGRST204|42703/.test(e2.code || "")){ FR_OLD_DB = true; await post(frBody()); } else throw e2; } } else throw e; } }
+      try{ await post(frBody()); } catch(e){ if(/PGRST204|42703/.test(e.code || "")){ FR_NO_PHOTO = FR_NO_BDG = FR_NO_FP = FR_NO_SP = true; try{ await post(frBody()); } catch(e2){ if(!FR_OLD_DB && /PGRST204|42703/.test(e2.code || "")){ FR_OLD_DB = true; await post(frBody()); } else throw e2; } } else throw e; } }
     if(!me && !S.avatar){ S.avatar = avRandom(); save(); } // alle får en avatar de kan endre
     S.name = name; save(); FR.editName = false; FR.busy = false; await frLoad();
   }catch(e){ FR.busy = false; toast(frErr(e)); frRender(); }
@@ -301,7 +302,8 @@ function renderFriends(){
     } else {
       const { rows, podium, board } = frBoardHTML(FR.rows, FR.tab, "frdetail");
       const meCard = `<div class="fr-card fr-me">${frAvatar(me.display_name, 0, S.avatar || me.avatar, 56, S.photo)}<div class="fr-me-t"><b>${esc(me.display_name)}</b>${me.username ? `<span class="fr-uname">@${esc(me.username)}</span>` : ""}<span class="fr-links"><button class="exlink" data-a="fredituser">${esc(t(me.username ? "frEditUser" : "frPickUser"))}</button><button class="exlink" data-a="freditname">${esc(t("frEditName"))}</button><button class="exlink" data-a="avedit">${esc(t("avEdit"))}</button></span></div></div>
-        <div class="fr-card fr-pub"><span class="fr-pub-t"><b>${esc(t("frPublic"))}</b><small>${esc(t("frPublicSub"))}</small></span><button class="tog ${S.friendsPublic ? "on" : ""}" data-a="frpublic" role="switch" aria-checked="${!!S.friendsPublic}" aria-label="${esc(t("frPublic"))}"></button></div>`;
+        <div class="fr-card fr-pub"><span class="fr-pub-t"><b>${esc(t("frPublic"))}</b><small>${esc(t("frPublicSub"))}</small></span><button class="tog ${S.friendsPublic ? "on" : ""}" data-a="frpublic" role="switch" aria-checked="${!!S.friendsPublic}" aria-label="${esc(t("frPublic"))}"></button></div>
+        <div class="fr-card fr-pub"><span class="fr-pub-t"><b>${esc(t("spPrivate"))}</b><small>${esc(t(S.statsPrivate !== false ? "spPrivateOn" : "spPrivateOff"))}</small></span><button class="tog ${S.statsPrivate !== false ? "on" : ""}" data-a="frstatspriv" role="switch" aria-checked="${S.statsPrivate !== false}" aria-label="${esc(t("spPrivate"))}"></button></div>`;
       const userCard = (FR.editUser || (!me.username && !FR.userLater)) ? `<div class="fr-card fr-user"><h2>${esc(t(me.username ? "frEditUser" : "frPickUser"))}</h2><p>${esc(t("frUserText"))}</p>
           <div class="fr-at"><span>@</span><input type="text" id="fruser" maxlength="20" autocapitalize="none" autocomplete="username" spellcheck="false" value="${esc(me.username || frUserSuggest(me.display_name))}"></div>
           <button class="big" data-a="frsaveuser" ${FR.busy ? "disabled" : ""}>${esc(t("frSave"))}</button><button class="big ghost" data-a="frlateruser">${esc(t(me.username ? "cancel" : "frLater"))}</button></div>` : "";
@@ -374,6 +376,7 @@ function friendsClick(a, b){
   else if(a === "frtab"){ FR.tab = b.dataset.t; render(); }
   else if(a === "frview"){ FR.view = b.dataset.v; if(FR.view === "friends") GR.cur = null; render(); window.scrollTo(0, 0); }
   else if(a === "frpublic"){ S.friendsPublic = !S.friendsPublic; save(); frPushSoon(); render(); toast(t(S.friendsPublic ? "frPublicOn" : "frPublicOff")); }
+  else if(a === "frstatspriv"){ S.statsPrivate = S.statsPrivate === false; save(); frPushSoon(); render(); toast(t(S.statsPrivate ? "spToastOn" : "spToastOff")); }
   else if(a === "frfof") frFofOpen(b.dataset.id);
   else if(a === "fradd") frAdd((document.getElementById("fradd") || {}).value || "");
   else if(a === "frshare" || a === "frcopy"){

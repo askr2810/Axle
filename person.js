@@ -67,7 +67,7 @@ function renderPerson(){
   if(!me && +r.mutual_friends > 0) rel.push(["🫂", t("psMutual", +r.mutual_friends)]);
   // hovedknapp etter status
   const st = me ? "me" : r.status || (r.is_friend ? "friend" : "none");
-  const act = st === "me" ? `<p class="ps-note">${esc(t("psMeNote"))}</p><button class="big ghost" data-a="badges">${I.eye}${esc(t("psEditBadges"))}</button>`
+  const act = st === "me" ? `<p class="ps-note">${esc(t(S.statsPrivate === false ? "psMeNotePub" : "psMeNote"))}</p><button class="big ghost" data-a="badges">${I.eye}${esc(t("psEditBadges"))}</button>`
     : st === "friend" ? (r.friends_public ? `<button class="big ghost" data-a="frfof" data-id="${esc(r.user_id)}">${I.users}${esc(t("frFofBtn", name))}</button>` : "")
     : st === "sent" ? `<p class="ps-note"><span class="fr-pill">${esc(t("frSent"))}</span></p>`
     : st === "incoming" ? `<p class="ps-note">${esc(t("psWantsFriend", name))}</p><div class="ps-two"><button class="big" data-a="psacc">${esc(t("frAccept"))}</button><button class="big ghost" data-a="psdec">${esc(t("frDecline"))}</button></div>`

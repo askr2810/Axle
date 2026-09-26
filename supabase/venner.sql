@@ -538,9 +538,12 @@ grant execute on function public.my_member_number() to authenticated;
 -- ============================================================
 alter table public.profiles add column if not exists badges text check (badges is null or (char_length(badges) <= 800 and badges ~ '^([a-z0-9]{1,12}(,[a-z0-9]{1,12})*)?$'));
 grant insert (badges), update (badges) on public.profiles to authenticated;
+-- stats_public = alle innloggede kan se statistikken på profilen (standard av: bare venner og folk i samme gruppe).
+alter table public.profiles add column if not exists stats_public boolean not null default false;
+grant insert (stats_public), update (stats_public) on public.profiles to authenticated;
 
--- Profilen til en annen bruker. Full statistikk bare for deg selv, venner og folk du deler gruppe med;
--- andre ser navn, bilde og merker. Ingenting hvis dere har blokkert hverandre.
+-- Profilen til en annen bruker. Full statistikk for deg selv, venner og folk du deler gruppe med
+-- (og for alle hvis personen har slått på stats_public); andre ser navn, bilde og merker. Ingenting hvis dere har blokkert hverandre.
 drop function if exists public.get_profile(uuid);
 create function public.get_profile(uid uuid)
 returns table (
@@ -555,7 +558,7 @@ stable
 security definer
 set search_path = ''
 as $$
-declare me uuid := auth.uid(); fr boolean; grp boolean := false; full_ boolean; sg text;
+declare me uuid := auth.uid(); fr boolean; grp boolean := false; full_ boolean; sg text; pub boolean;
 begin
   if me is null or public.is_blocked_between(me, uid) then return; end if;
   fr := exists (select 1 from public.friendships f where f.user_id = me and f.friend_id = uid);
@@ -565,7 +568,8 @@ begin
                and exists (select 1 from public.group_members b where b.group_id = g.id and b.user_id = $2)' into sg using me, uid;
     grp := sg is not null;
   end if;
-  full_ := uid = me or fr or grp;
+  select coalesce((to_jsonb(p) ->> 'stats_public')::boolean, false) into pub from public.profiles p where p.user_id = uid;
+  full_ := uid = me or fr or grp or coalesce(pub, false);
   return query
   select p.user_id, p.display_name, p.username, p.avatar, p.photo, p.badges,
          (select n.number from public.member_numbers n where n.user_id = p.user_id),
