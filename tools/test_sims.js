@@ -9,7 +9,7 @@ const stub = `var LANG = "nb"; const T = (a, b) => LANG === "en" ? b : a; const 
 const nf = (x, d = 2) => Number.isFinite(x) ? String(+x.toFixed(d)).replace(".", LANG === "en" ? "." : ",") : "BAD";`;
 const tmp = path.join(os.tmpdir(), 'axle_sims_' + process.pid + '.js');
 fs.writeFileSync(tmp, stub + '\n' + fig.join('\n') + '\n' + fs.readFileSync(path.join(ROOT, 'sims.js'), 'utf8').replace(/^document\.addEventListener[\s\S]*$/m, '') + '\n' +
-  fs.readFileSync(path.join(ROOT, 'sims2.js'), 'utf8') + '\nmodule.exports = { SIMS, SIM_MAP, setL: l => LANG = l };');
+  fs.readFileSync(path.join(ROOT, 'sims2.js'), 'utf8') + '\n' + fs.readFileSync(path.join(ROOT, 'sims3.js'), 'utf8') + '\nmodule.exports = { SIMS, SIM_MAP, setL: l => LANG = l };');
 const M = require(tmp); fs.unlinkSync(tmp);
 const { SIMS, SIM_MAP } = M;
 const NO = /[æøåÆØÅ]/, BADRE = /NaN|Infinity|undefined|BAD|\[object/;

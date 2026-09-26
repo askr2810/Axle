@@ -1412,3 +1412,4 @@ a.srow{text-decoration:none;color:inherit}
 .bku-b{display:flex;align-items:center;justify-content:center;gap:6px;padding:10px 8px;border-radius:12px;border:2px solid var(--line);background:var(--paper);color:var(--ink);font-weight:700;font-size:13.5px}
 .bku-b svg{width:17px;height:17px;flex:none}
 .bku-b.pri{background:var(--accent);border-color:var(--accent);color:#fff}
+.fig .fg-big{font-size:30px;font-weight:800;fill:var(--ink);font-family:var(--display)}

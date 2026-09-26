@@ -14,7 +14,7 @@ global.navigator = { language: 'nb' }; global.localStorage = { getItem(){ return
 const tmp = path.join(os.tmpdir(), 'axle_figs_' + process.pid + '.js');
 const src = ['config.js', 'i18n.js', 'data.js', 'topics.js', ...ls(/^top_.*\.js$/)].map(read).join('\n;\n') +
   '\n;var S = {}; const esc = s => String(s); const I = new Proxy({}, { get: () => "" }); const nf = (x, d = 2) => String(+(+x).toFixed(d));\n' +
-  read('figures.js') + '\n;\n' + read('sims.js') + '\n;\n' + read('sims2.js') +
+  read('figures.js') + '\n;\n' + read('sims.js') + '\n;\n' + read('sims2.js') + '\n;\n' + read('sims3.js') +
   '\n;module.exports = { TOPIC_DB, FIGS, SIMS, setLang: l => { LANG = l; } };';
 fs.writeFileSync(tmp, src); const M = require(tmp); fs.unlinkSync(tmp);
 const items = [];
