@@ -117,6 +117,27 @@ function cloudSchedule(){
   clearTimeout(CLOUD.timer); CLOUD.timer = setTimeout(()=>cloudSync(), 2500);
 }
 // Innlogging fra lenke i e-post (reserve hvis e-posten inneholder lenke i stedet for kode).
+// Bytte e-post: Supabase sender bekreftelseslenke (til ny e-post, og til den gamle hvis «Secure email change» er på).
+// Lenken leder tilbake til appen; den nye e-posten plukkes opp ved neste oppstart (cloudRefreshEmail).
+async function cloudChangeEmail(email){
+  const tok = await authToken(); if(!tok) throw new CloudError("auth", 401);
+  await sbFetch("/auth/v1/user?redirect_to=" + encodeURIComponent(CONFIG.siteUrl + "/"), { method: "PUT", body: JSON.stringify({ email }) }, tok);
+  AUTH.newEmail = email; authStore();
+}
+async function cloudRefreshEmail(){
+  const tok = await authToken(); if(!tok) return false;
+  try{ const u = await sbFetch("/auth/v1/user", { method: "GET" }, tok); if(!u || !AUTH) return false;
+    const changed = u.email && u.email !== AUTH.email; if(changed) AUTH.email = u.email;
+    AUTH.newEmail = u.new_email || null; authStore(); return changed;
+  }catch(e){ return false; }
+}
+// Svar fra Supabase i adressen etter at man trykket på en lenke i e-posten (#message=… eller #error=…).
+function cloudLinkMessage(){
+  const h = location.hash || ""; if(!/(^#|&)(message|error_description)=/.test(h)) return;
+  const p = new URLSearchParams(h.slice(1)), err = p.get("error_description"), msg = p.get("message");
+  try{ history.replaceState(null, "", location.pathname + location.search); }catch(e){}
+  setTimeout(() => toast(err ? t("acLinkError", err) : /other email/i.test(msg || "") ? t("acEmailHalf") : (msg || "")), 800);
+}
 async function cloudFromLink(){
   const h = location.hash || ""; if(h.indexOf("access_token=") < 0) return false;
   const p = new URLSearchParams(h.slice(1)); history.replaceState(null, "", location.pathname + location.search);
@@ -131,9 +152,12 @@ let authReadyRes; const AUTH_READY = new Promise(r => authReadyRes = r); // løs
 async function cloudBoot(){
   if(!CLOUD_ON){ authReadyRes(); return; }
   if(!AUTH && PL.Preferences){ try{ const { value } = await PL.Preferences.get({ key: AUTH_KEY }); if(value){ AUTH = JSON.parse(value); authStore(); } }catch(e){} }
+  cloudLinkMessage();
   const viaLink = await cloudFromLink();
   authReadyRes();
-  if(AUTH){ await cloudSync(); if(viaLink) toast(t("acLoggedIn", AUTH.email)); frPollReqs(); }
+  if(AUTH){
+    cloudRefreshEmail().then(ch => { if(ch){ toast(t("acEmailChanged", AUTH.email)); if(screen === "settings" || screen === "profile") render(); } }); // e-post byttet via lenke?
+    try{ await cloudSync(); }catch(e){} if(viaLink) toast(t("acLoggedIn", AUTH.email)); frPollReqs(); }
   document.addEventListener("visibilitychange", ()=>{ if(document.visibilityState === "visible") cloudSync(); });
   window.addEventListener("online", ()=>cloudSync());
 }

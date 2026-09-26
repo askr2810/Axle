@@ -31,7 +31,7 @@ function routeOf(){
 function routeSync(){
   const r = routeOf(); if(r === null) return;
   const h = r ? "#/" + r.split("/").map(encodeURIComponent).join("/") : "";
-  if(/access_token=/.test(location.hash) || location.hash === h || (!h && !location.hash)) return;
+  if((location.hash && !location.hash.startsWith("#/")) || location.hash === h || (!h && !location.hash)) return; // andre #-adresser (innloggingslenker, meldinger) er ikke våre
   try{ history.replaceState(history.state, "", location.pathname + location.search + h); }catch(e){}
 }
 // Ved oppstart: les adressen og sett skjermen. Ukjente eller ugyldige adresser gir forsiden.

@@ -262,6 +262,7 @@ function renderSettings(){
     </div>
     ${CLOUD_ON ? (AUTH ? `<div class="sgroup">
       <div class="srow"><span class="lbl">${esc(AUTH.email||"")}<span class="sub">${esc(cloudStatusText())}</span></span></div>
+      <button class="srow" data-a="acemail"><span class="lbl">${t("acEmailChange")}${AUTH.newEmail ? `<span class="sub">${esc(t("acEmailPending", AUTH.newEmail))}</span>` : ""}</span>${I.chevron}</button>
       <button class="srow" data-a="acsync"><span class="lbl">${t("acSyncNow")}</span>${I.chevron}</button>
       <button class="srow" data-a="aclogout"><span class="lbl">${t("acLogout")}</span></button>
       <button class="srow danger" data-a="acdelete"><span class="lbl">${t("acDelete")}</span></button>
@@ -856,6 +857,11 @@ function renderOverlay(){
         <p class="lgnote">${t("acPrivacyNote")}</p></div>`; }
   else if(overlay.friend) d.innerHTML = frDetailHTML(overlay.friend);
   else if(overlay.frfof) d.innerHTML = frFofHTML();
+  else if(overlay.acemail){ const o = overlay.acemail; d.innerHTML = o.step === "sent"
+    ? `<div class="dialog pop" role="dialog" aria-label="${esc(t("acEmailChange"))}"><h3>${esc(t("acEmailSentTitle"))}</h3><p>${esc(t("acEmailSentText", o.email, AUTH ? AUTH.email : ""))}</p><button class="big" data-a="closeov">${esc(t("cont"))}</button></div>`
+    : `<div class="dialog pop" role="dialog" aria-label="${esc(t("acEmailChange"))}"><h3>${esc(t("acEmailChange"))}</h3><p>${esc(t("acEmailText", AUTH ? AUTH.email : ""))}</p>
+      <input type="email" id="acnewmail" autocomplete="email" placeholder="${esc(t("acEmailNew"))}" value="${esc(o.email||"")}">${o.err?`<p class="lgerr">${esc(o.err)}</p>`:""}
+      <button class="big" data-a="acemailsend" ${o.busy?"disabled":""}>${esc(t("acEmailSend"))}</button><button class="big ghost" data-a="closeov">${esc(t("cancel"))}</button></div>`; }
   else if(overlay.grnew || overlay.grjoin || overlay.grmember || overlay.grmenu || overlay.grfriends || overlay.grset || overlay.gropen) d.innerHTML = grOverlayHTML();
   else if(overlay.frmod) d.innerHTML = frModHTML(overlay.frmod);
   else if(overlay.frrep) d.innerHTML = frReportHTML(overlay.frrep);
@@ -1047,6 +1053,12 @@ document.addEventListener("click", async e=>{
   else if(a==="acsync"){ cloudSync().then(()=>{ if(CLOUD.status==="ok") toast(t("acSyncedToast")); else if(CLOUD.status==="offline") toast(t("acOffline")); else if(CLOUD.status==="error") toast(t("acError")); }); }
   else if(a==="aclogout"){ clearTimeout(CLOUD.timer); cloudSync().finally(()=>cloudSignOut().then(()=>{ render(); toast(t("acLoggedOut")); })); }
   else if(a==="acdelete"){ overlay = "acdelete"; renderOverlay(); }
+  else if(a==="acemail"){ overlay = { acemail: { step: "form", email: "" } }; renderOverlay(); setTimeout(()=>document.getElementById("acnewmail")?.focus(), 50); }
+  else if(a==="acemailsend"){ const o = overlay.acemail, v = ((document.getElementById("acnewmail")||{}).value||"").trim().toLowerCase(); o.email = v;
+    if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(v)){ o.err = t("acEmailBad"); renderOverlay(); return; }
+    if(AUTH && v === String(AUTH.email||"").toLowerCase()){ o.err = t("acEmailSame"); renderOverlay(); return; }
+    o.busy = true; o.err = null; renderOverlay();
+    cloudChangeEmail(v).then(()=>{ o.busy = false; o.step = "sent"; render(); }, e=>{ o.busy = false; o.err = /email_exists|already.*registered/i.test((e.code||"") + " " + (e.msg||"")) ? t("acEmailTaken") : acErr(e); renderOverlay(); }); }
   else if(a==="acdeleteok"){ cloudDeleteAccount().then(()=>{ overlay = null; renderOverlay(); render(); toast(t("acDeleted")); }, e=>{ toast(acErr(e)); }); }
   else if(a==="resetok"){ const keep={current:S.current, lang:S.lang, goal:S.goal, reminder:S.reminder, haptics:S.haptics, outbox:S.outbox, examPrefs:S.examPrefs}; S=Object.assign(blank(),keep); save(); clearTimeout(CLOUD.timer); cloudSync(true); examStopTicker(); EX.res=null; goHome(); toast(t("resetDone")); }
   // innstillinger
