@@ -53,6 +53,7 @@ async function frLoad(){
     FR.rows = (await frRpc("get_friends")) || [];
     try{ FR.reqs = (await frRpc("get_friend_requests")) || []; }catch(e){ FR.reqs = []; }
     try{ FR.sugg = (await frRpc("get_suggestions")) || []; }catch(e){ FR.sugg = []; } // krever grupper.sql
+    await grLoadInvites();
     if(typeof grPendingCheck === "function") grPendingCheck();
     const meRow = FR.rows.find(r => r.is_me); if(meRow && meRow.display_name && meRow.display_name !== S.name){ S.name = meRow.display_name; save(); }
     const nf_ = FR.rows.filter(r => !r.is_me).length; S.stats ||= {};
@@ -219,6 +220,7 @@ async function frAnswer(id, accept){
 async function frPollReqs(){
   if(!CLOUD_ON || !AUTH) return;
   try{ FR.reqs = (await frRpc("get_friend_requests")) || []; if(FR.reqs.length) renderTabbar(); }catch(e){}
+  grLoadInvites();
 }
 function frShareLinks(me){
   const url = CONFIG.siteUrl + "/?venn=" + me.friend_code, text = t("frShareText", frFmtCode(me.friend_code), url, me.username), e = encodeURIComponent;
@@ -318,7 +320,7 @@ function renderFriends(){
         ${podium}<div class="fr-board">${board}</div>
         ${rows.length < 2 ? `<p class="fr-hint">${esc(t("frEmpty"))}</p>` : ""}`;
       const suggCard = FR.sugg.filter(r => r.status !== "sent").length ? `<div class="fr-card fr-sugg"><h3>${esc(t("frSugg"))}</h3>${frHitsHTML(FR.sugg.slice(0, 8), r => t("frSuggVia", r.mutual, r.via || ""))}</div>` : "";
-      body = meCard + userCard + reqCard + suggCard + (rows.length >= 2 ? boardHTML + codeCard : codeCard + boardHTML) + `
+      body = meCard + userCard + reqCard + grInvitesHTML() + suggCard + (rows.length >= 2 ? boardHTML + codeCard : codeCard + boardHTML) + `
         <button class="exlink fr-refresh" data-a="frreload">${FR.loading ? esc(t("frLoading")) : esc(t("frRefresh"))}</button>`;
     }
   }

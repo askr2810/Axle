@@ -3,7 +3,7 @@
 //  Ligger som en egen fane på Venner-skjermen. Databasen: supabase/grupper.sql.
 //  Inviter med lenke (axle.no/?gruppe=KODE) eller kode. Maks 10 grupper per bruker, 50 medlemmer per gruppe.
 // ============================================================
-let GR = { list: null, loading: false, err: null, cur: null, rows: null, rowsLoading: false, tab: "week", edit: false, busy: false };
+let GR = { list: null, loading: false, err: null, cur: null, rows: null, rowsLoading: false, tab: "week", edit: false, busy: false, inv: [], fr: null };
 const GR_PENDING = "axle.pendingGroup";
 const GR_EMOJI = ["👥", "🏠", "🎓", "⚙️", "⚡", "🔥", "🚀", "🧮", "🏆", "🦊", "🐸", "🌊"];
 
@@ -20,6 +20,7 @@ async function grLoadList(){
   if(!CLOUD_ON || !AUTH || GR.loading) return;
   GR.loading = true; GR.err = null; frRender();
   try{ GR.list = (await frRpc("list_my_groups")) || []; }catch(e){ GR.err = grErr(e); GR.list = GR.list || null; }
+  await grLoadInvites();
   GR.loading = false; frRender();
 }
 async function grLoadGroup(id){
@@ -29,7 +30,42 @@ async function grLoadGroup(id){
   GR.rowsLoading = false; frRender();
 }
 const grOf = id => (GR.list || []).find(g => g.id === id);
-function grInvite(g){ const url = CONFIG.siteUrl + "/?gruppe=" + g.code; return { url, text: t("grInviteText", g.emoji + " " + g.name, url, frFmtCode(g.code)) }; }
+// Invitasjoner fra venner (vises på Venner og Grupper, og gir prikk på Venner-fanen).
+async function grLoadInvites(){ try{ GR.inv = (await frRpc("get_group_invites")) || []; }catch(e){ GR.inv = []; } renderTabbar(); }
+function grInvitesHTML(){
+  if(!GR.inv.length) return "";
+  return `<div class="fr-card fr-reqs gr-invs"><h3>${esc(t("grInvites"))} <span class="fr-n">${GR.inv.length}</span></h3>${GR.inv.map(g =>
+    `<div class="fr-hit"><span class="gr-emo">${esc(g.emoji)}</span><span class="fr-t"><b>${esc(g.name)}</b><span>${esc(t("grInvitedBy", g.inviter, g.members))}</span></span>
+      <button class="fr-act" data-a="grinvacc" data-id="${esc(g.id)}">${esc(t("grJoinBtn"))}</button><button class="fr-act ghost" data-a="grinvdec" data-id="${esc(g.id)}" aria-label="${esc(t("frDecline"))}">${I.x}</button></div>`).join("")}</div>`;
+}
+// Legg til venner i gruppa: liste over vennene dine med status (med / invitert / inviter).
+async function grFriendsOpen(){
+  GR.fr = null; overlay = { grfriends: 1 }; renderOverlay();
+  try{ GR.fr = (await frRpc("group_friend_status", { gid: GR.cur })) || []; }catch(e){ GR.fr = []; GR.frErr = grErr(e); }
+  if(overlay && overlay.grfriends) renderOverlay();
+}
+function grFriendsHTML(){
+  const g = grOf(GR.cur) || {}, list = GR.fr, open = (list || []).filter(r => r.status === "none");
+  const row = (r, i) => `<div class="fr-hit">${frAvatar(r.display_name, i, r.avatar, 40, r.photo)}<span class="fr-t"><b>${esc(r.display_name)}</b><span>${r.username ? "@" + esc(r.username) : ""}</span></span>
+    ${r.status === "member" ? `<span class="fr-pill">${esc(t("grIsMember"))}</span>` : r.status === "invited" ? `<span class="fr-pill">${esc(t("grInvited"))}</span>` : `<button class="fr-act" data-a="grinv" data-id="${esc(r.user_id)}">${I.plus}${esc(t("grInviteOne"))}</button>`}</div>`;
+  return `<div class="dialog pop fr-fof gr-addfr" role="dialog" aria-label="${esc(t("grAddFriends"))}"><h3>${esc(t("grAddFriends"))}</h3><p>${esc(t("grAddFriendsText", g.name || ""))}</p>
+    ${list === null ? `<p class="fr-hint">${esc(t("frLoading"))}</p>` : GR.frErr ? `<p class="fr-hint">${esc(GR.frErr)}</p>` : list.length ? `<div class="fr-res">${list.map(row).join("")}</div>` : `<p class="fr-hint">${esc(t("grNoFriends"))}</p>`}
+    ${open.length > 1 ? `<button class="big" data-a="grinvall">${esc(t("grInviteAll", open.length))}</button>` : ""}
+    <button class="big ${open.length > 1 ? "ghost" : ""}" data-a="closeov">${esc(t("frDone"))}</button></div>`;
+}
+async function grInvite(ids){
+  try{ const n = await frRpc("invite_to_group", { gid: GR.cur, uids: ids }); (GR.fr || []).forEach(r => { if(ids.includes(r.user_id) && r.status === "none") r.status = "invited"; });
+    buzz(true); toast(t("grInvitesSent", n || ids.length)); if(overlay && overlay.grfriends) renderOverlay(); }
+  catch(e){ toast(grErr(e)); }
+}
+async function grAnswer(id, accept){
+  const inv = GR.inv.find(g => g.id === id);
+  try{ await frRpc("answer_group_invite", { gid: id, accept }); GR.inv = GR.inv.filter(g => g.id !== id); renderTabbar();
+    if(accept){ buzz(true); toast(t("grJoined", inv ? inv.name : "")); FR.view = "groups"; GR.list = null; await grLoadList(); GR.rows = null; GR.cur = id; }
+    render(); window.scrollTo(0, 0); }
+  catch(e){ toast(grErr(e)); }
+}
+function grInviteLink(g){ const url = CONFIG.siteUrl + "/?gruppe=" + g.code; return { url, text: t("grInviteText", g.emoji + " " + g.name, url, frFmtCode(g.code)) }; }
 
 // ---------- visning ----------
 function grBodyHTML(){
@@ -40,7 +76,7 @@ function grBodyHTML(){
   }
   const cards = GR.list.map(g => `<button class="gr-item" data-a="gropen" data-id="${esc(g.id)}"><span class="gr-emo">${esc(g.emoji)}</span>
       <span class="fr-t"><b>${esc(g.name)}</b><span>${esc(t("grMembers", g.members))}${g.is_owner ? " · " + esc(t("grOwner")) : ""}</span></span>${I.chevron}</button>`).join("");
-  return `<div class="fr-card gr-intro"><h2>${esc(t("grTitle"))}</h2><p>${esc(t("grIntro"))}</p>
+  return `${grInvitesHTML()}<div class="fr-card gr-intro"><h2>${esc(t("grTitle"))}</h2><p>${esc(t("grIntro"))}</p>
       <div class="gr-btns"><button class="big" data-a="grnew">${I.plus}${esc(t("grNew"))}</button><button class="big ghost" data-a="grjoinopen">${esc(t("grJoin"))}</button></div></div>
     ${GR.list.length ? `<div class="gr-list">${cards}</div>` : `<p class="fr-hint">${esc(t("grEmpty"))}</p>`}
     ${GR.err ? `<p class="fr-hint">${esc(GR.err)}</p>` : ""}`;
@@ -55,7 +91,7 @@ function grGroupHTML(){
   }
   const { rows, podium, board } = frBoardHTML(GR.rows, GR.tab, "grmember");
   const wk = rows.reduce((s, r) => s + (+r.week_xp || 0), 0), myRank = rows.findIndex(r => r.is_me) + 1;
-  const inv = grInvite(g), e = encodeURIComponent;
+  const inv = grInviteLink(g), e = encodeURIComponent;
   const editCard = GR.edit ? `<div class="fr-card gr-edit"><h3>${esc(t("grRename"))}</h3>
       <div class="gr-emos">${GR_EMOJI.map(x => `<button class="${(GR.editEmoji || g.emoji) === x ? "on" : ""}" data-a="gremoji" data-e="${x}">${x}</button>`).join("")}</div>
       <input type="text" id="grname" maxlength="30" value="${esc(g.name)}" aria-label="${esc(t("grNamePh"))}">
@@ -68,8 +104,9 @@ function grGroupHTML(){
     <div class="fr-card lg"><div class="lg-h"><b>${I.trophyS}${esc(t("grWeek"))}</b><span>${esc(frCountdown())}</span></div><p class="gr-sum">${esc(t("grWeekSum", wk))}</p></div>
     <div class="seg fr-tabs" role="tablist">${["week", "total", "streak"].map(k => `<button role="tab" aria-selected="${GR.tab === k}" class="${GR.tab === k ? "on" : ""}" data-a="grtab" data-t="${k}">${esc(t("frTab_" + k))}</button>`).join("")}</div>
     ${podium}<div class="fr-board">${board}</div>
-    ${rows.length < 2 ? `<p class="fr-hint">${esc(t("grAlone"))}</p>` : ""}
-    <div class="fr-card fr-find"><h3>${esc(t("grInvite"))}</h3>
+    ${rows.length < 2 ? `<p class="fr-hint">${esc(t("grAloneFr"))}</p>` : ""}
+    <button class="big gr-addbtn" data-a="grfriends">${I.users}${esc(t("grAddFriends"))}</button>
+    <div class="fr-card fr-find"><h3>${esc(t("grInviteLinkH"))}</h3>
       <div class="fr-share">
         ${navigator.share ? `<button class="fr-sh main" data-a="grshare">${I.share}<span>${esc(t("frShare"))}</span></button>` : ""}
         <a class="fr-sh" href="sms:?&body=${e(inv.text)}">${I.chat}<span>${esc(t("frSms"))}</span></a>
@@ -123,6 +160,7 @@ function grOverlayHTML(){
   if(overlay.grjoin) return grJoinHTML(overlay.grjoin);
   if(overlay.grmember) return grMemberHTML(overlay.grmember);
   if(overlay.grmenu) return grMenuHTML(overlay.grmenu);
+  if(overlay.grfriends) return grFriendsHTML();
   return "";
 }
 // ---------- handlinger ----------
@@ -132,7 +170,8 @@ async function grCreate(){
   if(!isClean(name)){ o.err = t("frBadWord"); renderOverlay(); return; }
   o.busy = true; o.err = null; renderOverlay();
   try{ const id = await frRpc("create_group", { p_name: name, p_emoji: o.emoji }); overlay = null; renderOverlay(); buzz(true); toast(t("grCreated", name));
-    await grLoadList(); GR.rows = null; GR.cur = id; render(); window.scrollTo(0, 0); }
+    await grLoadList(); GR.rows = null; GR.cur = id; render(); window.scrollTo(0, 0);
+    if((FR.rows || []).some(r => !r.is_me)) grFriendsOpen(); } // rett til «Legg til venner»
   catch(e){ o.busy = false; o.err = grErr(e); renderOverlay(); }
 }
 async function grPeek(code){
@@ -176,6 +215,11 @@ function grClick(a, b){
   else if(a === "grjoinopen"){ overlay = { grjoin: { code: "" } }; renderOverlay(); setTimeout(() => document.getElementById("grcode")?.focus(), 50); }
   else if(a === "grpeek") grPeek((document.getElementById("grcode") || {}).value || "");
   else if(a === "grjoin") grJoin();
+  else if(a === "grfriends") grFriendsOpen();
+  else if(a === "grinv") grInvite([b.dataset.id]);
+  else if(a === "grinvall") grInvite((GR.fr || []).filter(r => r.status === "none").map(r => r.user_id));
+  else if(a === "grinvacc") grAnswer(b.dataset.id, true);
+  else if(a === "grinvdec") grAnswer(b.dataset.id, false);
   else if(a === "grmember"){ overlay = { grmember: b.dataset.id }; renderOverlay(); }
   else if(a === "graddfriend"){ frRequest(b.dataset.id, b.dataset.n).then(() => { if(overlay && overlay.grmember){ overlay.sent = true; renderOverlay(); } }); }
   else if(a === "grkick"){
@@ -204,7 +248,7 @@ function grClick(a, b){
   else if(a === "grreport"){ overlay = { frrep: { kind: "group", id: null, target: GR.cur, reason: null } }; renderOverlay(); }
   else if(a === "grreportpeek"){ const p = overlay.grjoin && overlay.grjoin.peek; if(p){ overlay = { frrep: { kind: "group", id: null, target: p.id, reason: null } }; renderOverlay(); } }
   else if(a === "grshare" || a === "grcopy"){
-    if(!g) return true; const { text } = grInvite(g);
+    if(!g) return true; const { text } = grInviteLink(g);
     if(a === "grshare" && navigator.share) navigator.share({ text }).catch(() => {});
     else (navigator.clipboard ? navigator.clipboard.writeText(text) : Promise.reject()).then(() => toast(t("frLinkCopied")), () => {});
   }

@@ -127,6 +127,7 @@ begin
     if (select count(*) from public.group_members where group_id = g.id) >= 50 then raise exception 'group_full'; end if;
     insert into public.group_members (group_id, user_id) values (g.id, me);
   end if;
+  if to_regclass('public.group_invites') is not null then execute 'delete from public.group_invites where group_id = $1 and user_id = $2' using g.id, me; end if;
   return query select g.id, g.name, g.emoji;
 end;
 $$;
@@ -240,6 +241,105 @@ as $$
   select g.id, g.name, g.emoji, (select count(*)::int from public.group_members m where m.group_id = g.id), public.is_group_member(g.id)
   from public.groups g where auth.uid() is not null and g.code = public.group_code_norm(p_code);
 $$;
+
+-- ============================================================
+--  2b) Invitere venner direkte (uten lenke). Vennen godtar med ett trykk i appen.
+-- ============================================================
+create table if not exists public.group_invites (
+  group_id   uuid not null references public.groups (id) on delete cascade,
+  user_id    uuid not null references auth.users (id) on delete cascade,  -- den som er invitert
+  inviter    uuid not null references auth.users (id) on delete cascade,
+  created_at timestamptz not null default now(),
+  primary key (group_id, user_id)
+);
+create index if not exists group_invites_user_idx on public.group_invites (user_id);
+alter table public.group_invites enable row level security;
+revoke all on public.group_invites from anon, authenticated;
+
+-- Vennene dine sett fra en gruppe: med, invitert eller ikke. Bare for medlemmer.
+drop function if exists public.group_friend_status(uuid);
+create function public.group_friend_status(gid uuid)
+returns table (user_id uuid, display_name text, username text, avatar text, photo text, status text)
+language sql
+stable
+security definer
+set search_path = ''
+as $$
+  select p.user_id, p.display_name, p.username, p.avatar, p.photo,
+         case when exists (select 1 from public.group_members m where m.group_id = gid and m.user_id = p.user_id) then 'member'
+              when exists (select 1 from public.group_invites i where i.group_id = gid and i.user_id = p.user_id) then 'invited'
+              else 'none' end
+  from public.friendships f join public.profiles p on p.user_id = f.friend_id
+  where f.user_id = auth.uid() and public.is_group_member(gid) and not public.is_blocked_between(auth.uid(), p.user_id)
+  order by p.display_name;
+$$;
+
+-- Inviter venner (en eller flere). Returnerer hvor mange som ble invitert.
+create or replace function public.invite_to_group(gid uuid, uids uuid[])
+returns integer
+language plpgsql
+security definer
+set search_path = ''
+as $$
+declare me uuid := auth.uid(); n int;
+begin
+  if me is null then raise exception 'not_logged_in'; end if;
+  if not public.is_group_member(gid) then raise exception 'not_member'; end if;
+  if coalesce(array_length(uids, 1), 0) > 50 then raise exception 'too_many'; end if;
+  insert into public.group_invites (group_id, user_id, inviter)
+  select gid, u, me from unnest(uids) u
+  where exists (select 1 from public.friendships f where f.user_id = me and f.friend_id = u)
+    and not exists (select 1 from public.group_members m where m.group_id = gid and m.user_id = u)
+    and not public.is_blocked_between(me, u)
+  on conflict (group_id, user_id) do nothing;
+  get diagnostics n = row_count;
+  return n;
+end;
+$$;
+
+-- Invitasjonene mine.
+drop function if exists public.get_group_invites();
+create function public.get_group_invites()
+returns table (id uuid, name text, emoji text, members integer, inviter text, created_at timestamptz)
+language sql
+stable
+security definer
+set search_path = ''
+as $$
+  select g.id, g.name, g.emoji, (select count(*)::int from public.group_members m where m.group_id = g.id), coalesce(p.display_name, '?'), i.created_at
+  from public.group_invites i join public.groups g on g.id = i.group_id left join public.profiles p on p.user_id = i.inviter
+  where i.user_id = auth.uid() and not public.is_blocked_between(auth.uid(), i.inviter)
+  order by i.created_at desc;
+$$;
+
+-- Svar på en invitasjon. Samme grenser som å bli med via kode.
+create or replace function public.answer_group_invite(gid uuid, accept boolean)
+returns void
+language plpgsql
+security definer
+set search_path = ''
+as $$
+declare me uuid := auth.uid();
+begin
+  if me is null then raise exception 'not_logged_in'; end if;
+  if not exists (select 1 from public.group_invites where group_id = gid and user_id = me) then raise exception 'not_found'; end if;
+  if accept and not exists (select 1 from public.group_members where group_id = gid and user_id = me) then
+    if (select count(*) from public.group_members where user_id = me) >= 10 then raise exception 'too_many_groups'; end if;
+    if (select count(*) from public.group_members where group_id = gid) >= 50 then raise exception 'group_full'; end if;
+    insert into public.group_members (group_id, user_id) values (gid, me);
+  end if;
+  delete from public.group_invites where group_id = gid and user_id = me;
+end;
+$$;
+
+revoke all on function public.group_friend_status(uuid)          from public, anon;
+revoke all on function public.invite_to_group(uuid, uuid[])      from public, anon;
+revoke all on function public.get_group_invites()                from public, anon;
+revoke all on function public.answer_group_invite(uuid, boolean) from public, anon;
+grant execute on function public.group_friend_status(uuid)          to authenticated;
+grant execute on function public.invite_to_group(uuid, uuid[])      to authenticated;
+grant execute on function public.get_group_invites()                to authenticated;
+grant execute on function public.answer_group_invite(uuid, boolean) to authenticated;
 
 -- ============================================================
 --  3) Rapportering: navn, bilde, fellesskapskurs og gruppenavn. Skjules/nullstilles etter 3 rapporter.

@@ -8,7 +8,7 @@ const TABS = [["home", "book2", "tabLearn"], ["practice", "bolt", "tabPractice"]
 function tabOf(){ return screen === "home" ? "home" : (screen === "practice" || screen === "community") ? "practice" : screen === "book" && BK.v !== "unit" && BK.v !== "topic" ? "book" : screen === "friends" ? "friends" : (screen === "profile" || screen === "badges") ? "profile" : null; }
 function tabbarHTML(active){
   return `<nav class="tabbar" aria-label="${esc(t("tabNav"))}"><div class="wrap">${TABS.map(([k, ic, lab]) =>
-    `<button class="${k === active ? "on" : ""}" data-a="tab" data-t="${k}" aria-current="${k === active ? "page" : "false"}">${(k === "practice" && !dcDoneToday()) || (k === "friends" && FR.reqs && FR.reqs.length) ? `<i class="tab-dot"></i>` : ""}${k === "profile" && hasMeAv() ? meAvHTML(26, "tab-av") : I[ic]}<span>${esc(t(lab))}</span></button>`).join("")}</div></nav>`;
+    `<button class="${k === active ? "on" : ""}" data-a="tab" data-t="${k}" aria-current="${k === active ? "page" : "false"}">${(k === "practice" && !dcDoneToday()) || (k === "friends" && ((FR.reqs && FR.reqs.length) || (GR.inv && GR.inv.length))) ? `<i class="tab-dot"></i>` : ""}${k === "profile" && hasMeAv() ? meAvHTML(26, "tab-av") : I[ic]}<span>${esc(t(lab))}</span></button>`).join("")}</div></nav>`;
 }
 function renderTabbar(){
   document.querySelector(".tabbar")?.remove();

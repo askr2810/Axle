@@ -1255,3 +1255,6 @@ a.srow{text-decoration:none;color:inherit}
 .seg.fr-view{display:grid;grid-template-columns:1fr 1fr;width:100%}
 /* Kladdeark på nettbrett: ingen tekstmarkering, forstørrelsesglass eller meny ved lange trykk med penn/finger */
 .sc-canvas,.sc-canvas canvas,.sc-tools{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+.gr-addbtn{display:flex;align-items:center;justify-content:center;gap:8px;margin:12px 0}
+.gr-addfr p{color:var(--muted);font-size:14px}
+.gr-invs .gr-emo{width:40px;height:40px;font-size:22px}

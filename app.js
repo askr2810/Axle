@@ -852,7 +852,7 @@ function renderOverlay(){
         <p class="lgnote">${t("acPrivacyNote")}</p></div>`; }
   else if(overlay.friend) d.innerHTML = frDetailHTML(overlay.friend);
   else if(overlay.frfof) d.innerHTML = frFofHTML();
-  else if(overlay.grnew || overlay.grjoin || overlay.grmember || overlay.grmenu) d.innerHTML = grOverlayHTML();
+  else if(overlay.grnew || overlay.grjoin || overlay.grmember || overlay.grmenu || overlay.grfriends) d.innerHTML = grOverlayHTML();
   else if(overlay.frmod) d.innerHTML = frModHTML(overlay.frmod);
   else if(overlay.frrep) d.innerHTML = frReportHTML(overlay.frrep);
   else if("frblocks" in overlay) d.innerHTML = frBlocksHTML(overlay.frblocks);
@@ -1001,7 +1001,7 @@ document.addEventListener("click", async e=>{
   else if(a==="check"){ checkAnswer(); }
   else if(a==="next"){ nextQuestion(); window.scrollTo(0,0); }
   else if(a==="quit"){ overlay="quit"; renderOverlay(); }
-  else if(a==="stay" || a==="closeov"){ overlay=null; renderOverlay(); }
+  else if(a==="stay" || a==="closeov"){ overlay=null; renderOverlay(); if(screen==="friends") render(); } // Venner kan ha lastet ferdig mens dialogen var åpen
   else if(a==="quitok"){ goHome(); }
   else if(a==="reset"){ overlay="reset"; renderOverlay(); }
   else if(a==="backup"){ overlay = { backup:"out", code: bkEncode(backupSnapshot()) }; renderOverlay(); }
