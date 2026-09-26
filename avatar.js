@@ -198,29 +198,71 @@ function photoImg(src, size, cls = ""){ return `<img class="av-photo ${cls}" src
 // Din egen figur: profilbilde hvis du har ett, ellers avatar.
 function meAvHTML(size, cls = ""){ return isPhoto(S.photo) ? photoImg(S.photo, size, cls) : S.avatar ? avatarSVG(S.avatar, size, cls) : ""; }
 const hasMeAv = () => isPhoto(S.photo) || !!S.avatar;
-function photoFromFile(file){
-  return new Promise((ok, bad) => {
-    if(!file || !/^image\//.test(file.type)) return bad(new Error("type"));
-    const url = URL.createObjectURL(file), img = new Image();
-    img.onload = () => {
-      const N = 160, c = document.createElement("canvas"); c.width = c.height = N;
-      const g = c.getContext("2d"), s = Math.min(img.naturalWidth, img.naturalHeight);
-      g.fillStyle = "#fff"; g.fillRect(0, 0, N, N);
-      g.drawImage(img, (img.naturalWidth - s) / 2, (img.naturalHeight - s) / 2, s, s, 0, 0, N, N);
-      URL.revokeObjectURL(url);
-      let q = 0.82, d = c.toDataURL("image/jpeg", q);
-      while(d.length > 22000 && q > 0.3){ q -= 0.12; d = c.toDataURL("image/jpeg", q); }
-      isPhoto(d) ? ok(d) : bad(new Error("size"));
-    };
-    img.onerror = () => { URL.revokeObjectURL(url); bad(new Error("load")); };
-    img.src = url;
-  });
+// ---------- profilbilde: beskjæring med zoom og flytting ----------
+// CROP = { src, img, w, h, z, cx, cy, url }: z = zoom (1 = bildet akkurat dekker sirkelen), (cx, cy) = bildepunktet i midten.
+let CROP = null;
+const CROP_V = 280, CROP_ZMAX = 5;
+const cropScale = () => CROP_V / Math.min(CROP.w, CROP.h) * CROP.z;
+function cropClamp(){
+  CROP.z = Math.min(CROP_ZMAX, Math.max(1, CROP.z));
+  const he = CROP_V / 2 / cropScale();
+  CROP.cx = Math.min(CROP.w - he, Math.max(he, CROP.cx)); CROP.cy = Math.min(CROP.h - he, Math.max(he, CROP.cy));
 }
+function cropStyle(){ const s = cropScale(); return `width:${(CROP.w * s).toFixed(1)}px;height:${(CROP.h * s).toFixed(1)}px;transform:translate(${(CROP_V / 2 - CROP.cx * s).toFixed(1)}px,${(CROP_V / 2 - CROP.cy * s).toFixed(1)}px)`; }
+function cropApply(){ cropClamp(); const im = document.querySelector(".crop-img"); if(im) im.setAttribute("style", cropStyle()); const r = document.querySelector(".crop-zoom"); if(r && +r.value !== CROP.z) r.value = CROP.z; }
+function cropOpen(src, url){
+  const img = new Image();
+  img.onload = () => { CROP = { src, img, url, w: img.naturalWidth, h: img.naturalHeight, z: 1, cx: img.naturalWidth / 2, cy: img.naturalHeight / 2 }; cropClamp(); overlay = { crop: 1 }; renderOverlay(); };
+  img.onerror = () => { if(url) URL.revokeObjectURL(url); toast(t("avPhotoBad")); };
+  img.src = src;
+}
+function cropClose(){ if(CROP && CROP.url) URL.revokeObjectURL(CROP.url); CROP = null; overlay = null; renderOverlay(); }
+function cropHTML(){
+  if(!CROP) return "";
+  return `<div class="dialog pop crop-dlg" role="dialog" aria-label="${esc(t("avCropTitle"))}"><h3>${esc(t("avCropTitle"))}</h3><p>${esc(t("avCropText"))}</p>
+    <div class="crop-view" style="width:${CROP_V}px;height:${CROP_V}px"><img class="crop-img" src="${CROP.src}" alt="" draggable="false" style="${cropStyle()}"><div class="crop-ring"></div></div>
+    <label class="crop-zl"><span aria-hidden="true">−</span><input type="range" class="crop-zoom" min="1" max="${CROP_ZMAX}" step="0.01" value="${CROP.z}" aria-label="${esc(t("avCropZoom"))}"><span aria-hidden="true">+</span></label>
+    <button class="big" data-a="avcropsave">${esc(t("avCropSave"))}</button><button class="big ghost" data-a="avcropcancel">${esc(t("cancel"))}</button></div>`;
+}
+// Samme JPEG-koding som før (160 px, under 24 000 tegn), men med utsnittet brukeren valgte.
+function photoEncode(draw){
+  const N = 160, c = document.createElement("canvas"); c.width = c.height = N;
+  const g = c.getContext("2d"); g.fillStyle = "#fff"; g.fillRect(0, 0, N, N); g.imageSmoothingQuality = "high"; draw(g, N);
+  let q = 0.82, d = c.toDataURL("image/jpeg", q);
+  while(d.length > 22000 && q > 0.3){ q -= 0.12; d = c.toDataURL("image/jpeg", q); }
+  return isPhoto(d) ? d : null;
+}
+function cropSave(){
+  if(!CROP) return; cropClamp();
+  const he = CROP_V / 2 / cropScale(), d = photoEncode((g, N) => g.drawImage(CROP.img, CROP.cx - he, CROP.cy - he, 2 * he, 2 * he, 0, 0, N, N));
+  cropClose();
+  if(!d){ toast(t("avPhotoBad")); return; }
+  S.photo = d; toast(t("avPhotoSaved")); avPhotoSaved();
+}
+// Dra med én finger/mus, klyp med to fingre, musehjul eller glidebryter for zoom.
+const CROP_P = new Map(); let CROP_PINCH = null;
+document.addEventListener("pointerdown", e => {
+  const v = e.target.closest && e.target.closest(".crop-view"); if(!v || !CROP) return;
+  e.preventDefault(); v.setPointerCapture && v.setPointerCapture(e.pointerId); CROP_P.set(e.pointerId, [e.clientX, e.clientY]);
+  if(CROP_P.size === 2){ const [a, b] = [...CROP_P.values()]; CROP_PINCH = { d: Math.hypot(a[0] - b[0], a[1] - b[1]) || 1, z: CROP.z }; }
+});
+document.addEventListener("pointermove", e => {
+  if(!CROP || !CROP_P.has(e.pointerId)) return;
+  const prev = CROP_P.get(e.pointerId); CROP_P.set(e.pointerId, [e.clientX, e.clientY]);
+  if(CROP_P.size >= 2 && CROP_PINCH){ const [a, b] = [...CROP_P.values()]; CROP.z = CROP_PINCH.z * (Math.hypot(a[0] - b[0], a[1] - b[1]) || 1) / CROP_PINCH.d; }
+  else { const s = cropScale(); CROP.cx -= (e.clientX - prev[0]) / s; CROP.cy -= (e.clientY - prev[1]) / s; }
+  cropApply();
+});
+const cropUp = e => { CROP_P.delete(e.pointerId); if(CROP_P.size < 2) CROP_PINCH = null; };
+document.addEventListener("pointerup", cropUp); document.addEventListener("pointercancel", cropUp);
+document.addEventListener("wheel", e => { if(!CROP || !(e.target.closest && e.target.closest(".crop-view"))) return; e.preventDefault(); CROP.z *= Math.exp(-e.deltaY * 0.0015); cropApply(); }, { passive: false });
+document.addEventListener("input", e => { if(CROP && e.target.classList && e.target.classList.contains("crop-zoom")){ CROP.z = +e.target.value; cropApply(); } });
 function avPhotoSaved(){ save(); if(typeof frPushSoon === "function") frPushSoon(); render(); }
 document.addEventListener("change", e => {
   if(e.target && e.target.id === "avfile"){
     const f = e.target.files && e.target.files[0]; e.target.value = "";
-    photoFromFile(f).then(d => { S.photo = d; toast(t("avPhotoSaved")); avPhotoSaved(); }, () => toast(t("avPhotoBad")));
+    if(!f || !/^image\//.test(f.type)){ toast(t("avPhotoBad")); return; }
+    const url = URL.createObjectURL(f); cropOpen(url, url);
   }
 });
 function aveTabIntoView(){ const el = document.querySelector(".ave-tabs button.on"); if(el) el.scrollIntoView({ block: "nearest", inline: "center" }); }
@@ -254,7 +296,7 @@ function renderAvatarEditor(){
   if(!AVE){ goHome(); return; }
   const k = AVE.tab, { opts, colorTab } = aveOptsHTML(), ph = isPhoto(S.photo);
   const photoCard = `<div class="ave-photo">${ph ? photoImg(S.photo, 52) : `<span class="ave-ph0">${I.person}</span>`}<div class="ave-pt"><b>${esc(t(ph ? "avPhotoOn" : "avPhotoTitle"))}</b><small>${esc(t(ph ? "avPhotoOnSub" : "avPhotoSub"))}</small></div>
-      <label class="ave-pbtn">${esc(t(ph ? "avPhotoChange" : "avPhotoUpload"))}<input type="file" id="avfile" accept="image/*" hidden></label>${ph ? `<button class="ave-pbtn ghost" data-a="avphotodel">${esc(t("avPhotoRemove"))}</button>` : ""}</div>`;
+      <label class="ave-pbtn">${esc(t(ph ? "avPhotoChange" : "avPhotoUpload"))}<input type="file" id="avfile" accept="image/*" hidden></label>${ph ? `<button class="ave-pbtn ghost" data-a="avphotoadj">${esc(t("avCropAdjust"))}</button><button class="ave-pbtn ghost" data-a="avphotodel">${esc(t("avPhotoRemove"))}</button>` : ""}</div>`;
   $app.innerHTML = `<div class="top"><div class="wrap"><button class="iconbtn" data-a="avcancel" aria-label="${esc(t("back"))}">${I.x}</button>
       <div class="th-t"><small>${esc(t("avSub"))}</small><b>${esc(t("avTitle"))}</b></div><button class="iconbtn" data-a="avrandom" aria-label="${esc(t("avRandom"))}" title="${esc(t("avRandom"))}">${I.dice}</button></div></div>
     <main class="wrap ave">
@@ -274,6 +316,9 @@ function avatarClick(a, b){
   else if(a === "avlocked"){ const pet = PETS.find(p => p[0] === +b.dataset.i); if(pet) toast((pet[2] ? "🤫 " : "🔒 ") + T(pet[4], pet[5])); }
   else if(a === "avpreview"){ AVE.taps = (AVE.taps || 0) + 1; const el = document.querySelector(".ave-prev"); if(el){ el.classList.remove("wob"); void el.offsetWidth; el.classList.add("wob"); }
     if(AVE.taps >= 7 && !(S.unlocks || {}).ufo){ S.stats ||= {}; S.stats.ufo = 1; checkUnlocks(); aveUpdate(); } }
+  else if(a === "avcropsave") cropSave();
+  else if(a === "avcropcancel") cropClose();
+  else if(a === "avphotoadj"){ if(isPhoto(S.photo)) cropOpen(S.photo, null); }
   else if(a === "avphotodel"){ S.photo = null; toast(t("avPhotoRemoved")); avPhotoSaved(); }
   else if(a === "avsave"){ S.avatar = AVE.code; S.photo = null; save(); if(typeof frPushSoon === "function") frPushSoon(); const back = AVE.back; AVE = null; toast(t("avSaved")); screen = ["friends", "profile"].includes(back) ? back : "settings"; if(screen === "friends") FR.rows = null; render(); window.scrollTo(0, 0); }
   else if(a === "avcancel"){ const back = AVE.back; AVE = null; screen = ["friends", "profile"].includes(back) ? back : "settings"; render(); }
