@@ -56,7 +56,7 @@ async function pioneerFetch(){
     if(+no > 0 && +no !== +S.memberNo){ S.memberNo = +no; save(); bdgToast(checkBadges()); if(screen === "badges" || screen === "profile") render(); } }
   catch(e){ PIONEER_ERR = true; if(screen === "badges") render(); }
   try{ const r = await frRpc("my_app_role"), role = r === "mod" || r === "admin" ? r : null; // mod/admin (venner.sql)
-    if(S.avatar){ const o = avParse(S.avatar), need = o.p === ADMIN_PET || o.p === DINO_PET ? "admin" : o.p === MOD_PET ? "mod" : null; // rolle-skinn følger rollen
+    if(S.avatar){ const o = avParse(S.avatar), need = o.p === ADMIN_PET || o.p === DINO_PET ? "admin" : o.p === MOD_PET || o.p === AGENT_PET ? "mod" : null; // rolle-skinn følger rollen
       if(need && (!role || (need === "admin" && role !== "admin"))){ o.p = 0; S.avatar = avCode(o); save(); frPushSoon(); } }
     if(role !== (S.appRole || null)){ S.appRole = role; save(); if(screen === "avatar" && typeof aveUpdate === "function") aveUpdate(); else if(screen === "profile") render(); } }
   catch(e){}

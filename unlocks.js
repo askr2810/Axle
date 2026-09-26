@@ -20,7 +20,7 @@ const AV_GREEN = { hc: [9], sh: [1, 5], bg: [1, 5] };
 function avColors(o){ const f = new Set(); for(const k in AV_FAM){ const x = AV_FAM[k][o[k]]; if(x) f.add(x); } return f.size; }
 function groupDone(g){ return COURSES.some(c => c.group === g && (() => { const p = courseProgress(c); return p.tot > 0 && p.d === p.tot; })()); }
 function coursesDone(){ return COURSES.filter(c => { const p = courseProgress(c); return p.tot > 0 && p.d === p.tot; }).length; }
-const ADMIN_PET = 17, MOD_PET = 18, DINO_PET = 19; // Kommandør og Dino-konge (admin), Vokter (mod og admin). Databasen fjerner dem fra andre.
+const ADMIN_PET = 17, MOD_PET = 18, DINO_PET = 19, AGENT_PET = 20, KING_PET = 21, KING_CROWNS = 25; // Kommandør og Dino-konge (admin), Vokter (mod og admin). Databasen fjerner dem fra andre.
 // [indeks i AV_NAMES.p, id, hemmelig? (true = påskeegg, "staff" = mod og admin, "admin" = bare admin), sjekk(o = avatar som vises i byggeren), hint nb, hint en]
 // Hemmelige påskeegg har bare en kort kode som hint – man må prøve seg fram.
 const PETS = [
@@ -42,7 +42,9 @@ const PETS = [
   [16, "moon", true, () => (S.stats || {}).night > 0, "00 → 04", "00 → 04"],
   [ADMIN_PET, "admin", "admin", () => false, "Bare for admin.", "Admins only."], // låses opp av rollen, ikke av en oppgave
   [MOD_PET, "guardian", "staff", () => false, "Bare for moderatorer og admin.", "Moderators and admins only."],
-  [DINO_PET, "dino", "admin", () => false, "Bare for admin.", "Admins only."]
+  [DINO_PET, "dino", "admin", () => false, "Bare for admin.", "Admins only."],
+  [AGENT_PET, "agent", "staff", () => false, "Bare for moderatorer og admin.", "Moderators and admins only."],
+  [KING_PET, "king", false, () => COURSES.reduce((n, c) => n + crowns(c), 0) >= KING_CROWNS, "Vinn 25 kroner.", "Win 25 crowns."]
 ];
 // Mod/admin (rolle fra databasen, se app_roles i venner.sql) har alt i Samlingen.
 const isStaff = () => !!AUTH && (S.appRole === "mod" || S.appRole === "admin");
@@ -65,6 +67,7 @@ function noteNightLesson(){ const h = new Date().getHours(); if(h >= 0 && h < 4)
 function petBack(p, id){
   if(p === ADMIN_PET) return adminBack(id);
   if(p === MOD_PET) return modBack(id);
+  if(p === KING_PET) return `<path d="M8 104c2-24 14-36 42-38 28 2 40 14 42 38z" fill="#B71C1C"/><path d="M8 104c2-24 14-36 42-38" fill="none" stroke="#7F0000" stroke-width="1.5"/>`; // kongekappe
   if(p === 1) return ["#E53935", "#FB8C00", "#FDD835", "#43A047", "#1E88E5", "#8E24AA"].map((c, i) => `<path d="M${8 + i * 3} 78A${42 - i * 3} ${42 - i * 3} 0 0 1 ${92 - i * 3} 78" fill="none" stroke="${c}" stroke-width="3.2" opacity=".85"/>`).join("");
   if(p === 12) return `<defs><radialGradient id="${id}f"><stop offset="0" stop-color="#FFD54F" stop-opacity=".95"/><stop offset=".55" stop-color="#FF8F00" stop-opacity=".55"/><stop offset="1" stop-color="#FF3D00" stop-opacity="0"/></radialGradient></defs>
     <ellipse cx="50" cy="44" rx="38" ry="40" fill="url(#${id}f)"/><path d="M22 60c-6-14 2-24 6-30 0 8 4 10 6 12-1-10 4-20 12-26-2 10 4 14 4 14s4-6 2-14c8 6 12 16 11 26 2-2 6-4 6-12 4 6 12 16 6 30z" fill="#FF7043" opacity=".45"/>`;
@@ -76,6 +79,8 @@ function petFront(p, id){
   switch(p){
     case ADMIN_PET: return adminFront(id);
     case MOD_PET: return modFront(id);
+    case AGENT_PET: return agentFront(id);
+    case KING_PET: return kingFront(id);
     case 2: return `<g transform="translate(0 -5)"><path d="M60 86c6-5 16-6 22-2 3 2 2 5-1 5-5-1-10 0-14 3z" fill="#43A047"/><path d="M80 84c4-2 8-1 9 2-2 2-6 2-9 1z" fill="#66BB6A"/><circle cx="85.5" cy="84.3" r=".9" fill="#1B1B1B"/>
       <path d="M62 88c-5 3-9 2-12 0 3 0 6-1 8-3" fill="none" stroke="#2E7D32" stroke-width="2.2" stroke-linecap="round"/><path d="M68 88l-1 3M74 87l1 3" stroke="#2E7D32" stroke-width="1.6" stroke-linecap="round"/>
       ${[[66, 86], [71, 85], [76, 85]].map(([x, y]) => `<circle cx="${x}" cy="${y}" r=".9" fill="#A5D6A7"/>`).join("")}</g>`;
@@ -181,4 +186,23 @@ function dinoSVG(o, id, size, extraClass){
         <animate attributeName="opacity" values="0;0;.95;.95;0;0" ${K}/>
         <path d="M91 50q3 5 0 10"/><path d="M95 46q5 9 0 18"/><path d="M99 42q7 13 0 26"/></g>
     </g></svg>`;
+}
+
+// ---------- «Agent»: mod-skin – dress og solbriller der et lysglimt sveiper over glassene ----------
+function agentFront(id){
+  const lens = "M34.5 41.5h13l-1 7.5c-.8 3-10.2 3-11 0zM52.5 41.5h13l-1 7.5c-.8 3-10.2 3-11 0z";
+  const star = (x, y, d) => `<path d="M${x} ${y - 3}l.8 2.2 2.2.8-2.2.8-.8 2.2-.8-2.2-2.2-.8 2.2-.8z" fill="#fff" opacity="0"><animate attributeName="opacity" values="0;0;1;0;0" keyTimes="0;.3;.4;.55;1" dur="2.8s" begin="${d}s" repeatCount="indefinite"/></path>`;
+  return `<defs><clipPath id="${id}ag"><path d="${lens}"/></clipPath><linearGradient id="${id}agl" x1="0" x2="1"><stop offset="0" stop-color="#fff" stop-opacity="0"/><stop offset=".5" stop-color="#fff" stop-opacity=".95"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient></defs>
+    <g clip-path="url(#${id}ag)"><rect x="20" y="30" width="9" height="30" fill="url(#${id}agl)" transform="skewX(-28)"><animate attributeName="x" values="18;86;86" keyTimes="0;.35;1" dur="2.8s" repeatCount="indefinite"/></rect></g>
+    ${star(64.5, 42.5, 0)}${star(46.5, 42.5, 0.15)}`;
+}
+// ---------- «Konge»: låses opp med 25 kroner – krone som glinser, med gnister rundt ----------
+function kingFront(id){
+  const crown = "M33 24l5 9 6-11 6 11 6-11 6 11 5-9 1 13H32z";
+  const spark = (x, y, s, d) => `<path d="M${x} ${y - s}l${s * 0.28} ${s * 0.72} ${s * 0.72} ${s * 0.28}-${s * 0.72} ${s * 0.28}-${s * 0.28} ${s * 0.72}-${s * 0.28}-${s * 0.72}-${s * 0.72}-${s * 0.28} ${s * 0.72}-${s * 0.28}z" fill="#FFF3B0"><animate attributeName="opacity" values="0;1;0" dur="1.8s" begin="${d}s" repeatCount="indefinite"/><animateTransform attributeName="transform" type="rotate" values="0 ${x} ${y};90 ${x} ${y}" dur="1.8s" begin="${d}s" repeatCount="indefinite"/></path>`;
+  return `<defs><clipPath id="${id}kc"><path d="${crown}"/></clipPath><linearGradient id="${id}kg" x1="0" x2="1"><stop offset="0" stop-color="#fff" stop-opacity="0"/><stop offset=".5" stop-color="#fff" stop-opacity=".9"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient></defs>
+    <g clip-path="url(#${id}kc)"><rect x="20" y="8" width="13" height="34" fill="url(#${id}kg)" transform="skewX(-25)"><animate attributeName="x" values="14;86;86" keyTimes="0;.45;1" dur="2.2s" repeatCount="indefinite"/></rect></g>
+    <path d="M27 77c7-5 15-7 23-7s16 2 23 7l-3 6c-6-3-13-5-20-5s-14 2-20 5z" fill="#FAFAFA" stroke="#E0E0E0" stroke-width=".6"/>${[[33, 78], [41, 75], [50, 74], [59, 75], [67, 78]].map(([x, y]) => `<path d="M${x} ${y}v2.2" stroke="#212121" stroke-width="1.2" stroke-linecap="round"/>`).join("")}
+    <circle cx="38" cy="33" r="1.3" fill="#4FC3F7"/><circle cx="62" cy="33" r="1.3" fill="#66BB6A"/>
+    ${spark(29, 18, 3.2, 0)}${spark(71, 15, 2.6, 0.6)}${spark(50, 6, 2.2, 1.2)}`;
 }

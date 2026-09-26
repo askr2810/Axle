@@ -20,7 +20,7 @@ const AV_NAMES = {
   x: [["Ingen", "None"], ["Øredobber", "Earrings"], ["Gullkjede", "Gold chain"], ["Fregner", "Freckles"], ["AirPods", "AirPods"], ["Nesering", "Nose ring"], ["Dråpeøredobber", "Drop earrings"], ["Perlekjede", "Pearl necklace"]],
   // Samling: ting du låser opp (se unlocks.js). Rekkefølgen må aldri endres, bare legges til på slutten.
   p: [["Ingen", "None"], ["Regnbue", "Rainbow"], ["Øgle", "Lizard"], ["Tannhjul", "Gear buddy"], ["Lyndrone", "Spark drone"], ["Robot", "Robot"], ["Pi-ugle", "Pi owl"], ["Vindturbin", "Wind turbine"],
-      ["Trafikkjegle", "Traffic cone"], ["Lyspære", "Light bulb"], ["Spire", "Sprout"], ["Pokal", "Trophy"], ["Flammeaura", "Flame aura"], ["Glorie", "Halo"], ["Stjernestøv", "Stardust"], ["UFO", "UFO"], ["Nattmåne", "Night moon"], ["Kommandør", "Commander"], ["Vokter", "Guardian"], ["Dino-konge", "Dino King"]]
+      ["Trafikkjegle", "Traffic cone"], ["Lyspære", "Light bulb"], ["Spire", "Sprout"], ["Pokal", "Trophy"], ["Flammeaura", "Flame aura"], ["Glorie", "Halo"], ["Stjernestøv", "Stardust"], ["UFO", "UFO"], ["Nattmåne", "Night moon"], ["Kommandør", "Commander"], ["Vokter", "Guardian"], ["Dino-konge", "Dino King"], ["Agent", "Agent"], ["Konge", "King"]]
 };
 const AV_PARTS = { s: AV_SKIN.length, h: AV_NAMES.h.length, hc: AV_HAIRC.length, e: AV_NAMES.e.length, m: AV_NAMES.m.length, a: AV_NAMES.a.length, bg: AV_BG.length, sh: AV_SHIRT.length, f: AV_NAMES.f.length, g: AV_NAMES.g.length, o: AV_NAMES.o.length, x: AV_NAMES.x.length, p: AV_NAMES.p.length };
 const AV_KEYS = ["s", "h", "hc", "e", "m", "a", "bg", "sh", "f", "g", "o", "x", "p"];
@@ -43,6 +43,8 @@ let AV_UID = 0;
 function avatarSVG(code, size = 48, extraClass = ""){
   const o = avParse(code), skin = AV_SKIN[o.s], hair = AV_HAIRC[o.hc], sh = AV_SHIRT[o.sh], id = "av" + (++AV_UID);
   if(o.p === 19 && typeof dinoSVG === "function") return dinoSVG(o, id, size, extraClass); // Dino-konge (admin): hele avataren er en dinosaur
+  if(o.p === 20){ o.o = 2; o.g = 2; }          // Agent (mod): dress og solbriller som glinser
+  if(o.p === 21){ o.a = 6; o.m = 1; }          // Konge: krone og stort smil
   const dark = "rgba(0,0,0,.72)", gold = "#E0B43A", goldD = "#B98612";
   const fadeSides = `<path d="M30 33Q28.8 40 30 47L33.4 46Q32.6 40 33.8 32Z" fill="${hair}" opacity=".35"/><path d="M70 33Q71.2 40 70 47L66.6 46Q67.4 40 66.2 32Z" fill="${hair}" opacity=".35"/>`;
   // ---------- hår: bak hodet, oppå hodet og foran skuldrene ----------
