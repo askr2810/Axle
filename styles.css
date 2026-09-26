@@ -1398,3 +1398,17 @@ a.srow{text-decoration:none;color:inherit}
 /* Faste knapper nederst i eget lag, så iOS Safari ikke plasserer dem feil når siden tegnes på nytt under scrolling */
 .lfoot,.tabbar{transform:translateZ(0);-webkit-transform:translateZ(0);will-change:transform}
 .bk-grid.one{grid-template-columns:1fr}
+/* enhetskort i Teoriboka for fag uten egne emnesider */
+.bku{display:grid;gap:10px;margin-top:12px;padding:16px;background:var(--card);border:2px solid var(--line);border-bottom-width:4px;border-radius:18px}
+.bku-h{display:flex;align-items:center;gap:10px;width:100%;padding:0;border:0;background:none;text-align:left;color:var(--ink)}
+.bku-h b{flex:1;font-family:var(--display);font-weight:800;font-size:18px;line-height:1.25}.bku-h>svg{color:var(--muted);flex:none}
+.bku-h .bk-num{flex:none}
+.bku-lead{margin:0;color:var(--muted);font-size:14.5px;line-height:1.45}
+.bku-pts{margin:0;padding:0;list-style:none;display:grid;gap:6px}
+.bku-pts li{position:relative;padding-left:16px;font-size:14.5px;line-height:1.45}
+.bku-pts li::before{content:"";position:absolute;left:3px;top:.6em;width:6px;height:6px;border-radius:50%;background:var(--accent)}
+.bku-take{display:flex;gap:10px;align-items:flex-start;padding:10px 12px;border-radius:12px;background:color-mix(in srgb,var(--accent) 12%,var(--card));font-size:14.5px;font-weight:600;line-height:1.45}
+.bku-acts{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:2px}
+.bku-b{display:flex;align-items:center;justify-content:center;gap:6px;padding:10px 8px;border-radius:12px;border:2px solid var(--line);background:var(--paper);color:var(--ink);font-weight:700;font-size:13.5px}
+.bku-b svg{width:17px;height:17px;flex:none}
+.bku-b.pri{background:var(--accent);border-color:var(--accent);color:#fff}

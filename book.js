@@ -52,6 +52,17 @@ function bkFormulas(src){
   }
   return out;
 }
+// Nøkkelpunkter til enhetskortet: punktlistene i forklaringsdelen (ikke eksempler og «vanlige feil»), korteste først.
+function bkPoints(src, n = 4){
+  const out = []; let skip = false;
+  for(const raw of src.split("\n")){
+    const L = raw.trim(), h = L.match(/^#{2,3}\s+(.*)$/);
+    if(h){ skip = BK_SKIP.test(h[1]); continue; }
+    const m = !skip && L.match(/^-\s+(.+)$/); if(m) out.push(m[1]);
+  }
+  const short = out.filter(x => x.length <= 170);
+  return (short.length >= 2 ? short : out).slice(0, n);
+}
 function bkRemember(src){ const out = []; for(const L of src.split("\n")){ const m = L.trim().match(/^>\s?(.+)$/); if(m) out.push(m[1]); } return out; }
 function bkSections(src){ const out = []; for(const L of src.split("\n")){ const m = L.trim().match(/^##\s+(.+)$/); if(m) out.push(m[1]); } return out; }
 // Det første avsnittet under første overskrift: en kort ingress til flisene og søket.
@@ -149,11 +160,13 @@ function renderBookCourse(){
       if(tps.length) return `<section class="libu" id="bku${u}"><div class="libu-h"><div><small>${esc(t("unit", u + 1))}</small><h2>${esc(unitTitle(c, u))}</h2></div>
           ${theoryOf(c.code, u) ? `<button class="kbtn" data-a="bkunit" data-c="${esc(c.code)}" data-u="${u}">${seen ? I.checkS : I.book}${esc(t("tpFullShort"))}</button>` : ""}</div>
           <div class="tiles2">${tps.map(tp => tpTileHTML(c.code, tp)).join("")}</div></section>`;
-      const src = bkDoc(c.code, u), fs = bkFormulas(src), f = fs.find(x => x.length <= 60) || null;
-      return `<div class="bk-grid one"><button class="bk-tile" data-a="bkunit" data-c="${esc(c.code)}" data-u="${u}">
-        <span class="bk-tile-h"><span class="bk-num" style="background:${col}">${u + 1}</span>${seen ? `<span class="bk-seen" title="${esc(t("bkRead"))}">${I.checkS}</span>` : ""}</span>
-        <b>${esc(unitTitle(c, u))}</b>
-        ${f ? `<span class="bk-fx" aria-hidden="true">${texD(f)}</span>` : `<span class="bk-lead">${esc(bkLead(src).slice(0, 240))}</span>`}</button></div>`;
+      // Fag uten egne emnesider: et enhetskort med ingress, nøkkelpunkter, huskeregel og snarveier til teorien.
+      const src = bkDoc(c.code, u), pts = bkPoints(src), take = bkRemember(src).find(x => !/^(øvingsoppgaver|practice problems)/i.test(x)), lead = bkLead(src);
+      return `<section class="bku"><button class="bku-h" data-a="bkunit" data-c="${esc(c.code)}" data-u="${u}"><span class="bk-num" style="background:${col}">${u + 1}</span><b>${esc(unitTitle(c, u))}</b>${seen ? `<span class="bk-seen" title="${esc(t("bkRead"))}">${I.checkS}</span>` : ""}${I.chevron}</button>
+        ${lead ? `<p class="bku-lead">${esc(lead.length > 220 ? lead.slice(0, lead.lastIndexOf(" ", 215)) + " …" : lead)}</p>` : ""}
+        ${pts.length ? `<ul class="bku-pts">${pts.map(x => `<li>${rich(x)}</li>`).join("")}</ul>` : ""}
+        ${take ? `<div class="bku-take"><span aria-hidden="true">💡</span><div>${rich(take)}</div></div>` : ""}
+        <div class="bku-acts"><button class="bku-b" data-a="bkunit" data-c="${esc(c.code)}" data-u="${u}">${I.book}${esc(t("tpFullShort"))}</button><button class="bku-b pri" data-a="bkguided" data-c="${esc(c.code)}" data-u="${u}">${I.steps}${esc(t("gdCta"))}</button></div></section>`;
     }).join("");
   }
   $app.innerHTML = `${bkTop("bkback", t("bkTitle"), courseName(c), favStarHTML(c.code))}
@@ -202,7 +215,7 @@ function bookClick(a, b){
   else if(a === "bktab"){ BK.tab = b.dataset.t; render(); }
   else if(a === "bkunit"){ BK.v = "unit"; BK.code = b.dataset.c; BK.u = +b.dataset.u; (S.theorySeen ||= {})[BK.code + ":" + BK.u] = 1; bdgToast(checkBadges()); save(); render(); window.scrollTo(0, 0); }
   else if(a === "bksec"){ const h = document.getElementById("bk-s" + b.dataset.i); if(h) window.scrollTo({ top: h.getBoundingClientRect().top + window.scrollY - 76, behavior: "smooth" }); }
-  else if(a === "bkguided"){ gdOpen(BK.code, BK.u, null); }
+  else if(a === "bkguided"){ gdOpen(b.dataset.c || BK.code, b.dataset.u != null ? +b.dataset.u : BK.u, null); }
   else if(a === "bktopic"){ if(BK.v !== "topic") BK.from = BK.v; BK.v = "topic"; BK.code = b.dataset.c; BK.topic = b.dataset.id; (S.topicSeen ||= {})[BK.code + ":" + BK.topic] = 1; save(); render(); window.scrollTo(0, 0); }
   else if(a === "bktopicpractice"){
     const code = b.dataset.c, u = +b.dataset.u, c = COURSE(code);
