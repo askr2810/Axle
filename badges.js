@@ -7,7 +7,7 @@ function bdgStats(){
   for(const c of COURSES){ const p = courseProgress(c); levels += p.d; cr += crowns(c); if(p.d) started++; if(p.tot && p.d === p.tot) completed++; }
   const st = S.stats || {};
   return { levels, crowns: cr, started, completed, xp: +S.xp || 0, streak: Math.max(+S.bestStreak || 0, streakNow()),
-    pioneer: +S.memberNo > 0 && +S.memberNo <= PIONEER_MAX ? 1 : 0, theory: Object.keys(S.theorySeen || {}).length, challenges: +st.challenges || 0, weekwins: +st.weekwins || 0, exams: (S.examLog || []).length, flawless: +st.flawless || 0, reviews: +st.reviews || 0, friends: +st.friends || 0, guided: +st.guided || 0, sims: +st.sims || 0, drills: +st.drills || 0, drKnown: Object.values(S.drill || {}).filter(x => x.b >= 4).length, eggs: PETS.filter(p => p[2] === true && (S.unlocks || {})[p[1]]).length };
+    pioneer: +S.memberNo > 0 && +S.memberNo <= PIONEER_MAX ? 1 : 0, theory: Object.keys(S.theorySeen || {}).length, challenges: +st.challenges || 0, weekwins: +st.weekwins || 0, exams: (S.examLog || []).length, flawless: +st.flawless || 0, reviews: +st.reviews || 0, friends: +st.friends || 0, guided: +st.guided || 0, sims: +st.sims || 0, drills: +st.drills || 0, drKnown: Object.values(S.drill || {}).filter(x => x.b >= 4).length, eggs: PETS.filter(p => p[2] === true && (S.unlocks || {})[p[1]]).length, snacks: +st.snacks || 0, sprint: Math.max(0, ...Object.values(S.sprintBest || {})), proofs: Object.keys(S.gdDone || {}).filter(k => k.startsWith("proof:")).length };
 }
 // [id, nivå (1 bronse, 2 sølv, 3 gull, 4 hemmelig regnbue-holo), ikon, statistikk, mål, nb-navn, en-navn, nb-beskrivelse, en-beskrivelse]
 const BADGES = [
@@ -37,6 +37,12 @@ const BADGES = [
   ["ww5",     3, "trophy", "weekwins", 5,     "Ligamester",     "League master",   "Vinn ukeligaen 5 ganger",              "Win the weekly league 5 times"],
   ["gd3",     1, "steps",  "guided",   3,     "Steg for steg",  "Step by step",    "Fullfør 3 steg-for-steg-gjennomganger", "Complete 3 step-by-step walkthroughs"],
   ["gd15",    2, "steps",  "guided",   15,    "Nysgjerrig",     "Curious mind",    "Fullfør 15 steg-for-steg-gjennomganger", "Complete 15 step-by-step walkthroughs"],
+  ["sn50",    1, "bolt",   "snacks",   50,    "Snackpause",     "Snack break",     "Svar på 50 snacks",                     "Answer 50 snacks"],
+  ["sn500",   3, "bolt",   "snacks",   500,   "Snackmonster",   "Snack monster",   "Svar på 500 snacks",                    "Answer 500 snacks"],
+  ["sp15",    2, "fire",   "sprint",   15,    "Lynrask",        "Lightning fast",  "Få 15 poeng i en lynrunde",             "Score 15 points in a speed round"],
+  ["sp30",    3, "fire",   "sprint",   30,    "Tordenhjerne",   "Thunder brain",   "Få 30 poeng i en lynrunde",             "Score 30 points in a speed round"],
+  ["pf3",     1, "book",   "proofs",   3,     "Hvorfor da?",    "But why?",        "Les 3 bevis",                           "Read 3 proofs"],
+  ["pf11",    3, "book",   "proofs",   11,    "Bevisjeger",     "Proof hunter",    "Les alle 11 bevisene",                  "Read all 11 proofs"],
   ["sim5",    1, "bolt",   "sims",     5,     "Eksperimentator","Experimenter",    "Lek med 5 «Prøv selv»-simuleringer",   "Play with 5 \"Try it\" simulations"],
   ["dr50",    1, "redo",   "drills",   50,    "Hukommelse",     "Memory",          "Svar på 50 grunnbegrep-kort",          "Answer 50 core concept cards"],
   ["dr25k",   3, "redo",   "drKnown",  25,    "Sitter som støpt","Rock solid",     "Mestre 25 grunnbegreper (boks 4+)",    "Master 25 core concepts (box 4+)"],

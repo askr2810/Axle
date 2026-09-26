@@ -207,6 +207,7 @@ function renderHome(){
     ${noticeHTML()}
     ${favBarHTML()}
     ${dcDoneToday() ? "" : dcCardHTML()}
+    ${snEntryHTML()}
     ${examHomeActions(c) ? `<div class="actions">${examHomeActions(c)}</div>` : ""}
     ${preBarHTML(c)}
     ${path}
@@ -989,6 +990,8 @@ function render(){
   else if(screen==="theory") renderTheory();
   else if(screen==="guided") renderGuided();
   else if(screen==="proofs") renderProofs();
+  else if(screen==="snacks") renderSnacks();
+  else if(screen==="sprint") renderSprint();
   else if(screen==="community") renderCommunity();
   else if(screen==="ccedit") renderCCEdit();
   else if(screen==="book") renderBook();
@@ -1033,6 +1036,7 @@ document.addEventListener("click", async e=>{
   if(grClick(a, b)) return; // grupper (handlinger som starter med "gr")
   if(studyClick(a, b)) return; // studier (studies.js)
   if(pfClick(a, b)) return; // bevis (proofs.js)
+  if(snEntryClick(a) || snClick(a, b) || spClick(a, b)) return; // snacks og lynrunde (snacks.js)
   if(adminClick(a, b)) return; // adminpanel og kunngjøringer (admin.js)
   if(psClick(a, b)) return; // profilsiden til andre + hvilke merker du viser (person.js)
   if(friendsClick(a, b)) return; // venner (handlinger som starter med "fr")
