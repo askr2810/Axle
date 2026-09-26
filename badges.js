@@ -7,7 +7,7 @@ function bdgStats(){
   for(const c of COURSES){ const p = courseProgress(c); levels += p.d; cr += crowns(c); if(p.d) started++; if(p.tot && p.d === p.tot) completed++; }
   const st = S.stats || {};
   return { levels, crowns: cr, started, completed, xp: +S.xp || 0, streak: Math.max(+S.bestStreak || 0, streakNow()),
-    theory: Object.keys(S.theorySeen || {}).length, challenges: +st.challenges || 0, weekwins: +st.weekwins || 0, exams: (S.examLog || []).length, flawless: +st.flawless || 0, reviews: +st.reviews || 0, friends: +st.friends || 0, guided: +st.guided || 0, sims: +st.sims || 0, drills: +st.drills || 0, drKnown: Object.values(S.drill || {}).filter(x => x.b >= 4).length };
+    pioneer: +S.memberNo > 0 && +S.memberNo <= PIONEER_MAX ? 1 : 0, theory: Object.keys(S.theorySeen || {}).length, challenges: +st.challenges || 0, weekwins: +st.weekwins || 0, exams: (S.examLog || []).length, flawless: +st.flawless || 0, reviews: +st.reviews || 0, friends: +st.friends || 0, guided: +st.guided || 0, sims: +st.sims || 0, drills: +st.drills || 0, drKnown: Object.values(S.drill || {}).filter(x => x.b >= 4).length };
 }
 // [id, nivå (1 bronse, 2 sølv, 3 gull), ikon, statistikk, mål, nb-navn, en-navn, nb-beskrivelse, en-beskrivelse]
 const BADGES = [
@@ -41,15 +41,19 @@ const BADGES = [
   ["dr50",    1, "redo",   "drills",   50,    "Hukommelse",     "Memory",          "Svar på 50 grunnbegrep-kort",          "Answer 50 core concept cards"],
   ["dr25k",   3, "redo",   "drKnown",  25,    "Sitter som støpt","Rock solid",     "Mestre 25 grunnbegreper (boks 4+)",    "Master 25 core concepts (box 4+)"],
   ["fr1",     1, "users",  "friends",  1,     "Sosial",         "Social",          "Legg til en venn",                     "Add a friend"],
-  ["fr5",     2, "users",  "friends",  5,     "Populær",        "Popular",         "Ha 5 venner",                          "Have 5 friends"]
+  ["fr5",     2, "users",  "friends",  5,     "Populær",        "Popular",         "Ha 5 venner",                          "Have 5 friends"],
+  ["pioneer", 3, "num",    "pioneer",  1,     "Pioner",         "Pioneer",         "Lag konto blant de 500 første",        "Create an account among the first 500"]
 ];
-const bdgName = b => T(b[5], b[6]), bdgDesc = b => T(b[7], b[8]);
+// Pioner-merket vises bare for dem som kan få det (medlemsnummer 1–500, eller nummer ikke kjent ennå).
+const PIONEER_MAX = 500;
+const bdgAll = () => BADGES.filter(b => b[0] !== "pioneer" || !(+S.memberNo > PIONEER_MAX));
+const bdgName = b => T(b[5], b[6]), bdgDesc = b => b[0] === "pioneer" && +S.memberNo > 0 && +S.memberNo <= PIONEER_MAX ? t("pioneerDesc", S.memberNo) : T(b[7], b[8]);
 // Låser opp merker som er nådd. Returnerer de nye.
 function checkBadges(){
   const st = bdgStats(), now = Date.now(), fresh = [];
   S.bestStreak = Math.max(+S.bestStreak || 0, streakNow());
   S.badges ||= {};
-  for(const b of BADGES) if(!S.badges[b[0]] && st[b[3]] >= b[4]){ S.badges[b[0]] = now; fresh.push(b); }
+  for(const b of bdgAll()) if(!S.badges[b[0]] && st[b[3]] >= b[4]){ S.badges[b[0]] = now; fresh.push(b); }
   return fresh;
 }
 function bdgToast(list){ if(list && list.length) setTimeout(() => toast(t("bdgNew", list.map(bdgName).join(", "))), 400); }
@@ -57,17 +61,17 @@ function bdgStat(key, n = 1){ S.stats ||= {}; S.stats[key] = (+S.stats[key] || 0
 
 function badgeIcon(b, size = 64, locked){
   const tiers = [null, ["#E3A06B", "#9C5B2A"], ["#E1E6EA", "#8C99A6"], ["#F7D35C", "#C08A0B"]], [c1, c2] = tiers[b[1]];
-  const ic = b[2] === "doc" ? I.docB : b[2] === "trophy" ? I.trophyS : I[b[2]] || I.star;
+  const ic = b[2] === "num" ? (() => { const txt = +S.memberNo > 0 && +S.memberNo <= PIONEER_MAX ? "#" + S.memberNo : "500"; return `<b class="bdg-no" style="font-size:${Math.round(size * (txt.length > 3 ? 0.25 : 0.31))}px">${txt}</b>`; })() : b[2] === "doc" ? I.docB : b[2] === "trophy" ? I.trophyS : I[b[2]] || I.star;
   return `<span class="bdg ${locked ? "locked" : ""}" style="--b1:${c1};--b2:${c2};width:${size}px;height:${size}px">${ic}</span>`;
 }
 function renderBadges(){
-  const st = bdgStats(), have = S.badges || {}, n = BADGES.filter(b => have[b[0]]).length;
-  const cards = BADGES.map(b => {
+  const st = bdgStats(), have = S.badges || {}, ALL = bdgAll(), n = ALL.filter(b => have[b[0]]).length;
+  const cards = ALL.map(b => {
     const got = !!have[b[0]], v = Math.min(st[b[3]], b[4]);
     return `<div class="bdg-card ${got ? "got" : ""}">${badgeIcon(b, 62, !got)}<b>${esc(bdgName(b))}</b><span>${esc(bdgDesc(b))}</span>
       ${got ? `<small class="bdg-date">${esc(t("bdgGot", fmtDate(have[b[0]])))}</small>` : `<div class="mini"><i style="width:${v / b[4] * 100}%"></i></div><small>${nf(v, 0)} / ${nf(b[4], 0)}</small>`}</div>`;
   }).join("");
   $app.innerHTML = `<div class="top"><div class="wrap"><button class="iconbtn" data-a="profile" aria-label="${esc(t("back"))}">${I.left}</button>
-      <div class="th-t"><small>${esc(t("bdgCount", n, BADGES.length))}</small><b>${esc(t("bdgTitle"))}</b></div><span class="th-ic" aria-hidden="true">${I.trophyS}</span></div></div>
-    <main class="wrap bdgs"><div class="meter bdg-meter"><i style="width:${n / BADGES.length * 100}%"></i></div><div class="bdg-grid">${cards}</div></main>`;
+      <div class="th-t"><small>${esc(t("bdgCount", n, ALL.length))}</small><b>${esc(t("bdgTitle"))}</b></div><span class="th-ic" aria-hidden="true">${I.trophyS}</span></div></div>
+    <main class="wrap bdgs"><div class="meter bdg-meter"><i style="width:${n / ALL.length * 100}%"></i></div><div class="bdg-grid">${cards}</div></main>`;
 }

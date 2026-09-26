@@ -45,6 +45,7 @@ function mergeState(a, b){
   m.weekWins = Object.assign({}, isObj(b.weekWins) ? b.weekWins : {}, a.weekWins || {});
   m.bestStreak = Math.max(+a.bestStreak || 0, +b.bestStreak || 0);
   { const v = [+a.since, +b.since].filter(x => x > 0); if(v.length) m.since = Math.min(...v); } // «Med siden»: tidligste
+  if(!(+a.memberNo > 0) && +b.memberNo > 0) m.memberNo = +b.memberNo; // medlemsnummer (Pioner-merket)
   m.xp = Math.max(+a.xp||0, +b.xp||0);
   m.daily = Object.assign({}, a.daily);
   if(isObj(b.daily)) for(const k in b.daily) m.daily[k] = Math.max(+m.daily[k]||0, +b.daily[k]||0);

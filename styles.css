@@ -1275,3 +1275,5 @@ a.srow{text-decoration:none;color:inherit}
 .gr-set .srow:has(.seg){flex-wrap:wrap}.gr-set .srow:has(.seg) .lbl{flex:1 1 100%}.gr-set .srow:has(.seg) .seg{display:grid;grid-template-columns:1fr 1fr;width:100%}
 .fr-since{margin:4px 0 8px;font-size:13.5px;color:var(--muted);text-align:center}
 .pf-since{display:block;font-size:13px;color:var(--muted);margin-top:2px}
+.bdg-no{font-family:var(--display);font-weight:800;letter-spacing:-.03em;color:#fff;text-shadow:0 1px 2px rgba(0,0,0,.35);line-height:1}
+.bdg.locked .bdg-no{color:inherit;text-shadow:none}

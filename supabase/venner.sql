@@ -495,3 +495,40 @@ grant execute on function public.get_blocks()                                  t
 grant execute on function public.search_users(text)                            to authenticated;
 grant execute on function public.get_friend_requests()                         to authenticated;
 grant execute on function public.report_content(text, uuid, text, text, text)  to authenticated;
+
+-- ============================================================
+--  Medlemsnummer (for «Pioner»-merket til de 500 første). Nummeret er fast når det først er gitt.
+--  Kontoer som finnes når denne fila kjøres, nummereres etter når de ble laget; nye får neste nummer.
+-- ============================================================
+create table if not exists public.member_numbers (
+  user_id    uuid primary key references auth.users (id) on delete cascade,
+  number     integer not null unique check (number > 0),
+  created_at timestamptz not null default now()
+);
+alter table public.member_numbers enable row level security;
+revoke all on public.member_numbers from anon, authenticated;
+insert into public.member_numbers (user_id, number)
+select u.id, (select coalesce(max(number), 0) from public.member_numbers) + row_number() over (order by u.created_at, u.id)
+from auth.users u where not exists (select 1 from public.member_numbers m where m.user_id = u.id)
+on conflict do nothing;
+
+create or replace function public.my_member_number()
+returns integer
+language plpgsql
+security definer
+set search_path = ''
+as $$
+declare me uuid := auth.uid(); n int;
+begin
+  if me is null then return null; end if;
+  select number into n from public.member_numbers where user_id = me;
+  if n is not null then return n; end if;
+  perform pg_advisory_xact_lock(4715001); -- to som får nummer samtidig, får ikke samme
+  select coalesce(max(number), 0) + 1 into n from public.member_numbers;
+  insert into public.member_numbers (user_id, number) values (me, n);
+  return n;
+end;
+$$;
+revoke all on function public.my_member_number() from public, anon;
+grant execute on function public.my_member_number() to authenticated;
+

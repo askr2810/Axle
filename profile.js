@@ -57,20 +57,20 @@ function renderProfile(){
   if(AUTH && CLOUD_ON && !S.name && FR.rows === null && !FR.loading) frLoad().then(() => { if(screen === "profile" && S.name) render(); });
   let lv = 0; for(const c of COURSES) lv += courseProgress(c).d;
   const st = streakNow(), best = Math.max(+S.bestStreak || 0, st), cr = COURSES.reduce((s, x) => s + crowns(x), 0), have = S.badges || {};
-  const nB = BADGES.filter(b => have[b[0]]).length;
-  const recent = BADGES.filter(b => have[b[0]]).sort((a, b) => have[b[0]] - have[a[0]]).slice(0, 5);
+  const nB = bdgAll().filter(b => have[b[0]]).length;
+  const recent = bdgAll().filter(b => have[b[0]]).sort((a, b) => have[b[0]] - have[a[0]]).slice(0, 5);
   const courses = COURSES.map(c => ({ c, p: courseProgress(c) })).filter(x => x.p.d > 0 || x.c.code === S.current).sort((a, b) => b.p.d / b.p.tot - a.p.d / a.p.tot);
   const tile = (a, k, v, lab, ic) => `<button class="pf-tile" ${a ? `data-a="${a}" ${k ? `data-k="${k}"` : ""}` : "disabled"}>${ic}<b>${v}</b><span>${esc(lab)}</span></button>`;
   $app.innerHTML = `<div class="top"><div class="wrap"><div class="th-t"><small>${esc(t("tabProfile"))}</small><b>${esc(S.name || t("pfYou"))}</b></div>
       <button class="iconbtn" data-a="settings" aria-label="${esc(t("settings"))}">${I.gear}</button></div></div>
     <main class="wrap pf">
       <div class="pf-head"><button class="pf-av" data-a="avedit" aria-label="${esc(t(hasMeAv() ? "avEdit" : "avMake"))}">${hasMeAv() ? meAvHTML(104) : `<span class="set-av0 big">${I.person}</span>`}<span class="pf-edit">${I.pencil}</span></button>
-        <div class="pf-id"><b>${esc(S.name || t("pfYou"))}</b><span class="pf-lv">${esc(t("lvName", levelInfo(S.xp).lv))}</span>${S.since ? `<span class="pf-since">${esc(t("pfSince", fmtDate(S.since)))}</span>` : ""}<button class="exlink" data-a="pfname">${esc(t(S.name ? "frEditName" : "pfSetName"))}</button>
+        <div class="pf-id"><b>${esc(S.name || t("pfYou"))}</b><span class="pf-lv">${esc(t("lvName", levelInfo(S.xp).lv))}</span>${S.since ? `<span class="pf-since">${esc(t("pfSince", fmtDate(S.since)))}${+S.memberNo > 0 ? " · " + esc(t("pfMemberNo", S.memberNo)) : ""}</span>` : ""}<button class="exlink" data-a="pfname">${esc(t(S.name ? "frEditName" : "pfSetName"))}</button>
         <span class="pf-acc">${AUTH ? esc(AUTH.email || "") : `${esc(t("pfNotLogged"))} · <button class="exlink" data-a="aclogin">${esc(t("acLogin"))}</button>`}</span></div></div>
       ${levelBarHTML(S.xp, S.xp)}
       <div class="pf-grid">
         ${tile("statinfo", "streak", st, t("pfStreak"), I.fire)}${tile("statinfo", "streak", best, t("ssBest"), I.fire)}${tile("statinfo", "xp", S.xp, "XP", I.bolt)}
-        ${tile("statinfo", "crowns", cr, t("pfCrowns"), I.crown)}${tile("", "", lv, t("pfLevels"), I.star16)}${tile("badges", "", nB + "/" + BADGES.length, t("bdgTitle"), I.trophyS)}
+        ${tile("statinfo", "crowns", cr, t("pfCrowns"), I.crown)}${tile("", "", lv, t("pfLevels"), I.star16)}${tile("badges", "", nB + "/" + bdgAll().length, t("bdgTitle"), I.trophyS)}
       </div>
       <div class="pf-sec"><div class="pf-sh"><b>${esc(t("bdgTitle"))}</b><button class="exlink" data-a="badges">${esc(t("pfSeeAll"))}</button></div>
         ${recent.length ? `<div class="pf-badges">${recent.map(b => `<button data-a="badges" title="${esc(bdgName(b))}">${badgeIcon(b, 50)}<small>${esc(bdgName(b))}</small></button>`).join("")}</div>` : `<p class="pf-empty">${esc(t("pfNoBadges"))}</p>`}</div>
