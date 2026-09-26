@@ -42,7 +42,7 @@ const BADGES = [
   ["sp15",    2, "fire",   "sprint",   15,    "Lynrask",        "Lightning fast",  "Få 15 poeng i en lynrunde",             "Score 15 points in a speed round"],
   ["sp30",    3, "fire",   "sprint",   30,    "Tordenhjerne",   "Thunder brain",   "Få 30 poeng i en lynrunde",             "Score 30 points in a speed round"],
   ["pf3",     1, "book",   "proofs",   3,     "Hvorfor da?",    "But why?",        "Les 3 bevis",                           "Read 3 proofs"],
-  ["pf11",    3, "book",   "proofs",   11,    "Bevisjeger",     "Proof hunter",    "Les alle 11 bevisene",                  "Read all 11 proofs"],
+  ["pf10",    3, "book",   "proofs",   10,    "Bevisjeger",     "Proof hunter",    "Les 10 bevis",                          "Read 10 proofs"],
   ["sim5",    1, "bolt",   "sims",     5,     "Eksperimentator","Experimenter",    "Lek med 5 «Prøv selv»-simuleringer",   "Play with 5 \"Try it\" simulations"],
   ["dr50",    1, "redo",   "drills",   50,    "Hukommelse",     "Memory",          "Svar på 50 grunnbegrep-kort",          "Answer 50 core concept cards"],
   ["dr25k",   3, "redo",   "drKnown",  25,    "Sitter som støpt","Rock solid",     "Mestre 25 grunnbegreper (boks 4+)",    "Master 25 core concepts (box 4+)"],

@@ -370,7 +370,64 @@ Use $x_1$ as the new guess, and so on. The number of correct digits roughly **do
 
 ![sim:newton]`]],
    q: { at: 3, q: ["Hva skjer hvis $f'(x_n) = 0$?", "What happens if $f'(x_n) = 0$?"], opts: [["Tangenten er vannrett og treffer aldri $x$-aksen", "The tangent is horizontal and never meets the $x$-axis"], ["Da har vi funnet svaret", "Then we have found the answer"], ["Metoden går dobbelt så fort", "The method goes twice as fast"], ["Ingenting spesielt", "Nothing special"]],
-     expl: ["Da deler vi på null. Velg en annen startverdi.", "Then we divide by zero. Choose another starting value."] } }
+     expl: ["Da deler vi på null. Velg en annen startverdi.", "Then we divide by zero. Choose another starting value."] } },
+ { id: "suvat", ic: "🚗", t: ["Hvor kommer $s = v_0t + \\tfrac12 at^2$ fra?", "Where does $s = v_0t + \\tfrac12 at^2$ come from?"], sub: ["Strekningen er arealet under fart–tid-grafen", "The distance is the area under the velocity–time graph"],
+   units: ["VGFY1:0", "GFYS:1"],
+   steps: [
+    [`## Strekning er areal
+Kjører du med konstant fart $v$ i tiden $t$, er strekningen $v \\cdot t$: arealet av et rektangel under fart–tid-grafen.
+
+Det gjelder alltid: **strekningen er arealet under fart–tid-grafen**, også når farten endrer seg.`,
+     `## Distance is area
+If you drive at constant speed $v$ for time $t$, the distance is $v \\cdot t$: the area of a rectangle under the velocity–time graph.
+
+This always holds: **the distance is the area under the velocity–time graph**, even when the speed changes.`],
+    [`## Konstant akselerasjon
+Med konstant akselerasjon er grafen en rett linje: $v = v_0 + at$. Arealet under den består av et **rektangel** og en **trekant**. Dra i sliderne og se arealet:
+
+![sim:vt]`,
+     `## Constant acceleration
+With constant acceleration the graph is a straight line: $v = v_0 + at$. The area under it consists of a **rectangle** and a **triangle**. Drag the sliders and watch the area:
+
+![sim:vt]`],
+    [`## Legg sammen
+Rektangelet: bredde $t$ og høyde $v_0$, altså $v_0t$.
+Trekanten: bredde $t$ og høyde $at$ (økningen i fart), altså $\\tfrac12 \\cdot t \\cdot at = \\tfrac12 at^2$.
+$$s = v_0t + \\tfrac12 at^2 \\qquad \\blacksquare$$`,
+     `## Add them up
+The rectangle: width $t$ and height $v_0$, so $v_0t$.
+The triangle: width $t$ and height $at$ (the increase in speed), so $\\tfrac12 \\cdot t \\cdot at = \\tfrac12 at^2$.
+$$s = v_0t + \\tfrac12 at^2 \\qquad \\blacksquare$$`]],
+   q: { at: 3, q: ["Hva er arealet av trekanten under fart–tid-grafen?", "What is the area of the triangle under the velocity–time graph?"], opts: [["$\\tfrac12 at^2$", "$\\tfrac12 at^2$"], ["$at^2$", "$at^2$"], ["$v_0t$", "$v_0t$"], ["$\\tfrac12 at$", "$\\tfrac12 at$"]],
+     expl: ["Halvparten av grunnlinje $t$ ganger høyde $at$.", "Half of base $t$ times height $at$."] } },
+
+ { id: "ek", ic: "⚡", t: ["Hvorfor er $E_k = \\tfrac12 mv^2$?", "Why is $E_k = \\tfrac12 mv^2$?"], sub: ["Arbeidet som trengs for å gi noe fart", "The work needed to give something speed"],
+   units: ["VGFY1:2", "GFYS:3"],
+   steps: [
+    [`## Energi er arbeid
+Kinetisk energi er **arbeidet du må gjøre** for å få et legeme i fart. Arbeid er kraft ganger strekning: $W = F \\cdot s$.`,
+     `## Energy is work
+Kinetic energy is **the work you must do** to get a body moving. Work is force times distance: $W = F \\cdot s$.`],
+    [`## Skyv med konstant kraft
+Et legeme med masse $m$ starter i ro. Du skyver med kraften $F$, så akselerasjonen er $a = \\dfrac{F}{m}$ (Newtons 2. lov).
+
+Fra bevegelseslikningene: $v^2 = 2as$, altså $s = \\dfrac{v^2}{2a}$.`,
+     `## Push with a constant force
+A body with mass $m$ starts at rest. You push with force $F$, so the acceleration is $a = \\dfrac{F}{m}$ (Newton's 2nd law).
+
+From the equations of motion: $v^2 = 2as$, so $s = \\dfrac{v^2}{2a}$.`],
+    [`## Sett inn
+$$W = F \\cdot s = ma \\cdot \\dfrac{v^2}{2a} = \\tfrac12 mv^2 \\qquad \\blacksquare$$
+Akselerasjonen forsvinner! Samme fart gir samme energi, uansett hvor fort du fikk farten. Og fordi $v$ er i andre, gir dobbel fart **fire ganger** så mye energi. Derfor er fart så farlig i trafikken.
+
+![sim:energy]`,
+     `## Insert
+$$W = F \\cdot s = ma \\cdot \\dfrac{v^2}{2a} = \\tfrac12 mv^2 \\qquad \\blacksquare$$
+The acceleration cancels! The same speed gives the same energy, however quickly you reached it. And since $v$ is squared, double speed gives **four times** the energy. That is why speed is so dangerous in traffic.
+
+![sim:energy]`]],
+   q: { at: 3, q: ["Hva skjer med $E_k$ når farten tredobles?", "What happens to $E_k$ when the speed triples?"], opts: [["Den blir 9 ganger så stor", "It becomes 9 times as large"], ["Den blir 3 ganger så stor", "It becomes 3 times as large"], ["Den blir 6 ganger så stor", "It becomes 6 times as large"], ["Den er uendret", "It is unchanged"]],
+     expl: ["$3^2 = 9$.", "$3^2 = 9$."] } }
 ];
 const pfById = id => PROOFS.find(p => p.id === id);
 const proofsFor = (code, u) => PROOFS.filter(p => p.units.includes(code + ":" + u));
