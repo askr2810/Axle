@@ -244,7 +244,7 @@ function renderPick(){
     h += `<div class="grp">${esc(order ? t("stepN", +g.slice(1)) : groupName(g))}</div>`;
     list.forEach(c=>{ h += pickRowHTML(c); });
   });
-  h += `</div></div>`;
+  h += `${studyMoreHTML()}</div></div>`;
   $app.innerHTML = h;
 }
 
@@ -996,6 +996,8 @@ function render(){
   else if(screen==="proofs") renderProofs();
   else if(screen==="snacks") renderSnacks();
   else if(screen==="sprint") renderSprint();
+  else if(screen==="match") renderMatch();
+  else if(screen==="truefalse") renderTF();
   else if(screen==="community") renderCommunity();
   else if(screen==="ccedit") renderCCEdit();
   else if(screen==="book") renderBook();
@@ -1016,7 +1018,7 @@ function render(){
   // valgt studie-fane skal alltid synes, også når fanene ikke får plass på en smal skjerm
   document.querySelectorAll(".study-tabs").forEach(r => { const b = r.querySelector(".on"); if(b && (b.offsetLeft + b.offsetWidth > r.scrollLeft + r.clientWidth || b.offsetLeft < r.scrollLeft)) r.scrollLeft = b.offsetLeft - 8; });
 }
-function goHome(){ screen="home"; L=null; overlay=null; render(); window.scrollTo(0,0); }
+function goHome(){ stBrowse = false; screen="home"; L=null; overlay=null; render(); window.scrollTo(0,0); }
 // Trykk utenfor en meny/dialog (på det mørke bakteppet) lukker den – bare når trykket både starter og slutter utenfor.
 let scrimDown = false;
 document.addEventListener("pointerdown", e=>{ scrimDown = !!(e.target.classList && e.target.classList.contains("scrim")); }, true);
@@ -1042,7 +1044,7 @@ document.addEventListener("click", async e=>{
   if(grClick(a, b)) return; // grupper (handlinger som starter med "gr")
   if(studyClick(a, b)) return; // studier (studies.js)
   if(pfClick(a, b)) return; // bevis (proofs.js)
-  if(snEntryClick(a) || snClick(a, b) || spClick(a, b)) return; // snacks og lynrunde (snacks.js)
+  if(snEntryClick(a) || snClick(a, b) || spClick(a, b) || gmClick(a, b)) return; // snacks og lynrunde (snacks.js)
   if(adminClick(a, b)) return; // adminpanel og kunngjøringer (admin.js)
   if(psClick(a, b)) return; // profilsiden til andre + hvilke merker du viser (person.js)
   if(friendsClick(a, b)) return; // venner (handlinger som starter med "fr")

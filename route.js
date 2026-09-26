@@ -6,7 +6,7 @@
 //  Ord på norsk eller engelsk etter språket; begge forstås når adressen leses.
 // ============================================================
 const RT = { practice: ["ov", "practice"], book: ["teori", "theory"], friends: ["venner", "friends"], profile: ["profil", "profile"], badges: ["merker", "badges"],
-  settings: ["innstillinger", "settings"], community: ["fellesskap", "community"], pick: ["fag", "courses"], groups: ["grupper", "groups"], theory: ["les", "read"], guided: ["steg", "steps"], topic: ["emne", "topic"], proofs: ["bevis", "proofs"], snacks: ["snacks", "snacks"], sprint: ["lynrunde", "sprint"], sheet: ["formler", "formulas"], person: ["person", "person"], admin: ["admin", "admin"] };
+  settings: ["innstillinger", "settings"], community: ["fellesskap", "community"], pick: ["fag", "courses"], groups: ["grupper", "groups"], theory: ["les", "read"], guided: ["steg", "steps"], topic: ["emne", "topic"], proofs: ["bevis", "proofs"], snacks: ["snacks", "snacks"], sprint: ["lynrunde", "sprint"], match: ["parjakt", "match"], truefalse: ["santusant", "truefalse"], sheet: ["formler", "formulas"], person: ["person", "person"], admin: ["admin", "admin"] };
 const rtW = k => RT[k][LANG === "en" ? 1 : 0];
 const rtKey = w => Object.keys(RT).find(k => RT[k].includes(String(w || "").toLowerCase()));
 const rtCourse = code => COURSES.some(c => c.code === code) ? code : null;
@@ -27,7 +27,7 @@ function routeOf(){
       return rtW("book");
     case "theory": return TH ? [rtW("theory"), TH.code, TH.u + 1].join("/") : "";
     case "proofs": return rtW("proofs");
-    case "snacks": case "sprint": return rtW(screen);
+    case "snacks": case "sprint": case "match": case "truefalse": return rtW(screen);
     case "guided": return GD ? (GD.proof ? [rtW("proofs"), GD.proof, GD.i + 1].join("/") : [rtW("guided"), GD.code, GD.u + 1, GD.i + 1].join("/")) : null; // steg for steg, med kortnummer
     default: return null;
   }
@@ -68,6 +68,8 @@ function routeBoot(){
   }
   if(k === "snacks"){ SN = null; screen = "snacks"; return true; }
   if(k === "sprint"){ SP = null; screen = "sprint"; return true; }
+  if(k === "match"){ MT = null; screen = "match"; return true; }
+  if(k === "truefalse"){ TF = null; screen = "truefalse"; return true; }
   if(k === "proofs"){ // #/bevis eller #/bevis/deriv/2
     if(p[1] && typeof pfById === "function" && pfById(p[1])){ pfOpen(p[1], "proofs"); const i = parseInt(p[2], 10) - 1; if(GD && Number.isInteger(i) && i > 0 && i < GD.cards.length - 1) GD.i = i; return true; }
     screen = "proofs"; return true;

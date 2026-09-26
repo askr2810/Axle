@@ -42,11 +42,15 @@ function studyNeedsAsk(){
   return true;
 }
 // Faner øverst i fag- og teorilista: bytt hvilket studie du ser på.
+// Studiet byttes sjelden, så fanene vises bare når man ber om å se andre studier (lenke nederst i lista) eller allerede ser på et annet.
+let stBrowse = false;
 function studyTabsHTML(){
   const v = viewStudy(), fav = curStudy();
+  if(!stBrowse && v === fav) return "";
   return `<div class="study-tabs" role="tablist">${STUDIES.map(s => `<button role="tab" aria-selected="${s.id === v}" class="${s.id === v ? "on" : ""}" data-a="studyview" data-s="${s.id}"><span aria-hidden="true">${s.ic}</span>${esc(s.tab ? T(...s.tab) : studyName(s))}${s.id === fav ? `<i class="study-star" aria-label="${esc(t("stMine"))}">★</i>` : ""}</button>`).join("")}</div>
     ${v !== fav ? `<div class="study-note"><span>${esc(t("stViewing", studyName(STUDY(v))))}</span><button class="exlink" data-a="studyfav" data-s="${v}">★ ${esc(t("stMakeMine"))}</button></div>` : ""}`;
 }
+function studyMoreHTML(){ return stBrowse || viewStudy() !== curStudy() ? "" : `<button class="exlink st-more" data-a="studybrowse">🔎 ${esc(t("stBrowse"))}</button>`; }
 // Velg studie: første gang (uten lukkeknapp) og fra Innstillinger.
 function studyPickHTML(first){
   return `<div class="dialog pop studypick" role="dialog" aria-label="${esc(t("stTitle"))}">
@@ -58,9 +62,10 @@ function studyPickHTML(first){
 function studyClick(a, b){
   if(!a.startsWith("study")) return false;
   if(a === "studyopen"){ overlay = { studypick: 1 }; renderOverlay(); }
+  else if(a === "studybrowse"){ stBrowse = true; render(); window.scrollTo(0, 0); }
   else if(a === "studyset"){ const first = !S.studySet; setStudy(b.dataset.s); overlay = null; renderOverlay(); toast(t("stSet", studyName(STUDY(b.dataset.s)))); goHome(); if(first) setTimeout(bootPrompts, 400); }
   else if(a === "studyview"){ S.pickStudy = b.dataset.s === curStudy() ? null : b.dataset.s; saveLocal(); render(); }
-  else if(a === "studyfav"){ setStudy(b.dataset.s); toast(t("stSet", studyName(STUDY(b.dataset.s)))); render(); }
+  else if(a === "studyfav"){ stBrowse = false; setStudy(b.dataset.s); toast(t("stSet", studyName(STUDY(b.dataset.s)))); render(); }
   else return false;
   return true;
 }
