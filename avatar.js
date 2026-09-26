@@ -313,7 +313,7 @@ function avatarClick(a, b){
   else if(a === "avtab"){ AVE.tab = AVE_LAST_TAB = b.dataset.t; aveUpdate(); b.scrollIntoView({ block: "nearest", inline: "center", behavior: "smooth" }); }
   else if(a === "avset"){ const o = avParse(AVE.code); o[AVE.tab] = +b.dataset.i; AVE.code = avCode(o); aveUpdate(); }
   else if(a === "avrandom"){ AVE.code = avRandom(); aveUpdate(); }
-  else if(a === "avlocked"){ const pet = PETS.find(p => p[0] === +b.dataset.i); if(pet) toast((pet[2] ? "🤫 " : "🔒 ") + T(pet[4], pet[5])); }
+  else if(a === "avlocked"){ const pet = PETS.find(p => p[0] === +b.dataset.i); if(pet) toast((pet[2] ? "🤫 " : "🔒 ") + (pet[1] === "rainbow" ? `🎨 ${Math.min(avColors(avParse(AVE.code)), RAINBOW_N)} / ${RAINBOW_N}` : T(pet[4], pet[5]))); } // regnbue: vis hvor mange farger du har nå
   else if(a === "avpreview"){ AVE.taps = (AVE.taps || 0) + 1; const el = document.querySelector(".ave-prev"); if(el){ el.classList.remove("wob"); void el.offsetWidth; el.classList.add("wob"); }
     if(AVE.taps >= 7 && !(S.unlocks || {}).ufo){ S.stats ||= {}; S.stats.ufo = 1; checkUnlocks(); aveUpdate(); } }
   else if(a === "avcropsave") cropSave();

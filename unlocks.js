@@ -3,20 +3,25 @@
 //  Noen er synlige belønninger (fullførte emner, rekke, kroner), andre er hemmelige påskeegg.
 //  Opplåste ting lagres i S.unlocks { id: tidspunkt } og beholdes selv om betingelsen ikke lenger gjelder.
 // ============================================================
-// Fargefamilier for påskeegget «Regnbue»: bruk minst fem forskjellige farger i avataren.
+// Fargefamilier for påskeegget «Regnbue»: bruk minst fire forskjellige farger i avataren
+// (hår, klær, bakgrunn, briller, øyne, hodeplagg, antrekk og smykker teller).
 const AV_FAM = {
   hc: { 3: "gul", 4: "rød", 6: "blå", 7: "rosa", 9: "grønn", 10: "lilla" },
   sh: { 0: "blå", 1: "turkis", 2: "lilla", 3: "gul", 4: "rød", 5: "grønn", 7: "rosa" },
   bg: { 0: "blå", 1: "grønn", 2: "gul", 3: "rosa", 4: "lilla", 5: "turkis" },
-  g: { 7: "blå", 8: "rosa" }, e: { 5: "gul" }
+  g: { 7: "blå", 8: "rosa" }, e: { 5: "gul" },
+  a: { 2: "gul", 4: "blå", 6: "gul" },            // hjelm, vernebriller, krone
+  o: { 5: "rød", 6: "gul", 7: "gul" },            // superhelt, hawaiiskjorte, refleksvest
+  x: { 2: "gul", 6: "blå" }                       // gullkjede, dråpeøredobber
 };
+const RAINBOW_N = 4;
 function avColors(o){ const f = new Set(); for(const k in AV_FAM){ const x = AV_FAM[k][o[k]]; if(x) f.add(x); } return f.size; }
 function groupDone(g){ return COURSES.some(c => c.group === g && (() => { const p = courseProgress(c); return p.tot > 0 && p.d === p.tot; })()); }
 function coursesDone(){ return COURSES.filter(c => { const p = courseProgress(c); return p.tot > 0 && p.d === p.tot; }).length; }
 // [indeks i AV_NAMES.p, id, hemmelig?, sjekk(o = avatar som vises i byggeren), hint nb, hint en]
 // Hemmelige påskeegg har bare en kort kode som hint – man må prøve seg fram.
 const PETS = [
-  [1, "rainbow", true, o => avColors(o) >= 5, "🎨 ≥ 5", "🎨 ≥ 5"],
+  [1, "rainbow", true, o => avColors(o) >= RAINBOW_N, "🎨 ≥ 4", "🎨 ≥ 4"],
   [2, "lizard", true, o => o.hc === 9 && o.sh === 5 && o.bg === 1, "H10 · K6 · B2", "H10 · C6 · B2"],
   [3, "gear", false, () => groupDone("Mekanikk og konstruksjon"), "Fullfør et emne i Mekanikk og konstruksjon.", "Complete a course in Mechanics and Design."],
   [4, "spark", false, () => groupDone("Elektro og automasjon"), "Fullfør et emne i Elektro og automasjon.", "Complete a course in Electrical and Automation."],
