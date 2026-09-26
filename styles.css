@@ -1520,3 +1520,5 @@ textarea.fbtext{width:100%;font:13px/1.4 var(--mono,monospace);border-radius:12p
 .sp-row{display:flex;align-items:center;justify-content:space-between;margin-top:8px;font-weight:800}.sp-pts{font-size:20px}
 .sp-q{padding-top:18px;display:grid;gap:14px}.sp-q.shake{animation:gdShake .3s}
 @media (prefers-reduced-motion: reduce){.sn-tile::after,.sn-hint{animation:none}.sn-face{transition:none}}
+
+.sn-krow{margin:0 0 4px}.gd-q .krow{margin:0 0 10px}.gd-q .krow .gd-qh{margin:0}

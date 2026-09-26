@@ -51,7 +51,7 @@ const snTag = card => card.code ? `<span class="sn-tag">${esc(courseShort(COURSE
 function snCardInner(card, i){
   if(card.kind === "q"){
     const it = card.it;
-    return `${snTag(card)}<div class="sn-kicker">❓ ${esc(t("snQ"))}</div><div class="sn-prompt">${rich(it.prompt)}</div><div class="opts sn-opts">` +
+    return `${snTag(card)}<div class="krow sn-krow"><div class="sn-kicker">❓ ${esc(t("snQ"))}</div><button class="kbtn" data-a="scratch" data-c="${i}">${I.pencil}${t("scratch")}</button></div><div class="sn-prompt">${rich(it.prompt)}</div><div class="opts sn-opts">` +
       it.opts.map((o, j) => { const w = card.wrong.includes(j), show = card.done && o.ok;
         return `<button class="opt ${show ? "right" : w ? "wrong" : ""}" data-a="snans" data-c="${i}" data-i="${j}" ${card.done || w ? "disabled" : ""}><span class="k">${"ABCD"[j] || j + 1}</span><span>${rich(o.t)}</span></button>`; }).join("") +
       `</div>${card.done ? `<div class="sn-expl ${card.wrong.length ? "bad" : "ok"}"><b>${esc(card.wrong.length ? t("snAlmost") : pickLine(t("snYes")))}</b>${it.expl ? " " + rich(it.expl) : ""}</div>` : ""}`;
@@ -113,7 +113,7 @@ function spNext(){
   for(let k = 0; k < 10 && !q; k++){ const c = snRand(courses), cand = Math.random() < 0.3 ? snFlash() : snQuestion(c);
     if(cand && cand.kind === "flash"){ const d = DRILL.find(x => "dr:" + x[0] === cand.it.id); if(d) q = { it: drItem(d, false) }; }
     else if(cand && String(cand.it.prompt).length < 260) q = { it: cand.it, code: cand.code }; }
-  SP.it = q ? q.it : null; SP.answered = null;
+  SP.it = q ? q.it : null; SP.answered = null; SP.scratch = null;
 }
 function spOpen(){ SP = { end: 0, score: 0, combo: 0, best: ((S.sprintBest || {})[curStudy()]) || 0, started: false, done: false }; overlay = null; screen = "sprint"; render(); }
 function spStart(){ SP.started = true; SP.end = Date.now() + SP_SECS * 1000; spNext(); render(); clearInterval(SP.timer);
@@ -145,7 +145,7 @@ function renderSprint(){
   const it = SP.it, left = Math.max(0, SP.end - Date.now());
   $app.innerHTML = `<div class="sp-top"><div class="sp-track"><i id="spbar" style="width:${left / (SP_SECS * 10)}%"></i></div>
       <div class="sp-row"><span class="sp-sec">⏱ <b id="spsec">${Math.ceil(left / 1000)}</b></span><span class="sp-pts">${SP.score} ${esc(t("spPts"))}</span><span class="sn-combo ${SP.combo >= 3 ? "hot" : ""}">${I.fire}<b>${SP.combo}</b></span></div></div>
-    <main class="wrap sp-q ${SP.answered === false ? "shake" : ""}">${it ? `<div class="sn-prompt">${rich(it.prompt)}</div><div class="opts sn-opts">` +
+    <main class="wrap sp-q ${SP.answered === false ? "shake" : ""}">${it ? `<div class="krow"><span></span><button class="kbtn" data-a="scratch">${I.pencil}${t("scratch")}</button></div><div class="sn-prompt">${rich(it.prompt)}</div><div class="opts sn-opts">` +
       it.opts.map((o, j) => `<button class="opt ${SP.answered != null && o.ok ? "right" : SP.answered === false && SP.pick === j ? "wrong" : ""}" data-a="spans" data-i="${j}" ${SP.answered != null ? "disabled" : ""}><span class="k">${"ABCD"[j] || j + 1}</span><span>${rich(o.t)}</span></button>`).join("") + `</div>` : `<p>${esc(t("stNoTheory"))}</p>`}</main>`;
 }
 function spClick(a, b){

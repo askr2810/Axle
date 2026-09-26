@@ -624,6 +624,10 @@ const INKS = ["--ink","--accent","--bad"];
 // answered = svaret er låst, setAnswer = «Bruk som svar».
 function scHost(){
   if(screen==="exam" && S.examRun) return examScHost();
+  const none = () => {};
+  if(screen==="snacks" && SN){ const c = SN.cards[SN.scCard] || SN.cards[0]; return { item: c.it || {}, scratchObj: c, answered: !!c.done, setAnswer: none }; }
+  if(screen==="sprint" && SP) return { item: SP.it || {}, scratchObj: SP, answered: SP.answered != null, setAnswer: none };
+  if(screen==="guided" && GD){ const c = GD.cards[GD.i]; return { item: c.it || {}, scratchObj: c, answered: !!c.done, setAnswer: none }; }
   return { item: L.queue[0], scratchObj: L, answered: L.answered, setAnswer: v => { L.input = v; } };
 }
 function scratchState(){
@@ -1135,8 +1139,8 @@ document.addEventListener("click", async e=>{
     overlay = null; renderOverlay(); sendFeedback(p);
   }
   // kladd
-  else if(a==="scratch"){ overlay={scratch:true}; renderOverlay(); }
-  else if(a==="scclose"){ overlay=null; renderOverlay(); render(); }
+  else if(a==="scratch"){ if(SN && b.dataset.c != null) SN.scCard = +b.dataset.c; overlay={scratch:true}; renderOverlay(); }
+  else if(a==="scclose"){ overlay=null; renderOverlay(); if(screen==="lesson"||screen==="exam") render(); }
   else if(a==="scinput"){ S.scInput = b.dataset.m; save(); renderOverlay(); toast(t("scInTip_"+scMode())); }
   else if(a==="sctab"){ scratchState().tab = b.dataset.t; renderOverlay(); }
   else if(a==="sctool"){ scratchState().tool = b.dataset.t; document.querySelectorAll('[data-a="sctool"]').forEach(x=>x.classList.toggle("on", x.dataset.t===b.dataset.t)); }
