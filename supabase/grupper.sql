@@ -82,6 +82,20 @@ create index if not exists group_members_user_idx on public.group_members (user_
 alter table public.groups add column if not exists max_members integer not null default 50 check (max_members between 2 and 50);
 alter table public.groups add column if not exists invite_policy text not null default 'all' check (invite_policy in ('all', 'owner'));
 alter table public.groups add column if not exists link_enabled boolean not null default true;
+-- Privat (bare invitasjon/lenke) eller åpen (kan finnes og bli med direkte). Roller: eier (groups.owner), admin, medlem.
+alter table public.groups add column if not exists visibility text not null default 'private' check (visibility in ('private', 'open'));
+alter table public.group_members add column if not exists role text not null default 'member' check (role in ('member', 'admin'));
+alter table public.groups drop constraint if exists groups_invite_policy_check;
+update public.groups set invite_policy = 'admins' where invite_policy = 'owner';
+alter table public.groups add constraint groups_invite_policy_check check (invite_policy in ('all', 'admins'));
+-- Kastet ut av en åpen gruppe: kan ikke bli med igjen på egen hånd (bare via ny invitasjon).
+create table if not exists public.group_bans (
+  group_id uuid not null references public.groups (id) on delete cascade,
+  user_id  uuid not null references auth.users (id) on delete cascade,
+  primary key (group_id, user_id)
+);
+alter table public.group_bans enable row level security;
+revoke all on public.group_bans from anon, authenticated;
 alter table public.groups enable row level security;
 alter table public.group_members enable row level security;
 revoke all on public.groups, public.group_members from anon, authenticated; -- alt går via funksjonene under
@@ -90,11 +104,18 @@ create or replace function public.is_group_member(gid uuid)
 returns boolean language sql stable security definer set search_path = ''
 as $$ select exists (select 1 from public.group_members m where m.group_id = gid and m.user_id = auth.uid()); $$;
 
+-- Eier eller admin i gruppa.
+create or replace function public.is_group_admin(gid uuid)
+returns boolean language sql stable security definer set search_path = ''
+as $$ select exists (select 1 from public.groups g where g.id = gid and g.owner = auth.uid())
+          or exists (select 1 from public.group_members m where m.group_id = gid and m.user_id = auth.uid() and m.role = 'admin'); $$;
+
 create or replace function public.group_code_norm(c text)
 returns text language sql immutable set search_path = ''
 as $$ select upper(regexp_replace(coalesce(c, ''), '[^A-Za-z0-9]', '', 'g')); $$;
 
-create or replace function public.create_group(p_name text, p_emoji text)
+drop function if exists public.create_group(text, text);
+create or replace function public.create_group(p_name text, p_emoji text, p_open boolean default false)
 returns uuid
 language plpgsql
 security definer
@@ -108,7 +129,7 @@ begin
   if not public.is_clean(p_name) then raise exception 'bad_word'; end if;
   if (select count(*) from public.group_members where user_id = me) >= 10 then raise exception 'too_many_groups'; end if;
   if (select count(*) from public.groups where owner = me and created_at > now() - interval '1 day') >= 5 then raise exception 'too_many'; end if;
-  insert into public.groups (name, emoji, owner) values (btrim(p_name), coalesce(nullif(left(btrim(coalesce(p_emoji, '')), 8), ''), '👥'), me) returning id into gid;
+  insert into public.groups (name, emoji, owner, visibility) values (btrim(p_name), coalesce(nullif(left(btrim(coalesce(p_emoji, '')), 8), ''), '👥'), me, case when p_open then 'open' else 'private' end) returning id into gid;
   insert into public.group_members (group_id, user_id) values (gid, me);
   return gid;
 end;
@@ -127,7 +148,8 @@ begin
   select * into g from public.groups where code = public.group_code_norm(p_code);
   if g.id is null then raise exception 'not_found'; end if;
   if not exists (select 1 from public.group_members where group_id = g.id and user_id = me) then
-    if not g.link_enabled then raise exception 'link_off'; end if;
+    if not g.link_enabled and g.visibility <> 'open' then raise exception 'link_off'; end if;
+    if exists (select 1 from public.group_bans b where b.group_id = g.id and b.user_id = me) then raise exception 'banned'; end if;
     if (select count(*) from public.group_members where user_id = me) >= 10 then raise exception 'too_many_groups'; end if;
     if (select count(*) from public.group_members where group_id = g.id) >= g.max_members then raise exception 'group_full'; end if;
     insert into public.group_members (group_id, user_id) values (g.id, me);
@@ -150,8 +172,9 @@ begin
   delete from public.group_members where group_id = gid and user_id = me;
   if not exists (select 1 from public.group_members where group_id = gid) then delete from public.groups where id = gid; return; end if;
   if (select owner from public.groups where id = gid) = me then
-    select user_id into nxt from public.group_members where group_id = gid order by joined_at limit 1;
+    select user_id into nxt from public.group_members where group_id = gid order by (role = 'admin') desc, joined_at limit 1;
     update public.groups set owner = nxt where id = gid;
+    update public.group_members set role = 'member' where group_id = gid and user_id = nxt;
   end if;
 end;
 $$;
@@ -179,11 +202,29 @@ language plpgsql
 security definer
 set search_path = ''
 as $$
-declare me uuid := auth.uid();
+declare me uuid := auth.uid(); own uuid := (select owner from public.groups where id = gid);
 begin
-  if me is null or (select owner from public.groups where id = gid) is distinct from me then raise exception 'not_owner'; end if;
+  if me is null or not public.is_group_admin(gid) then raise exception 'not_admin'; end if;
   if uid = me then raise exception 'use_leave'; end if;
+  if uid = own then raise exception 'not_allowed'; end if;
+  if me <> own and exists (select 1 from public.group_members where group_id = gid and user_id = uid and role = 'admin') then raise exception 'not_allowed'; end if;
   delete from public.group_members where group_id = gid and user_id = uid;
+  delete from public.group_invites where group_id = gid and user_id = uid;
+  if (select visibility from public.groups where id = gid) = 'open' then insert into public.group_bans (group_id, user_id) values (gid, uid) on conflict do nothing; end if;
+end;
+$$;
+
+-- Eieren gjør et medlem til admin eller tilbake til vanlig medlem.
+create or replace function public.set_group_role(gid uuid, uid uuid, p_role text)
+returns void
+language plpgsql
+security definer
+set search_path = ''
+as $$
+begin
+  if auth.uid() is null or (select owner from public.groups where id = gid) is distinct from auth.uid() then raise exception 'not_owner'; end if;
+  if p_role not in ('member', 'admin') then raise exception 'bad_role'; end if;
+  update public.group_members set role = p_role where group_id = gid and user_id = uid;
 end;
 $$;
 
@@ -199,7 +240,8 @@ begin
 end;
 $$;
 
-create or replace function public.update_group_settings(gid uuid, p_max integer, p_policy text, p_link boolean)
+drop function if exists public.update_group_settings(uuid, integer, text, boolean);
+create or replace function public.update_group_settings(gid uuid, p_max integer, p_policy text, p_link boolean, p_open boolean default null)
 returns void
 language plpgsql
 security definer
@@ -210,24 +252,28 @@ begin
   if me is null or (select owner from public.groups where id = gid) is distinct from me then raise exception 'not_owner'; end if;
   if p_max is null or p_max not between 2 and 50 then raise exception 'bad_max'; end if;
   if p_max < (select count(*) from public.group_members where group_id = gid) then raise exception 'below_members'; end if;
-  if p_policy not in ('all', 'owner') then raise exception 'bad_policy'; end if;
-  update public.groups set max_members = p_max, invite_policy = p_policy, link_enabled = coalesce(p_link, true) where id = gid;
+  if p_policy = 'owner' then p_policy := 'admins'; end if;
+  if p_policy not in ('all', 'admins') then raise exception 'bad_policy'; end if;
+  update public.groups set max_members = p_max, invite_policy = p_policy, link_enabled = coalesce(p_link, true),
+         visibility = case when p_open is null then visibility when p_open then 'open' else 'private' end where id = gid;
 end;
 $$;
-revoke all on function public.update_group_settings(uuid, integer, text, boolean) from public, anon;
-grant execute on function public.update_group_settings(uuid, integer, text, boolean) to authenticated;
+revoke all on function public.update_group_settings(uuid, integer, text, boolean, boolean) from public, anon;
+grant execute on function public.update_group_settings(uuid, integer, text, boolean, boolean) to authenticated;
 
 -- Gruppene mine, med antall medlemmer og samlet XP denne uka (week_key sammenlignes i appen).
 drop function if exists public.list_my_groups();
 create function public.list_my_groups()
-returns table (id uuid, name text, emoji text, code text, is_owner boolean, members integer, created_at timestamptz, max_members integer, invite_policy text, link_enabled boolean)
+returns table (id uuid, name text, emoji text, code text, is_owner boolean, members integer, created_at timestamptz, max_members integer, invite_policy text, link_enabled boolean, visibility text, my_role text)
 language sql
 stable
 security definer
 set search_path = ''
 as $$
-  select g.id, g.name, g.emoji, case when g.link_enabled and (g.invite_policy = 'all' or g.owner = auth.uid()) then g.code end,
-         g.owner = auth.uid(), (select count(*)::int from public.group_members m2 where m2.group_id = g.id), g.created_at, g.max_members, g.invite_policy, g.link_enabled
+  select g.id, g.name, g.emoji,
+         case when (g.link_enabled or g.visibility = 'open') and (g.invite_policy = 'all' or g.owner = auth.uid() or m.role = 'admin') then g.code end,
+         g.owner = auth.uid(), (select count(*)::int from public.group_members m2 where m2.group_id = g.id), g.created_at, g.max_members, g.invite_policy, g.link_enabled,
+         g.visibility, case when g.owner = auth.uid() then 'owner' else m.role end
   from public.groups g join public.group_members m on m.group_id = g.id and m.user_id = auth.uid()
   order by g.created_at;
 $$;
@@ -238,7 +284,7 @@ create function public.get_group(gid uuid)
 returns table (
   user_id uuid, display_name text, username text, xp integer, streak integer, streak_last text,
   week_xp integer, week_key text, crowns integer, levels integer, course text, avatar text, photo text, prev_week_xp integer, prev_week_key text,
-  updated_at timestamptz, is_me boolean, is_owner boolean, is_friend boolean
+  updated_at timestamptz, is_me boolean, is_owner boolean, is_friend boolean, role text
 )
 language sql
 stable
@@ -247,7 +293,8 @@ set search_path = ''
 as $$
   select p.user_id, p.display_name, p.username, p.xp, p.streak, p.streak_last, p.week_xp, p.week_key, p.crowns, p.levels, p.course, p.avatar, p.photo,
          p.prev_week_xp, p.prev_week_key, p.updated_at, p.user_id = auth.uid(), p.user_id = g.owner,
-         exists (select 1 from public.friendships f where f.user_id = auth.uid() and f.friend_id = p.user_id)
+         exists (select 1 from public.friendships f where f.user_id = auth.uid() and f.friend_id = p.user_id),
+         case when p.user_id = g.owner then 'owner' else m.role end
   from public.group_members m join public.groups g on g.id = m.group_id join public.profiles p on p.user_id = m.user_id
   where m.group_id = gid and public.is_group_member(gid)
     and (p.user_id = auth.uid() or not public.is_blocked_between(auth.uid(), p.user_id));
@@ -263,8 +310,55 @@ security definer
 set search_path = ''
 as $$
   select g.id, g.name, g.emoji, (select count(*)::int from public.group_members m where m.group_id = g.id), public.is_group_member(g.id), g.max_members
-  from public.groups g where auth.uid() is not null and g.code = public.group_code_norm(p_code) and (g.link_enabled or public.is_group_member(g.id));
+  from public.groups g where auth.uid() is not null and g.code = public.group_code_norm(p_code) and (g.link_enabled or g.visibility = 'open' or public.is_group_member(g.id));
 $$;
+
+-- Åpne grupper: finn og bli med direkte.
+drop function if exists public.list_open_groups(text);
+create function public.list_open_groups(q text)
+returns table (id uuid, name text, emoji text, members integer, max_members integer, is_member boolean)
+language sql
+stable
+security definer
+set search_path = ''
+as $$
+  select g.id, g.name, g.emoji, (select count(*)::int from public.group_members m where m.group_id = g.id), g.max_members, public.is_group_member(g.id)
+  from public.groups g
+  where auth.uid() is not null and g.visibility = 'open'
+    and not public.is_blocked_between(auth.uid(), g.owner)
+    and not exists (select 1 from public.group_bans b where b.group_id = g.id and b.user_id = auth.uid())
+    and (coalesce(btrim(q), '') = '' or g.name ilike '%' || btrim(q) || '%')
+  order by (select count(*) from public.group_members m where m.group_id = g.id) desc, g.created_at desc
+  limit 40;
+$$;
+create or replace function public.join_open_group(gid uuid)
+returns void
+language plpgsql
+security definer
+set search_path = ''
+as $$
+declare me uuid := auth.uid(); g public.groups;
+begin
+  if me is null then raise exception 'not_logged_in'; end if;
+  if not exists (select 1 from public.profiles where user_id = me) then raise exception 'no_profile'; end if;
+  select * into g from public.groups where id = gid;
+  if g.id is null or g.visibility <> 'open' then raise exception 'not_found'; end if;
+  if exists (select 1 from public.group_bans b where b.group_id = gid and b.user_id = me) then raise exception 'banned'; end if;
+  if exists (select 1 from public.group_members where group_id = gid and user_id = me) then return; end if;
+  if (select count(*) from public.group_members where user_id = me) >= 10 then raise exception 'too_many_groups'; end if;
+  if (select count(*) from public.group_members where group_id = gid) >= g.max_members then raise exception 'group_full'; end if;
+  insert into public.group_members (group_id, user_id) values (gid, me);
+  delete from public.group_invites where group_id = gid and user_id = me;
+end;
+$$;
+revoke all on function public.is_group_admin(uuid)                  from public, anon;
+revoke all on function public.set_group_role(uuid, uuid, text)      from public, anon;
+revoke all on function public.list_open_groups(text)                from public, anon;
+revoke all on function public.join_open_group(uuid)                 from public, anon;
+grant execute on function public.is_group_admin(uuid)               to authenticated;
+grant execute on function public.set_group_role(uuid, uuid, text)   to authenticated;
+grant execute on function public.list_open_groups(text)             to authenticated;
+grant execute on function public.join_open_group(uuid)              to authenticated;
 
 -- ============================================================
 --  2b) Invitere venner direkte (uten lenke). Vennen godtar med ett trykk i appen.
@@ -309,7 +403,8 @@ declare me uuid := auth.uid(); n int;
 begin
   if me is null then raise exception 'not_logged_in'; end if;
   if not public.is_group_member(gid) then raise exception 'not_member'; end if;
-  if (select invite_policy from public.groups where id = gid) = 'owner' and (select owner from public.groups where id = gid) <> me then raise exception 'owner_only'; end if;
+  if (select invite_policy from public.groups where id = gid) <> 'all' and not public.is_group_admin(gid) then raise exception 'owner_only'; end if;
+  delete from public.group_bans b where b.group_id = gid and b.user_id = any (uids); -- en ny invitasjon opphever utestengning
   if (select count(*) from public.group_members where group_id = gid) >= (select max_members from public.groups where id = gid) then raise exception 'group_full'; end if;
   if coalesce(array_length(uids, 1), 0) > 50 then raise exception 'too_many'; end if;
   insert into public.group_invites (group_id, user_id, inviter)
@@ -414,7 +509,7 @@ $$;
 revoke all on function public.get_friend_friends(uuid)                           from public, anon;
 revoke all on function public.get_suggestions()                                  from public, anon;
 revoke all on function public.is_group_member(uuid)                              from public, anon;
-revoke all on function public.create_group(text, text)                           from public, anon;
+revoke all on function public.create_group(text, text, boolean)                  from public, anon;
 revoke all on function public.join_group(text)                                   from public, anon;
 revoke all on function public.leave_group(uuid)                                  from public, anon;
 revoke all on function public.update_group(uuid, text, text, boolean)            from public, anon;
@@ -427,7 +522,7 @@ revoke all on function public.report_content(text, uuid, text, text, text)      
 grant execute on function public.get_friend_friends(uuid)                        to authenticated;
 grant execute on function public.get_suggestions()                               to authenticated;
 grant execute on function public.is_group_member(uuid)                           to authenticated;
-grant execute on function public.create_group(text, text)                        to authenticated;
+grant execute on function public.create_group(text, text, boolean)               to authenticated;
 grant execute on function public.join_group(text)                                to authenticated;
 grant execute on function public.leave_group(uuid)                               to authenticated;
 grant execute on function public.update_group(uuid, text, text, boolean)         to authenticated;

@@ -13,6 +13,8 @@ function grErr(e){
   if(/link_off/.test(m)) return t("grLinkOff");
   if(/owner_only/.test(m)) return t("grOwnerOnly");
   if(/below_members/.test(m)) return t("grBelow");
+  if(/banned/.test(m)) return t("grBanned");
+  if(/not_admin|not_allowed|not_owner/.test(m)) return t("grNotAllowed");
   if(/too_many_groups/.test(m)) return t("grTooMany");
   if(/not_found/.test(m)) return t("grNotFound");
   if(/bad_name/.test(m)) return t("grBadName");
@@ -34,7 +36,9 @@ async function grLoadGroup(id){
 }
 const grOf = id => (GR.list || []).find(g => g.id === id);
 const grMax = g => +g.max_members || 50;
-const grCanInvite = g => g && (g.is_owner || (g.invite_policy || "all") === "all");
+const grRole = g => g ? (g.my_role || (g.is_owner ? "owner" : "member")) : "member";
+const grIsAdmin = g => ["owner", "admin"].includes(grRole(g));
+const grCanInvite = g => g && (grIsAdmin(g) || (g.invite_policy || "all") === "all");
 const grMembersTxt = (n, g) => grMax(g) < 50 ? t("grMembersOf", n, grMax(g)) : t("grMembers", n);
 // Invitasjoner fra venner (vises på Venner og Grupper, og gir prikk på Venner-fanen).
 async function grLoadInvites(){ try{ GR.inv = (await frRpc("get_group_invites")) || []; }catch(e){ GR.inv = []; } renderTabbar(); }
@@ -81,9 +85,9 @@ function grBodyHTML(){
     return GR.err ? `<div class="fr-card"><p>${esc(GR.err)}</p><button class="big" data-a="grreload">${esc(t("frRetry"))}</button></div>` : `<p class="fr-wait">${esc(t("frLoading"))}</p>`;
   }
   const cards = GR.list.map(g => `<button class="gr-item" data-a="gropen" data-id="${esc(g.id)}"><span class="gr-emo">${esc(g.emoji)}</span>
-      <span class="fr-t"><b>${esc(g.name)}</b><span>${esc(grMembersTxt(g.members, g))}${g.is_owner ? " · " + esc(t("grOwner")) : ""}</span></span>${I.chevron}</button>`).join("");
+      <span class="fr-t"><b>${esc(g.name)}</b><span>${esc(grMembersTxt(g.members, g))} · ${esc(t(g.visibility === "open" ? "grOpen" : "grPrivate"))}${grRole(g) !== "member" ? " · " + esc(t("grRole_" + grRole(g))) : ""}</span></span>${I.chevron}</button>`).join("");
   return `${grInvitesHTML()}<div class="fr-card gr-intro"><h2>${esc(t("grTitle"))}</h2><p>${esc(t("grIntro"))}</p>
-      <div class="gr-btns"><button class="big" data-a="grnew">${I.plus}${esc(t("grNew"))}</button><button class="big ghost" data-a="grjoinopen">${esc(t("grJoin"))}</button></div></div>
+      <div class="gr-btns"><button class="big" data-a="grnew">${I.plus}${esc(t("grNew"))}</button><button class="big ghost" data-a="gropenlist">${I.search}${esc(t("grFindOpen"))}</button><button class="big ghost" data-a="grjoinopen">${esc(t("grJoin"))}</button></div></div>
     ${GR.list.length ? `<div class="gr-list">${cards}</div>` : `<p class="fr-hint">${esc(t("grEmpty"))}</p>`}
     ${GR.err ? `<p class="fr-hint">${esc(GR.err)}</p>` : ""}`;
 }
@@ -104,7 +108,7 @@ function grGroupHTML(){
       <button class="big" data-a="grsave" ${GR.busy ? "disabled" : ""}>${esc(t("frSave"))}</button><button class="big ghost" data-a="grcanceledit">${esc(t("cancel"))}</button>
       <button class="exlink" data-a="grnewcode">${esc(t("grNewCode"))}</button></div>` : "";
   return `<button class="exlink gr-back" data-a="grback">${I.left}${esc(t("grBack"))}</button>
-    <div class="fr-card gr-head"><span class="gr-emo big">${esc(g.emoji)}</span><div class="fr-t"><b>${esc(g.name)}</b><span>${esc(grMembersTxt(rows.length, g))}${myRank ? " · " + esc(t("grRank", myRank, rows.length)) : ""}</span></div>
+    <div class="fr-card gr-head"><span class="gr-emo big">${esc(g.emoji)}</span><div class="fr-t"><b>${esc(g.name)} <em class="gr-vis ${g.visibility === "open" ? "open" : ""}">${esc(t(g.visibility === "open" ? "grOpen" : "grPrivate"))}</em></b><span>${esc(grMembersTxt(rows.length, g))}${myRank ? " · " + esc(t("grRank", myRank, rows.length)) : ""}</span></div>
       <button class="fr-more" data-a="grmenu" aria-label="${esc(t("repMore"))}">⋯</button></div>
     ${editCard}
     <div class="fr-card lg"><div class="lg-h"><b>${I.trophyS}${esc(t("grWeek"))}</b><span>${esc(frCountdown())}</span></div><p class="gr-sum">${esc(t("grWeekSum", wk))}</p></div>
@@ -127,6 +131,8 @@ function grNewHTML(o){
   return `<div class="dialog pop gr-dlg" role="dialog" aria-label="${esc(t("grNew"))}"><h3>${esc(t("grNew"))}</h3><p>${esc(t("grNewText"))}</p>
     <div class="gr-emos">${GR_EMOJI.map(x => `<button class="${o.emoji === x ? "on" : ""}" data-a="grnewemoji" data-e="${x}">${x}</button>`).join("")}</div>
     <input type="text" id="grnewname" maxlength="30" placeholder="${esc(t("grNamePh"))}" value="${esc(o.name || "")}">
+    <div class="seg gr-visseg">${["private", "open"].map(k => `<button class="${(o.vis || "private") === k ? "on" : ""}" data-a="grnewvis" data-v="${k}">${esc(t(k === "open" ? "grOpen" : "grPrivate"))}</button>`).join("")}</div>
+    <p class="gr-vishint">${esc(t((o.vis || "private") === "open" ? "grOpenHint" : "grPrivateHint"))}</p>
     ${o.err ? `<p class="lgerr">${esc(o.err)}</p>` : ""}
     <button class="big" data-a="grcreate" ${o.busy ? "disabled" : ""}>${esc(t("grCreate"))}</button><button class="big ghost" data-a="closeov">${esc(t("cancel"))}</button></div>`;
 }
@@ -148,7 +154,9 @@ function grMemberHTML(id){
     <div class="fr-stats">${st(t("frTab_week"), r.week_xp + " XP")}${st(t("frTab_total"), r.xp + " XP")}${st(t("frTab_streak"), r.streak + " " + t("frDays"))}${st(t("frCrowns"), r.crowns)}${st(t("frLevels"), r.levels)}${st(t("frLast"), esc(frAgo(r.updated_at)))}</div>
     ${r.course ? `<p class="fr-now">${esc(t("frNow", frCourseName(r.course)))}</p>` : ""}
     ${r.is_friend ? `<p class="fr-hint">${esc(t("frIsFriend"))}</p>` : sent ? `<p class="fr-hint">${esc(t("frSent"))}</p>` : `<button class="big" data-a="graddfriend" data-id="${esc(id)}" data-n="${esc(r.display_name)}">${I.plus}${esc(t("grAddFriend"))}</button>`}
-    ${g && g.is_owner ? `<button class="big ghost" data-a="grkick" data-id="${esc(id)}" style="color:var(--bad)">${esc(overlay && overlay.confirmKick ? t("grKickSure") : t("grKick"))}</button>` : ""}
+    ${r.role === "owner" || r.role === "admin" ? `<p class="fr-hint">${esc(t("grRole_" + r.role))}</p>` : ""}
+    ${grRole(g) === "owner" && r.role !== "owner" ? `<button class="big ghost" data-a="grrole" data-id="${esc(id)}" data-r="${r.role === "admin" ? "member" : "admin"}">${esc(t(r.role === "admin" ? "grUnAdmin" : "grMakeAdmin"))}</button>` : ""}
+    ${(grRole(g) === "owner" && r.role !== "owner") || (grRole(g) === "admin" && (r.role || "member") === "member") ? `<button class="big ghost" data-a="grkick" data-id="${esc(id)}" style="color:var(--bad)">${esc(overlay && overlay.confirmKick ? t("grKickSure") : t("grKick"))}</button>${g.visibility === "open" ? `<p class="lgnote">${esc(t("grKickOpenNote"))}</p>` : ""}` : ""}
     <button class="big ghost" data-a="closeov">${esc(t("cont"))}</button>
     <button class="exlink fr-repl" data-a="frmod" data-id="${esc(id)}">${I.flag}${esc(t("repOrBlock"))}</button></div>`;
 }
@@ -167,11 +175,39 @@ function grSettingsHTML(o){
   return `<div class="dialog pop gr-set" role="dialog" aria-label="${esc(t("grSettings"))}"><h3>${esc(t("grSettings"))}</h3>
     <div class="srow"><span class="lbl">${esc(t("grSetMax"))}<span class="sub">${esc(t("grSetMaxSub", n))}</span></span>
       <div class="gr-step"><button data-a="grsetmax" data-d="-1" ${o.max <= lo ? "disabled" : ""} aria-label="−">−</button><b>${o.max}</b><button data-a="grsetmax" data-d="1" ${o.max >= 50 ? "disabled" : ""} aria-label="+">+</button></div></div>
-    <div class="srow"><span class="lbl">${esc(t("grSetWho"))}</span><div class="seg">${["all", "owner"].map(k => `<button class="${o.policy === k ? "on" : ""}" data-a="grsetpol" data-m="${k}">${esc(t("grSetWho_" + k))}</button>`).join("")}</div></div>
+    <div class="srow"><span class="lbl">${esc(t("grSetVis"))}<span class="sub">${esc(t(o.open ? "grOpenHint" : "grPrivateHint"))}</span></span><div class="seg">${[false, true].map(k => `<button class="${o.open === k ? "on" : ""}" data-a="grsetvis" data-v="${k ? 1 : 0}">${esc(t(k ? "grOpen" : "grPrivate"))}</button>`).join("")}</div></div>
+    <div class="srow"><span class="lbl">${esc(t("grSetWho"))}</span><div class="seg">${["all", "admins"].map(k => `<button class="${o.policy === k ? "on" : ""}" data-a="grsetpol" data-m="${k}">${esc(t("grSetWho_" + k))}</button>`).join("")}</div></div>
     <div class="srow"><span class="lbl">${esc(t("grSetLink"))}<span class="sub">${esc(t("grSetLinkSub"))}</span></span><button class="tog ${o.link ? "on" : ""}" data-a="grsetlink" role="switch" aria-checked="${o.link}" aria-label="${esc(t("grSetLink"))}"></button></div>
     ${o.err ? `<p class="lgerr">${esc(o.err)}</p>` : ""}
     <button class="big" data-a="grsetsave" ${o.busy ? "disabled" : ""}>${esc(t("frSave"))}</button><button class="big ghost" data-a="closeov">${esc(t("cancel"))}</button></div>`;
 }
+// Åpne grupper: søk og bli med direkte.
+let grOpenTimer = null;
+async function grOpenSearch(q){
+  GR.open.q = q; clearTimeout(grOpenTimer);
+  grOpenTimer = setTimeout(async () => { try{ const rows = (await frRpc("list_open_groups", { q })) || []; if(GR.open.q === q){ GR.open.rows = rows; GR.open.err = null; } }catch(e){ GR.open.rows = []; GR.open.err = grErr(e); }
+    const el = document.getElementById("gropenres"); if(el) el.innerHTML = grOpenRowsHTML(); }, q ? 300 : 0);
+}
+function grOpenRowsHTML(){
+  const o = GR.open || {};
+  if(o.err) return `<p class="fr-hint">${esc(o.err)}</p>`;
+  if(o.rows === null) return `<p class="fr-hint">${esc(t("frSearching"))}</p>`;
+  if(!o.rows.length) return `<p class="fr-hint">${esc(t("grNoOpen"))}</p>`;
+  return o.rows.map(r => `<div class="fr-hit"><span class="gr-emo">${esc(r.emoji)}</span><span class="fr-t"><b>${esc(r.name)}</b><span>${esc(grMembersTxt(r.members, r))}</span></span>
+    ${r.is_member ? `<span class="fr-pill">${esc(t("grIsMember"))}</span>` : r.members >= (+r.max_members || 50) ? `<span class="fr-pill">${esc(t("grFullShort"))}</span>` : `<button class="fr-act" data-a="grjoinopenid" data-id="${esc(r.id)}">${esc(t("grJoinBtn"))}</button>`}</div>`).join("");
+}
+function grOpenHTML(){
+  return `<div class="dialog pop fr-fof gr-openlist" role="dialog" aria-label="${esc(t("grFindOpen"))}"><h3>${esc(t("grFindOpen"))}</h3><p>${esc(t("grFindOpenText"))}</p>
+    <div class="fr-search">${I.search}<input type="search" id="gropenq" autocomplete="off" placeholder="${esc(t("grSearchPh"))}" value="${esc((GR.open || {}).q || "")}"></div>
+    <div class="fr-res" id="gropenres">${grOpenRowsHTML()}</div>
+    <button class="big" data-a="closeov">${esc(t("frDone"))}</button></div>`;
+}
+async function grJoinOpen(id){
+  try{ await frRpc("join_open_group", { gid: id }); buzz(true); const r = (GR.open.rows || []).find(x => x.id === id); toast(t("grJoined", r ? r.name : ""));
+    overlay = null; renderOverlay(); GR.list = null; await grLoadList(); GR.rows = null; GR.cur = id; render(); window.scrollTo(0, 0); }
+  catch(e){ toast(grErr(e)); }
+}
+document.addEventListener("input", e => { if(e.target && e.target.id === "gropenq") grOpenSearch(e.target.value.trim()); });
 function grOverlayHTML(){
   if(overlay.grnew) return grNewHTML(overlay.grnew);
   if(overlay.grjoin) return grJoinHTML(overlay.grjoin);
@@ -179,6 +215,7 @@ function grOverlayHTML(){
   if(overlay.grmenu) return grMenuHTML(overlay.grmenu);
   if(overlay.grfriends) return grFriendsHTML();
   if(overlay.grset) return grSettingsHTML(overlay.grset);
+  if(overlay.gropen) return grOpenHTML();
   return "";
 }
 // ---------- handlinger ----------
@@ -187,7 +224,7 @@ async function grCreate(){
   if(name.length < 2){ o.err = t("grBadName"); renderOverlay(); return; }
   if(!isClean(name)){ o.err = t("frBadWord"); renderOverlay(); return; }
   o.busy = true; o.err = null; renderOverlay();
-  try{ const id = await frRpc("create_group", { p_name: name, p_emoji: o.emoji }); overlay = null; renderOverlay(); buzz(true); toast(t("grCreated", name));
+  try{ const id = await frRpc("create_group", { p_name: name, p_emoji: o.emoji, p_open: o.vis === "open" }); overlay = null; renderOverlay(); buzz(true); toast(t("grCreated", name));
     await grLoadList(); GR.rows = null; GR.cur = id; render(); window.scrollTo(0, 0);
     if((FR.rows || []).some(r => !r.is_me)) grFriendsOpen(); } // rett til «Legg til venner»
   catch(e){ o.busy = false; o.err = grErr(e); renderOverlay(); }
@@ -234,7 +271,12 @@ function grClick(a, b){
   else if(a === "grpeek") grPeek((document.getElementById("grcode") || {}).value || "");
   else if(a === "grjoin") grJoin();
   else if(a === "grfriends") grFriendsOpen();
-  else if(a === "grsetopen"){ if(!g) return true; overlay = { grset: { max: grMax(g), policy: g.invite_policy || "all", link: g.link_enabled !== false } }; renderOverlay(); }
+  else if(a === "grsetopen"){ if(!g) return true; overlay = { grset: { max: grMax(g), policy: g.invite_policy === "all" || !g.invite_policy ? "all" : "admins", link: g.link_enabled !== false, open: g.visibility === "open" } }; renderOverlay(); }
+  else if(a === "grsetvis"){ overlay.grset.open = b.dataset.v === "1"; renderOverlay(); }
+  else if(a === "grnewvis"){ const o = overlay.grnew; o.name = (document.getElementById("grnewname") || {}).value || o.name; o.vis = b.dataset.v; renderOverlay(); }
+  else if(a === "grrole"){ frRpc("set_group_role", { gid: GR.cur, uid: b.dataset.id, p_role: b.dataset.r }).then(() => { overlay = null; renderOverlay(); toast(t(b.dataset.r === "admin" ? "grMadeAdmin" : "grUnAdmined")); grLoadGroup(GR.cur); }, e => toast(grErr(e))); }
+  else if(a === "gropenlist"){ GR.open = { q: "", rows: null }; overlay = { gropen: 1 }; renderOverlay(); grOpenSearch(""); }
+  else if(a === "grjoinopenid"){ grJoinOpen(b.dataset.id); }
   else if(a === "grsetmax"){ // faste trinn, aldri under antall medlemmer nå
     const o = overlay.grset, n = Math.max(2, (GR.rows || []).length), opts = [...new Set([2, 3, 4, 5, 6, 8, 10, 15, 20, 25, 30, 40, 50, n])].filter(x => x >= n).sort((x, y) => x - y);
     const k = opts.findIndex(x => x >= o.max); o.max = opts[Math.min(opts.length - 1, Math.max(0, (k < 0 ? opts.length - 1 : k) + (+b.dataset.d)))]; renderOverlay(); }
@@ -242,7 +284,7 @@ function grClick(a, b){
   else if(a === "grsetlink"){ overlay.grset.link = !overlay.grset.link; renderOverlay(); }
   else if(a === "grsetsave"){
     const o = overlay.grset; o.busy = true; o.err = null; renderOverlay();
-    frRpc("update_group_settings", { gid: GR.cur, p_max: o.max, p_policy: o.policy, p_link: o.link })
+    frRpc("update_group_settings", { gid: GR.cur, p_max: o.max, p_policy: o.policy, p_link: o.link, p_open: o.open })
       .then(async () => { overlay = null; renderOverlay(); toast(t("grSaved")); await grLoadList(); }, e => { o.busy = false; o.err = grErr(e); renderOverlay(); });
   }
   else if(a === "grinv") grInvite([b.dataset.id]);

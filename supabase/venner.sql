@@ -257,8 +257,8 @@ as $$
     select regexp_replace(t, '[^a-zæøå]', '', 'g') as squashed, regexp_replace(t, '[^a-zæøå]+', ' ', 'g') as words from n
   )
   select not (
-    squashed ~ '(fuck|fukk|føkk|cunt|nigg|fagg|retard|hitler|porn|whore|slut|bitch|fitte|jævl|jaevl|pikk|kukk|horunge|motherf|asshole|bastard|wank|dildo|penis|vagina|nazi|kkk)'
-    or (' ' || words || ' ') ~ ' (sex|sexy|dick|cock|pussy|kuk|hore|faen|neger|mongo|rape|shit|tits|anal|cum|piss|homse) '
+    squashed ~ '(fuck|fukk|føkk|cunt|nigg|faggot|retard|hitler|porn|whore|bitch|jævl|jaevl|kukk|horunge|motherf|asshole|wank|dildo|penis|vagina|nazi)'
+    or (' ' || words || ' ') ~ ' (sex|sexy|dick|cock|pussy|kuk|hore|faen|neger|mongo|rape|shit|tits|anal|cum|piss|homse|slut|sluts|fitte|fitta|pikk|pikken|kkk|bastard) '
   ) from s;
 $$;
 

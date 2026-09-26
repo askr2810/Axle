@@ -93,8 +93,8 @@ async function frRemove(uid){
   catch(e){ toast(frErr(e)); }
 }
 // ---------- ordfilter (samme regler som public.is_clean i venner.sql) ----------
-const BAD_SUB = /(fuck|fukk|føkk|cunt|nigg|fagg|retard|hitler|porn|whore|slut|bitch|fitte|jævl|jaevl|pikk|kukk|horunge|motherf|asshole|bastard|wank|dildo|penis|vagina|nazi|kkk)/;
-const BAD_WORD = / (sex|sexy|dick|cock|pussy|kuk|hore|faen|neger|mongo|rape|shit|tits|anal|cum|piss|homse) /;
+const BAD_SUB = /(fuck|fukk|føkk|cunt|nigg|faggot|retard|hitler|porn|whore|bitch|jævl|jaevl|kukk|horunge|motherf|asshole|wank|dildo|penis|vagina|nazi)/;
+const BAD_WORD = / (sex|sexy|dick|cock|pussy|kuk|hore|faen|neger|mongo|rape|shit|tits|anal|cum|piss|homse|slut|sluts|fitte|fitta|pikk|pikken|kkk|bastard) /;
 function isClean(txt){
   const n = String(txt || "").toLowerCase().replace(/[013457@$]/g, c => ({ "0": "o", "1": "i", "3": "e", "4": "a", "5": "s", "7": "t", "@": "a", "$": "s" })[c]);
   return !BAD_SUB.test(n.replace(/[^a-zæøå]/g, "")) && !BAD_WORD.test(" " + n.replace(/[^a-zæøå]+/g, " ") + " ");
@@ -342,12 +342,12 @@ function frBoardHTML(raw, tab, act){
   const podium = rows.length >= 2 ? `<div class="podium">${[1, 0, 2].map(i => { const r = rows[i]; if(!r) return `<div class="pd-col p${i + 1} empty"></div>`;
       return `<button class="pd-col p${i + 1} ${r.is_me ? "me" : ""}" ${click(r)}>
         <span class="pd-av">${i === 0 ? `<span class="pd-crown">${I.crown}</span>` : ""}${frAvatar(r.display_name, i, avOf(r), i === 0 ? 72 : 58, phOf(r))}</span>
-        <b class="pd-name">${esc(r.display_name)}</b><span class="pd-val">${unit(r)}</span>
+        <b class="pd-name">${esc(r.display_name)}</b>${r.is_owner ? `<em class="fr-own pd-role">${esc(t("grOwner"))}</em>` : r.role === "admin" ? `<em class="fr-own adm pd-role">${esc(t("grRole_admin"))}</em>` : ""}<span class="pd-val">${unit(r)}</span>
         <span class="pd-block"><span class="pd-medal">${i + 1}</span></span></button>`; }).join("")}</div>` : "";
   const listRows = rows.length >= 2 ? rows.slice(3) : rows, off = rows.length >= 2 ? 3 : 0;
   const board = listRows.map((r, j) => { const i = j + off; return `<button class="fr-row ${r.is_me ? "me" : ""}" ${click(r)}>
       <span class="fr-rank r${i + 1}">${i + 1}</span>${frAvatar(r.display_name, i, avOf(r), 40, phOf(r))}
-      <span class="fr-t"><b>${esc(r.display_name)}${r.is_me ? ` <em>${esc(t("frYou"))}</em>` : ""}${r.is_owner ? ` <em class="fr-own">${esc(t("grOwner"))}</em>` : ""}</b><span>${esc(frCourseName(r.course))}${r.crowns ? ` · ${r.crowns} ${esc(t("frCrownsShort"))}` : ""}</span></span>
+      <span class="fr-t"><b>${esc(r.display_name)}${r.is_me ? ` <em>${esc(t("frYou"))}</em>` : ""}${r.is_owner ? ` <em class="fr-own">${esc(t("grOwner"))}</em>` : r.role === "admin" ? ` <em class="fr-own adm">${esc(t("grRole_admin"))}</em>` : ""}</b><span>${esc(frCourseName(r.course))}${r.crowns ? ` · ${r.crowns} ${esc(t("frCrownsShort"))}` : ""}</span></span>
       <span class="fr-v">${unit(r)}</span></button>`; }).join("");
   return { rows, podium, board };
 }

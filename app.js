@@ -856,7 +856,7 @@ function renderOverlay(){
         <p class="lgnote">${t("acPrivacyNote")}</p></div>`; }
   else if(overlay.friend) d.innerHTML = frDetailHTML(overlay.friend);
   else if(overlay.frfof) d.innerHTML = frFofHTML();
-  else if(overlay.grnew || overlay.grjoin || overlay.grmember || overlay.grmenu || overlay.grfriends || overlay.grset) d.innerHTML = grOverlayHTML();
+  else if(overlay.grnew || overlay.grjoin || overlay.grmember || overlay.grmenu || overlay.grfriends || overlay.grset || overlay.gropen) d.innerHTML = grOverlayHTML();
   else if(overlay.frmod) d.innerHTML = frModHTML(overlay.frmod);
   else if(overlay.frrep) d.innerHTML = frReportHTML(overlay.frrep);
   else if("frblocks" in overlay) d.innerHTML = frBlocksHTML(overlay.frblocks);
