@@ -9,11 +9,14 @@ const STUDIES = [
     sub: ["Matte, fysikk, mekanikk, elektro, data og mer", "Maths, physics, mechanics, electrical, computing and more"] },
   { id: "syk", nb: "Sykepleie", en: "Nursing", ic: "🩺", home: "SLMR", slug: ["sykepleie", "nursing"],
     sub: ["Legemiddelregning, anatomi, farmakologi og smittevern", "Drug calculations, anatomy, pharmacology and infection control"] },
-  { id: "vgs", nb: "Videregående", en: "Upper secondary", ic: "🎒", home: "VG1T", slug: ["videregaende", "upper-secondary"],
-    sub: ["Studiespesialisering: 1T, R1, R2, S1, S2, fysikk, kjemi og biologi", "General studies: maths 1T, R1, R2, S1, S2, physics, chemistry and biology"] }
+  { id: "vgs", nb: "Videregående", en: "Upper secondary", ic: "🎒", home: "VG1T", tab: ["VGS", "Upper sec."], slug: ["videregaende", "upper-secondary"],
+    sub: ["Studiespesialisering: 1T, R1, R2, S1, S2, fysikk, kjemi og biologi", "General studies: maths 1T, R1, R2, S1, S2, physics, chemistry and biology"] },
+  { id: "oko", nb: "Økonomi og administrasjon", en: "Business and administration", ic: "📊", home: "OBED", tab: ["Økonomi", "Business"], slug: ["okonomi", "business"],
+    sub: ["Bedriftsøkonomi, regnskap, matte, statistikk og samfunnsøkonomi", "Business economics, accounting, maths, statistics and economics"] }
 ];
 // Fag som passer i flere studier (grunnkursene brukes både av ingeniører og på videregående).
 for(const code of ["GMAT", "GFYS"]){ const c = COURSES.find(x => x.code === code); if(c) c.study = ["ing", "vgs"]; }
+{ const c = COURSES.find(x => x.code === "OKON"); if(c) c.study = ["ing", "oko"]; }
 const studiesOf = c => !c ? ["ing"] : Array.isArray(c.study) ? c.study : [c.study || "ing"];
 const studyOf = c => studiesOf(c)[0];
 const inStudy = (c, id) => studiesOf(c).includes(id);
@@ -39,7 +42,7 @@ function studyNeedsAsk(){
 // Faner øverst i fag- og teorilista: bytt hvilket studie du ser på.
 function studyTabsHTML(){
   const v = viewStudy(), fav = curStudy();
-  return `<div class="study-tabs" role="tablist">${STUDIES.map(s => `<button role="tab" aria-selected="${s.id === v}" class="${s.id === v ? "on" : ""}" data-a="studyview" data-s="${s.id}"><span aria-hidden="true">${s.ic}</span>${esc(studyName(s))}${s.id === fav ? `<i class="study-star" aria-label="${esc(t("stMine"))}">★</i>` : ""}</button>`).join("")}</div>
+  return `<div class="study-tabs" role="tablist">${STUDIES.map(s => `<button role="tab" aria-selected="${s.id === v}" class="${s.id === v ? "on" : ""}" data-a="studyview" data-s="${s.id}"><span aria-hidden="true">${s.ic}</span>${esc(s.tab ? T(...s.tab) : studyName(s))}${s.id === fav ? `<i class="study-star" aria-label="${esc(t("stMine"))}">★</i>` : ""}</button>`).join("")}</div>
     ${v !== fav ? `<div class="study-note"><span>${esc(t("stViewing", studyName(STUDY(v))))}</span><button class="exlink" data-a="studyfav" data-s="${v}">★ ${esc(t("stMakeMine"))}</button></div>` : ""}`;
 }
 // Velg studie: første gang (uten lukkeknapp) og fra Innstillinger.

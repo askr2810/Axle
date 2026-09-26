@@ -1009,6 +1009,8 @@ function render(){
   renderTabbar();
   renderOverlay();
   routeSync(); // adressen følger skjermen (route.js)
+  // valgt studie-fane skal alltid synes, også når fanene ikke får plass på en smal skjerm
+  document.querySelectorAll(".study-tabs").forEach(r => { const b = r.querySelector(".on"); if(b && (b.offsetLeft + b.offsetWidth > r.scrollLeft + r.clientWidth || b.offsetLeft < r.scrollLeft)) r.scrollLeft = b.offsetLeft - 8; });
 }
 function goHome(){ screen="home"; L=null; overlay=null; render(); window.scrollTo(0,0); }
 // Trykk utenfor en meny/dialog (på det mørke bakteppet) lukker den – bare når trykket både starter og slutter utenfor.
