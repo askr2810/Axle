@@ -1318,3 +1318,4 @@ a.srow{text-decoration:none;color:inherit}
 .egg-rays{position:absolute;left:50%;top:84px;width:420px;height:420px;margin:-210px 0 0 -210px;z-index:-1;background:repeating-conic-gradient(rgba(179,110,255,.16) 0 10deg,transparent 10deg 20deg);animation:holoSpin 18s linear infinite;border-radius:50%;pointer-events:none}
 @keyframes eggPop{0%{transform:scale(.2) rotate(-25deg);opacity:0}100%{transform:none;opacity:1}}
 @media (prefers-reduced-motion:reduce){.bdg.holo::before,.bdg.holo::after,.egg-rays,.egg-pop .bdg{animation:none}}
+.staff-tag{display:inline-flex;align-items:center;gap:4px;margin-top:4px;padding:3px 10px;border-radius:99px;font-size:12.5px;font-weight:800;color:#fff;background:linear-gradient(90deg,#7B4FD6,#2B59C3);box-shadow:0 2px 0 #4A2E9A}

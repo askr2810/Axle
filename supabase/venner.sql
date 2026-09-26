@@ -542,6 +542,26 @@ grant insert (badges), update (badges) on public.profiles to authenticated;
 alter table public.profiles add column if not exists stats_public boolean not null default false;
 grant insert (stats_public), update (stats_public) on public.profiles to authenticated;
 
+-- ============================================================
+--  Roller: moderator og admin. Settes bare her i SQL Editor (appen kan ikke endre dem), f.eks.:
+--    insert into public.app_roles (user_id, role) select id, 'admin' from auth.users where email = 'navn@eksempel.no'
+--      on conflict (user_id) do update set role = excluded.role;
+--    delete from public.app_roles where user_id = (select id from auth.users where email = 'navn@eksempel.no');
+--  Mod/admin får alle tingene i Samlingen og et merke på profilen.
+-- ============================================================
+create table if not exists public.app_roles (
+  user_id    uuid primary key references auth.users (id) on delete cascade,
+  role       text not null check (role in ('mod', 'admin')),
+  created_at timestamptz not null default now()
+);
+alter table public.app_roles enable row level security;
+revoke all on public.app_roles from anon, authenticated;
+create or replace function public.my_app_role()
+returns text language sql stable security definer set search_path = ''
+as $$ select r.role from public.app_roles r where r.user_id = auth.uid() $$;
+revoke all on function public.my_app_role() from public, anon;
+grant execute on function public.my_app_role() to authenticated;
+
 -- Profilen til en annen bruker. Full statistikk for deg selv, venner og folk du deler gruppe med
 -- (og for alle hvis personen har slått på stats_public); andre ser navn, bilde og merker. Ingenting hvis dere har blokkert hverandre.
 drop function if exists public.get_profile(uuid);
@@ -551,7 +571,7 @@ returns table (
   xp integer, streak integer, streak_last text, week_xp integer, week_key text, prev_week_xp integer, prev_week_key text,
   crowns integer, levels integer, course text, updated_at timestamptz,
   is_me boolean, is_friend boolean, full_access boolean, friends_since timestamptz, friends_public boolean,
-  status text, mutual_friends integer, shared_groups text
+  status text, mutual_friends integer, shared_groups text, app_role text
 )
 language plpgsql
 stable
@@ -583,7 +603,8 @@ begin
               when exists (select 1 from public.friend_requests r where r.from_id = me and r.to_id = uid) then 'sent'
               when exists (select 1 from public.friend_requests r where r.from_id = uid and r.to_id = me) then 'incoming' else 'none' end,
          (select count(*)::int from public.friendships a join public.friendships b on a.friend_id = b.friend_id where a.user_id = me and b.user_id = uid),
-         sg
+         sg,
+         (select r.role from public.app_roles r where r.user_id = p.user_id)
   from public.profiles p where p.user_id = uid;
 end;
 $$;

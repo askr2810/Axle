@@ -40,7 +40,10 @@ const PETS = [
   [15, "ufo", true, () => (S.stats || {}).ufo > 0, "👆 ⁷", "👆 ⁷"],
   [16, "moon", true, () => (S.stats || {}).night > 0, "00 → 04", "00 → 04"]
 ];
-const unlockedPets = () => new Set([0, ...PETS.filter(p => (S.unlocks || {})[p[1]]).map(p => p[0])]);
+// Mod/admin (rolle fra databasen, se app_roles i venner.sql) har alt i Samlingen.
+const isStaff = () => !!AUTH && (S.appRole === "mod" || S.appRole === "admin");
+const staffTag = role => role === "mod" || role === "admin" ? `<span class="staff-tag">🛡️ ${esc(t(role === "admin" ? "roleAdmin" : "roleMod"))}</span>` : "";
+const unlockedPets = () => new Set([0, ...PETS.filter(p => isStaff() || (S.unlocks || {})[p[1]]).map(p => p[0])]);
 // Sjekker og lagrer nye opplåsinger. o = avataren i byggeren (for fargepåskeeggene). Returnerer de nye.
 function checkUnlocks(o){
   S.unlocks ||= {}; const fresh = [];

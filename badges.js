@@ -55,6 +55,9 @@ async function pioneerFetch(){
   try{ const no = await frRpc("my_member_number"); PIONEER_DONE = true;
     if(+no > 0 && +no !== +S.memberNo){ S.memberNo = +no; save(); bdgToast(checkBadges()); if(screen === "badges" || screen === "profile") render(); } }
   catch(e){ PIONEER_ERR = true; if(screen === "badges") render(); }
+  try{ const r = await frRpc("my_app_role"), role = r === "mod" || r === "admin" ? r : null; // mod/admin (venner.sql)
+    if(role !== (S.appRole || null)){ S.appRole = role; save(); if(screen === "avatar" && typeof aveUpdate === "function") aveUpdate(); else if(screen === "profile") render(); } }
+  catch(e){}
   PIONEER_BUSY = false;
 }
 const bdgAll = () => BADGES.filter(b => b[0] !== "pioneer" || !(+S.memberNo > PIONEER_MAX));

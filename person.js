@@ -87,7 +87,7 @@ function renderPerson(){
       : `<p class="pf-empty">${esc(me ? t(S.badgesPublic === false ? "psMeHidden" : "psMeNone") : r0.fetched || r0.badges !== undefined ? t("psNoBadges", name) : t("frLoading"))}</p>`}</div>`;
   $app.innerHTML = back + `<main class="wrap pf ps">
       <div class="pf-head"><span class="pf-av">${frAvatar(name, 1, av, 104, photo)}</span>
-        <div class="pf-id"><b>${esc(name)}</b>${r.username ? `<span class="ps-user">@${esc(r.username)}</span>` : ""}${full ? `<span class="pf-lv">${esc(t("lvName", levelInfo(+r.xp || 0).lv))}</span>` : ""}
+        <div class="pf-id"><b>${esc(name)}</b>${r.username ? `<span class="ps-user">@${esc(r.username)}</span>` : ""}${full ? `<span class="pf-lv">${esc(t("lvName", levelInfo(+r.xp || 0).lv))}</span>` : ""}${staffTag(me && isStaff() ? S.appRole : r.app_role)}
           ${no > 0 ? `<span class="pf-since">${esc(t("psMemberNo", no))}</span>` : ""}${st === "friend" ? `<span class="fr-pill ps-fr">${I.check}${esc(t("frIsFriend"))}</span>` : ""}</div></div>
       ${rel.length ? `<ul class="ps-rel">${rel.map(([ic, tx]) => `<li><span aria-hidden="true">${ic}</span>${esc(tx)}</li>`).join("")}</ul>` : ""}
       <div class="ps-act">${act}</div>
