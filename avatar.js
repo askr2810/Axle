@@ -287,12 +287,16 @@ function aveOptsHTML(){
   return { opts, colorTab };
 }
 // Oppdaterer bare forhåndsvisningen og valgene, så fanene og rullingen står stille.
+// Forhåndsvisningene i rutenettet står stille (bare den store avataren animeres): mindre å tegne, og Safari på iPhone
+// mister ikke plasseringen til «Lagre»-knappen nederst.
+function aveStill(){ document.querySelectorAll(".ave-grid svg").forEach(sv => { try{ sv.pauseAnimations(); sv.setCurrentTime(0); }catch(e){} }); }
 function aveUpdate(){
   const prev = document.querySelector(".ave-prev"), grid = document.querySelector(".ave-grid");
   if(!prev || !grid){ render(); return; }
   checkUnlocks(avParse(AVE.code)); // fargepåskeegg sjekkes mens du bygger
   const { opts, colorTab } = aveOptsHTML();
   prev.innerHTML = avatarSVG(AVE.code, 150); grid.innerHTML = opts; grid.classList.toggle("colors", !!colorTab);
+  aveStill();
   document.querySelectorAll(".ave-tabs button").forEach(b => b.classList.toggle("on", b.dataset.t === AVE.tab));
   const cnt = document.querySelector(".ave-cnt"); if(cnt) cnt.textContent = `${unlockedPets().size - 1}/${petTotal()}`;
 }
@@ -310,6 +314,7 @@ function renderAvatarEditor(){
       <div class="ave-grid ${colorTab ? "colors" : ""}">${opts}</div>
     </main>
     <div class="lfoot"><div class="wrap"><button class="big" data-a="avsave">${esc(t(ph ? "avSaveUse" : "avSave"))}</button></div></div>`;
+  aveStill();
 }
 function avatarClick(a, b){
   if(!a.startsWith("av")) return false;
