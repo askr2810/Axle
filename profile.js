@@ -65,7 +65,7 @@ function renderProfile(){
       <button class="iconbtn" data-a="settings" aria-label="${esc(t("settings"))}">${I.gear}</button></div></div>
     <main class="wrap pf">
       <div class="pf-head"><button class="pf-av" data-a="avedit" aria-label="${esc(t(hasMeAv() ? "avEdit" : "avMake"))}">${hasMeAv() ? meAvHTML(104) : `<span class="set-av0 big">${I.person}</span>`}<span class="pf-edit">${I.pencil}</span></button>
-        <div class="pf-id"><b>${esc(S.name || t("pfYou"))}</b><span class="pf-lv">${esc(t("lvName", levelInfo(S.xp).lv))}</span><button class="exlink" data-a="pfname">${esc(t(S.name ? "frEditName" : "pfSetName"))}</button>
+        <div class="pf-id"><b>${esc(S.name || t("pfYou"))}</b><span class="pf-lv">${esc(t("lvName", levelInfo(S.xp).lv))}</span>${S.since ? `<span class="pf-since">${esc(t("pfSince", fmtDate(S.since)))}</span>` : ""}<button class="exlink" data-a="pfname">${esc(t(S.name ? "frEditName" : "pfSetName"))}</button>
         <span class="pf-acc">${AUTH ? esc(AUTH.email || "") : `${esc(t("pfNotLogged"))} · <button class="exlink" data-a="aclogin">${esc(t("acLogin"))}</button>`}</span></div></div>
       ${levelBarHTML(S.xp, S.xp)}
       <div class="pf-grid">

@@ -71,7 +71,8 @@ drop function if exists public.get_friends();
 create function public.get_friends()
 returns table (
   user_id uuid, display_name text, username text, friend_code text, xp integer, streak integer, streak_last text,
-  week_xp integer, week_key text, crowns integer, levels integer, course text, avatar text, photo text, prev_week_xp integer, prev_week_key text, updated_at timestamptz, is_me boolean
+  week_xp integer, week_key text, crowns integer, levels integer, course text, avatar text, photo text, prev_week_xp integer, prev_week_key text, updated_at timestamptz, is_me boolean,
+  friends_since timestamptz, member_since timestamptz
 )
 language sql
 stable
@@ -81,7 +82,9 @@ as $$
   select p.user_id, p.display_name, p.username,
          case when p.user_id = auth.uid() then p.friend_code end,
          p.xp, p.streak, p.streak_last, p.week_xp, p.week_key, p.crowns, p.levels, p.course, p.avatar, p.photo, p.prev_week_xp, p.prev_week_key, p.updated_at,
-         p.user_id = auth.uid()
+         p.user_id = auth.uid(),
+         (select f.created_at from public.friendships f where f.user_id = auth.uid() and f.friend_id = p.user_id), -- venner siden
+         case when p.user_id = auth.uid() then (select u.created_at from auth.users u where u.id = auth.uid()) end   -- kontoen din ble laget
   from public.profiles p
   where p.user_id = auth.uid()
      or p.user_id in (select f.friend_id from public.friendships f where f.user_id = auth.uid());

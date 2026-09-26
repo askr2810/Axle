@@ -264,7 +264,7 @@ grant execute on function public.update_group_settings(uuid, integer, text, bool
 -- Gruppene mine, med antall medlemmer og samlet XP denne uka (week_key sammenlignes i appen).
 drop function if exists public.list_my_groups();
 create function public.list_my_groups()
-returns table (id uuid, name text, emoji text, code text, is_owner boolean, members integer, created_at timestamptz, max_members integer, invite_policy text, link_enabled boolean, visibility text, my_role text)
+returns table (id uuid, name text, emoji text, code text, is_owner boolean, members integer, created_at timestamptz, max_members integer, invite_policy text, link_enabled boolean, visibility text, my_role text, joined_at timestamptz)
 language sql
 stable
 security definer
@@ -273,7 +273,7 @@ as $$
   select g.id, g.name, g.emoji,
          case when (g.link_enabled or g.visibility = 'open') and (g.invite_policy = 'all' or g.owner = auth.uid() or m.role = 'admin') then g.code end,
          g.owner = auth.uid(), (select count(*)::int from public.group_members m2 where m2.group_id = g.id), g.created_at, g.max_members, g.invite_policy, g.link_enabled,
-         g.visibility, case when g.owner = auth.uid() then 'owner' else m.role end
+         g.visibility, case when g.owner = auth.uid() then 'owner' else m.role end, m.joined_at
   from public.groups g join public.group_members m on m.group_id = g.id and m.user_id = auth.uid()
   order by g.created_at;
 $$;
@@ -284,7 +284,7 @@ create function public.get_group(gid uuid)
 returns table (
   user_id uuid, display_name text, username text, xp integer, streak integer, streak_last text,
   week_xp integer, week_key text, crowns integer, levels integer, course text, avatar text, photo text, prev_week_xp integer, prev_week_key text,
-  updated_at timestamptz, is_me boolean, is_owner boolean, is_friend boolean, role text
+  updated_at timestamptz, is_me boolean, is_owner boolean, is_friend boolean, role text, joined_at timestamptz
 )
 language sql
 stable
@@ -294,7 +294,7 @@ as $$
   select p.user_id, p.display_name, p.username, p.xp, p.streak, p.streak_last, p.week_xp, p.week_key, p.crowns, p.levels, p.course, p.avatar, p.photo,
          p.prev_week_xp, p.prev_week_key, p.updated_at, p.user_id = auth.uid(), p.user_id = g.owner,
          exists (select 1 from public.friendships f where f.user_id = auth.uid() and f.friend_id = p.user_id),
-         case when p.user_id = g.owner then 'owner' else m.role end
+         case when p.user_id = g.owner then 'owner' else m.role end, m.joined_at
   from public.group_members m join public.groups g on g.id = m.group_id join public.profiles p on p.user_id = m.user_id
   where m.group_id = gid and public.is_group_member(gid)
     and (p.user_id = auth.uid() or not public.is_blocked_between(auth.uid(), p.user_id));

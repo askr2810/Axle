@@ -155,6 +155,7 @@ function grMemberHTML(id){
     ${r.course ? `<p class="fr-now">${esc(t("frNow", frCourseName(r.course)))}</p>` : ""}
     ${r.is_friend ? `<p class="fr-hint">${esc(t("frIsFriend"))}</p>` : sent ? `<p class="fr-hint">${esc(t("frSent"))}</p>` : `<button class="big" data-a="graddfriend" data-id="${esc(id)}" data-n="${esc(r.display_name)}">${I.plus}${esc(t("grAddFriend"))}</button>`}
     ${r.role === "owner" || r.role === "admin" ? `<p class="fr-hint">${esc(t("grRole_" + r.role))}</p>` : ""}
+    ${r.joined_at ? `<p class="fr-since">${esc(t("grSince", fmtDate(r.joined_at)))}</p>` : ""}
     ${grRole(g) === "owner" && r.role !== "owner" ? `<button class="big ghost" data-a="grrole" data-id="${esc(id)}" data-r="${r.role === "admin" ? "member" : "admin"}">${esc(t(r.role === "admin" ? "grUnAdmin" : "grMakeAdmin"))}</button>` : ""}
     ${(grRole(g) === "owner" && r.role !== "owner") || (grRole(g) === "admin" && (r.role || "member") === "member") ? `<button class="big ghost" data-a="grkick" data-id="${esc(id)}" style="color:var(--bad)">${esc(overlay && overlay.confirmKick ? t("grKickSure") : t("grKick"))}</button>${g.visibility === "open" ? `<p class="lgnote">${esc(t("grKickOpenNote"))}</p>` : ""}` : ""}
     <button class="big ghost" data-a="closeov">${esc(t("cont"))}</button>
@@ -163,6 +164,7 @@ function grMemberHTML(id){
 function grMenuHTML(o){
   const g = grOf(GR.cur); if(!g) return "";
   return `<div class="dialog pop" role="dialog" aria-label="${esc(g.name)}"><div class="fr-dh"><span class="gr-emo big">${esc(g.emoji)}</span><h3>${esc(g.name)}</h3></div>
+    ${g.joined_at || g.created_at ? `<p class="fr-since">${g.created_at ? esc(t("grMade", fmtDate(g.created_at))) : ""}${g.created_at && g.joined_at ? " · " : ""}${g.joined_at ? esc(t("grYouJoined", fmtDate(g.joined_at))) : ""}</p>` : ""}
     ${g.is_owner ? `<button class="srow" data-a="gredit"><span class="lbl">${esc(t("grRename"))}</span>${I.chevron}</button><button class="srow" data-a="grsetopen"><span class="lbl">${esc(t("grSettings"))}<span class="sub">${esc(t("grSettingsSub"))}</span></span>${I.chevron}</button>` : ""}
     <button class="srow" data-a="grreport"><span class="lbl">${esc(t("grReport"))}</span>${I.flag}</button>
     <button class="big ghost" data-a="grleave" style="color:var(--bad)">${esc(o.confirmLeave ? t("grLeaveSure") : t("grLeave"))}</button>

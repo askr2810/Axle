@@ -56,6 +56,7 @@ async function frLoad(){
     await grLoadInvites();
     if(typeof grPendingCheck === "function") grPendingCheck();
     const meRow = FR.rows.find(r => r.is_me); if(meRow && meRow.display_name && meRow.display_name !== S.name){ S.name = meRow.display_name; save(); }
+    if(meRow && meRow.member_since) sinceUpdate(meRow.member_since); // kontoen ble laget
     const nf_ = FR.rows.filter(r => !r.is_me).length; S.stats ||= {};
     if(nf_ > (+S.stats.friends || 0)){ S.stats.friends = nf_; bdgToast(checkBadges()); save(); }
     const pend = (()=>{ try{ return localStorage.getItem(FR_PENDING); }catch(e){ return null; } })();
@@ -357,6 +358,7 @@ function frDetailHTML(id){
   return `<div class="dialog pop" role="dialog" aria-label="${esc(r.display_name)}"><div class="fr-dh">${frAvatar(r.display_name, 1, r.avatar, 56, r.photo)}<h3>${esc(r.display_name)}</h3></div>
     <div class="fr-stats">${st(t("frTab_week"), r.week_xp + " XP")}${st(t("frTab_total"), r.xp + " XP")}${st(t("frTab_streak"), r.streak + " " + t("frDays"))}${st(t("frCrowns"), r.crowns)}${st(t("frLevels"), r.levels)}${st(t("frLast"), esc(frAgo(r.updated_at)))}</div>
     ${r.course ? `<p class="fr-now">${esc(t("frNow", frCourseName(r.course)))}</p>` : ""}
+    ${r.friends_since ? `<p class="fr-since">🤝 ${esc(t("frSince", fmtDate(r.friends_since)))}</p>` : ""}
     <button class="big ghost" data-a="frfof" data-id="${esc(id)}">${I.users}${esc(t("frFofBtn", r.display_name))}</button>
     <button class="big" data-a="closeov">${esc(t("cont"))}</button>
     <button class="big ghost" data-a="frremove" data-id="${esc(id)}" style="color:var(--bad)">${esc(overlay.confirm ? t("frRemoveSure") : t("frRemove"))}</button>

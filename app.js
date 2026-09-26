@@ -923,6 +923,13 @@ function preCardHTML(c){
     <div class="prechips">${chips}</div>${nice.length?`<p class="prenice">${esc(t("preNice", nice.map(k=>courseName(COURSE(k))).join(", ")))}</p>`:""}</div>`;
 }
 // ---------- render og hendelser ----------
+// Dato som «26. sep. 2026» / «26 Sept 2026».
+const fmtDate = x => { const d = new Date(typeof x === "string" && /^\d{4}-\d\d-\d\d$/.test(x) ? x + "T12:00:00" : x); return isNaN(d) ? "" : d.toLocaleDateString(LANG === "en" ? "en-GB" : "nb-NO", { day: "numeric", month: "short", year: "numeric" }); };
+// «Medlem siden»: tidligste vi vet om – merker, dager med XP, eller kontoen i Supabase (settes i frLoad).
+function sinceUpdate(extra){
+  const c = [Date.now(), +S.since || Infinity, ...Object.values(S.badges || {}).map(Number), ...Object.keys(S.daily || {}).map(k => Date.parse(k + "T12:00:00")), extra ? Date.parse(extra) : Infinity].filter(Number.isFinite);
+  const v = Math.min(...c); if(v !== S.since){ S.since = v; saveLocal(); }
+}
 // Tema: "auto" følger systemet, ellers tvinges lys eller mørk (data-theme i styles.css). theme-color følger med.
 function applyTheme(){
   const th = S.theme === "dark" || S.theme === "light" ? S.theme : null, de = document.documentElement;
@@ -1098,6 +1105,7 @@ document.addEventListener("keydown", e=>{
 });
 
 examBoot(true); // pågående eksamen: fortsett, eller lever hvis tiden gikk ut mens appen var lukket
+sinceUpdate();
 routeBoot(); // #/teori/FAST/2 osv.: fortsett der man var før oppdatering
 if(frBootLink()) screen = "friends";
 if(grBootLink()) screen = "friends"; // axle.no/?gruppe=KODE

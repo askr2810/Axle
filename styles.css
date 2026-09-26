@@ -1273,3 +1273,5 @@ a.srow{text-decoration:none;color:inherit}
 .gr-btns .big svg{vertical-align:-3px;margin-right:6px}
 .pd-role{margin:0 0 2px;display:inline-block}
 .gr-set .srow:has(.seg){flex-wrap:wrap}.gr-set .srow:has(.seg) .lbl{flex:1 1 100%}.gr-set .srow:has(.seg) .seg{display:grid;grid-template-columns:1fr 1fr;width:100%}
+.fr-since{margin:4px 0 8px;font-size:13.5px;color:var(--muted);text-align:center}
+.pf-since{display:block;font-size:13px;color:var(--muted);margin-top:2px}
