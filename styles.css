@@ -1278,3 +1278,27 @@ a.srow{text-decoration:none;color:inherit}
 .bdg-no{font-family:var(--display);font-weight:800;letter-spacing:-.03em;color:#fff;text-shadow:0 1px 2px rgba(0,0,0,.35);line-height:1}
 .bdg.locked .bdg-no{color:inherit;text-shadow:none}
 .bdg-act{margin-top:6px;font-size:14px}
+/* ---- profilsiden til andre (person.js) ---- */
+.fr-who{display:flex;align-items:center;gap:10px;flex:1;min-width:0;background:none;border:0;padding:0;color:var(--ink);text-align:left}
+.ps{display:grid;gap:16px;padding-top:14px}
+.ps .pf-av .fr-avs,.ps .pf-av .fr-av{box-shadow:0 5px 0 var(--line)}
+.ps .pf-av .fr-av{width:104px;height:104px;font-size:44px}
+.ps-user{font-size:14px;color:var(--muted);font-family:var(--mono)}
+.ps-fr{display:inline-flex;align-items:center;gap:4px;margin-top:4px}.ps-fr svg{width:14px;height:14px}
+.ps-rel{list-style:none;margin:0;padding:10px 14px;display:grid;gap:6px;background:var(--card);border:2px solid var(--line);border-radius:14px;font-size:14px}
+.ps-rel li{display:flex;gap:8px;align-items:baseline}
+.ps-act{display:grid;gap:8px}.ps-act:empty{display:none}
+.ps-act .big svg{width:18px;height:18px;vertical-align:-3px;margin-right:6px}
+.ps-two{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.ps-note{margin:0;color:var(--muted);font-size:14px}
+.ps-badges{display:grid;grid-template-columns:repeat(auto-fill,minmax(74px,1fr));gap:10px}
+.ps-badges button{display:grid;justify-items:center;gap:4px;background:none;border:0;color:var(--ink);padding:0}
+.ps-badges small{font-size:11px;line-height:1.2;text-align:center}
+.ps-bad{color:var(--bad)!important}
+.ps-foot{display:grid;gap:10px;justify-items:stretch;padding-bottom:30px}
+.bdg-pub{margin-bottom:12px}.bdg-pub .exlink{display:inline-flex;align-items:center;gap:6px;justify-self:start;margin-top:4px}.bdg-pub .exlink svg{width:16px;height:16px}
+.bdg-card{position:relative}
+.bdg-eye{position:absolute;top:6px;right:6px;width:28px;height:28px;display:grid;place-items:center;border:0;border-radius:50%;background:var(--paper);color:var(--muted);padding:0}
+.bdg-eye svg{width:16px;height:16px}
+.bdg-eye.off{color:var(--bad)}
+.bdg-card.hid>.bdg,.bdg-card.hid>b,.bdg-card.hid>span{opacity:.45}

@@ -40,6 +40,8 @@ function mergeState(a, b){
   m.simGoals = Object.assign({}, a.simGoals || {}); if(isObj(b.simGoals)) for(const k in b.simGoals) m.simGoals[k] = Math.max(+m.simGoals[k] || 0, +b.simGoals[k] || 0);
   if(!m.name && typeof b.name === "string") m.name = b.name;
   m.badges = Object.assign({}, isObj(b.badges) ? b.badges : {}, a.badges || {});
+  if(typeof a.badgesPublic !== "boolean" && typeof b.badgesPublic === "boolean") m.badgesPublic = b.badgesPublic; // merker på profilen
+  if(!isObj(a.badgeHide) && isObj(b.badgeHide)) m.badgeHide = Object.assign({}, b.badgeHide);
   m.stats = Object.assign({}, a.stats || {}); if(isObj(b.stats)) for(const k in b.stats) m.stats[k] = Math.max(+m.stats[k] || 0, +b.stats[k] || 0);
   if(isObj(b.dc) && (!m.dc || String(b.dc.day) > String(m.dc.day))) m.dc = b.dc;
   m.weekWins = Object.assign({}, isObj(b.weekWins) ? b.weekWins : {}, a.weekWins || {});

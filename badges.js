@@ -69,20 +69,21 @@ function checkBadges(){
 function bdgToast(list){ if(list && list.length) setTimeout(() => toast(t("bdgNew", list.map(bdgName).join(", "))), 400); }
 function bdgStat(key, n = 1){ S.stats ||= {}; S.stats[key] = (+S.stats[key] || 0) + n; }
 
-function badgeIcon(b, size = 64, locked){
+function badgeIcon(b, size = 64, locked, no){ // no = medlemsnummeret til en annen bruker (Pioner)
   const tiers = [null, ["#E3A06B", "#9C5B2A"], ["#E1E6EA", "#8C99A6"], ["#F7D35C", "#C08A0B"]], [c1, c2] = tiers[b[1]];
-  const ic = b[2] === "num" ? (() => { const txt = +S.memberNo > 0 && +S.memberNo <= PIONEER_MAX ? "#" + S.memberNo : "500"; return `<b class="bdg-no" style="font-size:${Math.round(size * (txt.length > 3 ? 0.25 : 0.31))}px">${txt}</b>`; })() : b[2] === "doc" ? I.docB : b[2] === "trophy" ? I.trophyS : I[b[2]] || I.star;
+  const ic = b[2] === "num" ? (() => { const n = no !== undefined ? +no : +S.memberNo, txt = n > 0 && n <= PIONEER_MAX ? "#" + n : "500"; return `<b class="bdg-no" style="font-size:${Math.round(size * (txt.length > 3 ? 0.25 : 0.31))}px">${txt}</b>`; })() : b[2] === "doc" ? I.docB : b[2] === "trophy" ? I.trophyS : I[b[2]] || I.star;
   return `<span class="bdg ${locked ? "locked" : ""}" style="--b1:${c1};--b2:${c2};width:${size}px;height:${size}px">${ic}</span>`;
 }
 function renderBadges(){
   pioneerFetch();
-  const st = bdgStats(), have = S.badges || {}, ALL = bdgAll(), n = ALL.filter(b => have[b[0]]).length;
+  const st = bdgStats(), have = S.badges || {}, ALL = bdgAll(), n = ALL.filter(b => have[b[0]]).length, pub = S.badgesPublic !== false, hide = S.badgeHide || {};
   const cards = ALL.map(b => {
     const got = !!have[b[0]], v = Math.min(st[b[3]], b[4]);
-    return `<div class="bdg-card ${got ? "got" : ""}">${badgeIcon(b, 62, !got)}<b>${esc(bdgName(b))}</b><span>${esc(bdgDesc(b))}</span>
+    const hid = got && pub && hide[b[0]], eye = got && pub ? `<button class="bdg-eye ${hid ? "off" : ""}" data-a="bdgeye" data-id="${b[0]}" aria-pressed="${!hid}" aria-label="${esc(t(hid ? "bdgShow" : "bdgHide") + ": " + bdgName(b))}" title="${esc(t(hid ? "bdgShow" : "bdgHide"))}">${hid ? I.eyeOff : I.eye}</button>` : "";
+    return `<div class="bdg-card ${got ? "got" : ""} ${hid ? "hid" : ""}">${eye}${badgeIcon(b, 62, !got)}<b>${esc(bdgName(b))}</b><span>${esc(bdgDesc(b))}</span>
       ${got ? `<small class="bdg-date">${esc(t("bdgGot", fmtDate(have[b[0]])))}</small>` : b[0] === "pioneer" ? (!AUTH ? `<button class="exlink bdg-act" data-a="aclogin">${esc(t("acLogin"))}</button>` : `<small class="bdg-date">${esc(t(PIONEER_ERR ? "pioneerNoDb" : "pioneerWait"))}</small>`) : `<div class="mini"><i style="width:${v / b[4] * 100}%"></i></div><small>${nf(v, 0)} / ${nf(b[4], 0)}</small>`}</div>`;
   }).join("");
   $app.innerHTML = `<div class="top"><div class="wrap"><button class="iconbtn" data-a="profile" aria-label="${esc(t("back"))}">${I.left}</button>
       <div class="th-t"><small>${esc(t("bdgCount", n, ALL.length))}</small><b>${esc(t("bdgTitle"))}</b></div><span class="th-ic" aria-hidden="true">${I.trophyS}</span></div></div>
-    <main class="wrap bdgs"><div class="meter bdg-meter"><i style="width:${n / ALL.length * 100}%"></i></div><div class="bdg-grid">${cards}</div></main>`;
+    <main class="wrap bdgs">${bdgVisHTML()}<div class="meter bdg-meter"><i style="width:${n / ALL.length * 100}%"></i></div><div class="bdg-grid">${cards}</div></main>`;
 }

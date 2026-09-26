@@ -532,3 +532,57 @@ $$;
 revoke all on function public.my_member_number() from public, anon;
 grant execute on function public.my_member_number() to authenticated;
 
+-- ============================================================
+--  Profilside for andre + merker man selv velger å vise.
+--  profiles.badges = merker som vises på profilen, f.eks. "first,st7,pioneer" (tom = vis ingen).
+-- ============================================================
+alter table public.profiles add column if not exists badges text check (badges is null or (char_length(badges) <= 800 and badges ~ '^([a-z0-9]{1,12}(,[a-z0-9]{1,12})*)?$'));
+grant insert (badges), update (badges) on public.profiles to authenticated;
+
+-- Profilen til en annen bruker. Full statistikk bare for deg selv, venner og folk du deler gruppe med;
+-- andre ser navn, bilde og merker. Ingenting hvis dere har blokkert hverandre.
+drop function if exists public.get_profile(uuid);
+create function public.get_profile(uid uuid)
+returns table (
+  user_id uuid, display_name text, username text, avatar text, photo text, badges text, member_no integer,
+  xp integer, streak integer, streak_last text, week_xp integer, week_key text, prev_week_xp integer, prev_week_key text,
+  crowns integer, levels integer, course text, updated_at timestamptz,
+  is_me boolean, is_friend boolean, full_access boolean, friends_since timestamptz, friends_public boolean,
+  status text, mutual_friends integer, shared_groups text
+)
+language plpgsql
+stable
+security definer
+set search_path = ''
+as $$
+declare me uuid := auth.uid(); fr boolean; grp boolean := false; full_ boolean; sg text;
+begin
+  if me is null or public.is_blocked_between(me, uid) then return; end if;
+  fr := exists (select 1 from public.friendships f where f.user_id = me and f.friend_id = uid);
+  if to_regclass('public.group_members') is not null then -- grupper.sql kan være kjørt etter denne fila
+    execute 'select string_agg(g.emoji || '' '' || g.name, '', '' order by g.name) from public.groups g
+             where exists (select 1 from public.group_members a where a.group_id = g.id and a.user_id = $1)
+               and exists (select 1 from public.group_members b where b.group_id = g.id and b.user_id = $2)' into sg using me, uid;
+    grp := sg is not null;
+  end if;
+  full_ := uid = me or fr or grp;
+  return query
+  select p.user_id, p.display_name, p.username, p.avatar, p.photo, p.badges,
+         (select n.number from public.member_numbers n where n.user_id = p.user_id),
+         case when full_ then p.xp end, case when full_ then p.streak end, case when full_ then p.streak_last end,
+         case when full_ then p.week_xp end, case when full_ then p.week_key end, case when full_ then p.prev_week_xp end, case when full_ then p.prev_week_key end,
+         case when full_ then p.crowns end, case when full_ then p.levels end, case when full_ then p.course end, case when full_ then p.updated_at end,
+         p.user_id = me, fr, full_,
+         (select f.created_at from public.friendships f where f.user_id = me and f.friend_id = uid),
+         case when fr then coalesce((to_jsonb(p) ->> 'friends_public')::boolean, false) else false end,
+         case when p.user_id = me then 'me' when fr then 'friend'
+              when exists (select 1 from public.friend_requests r where r.from_id = me and r.to_id = uid) then 'sent'
+              when exists (select 1 from public.friend_requests r where r.from_id = uid and r.to_id = me) then 'incoming' else 'none' end,
+         (select count(*)::int from public.friendships a join public.friendships b on a.friend_id = b.friend_id where a.user_id = me and b.user_id = uid),
+         sg
+  from public.profiles p where p.user_id = uid;
+end;
+$$;
+revoke all on function public.get_profile(uuid) from public, anon;
+grant execute on function public.get_profile(uuid) to authenticated;
+

@@ -78,6 +78,8 @@ const I = {
   heartOff: svg('<path d="M12 21s-8-5.2-8-11.2A4.6 4.6 0 0 1 12 7a4.6 4.6 0 0 1 8 2.8C20 15.8 12 21 12 21z"/>',22,false,2),
   gear: svg('<circle cx="12" cy="12" r="3.2"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/>',22,false,1.8),
   flag: svg('<path d="M5 21V4M5 4h11l-2 4 2 4H5"/>',22),
+  eye: svg('<path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/>',22),
+  eyeOff: svg('<path d="M3 3l18 18M10.6 5.1A10 10 0 0 1 12 5c6.4 0 10 7 10 7a17 17 0 0 1-3.1 3.9M6.6 6.6C3.8 8.4 2 12 2 12s3.6 7 10 7a9.6 9.6 0 0 0 4.4-1.1M9.9 9.9a3 3 0 0 0 4.2 4.2"/>',22),
   pencil: svg('<path d="M4 20h4L19 9l-4-4L4 16z"/><path d="m14 6 4 4"/>',18),
   pen: svg('<path d="M4 20h4L19 9l-4-4L4 16z"/><path d="m14 6 4 4"/>',20),
   eraser: svg('<path d="m7 21-4-4 11-11 7 7-8 8z"/><path d="M11 21h10"/>',20),
@@ -855,14 +857,13 @@ function renderOverlay(){
         ${o.err?`<p class="lgerr">${esc(o.err)}</p>`:""}
         <button class="big" data-a="lgsend" ${o.busy?"disabled":""}>${t("acSend")}</button><button class="big ghost" data-a="closeov">${t("cancel")}</button>
         <p class="lgnote">${t("acPrivacyNote")}</p></div>`; }
-  else if(overlay.friend) d.innerHTML = frDetailHTML(overlay.friend);
   else if(overlay.frfof) d.innerHTML = frFofHTML();
   else if(overlay.acemail){ const o = overlay.acemail; d.innerHTML = o.step === "sent"
     ? `<div class="dialog pop" role="dialog" aria-label="${esc(t("acEmailChange"))}"><h3>${esc(t("acEmailSentTitle"))}</h3><p>${esc(t("acEmailSentText", o.email, AUTH ? AUTH.email : ""))}</p><button class="big" data-a="closeov">${esc(t("cont"))}</button></div>`
     : `<div class="dialog pop" role="dialog" aria-label="${esc(t("acEmailChange"))}"><h3>${esc(t("acEmailChange"))}</h3><p>${esc(t("acEmailText", AUTH ? AUTH.email : ""))}</p>
       <input type="email" id="acnewmail" autocomplete="email" placeholder="${esc(t("acEmailNew"))}" value="${esc(o.email||"")}">${o.err?`<p class="lgerr">${esc(o.err)}</p>`:""}
       <button class="big" data-a="acemailsend" ${o.busy?"disabled":""}>${esc(t("acEmailSend"))}</button><button class="big ghost" data-a="closeov">${esc(t("cancel"))}</button></div>`; }
-  else if(overlay.grnew || overlay.grjoin || overlay.grmember || overlay.grmenu || overlay.grfriends || overlay.grset || overlay.gropen) d.innerHTML = grOverlayHTML();
+  else if(overlay.grnew || overlay.grjoin || overlay.grmenu || overlay.grfriends || overlay.grset || overlay.gropen) d.innerHTML = grOverlayHTML();
   else if(overlay.frmod) d.innerHTML = frModHTML(overlay.frmod);
   else if(overlay.frrep) d.innerHTML = frReportHTML(overlay.frrep);
   else if("frblocks" in overlay) d.innerHTML = frBlocksHTML(overlay.frblocks);
@@ -962,6 +963,7 @@ function render(){
   else if(screen==="friends") renderFriends();
   else if(screen==="avatar") renderAvatarEditor();
   else if(screen==="badges") renderBadges();
+  else if(screen==="person") renderPerson();
   else if(screen==="profile") renderProfile();
   else if(screen==="practice") renderPractice();
   else if(screen==="examSetup") renderExamSetup();
@@ -996,6 +998,7 @@ document.addEventListener("click", async e=>{
   if(favClick(a, b)) return; // favoritter og kilder til dagens utfordring
   if(bookClick(a, b)) return; // teoriboka (handlinger som starter med "bk")
   if(grClick(a, b)) return; // grupper (handlinger som starter med "gr")
+  if(psClick(a, b)) return; // profilsiden til andre + hvilke merker du viser (person.js)
   if(friendsClick(a, b)) return; // venner (handlinger som starter med "fr")
   if(avatarClick(a, b)) return; // avatar-bygger (handlinger som starter med "av")
   if(profileClick(a, b)) return; // tab-meny, profil og infoark

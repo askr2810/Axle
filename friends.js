@@ -31,8 +31,8 @@ async function frRpc(name, args){
 }
 // Kolonner som kom i senere versjoner av venner.sql. Mangler de i databasen, sendes de ikke.
 const FR_NEW_COLS = ["avatar", "prev_week_xp", "prev_week_key"];
-let FR_OLD_DB = false, FR_NO_PHOTO = false, FR_NO_FP = false;
-function frBody(){ const b = myStats(); if(S.avatar) b.avatar = S.avatar; if(!FR_NO_PHOTO) b.photo = isPhoto(S.photo) ? S.photo : null; if(!FR_NO_FP) b.friends_public = !!S.friendsPublic; if(FR_OLD_DB) FR_NEW_COLS.forEach(k => delete b[k]); return b; }
+let FR_OLD_DB = false, FR_NO_PHOTO = false, FR_NO_FP = false, FR_NO_BDG = false;
+function frBody(){ const b = myStats(); if(S.avatar) b.avatar = S.avatar; if(!FR_NO_PHOTO) b.photo = isPhoto(S.photo) ? S.photo : null; if(!FR_NO_FP) b.friends_public = !!S.friendsPublic; if(!FR_NO_BDG) b.badges = bdgShown().join(","); if(FR_OLD_DB) FR_NEW_COLS.forEach(k => delete b[k]); return b; }
 // Sender profilen (f.eks. nytt bilde) til venner litt etter en endring.
 let frPushTimer = null;
 function frPushSoon(){ if(!CLOUD_ON || !AUTH) return; clearTimeout(frPushTimer); frPushTimer = setTimeout(async () => { try{ const tok = await authToken(); if(tok) await frPushStats(tok); }catch(e){} }, 800); }
@@ -41,6 +41,7 @@ async function frPushStats(tok){
   const url = "/rest/v1/profiles?user_id=eq." + encodeURIComponent(AUTH.uid), opt = b => ({ method: "PATCH", headers: { Prefer: "return=minimal" }, body: JSON.stringify(b) });
   try{ await sbFetch(url, opt(frBody()), tok); }
   catch(e){
+    if(/PGRST204|42703/.test(e.code || "") && !FR_NO_BDG && /badges/.test(e.msg || "")){ FR_NO_BDG = true; return frPushStats(tok); } // profilsiden (venner.sql) ikke kjørt ennå
     if(/PGRST204|42703/.test(e.code || "") && !FR_NO_FP){ FR_NO_FP = true; return frPushStats(tok); } // grupper.sql ikke kjørt ennå
     if(/PGRST204|42703/.test(e.code || "") && !FR_NO_PHOTO){ FR_NO_PHOTO = true; return frPushStats(tok); }
     if(!FR_OLD_DB && /PGRST204|42703/.test(e.code || "")){ FR_OLD_DB = true; await sbFetch(url, opt(frBody()), tok); } else throw e; }
@@ -78,7 +79,7 @@ async function frSaveName(name){
     const me = (FR.rows || []).find(r => r.is_me);
     if(me) await sbFetch("/rest/v1/profiles?user_id=eq." + encodeURIComponent(AUTH.uid), { method: "PATCH", headers: { Prefer: "return=minimal" }, body: JSON.stringify({ display_name: name }) }, tok);
     else { const post = b => sbFetch("/rest/v1/profiles", { method: "POST", headers: { Prefer: "return=minimal" }, body: JSON.stringify(Object.assign({ user_id: AUTH.uid, display_name: name }, b)) }, tok);
-      try{ await post(frBody()); } catch(e){ if(/PGRST204|42703/.test(e.code || "")){ FR_NO_PHOTO = true; try{ await post(frBody()); } catch(e2){ if(!FR_OLD_DB && /PGRST204|42703/.test(e2.code || "")){ FR_OLD_DB = true; await post(frBody()); } else throw e2; } } else throw e; } }
+      try{ await post(frBody()); } catch(e){ if(/PGRST204|42703/.test(e.code || "")){ FR_NO_PHOTO = FR_NO_BDG = FR_NO_FP = true; try{ await post(frBody()); } catch(e2){ if(!FR_OLD_DB && /PGRST204|42703/.test(e2.code || "")){ FR_OLD_DB = true; await post(frBody()); } else throw e2; } } else throw e; } }
     if(!me && !S.avatar){ S.avatar = avRandom(); save(); } // alle får en avatar de kan endre
     S.name = name; save(); FR.editName = false; FR.busy = false; await frLoad();
   }catch(e){ FR.busy = false; toast(frErr(e)); frRender(); }
@@ -89,10 +90,6 @@ async function frAdd(code, fromLink){
   FR.busy = true; frRender();
   try{ const name = await frRpc("add_friend", { code: clean }); toast(t("frAdded", name || "")); FR.busy = false; await frLoad(); }
   catch(e){ FR.busy = false; toast(frErr(e)); if(fromLink) await frLoad(); else frRender(); }
-}
-async function frRemove(uid){
-  try{ await frRpc("remove_friend", { fid: uid }); overlay = null; renderOverlay(); toast(t("frRemoved")); await frLoad(); }
-  catch(e){ toast(frErr(e)); }
 }
 // ---------- ordfilter (samme regler som public.is_clean i venner.sql) ----------
 const BAD_SUB = /(fuck|fukk|føkk|cunt|nigg|faggot|retard|hitler|porn|whore|bitch|jævl|jaevl|kukk|horunge|motherf|asshole|wank|dildo|penis|vagina|nazi)/;
@@ -122,7 +119,7 @@ function frReportHTML(o){
     <p class="lgnote">${esc(t("repContact", CONFIG.contactEmail))}</p></div>`;
 }
 function frModOpen(id){ // finn brukeren i vennelista, søketreff eller forespørsler
-  const r = [...(FR.rows || []), ...(FR.search.rows || []), ...(FR.reqs || []), ...(FR.sugg || []), ...(FR.fof ? FR.fof.rows || [] : []), ...(typeof GR !== "undefined" && GR.rows || [])].find(x => x.user_id === id);
+  const r = [...(FR.rows || []), ...(FR.search.rows || []), ...(FR.reqs || []), ...(FR.sugg || []), ...(FR.fof ? FR.fof.rows || [] : []), ...(typeof GR !== "undefined" && GR.rows || []), ...(PS.row ? [PS.row] : [])].find(x => x.user_id === id);
   if(!r) return; overlay = { frmod: { id, name: r.display_name, avatar: r.avatar, photo: r.photo } }; renderOverlay();
 }
 async function frReportSend(){
@@ -135,7 +132,7 @@ async function frReportSend(){
 }
 async function frBlock(id){
   try{ await frRpc("block_user", { fid: id }); overlay = null; renderOverlay(); toast(t("blockDone"));
-    FR.search.rows = (FR.search.rows || []).filter(r => r.user_id !== id); FR.reqs = (FR.reqs || []).filter(r => r.user_id !== id); await frLoad(); renderTabbar(); }
+    FR.search.rows = (FR.search.rows || []).filter(r => r.user_id !== id); FR.reqs = (FR.reqs || []).filter(r => r.user_id !== id); if(screen === "person") psBack(); await frLoad(); renderTabbar(); }
   catch(e){ toast(/PGRST202|42883/.test(e.code || "") || e.status === 404 ? t("frUserNoDb") : frErr(e)); }
 }
 async function frBlocksOpen(){
@@ -197,7 +194,7 @@ function frHitsHTML(rows, sub){
       : r.status === "sent" ? `<span class="fr-pill">${esc(t("frSent"))}</span>`
       : r.status === "incoming" ? `<button class="fr-act" data-a="fracc" data-id="${esc(r.user_id)}">${esc(t("frAccept"))}</button>`
       : `<button class="fr-act" data-a="frreq" data-id="${esc(r.user_id)}" data-n="${esc(r.display_name)}">${I.plus}${esc(t("frReq"))}</button>`;
-    return `<div class="fr-hit">${frAvatar(r.display_name, i, r.avatar, 40, r.photo)}<span class="fr-t"><b>${esc(r.display_name)}</b><span>${esc(sub ? sub(r) : r.username ? "@" + r.username : "")}</span></span>${act}<button class="fr-more" data-a="frmod" data-id="${esc(r.user_id)}" aria-label="${esc(t("repMore"))}">⋯</button></div>`;
+    return `<div class="fr-hit"><button class="fr-who" data-a="frperson" data-id="${esc(r.user_id)}">${frAvatar(r.display_name, i, r.avatar, 40, r.photo)}<span class="fr-t"><b>${esc(r.display_name)}</b><span>${esc(sub ? sub(r) : r.username ? "@" + r.username : "")}</span></span></button>${act}<button class="fr-more" data-a="frmod" data-id="${esc(r.user_id)}" aria-label="${esc(t("repMore"))}">⋯</button></div>`;
   }).join("");
 }
 function frResUpdate(){ const el = document.getElementById("frres"); if(el) el.innerHTML = frResHTML(); }
@@ -309,7 +306,7 @@ function renderFriends(){
           <div class="fr-at"><span>@</span><input type="text" id="fruser" maxlength="20" autocapitalize="none" autocomplete="username" spellcheck="false" value="${esc(me.username || frUserSuggest(me.display_name))}"></div>
           <button class="big" data-a="frsaveuser" ${FR.busy ? "disabled" : ""}>${esc(t("frSave"))}</button><button class="big ghost" data-a="frlateruser">${esc(t(me.username ? "cancel" : "frLater"))}</button></div>` : "";
       const reqCard = FR.reqs.length ? `<div class="fr-card fr-reqs"><h3>${esc(t("frReqs"))} <span class="fr-n">${FR.reqs.length}</span></h3>${FR.reqs.map((r, i) =>
-          `<div class="fr-hit">${frAvatar(r.display_name, i, r.avatar, 40, r.photo)}<span class="fr-t"><b>${esc(r.display_name)}</b><span>${r.username ? "@" + esc(r.username) : ""}</span></span><button class="fr-act" data-a="fracc" data-id="${esc(r.user_id)}">${esc(t("frAccept"))}</button><button class="fr-act ghost" data-a="frdec" data-id="${esc(r.user_id)}" aria-label="${esc(t("frDecline"))}">${I.x}</button><button class="fr-more" data-a="frmod" data-id="${esc(r.user_id)}" aria-label="${esc(t("repMore"))}">⋯</button></div>`).join("")}</div>` : "";
+          `<div class="fr-hit"><button class="fr-who" data-a="frperson" data-id="${esc(r.user_id)}">${frAvatar(r.display_name, i, r.avatar, 40, r.photo)}<span class="fr-t"><b>${esc(r.display_name)}</b><span>${r.username ? "@" + esc(r.username) : ""}</span></span></button><button class="fr-act" data-a="fracc" data-id="${esc(r.user_id)}">${esc(t("frAccept"))}</button><button class="fr-act ghost" data-a="frdec" data-id="${esc(r.user_id)}" aria-label="${esc(t("frDecline"))}">${I.x}</button><button class="fr-more" data-a="frmod" data-id="${esc(r.user_id)}" aria-label="${esc(t("repMore"))}">⋯</button></div>`).join("")}</div>` : "";
       const codeCard = `<div class="fr-card fr-find"><h3>${esc(t("frFind"))}</h3>
           <div class="fr-search">${I.search}<input type="search" id="frsearch" autocapitalize="none" autocomplete="off" spellcheck="false" placeholder="${esc(t("frSearchPh"))}" aria-label="${esc(t("frSearchPh"))}" value="${esc(FR.search.q)}"></div>
           <div id="frres" class="fr-res">${frResHTML()}</div>
@@ -353,21 +350,9 @@ function frBoardHTML(raw, tab, act){
       <span class="fr-v">${unit(r)}</span></button>`; }).join("");
   return { rows, podium, board };
 }
-function frDetailHTML(id){
-  const r0 = (FR.rows || []).find(x => x.user_id === id); if(!r0) return "";
-  const r = frLive(r0), st = (label, v) => `<div class="fr-st"><b>${v}</b><span>${esc(label)}</span></div>`;
-  return `<div class="dialog pop" role="dialog" aria-label="${esc(r.display_name)}"><div class="fr-dh">${frAvatar(r.display_name, 1, r.avatar, 56, r.photo)}<h3>${esc(r.display_name)}</h3></div>
-    <div class="fr-stats">${st(t("frTab_week"), r.week_xp + " XP")}${st(t("frTab_total"), r.xp + " XP")}${st(t("frTab_streak"), r.streak + " " + t("frDays"))}${st(t("frCrowns"), r.crowns)}${st(t("frLevels"), r.levels)}${st(t("frLast"), esc(frAgo(r.updated_at)))}</div>
-    ${r.course ? `<p class="fr-now">${esc(t("frNow", frCourseName(r.course)))}</p>` : ""}
-    ${r.friends_since ? `<p class="fr-since">🤝 ${esc(t("frSince", fmtDate(r.friends_since)))}</p>` : ""}
-    <button class="big ghost" data-a="frfof" data-id="${esc(id)}">${I.users}${esc(t("frFofBtn", r.display_name))}</button>
-    <button class="big" data-a="closeov">${esc(t("cont"))}</button>
-    <button class="big ghost" data-a="frremove" data-id="${esc(id)}" style="color:var(--bad)">${esc(overlay.confirm ? t("frRemoveSure") : t("frRemove"))}</button>
-    <button class="exlink fr-repl" data-a="frmod" data-id="${esc(id)}">${I.flag}${esc(t("repOrBlock"))}</button></div>`;
-}
 // Vennene til en venn (hvis hen viser lista si).
 async function frFofOpen(id){
-  const r = (FR.rows || []).find(x => x.user_id === id); if(!r) return;
+  const r = (FR.rows || []).find(x => x.user_id === id) || (PS.row && PS.row.user_id === id ? PS.row : null); if(!r) return;
   FR.fof = { id, name: r.display_name, rows: null }; overlay = { frfof: 1 }; renderOverlay();
   try{ FR.fof.rows = (await frRpc("get_friend_friends", { fid: id })) || []; }catch(e){ FR.fof.rows = []; FR.fof.err = frErr(e); }
   if(overlay && overlay.frfof) renderOverlay();
@@ -410,8 +395,7 @@ function friendsClick(a, b){
   else if(a === "frunblock"){ frRpc("unblock_user", { fid: b.dataset.id }).then(() => { toast(t("unblockDone")); frBlocksOpen(); }, e => toast(frErr(e))); }
   else if(a === "fracc") frAnswer(b.dataset.id, true);
   else if(a === "frdec") frAnswer(b.dataset.id, false);
-  else if(a === "frdetail"){ overlay = { friend: b.dataset.id }; renderOverlay(); }
-  else if(a === "frremove"){ if(overlay && overlay.confirm) frRemove(b.dataset.id); else { overlay = { friend: b.dataset.id, confirm: true }; renderOverlay(); } }
+  else if(a === "frdetail" || a === "frperson") psOpen(b.dataset.id, screen === "friends" && FR.view === "groups" && GR.cur ? "groups" : "friends");
   else return false;
   return true;
 }
