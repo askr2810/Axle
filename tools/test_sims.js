@@ -12,6 +12,8 @@ fs.writeFileSync(tmp, stub + '\n' + fig.join('\n') + '\n' + fs.readFileSync(path
   fs.readFileSync(path.join(ROOT, 'sims2.js'), 'utf8') + '\n' + fs.readFileSync(path.join(ROOT, 'sims3.js'), 'utf8') + '\nmodule.exports = { SIMS, SIM_MAP, setL: l => LANG = l };');
 const M = require(tmp); fs.unlinkSync(tmp);
 const { SIMS, SIM_MAP } = M;
+const katex = require(path.join(ROOT, 'vendor', 'katex.min.js'));
+let eqN = 0; // antall simuleringer med levende formel
 const NO = /[æøåÆØÅ]/, BADRE = /NaN|Infinity|undefined|BAD|\[object/;
 const vals = p => { const n = Math.round((p[3] - p[2]) / p[4]); return Array.from({ length: n + 1 }, (_, i) => +(p[2] + i * p[4]).toFixed(10)); };
 function* combos(ps, lists){ const idx = ps.map(() => 0); while(true){ const v = {}; ps.forEach((p, i) => v[p[0]] = lists[i][idx[i]]); yield v; let k = ps.length - 1; while(k >= 0 && ++idx[k] >= lists[k].length){ idx[k] = 0; k--; } if(k < 0) return; } }
@@ -35,15 +37,21 @@ for(const [name, S0] of Object.entries(SIMS)){
         try{ r = S0.f(v); }catch(e){ fail('CRASH', name, JSON.stringify(v), e.message); continue; }
         if(!r || typeof r.svg !== 'string' || !Array.isArray(r.out)){ fail('shape', name); continue; }
         if(BADRE.test(r.svg)) fail('svg', name, JSON.stringify(v), (r.svg.match(/.{0,40}(NaN|Infinity|undefined|BAD).{0,20}/) || [''])[0]);
+        if(r.eq !== undefined){ // levende formel: gyldig TeX uten NaN, og KaTeX godtar den (sjekkes i den engelske runden + startverdiene)
+          if(!Array.isArray(r.eq) || r.eq.some(x => typeof x !== 'string')) fail('eq shape', name);
+          else for(const x of r.eq){ if(BADRE.test(x)) fail('eq', name, JSON.stringify(v), x);
+            if(lang === 'en' || Object.keys(v0).every(k => v0[k] === S0.p.find(p => p[0] === k)[5])){ try{ katex.renderToString(x, { throwOnError: true, strict: 'error' }); }catch(e){ fail('eq katex', name, lang, e.message.slice(0, 120), x.slice(0, 120)); } } }
+        }
         for(const [k, x] of r.out){ if(BADRE.test(String(k) + String(x))) fail('out', name, JSON.stringify(v), k, x); if(lang === 'en' && NO.test(String(k) + String(x))) fail('NO in en out', name, k, x); }
         if(lang === 'nb') g.forEach((gg, k) => { if(!found[k] && (!useG || gi === k)){ try{ if(gg[2](v, r.m || {})) found[k] = true; }catch(e){ fail('goal crash', name, k, e.message); } } });
       }
     }
   }
+  if(S0.f.toString().includes('eq:')) eqN++;
   found.forEach((f, k) => { if(!f) fail('goal unreachable', name, k + 1, g[k][0]); });
   if(g.length){ const v = { _g: 0 }; S0.p.forEach(p => v[p[0]] = p[5]); const r = S0.f(v); if(g[0][2](v, r.m || {})) fail('goal 1 solved at start', name); }
   S0.p.forEach(p => { if(p[5] < p[2] || p[5] > p[3] || Math.abs((p[5] - p[2]) / p[4] - Math.round((p[5] - p[2]) / p[4])) > 1e-9) fail('default off grid', name, p[0]); });
 }
 for(const [k, m] of Object.entries(SIM_MAP)) for(const n of [].concat(m)) if(!SIMS[n]) fail('SIM_MAP', k, n);
-console.log(`simuleringer: ${Object.keys(SIMS).length}, oppgaver: ${Object.values(SIMS).reduce((a, s) => a + (s.g || []).length, 0)}, kjøringer: ${runs}, feil: ${bad} (${((Date.now() - t0) / 1000).toFixed(1)} s)`);
+console.log(`simuleringer: ${Object.keys(SIMS).length} (${eqN} med levende formel), oppgaver: ${Object.values(SIMS).reduce((a, s) => a + (s.g || []).length, 0)}, kjøringer: ${runs}, feil: ${bad} (${((Date.now() - t0) / 1000).toFixed(1)} s)`);
 if(bad) process.exit(1);

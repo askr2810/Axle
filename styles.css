@@ -1422,3 +1422,12 @@ a.srow{text-decoration:none;color:inherit}
 .gd{touch-action:pan-y}
 @media (prefers-reduced-motion:reduce){.gd-from-r,.gd-from-l{animation:none}}
 .fig .fg-dotr{fill:var(--bad)}
+
+/* Levende formel over simuleringene: verdiene har samme farge som glidebryteren sin */
+.sim-eq{display:grid;gap:7px;margin:4px 0 6px;padding:8px 12px;border-radius:12px;background:color-mix(in srgb,var(--accent) 6%,transparent);overflow-x:auto;overflow-y:hidden;font-size:15px;-webkit-overflow-scrolling:touch}
+.sim-eq:empty{display:none}
+.sim-eq .katex-display{margin:2px 0;text-align:left}
+.sim-eq math[display=block]{display:block;text-align:left;margin:0}
+.sim-eq .q1{color:var(--c1)}.sim-eq .q2{color:var(--c2)}.sim-eq .q3{color:var(--c3)}.sim-eq .q4{color:var(--c4)}.sim-eq .q5{color:var(--c5)}
+.sim-eq .q6{color:var(--ok);font-weight:800}.sim-eq .q7{color:var(--bad);font-weight:800}.sim-eq .q9{color:var(--ink);font-weight:800}
+.sim-eq [class^=q] mn{font-weight:700}
