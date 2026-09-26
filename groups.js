@@ -9,7 +9,10 @@ const GR_EMOJI = ["👥", "🏠", "🎓", "⚙️", "⚡", "🔥", "🚀", "🧮
 
 function grErr(e){
   const m = (e && e.msg) || "";
-  if(/group_full/.test(m)) return t("grFull");
+  if(/group_full/.test(m)) return t("grFullN");
+  if(/link_off/.test(m)) return t("grLinkOff");
+  if(/owner_only/.test(m)) return t("grOwnerOnly");
+  if(/below_members/.test(m)) return t("grBelow");
   if(/too_many_groups/.test(m)) return t("grTooMany");
   if(/not_found/.test(m)) return t("grNotFound");
   if(/bad_name/.test(m)) return t("grBadName");
@@ -30,6 +33,9 @@ async function grLoadGroup(id){
   GR.rowsLoading = false; frRender();
 }
 const grOf = id => (GR.list || []).find(g => g.id === id);
+const grMax = g => +g.max_members || 50;
+const grCanInvite = g => g && (g.is_owner || (g.invite_policy || "all") === "all");
+const grMembersTxt = (n, g) => grMax(g) < 50 ? t("grMembersOf", n, grMax(g)) : t("grMembers", n);
 // Invitasjoner fra venner (vises på Venner og Grupper, og gir prikk på Venner-fanen).
 async function grLoadInvites(){ try{ GR.inv = (await frRpc("get_group_invites")) || []; }catch(e){ GR.inv = []; } renderTabbar(); }
 function grInvitesHTML(){
@@ -75,7 +81,7 @@ function grBodyHTML(){
     return GR.err ? `<div class="fr-card"><p>${esc(GR.err)}</p><button class="big" data-a="grreload">${esc(t("frRetry"))}</button></div>` : `<p class="fr-wait">${esc(t("frLoading"))}</p>`;
   }
   const cards = GR.list.map(g => `<button class="gr-item" data-a="gropen" data-id="${esc(g.id)}"><span class="gr-emo">${esc(g.emoji)}</span>
-      <span class="fr-t"><b>${esc(g.name)}</b><span>${esc(t("grMembers", g.members))}${g.is_owner ? " · " + esc(t("grOwner")) : ""}</span></span>${I.chevron}</button>`).join("");
+      <span class="fr-t"><b>${esc(g.name)}</b><span>${esc(grMembersTxt(g.members, g))}${g.is_owner ? " · " + esc(t("grOwner")) : ""}</span></span>${I.chevron}</button>`).join("");
   return `${grInvitesHTML()}<div class="fr-card gr-intro"><h2>${esc(t("grTitle"))}</h2><p>${esc(t("grIntro"))}</p>
       <div class="gr-btns"><button class="big" data-a="grnew">${I.plus}${esc(t("grNew"))}</button><button class="big ghost" data-a="grjoinopen">${esc(t("grJoin"))}</button></div></div>
     ${GR.list.length ? `<div class="gr-list">${cards}</div>` : `<p class="fr-hint">${esc(t("grEmpty"))}</p>`}
@@ -98,22 +104,22 @@ function grGroupHTML(){
       <button class="big" data-a="grsave" ${GR.busy ? "disabled" : ""}>${esc(t("frSave"))}</button><button class="big ghost" data-a="grcanceledit">${esc(t("cancel"))}</button>
       <button class="exlink" data-a="grnewcode">${esc(t("grNewCode"))}</button></div>` : "";
   return `<button class="exlink gr-back" data-a="grback">${I.left}${esc(t("grBack"))}</button>
-    <div class="fr-card gr-head"><span class="gr-emo big">${esc(g.emoji)}</span><div class="fr-t"><b>${esc(g.name)}</b><span>${esc(t("grMembers", rows.length))}${myRank ? " · " + esc(t("grRank", myRank, rows.length)) : ""}</span></div>
+    <div class="fr-card gr-head"><span class="gr-emo big">${esc(g.emoji)}</span><div class="fr-t"><b>${esc(g.name)}</b><span>${esc(grMembersTxt(rows.length, g))}${myRank ? " · " + esc(t("grRank", myRank, rows.length)) : ""}</span></div>
       <button class="fr-more" data-a="grmenu" aria-label="${esc(t("repMore"))}">⋯</button></div>
     ${editCard}
     <div class="fr-card lg"><div class="lg-h"><b>${I.trophyS}${esc(t("grWeek"))}</b><span>${esc(frCountdown())}</span></div><p class="gr-sum">${esc(t("grWeekSum", wk))}</p></div>
     <div class="seg fr-tabs" role="tablist">${["week", "total", "streak"].map(k => `<button role="tab" aria-selected="${GR.tab === k}" class="${GR.tab === k ? "on" : ""}" data-a="grtab" data-t="${k}">${esc(t("frTab_" + k))}</button>`).join("")}</div>
     ${podium}<div class="fr-board">${board}</div>
-    ${rows.length < 2 ? `<p class="fr-hint">${esc(t("grAloneFr"))}</p>` : ""}
-    <button class="big gr-addbtn" data-a="grfriends">${I.users}${esc(t("grAddFriends"))}</button>
-    <div class="fr-card fr-find"><h3>${esc(t("grInviteLinkH"))}</h3>
+    ${rows.length < 2 && grCanInvite(g) ? `<p class="fr-hint">${esc(t(g.code ? "grAloneFr" : "grAloneFrNoLink"))}</p>` : ""}
+    ${!grCanInvite(g) ? `<p class="fr-hint">${esc(t("grOwnerInvites"))}</p>` : rows.length >= grMax(g) ? `<p class="fr-hint">${esc(t("grFullN"))}</p>` : `<button class="big gr-addbtn" data-a="grfriends">${I.users}${esc(t("grAddFriends"))}</button>`}
+    ${g.code && grCanInvite(g) && rows.length < grMax(g) ? `<div class="fr-card fr-find"><h3>${esc(t("grInviteLinkH"))}</h3>
       <div class="fr-share">
         ${navigator.share ? `<button class="fr-sh main" data-a="grshare">${I.share}<span>${esc(t("frShare"))}</span></button>` : ""}
         <a class="fr-sh" href="sms:?&body=${e(inv.text)}">${I.chat}<span>${esc(t("frSms"))}</span></a>
         <a class="fr-sh" href="mailto:?subject=${e(t("grMailSubj"))}&body=${e(inv.text)}">${I.mail}<span>${esc(t("frMail"))}</span></a>
         <a class="fr-sh" href="https://wa.me/?text=${e(inv.text)}" target="_blank" rel="noopener">${I.chat}<span>WhatsApp</span></a>
         <button class="fr-sh" data-a="grcopy">${I.copy}<span>${esc(t("frCopyLink"))}</span></button></div>
-      <p class="fr-codeline">${esc(t("grCode"))}: <b class="fr-codev">${esc(frFmtCode(g.code))}</b></p></div>
+      <p class="fr-codeline">${esc(t("grCode"))}: <b class="fr-codev">${esc(frFmtCode(g.code))}</b></p></div>` : ""}
     <button class="exlink fr-refresh" data-a="grreloadgroup">${GR.rowsLoading ? esc(t("frLoading")) : esc(t("frRefresh"))}</button>`;
 }
 // ---------- dialoger ----------
@@ -126,7 +132,7 @@ function grNewHTML(o){
 }
 function grJoinHTML(o){
   if(o.peek) return `<div class="dialog pop gr-dlg" role="dialog" aria-label="${esc(o.peek.name)}"><span class="gr-emo huge">${esc(o.peek.emoji)}</span>
-    <h3>${esc(t("grJoinTitle", o.peek.name))}</h3><p>${esc(t("grMembers", o.peek.members))}</p>${o.err ? `<p class="lgerr">${esc(o.err)}</p>` : ""}
+    <h3>${esc(t("grJoinTitle", o.peek.name))}</h3><p>${esc(grMembersTxt(o.peek.members, o.peek))}</p>${o.err ? `<p class="lgerr">${esc(o.err)}</p>` : ""}
     <button class="big" data-a="grjoin" ${o.busy ? "disabled" : ""}>${esc(t("grJoinBtn"))}</button><button class="big ghost" data-a="closeov">${esc(t("cancel"))}</button>
     <button class="exlink fr-repl" data-a="grreportpeek">${I.flag}${esc(t("grReport"))}</button></div>`;
   return `<div class="dialog pop gr-dlg" role="dialog" aria-label="${esc(t("grJoin"))}"><h3>${esc(t("grJoin"))}</h3><p>${esc(t("grJoinText"))}</p>
@@ -149,11 +155,22 @@ function grMemberHTML(id){
 function grMenuHTML(o){
   const g = grOf(GR.cur); if(!g) return "";
   return `<div class="dialog pop" role="dialog" aria-label="${esc(g.name)}"><div class="fr-dh"><span class="gr-emo big">${esc(g.emoji)}</span><h3>${esc(g.name)}</h3></div>
-    ${g.is_owner ? `<button class="srow" data-a="gredit"><span class="lbl">${esc(t("grRename"))}</span>${I.chevron}</button>` : ""}
+    ${g.is_owner ? `<button class="srow" data-a="gredit"><span class="lbl">${esc(t("grRename"))}</span>${I.chevron}</button><button class="srow" data-a="grsetopen"><span class="lbl">${esc(t("grSettings"))}<span class="sub">${esc(t("grSettingsSub"))}</span></span>${I.chevron}</button>` : ""}
     <button class="srow" data-a="grreport"><span class="lbl">${esc(t("grReport"))}</span>${I.flag}</button>
     <button class="big ghost" data-a="grleave" style="color:var(--bad)">${esc(o.confirmLeave ? t("grLeaveSure") : t("grLeave"))}</button>
     ${g.is_owner ? `<button class="big ghost" data-a="grdelete" style="color:var(--bad)">${esc(o.confirmDelete ? t("grDeleteSure") : t("grDelete"))}</button>` : ""}
     <button class="big" data-a="closeov">${esc(t("cancel"))}</button></div>`;
+}
+function grSettingsHTML(o){
+  const g = grOf(GR.cur); if(!g) return "";
+  const n = (GR.rows || []).length || g.members || 1, lo = Math.max(2, n);
+  return `<div class="dialog pop gr-set" role="dialog" aria-label="${esc(t("grSettings"))}"><h3>${esc(t("grSettings"))}</h3>
+    <div class="srow"><span class="lbl">${esc(t("grSetMax"))}<span class="sub">${esc(t("grSetMaxSub", n))}</span></span>
+      <div class="gr-step"><button data-a="grsetmax" data-d="-1" ${o.max <= lo ? "disabled" : ""} aria-label="−">−</button><b>${o.max}</b><button data-a="grsetmax" data-d="1" ${o.max >= 50 ? "disabled" : ""} aria-label="+">+</button></div></div>
+    <div class="srow"><span class="lbl">${esc(t("grSetWho"))}</span><div class="seg">${["all", "owner"].map(k => `<button class="${o.policy === k ? "on" : ""}" data-a="grsetpol" data-m="${k}">${esc(t("grSetWho_" + k))}</button>`).join("")}</div></div>
+    <div class="srow"><span class="lbl">${esc(t("grSetLink"))}<span class="sub">${esc(t("grSetLinkSub"))}</span></span><button class="tog ${o.link ? "on" : ""}" data-a="grsetlink" role="switch" aria-checked="${o.link}" aria-label="${esc(t("grSetLink"))}"></button></div>
+    ${o.err ? `<p class="lgerr">${esc(o.err)}</p>` : ""}
+    <button class="big" data-a="grsetsave" ${o.busy ? "disabled" : ""}>${esc(t("frSave"))}</button><button class="big ghost" data-a="closeov">${esc(t("cancel"))}</button></div>`;
 }
 function grOverlayHTML(){
   if(overlay.grnew) return grNewHTML(overlay.grnew);
@@ -161,6 +178,7 @@ function grOverlayHTML(){
   if(overlay.grmember) return grMemberHTML(overlay.grmember);
   if(overlay.grmenu) return grMenuHTML(overlay.grmenu);
   if(overlay.grfriends) return grFriendsHTML();
+  if(overlay.grset) return grSettingsHTML(overlay.grset);
   return "";
 }
 // ---------- handlinger ----------
@@ -216,6 +234,17 @@ function grClick(a, b){
   else if(a === "grpeek") grPeek((document.getElementById("grcode") || {}).value || "");
   else if(a === "grjoin") grJoin();
   else if(a === "grfriends") grFriendsOpen();
+  else if(a === "grsetopen"){ if(!g) return true; overlay = { grset: { max: grMax(g), policy: g.invite_policy || "all", link: g.link_enabled !== false } }; renderOverlay(); }
+  else if(a === "grsetmax"){ // faste trinn, aldri under antall medlemmer nå
+    const o = overlay.grset, n = Math.max(2, (GR.rows || []).length), opts = [...new Set([2, 3, 4, 5, 6, 8, 10, 15, 20, 25, 30, 40, 50, n])].filter(x => x >= n).sort((x, y) => x - y);
+    const k = opts.findIndex(x => x >= o.max); o.max = opts[Math.min(opts.length - 1, Math.max(0, (k < 0 ? opts.length - 1 : k) + (+b.dataset.d)))]; renderOverlay(); }
+  else if(a === "grsetpol"){ overlay.grset.policy = b.dataset.m; renderOverlay(); }
+  else if(a === "grsetlink"){ overlay.grset.link = !overlay.grset.link; renderOverlay(); }
+  else if(a === "grsetsave"){
+    const o = overlay.grset; o.busy = true; o.err = null; renderOverlay();
+    frRpc("update_group_settings", { gid: GR.cur, p_max: o.max, p_policy: o.policy, p_link: o.link })
+      .then(async () => { overlay = null; renderOverlay(); toast(t("grSaved")); await grLoadList(); }, e => { o.busy = false; o.err = grErr(e); renderOverlay(); });
+  }
   else if(a === "grinv") grInvite([b.dataset.id]);
   else if(a === "grinvall") grInvite((GR.fr || []).filter(r => r.status === "none").map(r => r.user_id));
   else if(a === "grinvacc") grAnswer(b.dataset.id, true);

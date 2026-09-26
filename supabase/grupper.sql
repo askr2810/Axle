@@ -78,6 +78,10 @@ create table if not exists public.group_members (
   primary key (group_id, user_id)
 );
 create index if not exists group_members_user_idx on public.group_members (user_id);
+-- Innstillinger per gruppe (bare eieren endrer dem): maks medlemmer, hvem kan invitere, og om lenke/kode virker.
+alter table public.groups add column if not exists max_members integer not null default 50 check (max_members between 2 and 50);
+alter table public.groups add column if not exists invite_policy text not null default 'all' check (invite_policy in ('all', 'owner'));
+alter table public.groups add column if not exists link_enabled boolean not null default true;
 alter table public.groups enable row level security;
 alter table public.group_members enable row level security;
 revoke all on public.groups, public.group_members from anon, authenticated; -- alt går via funksjonene under
@@ -123,8 +127,9 @@ begin
   select * into g from public.groups where code = public.group_code_norm(p_code);
   if g.id is null then raise exception 'not_found'; end if;
   if not exists (select 1 from public.group_members where group_id = g.id and user_id = me) then
+    if not g.link_enabled then raise exception 'link_off'; end if;
     if (select count(*) from public.group_members where user_id = me) >= 10 then raise exception 'too_many_groups'; end if;
-    if (select count(*) from public.group_members where group_id = g.id) >= 50 then raise exception 'group_full'; end if;
+    if (select count(*) from public.group_members where group_id = g.id) >= g.max_members then raise exception 'group_full'; end if;
     insert into public.group_members (group_id, user_id) values (g.id, me);
   end if;
   if to_regclass('public.group_invites') is not null then execute 'delete from public.group_invites where group_id = $1 and user_id = $2' using g.id, me; end if;
@@ -194,16 +199,35 @@ begin
 end;
 $$;
 
+create or replace function public.update_group_settings(gid uuid, p_max integer, p_policy text, p_link boolean)
+returns void
+language plpgsql
+security definer
+set search_path = ''
+as $$
+declare me uuid := auth.uid();
+begin
+  if me is null or (select owner from public.groups where id = gid) is distinct from me then raise exception 'not_owner'; end if;
+  if p_max is null or p_max not between 2 and 50 then raise exception 'bad_max'; end if;
+  if p_max < (select count(*) from public.group_members where group_id = gid) then raise exception 'below_members'; end if;
+  if p_policy not in ('all', 'owner') then raise exception 'bad_policy'; end if;
+  update public.groups set max_members = p_max, invite_policy = p_policy, link_enabled = coalesce(p_link, true) where id = gid;
+end;
+$$;
+revoke all on function public.update_group_settings(uuid, integer, text, boolean) from public, anon;
+grant execute on function public.update_group_settings(uuid, integer, text, boolean) to authenticated;
+
 -- Gruppene mine, med antall medlemmer og samlet XP denne uka (week_key sammenlignes i appen).
 drop function if exists public.list_my_groups();
 create function public.list_my_groups()
-returns table (id uuid, name text, emoji text, code text, is_owner boolean, members integer, created_at timestamptz)
+returns table (id uuid, name text, emoji text, code text, is_owner boolean, members integer, created_at timestamptz, max_members integer, invite_policy text, link_enabled boolean)
 language sql
 stable
 security definer
 set search_path = ''
 as $$
-  select g.id, g.name, g.emoji, g.code, g.owner = auth.uid(), (select count(*)::int from public.group_members m2 where m2.group_id = g.id), g.created_at
+  select g.id, g.name, g.emoji, case when g.link_enabled and (g.invite_policy = 'all' or g.owner = auth.uid()) then g.code end,
+         g.owner = auth.uid(), (select count(*)::int from public.group_members m2 where m2.group_id = g.id), g.created_at, g.max_members, g.invite_policy, g.link_enabled
   from public.groups g join public.group_members m on m.group_id = g.id and m.user_id = auth.uid()
   order by g.created_at;
 $$;
@@ -232,14 +256,14 @@ $$;
 -- Navn og emoji på en gruppe fra invitasjonskoden (vises før man blir med). Krever innlogging.
 drop function if exists public.peek_group(text);
 create function public.peek_group(p_code text)
-returns table (id uuid, name text, emoji text, members integer, is_member boolean)
+returns table (id uuid, name text, emoji text, members integer, is_member boolean, max_members integer)
 language sql
 stable
 security definer
 set search_path = ''
 as $$
-  select g.id, g.name, g.emoji, (select count(*)::int from public.group_members m where m.group_id = g.id), public.is_group_member(g.id)
-  from public.groups g where auth.uid() is not null and g.code = public.group_code_norm(p_code);
+  select g.id, g.name, g.emoji, (select count(*)::int from public.group_members m where m.group_id = g.id), public.is_group_member(g.id), g.max_members
+  from public.groups g where auth.uid() is not null and g.code = public.group_code_norm(p_code) and (g.link_enabled or public.is_group_member(g.id));
 $$;
 
 -- ============================================================
@@ -285,6 +309,8 @@ declare me uuid := auth.uid(); n int;
 begin
   if me is null then raise exception 'not_logged_in'; end if;
   if not public.is_group_member(gid) then raise exception 'not_member'; end if;
+  if (select invite_policy from public.groups where id = gid) = 'owner' and (select owner from public.groups where id = gid) <> me then raise exception 'owner_only'; end if;
+  if (select count(*) from public.group_members where group_id = gid) >= (select max_members from public.groups where id = gid) then raise exception 'group_full'; end if;
   if coalesce(array_length(uids, 1), 0) > 50 then raise exception 'too_many'; end if;
   insert into public.group_invites (group_id, user_id, inviter)
   select gid, u, me from unnest(uids) u
@@ -325,7 +351,7 @@ begin
   if not exists (select 1 from public.group_invites where group_id = gid and user_id = me) then raise exception 'not_found'; end if;
   if accept and not exists (select 1 from public.group_members where group_id = gid and user_id = me) then
     if (select count(*) from public.group_members where user_id = me) >= 10 then raise exception 'too_many_groups'; end if;
-    if (select count(*) from public.group_members where group_id = gid) >= 50 then raise exception 'group_full'; end if;
+    if (select count(*) from public.group_members where group_id = gid) >= (select max_members from public.groups where id = gid) then raise exception 'group_full'; end if;
     insert into public.group_members (group_id, user_id) values (gid, me);
   end if;
   delete from public.group_invites where group_id = gid and user_id = me;
