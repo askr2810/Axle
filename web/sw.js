@@ -15,7 +15,7 @@ self.addEventListener("fetch", e => {
   if (req.mode === "navigate") {
     // Bare selve appen (/ eller /index.html) lagres som «index.html»; de åpne fagsidene (/elementmetoden/ osv.) hentes fra nett.
     const p = new URL(req.url).pathname, app = p === "/" || p === "/index.html";
-    e.respondWith(fetch(req).then(r => { if (app && r.ok) { const c = r.clone(); caches.open(CACHE).then(x => x.put("index.html", c)); } return r; })
+    e.respondWith(fetch(app ? new Request(req.url, { cache: "no-cache", credentials: "same-origin" }) : req).then(r => { if (app && r.ok) { const c = r.clone(); caches.open(CACHE).then(x => x.put("index.html", c)); } return r; })
       .catch(() => app ? caches.match("index.html") : caches.match(req).then(h => h || caches.match("index.html"))));
     return;
   }

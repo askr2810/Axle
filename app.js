@@ -960,7 +960,17 @@ function render(){
   routeSync(); // adressen følger skjermen (route.js)
 }
 function goHome(){ screen="home"; L=null; overlay=null; render(); window.scrollTo(0,0); }
+// Trykk utenfor en meny/dialog (på det mørke bakteppet) lukker den – bare når trykket både starter og slutter utenfor.
+let scrimDown = false;
+document.addEventListener("pointerdown", e=>{ scrimDown = !!(e.target.classList && e.target.classList.contains("scrim")); }, true);
+function scrimClose(){
+  if(!overlay || overlay==="langpick") return; // språket må velges første gang
+  if(overlay.crop){ cropClose(); return; }
+  if(overlay==="dcpop"){ overlay=null; renderOverlay(); toast(t("dcPopLaterToast")); return; }
+  overlay=null; renderOverlay(); if(screen==="friends") render();
+}
 document.addEventListener("click", async e=>{
+  if(e.target.classList && e.target.classList.contains("scrim")){ if(scrimDown) scrimClose(); scrimDown = false; return; }
   const b = e.target.closest("[data-a]"); if(!b) return;
   const a = b.dataset.a;
   if(examClick(a, b)) return; // eksamensmodus (handlinger som starter med "ex")
