@@ -50,6 +50,7 @@ let DC_NEXT = false;
 function bootPrompts(){
   if(screen !== "home" || overlay) return;
   if(!S.langSet && !LANG_BROWSER_NB){ overlay = "langpick"; renderOverlay(); return; } // språk først (bare når nettleseren ikke er norsk)
+  if(studyNeedsAsk()){ overlay = { studypick: 1, first: 1 }; renderOverlay(); return; } // studie (én gang, for nye brukere)
   if(AUTH && !S.acEver){ S.acEver = 1; saveLocal(); } // denne enheten har vært innlogget: aldri vis innloggings-popupen
   if(CLOUD_ON && !AUTH && !S.acEver && S.loginAsked !== dayKey()){
     S.loginAsked = dayKey(); saveLocal(); DC_NEXT = true;

@@ -5,10 +5,11 @@
 //  S.dcPick = [koder]                 – egne valg når dcSrc er «pick»
 //  Favorittene vises øverst i fagvelgeren og Teoriboken, og som snarveier på forsiden.
 // ============================================================
-const FAV_DRILL = { "@m": ["Grunnbegreper i matte", "Core concepts: maths", "m", "∑"], "@f": ["Grunnbegreper i fysikk", "Core concepts: physics", "f", "⚛"] };
+// Kortstokkene (grunnbegreper, sykepleie …) kan også være favoritter: "@" + stokk-id. [nb, en, stokk, symbol, studie, kortnavn]
+const FAV_DRILL = Object.fromEntries(Object.entries(DR_DECKS).map(([k, d]) => ["@" + k, [d.nb, d.en, k, d.sym, d.study, d.short]]));
 const srcValid = x => !!FAV_DRILL[x] || COURSES.some(c => c.code === x);
 const srcName = x => FAV_DRILL[x] ? T(FAV_DRILL[x][0], FAV_DRILL[x][1]) : courseName(COURSE(x));
-const srcShort = x => FAV_DRILL[x] ? FAV_DRILL[x][3] + " " + T(x === "@m" ? "Matte" : "Fysikk", x === "@m" ? "Maths" : "Physics") : courseShort(COURSE(x));
+const srcShort = x => FAV_DRILL[x] ? FAV_DRILL[x][3] + " " + T(FAV_DRILL[x][5][0], FAV_DRILL[x][5][1]) : courseShort(COURSE(x));
 const favList = () => (S.favs || []).filter(srcValid);
 const isFav = x => favList().includes(x);
 function favToggle(x){
@@ -36,7 +37,7 @@ function dcSources(){
   const src = S.dcSrc || "auto";
   let list = src === "favs" ? favList() : src === "pick" ? (S.dcPick || []).filter(srcValid) : [];
   if(!list.length){
-    list = COURSES.filter(c => c.code === S.current || courseProgress(c).d > 0).map(c => c.code);
+    list = COURSES.filter(c => c.code === S.current || (courseProgress(c).d > 0 && inStudy(c, curStudy()))).map(c => c.code); // fag i studiet ditt som er startet
     if(!list.length) list = [S.current];
   }
   return list;

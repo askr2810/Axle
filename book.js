@@ -108,9 +108,9 @@ function renderBook(){
   if(BK.v === "topic") return renderBookTopic();
   if(BK.v === "unit") return renderBookUnit();
   if(BK.v === "course") return renderBookCourse();
-  const groups = new Map(), favs = bkCourses().filter(c => isFav(c.code));
+  const groups = new Map(), favs = bkCourses().filter(c => isFav(c.code)), list0 = bkCourses().filter(c => inStudy(c, viewStudy()));
   if(favs.length) groups.set("★", favs); // favorittene øverst (står også i sin vanlige gruppe)
-  for(const c of bkCourses()){ const g = c.group; if(!groups.has(g)) groups.set(g, []); groups.get(g).push(c); }
+  for(const c of list0){ const g = c.group; if(!groups.has(g)) groups.set(g, []); groups.get(g).push(c); }
   const order = [...groups.keys()].sort((a, b) => (a === "★" ? -2 : a === "Forkurs" ? -1 : 0) - (b === "★" ? -2 : b === "Forkurs" ? -1 : 0));
   let list = "";
   for(const g of order){
@@ -126,7 +126,7 @@ function renderBook(){
     <main class="wrap bk">
       <label class="bk-search">${I.search}<input type="search" id="bkq" placeholder="${esc(t("bkSearch"))}" aria-label="${esc(t("bkSearch"))}" value="${esc(BK.q)}" autocomplete="off"></label>
       <div id="bkres">${BK.q.trim() ? bkResultsHTML() : ""}</div>
-      <div id="bklist" ${BK.q.trim() ? "hidden" : ""}>${list}</div>
+      <div id="bklist" ${BK.q.trim() ? "hidden" : ""}>${studyTabsHTML()}${list || `<p class="fr-hint">${esc(t("stNoTheory"))}</p>`}</div>
     </main>`;
   const inp = document.getElementById("bkq");
   inp.addEventListener("input", ()=>{ BK.q = inp.value; const has = !!BK.q.trim();

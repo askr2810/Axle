@@ -2,7 +2,7 @@
 const fs=require('fs'),path=require('path'),os=require('os');const ROOT=path.join(__dirname,'..');
 const katex=require(ROOT+'/vendor/katex.min.js');
 const TMP=path.join(os.tmpdir(),'axle_dr_'+process.pid+'.js');
-let src='var LANG="nb";const T=(a,b)=>LANG==="en"?b:a;const esc=s=>s;const shuffle=a=>a;const dayKey=()=>"2026-01-01";\n'+fs.readFileSync(ROOT+'/drill.js','utf8')+'\nmodule.exports={DRILL,DR_TAGS,setL:l=>LANG=l,drText};';
+let src='var LANG="nb";const T=(a,b)=>LANG==="en"?b:a;const esc=s=>s;const shuffle=a=>a;const dayKey=()=>"2026-01-01";\n'+fs.readFileSync(ROOT+'/drill.js','utf8')+'\n'+fs.readdirSync(ROOT).filter(f=>/^drill_.*\.js$/.test(f)).sort().map(f=>fs.readFileSync(ROOT+'/'+f,'utf8')).join('\n;\n')+'\nmodule.exports={DRILL,DR_TAGS,setL:l=>LANG=l,drText};';
 fs.writeFileSync(TMP,src);const M=require(TMP);fs.unlinkSync(TMP);
 let n=0,bad=0;const ids=new Set();
 for(const lang of ['nb','en']){M.setL(lang);

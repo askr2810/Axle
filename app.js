@@ -226,17 +226,19 @@ function pickRowHTML(c){
 }
 
 function renderPick(){
-  const order = S.pickMode==="order", groups = new Map();
+  const order = S.pickMode==="order", groups = new Map(), SC = studyCourses(viewStudy());
   const add = (k,c) => { if(!groups.has(k)) groups.set(k,[]); groups.get(k).push(c); };
-  if(order){ [...COURSES].map((c,i)=>[courseStep(c.code)*1000 + (c.group==="Forkurs"?0:500) + i, c]).sort((a,b)=>a[0]-b[0]).forEach(([k,c])=>add("s"+Math.floor(k/1000),c)); }
-  else { COURSES.filter(c=>c.group==="Forkurs").forEach(c=>add(c.group,c)); COURSES.filter(c=>c.group!=="Forkurs").forEach(c=>add(c.group,c)); }
+  if(order){ SC.map((c,i)=>[courseStep(c.code)*1000 + (c.group==="Forkurs"?0:500) + i, c]).sort((a,b)=>a[0]-b[0]).forEach(([k,c])=>add("s"+Math.floor(k/1000),c)); }
+  else { SC.filter(c=>c.group==="Forkurs").forEach(c=>add(c.group,c)); SC.filter(c=>c.group!=="Forkurs").forEach(c=>add(c.group,c)); }
+  const decks = Object.keys(FAV_DRILL).filter(x => FAV_DRILL[x][4] === viewStudy());
   const favs = COURSES.filter(c=>isFav(c.code)); // favorittene øverst (står også i sin vanlige gruppe)
   let h = `<div class="sheet"><div class="wrap"><div class="sheet-h"><h1>${t("pickTitle")}</h1><button class="iconbtn" data-a="home" aria-label="${t("back")}">${I.x}</button></div>
+    ${studyTabsHTML()}
     <div class="seg pickseg" role="radiogroup"><button role="radio" aria-checked="${!order}" class="${order?"":"on"}" data-a="pickmode" data-m="theme">${esc(t("pickTheme"))}</button><button role="radio" aria-checked="${order}" class="${order?"on":""}" data-a="pickmode" data-m="order">${esc(t("pickOrder"))}</button></div>
     ${order?`<p class="picknote">${esc(t("orderNote"))}</p>`:""}
     <p class="picknote favnote">${I_STAR_O}<span>${esc(t("favHint"))}</span></p>
     ${favs.length?`<div class="grp grp-fav">${I_STAR_F}${esc(t("favTitle"))}</div>${favs.map(pickRowHTML).join("")}`:""}
-    <div class="grp">${esc(t("favCore"))}</div>${Object.keys(FAV_DRILL).map(x=>`<div class="fav-row"><button class="subj" data-a="drstart" data-t="${FAV_DRILL[x][2]}"><span class="badge core">${FAV_DRILL[x][3]}</span><span class="t"><b>${esc(srcName(x))}</b><span>${esc(t("favCoreSub"))}</span></span><span class="p">${esc(t("drCountN", drCounts(FAV_DRILL[x][2]).known, drCounts(FAV_DRILL[x][2]).total))}</span></button>${favStarHTML(x)}</div>`).join("")}`;
+    ${decks.length?`<div class="grp">${esc(viewStudy()==="ing" ? t("favCore") : t("drTitleS"))}</div>`:""}${decks.map(x=>`<div class="fav-row"><button class="subj" data-a="drstart" data-t="${FAV_DRILL[x][2]}"><span class="badge core">${FAV_DRILL[x][3]}</span><span class="t"><b>${esc(srcName(x))}</b><span>${esc(t("favCoreSub"))}</span></span><span class="p">${esc(t("drCountN", drCounts(FAV_DRILL[x][2]).known, drCounts(FAV_DRILL[x][2]).total))}</span></button>${favStarHTML(x)}</div>`).join("")}`;
   groups.forEach((list,g)=>{
     h += `<div class="grp">${esc(order ? t("stepN", +g.slice(1)) : groupName(g))}</div>`;
     list.forEach(c=>{ h += pickRowHTML(c); });
@@ -255,6 +257,7 @@ function renderSettings(){
     <div class="sheet-h"><h1>${t("setTitle")}</h1><button class="iconbtn" data-a="profile" aria-label="${t("back")}">${I.x}</button></div>
     <div class="sgroup"><button class="srow set-av" data-a="avedit">${hasMeAv() ? meAvHTML(48) : `<span class="set-av0">${I.users}</span>`}<span class="lbl">${t(hasMeAv() ? "avEdit" : "avMake")}<span class="sub">${t("avSetSub")}</span></span>${I.chevron}</button></div>
     <div class="sgroup">
+      <button class="srow" data-a="studyopen"><span class="lbl">${esc(t("stSetting"))}<span class="sub">${esc(STUDY(S.study).ic + " " + studyName(STUDY(S.study)))}</span></span>${I.chevron}</button>
       <div class="srow"><span class="lbl">${t("setLang")}</span><div class="seg"><button class="${LANG==="nb"?"on":""}" data-a="setlang" data-l="nb">Norsk</button><button class="${LANG==="en"?"on":""}" data-a="setlang" data-l="en">English</button></div></div>
       <div class="srow"><span class="lbl">${t("setTheme")}</span><div class="seg">${["auto","light","dark"].map(k=>`<button class="${(S.theme||"auto")===k?"on":""}" data-a="settheme" data-m="${k}" aria-pressed="${(S.theme||"auto")===k}">${esc(t("theme_"+k))}</button>`).join("")}</div></div>
       <div class="srow"><span class="lbl">${t("setGoal")}<span class="sub">${t("setGoalUnit")}</span></span><div class="seg">${goalOpts.map(g=>`<button class="${(S.goal||10)===g?"on":""}" data-a="setgoal" data-g="${g}">${g}</button>`).join("")}</div></div>
@@ -430,11 +433,26 @@ function finishLesson(){
   L.result = { xpBefore, levelUp: levelInfo(S.xp).lv > lvBefore ? levelInfo(S.xp).lv : 0, streakMile: st.streakUp && STREAK_MILES.includes(st.streak) ? st.streak : 0, bonus: L.bonus||0, goalHit: st.goalHit, newBadges, gained: gained + (L.bonus||0), acc: Math.round(firstTry/L.total*100), secs: Math.round((Date.now()-L.start)/1000), streak: st.streak, streakUp: st.streakUp };
   screen = "done"; render();
 }
-function correctText(it){ return it.type==="mc" ? it.opts.find(o=>o.ok).t : nf(it.n,3)+(it.u?" "+it.u:""); }
+function correctText(it){ return it.type==="mc" ? it.opts.find(o=>o.ok).t : it.type==="flip" ? it.answer : nf(it.n,3)+(it.u?" "+it.u:""); }
+// Flashcard: personen snur kortet og sier selv om hen kunne det. Teller som riktig/feil akkurat som et vanlig svar.
+function flipGrade(ok){
+  const it = L.queue[0]; L.answered = true; L.ok = ok; buzz(ok);
+  const firstTime = !L.seen.has(it.id); L.seen.add(it.id);
+  if(ok){ L.solved.add(it.id); L.combo++; } else { L.combo = 0; if(firstTime) L.firstWrong.add(it.id); }
+  L.flipShown = false; nextQuestion(); window.scrollTo(0,0);
+}
 function renderLesson(){
   const it = L.queue[0];
   const pct = (L.maxHearts ? (L.done + (L.answered?1:0)) : L.solved.size) / L.total * 100;
-  const lvl = L.kind==="unit" ? `${lvShort(L.meta.k)} · ${lvName(L.meta.k)} · ` : L.kind==="jump" ? t("jumpTest")+" · " : L.kind==="review" ? t("review")+" · " : L.kind==="challenge" ? t("dcTitle")+" · " : L.kind==="drill" ? t("drTitle")+" · "+(it.drTag ? T(DR_TAGS[it.drTag][0], DR_TAGS[it.drTag][1])+" · " : "") : L.kind==="community" ? (L.meta.title||t("ccTitle"))+" · " : "";
+  const lvl = L.kind==="unit" ? `${lvShort(L.meta.k)} · ${lvName(L.meta.k)} · ` : L.kind==="jump" ? t("jumpTest")+" · " : L.kind==="review" ? t("review")+" · " : L.kind==="challenge" ? t("dcTitle")+" · " : L.kind==="drill" ? drTitle()+" · "+(it.drTag ? T(DR_TAGS[it.drTag][0], DR_TAGS[it.drTag][1])+" · " : "") : L.kind==="community" ? (L.meta.title||t("ccTitle"))+" · " : "";
+  if(it.type==="flip"){ // flashcard
+    const shown = !!L.flipShown;
+    $app.innerHTML = `<div class="lesson"><div class="wrap lhead"><button class="iconbtn" data-a="quit" aria-label="${t("quitAria")}">${I.x}</button><div class="bar" role="progressbar" aria-valuenow="${Math.round(pct)}" aria-valuemin="0" aria-valuemax="100"><i style="width:${pct}%"></i></div><span class="combo">${L.combo>=2?L.combo+"×":""}</span><button class="iconbtn flag" data-a="report" aria-label="${t("report")}" title="${t("report")}">${I.flag}</button></div>
+      <main class="wrap lbody"><p class="kicker">${esc(lvl)}${esc(t("flipKicker"))}</p>
+        <button class="flipcard ${shown?"on":""}" data-a="flipshow" aria-label="${esc(t("flipShow"))}"><span class="fc-in"><span class="fc-front">${rich(it.prompt)}<small>${esc(t("flipTap"))}</small></span><span class="fc-back"><b>${rich(it.answer)}</b>${it.expl?`<span>${rich(it.expl)}</span>`:""}</span></span></button></main>
+      <div class="lfoot"><div class="wrap">${shown ? `<p class="fc-q">${esc(t("flipAsk"))}</p><div class="fc-btns"><button class="big ghost fc-no" data-a="flipno">${esc(t("flipNo"))}</button><button class="big fc-yes" data-a="flipyes">${esc(t("flipYes"))}</button></div>` : `<button class="big" data-a="flipshow">${esc(t("flipShow"))}</button>`}</div></div></div>`;
+    return;
+  }
   let body = `<div class="krow"><p class="kicker">${esc(lvl)}${it.type==="mc"?t("pickAnswer"):t("writeAnswer")}</p><button class="kbtn" data-a="scratch">${I.pencil}${t("scratch")}</button></div><div class="prompt">${rich(it.prompt)}</div>`;
   if(it.type==="mc"){
     body += `<div class="opts" role="radiogroup">` + it.opts.map((o,i)=>{
@@ -834,10 +852,11 @@ function renderOverlay(){
   if(!overlay){ dcAfterOverlay(); return; }
   if(overlay.theory){ const w = document.createElement("div"); w.innerHTML = theorySheetHTML(overlay.theory); document.body.appendChild(w.firstElementChild); return; }
   if(overlay.scratch){ const w = document.createElement("div"); w.innerHTML = scratchHTML(); document.body.appendChild(w.firstElementChild); mountScratch(); return; }
-  const d = document.createElement("div"); d.className = overlay==="dcpop" || overlay==="langpick" || overlay.crop ? "scrim center" : "scrim";
+  const d = document.createElement("div"); d.className = overlay==="dcpop" || overlay==="langpick" || overlay.crop || overlay.studypick ? "scrim center" : "scrim";
   if(overlay==="dcpop") d.innerHTML = dcPopupHTML();
   else if(overlay==="langpick") d.innerHTML = langPickHTML();
   else if(overlay.crop) d.innerHTML = cropHTML();
+  else if(overlay.studypick) d.innerHTML = studyPickHTML(overlay.first);
   else if(overlay.bdgegg){ d.className = "scrim center"; d.innerHTML = eggPopHTML(); }
   else if(overlay.jump!=null){ const c=COURSE(S.current); d.innerHTML = `<div class="dialog pop" role="dialog" aria-label="${t("jumpHere")}"><h3>${esc(t("jumpTitle",unitTitle(c,overlay.jump)))}</h3><p>${t("jumpText")}</p><button class="big" data-a="jumpok">${t("startTest")}</button><button class="big ghost" data-a="closeov">${t("cancel")}</button></div>`; }
   else if(overlay==="quit") d.innerHTML = `<div class="dialog pop" role="dialog" aria-label="${t("quitTitle")}"><h3>${t("quitTitle")}</h3><p>${t("quitText")}</p><button class="big" data-a="stay">${t("keepGoing")}</button><button class="big ghost" data-a="quitok" style="color:var(--bad)">${t("quit")}</button></div>`;
@@ -982,7 +1001,7 @@ function goHome(){ screen="home"; L=null; overlay=null; render(); window.scrollT
 let scrimDown = false;
 document.addEventListener("pointerdown", e=>{ scrimDown = !!(e.target.classList && e.target.classList.contains("scrim")); }, true);
 function scrimClose(){
-  if(!overlay || overlay==="langpick") return; // språket må velges første gang
+  if(!overlay || overlay==="langpick" || (overlay.studypick && overlay.first)) return; // språk og studie må velges første gang
   if(overlay.crop){ cropClose(); return; }
   if(overlay==="dcpop"){ overlay=null; renderOverlay(); toast(t("dcPopLaterToast")); return; }
   overlay=null; renderOverlay(); if(screen==="friends") render();
@@ -1001,6 +1020,7 @@ document.addEventListener("click", async e=>{
   if(favClick(a, b)) return; // favoritter og kilder til dagens utfordring
   if(bookClick(a, b)) return; // teoriboka (handlinger som starter med "bk")
   if(grClick(a, b)) return; // grupper (handlinger som starter med "gr")
+  if(studyClick(a, b)) return; // studier (studies.js)
   if(adminClick(a, b)) return; // adminpanel og kunngjøringer (admin.js)
   if(psClick(a, b)) return; // profilsiden til andre + hvilke merker du viser (person.js)
   if(friendsClick(a, b)) return; // venner (handlinger som starter med "fr")
@@ -1031,6 +1051,9 @@ document.addEventListener("click", async e=>{
   else if(a==="jumpok"){ const u=overlay.jump; overlay=null; renderOverlay(); startJump(S.current,u); }
   else if(a==="retry"){ const m=L.meta, k=L.kind, code=L.code; if(k==="jump") startJump(code,m.u); else startUnitLesson(code,m.u,m.k); }
   else if(a==="review"){ startReview(S.current); }
+  else if(a==="flipshow"){ if(L && !L.flipShown){ L.flipShown = true; render(); } }
+  else if(a==="flipyes" || a==="flipno"){ if(L && L.flipShown) flipGrade(a==="flipyes"); }
+  else if(a==="drmode"){ S.drMode = b.dataset.m === "flip" ? "flip" : "mc"; saveLocal(); render(); }
   else if(a==="sel"){ if(!L.answered){ L.sel=+b.dataset.i; render(); } }
   else if(a==="check"){ checkAnswer(); }
   else if(a==="next"){ nextQuestion(); window.scrollTo(0,0); }
@@ -1134,9 +1157,10 @@ if(grBootLink()) screen = "friends"; // axle.no/?gruppe=KODE
 (function fagLink(){ // axle.no/?fag=KODE fra de åpne fagsidene: velg faget
   let code = null; try{ code = new URLSearchParams(location.search).get("fag"); }catch(e){}
   if(!code) return;
-  if(COURSES.some(c => c.code === code)){ S.current = code; saveLocal(); }
+  if(COURSES.some(c => c.code === code)){ S.current = code; if(!S.studySet){ S.study = studyOf(COURSE(code)); S.studySet = 1; } saveLocal(); } // faget avgjør studiet første gang
   try{ const q = new URLSearchParams(location.search); q.delete("fag"); history.replaceState(null, "", location.pathname + (q.toString() ? "?" + q : "") + location.hash); }catch(e){}
 })();
+if(window.STUDY_URL && !S.studySet){ S.study = window.STUDY_URL; S.studySet = 1; if(!inStudy(COURSE(S.current), S.study)) S.current = STUDY(S.study).home; saveLocal(); } // axle.no/?studie=…
 if(checkBadges().length) saveLocal(); // merker for fremgang fra før merkene fantes (uten varsel)
 render();
 AUTH_READY.then(()=>{ setTimeout(bootPrompts, 900); pushResync(); setTimeout(pioneerFetch, 1500); setTimeout(noticeFetch, 1200); }); // innlogging og dagens utfordring som popup ved første åpning i dag

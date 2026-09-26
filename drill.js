@@ -12,6 +12,11 @@ const DR_TAGS = {
   wav: ["Svingninger og bølger", "Oscillations and waves"], el: ["Elektrisitet", "Electricity"], th: ["Termodynamikk", "Thermodynamics"], fl: ["Fluider", "Fluids"], unit: ["Enheter og konstanter", "Units and constants"]
 };
 const DR_MATH = new Set(["der", "int", "trig", "log", "alg", "vec", "cplx", "lim", "stat", "ode"]);
+// Kortstokker per studie. Flere legges til i drill_*.js (f.eks. sykepleie). tags = hvilke tagger stokken består av.
+const DR_DECKS = {
+  m: { study: "ing", tags: DR_MATH, nb: "Grunnbegreper i matte", en: "Core concepts: maths", sym: "∑", short: ["Matte", "Maths"] },
+  f: { study: "ing", tags: new Set(Object.keys(DR_TAGS).filter(k => !DR_MATH.has(k))), nb: "Grunnbegreper i fysikk", en: "Core concepts: physics", sym: "⚛", short: ["Fysikk", "Physics"] }
+};
 // [id, tagg, spørsmål (nb | [nb, en]), riktig svar, [tre gale], forklaring (nb | [nb, en])]. Svar kan også være [nb, en].
 const DS = String.raw;
 const DRILL = [
@@ -209,11 +214,18 @@ for(const c of DRILL){
   if(!Array.isArray(c[2])) c[2] = [c[2], DR_ENQ[c[0]] || c[2].replace(/^Hva er /, "What is ")];
   if(!Array.isArray(c[5]) && DR_EN[c[0]]) c[5] = [c[5], DR_EN[c[0]]];
 }
+const drTitle = () => t(typeof curStudy !== "function" || curStudy() === "ing" ? "drTitle" : "drTitleS"); // «Grunnbegreper» for ingeniør, «Pugg» ellers
 const drText = x => Array.isArray(x) ? T(x[0], x[1]) : x;
 const DR_INT = [0, 1, 3, 7, 16, 35, 70]; // dager til neste gang for boks 1–6
 const drState = () => (S.drill ||= {});
 const drCard = id => DRILL.find(c => c[0] === id);
-function drPool(topic){ return DRILL.filter(c => topic === "all" || (topic === "m") === DR_MATH.has(c[1])); }
+const drDeckOf = tag => Object.keys(DR_DECKS).find(k => DR_DECKS[k].tags.has(tag));
+const drStudyDecks = () => Object.keys(DR_DECKS).filter(k => DR_DECKS[k].study === (typeof curStudy === "function" ? curStudy() : "ing"));
+// "all" = alle kortene i studiet ditt; ellers én stokk.
+function drPool(topic){
+  if(topic === "all"){ const ds = new Set(drStudyDecks()); return DRILL.filter(c => ds.has(drDeckOf(c[1]))); }
+  const d = DR_DECKS[topic]; return d ? DRILL.filter(c => d.tags.has(c[1])) : [];
+}
 function drCounts(topic = "all"){
   const st = drState(), td = dayKey(), pool = drPool(topic);
   let due = 0, fresh = 0, known = 0;
@@ -230,14 +242,15 @@ function drPick(topic, n = 10){
   for(const c of due.slice(7).concat(later)){ if(pick.length >= n) break; if(!pick.includes(c)) pick.push(c); }
   return shuffle(pick);
 }
-function drItem(c){
+function drItem(c, flip){
+  if(flip) return { id: "dr:" + c[0], type: "flip", prompt: drText(c[2]), answer: drText(c[3]), expl: drText(c[5]), drTag: c[1] }; // flashcard: snu kortet og vurder selv
   const opts = shuffle([{ t: drText(c[3]), ok: true }].concat(c[4].map(x => ({ t: drText(x), ok: false }))));
   return { id: "dr:" + c[0], type: "mc", prompt: drText(c[2]), opts, expl: drText(c[5]), drTag: c[1] };
 }
 function startDrill(topic){
   const cards = drPick(topic); if(!cards.length) return;
   S.drillTopic = topic;
-  startLesson("drill", S.current, cards.map(drItem), { topic });
+  startLesson("drill", S.current, cards.map(c => drItem(c, S.drMode === "flip")), { topic });
 }
 // Oppdaterer boksene etter en runde.
 function drRecord(){
@@ -253,11 +266,12 @@ function drRecord(){
   return up;
 }
 function drCardHTML(){
-  const c = drCounts(), m = drCounts("m"), f = drCounts("f"), started = c.total - c.fresh;
+  const c = drCounts(), decks = drStudyDecks(), started = c.total - c.fresh, flip = S.drMode === "flip";
+  if(!c.total) return "";
   const sub = c.due ? t("drDue", c.due) : started ? t("drAllDone") : t("drIntro");
-  return `<div class="dr-card"><div class="dr-h"><span class="dr-ic">${I.redo}</span><div><b>${esc(t("drTitle"))}</b><span>${esc(sub)}</span></div></div>
+  return `<div class="dr-card"><div class="dr-h"><span class="dr-ic">${I.redo}</span><div><b>${esc(drTitle())}</b><span>${esc(sub)}</span></div></div>
     <div class="dr-meter"><i style="width:${c.known / c.total * 100}%"></i></div><small class="dr-known">${esc(t("drKnown", c.known, c.total))}</small>
+    <div class="seg dr-mode" role="radiogroup" aria-label="${esc(t("drModeLab"))}"><button role="radio" aria-checked="${!flip}" class="${flip ? "" : "on"}" data-a="drmode" data-m="mc">${esc(t("drModeMc"))}</button><button role="radio" aria-checked="${flip}" class="${flip ? "on" : ""}" data-a="drmode" data-m="flip">🃏 ${esc(t("drModeFlip"))}</button></div>
     <div class="dr-btns"><button class="dr-b" data-a="drstart" data-t="all"><b>${esc(t("drMix"))}</b>${c.due ? `<em>${c.due}</em>` : ""}</button>
-      <button class="dr-b" data-a="drstart" data-t="m"><b>${esc(t("drMath"))}</b>${m.due ? `<em>${m.due}</em>` : ""}</button>
-      <button class="dr-b" data-a="drstart" data-t="f"><b>${esc(t("drPhys"))}</b>${f.due ? `<em>${f.due}</em>` : ""}</button></div></div>`;
+      ${decks.map(k => { const n = drCounts(k); return `<button class="dr-b" data-a="drstart" data-t="${k}"><b>${esc(T(DR_DECKS[k].short[0], DR_DECKS[k].short[1]))}</b>${n.due ? `<em>${n.due}</em>` : ""}</button>`; }).join("")}</div></div>`;
 }

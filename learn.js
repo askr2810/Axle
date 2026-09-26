@@ -34,7 +34,7 @@ function BIQ(code, u, list) {
 // ---------- nye fag ----------
 // NEWCOURSE({ code, group, nb, en, s:[nbMerke, enMerke], eqText:{nb,en}, units:[[nbTittel, enTittel], ...] })
 function NEWCOURSE(d) {
-  COURSES.push({ code: d.code, name: d.nb, group: d.group, isNew: true, units: d.units.map(([nb]) => ({ title: nb, qs: [], gen: [] })) });
+  COURSES.push({ code: d.code, name: d.nb, group: d.group, isNew: true, study: d.study || undefined, units: d.units.map(([nb]) => ({ title: nb, qs: [], gen: [] })) });
   META[d.code] = { nb: d.nb, en: d.en, s: d.s, eq: [], eqText: d.eqText, units: d.units.map(x => x[1]) };
 }
 GROUP_NAMES["Forkurs"] = ["Start her: grunnlag", "Start here: foundations"];
