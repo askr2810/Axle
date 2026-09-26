@@ -136,9 +136,10 @@ function gmClick(a, b){
 // ---------- Lek og lær-menyen og tilpasning av forsiden ----------
 // Forsiden viser bare én knapp («Lek og lær») som åpner alle spillene. Spill man fester (S.homePins) vises som store fliser.
 // Tilpass forsiden (S.homeHide): skjul dagens utfordring og favorittlinja.
-const GAMES = [["sn", "snopen", "📱", "snTitle", "sn-t1"], ["sp", "spopen", "⚡", "spTitle", "sn-t2"], ["mt", "mtopen", "🧩", "mtTitle", "sn-t3"], ["tf", "tfopen", "👆", "tfTitle", "sn-t4"]];
+const GAMES = [["du", "duopen", "⚔️", "duTitle", "sn-t5"], ["lo", "loopen", "🤜", "loTitle", "sn-t6"], ["sn", "snopen", "📱", "snTitle", "sn-t1"], ["sp", "spopen", "⚡", "spTitle", "sn-t2"], ["mt", "mtopen", "🧩", "mtTitle", "sn-t3"], ["tf", "tfopen", "👆", "tfTitle", "sn-t4"]];
 function gmSub(id){
   const st = curStudy(), sp = (S.sprintBest || {})[st], mb = (S.matchBest || {})[st], tb = (S.tfBest || {})[st];
+  if(id === "du") return t("duSub"); if(id === "lo") return t("loSub");
   if(id === "sn") return t("snSub"); if(id === "sp") return sp ? t("spBest", sp) : t("spSub");
   if(id === "mt") return mb ? t("mtBest", f1(mb)) : t("mtSub"); return tb ? t("spBest", tb) : t("tfSub");
 }
@@ -147,7 +148,7 @@ const homePins = () => Array.isArray(S.homePins) ? S.homePins : [];
 function homeGamesHTML(){
   const pins = GAMES.filter(g => homePins().includes(g[0]));
   return `${pins.length ? `<div class="sn-entry">${pins.map(gmTile).join("")}</div>` : ""}
-    <button class="qt-row gm-row" data-a="gamesmenu"><span class="gm-ics" aria-hidden="true">${GAMES.map(g => `<i class="${g[4]}">${g[2]}</i>`).join("")}</span><span><b>${esc(t("gmTitle"))}</b><small>${esc(t("gmSub"))}</small></span>${I.chevron}</button>`;
+    <button class="qt-row gm-row" data-a="gamesmenu"><span class="gm-ics" aria-hidden="true">${GAMES.slice(0, 4).map(g => `<i class="${g[4]}">${g[2]}</i>`).join("")}</span><span><b>${esc(t("gmTitle"))}</b><small>${esc(t("gmSub"))}</small></span>${I.chevron}</button>`;
 }
 // I Øv: alle spillene som små fliser.
 const practiceGamesHTML = () => `<div class="sn-entry sn-sm">${GAMES.map(gmTile).join("")}</div>`;

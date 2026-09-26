@@ -174,6 +174,7 @@ function buzz(ok){
 
 // ---------- hjem ----------
 function renderHome(){
+  duCheckInvites();
   const c = COURSE(S.current), st = streakNow(), today = S.daily[dayKey()]||0, goal = S.goal||10;
   const wrongN = sub(c.code).wrong.length;
   const now = new Date(); const dow = (now.getDay()+6)%7; const monday = addDays(now,-dow);
@@ -205,6 +206,7 @@ function renderHome(){
   </div></div>
   <main class="wrap">
     ${noticeHTML()}
+    ${duInviteHTML()}
     ${(S.homeHide || {}).fav ? "" : favBarHTML()}
     ${dcDoneToday() || (S.homeHide || {}).dc ? "" : dcCardHTML()}
     ${homeGamesHTML()}
@@ -1000,6 +1002,8 @@ function render(){
   else if(screen==="sprint") renderSprint();
   else if(screen==="match") renderMatch();
   else if(screen==="truefalse") renderTF();
+  else if(screen==="duel") renderDuel();
+  else if(screen==="local") renderLocal();
   else if(screen==="community") renderCommunity();
   else if(screen==="ccedit") renderCCEdit();
   else if(screen==="book") renderBook();
@@ -1046,7 +1050,7 @@ document.addEventListener("click", async e=>{
   if(grClick(a, b)) return; // grupper (handlinger som starter med "gr")
   if(studyClick(a, b)) return; // studier (studies.js)
   if(pfClick(a, b)) return; // bevis (proofs.js)
-  if(snEntryClick(a) || snClick(a, b) || spClick(a, b) || gmClick(a, b) || gmMenuClick(a, b)) return; // snacks og lynrunde (snacks.js)
+  if(snEntryClick(a) || snClick(a, b) || spClick(a, b) || gmClick(a, b) || gmMenuClick(a, b) || duClick(a, b)) return; // snacks og lynrunde (snacks.js)
   if(adminClick(a, b)) return; // adminpanel og kunngjøringer (admin.js)
   if(psClick(a, b)) return; // profilsiden til andre + hvilke merker du viser (person.js)
   if(friendsClick(a, b)) return; // venner (handlinger som starter med "fr")
