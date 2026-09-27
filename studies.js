@@ -10,7 +10,7 @@ const STUDIES = [
   { id: "syk", nb: "Sykepleie", en: "Nursing", ic: "🩺", home: "SLMR", slug: ["sykepleie", "nursing"],
     sub: ["Legemiddelregning, anatomi, farmakologi og smittevern", "Drug calculations, anatomy, pharmacology and infection control"] },
   { id: "vgs", nb: "Videregående", en: "Upper secondary", ic: "🎒", home: "VG1T", tab: ["VGS", "Upper sec."], slug: ["videregaende", "upper-secondary"],
-    sub: ["Studiespesialisering: 1T, R1, R2, S1, S2, fysikk, kjemi og biologi", "General studies: maths 1T, R1, R2, S1, S2, physics, chemistry and biology"] },
+    sub: ["Matte (1P–R2), realfag, naturfag, samfunnskunnskap, geografi, historie og religion og etikk", "Maths (1P–R2), sciences, natural science, social studies, geography, history and religion and ethics"] },
   { id: "oko", nb: "Økonomi og administrasjon", en: "Business and administration", ic: "📊", home: "OBED", tab: ["Økonomi", "Business"], slug: ["okonomi", "business"],
     sub: ["Bedriftsøkonomi, regnskap, matte, statistikk og samfunnsøkonomi", "Business economics, accounting, maths, statistics and economics"] },
   { id: "jus", nb: "Rettsvitenskap", en: "Law", ic: "⚖️", home: "JMET", tab: ["Jus", "Law"], slug: ["jus", "law"],
