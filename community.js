@@ -6,7 +6,7 @@
 const CC_MAX_COURSES = 5, CC_MAX_Q = 50;
 const CC_SUBJECTS = ["matte", "fysikk", "mekanikk", "elektro", "data", "kjemi", "bygg", "energi", "okonomi", "annet"];
 const CC_EMOJI = ["📘", "📐", "🧮", "⚙️", "🔧", "⚡", "🔌", "💻", "🤖", "🧪", "🏗️", "🌊", "🔥", "🌱", "🚀", "🧠", "📊", "🎯", "🛠️", "🧲", "🛰️", "🌍", "💡", "⭐"];
-let CC = { tab: "explore", q: "", sort: "popular", rows: null, mine: null, loading: false, err: null, view: null, edit: null, qedit: null };
+let CC = { tab: "explore", q: "", sort: "popular", kind: "all", rows: null, mine: null, loading: false, err: null, view: null, edit: null, qedit: null };
 
 async function ccRpc(name, args){ return frRpc(name, args); }
 function ccErr(e){
@@ -21,42 +21,52 @@ async function ccLoad(){
   if(!CLOUD_ON || !AUTH) return;
   CC.loading = true; CC.err = null; ccRender();
   try{
-    const [rows, mine] = await Promise.all([ccRpc("list_community", { q: CC.q, sort: CC.sort }), ccRpc("list_community", { q: "", sort: "mine" })]);
+    const [rows, mine] = await Promise.all([ccRpc("list_community", { q: CC.q, sort: CC.sort, p_kind: CC.kind }), ccRpc("list_community", { q: "", sort: "mine", p_kind: "all" })]);
     CC.rows = rows || []; CC.mine = mine || [];
   }catch(e){ CC.err = ccErr(e); CC.rows = CC.rows || []; CC.mine = CC.mine || []; }
   CC.loading = false; ccRender();
 }
 function ccRender(){ if((screen === "community" || screen === "ccedit") && !overlay) render(); }
-function openCommunity(){ screen = "community"; overlay = null; CC.view = null; render(); window.scrollTo(0, 0); if(CC.rows === null) ccLoad(); }
+function openCommunity(tab){ screen = "community"; overlay = null; CC.view = null; if(tab) CC.tab = tab; render(); window.scrollTo(0, 0); if(CC.rows === null) ccLoad(); }
 const ccSubj = s => t("ccSub_" + s) || s;
 
+const ccIsCards = r => r && r.kind === "cards";
 function ccCardHTML(r){
-  return `<button class="cc-card" data-a="ccopen" data-id="${esc(r.id)}"><span class="cc-emo">${esc(r.emoji || "📘")}</span>
+  const cards = ccIsCards(r);
+  return `<button class="cc-card" data-a="ccopen" data-id="${esc(r.id)}"><span class="cc-emo">${esc(r.emoji || (cards ? "📚" : "📘"))}</span>
     <span class="cc-t"><b>${esc(r.title)}</b><span>${esc(r.author)}${r.author_username ? " · @" + esc(r.author_username) : ""}</span>
-    <small>${esc(ccSubj(r.subject))} · ${esc(t("ccNQ", r.n_questions))}${r.mine && !r.published ? " · " + esc(t("ccDraft")) : ""}${r.hidden ? " · " + esc(t("ccHidden")) : ""}</small></span>
-    <span class="cc-stats"><span class="${r.liked ? "on" : ""}">♥ ${r.likes}</span><span>▶ ${r.plays}</span></span></button>`;
+    <small><em class="cc-kind ${cards ? "fc" : "qz"}">${esc(t(cards ? "ccKindCards" : "ccKindQuiz"))}</em> ${esc(ccSubj(r.subject))} · ${esc(t(cards ? "mdCount" : "ccNQ", r.n_questions))}${r.mine && !r.published ? " · " + esc(t("ccDraft")) : ""}${r.hidden ? " · " + esc(t("ccHidden")) : ""}</small></span>
+    <span class="cc-stats"><span class="${r.liked ? "on" : ""}">👍 ${r.likes}</span><span>▶ ${r.plays}</span></span></button>`;
+}
+// «Mine»: egne kortstokker (lagret på enheten, kan publiseres) og egne quizer (i skyen).
+function ccMineHTML(){
+  const decks = typeof myDecks === "function" ? myDecks() : [], quizzes = (CC.mine || []).filter(r => !ccIsCards(r));
+  const remoteCards = (CC.mine || []).filter(r => ccIsCards(r) && !decks.some(d => d.cid === r.id));
+  return `<div class="cc-sec"><div class="cc-sech"><h3>📚 ${esc(t("ccMyCards"))}</h3><span>${decks.length}</span></div>
+      <div class="md-new"><button class="big" data-a="mdnew">＋ ${esc(t("mdNewTitle"))}</button><button class="big ghost" data-a="mdimportopen">${esc(t("mdImport"))}</button></div>
+      ${decks.length ? decks.map(mdDeckHTML).join("") : `<p class="fr-hint">${esc(t("mdEmptyText"))}</p>`}
+      ${remoteCards.map(ccCardHTML).join("")}</div>
+    <div class="cc-sec"><div class="cc-sech"><h3>❓ ${esc(t("ccMyQuiz"))}</h3><span>${quizzes.length}/${CC_MAX_COURSES}</span></div>
+      ${AUTH ? `<button class="big" data-a="ccnew" ${quizzes.length >= CC_MAX_COURSES ? "disabled" : ""}>${I.plus} ${esc(t("ccNew"))}</button>
+        <div class="cc-list">${CC.mine === null || CC.loading ? `<p class="fr-wait">${esc(t("frLoading"))}</p>` : quizzes.length ? quizzes.map(ccCardHTML).join("") : `<p class="fr-hint">${esc(t("ccMineEmpty"))}</p>`}</div>`
+        : `<p class="fr-hint">${esc(t("ccQuizLogin"))}</p><button class="big ghost" data-a="aclogin">${esc(t("acLogin"))}</button>`}</div>`;
 }
 function renderCommunity(){
   const head = `<div class="top"><div class="wrap"><button class="iconbtn" data-a="tab" data-t="practice" aria-label="${esc(t("back"))}">${I.left}</button>
     <div class="th-t"><small>${esc(t("ccSub"))}</small><b>${esc(t("ccTitle"))}</b></div><span class="th-ic" aria-hidden="true">${I.users}</span></div></div>`;
   let body;
-  if(!CLOUD_ON) body = `<div class="fr-card"><p>${esc(t("frNoCloud"))}</p></div>`;
-  else if(!AUTH) body = `<div class="fr-card fr-intro"><span class="fr-big">${I.users}</span><h2>${esc(t("ccIntroTitle"))}</h2><p>${esc(t("ccIntroText"))}</p><button class="big" data-a="aclogin">${esc(t("acLogin"))}</button></div>`;
-  else if(CC.view) body = ccDetailHTML(CC.view);
+  const tabs = `<div class="seg cc-tabs" role="tablist">${["explore", "mine"].map(k => `<button role="tab" class="${CC.tab === k ? "on" : ""}" aria-selected="${CC.tab === k}" data-a="cctab" data-t="${k}">${esc(t(k === "explore" ? "ccExplore" : "ccMine"))}</button>`).join("")}</div>`;
+  if(CC.view) body = ccDetailHTML(CC.view);
+  else if(CC.tab === "mine") body = tabs + ccMineHTML();
+  else if(!CLOUD_ON) body = tabs + `<div class="fr-card"><p>${esc(t("frNoCloud"))}</p></div>`;
+  else if(!AUTH) body = tabs + `<div class="fr-card fr-intro"><span class="fr-big">${I.users}</span><h2>${esc(t("ccIntroTitle"))}</h2><p>${esc(t("ccIntroText"))}</p><button class="big" data-a="aclogin">${esc(t("acLogin"))}</button></div>`;
   else {
-    const tabs = `<div class="seg cc-tabs" role="tablist">${["explore", "mine"].map(k => `<button role="tab" class="${CC.tab === k ? "on" : ""}" aria-selected="${CC.tab === k}" data-a="cctab" data-t="${k}">${esc(t(k === "explore" ? "ccExplore" : "ccMine"))}</button>`).join("")}</div>`;
-    if(CC.tab === "mine"){
-      const mine = CC.mine || [];
-      body = tabs + `<p class="cc-limit">${esc(t("ccLimit", mine.length, CC_MAX_COURSES, CC_MAX_Q))}</p>
-        <button class="big" data-a="ccnew" ${mine.length >= CC_MAX_COURSES ? "disabled" : ""}>${I.plus} ${esc(t("ccNew"))}</button>
-        <div class="cc-list">${CC.mine === null || CC.loading ? `<p class="fr-wait">${esc(t("frLoading"))}</p>` : mine.length ? mine.map(ccCardHTML).join("") : `<p class="fr-hint">${esc(t("ccMineEmpty"))}</p>`}</div>`;
-    } else {
-      body = tabs + `<div class="fr-search">${I.search}<input type="search" id="ccq" placeholder="${esc(t("ccSearch"))}" value="${esc(CC.q)}" autocomplete="off"></div>
-        <div class="chips cc-sort">${["popular", "new"].map(s => `<button class="${CC.sort === s ? "on" : ""}" data-a="ccsort" data-s="${s}">${esc(t(s === "popular" ? "ccPopular" : "ccNewest"))}</button>`).join("")}</div>
-        <div class="cc-list">${CC.rows === null || CC.loading ? `<p class="fr-wait">${esc(t("frLoading"))}</p>` : CC.rows.length ? CC.rows.map(ccCardHTML).join("") : `<p class="fr-hint">${esc(t("ccEmpty"))}</p>`}</div>`;
-    }
-    if(CC.err) body += `<p class="fr-hint">${esc(CC.err)}</p>`;
+    body = tabs + `<div class="fr-search">${I.search}<input type="search" id="ccq" placeholder="${esc(t("ccSearch"))}" value="${esc(CC.q)}" autocomplete="off"></div>
+      <div class="chips cc-kinds">${[["all", "ccKindAll"], ["cards", "ccKindCards"], ["quiz", "ccKindQuiz"]].map(([k, l]) => `<button class="${CC.kind === k ? "on" : ""}" data-a="cckind" data-k="${k}">${esc(t(l))}</button>`).join("")}</div>
+      <div class="chips cc-sort">${[["popular", "ccPopular"], ["new", "ccNewest"], ["friends", "ccFriends"], ["liked", "ccLikedTab"]].map(([k, l]) => `<button class="${CC.sort === k ? "on" : ""}" data-a="ccsort" data-s="${k}">${esc(t(l))}</button>`).join("")}</div>
+      <div class="cc-list">${CC.rows === null || CC.loading ? `<p class="fr-wait">${esc(t("frLoading"))}</p>` : CC.rows.length ? CC.rows.map(ccCardHTML).join("") : `<p class="fr-hint">${esc(t(CC.sort === "friends" ? "ccEmptyFriends" : CC.sort === "liked" ? "ccEmptyLiked" : "ccEmpty"))}</p>`}</div>`;
   }
+  if(CC.err && !CC.view) body += `<p class="fr-hint">${esc(CC.err)}</p>`;
   $app.innerHTML = `${head}<main class="wrap fr cc">${body}</main>`;
   const q = document.getElementById("ccq");
   if(q) q.addEventListener("input", () => { CC.q = q.value; clearTimeout(CC.timer); CC.timer = setTimeout(async () => { const pos = q.selectionStart; await ccLoad(); const n = document.getElementById("ccq"); if(n){ n.focus(); try{ n.setSelectionRange(pos, pos); }catch(e){} } }, 350); });
@@ -64,15 +74,46 @@ function renderCommunity(){
 // ---------- detalj ----------
 function ccFind(id){ return [...(CC.rows || []), ...(CC.mine || [])].find(r => r.id === id); }
 function ccDetailHTML(r){
-  return `<div class="fr-card cc-detail"><div class="cc-dh"><span class="cc-emo big">${esc(r.emoji || "📘")}</span><div><h2>${esc(r.title)}</h2><span>${esc(t("ccBy", r.author))}${r.author_username ? " · @" + esc(r.author_username) : ""}</span></div></div>
+  const cards = ccIsCards(r), n = r.n_questions;
+  const play = cards ? `<div class="cc-play3"><button class="big" data-a="ccplaycards" data-id="${esc(r.id)}" data-m="flip">🃏 ${esc(t("drModeFlip"))}</button>
+      ${n >= 4 ? `<button class="big ghost" data-a="ccplaycards" data-id="${esc(r.id)}" data-m="mc">${esc(t("drModeMc"))}</button>` : ""}${n >= 5 ? `<button class="big ghost" data-a="ccplaycards" data-id="${esc(r.id)}" data-m="match">🧩 ${esc(t("mtTitle"))}</button>` : ""}</div>
+      ${r.mine ? "" : `<button class="big ghost" data-a="cccopy" data-id="${esc(r.id)}">📥 ${esc(t("ccCopyDeck"))}</button>`}`
+    : `<button class="big" data-a="ccplay" data-id="${esc(r.id)}" ${n ? "" : "disabled"}>${esc(t("ccPlay"))}</button>`;
+  return `<div class="fr-card cc-detail"><div class="cc-dh"><span class="cc-emo big">${esc(r.emoji || (cards ? "📚" : "📘"))}</span><div><h2>${esc(r.title)}</h2><span>${esc(t("ccBy", r.author))}${r.author_username ? " · @" + esc(r.author_username) : ""}</span></div></div>
     ${r.description ? `<p>${esc(r.description)}</p>` : ""}
-    <div class="cc-meta"><span>${esc(ccSubj(r.subject))}</span><span>${esc(t("ccNQ", r.n_questions))}</span><span>♥ ${r.likes}</span><span>▶ ${r.plays}</span></div>
+    <div class="cc-meta"><span class="cc-kind ${cards ? "fc" : "qz"}">${esc(t(cards ? "ccKindCards" : "ccKindQuiz"))}</span><span>${esc(ccSubj(r.subject))}</span><span>${esc(t(cards ? "mdCount" : "ccNQ", n))}</span><span>👍 ${r.likes}</span><span>▶ ${r.plays}</span></div>
     ${r.hidden ? `<p class="fr-hint">${esc(t("ccHiddenNote"))}</p>` : ""}
-    <button class="big" data-a="ccplay" data-id="${esc(r.id)}" ${r.n_questions ? "" : "disabled"}>${esc(t("ccPlay"))}</button>
-    ${r.mine ? `<button class="big ghost" data-a="ccedit" data-id="${esc(r.id)}">${I.pencil} ${esc(t("ccEdit"))}</button>`
-             : `<button class="big ghost ${r.liked ? "liked" : ""}" data-a="cclike" data-id="${esc(r.id)}">${r.liked ? "♥ " + esc(t("ccLiked")) : "♡ " + esc(t("ccLike"))}</button>
-                <button class="exlink fr-repl" data-a="ccreport" data-id="${esc(r.id)}">${I.flag}${esc(t("ccReport"))}</button>`}
+    ${play}
+    <div class="cc-social">${r.mine ? "" : `<button class="big ghost cc-like ${r.liked ? "liked" : ""}" data-a="cclike" data-id="${esc(r.id)}">👍 ${esc(r.liked ? t("ccLiked") : t("ccLike"))}</button>`}
+      <button class="big ghost" data-a="ccshare" data-id="${esc(r.id)}">${I.share} ${esc(t("ccShare"))}</button></div>
+    ${r.mine && !cards ? `<button class="big ghost" data-a="ccedit" data-id="${esc(r.id)}">${I.pencil} ${esc(t("ccEdit"))}</button>` : ""}
+    ${r.mine ? "" : `<button class="exlink fr-repl" data-a="ccreport" data-id="${esc(r.id)}">${I.flag}${esc(t("ccReport"))}</button>`}
     <button class="exlink" data-a="ccback">${esc(t("back"))}</button></div>`;
+}
+// Delt lenke eller kort fra lista: hent én rad.
+async function ccOpenId(id){
+  try{ const rows = await ccRpc("get_community", { cid: id }); const r = rows && rows[0]; if(!r) throw new CloudError("not_found", 404);
+    CC.view = r; screen = "community"; render(); window.scrollTo(0, 0); }catch(e){ toast(ccErr(e)); }
+}
+async function ccShare(id){
+  const r = ccFind(id) || CC.view, url = location.origin + location.pathname + "#/" + rtW("community") + "/" + id;
+  const txt = t(ccIsCards(r) ? "ccShareCards" : "ccShareQuiz", r ? r.title : "");
+  if(navigator.share) navigator.share({ title: r ? r.title : "Axle", text: txt, url }).catch(() => {});
+  else if(navigator.clipboard) navigator.clipboard.writeText(url).then(() => toast(t("mdCopied")), () => prompt(t("mdCopyThis"), url));
+  else prompt(t("mdCopyThis"), url);
+}
+async function ccCardsDeck(id){
+  const c = await ccFetchQuestions(id);
+  return { id: "cc:" + id, name: c.title, cards: (c.questions || []).filter(x => x.t === "fc").map(x => ({ q: x.q, a: x.b })), owner: c.owner };
+}
+async function ccPlayCards(id, mode){
+  try{ const d = await ccCardsDeck(id); if(d.owner !== (AUTH && AUTH.uid)) ccRpc("count_play", { cid: id }).catch(() => {});
+    MD_RETURN = "community"; if(mode === "match"){ GM_POOL = d.cards.map((c, i) => ["cc" + i, "my", c.q, c.a, [], ""]); mtOpen(); } else mdPracticeDeck(d, mode); }
+  catch(e){ toast(ccErr(e)); }
+}
+async function ccCopyDeck(id){
+  try{ const d = await ccCardsDeck(id); myDecks().unshift({ id: "d" + Date.now().toString(36), name: d.name, cards: d.cards, known: {}, at: Date.now() }); save(); toast(t("mdSaved")); }
+  catch(e){ toast(ccErr(e)); }
 }
 async function ccFetchQuestions(id){
   const tok = await authToken(); if(!tok) throw new CloudError("auth", 401);
@@ -224,12 +265,16 @@ async function ccSave(){
 function communityClick(a, b){
   if(!a.startsWith("cc")) return false;
   const e = CC.edit;
-  if(a === "cctab"){ CC.tab = b.dataset.t; render(); }
+  if(a === "cctab"){ CC.tab = b.dataset.t; CC.view = null; render(); }
+  else if(a === "cckind"){ CC.kind = b.dataset.k; ccLoad(); }
+  else if(a === "ccshare") ccShare(b.dataset.id);
+  else if(a === "ccplaycards") ccPlayCards(b.dataset.id, b.dataset.m);
+  else if(a === "cccopy") ccCopyDeck(b.dataset.id);
   else if(a === "ccsort"){ CC.sort = b.dataset.s; ccLoad(); }
-  else if(a === "ccopen"){ CC.view = ccFind(b.dataset.id); render(); window.scrollTo(0, 0); }
+  else if(a === "ccopen"){ CC.view = ccFind(b.dataset.id); if(CC.view){ render(); window.scrollTo(0, 0); } else ccOpenId(b.dataset.id); }
   else if(a === "ccback"){ CC.view = null; render(); }
   else if(a === "ccplay") ccPlay(b.dataset.id);
-  else if(a === "cclike"){ const r = ccFind(b.dataset.id); ccRpc("toggle_like", { cid: b.dataset.id }).then(n => { if(r){ r.likes = n; r.liked = !r.liked; } buzz(true); render(); }, err => toast(ccErr(err))); }
+  else if(a === "cclike"){ const r = ccFind(b.dataset.id) || (CC.view && CC.view.id === b.dataset.id ? CC.view : null); ccRpc("toggle_like", { cid: b.dataset.id }).then(n => { if(r){ r.likes = n; r.liked = !r.liked; } buzz(true); render(); }, err => toast(ccErr(err))); }
   else if(a === "ccreport"){ const r = ccFind(b.dataset.id); overlay = { frrep: { kind: "course", id: null, target: b.dataset.id, reason: null, owner: r && r.owner } }; renderOverlay(); }
   else if(a === "ccnew") ccEditOpen(null);
   else if(a === "ccedit") ccEditOpen(b.dataset.id);

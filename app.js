@@ -889,6 +889,7 @@ function renderOverlay(){
   else if(overlay.games) d.innerHTML = gamesMenuHTML(overlay.games);
   else if(overlay.mdimport){ d.className = "scrim center"; d.innerHTML = mdImportHTML(overlay.mdimport); }
   else if(overlay.drpick) d.innerHTML = drPickHTML();
+  else if(overlay.mdpub) d.innerHTML = mdPubHTML(overlay.mdpub);
   else if(overlay.layout) d.innerHTML = layoutEditHTML(overlay.layout);
   else if(overlay.topics) d.innerHTML = topicPickHTML(overlay.topics);
   else if(overlay.bdgegg){ d.className = "scrim center"; d.innerHTML = eggPopHTML(); }
@@ -1059,7 +1060,7 @@ document.addEventListener("click", async e=>{
   if(guidedClick(a, b)) return; // steg for steg
   if(communityClick(a, b)) return; // fellesskapskurs
   if(a==="community"){ openCommunity(); return; }
-  if((a==="home" || a==="quitok") && L && L.kind==="mydeck"){ overlay = null; L = null; mdOpen(); return; }
+  if((a==="home" || a==="quitok") && L && L.kind==="mydeck"){ overlay = null; L = null; mdReturn(); return; }
   if(a==="home" && L && L.kind==="community" && (screen==="done" || screen==="fail")){ const back = CC.edit ? "ccedit" : "community"; L = null; screen = back; render(); window.scrollTo(0,0); return; }
   if(a==="quitok" && L && L.kind==="community"){ const back = CC.edit ? "ccedit" : "community"; overlay = null; L = null; screen = back; render(); window.scrollTo(0,0); return; }
   if(a==="report" && L && L.kind==="community"){ if(L.meta.cid && L.meta.cid !== "preview"){ overlay = { frrep: { kind: "course", id: null, target: L.meta.cid, reason: null } }; renderOverlay(); } else toast(t("ccPreviewNoReport")); return; }

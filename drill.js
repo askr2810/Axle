@@ -266,13 +266,13 @@ function drRecord(){
   return up;
 }
 function drCardHTML(){
-  const c = drCounts(), started = c.total - c.fresh, mine = (S.myDecks || []).length;
+  const c = drCounts(), started = c.total - c.fresh;
   if(!c.total) return "";
   const sub = c.due ? t("drDue", c.due) : started ? t("drAllDone") : t("drIntro");
   return `<div class="dr-card"><div class="dr-h"><span class="dr-ic">${I.redo}</span><div><b>${esc(drTitle())}</b><span>${esc(sub)}</span></div></div>
     <div class="dr-meter"><i style="width:${c.known / c.total * 100}%"></i></div><small class="dr-known">${esc(t("drKnown", c.known, c.total))}</small>
     <div class="dr-row"><button class="big dr-go" data-a="drstart" data-t="all">▶ ${esc(t("drGo"))}${c.due ? ` <em>${c.due}</em>` : ""}</button><button class="big ghost dr-pickb" data-a="drpick">${esc(t("drPickBtn"))}</button></div>
-    <button class="dr-mine" data-a="mdopen"><span>📚</span><span><b>${esc(t("mdTitle"))}</b><small>${esc(mine ? t("mdHave", mine) : t("mdMakeOwn"))}</small></span>${I.chevron}</button></div>`;
+  </div>`;
 }
 // Velg kortstokk og modus (flervalg/flashcards) i et ark, så selve kortet i Øv holder seg enkelt.
 function drPickHTML(){

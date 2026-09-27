@@ -206,3 +206,119 @@ grant execute on function public.list_community(text, text)                     
 grant execute on function public.toggle_like(uuid)                              to authenticated;
 grant execute on function public.count_play(uuid)                               to authenticated;
 grant execute on function public.report_content(text, uuid, text, text, text)   to authenticated;
+
+-- =====================================================================
+--  FLASHCARDS I FELLESSKAPET (tillegg, 2026): samme tabell, men kind = 'cards'.
+--  Kort lagres som { t: 'fc', q: forside, b: bakside }. Maks 200 kort, 20 kortstokker og 5 quizer per bruker.
+--  list_community får filter på type (all | quiz | cards) og nye sorteringer: 'friends' (fra venner) og 'liked' (likt av meg).
+-- =====================================================================
+alter table public.community_courses add column if not exists kind text not null default 'quiz';
+do $$ begin
+  if not exists (select 1 from pg_constraint where conname = 'community_courses_kind_check') then
+    alter table public.community_courses add constraint community_courses_kind_check check (kind in ('quiz', 'cards'));
+  end if;
+end $$;
+
+create or replace function public.valid_questions(q jsonb)
+returns boolean
+language plpgsql
+immutable
+set search_path = ''
+as $$
+declare x jsonb; t text; n int; nq int := 0;
+begin
+  if jsonb_typeof(q) <> 'array' or jsonb_array_length(q) > 200 or octet_length(q::text) > 200000 then return false; end if;
+  for x in select * from jsonb_array_elements(q) loop
+    if jsonb_typeof(x) <> 'object' then return false; end if;
+    t := x->>'t';
+    if t not in ('mc', 'tf', 'num', 'fc') then return false; end if;
+    if t = 'fc' then
+      if char_length(coalesce(x->>'q', '')) not between 1 and 400 or char_length(coalesce(x->>'b', '')) not between 1 and 400 then return false; end if;
+      continue;
+    end if;
+    nq := nq + 1;
+    if char_length(coalesce(x->>'q', '')) not between 1 and 500 then return false; end if;
+    if char_length(coalesce(x->>'e', '')) > 600 then return false; end if;
+    if t = 'mc' then
+      if jsonb_typeof(x->'o') <> 'array' then return false; end if;
+      n := jsonb_array_length(x->'o');
+      if n not between 2 and 4 then return false; end if;
+      if exists (select 1 from jsonb_array_elements_text(x->'o') o where char_length(o) not between 1 and 150) then return false; end if;
+      if (x->>'a') !~ '^[0-3]$' or (x->>'a')::int >= n then return false; end if;
+    elsif t = 'tf' then
+      if (x->>'a') not in ('0', '1') then return false; end if;
+    else
+      if jsonb_typeof(x->'n') <> 'number' then return false; end if;
+      if char_length(coalesce(x->>'u', '')) > 20 then return false; end if;
+    end if;
+  end loop;
+  return nq <= 50;
+end;
+$$;
+
+create or replace function public.community_courses_check()
+returns trigger
+language plpgsql
+set search_path = ''
+as $$
+begin
+  if tg_op = 'INSERT' and (select count(*) from public.community_courses where owner = new.owner and kind = new.kind) >= (case when new.kind = 'cards' then 20 else 5 end) then raise exception 'too_many_courses'; end if;
+  if tg_op = 'UPDATE' and new.kind <> old.kind then raise exception 'bad_questions'; end if;
+  if not public.valid_questions(new.questions) then raise exception 'bad_questions'; end if;
+  if new.kind = 'cards' and exists (select 1 from jsonb_array_elements(new.questions) x where x->>'t' <> 'fc') then raise exception 'bad_questions'; end if;
+  if new.kind = 'quiz' and exists (select 1 from jsonb_array_elements(new.questions) x where x->>'t' = 'fc') then raise exception 'bad_questions'; end if;
+  if not public.is_clean(new.title) or not public.is_clean(new.description) then raise exception 'bad_word'; end if;
+  new.updated_at := now();
+  return new;
+end;
+$$;
+
+grant insert (owner, title, description, emoji, subject, lang, questions, published, kind) on public.community_courses to authenticated;
+
+drop function if exists public.list_community(text, text);
+drop function if exists public.list_community(text, text, text);
+create function public.list_community(q text, sort text, p_kind text default 'all')
+returns table (id uuid, title text, description text, emoji text, subject text, lang text, n_questions integer, plays integer, likes integer,
+               published boolean, hidden boolean, author text, author_username text, liked boolean, mine boolean, updated_at timestamptz, kind text)
+language sql
+stable
+security definer
+set search_path = ''
+as $$
+  select c.id, c.title, c.description, c.emoji, c.subject, c.lang, jsonb_array_length(c.questions), c.plays, c.likes,
+         c.published, c.hidden, coalesce(p.display_name, '?'), p.username,
+         exists (select 1 from public.community_likes l where l.user_id = auth.uid() and l.course_id = c.id),
+         c.owner = auth.uid(), c.updated_at, c.kind
+  from public.community_courses c left join public.profiles p on p.user_id = c.owner
+  where auth.uid() is not null
+    and (coalesce(p_kind, 'all') = 'all' or c.kind = p_kind)
+    and (case when sort = 'mine' then c.owner = auth.uid()
+              else c.published and not c.hidden and jsonb_array_length(c.questions) > 0 and not public.is_blocked_between(auth.uid(), c.owner)
+                   and (sort <> 'friends' or exists (select 1 from public.friendships f where f.user_id = auth.uid() and f.friend_id = c.owner))
+                   and (sort <> 'liked' or exists (select 1 from public.community_likes l2 where l2.user_id = auth.uid() and l2.course_id = c.id)) end)
+    and (coalesce(btrim(q), '') = '' or c.title ilike '%' || btrim(q) || '%' or c.description ilike '%' || btrim(q) || '%' or c.subject = lower(btrim(q)))
+  order by case when sort in ('new', 'mine', 'friends') then extract(epoch from c.updated_at) else c.likes * 3 + c.plays end desc
+  limit 60;
+$$;
+revoke all on function public.list_community(text, text, text) from public, anon;
+grant execute on function public.list_community(text, text, text) to authenticated;
+
+-- Én quiz/kortstokk (for delte lenker #/fellesskap/<id>). Samme kolonner som list_community.
+create or replace function public.get_community(cid uuid)
+returns table (id uuid, title text, description text, emoji text, subject text, lang text, n_questions integer, plays integer, likes integer,
+               published boolean, hidden boolean, author text, author_username text, liked boolean, mine boolean, updated_at timestamptz, kind text)
+language sql
+stable
+security definer
+set search_path = ''
+as $$
+  select c.id, c.title, c.description, c.emoji, c.subject, c.lang, jsonb_array_length(c.questions), c.plays, c.likes,
+         c.published, c.hidden, coalesce(p.display_name, '?'), p.username,
+         exists (select 1 from public.community_likes l where l.user_id = auth.uid() and l.course_id = c.id),
+         c.owner = auth.uid(), c.updated_at, c.kind
+  from public.community_courses c left join public.profiles p on p.user_id = c.owner
+  where auth.uid() is not null and c.id = cid
+    and (c.owner = auth.uid() or (c.published and not c.hidden and not public.is_blocked_between(auth.uid(), c.owner)));
+$$;
+revoke all on function public.get_community(uuid) from public, anon;
+grant execute on function public.get_community(uuid) to authenticated;

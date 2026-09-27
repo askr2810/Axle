@@ -1667,3 +1667,15 @@ textarea.fbtext{width:100%;font:13px/1.4 var(--mono,monospace);border-radius:12p
 .uc-swap{justify-self:center;font-size:22px}.uc-all{color:var(--muted);font-size:13px;line-height:1.6;margin:0}
 .sim-out small.u2,.u2{display:block;color:var(--muted);font-size:12px;font-weight:600}
 .settings .srow .seg{flex-wrap:nowrap;flex:none}
+
+/* ---------- Fellesskap: quiz og flashcards ---------- */
+.cc-kind{font-style:normal;font-size:11px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;border-radius:6px;padding:1px 6px;margin-right:4px}
+.cc-kind.fc{background:color-mix(in srgb,#16c79a 22%,var(--card));color:#0e8a6a}.cc-kind.qz{background:var(--accent-soft);color:var(--accent)}
+.cc-kinds,.cc-sort{margin-top:8px}
+.cc-sec{margin-top:16px;display:grid;gap:10px}.cc-sech{display:flex;align-items:baseline;justify-content:space-between}.cc-sech h3{margin:0;font-size:17px}.cc-sech span{color:var(--muted);font-weight:700}
+.cc-play3{display:grid;gap:8px}.cc-play3 .big{margin:0}
+.cc-social{display:grid;grid-template-columns:1fr 1fr;gap:8px}.cc-social .big{margin:0}.cc-social .big:only-child{grid-column:span 2}
+.cc-like.liked{border-color:var(--accent);background:var(--accent-soft);color:var(--accent)}
+.md-pub{color:#0e8a6a;font-weight:700}
+.cc-play3{grid-template-columns:1fr 1fr}.cc-play3 .big:first-child{grid-column:1/-1}.cc-play3 .big:only-child{grid-column:1/-1}
+.cc-social .cc-like.liked{color:var(--accent);border-color:var(--accent);background:var(--accent-soft)}

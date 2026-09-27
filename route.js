@@ -15,7 +15,8 @@ function routeOf(){
   switch(screen){
     case "home": return "";
     case "friends": return FR.view === "groups" ? [rtW("groups")].concat(GR.cur ? [GR.cur] : []).join("/") : rtW("friends");
-    case "practice": case "profile": case "badges": case "settings": case "pick": case "community": return rtW(screen);
+    case "practice": case "profile": case "badges": case "settings": case "pick": return rtW(screen);
+    case "community": return CC.view && CC.view.id ? rtW("community") + "/" + CC.view.id : rtW("community");
     case "avatar": return rtW("profile");
     case "person": return PS.id ? rtW("person") + "/" + PS.id : null;
     case "admin": return rtW("admin") + (ADM.tab !== "overview" ? "/" + ADM.tab : "");
@@ -93,7 +94,7 @@ function routeBoot(){
     screen = "person"; return true;
   }
   if(k === "topic" || k === "sheet") return false;
-  if(k === "community"){ screen = "community"; setTimeout(() => { if(screen === "community" && CC.rows === null) ccLoad(); }, 0); return true; }
+  if(k === "community"){ screen = "community"; CC.view = null; const id = p[1] && /^[0-9a-f-]{36}$/i.test(p[1]) ? p[1] : null; setTimeout(() => { if(screen !== "community") return; if(CC.rows === null) ccLoad(); if(id && AUTH) ccOpenId(id); else if(id){ CC.tab = "explore"; toast(t("ccLoginToOpen")); } }, 0); return true; }
   screen = k; return true;
 }
 // Adressen endret utenfra (skrevet inn, eller en #/-lenke): gå dit, men aldri midt i en leksjon eller eksamen.

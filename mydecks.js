@@ -6,12 +6,15 @@
 // ============================================================
 let MD = { view: "list" };
 let MD_PENDING = null; // delingskode fra en lenke
+let MD_RETURN = null;  // hvor man havner etter en runde: "community" (en delt kortstokk) eller Mine
 const MD_MAX = 300;
 const myDecks = () => (Array.isArray(S.myDecks) ? S.myDecks : (S.myDecks = []));
 const mdFind = id => myDecks().find(d => d.id === id);
 const mdKnown = d => d.cards.filter((_, i) => ((d.known || {})[i] || 0) >= 2).length;
 
-function mdOpen(view = "list"){ MD = { view }; overlay = null; screen = "mydecks"; render(); window.scrollTo(0, 0); }
+// Lista over egne kortstokker ligger nå i Fellesskap → Mine. Denne skjermen brukes bare til redigering og import.
+function mdOpen(){ MD = { view: "list" }; openCommunity("mine"); }
+function mdReturn(){ const r = MD_RETURN; MD_RETURN = null; if(r === "community" && CC.view){ screen = "community"; render(); window.scrollTo(0, 0); } else mdOpen(); }
 function mdNew(){ MD = { view: "edit", edit: { id: null, name: "", cards: [{ q: "", a: "" }, { q: "", a: "" }, { q: "", a: "" }] } }; screen = "mydecks"; overlay = null; render(); window.scrollTo(0, 0); }
 function mdEdit(id){ const d = mdFind(id); if(!d) return; MD = { view: "edit", edit: { id: d.id, name: d.name, cards: d.cards.map(c => ({ ...c })) } }; render(); window.scrollTo(0, 0); }
 function mdSave(){
@@ -28,8 +31,9 @@ function mdParse(txt){
 }
 
 // ---------- øving ----------
-function mdPractice(id, mode){
-  const d = mdFind(id); if(!d || d.cards.length < 2) return;
+function mdPractice(id, mode){ const d = mdFind(id); if(d){ MD_RETURN = null; mdPracticeDeck(d, mode); } }
+function mdPracticeDeck(d, mode){
+  if(!d || d.cards.length < 2) return;
   const flip = mode === "flip" || d.cards.length < 4, kn = d.known || {};
   const order = d.cards.map((c, i) => i).sort((a, b) => ((kn[a] || 0) - (kn[b] || 0)) || (Math.random() - 0.5)).slice(0, 15);
   const items = order.map(i => { const c = d.cards[i], id2 = "my:" + d.id + ":" + i;
@@ -105,16 +109,47 @@ function renderMyDecks(){
       <button class="big" data-a="mdimportgo">${esc(t("mdImportGo"))}</button></main>`;
     return;
   }
-  const list = myDecks();
-  $app.innerHTML = `${top(t("mdTitle"), "mdback")}<main class="wrap md-list">
-    ${list.length ? "" : `<div class="md-empty"><span>📚</span><h2>${esc(t("mdEmptyTitle"))}</h2><p>${esc(t("mdEmptyText"))}</p></div>`}
-    <div class="md-new"><button class="big" data-a="mdnew">＋ ${esc(t("mdNewTitle"))}</button><button class="big ghost" data-a="mdimportopen">${esc(t("mdImport"))}</button></div>
-    ${list.map(d => { const k = mdKnown(d), n = d.cards.length;
-      return `<div class="md-deck"><div class="md-dh"><b>${esc(d.name)}</b><small>${esc(t("mdCount", n))} · ${esc(t("drKnown", k, n))}</small></div>
-        <div class="dr-meter"><i style="width:${n ? k / n * 100 : 0}%"></i></div>
-        <div class="md-act"><button class="kbtn md-go" data-a="mdplay" data-id="${d.id}" data-m="flip">🃏 ${esc(t("drModeFlip"))}</button>${n >= 4 ? `<button class="kbtn" data-a="mdplay" data-id="${d.id}" data-m="mc">${esc(t("drModeMc"))}</button>` : ""}${n >= 5 ? `<button class="kbtn" data-a="mdmatch" data-id="${d.id}">🧩 ${esc(t("mtTitle"))}</button>` : ""}
-          <span class="md-sp"></span><button class="iconbtn" data-a="mdshare" data-id="${d.id}" aria-label="${esc(t("mdShare"))}" title="${esc(t("mdShare"))}">${I.share || "⤴"}</button><button class="iconbtn" data-a="mdedit" data-id="${d.id}" aria-label="${esc(t("mdEditTitle"))}" title="${esc(t("mdEditTitle"))}">${I.pencil}</button></div></div>`; }).join("")}
-    ${list.length ? `<p class="picknote">${esc(t("mdShareNote"))}</p>` : ""}</main>`;
+  openCommunity("mine");
+}
+function mdDeckHTML(d){
+  const k = mdKnown(d), n = d.cards.length;
+  return `<div class="md-deck"><div class="md-dh"><b>${esc(d.name)}</b><small>${esc(t("mdCount", n))} · ${esc(t("drKnown", k, n))}${d.cid ? ` · <span class="md-pub">🌍 ${esc(t("mdPublished"))}</span>` : ""}</small></div>
+    <div class="dr-meter"><i style="width:${n ? k / n * 100 : 0}%"></i></div>
+    <div class="md-act"><button class="kbtn md-go" data-a="mdplay" data-id="${d.id}" data-m="flip">🃏 ${esc(t("drModeFlip"))}</button>${n >= 4 ? `<button class="kbtn" data-a="mdplay" data-id="${d.id}" data-m="mc">${esc(t("drModeMc"))}</button>` : ""}${n >= 5 ? `<button class="kbtn" data-a="mdmatch" data-id="${d.id}">🧩 ${esc(t("mtTitle"))}</button>` : ""}
+      <span class="md-sp"></span><button class="iconbtn" data-a="mdpubopen" data-id="${d.id}" aria-label="${esc(t("mdPublish"))}" title="${esc(t("mdPublish"))}">🌍</button><button class="iconbtn" data-a="mdshare" data-id="${d.id}" aria-label="${esc(t("mdShare"))}" title="${esc(t("mdShare"))}">${I.share}</button><button class="iconbtn" data-a="mdedit" data-id="${d.id}" aria-label="${esc(t("mdEditTitle"))}" title="${esc(t("mdEditTitle"))}">${I.pencil}</button></div></div>`;
+}
+// Publiser en kortstokk i Fellesskap (kind = 'cards'), oppdater den eller fjern den.
+function mdPubHTML(o){
+  const d = mdFind(o.id); if(!d) return "";
+  if(!AUTH) return `<div class="dialog pop" role="dialog"><h3>🌍 ${esc(t("mdPublish"))}</h3><p>${esc(t("mdPubLogin"))}</p><button class="big" data-a="aclogin">${esc(t("acLogin"))}</button><button class="big ghost" data-a="closeov">${esc(t("cancel"))}</button></div>`;
+  return `<div class="dialog gm-menu" role="dialog" aria-label="${esc(t("mdPublish"))}"><div class="sheet-h"><h3>🌍 ${esc(d.cid ? t("mdPubUpdate") : t("mdPublish"))}</h3><button class="iconbtn" data-a="closeov" aria-label="${esc(t("back"))}">${I.x}</button></div>
+    <p class="lp-note">${esc(t("mdPubText", d.name, d.cards.length))}</p>
+    <label class="cc-lbl">${esc(t("ccFDesc"))}<textarea id="mdpubd" maxlength="300" placeholder="${esc(t("ccFDescPh"))}">${esc(o.desc || "")}</textarea></label>
+    <div class="cc-lbl">${esc(t("ccFEmoji"))}<div class="cc-emojis">${["📚", ...CC_EMOJI].map(x => `<button class="${x === (o.emoji || "📚") ? "on" : ""}" data-a="mdpubemoji" data-e="${esc(x)}">${esc(x)}</button>`).join("")}</div></div>
+    <label class="cc-lbl">${esc(t("ccFSubject"))}<select id="mdpubs">${CC_SUBJECTS.map(x => `<option value="${x}" ${x === (o.subject || "annet") ? "selected" : ""}>${esc(ccSubj(x))}</option>`).join("")}</select></label>
+    <button class="big" data-a="mdpubgo" ${o.busy ? "disabled" : ""}>${esc(d.cid ? t("mdPubUpdateBtn") : t("mdPubBtn"))}</button>
+    ${d.cid ? `<button class="big ghost" data-a="mdpubshare">${I.share} ${esc(t("ccShare"))}</button><button class="exlink md-rm" data-a="mdunpub">${esc(o.sure ? t("mdUnpubSure") : t("mdUnpub"))}</button>` : ""}</div>`;
+}
+async function mdPublish(){
+  const o = overlay.mdpub, d = mdFind(o.id); if(!d) return;
+  const desc = ((document.getElementById("mdpubd") || {}).value || "").trim().slice(0, 300), subject = (document.getElementById("mdpubs") || {}).value || "annet";
+  let title = d.name.trim(); if(title.length < 3) title = (title + " – " + t("mdCardsWord")).slice(0, 60);
+  if(!isClean(title) || !isClean(desc) || d.cards.some(c => !isClean(c.q) || !isClean(c.a))){ toast(t("frBadWord")); return; }
+  const body = { title, description: desc, emoji: o.emoji || "📚", subject, lang: LANG === "en" ? "en" : "nb", published: true,
+    questions: d.cards.slice(0, 200).map(c => ({ t: "fc", q: c.q.slice(0, 400), b: c.a.slice(0, 400) })) };
+  o.busy = true; renderOverlay();
+  try{
+    const tok = await authToken(); if(!tok) throw new CloudError("auth", 401);
+    if(d.cid) await sbFetch("/rest/v1/community_courses?id=eq." + encodeURIComponent(d.cid), { method: "PATCH", headers: { Prefer: "return=minimal" }, body: JSON.stringify(body) }, tok);
+    else { const r = await sbFetch("/rest/v1/community_courses", { method: "POST", headers: { Prefer: "return=representation" }, body: JSON.stringify(Object.assign({ owner: AUTH.uid, kind: "cards" }, body)) }, tok); d.cid = r && r[0] && r[0].id; }
+    d.pub = { desc, emoji: body.emoji, subject }; save(); overlay = null; renderOverlay(); toast(t("mdPubDone")); buzz(true); ccLoad(); render();
+  }catch(e){ o.busy = false; renderOverlay(); toast(ccErr(e)); }
+}
+async function mdUnpublish(){
+  const o = overlay.mdpub, d = mdFind(o.id); if(!d || !d.cid) return;
+  if(!o.sure){ o.sure = true; renderOverlay(); return; }
+  try{ const tok = await authToken(); await sbFetch("/rest/v1/community_courses?id=eq." + encodeURIComponent(d.cid), { method: "DELETE", headers: { Prefer: "return=minimal" } }, tok);
+    delete d.cid; save(); overlay = null; renderOverlay(); toast(t("mdUnpubDone")); ccLoad(); render(); }catch(e){ toast(ccErr(e)); }
 }
 function mdImportHTML(d){
   return `<div class="dialog pop" role="dialog" aria-label="${esc(t("mdImportTitle"))}"><h3>📚 ${esc(d.name)}</h3><p>${esc(t("mdImportText", d.cards.length))}</p>
@@ -133,7 +168,12 @@ document.addEventListener("input", e => {
 function mdClick(a, b){
   if(!a.startsWith("md")) return false;
   if(a === "mdopen"){ mdOpen(); return true; }
-  if(a === "mdback"){ screen = "practice"; render(); window.scrollTo(0, 0); return true; }
+  if(a === "mdback"){ openCommunity("mine"); return true; }
+  if(a === "mdpubopen"){ const d = mdFind(b.dataset.id); overlay = { mdpub: Object.assign({ id: b.dataset.id }, (d && d.pub) || {}) }; renderOverlay(); return true; }
+  if(a === "mdpubemoji"){ overlay.mdpub.emoji = b.dataset.e; overlay.mdpub.desc = (document.getElementById("mdpubd") || {}).value || overlay.mdpub.desc; renderOverlay(); return true; }
+  if(a === "mdpubgo"){ mdPublish(); return true; }
+  if(a === "mdunpub"){ mdUnpublish(); return true; }
+  if(a === "mdpubshare"){ const d = mdFind(overlay.mdpub.id); if(d && d.cid) ccShare(d.cid); return true; }
   if(a === "mdlist"){ mdOpen(); return true; }
   if(a === "mdnew"){ mdNew(); return true; }
   if(a === "mdedit"){ mdEdit(b.dataset.id); return true; }

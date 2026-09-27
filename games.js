@@ -125,7 +125,7 @@ function tfSwipe(){
 function gmClick(a, b){
   if(a === "mtopen"){ mtOpen(); return true; }
   if(a === "tfopen"){ tfOpen(); return true; }
-  if(a === "gmclose" && GM_POOL){ GM_POOL = null; MT = null; if(typeof mdOpen === "function"){ mdOpen(); return true; } }
+  if(a === "gmclose" && GM_POOL){ GM_POOL = null; MT = null; if(typeof mdReturn === "function"){ mdReturn(); return true; } }
   if(a === "gmclose"){ if(MT) clearInterval(MT.timer); if(TF) clearInterval(TF.timer); MT = null; TF = null; goHome(); return true; }
   if(a === "mtagain"){ mtOpen(); return true; }
   if(a === "mtpick"){ mtPick(b.dataset.s, +b.dataset.i); return true; }
