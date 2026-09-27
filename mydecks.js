@@ -16,7 +16,7 @@ const mdKnown = d => d.cards.filter((_, i) => ((d.known || {})[i] || 0) >= 2).le
 function mdOpen(){ MD = { view: "list" }; openCommunity("mine"); }
 function mdReturn(){ const r = MD_RETURN; MD_RETURN = null; if(r === "community" && CC.view){ screen = "community"; render(); window.scrollTo(0, 0); } else mdOpen(); }
 function mdNew(){ MD = { view: "edit", edit: { id: null, name: "", cards: [{ q: "", a: "" }, { q: "", a: "" }, { q: "", a: "" }] } }; screen = "mydecks"; overlay = null; render(); window.scrollTo(0, 0); }
-function mdEdit(id){ const d = mdFind(id); if(!d) return; MD = { view: "edit", edit: { id: d.id, name: d.name, cards: d.cards.map(c => ({ ...c })) } }; render(); window.scrollTo(0, 0); }
+function mdEdit(id){ const d = mdFind(id); if(!d) return; MD = { view: "edit", edit: { id: d.id, name: d.name, cards: d.cards.map(c => ({ ...c })) } }; screen = "mydecks"; overlay = null; render(); window.scrollTo(0, 0); }
 function mdSave(){
   const e = MD.edit, cards = e.cards.map(c => ({ q: String(c.q || "").trim().slice(0, 400), a: String(c.a || "").trim().slice(0, 400) })).filter(c => c.q && c.a).slice(0, MD_MAX);
   const name = String(e.name || "").trim().slice(0, 60) || t("mdUntitled");
@@ -184,7 +184,7 @@ function mdClick(a, b){
   if(a === "mdplay"){ if(overlay){ overlay = null; renderOverlay(); } mdPractice(b.dataset.id, b.dataset.m); return true; }
   if(a === "mdmatch"){ mdMatch(b.dataset.id); return true; }
   if(a === "mdshare"){ mdShare(b.dataset.id); return true; }
-  if(a === "mdimportopen"){ MD = { view: "import", txt: "", iname: "" }; render(); return true; }
+  if(a === "mdimportopen"){ MD = { view: "import", txt: "", iname: "" }; screen = "mydecks"; overlay = null; render(); window.scrollTo(0, 0); return true; }
   if(a === "mdimportgo"){ const cards = mdParse(MD.txt); if(cards.length < 2){ toast(t("mdNeed2")); return true; }
     MD = { view: "edit", edit: { id: null, name: MD.iname || "", cards } }; render(); window.scrollTo(0, 0); toast(t("mdFound", cards.length)); return true; }
   if(a === "mdimportsave"){ const d = overlay && overlay.mdimport; if(d){ myDecks().unshift({ id: "d" + Date.now().toString(36), name: d.name, cards: d.cards, known: {}, at: Date.now() }); save(); overlay = null; renderOverlay(); toast(t("mdSaved")); mdOpen(); } return true; }
