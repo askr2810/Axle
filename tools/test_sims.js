@@ -6,7 +6,7 @@ const fs = require('fs'), path = require('path'), os = require('os');
 const ROOT = path.join(__dirname, '..');
 const figSrc = fs.readFileSync(path.join(ROOT, 'figures.js'), 'utf8').split('\n'), fig = figSrc.slice(figSrc.findIndex(l => l.startsWith('const fgAr')), figSrc.findIndex(l => l.startsWith('const fgGround')) + 1);
 const stub = `var LANG = "nb"; const T = (a, b) => LANG === "en" ? b : a; const esc = s => String(s); const I = { bolt: "" }; const t = k => k; const S = {};
-const nf = (x, d = 2) => Number.isFinite(x) ? String(+x.toFixed(d)).replace(".", LANG === "en" ? "." : ",") : "BAD";`;
+const decPoint = () => LANG === "en"; const nf = (x, d = 2) => Number.isFinite(x) ? String(+x.toFixed(d)).replace(".", LANG === "en" ? "." : ",") : "BAD";`;
 const tmp = path.join(os.tmpdir(), 'axle_sims_' + process.pid + '.js');
 fs.writeFileSync(tmp, stub + '\n' + fig.join('\n') + '\n' + fs.readFileSync(path.join(ROOT, 'sims.js'), 'utf8').replace(/^document\.addEventListener[\s\S]*$/m, '') + '\n' +
   fs.readFileSync(path.join(ROOT, 'sims2.js'), 'utf8') + '\n' + fs.readFileSync(path.join(ROOT, 'sims3.js'), 'utf8') + '\n' + fs.readFileSync(path.join(ROOT, 'sims4.js'), 'utf8') + '\n' + fs.readFileSync(path.join(ROOT, 'sims5.js'), 'utf8') + '\nmodule.exports = { SIMS, SIM_MAP, setL: l => LANG = l };');

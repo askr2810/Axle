@@ -266,12 +266,23 @@ function drRecord(){
   return up;
 }
 function drCardHTML(){
-  const c = drCounts(), decks = drStudyDecks(), started = c.total - c.fresh, flip = S.drMode === "flip";
+  const c = drCounts(), started = c.total - c.fresh, mine = (S.myDecks || []).length;
   if(!c.total) return "";
   const sub = c.due ? t("drDue", c.due) : started ? t("drAllDone") : t("drIntro");
   return `<div class="dr-card"><div class="dr-h"><span class="dr-ic">${I.redo}</span><div><b>${esc(drTitle())}</b><span>${esc(sub)}</span></div></div>
     <div class="dr-meter"><i style="width:${c.known / c.total * 100}%"></i></div><small class="dr-known">${esc(t("drKnown", c.known, c.total))}</small>
+    <div class="dr-row"><button class="big dr-go" data-a="drstart" data-t="all">▶ ${esc(t("drGo"))}${c.due ? ` <em>${c.due}</em>` : ""}</button><button class="big ghost dr-pickb" data-a="drpick">${esc(t("drPickBtn"))}</button></div>
+    <button class="dr-mine" data-a="mdopen"><span>📚</span><span><b>${esc(t("mdTitle"))}</b><small>${esc(mine ? t("mdHave", mine) : t("mdMakeOwn"))}</small></span>${I.chevron}</button></div>`;
+}
+// Velg kortstokk og modus (flervalg/flashcards) i et ark, så selve kortet i Øv holder seg enkelt.
+function drPickHTML(){
+  const flip = S.drMode === "flip", decks = drStudyDecks(), mine = S.myDecks || [];
+  const row = (a, extra, ic, title, sub, due) => `<button class="gm-open dr-prow" data-a="${a}" ${extra}><span class="dr-pic">${ic}</span><span><b>${esc(title)}</b><small>${esc(sub)}</small></span>${due ? `<em class="dr-due">${due}</em>` : ""}</button>`;
+  return `<div class="dialog gm-menu" role="dialog" aria-label="${esc(t("drPickBtn"))}"><div class="sheet-h"><h3>${esc(t("drPickBtn"))}</h3><button class="iconbtn" data-a="closeov" aria-label="${esc(t("back"))}">${I.x}</button></div>
     <div class="seg dr-mode" role="radiogroup" aria-label="${esc(t("drModeLab"))}"><button role="radio" aria-checked="${!flip}" class="${flip ? "" : "on"}" data-a="drmode" data-m="mc">${esc(t("drModeMc"))}</button><button role="radio" aria-checked="${flip}" class="${flip ? "on" : ""}" data-a="drmode" data-m="flip">🃏 ${esc(t("drModeFlip"))}</button></div>
-    <div class="dr-btns"><button class="dr-b" data-a="drstart" data-t="all"><b>${esc(t("drMix"))}</b>${c.due ? `<em>${c.due}</em>` : ""}</button>
-      ${decks.map(k => { const n = drCounts(k); return `<button class="dr-b" data-a="drstart" data-t="${k}"><b>${esc(T(DR_DECKS[k].short[0], DR_DECKS[k].short[1]))}</b>${n.due ? `<em>${n.due}</em>` : ""}</button>`; }).join("")}</div></div>`;
+    <div class="dr-plist">${(() => { const n = drCounts(); return row("drstart", 'data-t="all"', "🔀", t("drMix"), t("drKnown", n.known, n.total), n.due); })()}
+      ${decks.map(k => { const n = drCounts(k), d = DR_DECKS[k]; return row("drstart", `data-t="${k}"`, d.sym, T(d.nb, d.en), t("drKnown", n.known, n.total), n.due); }).join("")}</div>
+    <h4 class="lay-h">${esc(t("mdTitle"))}</h4>
+    <div class="dr-plist">${mine.map(d => row("mdplay", `data-id="${d.id}" data-m="${flip ? "flip" : "mc"}"`, "📚", d.name, t("mdCount", d.cards.length), 0)).join("")}
+      ${row("mdnew", "", "＋", t("mdNewTitle"), t("mdMakeOwnSub"), 0)}</div></div>`;
 }

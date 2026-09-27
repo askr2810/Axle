@@ -64,7 +64,7 @@ function qrel(a, b, mode = "eq", tol){
 const qsgn = (x, d = 2) => x < 0 ? "- " + qn(-x, d) : "+ " + qn(x, d); // «+ 3» / «- 3» foran et ledd
 function simEqHTML(r){
   if(!r.eq || !r.eq.length) return "";
-  return r.eq.map(s => texD(LANG === "en" ? s.replace(/\{,\}/g, ".") : s)).join("").replace(/mathcolor="#00000(\d)"/g, 'class="q$1"');
+  return r.eq.map(s => texD(decPoint() ? s.replace(/\{,\}/g, ".") : s)).join("").replace(/mathcolor="#00000(\d)"/g, 'class="q$1"');
 }
 const SIMS = {
   // ---------- elektro ----------
@@ -310,7 +310,7 @@ function simVals(name, el){
   return v;
 }
 const simSub = s => esc(s).replace(/_([A-Za-z0-9α-ωΑ-Ω]+)/g, "<sub>$1</sub>"); // K_p → K<sub>p</sub>
-function simOutHTML(r){ return r.out.map(([k, x]) => `<div><small>${simSub(k)}</small><b>${esc(x)}</b></div>`).join(""); }
+function simOutHTML(r){ return r.out.map(([k, x]) => { const us = typeof usHint === "function" ? usHint(x) : ""; return `<div><small>${simSub(k)}</small><b>${esc(x)}</b>${us ? `<small class="u2">${esc(us)}</small>` : ""}</div>`; }).join(""); }
 function simGoalHTML(name, solved){ // solved = nr. på oppgaven som akkurat ble løst
   const g = SIMS[name].g; if(!g || !g.length) return "";
   const k = solved != null ? solved : simGi(name), dots = g.map((_, i) => `<i class="${i < k || (solved != null && i === k) ? "on" : ""}"></i>`).join("");

@@ -4,15 +4,16 @@
 //  • Sant eller usant: sveip høyre (sant) eller venstre (usant) på påstander i 45 sekunder.
 //  Bruker pugge-kortene i studiet ditt (drPool) og flervalgsoppgaver fra fagene (snQuestion).
 // ============================================================
-let MT = null; // par-jakt: { round, rounds, pairs, left, right, sel, done, t0, pen, err, combo, finished }
+let MT = null;
+let GM_POOL = null; // egne kort (Mine kortstokker) i stedet for studiets pugge-kort // par-jakt: { round, rounds, pairs, left, right, sel, done, t0, pen, err, combo, finished }
 let TF = null; // sant/usant: { end, score, combo, best, cur, started, done, timer, lastWrong }
-const f1 = x => (+x).toFixed(1).replace(".", LANG === "en" ? "." : ",");
+const f1 = x => (+x).toFixed(1).replace(".", decPoint() ? "." : ",");
 const GM_ROUNDS = 3, GM_PAIRS = 5, TF_SECS = 45;
 const gmLen = s => String(s).replace(/\$[^$]*\$/g, m => "x".repeat(Math.min(12, m.length / 3))).length; // omtrentlig visningslengde (formler teller lite)
 
 // ---------- Par-jakt ----------
 function mtRoundPairs(){
-  const pool = shuffle(drPool("all").filter(c => gmLen(drText(c[2])) <= 80 && gmLen(drText(c[3])) <= 44)), out = [], seenQ = new Set(), seenA = new Set();
+  const pool = shuffle((GM_POOL || drPool("all")).filter(c => gmLen(drText(c[2])) <= 80 && gmLen(drText(c[3])) <= 44)), out = [], seenQ = new Set(), seenA = new Set();
   for(const c of pool){ const q = drText(c[2]), a = drText(c[3]); if(seenQ.has(q) || seenA.has(a)) continue; seenQ.add(q); seenA.add(a); out.push({ id: c[0], q, a }); if(out.length === GM_PAIRS) break; }
   return out;
 }
@@ -25,7 +26,7 @@ function mtTime(){ return (Date.now() - MT.t0) / 1000 + MT.pen; }
 function mtTick(){ clearInterval(MT.timer); MT.timer = setInterval(() => { if(screen !== "match" || !MT || MT.finished){ clearInterval(MT && MT.timer); return; } const el = document.getElementById("mttime"); if(el) el.textContent = f1(mtTime()); }, 100); }
 function mtFinish(){
   clearInterval(MT.timer); MT.finished = true; MT.time = mtTime(); const key = curStudy(); S.matchBest ||= {};
-  MT.newBest = !S.matchBest[key] || MT.time < S.matchBest[key]; if(MT.newBest) S.matchBest[key] = +MT.time.toFixed(1);
+  MT.newBest = !GM_POOL && (!S.matchBest[key] || MT.time < S.matchBest[key]); if(MT.newBest) S.matchBest[key] = +MT.time.toFixed(1);
   MT.xp = Math.max(4, 15 - MT.err * 2); const st = awardXP(MT.xp); S.stats ||= {}; S.stats.games = (+S.stats.games || 0) + 1;
   bdgToast(checkBadges()); save(); render(); setTimeout(() => MT && MT.newBest ? confetti("level") : sfx("complete"), 200); if(st.goalHit) setTimeout(() => toast(t("goalHitTitle")), 900);
 }
@@ -124,6 +125,7 @@ function tfSwipe(){
 function gmClick(a, b){
   if(a === "mtopen"){ mtOpen(); return true; }
   if(a === "tfopen"){ tfOpen(); return true; }
+  if(a === "gmclose" && GM_POOL){ GM_POOL = null; MT = null; if(typeof mdOpen === "function"){ mdOpen(); return true; } }
   if(a === "gmclose"){ if(MT) clearInterval(MT.timer); if(TF) clearInterval(TF.timer); MT = null; TF = null; goHome(); return true; }
   if(a === "mtagain"){ mtOpen(); return true; }
   if(a === "mtpick"){ mtPick(b.dataset.s, +b.dataset.i); return true; }

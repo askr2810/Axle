@@ -8,8 +8,10 @@ const R = {
 };
 const G_ = 9.81, DEG = Math.PI/180;
 // tall på norsk: nf for tekst, mf for inne i $...$
+// Desimaltegn: innstillingen S.dec ("comma"/"point") overstyrer språket.
+function decPoint(){ try{ if(S && (S.dec === "comma" || S.dec === "point")) return S.dec === "point"; }catch(e){} return typeof LANG!=="undefined" && LANG==="en"; }
 function nf(x,d=2){ if(!Number.isFinite(x)) return String(x); if(x!==0){ const sd=2-Math.floor(Math.log10(Math.abs(x))); d=Math.max(d,Math.min(sd,7)); } let v=Math.round(x*10**d)/10**d; if(Object.is(v,-0)) v=0;
-  let s=v.toFixed(d); if(s.includes(".")) s=s.replace(/0+$/,"").replace(/\.$/,""); return s.replace(".", (typeof LANG!=="undefined" && LANG==="en") ? "." : ",").replace("-","−"); }
+  let s=v.toFixed(d); if(s.includes(".")) s=s.replace(/0+$/,"").replace(/\.$/,""); return s.replace(".", decPoint() ? "." : ",").replace("-","−"); }
 function mf(x,d=2){ return nf(x,d).replace(",","{,}").replace("−","-"); }
 const rel = (x,p=0.01,min=1e-9) => Math.max(Math.abs(x)*p, min);
 // flervalg der riktig svar står først; like/ugyldige distraktorer byttes ut

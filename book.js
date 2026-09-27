@@ -12,7 +12,7 @@ const bkUnits = c => c.units.map((_, u) => u).filter(u => theoryOf(c.code, u) ||
 const bkCol = c => c.group === "Forkurs" ? "var(--ok)" : ["var(--u0)","var(--u1)","var(--u2)","var(--gold-deep)"][COURSES.indexOf(c) % 4];
 // ---------- emnesider (TOPIC_DB fra topics.js og top_*.js): ett begrep per side ----------
 const tpText = tp => tp[LANG] || tp.nb;
-const tpFx = s => LANG === "en" ? String(s).replace(/\{,\}/g, ".") : String(s);
+const tpFx = s => decPoint() ? String(s).replace(/\{,\}/g, ".") : String(s);
 function tpTileHTML(code, tp, label){
   const x = tpText(tp), key = x.f && x.f[0] ? x.f[0][0] : "";
   const art = tp.fig ? `<span class="tfig" aria-hidden="true">${tp.fig}</span>` : `<span class="tfx" aria-hidden="true">${key ? tex(tpFx(key)) : ""}</span>`;
@@ -24,7 +24,7 @@ function renderBookTopic(){
   if(!hit){ BK.v = "course"; return renderBookCourse(); }
   const x = tpText(hit.tp), flat = topicsFlat(c.code), idx = flat.findIndex(f => f.tp.id === hit.tp.id), prev = flat[idx - 1], next = flat[idx + 1];
   const formulas = (x.f || []).map(([l, d]) => `<div class="fbox"><div class="fm">${texD(tpFx(l))}</div>${d ? `<div class="fd">${rich(d)}</div>` : ""}</div>`).join("");
-  const legend = (x.legend || []).length ? `<table class="legend"><tbody>${x.legend.map(([s, m, un]) => `<tr><td class="ls">${tex(tpFx(s))}</td><td>${rich(m)}</td><td class="lu">${/\\/.test(un || "") ? tex(un) : esc(String(un || "").replace(/\{,\}/g, LANG === "en" ? "." : ","))}</td></tr>`).join("")}</tbody></table>` : "";
+  const legend = (x.legend || []).length ? `<table class="legend"><tbody>${x.legend.map(([s, m, un]) => `<tr><td class="ls">${tex(tpFx(s))}</td><td>${rich(m)}</td><td class="lu">${/\\/.test(un || "") ? tex(un) : esc(String(un || "").replace(/\{,\}/g, decPoint() ? "." : ","))}</td></tr>`).join("")}</tbody></table>` : "";
   const ex = x.ex ? `<div class="exbox"><div class="exbox-h">${esc(t("tpExample"))}</div>${String(x.ex).split("\n").map(l => `<p>${rich(l)}</p>`).join("")}</div>` : "";
   const nav = (tpx, dir) => tpx ? `<button class="tnav ${dir}" data-a="bktopic" data-c="${esc(c.code)}" data-id="${esc(tpx.tp.id)}"><small>${esc(t(dir === "prev" ? "bkPrev" : "bkNext"))}</small><b>${esc(tpText(tpx.tp).t)}</b></button>` : `<span></span>`;
   $app.innerHTML = `${bkTop("bkback", courseName(c) + " · " + unitTitle(c, hit.u), x.t)}

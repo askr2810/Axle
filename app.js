@@ -16,7 +16,7 @@ function inline(s){
   }).join("");
 }
 function rich(s){
-  s = String(s); if(LANG==="en") s = s.replace(/\{,\}/g,".");
+  s = String(s); if(decPoint()) s = s.replace(/\{,\}/g,".");
   return s.split(/```([\s\S]*?)```/g).map((p,i)=> i%2 ? '<pre class="code">'+esc(p.replace(/^\n|\n$/g,""))+"</pre>" : inline(p)).join("");
 }
 // teori-dokument (markering: ## ### - 1. > $$ ``` **fet**), se learn.js
@@ -25,7 +25,7 @@ function texD(s){
   return '<div class="mono">'+esc(s)+'</div>';
 }
 function richDoc(src){
-  let s = String(src||""); if(LANG==="en") s = s.replace(/\{,\}/g,".");
+  let s = String(src||""); if(decPoint()) s = s.replace(/\{,\}/g,".");
   const inl = x => inline(x).replace(/\*\*([^*]+?)\*\*/g,"<b>$1</b>");
   const out = []; let para = [], list = null, box = [], code = null;
   const fPara = () => { if(para.length){ out.push("<p>"+inl(para.join(" "))+"</p>"); para = []; } };
@@ -257,19 +257,30 @@ function renderSettings(){
   const goalOpts = [10,20,30,50], rem = S.reminder;
   $app.innerHTML = `<div class="sheet"><div class="wrap settings">
     <div class="sheet-h"><h1>${t("setTitle")}</h1><button class="iconbtn" data-a="profile" aria-label="${t("back")}">${I.x}</button></div>
+    <h3 class="sg-h">${esc(t("sgProfile"))}</h3>
     <div class="sgroup"><button class="srow set-av" data-a="avedit">${hasMeAv() ? meAvHTML(48) : `<span class="set-av0">${I.users}</span>`}<span class="lbl">${t(hasMeAv() ? "avEdit" : "avMake")}<span class="sub">${t("avSetSub")}</span></span>${I.chevron}</button></div>
+    <h3 class="sg-h">${esc(t("sgLearning"))}</h3>
     <div class="sgroup">
-      <button class="srow" data-a="homecustom"><span class="lbl">${esc(t("layTitle"))}<span class="sub">${esc(t("laySetSub"))}</span></span>${I.chevron}</button>
       <button class="srow" data-a="studyopen"><span class="lbl">${esc(t("stSetting"))}<span class="sub">${esc(STUDY(S.study).ic + " " + studyName(STUDY(S.study)))}</span></span>${I.chevron}</button>
-      <div class="srow"><span class="lbl">${t("setLang")}</span><div class="seg"><button class="${LANG==="nb"?"on":""}" data-a="setlang" data-l="nb">Norsk</button><button class="${LANG==="en"?"on":""}" data-a="setlang" data-l="en">English</button></div></div>
-      <div class="srow"><span class="lbl">${t("setTheme")}</span><div class="seg">${["auto","light","dark"].map(k=>`<button class="${(S.theme||"auto")===k?"on":""}" data-a="settheme" data-m="${k}" aria-pressed="${(S.theme||"auto")===k}">${esc(t("theme_"+k))}</button>`).join("")}</div></div>
       <div class="srow"><span class="lbl">${t("setGoal")}<span class="sub">${t("setGoalUnit")}</span></span><div class="seg">${goalOpts.map(g=>`<button class="${(S.goal||10)===g?"on":""}" data-a="setgoal" data-g="${g}">${g}</button>`).join("")}</div></div>
       <button class="srow" data-a="dcsrcopen"><span class="lbl">${t("dcSrcSet")}<span class="sub">${esc(dcSrcLabel())}</span></span>${I.chevron}</button>
+      <button class="srow" data-a="homecustom"><span class="lbl">${esc(t("layTitle"))}<span class="sub">${esc(t("laySetSub"))}</span></span>${I.chevron}</button>
+    </div>
+    <h3 class="sg-h">${esc(t("sgLook"))}</h3>
+    <div class="sgroup">
+      <div class="srow"><span class="lbl">${t("setLang")}</span><div class="seg"><button class="${LANG==="nb"?"on":""}" data-a="setlang" data-l="nb">Norsk</button><button class="${LANG==="en"?"on":""}" data-a="setlang" data-l="en">English</button></div></div>
+      <div class="srow"><span class="lbl">${t("setTheme")}</span><div class="seg">${["auto","light","dark"].map(k=>`<button class="${(S.theme||"auto")===k?"on":""}" data-a="settheme" data-m="${k}" aria-pressed="${(S.theme||"auto")===k}">${esc(t("theme_"+k))}</button>`).join("")}</div></div>
+      <div class="srow"><span class="lbl">${esc(t("setUnits"))}<span class="sub">${esc(t("setUnitsSub"))}</span></span><div class="seg">${[["si","SI"],["us","US"]].map(([k,l])=>`<button class="${(S.units||"si")===k?"on":""}" data-a="setunits" data-u="${k}" aria-pressed="${(S.units||"si")===k}">${l}</button>`).join("")}</div></div>
+      <div class="srow"><span class="lbl">${esc(t("setDec"))}<span class="sub">${esc(t("setDecSub"))}</span></span><div class="seg">${[["auto",t("setDecAuto")],["comma","3,14"],["point","3.14"]].map(([k,l])=>`<button class="${(S.dec||"auto")===k?"on":""}" data-a="setdec" data-d="${k}" aria-pressed="${(S.dec||"auto")===k}">${esc(l)}</button>`).join("")}</div></div>
+    </div>
+    <h3 class="sg-h">${esc(t("sgSound"))}</h3>
+    <div class="sgroup">
       <div class="srow"><span class="lbl">${t("setReminder")}<span class="sub">${esc(pushNote() || t(NATIVE ? "setReminderSubApp" : "setReminderSubWeb"))}</span></span><button class="tog ${rem.on&&(NATIVE||pushSupported())?"on":""}" data-a="remtoggle" role="switch" aria-checked="${!!(rem.on&&(NATIVE||pushSupported()))}" aria-label="${t("setReminder")}" ${NATIVE||pushSupported()?"":"disabled"}></button></div>
       ${rem.on&&(NATIVE||pushSupported())?`<div class="srow"><span class="lbl">${t("setReminderTime")}</span><input type="time" id="remtime" value="${esc(rem.time)}"></div>${NATIVE?"":`<button class="srow" data-a="pushtest"><span class="lbl">${t("pushTest")}<span class="sub">${t("pushTestSub")}</span></span>${I.chevron}</button>`}`:""}
       <div class="srow"><span class="lbl">${t("setSound")}</span><button class="tog ${S.sound!==false?"on":""}" data-a="sndtoggle" role="switch" aria-checked="${S.sound!==false}" aria-label="${t("setSound")}"></button></div>
       <div class="srow"><span class="lbl">${t("setHaptics")}</span><button class="tog ${S.haptics?"on":""}" data-a="haptoggle" role="switch" aria-checked="${!!S.haptics}" aria-label="${t("setHaptics")}"></button></div>
     </div>
+    <h3 class="sg-h">${esc(t("sgAccount"))}</h3>
     ${CLOUD_ON ? (AUTH ? `<div class="sgroup">
       <div class="srow"><span class="lbl">${esc(AUTH.email||"")}<span class="sub">${esc(cloudStatusText())}</span></span></div>
       <button class="srow" data-a="acemail"><span class="lbl">${t("acEmailChange")}${AUTH.newEmail ? `<span class="sub">${esc(t("acEmailPending", AUTH.newEmail))}</span>` : ""}</span>${I.chevron}</button>
@@ -283,6 +294,7 @@ function renderSettings(){
       <button class="srow" data-a="backup"><span class="lbl">${t("bkMake")}<span class="sub">${t("bkMakeSub")}</span></span>${I.chevron}</button>
       <button class="srow" data-a="restore"><span class="lbl">${t("bkLoad")}<span class="sub">${t("bkLoadSub")}</span></span>${I.chevron}</button>
     </div>
+    <h3 class="sg-h">${esc(t("sgHelp"))}</h3>
     <div class="sgroup">
       <button class="srow" data-a="feedback"><span class="lbl">${t("setFeedback")}</span>${I.chevron}</button>
       ${CLOUD_ON && AUTH ? `<button class="srow" data-a="frblocks"><span class="lbl">${t("blockList")}<span class="sub">${t("blockListSub")}</span></span>${I.chevron}</button>` : ""}
@@ -424,10 +436,11 @@ function finishLesson(){
   if(L.kind==="unit") s.done[L.meta.u+"-"+L.meta.k] = true;
   if(L.kind==="jump") for(let uu=0; uu<L.meta.u; uu++) for(let k=0;k<REQ;k++) s.done[uu+"-"+k] = true;
   if(L.kind==="challenge"){ S.dc = { day: L.meta.day, right: firstTry, n: L.total }; bdgStat("challenges"); }
+  if(L.kind==="mydeck") mdRecord();
   if(L.kind==="drill" || L.kind==="challenge") drRecord(); // grunnbegreper i utfordringen teller også i terpinga
   noteNightLesson();
   const wrong = new Set(s.wrong);
-  if(L.kind!=="challenge" && L.kind!=="drill" && L.kind!=="community") L.firstWrong.forEach(id=>wrong.add(id)); // utfordringen blander fag, feil der havner ikke i «Repeter feil»
+  if(L.kind!=="challenge" && L.kind!=="drill" && L.kind!=="community" && L.kind!=="mydeck") L.firstWrong.forEach(id=>wrong.add(id)); // utfordringen blander fag, feil der havner ikke i «Repeter feil»
   if(L.kind==="review") [...L.solved].forEach(id=>{ if(!L.firstWrong.has(id)) wrong.delete(id); });
   s.wrong = [...wrong];
   if(L.firstWrong.size === 0) bdgStat("flawless");
@@ -450,7 +463,7 @@ function flipGrade(ok){
 function renderLesson(){
   const it = L.queue[0];
   const pct = (L.maxHearts ? (L.done + (L.answered?1:0)) : L.solved.size) / L.total * 100;
-  const lvl = L.kind==="unit" ? `${lvShort(L.meta.k)} · ${lvName(L.meta.k)} · ` : L.kind==="jump" ? t("jumpTest")+" · " : L.kind==="review" ? t("review")+" · " : L.kind==="challenge" ? t("dcTitle")+" · " : L.kind==="drill" ? drTitle()+" · "+(it.drTag ? T(DR_TAGS[it.drTag][0], DR_TAGS[it.drTag][1])+" · " : "") : L.kind==="community" ? (L.meta.title||t("ccTitle"))+" · " : "";
+  const lvl = L.kind==="unit" ? `${lvShort(L.meta.k)} · ${lvName(L.meta.k)} · ` : L.kind==="jump" ? t("jumpTest")+" · " : L.kind==="review" ? t("review")+" · " : L.kind==="challenge" ? t("dcTitle")+" · " : L.kind==="drill" ? drTitle()+" · "+(it.drTag ? T(DR_TAGS[it.drTag][0], DR_TAGS[it.drTag][1])+" · " : "") : L.kind==="community" || L.kind==="mydeck" ? (L.meta.title||t("ccTitle"))+" · " : "";
   if(it.type==="flip"){ // flashcard
     const shown = !!L.flipShown;
     $app.innerHTML = `<div class="lesson"><div class="wrap lhead"><button class="iconbtn" data-a="quit" aria-label="${t("quitAria")}">${I.x}</button><div class="bar" role="progressbar" aria-valuenow="${Math.round(pct)}" aria-valuemin="0" aria-valuemax="100"><i style="width:${pct}%"></i></div><span class="combo">${L.combo>=2?L.combo+"×":""}</span><button class="iconbtn flag" data-a="report" aria-label="${t("report")}" title="${t("report")}">${I.flag}</button></div>
@@ -492,8 +505,8 @@ function renderLesson(){
 }
 function renderDone(){
   const r = L.result, m = Math.floor(r.secs/60), sec = r.secs%60, c = COURSE(L.code), u = L.meta && L.meta.u;
-  const title = L.kind==="community" ? t("ccDoneTitle") : L.kind==="drill" ? t("drDoneTitle") : L.kind==="challenge" ? t("dcDoneTitle") : L.kind==="jump" ? t("doneJump") : (L.kind==="unit" && L.meta.k===3) ? t("doneCrown") : r.acc===100 ? t("doneFlawless") : L.kind==="review" ? t("doneReview") : t("doneLevel", lvShort(L.meta.k));
-  const sub2 = L.kind==="drill" ? t("drDoneSub", L.total - L.firstWrong.size, L.total) : L.kind==="jump" ? t("jumpUnlocked", unitTitle(c,u)) : (L.kind==="unit" && L.meta.k===3) ? t("crownWon", unitTitle(c,u)) : null;
+  const title = L.kind==="community" ? t("ccDoneTitle") : L.kind==="drill" || L.kind==="mydeck" ? t("drDoneTitle") : L.kind==="challenge" ? t("dcDoneTitle") : L.kind==="jump" ? t("doneJump") : (L.kind==="unit" && L.meta.k===3) ? t("doneCrown") : r.acc===100 ? t("doneFlawless") : L.kind==="review" ? t("doneReview") : t("doneLevel", lvShort(L.meta.k));
+  const sub2 = L.kind==="drill" || L.kind==="mydeck" ? t("drDoneSub", L.total - L.firstWrong.size, L.total) : L.kind==="jump" ? t("jumpUnlocked", unitTitle(c,u)) : (L.kind==="unit" && L.meta.k===3) ? t("crownWon", unitTitle(c,u)) : null;
   $app.innerHTML = `<main class="wrap finish pop">
     ${r.goalHit ? goalCelebrateHTML(L.code, r) : teacherBubble(L.code, esc(pickLine(t(r.acc === 100 ? "tchFlawless" : r.acc >= 70 ? "tchDone" : "tchDoneLow"))), 64, "tch-done")}
     ${r.levelUp ? levelUpHTML(r.levelUp) : ""}
@@ -663,14 +676,14 @@ function scratchHTML(){
       <div class="calc-in"><input id="calcin" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="${esc(t("calcPh"))}" aria-label="${esc(t("scCalc"))}"><button data-a="calcgo" aria-label="=">=</button></div>
       ${it.type==="num"&&!host.answered?`<button class="big ghost" data-a="calcuse">${t("calcUse")}</button>`:""}</div>`;
   return `<div class="sc" role="dialog" aria-label="${t("scratch")}">
-    <div class="wrap sc-top"><div class="sc-tabs"><button class="${st.tab==="draw"?"on":""}" data-a="sctab" data-t="draw">${t("scDraw")}</button><button class="${st.tab==="calc"?"on":""}" data-a="sctab" data-t="calc">${t("scCalc")}</button></div>
+    <div class="wrap sc-top"><div class="sc-tabs"><button class="${st.tab==="draw"?"on":""}" data-a="sctab" data-t="draw">${t("scDraw")}</button><button class="${st.tab==="calc"?"on":""}" data-a="sctab" data-t="calc">${t("scCalc")}</button><button class="${st.tab==="units"?"on":""}" data-a="sctab" data-t="units">${t("scUnits")}</button></div>
     <button class="iconbtn" data-a="scclose" aria-label="${t("scClose")}">${I.x}</button></div>
     <div class="wrap sc-q">${rich(it.prompt)}</div>
-    <div class="sc-body">${st.tab==="draw"?draw:calc}</div></div>`;
+    <div class="sc-body">${st.tab==="draw"?draw:st.tab==="units"?unitsTabHTML(st):calc}</div></div>`;
 }
 function mountScratch(){
   const st = scratchState();
-  if(st.tab==="draw") initCanvas(); else { renderCalcLines(); const inp=document.getElementById("calcin"); if(inp){ inp.focus(); inp.addEventListener("keydown", calcKey); } }
+  if(st.tab==="draw") initCanvas(); else if(st.tab==="units") unitsMount(); else { renderCalcLines(); const inp=document.getElementById("calcin"); if(inp){ inp.focus(); inp.addEventListener("keydown", calcKey); } }
 }
 function initCanvas(){
   const cv = document.getElementById("sccv"); if(!cv) return;
@@ -841,7 +854,7 @@ function calcEval(src, env){
 function fmtCalc(v){
   let s; const a = Math.abs(v);
   if(a!==0 && (a>=1e10 || a<1e-6)) s = v.toExponential(6).replace(/\.?0+e/,"e"); else s = String(parseFloat(v.toPrecision(10)));
-  return (LANG==="en" ? s : s.replace(".",",")).replace("-","−");
+  return (decPoint() ? s : s.replace(".",",")).replace("-","−");
 }
 function renderCalcLines(){
   const el = document.getElementById("calclines"); if(!el) return; const c = scratchState().calc;
@@ -874,6 +887,8 @@ function renderOverlay(){
   else if(overlay.crop) d.innerHTML = cropHTML();
   else if(overlay.studypick) d.innerHTML = studyPickHTML(overlay.first);
   else if(overlay.games) d.innerHTML = gamesMenuHTML(overlay.games);
+  else if(overlay.mdimport){ d.className = "scrim center"; d.innerHTML = mdImportHTML(overlay.mdimport); }
+  else if(overlay.drpick) d.innerHTML = drPickHTML();
   else if(overlay.layout) d.innerHTML = layoutEditHTML(overlay.layout);
   else if(overlay.topics) d.innerHTML = topicPickHTML(overlay.topics);
   else if(overlay.bdgegg){ d.className = "scrim center"; d.innerHTML = eggPopHTML(); }
@@ -1004,6 +1019,7 @@ function render(){
   else if(screen==="match") renderMatch();
   else if(screen==="truefalse") renderTF();
   else if(screen==="duel") renderDuel();
+  else if(screen==="mydecks") renderMyDecks();
   else if(screen==="local") renderLocal();
   else if(screen==="community") renderCommunity();
   else if(screen==="ccedit") renderCCEdit();
@@ -1043,6 +1059,7 @@ document.addEventListener("click", async e=>{
   if(guidedClick(a, b)) return; // steg for steg
   if(communityClick(a, b)) return; // fellesskapskurs
   if(a==="community"){ openCommunity(); return; }
+  if((a==="home" || a==="quitok") && L && L.kind==="mydeck"){ overlay = null; L = null; mdOpen(); return; }
   if(a==="home" && L && L.kind==="community" && (screen==="done" || screen==="fail")){ const back = CC.edit ? "ccedit" : "community"; L = null; screen = back; render(); window.scrollTo(0,0); return; }
   if(a==="quitok" && L && L.kind==="community"){ const back = CC.edit ? "ccedit" : "community"; overlay = null; L = null; screen = back; render(); window.scrollTo(0,0); return; }
   if(a==="report" && L && L.kind==="community"){ if(L.meta.cid && L.meta.cid !== "preview"){ overlay = { frrep: { kind: "course", id: null, target: L.meta.cid, reason: null } }; renderOverlay(); } else toast(t("ccPreviewNoReport")); return; }
@@ -1051,7 +1068,7 @@ document.addEventListener("click", async e=>{
   if(grClick(a, b)) return; // grupper (handlinger som starter med "gr")
   if(studyClick(a, b)) return; // studier (studies.js)
   if(pfClick(a, b)) return; // bevis (proofs.js)
-  if(snEntryClick(a) || snClick(a, b) || spClick(a, b) || gmClick(a, b) || gmMenuClick(a, b) || duClick(a, b)) return; // snacks og lynrunde (snacks.js)
+  if(snEntryClick(a) || snClick(a, b) || spClick(a, b) || gmClick(a, b) || gmMenuClick(a, b) || duClick(a, b) || mdClick(a, b) || unitsClick(a, b)) return; // snacks og lynrunde (snacks.js)
   if(adminClick(a, b)) return; // adminpanel og kunngjøringer (admin.js)
   if(psClick(a, b)) return; // profilsiden til andre + hvilke merker du viser (person.js)
   if(friendsClick(a, b)) return; // venner (handlinger som starter med "fr")
@@ -1061,7 +1078,8 @@ document.addEventListener("click", async e=>{
   else if(a==="home"){ goHome(); }
   else if(a==="settings"){ overlay=null; screen="settings"; render(); window.scrollTo(0,0); }
   else if(a==="dcstart"){ if(!dcDoneToday()) startChallenge(); }
-  else if(a==="drstart"){ startDrill(b.dataset.t || "all"); }
+  else if(a==="drstart"){ if(overlay){ overlay = null; renderOverlay(); } startDrill(b.dataset.t || "all"); }
+  else if(a==="drpick"){ overlay = { drpick: 1 }; renderOverlay(); }
   else if(a==="dcpopgo"){ buzz(true); overlay=null; renderOverlay(); if(!dcDoneToday()) startChallenge(); }
   else if(a==="dclater"){ overlay=null; renderOverlay(); toast(t("dcPopLaterToast")); }
   else if(a==="badges"){ screen="badges"; render(); window.scrollTo(0,0); }
