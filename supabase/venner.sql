@@ -611,3 +611,36 @@ $$;
 revoke all on function public.get_profile(uuid) from public, anon;
 grant execute on function public.get_profile(uuid) to authenticated;
 
+
+-- venner.sql trekker tilbake alle rettigheter på profiles øverst. Kolonnen fra grupper.sql må få sine tilbake når filen kjøres på nytt.
+do $$ begin
+  if exists (select 1 from information_schema.columns where table_schema = 'public' and table_name = 'profiles' and column_name = 'friends_public') then
+    grant insert (friends_public), update (friends_public) on public.profiles to authenticated;
+  end if;
+end $$;
+
+-- ============================================================
+-- Brukernavn via funksjon (tydelige feil i appen: taken, bad_username, bad_word, no_profile).
+-- Appen bruker denne når den finnes, ellers vanlig oppdatering av profiles.
+-- ============================================================
+create or replace function public.set_username(p_username text)
+returns text
+language plpgsql
+security definer
+set search_path = ''
+as $$
+declare me uuid := auth.uid(); u text := lower(btrim(coalesce(p_username, '')));
+begin
+  if me is null then raise exception 'not_logged_in'; end if;
+  u := regexp_replace(u, '^@', '');
+  if u !~ '^[a-z0-9_.]{3,20}$' then raise exception 'bad_username'; end if;
+  if not public.is_clean(u) then raise exception 'bad_word'; end if;
+  if not exists (select 1 from public.profiles where user_id = me) then raise exception 'no_profile'; end if;
+  if exists (select 1 from public.profiles where username = u and user_id <> me) then raise exception 'taken'; end if;
+  update public.profiles set username = u, updated_at = now() where user_id = me;
+  return u;
+exception when unique_violation then raise exception 'taken';
+end;
+$$;
+revoke all on function public.set_username(text) from public, anon;
+grant execute on function public.set_username(text) to authenticated;

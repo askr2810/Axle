@@ -1817,3 +1817,4 @@ textarea.fbtext{width:100%;font:13px/1.4 var(--mono,monospace);border-radius:12p
 .embed .exlink[data-a="labopen"],.embed .exlink[data-a="lablist"],.embed .lab-uses,.embed .lab-one > .grp{display:none}
 .emb-bar{display:flex;justify-content:space-between;align-items:center;gap:8px;max-width:720px;margin:0 auto;padding:8px 16px 0;font-size:13px;font-weight:700;color:var(--muted)}
 .emb-bar a{color:var(--accent);text-decoration:none;font-weight:800}
+.fr-uhint{margin:6px 2px 0;font-size:13.5px;font-weight:700;min-height:1em}.fr-uhint.ok{color:var(--ok)}.fr-uhint.bad{color:var(--bad)}

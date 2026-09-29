@@ -153,19 +153,37 @@ function frUserSuggest(name){
   const base = String(name || "").toLowerCase().replace(/[æ]/g, "ae").replace(/[ø]/g, "o").replace(/[å]/g, "a").normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]+/g, "").slice(0, 14);
   return (base.length >= 3 ? base : "axle") + Math.floor(10 + Math.random() * 90);
 }
+// Gjør om det man skriver til et gyldig brukernavn: små bokstaver, æ→ae, ø→o, å→a, mellomrom→_, fjern resten.
+function frUserClean(v){
+  return String(v || "").trim().replace(/^@/, "").toLowerCase().replace(/æ/g, "ae").replace(/ø/g, "o").replace(/å/g, "a").normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+    .replace(/[\s-]+/g, "_").replace(/[^a-z0-9_.]/g, "").replace(/_{2,}/g, "_").slice(0, 20);
+}
+function frUserHint(v){
+  const u = frUserClean(v), el = document.getElementById("fruserhint"); if(!el) return;
+  const raw = String(v || "").trim().replace(/^@/, "");
+  el.className = "fr-uhint " + (FR_USER_RE.test(u) ? "ok" : "bad");
+  el.textContent = !raw ? "" : u.length < 3 ? t("frUserShort") : u !== raw ? t("frUserWillBe", u) : "✓ @" + u;
+}
 async function frSaveUser(v){
-  const u = String(v || "").trim().toLowerCase().replace(/^@/, "");
+  const u = frUserClean(v);
   if(!FR_USER_RE.test(u)){ toast(t("frUserBad")); return; }
   if(!isClean(u)){ toast(t("frBadWord")); return; }
   FR.busy = true; frRender();
   try{
     const tok = await authToken(); if(!tok) throw new CloudError("offline", 0);
-    await sbFetch("/rest/v1/profiles?user_id=eq." + encodeURIComponent(AUTH.uid), { method: "PATCH", headers: { Prefer: "return=minimal" }, body: JSON.stringify({ username: u }) }, tok);
+    let viaRpc = true;
+    try{ await frRpc("set_username", { p_username: u }); } // venner.sql: sjekker og lagrer på serveren med tydelige feil
+    catch(e){ if(!(e && (e.code === "PGRST202" || e.code === "42883" || e.status === 404))) throw e; viaRpc = false; }
+    if(!viaRpc){
+      const rows = await sbFetch("/rest/v1/profiles?user_id=eq." + encodeURIComponent(AUTH.uid), { method: "PATCH", headers: { Prefer: "return=representation" }, body: JSON.stringify({ username: u }) }, tok);
+      if(Array.isArray(rows) && !rows.length) throw Object.assign(new CloudError("server", 400, "no_profile"), { msg: "no_profile" });
+    }
     const me = frMe(); if(me) me.username = u;
     FR.editUser = false; toast(t("frUserSaved", u));
   }catch(e){
-    const c = (e && e.code) || "";
-    toast(/bad_word/.test((e && e.msg) || "") ? t("frBadWord") : c === "23505" ? t("frUserTaken") : c === "23514" ? t("frUserBad") : /PGRST204|42703/.test(c) ? t("frUserNoDb") : frErr(e));
+    const c = (e && e.code) || "", m = (e && e.msg) || "";
+    toast(/bad_word/.test(m) ? t("frBadWord") : c === "23505" || /taken/.test(m) ? t("frUserTaken") : c === "23514" || /bad_username/.test(m) ? t("frUserBad")
+      : /no_profile/.test(m) ? t("frUserNoProfile") : /PGRST204|42703/.test(c) ? t("frUserNoDb") : frErr(e) + (m ? " – " + m.slice(0, 80) : ""));
   }
   FR.busy = false; frRender();
 }
@@ -305,7 +323,7 @@ function renderFriends(){
         <div class="fr-card fr-pub"><span class="fr-pub-t"><b>${esc(t("frPublic"))}</b><small>${esc(t("frPublicSub"))}</small></span><button class="tog ${S.friendsPublic ? "on" : ""}" data-a="frpublic" role="switch" aria-checked="${!!S.friendsPublic}" aria-label="${esc(t("frPublic"))}"></button></div>
         <div class="fr-card fr-pub"><span class="fr-pub-t"><b>${esc(t("spPrivate"))}</b><small>${esc(t(S.statsPrivate !== false ? "spPrivateOn" : "spPrivateOff"))}</small></span><button class="tog ${S.statsPrivate !== false ? "on" : ""}" data-a="frstatspriv" role="switch" aria-checked="${S.statsPrivate !== false}" aria-label="${esc(t("spPrivate"))}"></button></div>`;
       const userCard = (FR.editUser || (!me.username && !FR.userLater)) ? `<div class="fr-card fr-user"><h2>${esc(t(me.username ? "frEditUser" : "frPickUser"))}</h2><p>${esc(t("frUserText"))}</p>
-          <div class="fr-at"><span>@</span><input type="text" id="fruser" maxlength="20" autocapitalize="none" autocomplete="username" spellcheck="false" value="${esc(me.username || frUserSuggest(me.display_name))}"></div>
+          <div class="fr-at"><span>@</span><input type="text" id="fruser" maxlength="30" autocapitalize="none" autocomplete="username" spellcheck="false" value="${esc(me.username || frUserSuggest(me.display_name))}"></div><p id="fruserhint" class="fr-uhint"></p>
           <button class="big" data-a="frsaveuser" ${FR.busy ? "disabled" : ""}>${esc(t("frSave"))}</button><button class="big ghost" data-a="frlateruser">${esc(t(me.username ? "cancel" : "frLater"))}</button></div>` : "";
       const reqCard = FR.reqs.length ? `<div class="fr-card fr-reqs"><h3>${esc(t("frReqs"))} <span class="fr-n">${FR.reqs.length}</span></h3>${FR.reqs.map((r, i) =>
           `<div class="fr-hit"><button class="fr-who" data-a="frperson" data-id="${esc(r.user_id)}">${frAvatar(r.display_name, i, r.avatar, 40, r.photo)}<span class="fr-t"><b>${esc(r.display_name)}</b><span>${r.username ? "@" + esc(r.username) : ""}</span></span></button><button class="fr-act" data-a="fracc" data-id="${esc(r.user_id)}">${esc(t("frAccept"))}</button><button class="fr-act ghost" data-a="frdec" data-id="${esc(r.user_id)}" aria-label="${esc(t("frDecline"))}">${I.x}</button><button class="fr-more" data-a="frmod" data-id="${esc(r.user_id)}" aria-label="${esc(t("repMore"))}">⋯</button></div>`).join("")}</div>` : "";
@@ -332,7 +350,7 @@ function renderFriends(){
   if(FR.view === "messages") ibMount();
   const nm = document.getElementById("frname"); if(nm){ nm.focus(); nm.addEventListener("keydown", e => { if(e.key === "Enter") frSaveName(nm.value); }); }
   const ad = document.getElementById("fradd"); if(ad) ad.addEventListener("keydown", e => { if(e.key === "Enter") frAdd(ad.value); });
-  const us = document.getElementById("fruser"); if(us) us.addEventListener("keydown", e => { if(e.key === "Enter") frSaveUser(us.value); });
+  const us = document.getElementById("fruser"); if(us){ us.addEventListener("keydown", e => { if(e.key === "Enter") frSaveUser(us.value); }); us.addEventListener("input", () => frUserHint(us.value)); frUserHint(us.value); }
   const sq = document.getElementById("frsearch"); if(sq){ sq.addEventListener("input", () => frSearchInput(sq.value)); if(FR.search.focus){ FR.search.focus = false; sq.focus(); } }
 }
 // Pall og liste for en toppliste (venner eller en gruppe). act = handling når man trykker på en annen person.
