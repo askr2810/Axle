@@ -104,9 +104,9 @@ function bkMark(snip, q){
   return h;
 }
 function bkResultsHTML(){
-  const hits = bkSearch(BK.q);
-  if(!hits.length) return `<p class="bk-empty">${esc(t("bkNoHits"))}</p>`;
-  return `<p class="bk-count">${esc(t("bkHits", hits.length))}</p>` + hits.map(({ it, snip }) =>
+  const hits = bkSearch(BK.q), labs = labHitsHTML(BK.q);
+  if(!hits.length) return labs || `<p class="bk-empty">${esc(t("bkNoHits"))}</p>`;
+  return labs + `<p class="bk-count">${esc(t("bkHits", hits.length))}</p>` + hits.map(({ it, snip }) =>
     it.id ? `<button class="bk-hit tp" data-a="bktopic" data-c="${esc(it.code)}" data-id="${esc(it.id)}"><small>${esc(t("tpTopic"))} · ${esc(it.course)}</small><b>${esc(it.title)}</b><span>${bkMark(snip, BK.q)}</span></button>`
     : `<button class="bk-hit" data-a="bkunit" data-c="${esc(it.code)}" data-u="${it.u}"><small>${esc(it.course)} · ${esc(t("unit", it.u + 1))}</small><b>${esc(it.title)}</b><span>${bkMark(snip, BK.q)}</span></button>`).join("");
 }
@@ -137,7 +137,7 @@ function renderBook(){
     <main class="wrap bk">
       <label class="bk-search">${I.search}<input type="search" id="bkq" placeholder="${esc(t("bkSearch"))}" aria-label="${esc(t("bkSearch"))}" value="${esc(BK.q)}" autocomplete="off"></label>
       <div id="bkres">${BK.q.trim() ? bkResultsHTML() : ""}</div>
-      <div id="bklist" ${BK.q.trim() ? "hidden" : ""}><button class="pf-cta" data-a="pflist"><span class="pf-cta-ic" aria-hidden="true">∎</span><span><b>${esc(t("pfTitle"))}</b><small>${esc(t("pfCtaSub", PROOFS.length))}</small></span>${I.chevron}</button>${studyTabsHTML()}${list || `<p class="fr-hint">${esc(t("stNoTheory"))}</p>`}${studyMoreHTML()}</div>
+      <div id="bklist" ${BK.q.trim() ? "hidden" : ""}><button class="pf-cta" data-a="pflist"><span class="pf-cta-ic" aria-hidden="true">∎</span><span><b>${esc(t("pfTitle"))}</b><small>${esc(t("pfCtaSub", PROOFS.length))}</small></span>${I.chevron}</button>${labCtaHTML()}${studyTabsHTML()}${list || `<p class="fr-hint">${esc(t("stNoTheory"))}</p>`}${studyMoreHTML()}</div>
     </main>`;
   const inp = document.getElementById("bkq");
   inp.addEventListener("input", ()=>{ BK.q = inp.value; const has = !!BK.q.trim();

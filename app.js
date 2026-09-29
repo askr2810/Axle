@@ -966,7 +966,7 @@ function renderTheory(){
   const c = COURSE(TH.code);
   $app.innerHTML = `<div class="top"><div class="wrap"><button class="iconbtn" data-a="home" aria-label="${esc(t("back"))}">${I.x}</button>
       <div class="th-t"><small>${esc(courseName(c))} · ${esc(t("unit", TH.u+1))}</small><b>${esc(unitTitle(c, TH.u))}</b></div><span class="th-ic" aria-hidden="true">${I.book}</span></div></div>
-    <main class="wrap theory">${teacherBubble(TH.code, esc(t("tchTheory", unitTitle(c, TH.u))), 52, "tch-th")}<button class="gd-cta" data-a="thguided">${I.steps}<span><b>${esc(t("gdCta"))}</b><small>${esc(t("gdCtaSub"))}</small></span>${I.chevron}</button>${pfTheoryHTML(TH.code, TH.u)}${theoryBody(TH.code, TH.u, true)}</main>
+    <main class="wrap theory">${teacherBubble(TH.code, esc(t("tchTheory", unitTitle(c, TH.u))), 52, "tch-th")}<button class="gd-cta" data-a="thguided">${I.steps}<span><b>${esc(t("gdCta"))}</b><small>${esc(t("gdCtaSub"))}</small></span>${I.chevron}</button>${pfTheoryHTML(TH.code, TH.u)}${labTheoryHTML(TH.code, TH.u)}${theoryBody(TH.code, TH.u, true)}</main>
     <div class="lfoot"><div class="wrap"><button class="big" data-a="thstart">${esc(t(TH.go ? "thStartFirst" : "thStart"))}</button></div></div>`;
 }
 function theorySheetHTML(o){
@@ -1015,6 +1015,9 @@ function render(){
   else if(screen==="theory") renderTheory();
   else if(screen==="guided") renderGuided();
   else if(screen==="proofs") renderProofs();
+  else if(screen==="trig") renderTrig();
+  else if(screen==="forces") renderForces();
+  else if(screen==="lab") renderLab();
   else if(screen==="snacks") renderSnacks();
   else if(screen==="sprint") renderSprint();
   else if(screen==="match") renderMatch();
@@ -1069,7 +1072,7 @@ document.addEventListener("click", async e=>{
   if(grClick(a, b)) return; // grupper (handlinger som starter med "gr")
   if(studyClick(a, b)) return; // studier (studies.js)
   if(pfClick(a, b)) return; // bevis (proofs.js)
-  if(snEntryClick(a) || snClick(a, b) || spClick(a, b) || gmClick(a, b) || gmMenuClick(a, b) || duClick(a, b) || mdClick(a, b) || unitsClick(a, b)) return; // snacks og lynrunde (snacks.js)
+  if(snEntryClick(a) || snClick(a, b) || spClick(a, b) || gmClick(a, b) || gmMenuClick(a, b) || duClick(a, b) || mdClick(a, b) || unitsClick(a, b) || tgClick(a, b) || fcClick(a, b) || labClick(a, b)) return; // snacks og lynrunde (snacks.js)
   if(adminClick(a, b)) return; // adminpanel og kunngjøringer (admin.js)
   if(psClick(a, b)) return; // profilsiden til andre + hvilke merker du viser (person.js)
   if(friendsClick(a, b)) return; // venner (handlinger som starter med "fr")
