@@ -88,7 +88,7 @@ function routeBoot(){
   }
   if(k === "groups"){ screen = "friends"; FR.view = "groups"; GR.cur = /^[0-9a-f-]{36}$/i.test(p[1] || "") ? p[1] : null; GR.rows = null; return true; }
   if(k === "friends"){ screen = "friends"; FR.view = "friends"; return true; }
-  if(k === "messages"){ screen = "friends"; FR.view = "messages"; IB.with = /^[0-9a-f-]{36}$/i.test(p[1] || "") ? p[1] : null; IB.msgs = null; IB.convs = null; return true; }
+  if(k === "messages"){ screen = "friends"; FR.view = "messages"; IB.with = /^(g-)?[0-9a-f-]{36}$/i.test(p[1] || "") ? p[1] : null; IB.msgs = null; IB.convs = null; return true; }
   if(k === "admin"){ // bare for mod/admin; rollen er kanskje ikke hentet ennå, så sjekk igjen etterpå
     if(!AUTH) return false;
     ADM.tab = ["reports", "users", "notice", "log"].includes(p[1]) ? p[1] : "overview"; screen = "admin";

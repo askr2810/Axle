@@ -891,6 +891,8 @@ function renderOverlay(){
   else if(overlay.drpick) d.innerHTML = drPickHTML();
   else if(overlay.mdpub) d.innerHTML = mdPubHTML(overlay.mdpub);
   else if(overlay.share) d.innerHTML = shareHTML(overlay.share);
+  else if(overlay.newchat) d.innerHTML = ibNewChatHTML(overlay.newchat);
+  else if(overlay.chatmenu) d.innerHTML = ibChatMenuHTML(overlay.chatmenu);
   else if(overlay.layout) d.innerHTML = layoutEditHTML(overlay.layout);
   else if(overlay.topics) d.innerHTML = topicPickHTML(overlay.topics);
   else if(overlay.bdgegg){ d.className = "scrim center"; d.innerHTML = eggPopHTML(); }
