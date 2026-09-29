@@ -4,10 +4,10 @@
 //  En avatar lagres som en kort kode med tall skilt av bindestrek, i rekkefølgen AV_KEYS.
 //  Eldre koder (9 tall, der «tilbehør» også inneholdt briller) oversettes automatisk.
 // ============================================================
-const AV_SKIN = ["#FBD9C0", "#F1C19C", "#D9A274", "#B97F52", "#8D5A36", "#5E3A22", "#FFE7D6", "#E8B48A", "#7A4A2C", "#3F2616"];
-const AV_HAIRC = ["#1F1A17", "#4A2E1D", "#8A5A2B", "#D9B25F", "#B5472B", "#9AA3AB", "#3F6ED8", "#D65DA0", "#EDE3CC", "#2E9E5B", "#7A4BC2", "#F4E1A0", "#6B3E26", "#C9A0FF", "#2EC4B6", "#FF7B54", "#E6E6E6", "#0F2A5C", "#E03C31"];
-const AV_BG = ["#DCE5F8", "#D5F0E6", "#FCE8C4", "#F6DAE6", "#E6DEF6", "#D8EEF3", "#EEE7DC", "#E3E8EC", "#FFE0CC", "#CFF5DC", "#EBD4FB", "#FDF6B2", "#C9E4FF", "#2B2D42", "#FFD6E0", "#1F4E5F"];
-const AV_SHIRT = ["#2B59C3", "#0F8A83", "#7A4BC2", "#E9A100", "#D2452F", "#2E7D32", "#37474F", "#E86A92", "#111827", "#F2F2F2", "#8D6E63", "#00B4D8", "#FF7B54", "#9CCC65", "#B71C1C", "#1A237E", "#F48FB1", "#FFD54F"];
+const AV_SKIN = ["#FBD9C0", "#F1C19C", "#D9A274", "#B97F52", "#8D5A36", "#5E3A22", "#FFE7D6", "#E8B48A", "#7A4A2C", "#3F2616", "#FFF0E6", "#FCE3D0", "#F7D2B8", "#EFC6A5", "#E3B08A", "#D59C71", "#C88B5E", "#A86F45", "#9A6240", "#6E4128", "#4E2F1C", "#2E1B10", "#E9C7A3", "#C69A6B"];
+const AV_HAIRC = ["#1F1A17", "#4A2E1D", "#8A5A2B", "#D9B25F", "#B5472B", "#9AA3AB", "#3F6ED8", "#D65DA0", "#EDE3CC", "#2E9E5B", "#7A4BC2", "#F4E1A0", "#6B3E26", "#C9A0FF", "#2EC4B6", "#FF7B54", "#E6E6E6", "#0F2A5C", "#E03C31", "#000000", "#2B1B14", "#3B2416", "#5A3825", "#7B4B2A", "#A0643A", "#C08A4E", "#E3C27A", "#FFF3C4", "#C0392B", "#E4572E", "#FF9F1C", "#F9C74F", "#90BE6D", "#43AA8B", "#277DA1", "#577590", "#4D908E", "#F72585", "#B5179E", "#7209B7", "#3A0CA3", "#4CC9F0", "#FFB5C2", "#A8DADC", "#C0C0C0", "#7D7D7D"];
+const AV_BG = ["#DCE5F8", "#D5F0E6", "#FCE8C4", "#F6DAE6", "#E6DEF6", "#D8EEF3", "#EEE7DC", "#E3E8EC", "#FFE0CC", "#CFF5DC", "#EBD4FB", "#FDF6B2", "#C9E4FF", "#2B2D42", "#FFD6E0", "#1F4E5F", "#FFFFFF", "#F5F5F5", "#FFF3E0", "#FFEBEE", "#FCE4EC", "#F3E5F5", "#E8EAF6", "#E1F5FE", "#E0F2F1", "#F1F8E9", "#FFFDE7", "#FFCDD2", "#F8BBD0", "#B3E5FC", "#B2DFDB", "#C8E6C9", "#FFE082", "#FFAB91", "#B39DDB", "#90CAF9", "#263238", "#1A1A2E", "#3D2C8D", "#0B3D2E", "#5C2A2A"];
+const AV_SHIRT = ["#2B59C3", "#0F8A83", "#7A4BC2", "#E9A100", "#D2452F", "#2E7D32", "#37474F", "#E86A92", "#111827", "#F2F2F2", "#8D6E63", "#00B4D8", "#FF7B54", "#9CCC65", "#B71C1C", "#1A237E", "#F48FB1", "#FFD54F", "#000000", "#FFFFFF", "#5D4037", "#A1887F", "#D7CCC8", "#F8BBD0", "#FF4081", "#AD1457", "#6A1B9A", "#B39DDB", "#3949AB", "#90CAF9", "#0277BD", "#26C6DA", "#00897B", "#80CBC4", "#43A047", "#C5E1A5", "#827717", "#FDD835", "#FFB300", "#FB8C00", "#F4511E", "#6D4C41", "#546E7A", "#B0BEC5", "#8E24AA", "#1B5E20", "#004D40", "#FFE0B2"];
 // Navn på valgene (norsk, engelsk) – brukes som bildetekst i avatar-byggeren
 const AV_NAMES = {
   h: [["Kort", "Short"], ["Langt", "Long"], ["Knute", "Bun"], ["Krøller", "Curls"], ["Skallet", "Bald"], ["Piggete", "Spiky"], ["Bob", "Bob"], ["Hanekam", "Mohawk"], ["Midtskill", "Middle part"], ["Taper fade", "Taper fade"], ["Buzz cut", "Buzz cut"], ["Fletter", "Braids"], ["Afro", "Afro"], ["Man bun", "Man bun"], ["Sideskill", "Side part"], ["Lugg", "Bangs"], ["Hestehale", "Ponytail"], ["Krøllete topp", "Curly top"], ["Langt bølgete", "Long wavy"], ["Pixie", "Pixie"], ["Skulderlangt", "Shoulder length"], ["Veldig langt", "Very long"], ["Lange krøller", "Long curls"], ["Dreadlocks", "Dreadlocks"], ["To knuter", "Space buns"], ["Høy hestehale", "High ponytail"], ["Mullet", "Mullet"], ["Wolf cut", "Wolf cut"], ["Korte krøller", "Short curls"], ["Langt med lugg", "Long with bangs"], ["Quiff", "Quiff"], ["Undercut", "Undercut"], ["Krøllete bob", "Curly bob"], ["Langt med midtskill", "Long middle part"]],
@@ -360,10 +360,21 @@ document.addEventListener("change", e => {
   }
 });
 function aveTabIntoView(){ const el = document.querySelector(".ave-tabs button.on"); if(el) el.scrollIntoView({ block: "nearest", inline: "center" }); }
+// Fargene vises sortert (hudtoner fra lys til mørk, andre etter fargetone), men lagres med fast nummer.
+function avColorOrder(list, byLight){
+  const hsl = hex => { const n = parseInt(hex.slice(1), 16), r = (n >> 16 & 255) / 255, g = (n >> 8 & 255) / 255, b = (n & 255) / 255, mx = Math.max(r, g, b), mn = Math.min(r, g, b), l = (mx + mn) / 2, d = mx - mn;
+    let h = 0; if(d){ h = mx === r ? ((g - b) / d) % 6 : mx === g ? (b - r) / d + 2 : (r - g) / d + 4; h = (h * 60 + 360) % 360; }
+    return { h, s: d ? d / (1 - Math.abs(2 * l - 1)) : 0, l }; };
+  const key = list.map((c, i) => ({ i, ...hsl(c) }));
+  if(byLight) return key.sort((a, b) => b.l - a.l).map(x => x.i);
+  const grey = key.filter(x => x.s < 0.12).sort((a, b) => b.l - a.l), col = key.filter(x => x.s >= 0.12).sort((a, b) => (Math.round(a.h / 20) - Math.round(b.h / 20)) || (b.l - a.l));
+  return [...grey, ...col].map(x => x.i);
+}
 function aveOptsHTML(){
   const o = avParse(AVE.code), k = AVE.tab;
   const colorTab = { s: AV_SKIN, hc: AV_HAIRC, sh: AV_SHIRT, bg: AV_BG }[k];
-  const opts = Array.from({ length: AV_PARTS[k] }, (_, i) => {
+  const order = colorTab ? avColorOrder(colorTab, k === "s") : Array.from({ length: AV_PARTS[k] }, (_, i) => i);
+  const opts = order.map(i => {
     const on = o[k] === i;
     if(colorTab) return `<button class="ave-sw ${on ? "on" : ""}" data-a="avset" data-i="${i}" aria-label="${i + 1}" style="background:${colorTab[i]}"></button>`;
     const oo = Object.assign({}, o, { [k]: i });
