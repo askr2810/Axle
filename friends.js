@@ -325,9 +325,11 @@ function renderFriends(){
         <button class="exlink fr-refresh" data-a="frreload">${FR.loading ? esc(t("frLoading")) : esc(t("frRefresh"))}</button>`;
     }
   }
-  const viewSeg = CLOUD_ON && AUTH && FR.rows && FR.rows.some(r => r.is_me) && !FR.editName ? `<div class="seg fr-view" role="tablist">${["friends", "groups"].map(k => `<button role="tab" aria-selected="${FR.view === k}" class="${FR.view === k ? "on" : ""}" data-a="frview" data-v="${k}">${esc(t("frView_" + k))}</button>`).join("")}</div>` : "";
+  const viewSeg = CLOUD_ON && AUTH && FR.rows && FR.rows.some(r => r.is_me) && !FR.editName ? `<div class="seg fr-view" role="tablist">${["friends", "messages", "groups"].map(k => `<button role="tab" aria-selected="${FR.view === k}" class="${FR.view === k ? "on" : ""}" data-a="frview" data-v="${k}">${esc(t("frView_" + k))}${k === "messages" && IB.unread ? ` <i class="ib-n">${IB.unread}</i>` : ""}</button>`).join("")}</div>` : "";
   if(viewSeg && FR.view === "groups") body = grBodyHTML();
-  $app.innerHTML = `${head}<main class="wrap fr">${viewSeg}${body}</main>`;
+  if(viewSeg && FR.view === "messages") body = ibBodyHTML();
+  $app.innerHTML = `${head}<main class="wrap fr ${FR.view === "messages" && IB.with ? "ib-chat" : ""}">${IB.with && FR.view === "messages" ? "" : viewSeg}${body}</main>`;
+  if(FR.view === "messages") ibMount();
   const nm = document.getElementById("frname"); if(nm){ nm.focus(); nm.addEventListener("keydown", e => { if(e.key === "Enter") frSaveName(nm.value); }); }
   const ad = document.getElementById("fradd"); if(ad) ad.addEventListener("keydown", e => { if(e.key === "Enter") frAdd(ad.value); });
   const us = document.getElementById("fruser"); if(us) us.addEventListener("keydown", e => { if(e.key === "Enter") frSaveUser(us.value); });
@@ -374,7 +376,7 @@ function friendsClick(a, b){
   else if(a === "freditname"){ FR.editName = true; render(); }
   else if(a === "frcancelname"){ FR.editName = false; render(); }
   else if(a === "frtab"){ FR.tab = b.dataset.t; render(); }
-  else if(a === "frview"){ FR.view = b.dataset.v; if(FR.view === "friends") GR.cur = null; render(); window.scrollTo(0, 0); }
+  else if(a === "frview"){ FR.view = b.dataset.v; if(FR.view === "friends") GR.cur = null; if(FR.view === "messages"){ IB.with = null; IB.convs = null; } render(); window.scrollTo(0, 0); }
   else if(a === "frpublic"){ S.friendsPublic = !S.friendsPublic; save(); frPushSoon(); render(); toast(t(S.friendsPublic ? "frPublicOn" : "frPublicOff")); }
   else if(a === "frstatspriv"){ S.statsPrivate = S.statsPrivate === false; save(); frPushSoon(); render(); toast(t(S.statsPrivate ? "spToastOn" : "spToastOff")); }
   else if(a === "frfof") frFofOpen(b.dataset.id);

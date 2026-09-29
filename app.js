@@ -890,6 +890,7 @@ function renderOverlay(){
   else if(overlay.mdimport){ d.className = "scrim center"; d.innerHTML = mdImportHTML(overlay.mdimport); }
   else if(overlay.drpick) d.innerHTML = drPickHTML();
   else if(overlay.mdpub) d.innerHTML = mdPubHTML(overlay.mdpub);
+  else if(overlay.share) d.innerHTML = shareHTML(overlay.share);
   else if(overlay.layout) d.innerHTML = layoutEditHTML(overlay.layout);
   else if(overlay.topics) d.innerHTML = topicPickHTML(overlay.topics);
   else if(overlay.bdgegg){ d.className = "scrim center"; d.innerHTML = eggPopHTML(); }
@@ -1042,6 +1043,7 @@ function render(){
   renderTabbar();
   renderOverlay();
   routeSync(); // adressen følger skjermen (route.js)
+  shareInject(); // deleknapp øverst (share.js)
   // valgt studie-fane skal alltid synes, også når fanene ikke får plass på en smal skjerm
   document.querySelectorAll(".study-tabs").forEach(r => { const b = r.querySelector(".on"); if(b && (b.offsetLeft + b.offsetWidth > r.scrollLeft + r.clientWidth || b.offsetLeft < r.scrollLeft)) r.scrollLeft = b.offsetLeft - 8; });
 }
@@ -1072,7 +1074,7 @@ document.addEventListener("click", async e=>{
   if(grClick(a, b)) return; // grupper (handlinger som starter med "gr")
   if(studyClick(a, b)) return; // studier (studies.js)
   if(pfClick(a, b)) return; // bevis (proofs.js)
-  if(snEntryClick(a) || snClick(a, b) || spClick(a, b) || gmClick(a, b) || gmMenuClick(a, b) || duClick(a, b) || mdClick(a, b) || unitsClick(a, b) || tgClick(a, b) || fcClick(a, b) || labClick(a, b)) return; // snacks og lynrunde (snacks.js)
+  if(snEntryClick(a) || snClick(a, b) || spClick(a, b) || gmClick(a, b) || gmMenuClick(a, b) || duClick(a, b) || mdClick(a, b) || unitsClick(a, b) || tgClick(a, b) || fcClick(a, b) || labClick(a, b) || shareClick(a, b) || ibClick(a, b)) return; // snacks og lynrunde (snacks.js)
   if(adminClick(a, b)) return; // adminpanel og kunngjøringer (admin.js)
   if(psClick(a, b)) return; // profilsiden til andre + hvilke merker du viser (person.js)
   if(friendsClick(a, b)) return; // venner (handlinger som starter med "fr")

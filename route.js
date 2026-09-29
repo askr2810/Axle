@@ -6,7 +6,7 @@
 //  Ord på norsk eller engelsk etter språket; begge forstås når adressen leses.
 // ============================================================
 const RT = { practice: ["ov", "practice"], book: ["teori", "theory"], friends: ["venner", "friends"], profile: ["profil", "profile"], badges: ["merker", "badges"],
-  settings: ["innstillinger", "settings"], community: ["fellesskap", "community"], pick: ["fag", "courses"], groups: ["grupper", "groups"], theory: ["les", "read"], guided: ["steg", "steps"], topic: ["emne", "topic"], proofs: ["bevis", "proofs"], snacks: ["snacks", "snacks"], sprint: ["lynrunde", "sprint"], match: ["parjakt", "match"], truefalse: ["santusant", "truefalse"], duel: ["duell", "duel"], mydecks: ["kort", "cards"], local: ["lynduell", "sameduel"], sheet: ["formler", "formulas"], person: ["person", "person"], admin: ["admin", "admin"], trig: ["enhetssirkel", "unitcircle"], forces: ["krefter", "forces"], lab: ["lab", "lab"] };
+  settings: ["innstillinger", "settings"], community: ["fellesskap", "community"], pick: ["fag", "courses"], groups: ["grupper", "groups"], theory: ["les", "read"], guided: ["steg", "steps"], topic: ["emne", "topic"], proofs: ["bevis", "proofs"], snacks: ["snacks", "snacks"], sprint: ["lynrunde", "sprint"], match: ["parjakt", "match"], truefalse: ["santusant", "truefalse"], duel: ["duell", "duel"], mydecks: ["kort", "cards"], local: ["lynduell", "sameduel"], sheet: ["formler", "formulas"], person: ["person", "person"], admin: ["admin", "admin"], trig: ["enhetssirkel", "unitcircle"], forces: ["krefter", "forces"], lab: ["lab", "lab"], messages: ["meldinger", "messages"] };
 const rtW = k => RT[k][LANG === "en" ? 1 : 0];
 const rtKey = w => Object.keys(RT).find(k => RT[k].includes(String(w || "").toLowerCase()));
 const rtCourse = code => COURSES.some(c => c.code === code) ? code : null;
@@ -14,7 +14,7 @@ const rtCourse = code => COURSES.some(c => c.code === code) ? code : null;
 function routeOf(){
   switch(screen){
     case "home": return "";
-    case "friends": return FR.view === "groups" ? [rtW("groups")].concat(GR.cur ? [GR.cur] : []).join("/") : rtW("friends");
+    case "friends": if(FR.view === "messages") return rtW("messages") + (IB.with ? "/" + IB.with : ""); return FR.view === "groups" ? [rtW("groups")].concat(GR.cur ? [GR.cur] : []).join("/") : rtW("friends");
     case "practice": case "profile": case "badges": case "settings": case "pick": return rtW(screen);
     case "community": return CC.view && CC.view.id ? rtW("community") + "/" + CC.view.id : rtW("community");
     case "avatar": return rtW("profile");
@@ -88,6 +88,7 @@ function routeBoot(){
   }
   if(k === "groups"){ screen = "friends"; FR.view = "groups"; GR.cur = /^[0-9a-f-]{36}$/i.test(p[1] || "") ? p[1] : null; GR.rows = null; return true; }
   if(k === "friends"){ screen = "friends"; FR.view = "friends"; return true; }
+  if(k === "messages"){ screen = "friends"; FR.view = "messages"; IB.with = /^[0-9a-f-]{36}$/i.test(p[1] || "") ? p[1] : null; IB.msgs = null; IB.convs = null; return true; }
   if(k === "admin"){ // bare for mod/admin; rollen er kanskje ikke hentet ennå, så sjekk igjen etterpå
     if(!AUTH) return false;
     ADM.tab = ["reports", "users", "notice", "log"].includes(p[1]) ? p[1] : "overview"; screen = "admin";
