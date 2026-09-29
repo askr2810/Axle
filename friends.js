@@ -45,7 +45,8 @@ async function frPushStats(tok){
     if(/PGRST204|42703/.test(e.code || "") && !FR_NO_BDG && /badges/.test(e.msg || "")){ FR_NO_BDG = true; return frPushStats(tok); } // profilsiden (venner.sql) ikke kjørt ennå
     if(/PGRST204|42703/.test(e.code || "") && !FR_NO_FP){ FR_NO_FP = true; return frPushStats(tok); } // grupper.sql ikke kjørt ennå
     if(/PGRST204|42703/.test(e.code || "") && !FR_NO_PHOTO){ FR_NO_PHOTO = true; return frPushStats(tok); }
-    if(!FR_OLD_DB && /PGRST204|42703/.test(e.code || "")){ FR_OLD_DB = true; await sbFetch(url, opt(frBody()), tok); } else throw e; }
+    if(e.code === "42501" && !(FR_NO_FP && FR_NO_BDG && FR_NO_SP && FR_NO_PHOTO)){ FR_NO_FP = FR_NO_BDG = FR_NO_SP = FR_NO_PHOTO = true; return frPushStats(tok); } // mangler rett til en av de valgfrie kolonnene
+    if(!FR_OLD_DB && /PGRST204|42703|42501/.test(e.code || "")){ FR_OLD_DB = true; await sbFetch(url, opt(frBody()), tok); } else throw e; }
 }
 async function frLoad(){
   if(!CLOUD_ON || !AUTH || FR.loading) return;
@@ -80,7 +81,10 @@ async function frSaveName(name){
     const me = (FR.rows || []).find(r => r.is_me);
     if(me) await sbFetch("/rest/v1/profiles?user_id=eq." + encodeURIComponent(AUTH.uid), { method: "PATCH", headers: { Prefer: "return=minimal" }, body: JSON.stringify({ display_name: name }) }, tok);
     else { const post = b => sbFetch("/rest/v1/profiles", { method: "POST", headers: { Prefer: "return=minimal" }, body: JSON.stringify(Object.assign({ user_id: AUTH.uid, display_name: name }, b)) }, tok);
-      try{ await post(frBody()); } catch(e){ if(/PGRST204|42703/.test(e.code || "")){ FR_NO_PHOTO = FR_NO_BDG = FR_NO_FP = FR_NO_SP = true; try{ await post(frBody()); } catch(e2){ if(!FR_OLD_DB && /PGRST204|42703/.test(e2.code || "")){ FR_OLD_DB = true; await post(frBody()); } else throw e2; } } else throw e; } }
+      // Mangler en kolonne (PGRST204/42703) eller retten til den (42501, f.eks. etter at venner.sql er kjørt på nytt): prøv med færre felt, til slutt bare navnet.
+      const soft = e => /PGRST204|42703|42501/.test((e && e.code) || "");
+      try{ await post(frBody()); } catch(e){ if(!soft(e)) throw e; FR_NO_PHOTO = FR_NO_BDG = FR_NO_FP = FR_NO_SP = true;
+        try{ await post(frBody()); } catch(e2){ if(!soft(e2)) throw e2; FR_OLD_DB = true; try{ await post(frBody()); } catch(e3){ if(!soft(e3)) throw e3; await post({}); } } } }
     if(!me && !S.avatar){ S.avatar = avRandom(); save(); } // alle får en avatar de kan endre
     S.name = name; save(); FR.editName = false; FR.busy = false; await frLoad();
   }catch(e){ FR.busy = false; toast(frErr(e)); frRender(); }
