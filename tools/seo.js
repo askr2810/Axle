@@ -17,6 +17,45 @@ fs.writeFileSync(tmp, files.map(f => fs.readFileSync(path.join(ROOT, f), 'utf8')
 const M = require(tmp); fs.unlinkSync(tmp);
 const { COURSES, META, THEORY_DB, TOPIC_DB, CONFIG, ENQ, UNIT_EN } = M;
 
+// «Prøv selv»-simuleringene (titler og hvilke enheter de hører til), lastet slik test_sims.js gjør.
+const SIMDATA = (() => {
+  const figSrc = fs.readFileSync(path.join(ROOT, 'figures.js'), 'utf8').split('\n'), fig = figSrc.slice(figSrc.findIndex(l => l.startsWith('const fgAr')), figSrc.findIndex(l => l.startsWith('const fgGround')) + 1);
+  const stub = `var LANG = "nb"; const T = (a, b) => LANG === "en" ? b : a; const esc = s => String(s); const I = { bolt: "" }; const t = k => k; const S = {};
+const decPoint = () => LANG === "en"; const nf = (x, d = 2) => String(x);`;
+  const f = path.join(os.tmpdir(), 'axle_seo_sims_' + process.pid + '.js'); global.COURSES = COURSES;
+  fs.writeFileSync(f, stub + '\n' + fig.join('\n') + '\n' + fs.readFileSync(path.join(ROOT, 'sims.js'), 'utf8').replace(/^document\.addEventListener[\s\S]*$/m, '') + '\n' +
+    ['sims2.js', 'sims3.js', 'sims4.js', 'sims5.js'].map(x => fs.readFileSync(path.join(ROOT, x), 'utf8')).join('\n') + '\nmodule.exports = { SIMS, SIM_MAP };');
+  try{ return require(f); }catch(e){ console.log('  seo: fant ikke simuleringene (' + e.message + ')'); return { SIMS: {}, SIM_MAP: {} }; }finally{ try{ fs.unlinkSync(f); }catch(e){} }
+})();
+// Interaktive laber (lab.js) for bestemte emner: [lab, nb-adresse, en-adresse, nb-tittel, en-tittel]
+const LAB_TOPIC = {
+  'GMAT:enhetssirkel': ['enhetssirkel/utforsk', 'unitcircle/explore', 'Enhetssirkelen: dra punktet og se sin, cos og tan', 'The unit circle: drag the point and see sin, cos and tan'],
+  'GMAT:trigonometri': ['enhetssirkel/eksakte', 'unitcircle/exact', 'Eksakte verdier for sin og cos, med trekantene de kommer fra', 'Exact values of sin and cos, with the triangles they come from'],
+  'MAPE1300:kraftkomponenter': ['krefter/snorer', 'forces/ropes', 'Lodd i to snorer: dekomponer kreftene og se hva vinklene gjør', 'A load in two ropes: decompose the forces and see what the angles do'],
+  'MAPE1300:likevekt': ['krefter/trinser', 'forces/pulleys', 'Likevekt med trinser og motvekter', 'Equilibrium with pulleys and counterweights'],
+  'GFYS:tyngde-normalkraft': ['krefter/snorer', 'forces/ropes', 'Lodd i to snorer: snordrag og tyngde', 'A load in two ropes: tension and weight']
+};
+// Laber per enhet (til fagsidene), samme som LABS[].units i lab.js.
+const LAB_UNIT = { 'VG1T:3': 0, 'VGR2:3': 0, 'GMAT:5': 0, 'GFYS:2': 1, 'VGFY1:1': 1, 'MAPE1300:0': 1, 'MAPE1300:1': 1 };
+const LAB_MAIN = [['enhetssirkel/utforsk', 'unitcircle/explore', 'Enhetssirkelen', 'The unit circle'], ['krefter/snorer', 'forces/ropes', 'Snorer, trinser og krefter', 'Ropes, pulleys and forces']];
+const embedSrc = r => `/?embed=1${L === 'en' ? '&lang=en' : ''}#/${r}`;
+const simsOf = (c, u) => [].concat(SIMDATA.SIM_MAP[c.code + ':' + u] || []).filter(n => SIMDATA.SIMS[n]);
+const simTitle = n => SIMDATA.SIMS[n].t[L === 'en' ? 1 : 0];
+const words = s => new Set(String(s).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').split(/[^a-z0-9æøå]+/).filter(w => w.length >= 4).map(w => w.slice(0, 5)).filter(w => !['forde', 'syste', 'orden', 'order', 'distr'].includes(w)));
+// Det som passer best på en emneside: en lab, eller en simulering fra samme enhet med felles ord i tittelen (eller den eneste).
+function topicLab(c, u, tp){
+  const lab = LAB_TOPIC[c.code + ':' + tp.id]; if(lab) return { src: embedSrc(L === 'en' ? lab[1] : lab[0]), t: L === 'en' ? lab[3] : lab[2], h: 640 };
+  const sims = simsOf(c, u); if(!sims.length) return null;
+  const tw = words(tp.id + ' ' + tp.nb.t + ' ' + ((tp.en || {}).t || ''));
+  const score = n => [...words(SIMDATA.SIMS[n].t[0] + ' ' + SIMDATA.SIMS[n].t[1])].filter(w => tw.has(w)).length;
+  const best = sims.slice().sort((a, b) => score(b) - score(a))[0];
+  if(score(best) < 1) return null; // bare når simuleringen handler om det samme (felles ord i tittelen)
+  return { src: embedSrc('lab/' + best), t: simTitle(best), h: 560 };
+}
+const labFrame = x => `<section class="lab"><h2>${L === 'en' ? 'Try it yourself' : 'Prøv selv'}</h2><p class="labt">${esc(x.t)}</p><iframe class="lab" src="${x.src}" title="${esc(x.t)}" loading="lazy" style="height:${x.h}px" allow="clipboard-write"></iframe></section>`;
+const labButton = (src, t) => `<button class="labbtn" data-lab="${src}" data-t="${esc(t)}">▶ ${L === 'en' ? 'Try it' : 'Prøv selv'}: ${esc(t)}</button>`;
+const LAB_JS = `<script>addEventListener("message",function(e){if(e.origin!==location.origin||!e.data||!e.data.axleEmbed)return;document.querySelectorAll("iframe.lab").forEach(function(f){if(f.contentWindow===e.source)f.style.height=e.data.h+"px"})});document.addEventListener("click",function(e){var b=e.target.closest&&e.target.closest("[data-lab]");if(!b)return;var f=document.createElement("iframe");f.className="lab";f.src=b.getAttribute("data-lab");f.title=b.getAttribute("data-t");f.style.height="600px";b.replaceWith(f)})</script>`;
+
 // Emnekoder for fagene som ikke har dem i META (bare koder vi er sikre på).
 const EXTRA_CODES = { DISK: [['NTNU', 'TMA4140']], DBNET: [['NTNU', 'TDT4145']], ML: [['NTNU', 'TDT4172']] };
 // Forkortelse i tittelen der folk faktisk søker på den.
@@ -103,7 +142,10 @@ const topicsOf = (c, u) => ((TOPIC_DB[c.code] || [])[u] || []);
 const fmtNum = x => M.nf(x, 3);
 
 // ---------- stil ----------
-const CSS = `:root{--ink:#16202A;--muted:#5B6773;--bg:#F6F8F4;--card:#fff;--line:#DCE3DA;--acc:#2B59C3;--accs:#E3EAFA;--ok:#1E9A5E;--bad:#D23F3A;--gold:#B77C00}
+const CSS = `iframe.lab{display:block;width:100%;border:2px solid var(--line);border-radius:18px;background:var(--bg);margin:6px 0 14px;min-height:360px}
+.lab h2{margin-bottom:2px}.labt{margin:0 0 4px;color:var(--muted)}
+.labbtn{display:block;width:100%;text-align:left;margin:8px 0;padding:12px 14px;border-radius:14px;border:2px dashed var(--acc);background:var(--accs);color:var(--acc);font:inherit;font-weight:700;cursor:pointer}
+:root{--ink:#16202A;--muted:#5B6773;--bg:#F6F8F4;--card:#fff;--line:#DCE3DA;--acc:#2B59C3;--accs:#E3EAFA;--ok:#1E9A5E;--bad:#D23F3A;--gold:#B77C00}
 @media (prefers-color-scheme:dark){:root{--ink:#E8EEF3;--muted:#9AA7B2;--bg:#0F151B;--card:#17212A;--line:#27333E;--acc:#7EA2FF;--accs:#1C2A45;--ok:#3CC47F;--bad:#FF6B66;--gold:#F0B429}}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:17px/1.6 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
 a{color:var(--acc)}header,main,footer{max-width:760px;margin:0 auto;padding:0 18px}
@@ -170,6 +212,7 @@ ${jsonld ? `<script type="application/ld+json">${JSON.stringify(jsonld).replace(
 ${crumbs ? `<p class="crumbs">${crumbs}</p>` : ''}
 ${body}
 </main>
+${/data-lab=|iframe class="lab"/.test(body) ? LAB_JS : ''}
 <footer><p class="more">${COURSES.map(c => `<a href="${courseUrl(c)}">${esc(name(c))}</a>`).join(' ')}</p>
 <p>${X().about} <a href="/privacy.html">${X().privacy}</a> · <a href="mailto:${esc(CONFIG.contactEmail)}">${X().contact}</a></p></footer>
 </body>
@@ -196,6 +239,13 @@ function topicBlock(c, tp){
   return `<a href="${topicUrl(c, tp)}"><b>${esc(x.t)}</b><span>${esc(plain(x.intro).slice(0, 110))}${plain(x.intro).length > 110 ? '…' : ''}</span></a>`;
 }
 
+// Knapper som åpner de interaktive figurene for en enhet rett på fagsiden.
+function unitLabs(c, u){
+  const k = c.code + ':' + u, out = [];
+  if(LAB_UNIT[k] !== undefined){ const l = LAB_MAIN[LAB_UNIT[k]]; out.push(labButton(embedSrc(L === 'en' ? l[1] : l[0]), L === 'en' ? l[3] : l[2])); }
+  simsOf(c, u).slice(0, 3).forEach(n => out.push(labButton(embedSrc('lab/' + n), simTitle(n))));
+  return out.join('');
+}
 // ---------- fagside ----------
 function coursePage(c){
   const nm = name(c), abbr = ABBR[c.code], codes = codesOf(c);
@@ -209,6 +259,7 @@ function coursePage(c){
     return `<section class="unit" id="${L === 'nb' ? 'del' : 'part'}-${u + 1}"><h2>${u + 1}. ${esc(unitName(c, u))}</h2>
 ${src ? mdToHtml(src) : ''}
 ${tps.length ? `<h3>${X().inPart}</h3><div class="tp">${tps.map(tp => topicBlock(c, tp)).join('')}</div>` : ''}
+${unitLabs(c, u)}
 <p><a class="cta" href="${appLink(c)}">${esc(X().practisePart(lc(unitName(c, u))))}</a></p></section>`;
   }).join('\n');
   const body = `<h1>${esc(X().h1(nm, abbr))}</h1>
@@ -236,6 +287,7 @@ function topicPage(c, u, tp, prev, next){
   const body = `<h1>${esc(x.t)}</h1>
 ${tp.fig ? `<div class="fig" aria-hidden="true">${tp.fig}</div>` : ''}
 <p class="lead">${inline(x.intro)}</p>
+${(() => { const lb = topicLab(c, u, tp); return lb ? labFrame(lb) : ''; })()}
 ${(x.f || []).map(([l, d]) => `<div class="fbox">${tex(l, true)}${d ? `<small>${inline(d)}</small>` : ''}</div>`).join('')}
 ${(x.legend || []).length ? `<h2>${X().symbols}</h2><table>${x.legend.map(([sy, m, un]) => `<tr><td>${tex(sy)}</td><td>${inline(m)}</td><td>${/\\/.test(un || '') ? tex(un) : esc(String(un || '').replace(/\{,\}/g, L === 'en' ? '.' : ','))}</td></tr>`).join('')}</table>` : ''}
 ${x.ex ? `<h2>${X().example}</h2>${String(x.ex).split('\n').map(l => `<p>${inline(l)}</p>`).join('')}` : ''}

@@ -12,7 +12,7 @@ function tabbarHTML(active){
 }
 function renderTabbar(){
   document.querySelector(".tabbar")?.remove();
-  const active = tabOf(); document.body.classList.toggle("has-tabs", !!active);
+  const active = EMBED ? null : tabOf(); document.body.classList.toggle("has-tabs", !!active);
   if(active) document.body.insertAdjacentHTML("beforeend", tabbarHTML(active));
 }
 function goTab(k){

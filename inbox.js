@@ -20,7 +20,7 @@ function ibErr(e){
   return typeof frErr === "function" ? frErr(e) : T("Noe gikk galt.", "Something went wrong.");
 }
 async function ibUnread(){
-  if(!CLOUD_ON || !AUTH || IB.missing) return;
+  if(!CLOUD_ON || !AUTH || IB.missing || EMBED) return;
   try{ const n = +(await frRpc("unread_messages")) || 0; if(n !== IB.unread){ IB.unread = n; renderTabbar(); if(screen === "friends" && FR.view !== "messages" && !overlay) render(); } }
   catch(e){ if(ibIsMissing(e)) IB.missing = true; }
 }

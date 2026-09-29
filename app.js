@@ -1044,6 +1044,7 @@ function render(){
   renderOverlay();
   routeSync(); // adressen følger skjermen (route.js)
   shareInject(); // deleknapp øverst (share.js)
+  if(EMBED) embedAfterRender(); // innebygd i en nettside (lab.js)
   // valgt studie-fane skal alltid synes, også når fanene ikke får plass på en smal skjerm
   document.querySelectorAll(".study-tabs").forEach(r => { const b = r.querySelector(".on"); if(b && (b.offsetLeft + b.offsetWidth > r.scrollLeft + r.clientWidth || b.offsetLeft < r.scrollLeft)) r.scrollLeft = b.offsetLeft - 8; });
 }
@@ -1219,7 +1220,8 @@ if(grBootLink()) screen = "friends"; // axle.no/?gruppe=KODE
 if(window.STUDY_URL && !S.studySet){ S.study = window.STUDY_URL; S.studySet = 1; if(!inStudy(COURSE(S.current), S.study)) S.current = STUDY(S.study).home; saveLocal(); } // axle.no/?studie=…
 if(checkBadges().length) saveLocal(); // merker for fremgang fra før merkene fantes (uten varsel)
 render();
-AUTH_READY.then(()=>{ setTimeout(bootPrompts, 900); pushResync(); setTimeout(pioneerFetch, 1500); setTimeout(noticeFetch, 1200); }); // innlogging og dagens utfordring som popup ved første åpning i dag
+if(EMBED) embedInit();
+AUTH_READY.then(()=>{ if(EMBED) return; setTimeout(bootPrompts, 900); pushResync(); setTimeout(pioneerFetch, 1500); setTimeout(noticeFetch, 1200); }); // innlogging og dagens utfordring som popup ved første åpning i dag
 flushOutbox();
 window.addEventListener("online", flushOutbox);
 cloudBoot();

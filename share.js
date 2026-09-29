@@ -17,7 +17,7 @@ function shareTitle(){
   return { title, sub: s ? s.textContent.trim() : "" };
 }
 function shareInject(){
-  if(SHARE_SKIP.includes(screen) || (screen === "friends" && FR.view === "messages")) return;
+  if(EMBED || SHARE_SKIP.includes(screen) || (screen === "friends" && FR.view === "messages")) return;
   const r = routeOf(); if(!r) return;
   const w = document.querySelector("#app > .top .wrap"); if(!w || w.querySelector(".sh-btn")) return;
   w.insertAdjacentHTML("beforeend", `<button class="iconbtn sh-btn" data-a="shareopen" aria-label="${esc(T("Del denne siden", "Share this page"))}" title="${esc(T("Del", "Share"))}">${I.share}</button>`);

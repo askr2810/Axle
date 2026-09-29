@@ -213,7 +213,7 @@ function renderForces(){
   const ctrl = FC.mode === "pulleys" ? `<div class="seg tg-seg">${[["angles", T("Styr med vinkler", "Control angles")], ["masses", T("Styr med motvekter", "Control counterweights")]].map(([v, l]) => `<button class="${FC.ctrl === v ? "on" : ""}" data-a="fcctrl" data-v="${v}">${esc(l)}</button>`).join("")}</div>` : "";
   $app.innerHTML = `${top}<div class="wrap tg-tw">${tabs}</div><main class="wrap tg fc"><p class="tg-intro">${esc(intro)}</p>
     <div class="tg-ctl fc-togs">${togs}</div>${ctrl ? `<div class="tg-ctl">${ctrl}</div>` : ""}
-    <div class="tg-figwrap fc-fig"><svg id="fcsvg" class="tg-svg" viewBox="${FC.mode === "tackle" ? "-180 -60 360 360" : "-190 -60 380 330"}" role="img" aria-label="${esc(T("Kraftfigur, dra loddet", "Force figure, drag the load"))}"></svg></div>
+    <div class="tg-figwrap fc-fig"><svg id="fcsvg" class="tg-svg" viewBox="${FC.mode === "tackle" ? "-180 -60 360 360" : FC.mode === "ropes" ? "-190 -30 380 285" : "-190 -60 380 330"}" role="img" aria-label="${esc(T("Kraftfigur, dra loddet", "Force figure, drag the load"))}"></svg></div>
     ${fcSliders()}<div id="fcdia" class="fc-dia"></div><div id="fcread" class="tg-read" aria-live="polite"></div><div id="fcgoals">${fcGoalsHTML()}</div>
     <button class="exlink" data-a="labopen">🧪 ${esc(T("Alle interaktive figurer", "All interactive figures"))}</button></main>`;
   fcPaint(); fcBind();

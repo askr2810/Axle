@@ -4,6 +4,8 @@
 const LS_KEY = "ingeniordrill.v1";
 // Språk: lagret valg → lenke (?lang=en, eller axle.no/en som sender hit) → norsk. Norsk er standard;
 // har nettleseren et annet språk, spør appen én gang ved første åpning (langAsk i challenge.js).
+// ?embed=1: innebygd i de åpne nettsidene (axle.no/<fag>/<emne>/), bare laben, uten menyer og popups (lab.js)
+const EMBED = (() => { try { return new URLSearchParams(location.search).get("embed") === "1"; } catch (e) { return false; } })();
 const LANG_URL = (() => { try { const q = new URLSearchParams(location.search).get("lang"); return q === "en" || q === "nb" ? q : null; } catch (e) { return null; } })();
 const LANG_BROWSER_NB = (() => { try { const l = [...(navigator.languages || []), navigator.language || ""].map(x => String(x).toLowerCase()); return l.some(x => /^(nb|nn|no)\b/.test(x)); } catch (e) { return true; } })();
 let LANG = (() => {

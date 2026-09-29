@@ -90,3 +90,31 @@ function labHitsHTML(q){
   return r.labs.map(l => `<button class="bk-hit lab-hit" data-a="labgo" data-id="${l.id}"><small>🧪 ${esc(T("Interaktiv lab", "Interactive lab"))}</small><b>${l.ic} ${esc(T(l.t[0], l.t[1]))}</b><span>${esc(T(l.sub[0], l.sub[1]))}</span></button>`).join("") +
     r.sims.slice(0, 4).map(s => `<button class="bk-hit lab-hit" data-a="labsim" data-s="${s.name}"><small>⚡ ${esc(T("Prøv selv", "Try it"))} · ${esc(s.grp)}</small><b>${esc(s.t)}</b></button>`).join("");
 }
+
+// ---------- innebygd i de åpne nettsidene (?embed=1#/enhetssirkel/utforsk, #/krefter/snorer, #/lab/<sim>) ----------
+// Bare laben vises: ingen fanelinje, topplinje eller popups. Høyden sendes til siden rundt (postMessage), så rammen vokser med innholdet.
+const EMBED_SCREENS = ["trig", "forces", "lab"];
+function embedInit(){
+  document.documentElement.classList.add("embed");
+  if(!EMBED_SCREENS.includes(screen)){ screen = "lab"; LB.sim = null; render(); }
+  window.addEventListener("resize", embedPost);
+  if(typeof ResizeObserver !== "undefined") new ResizeObserver(embedPost).observe(document.body);
+}
+let EMBED_H = 0;
+function embedPost(){
+  const h = Math.ceil(document.getElementById("app").getBoundingClientRect().height) + 4;
+  if(h === EMBED_H) return; EMBED_H = h;
+  try{ parent.postMessage({ axleEmbed: 1, h }, "*"); }catch(e){}
+}
+let EMBED_LAST = null;
+function embedAfterRender(){
+  if(!EMBED_SCREENS.includes(screen)){ // noe utenfor laben: åpne det i hele appen i en ny fane, og bli i laben her
+    const r = routeOf(); window.open(shareUrl(r || "") .replace("#", (LANG === "en" ? "?lang=en" : "") + "#"), "_blank", "noopener");
+    const back = EMBED_LAST || { screen: "lab" }; setTimeout(() => { screen = back.screen; render(); }, 0); return;
+  }
+  EMBED_LAST = { screen };
+  const r = routeOf(), url = shareUrl(r || "").replace("#", (LANG === "en" ? "?lang=en" : "") + "#");
+  const bar = `<div class="emb-bar"><span>⚡ ${esc(T("Interaktivt fra Axle", "Interactive from Axle"))}</span><a href="${esc(url)}" target="_blank" rel="noopener">${esc(T("Åpne i appen", "Open in the app"))} ↗</a></div>`;
+  $app.insertAdjacentHTML("afterbegin", bar);
+  setTimeout(embedPost, 30);
+}
