@@ -157,14 +157,16 @@ function ibFriendsHTML(o){
   if(FR.rows === null){ if(!FR.loading) frLoad().then(() => { if(overlay && overlay.share) renderOverlay(); }); return `<p class="sh-note">${esc(t("frLoading"))}</p>`; }
   if(IB.convs === null && !IB.loading) setTimeout(ibLoadConvs, 0);
   if(!FR.rows.some(r => !r.is_me)) return `<p class="sh-note">${esc(T("Legg til venner for å sende sider til dem her i appen.", "Add friends to send pages to them here in the app."))}</p>`;
-  const keys = ibSelKeys(o), friendsOnly = keys.length >= 2 && keys.every(k => !ibIsG(k));
+  const keys = ibSelKeys(o), friends = keys.filter(k => !ibIsG(k)), groups = keys.filter(ibIsG);
   let act = "";
   if(keys.length){
+    const many = keys.length >= 2, canGroup = friends.length >= 2 && !groups.length;
     act = `<div class="ib-sendbar"><input class="sh-msg" id="shnote" maxlength="300" placeholder="${esc(T("Skriv en melding …", "Write a message …"))}" value="${esc(o.note || "")}" aria-label="${esc(T("Melding", "Message"))}">
-      ${o.mk ? `<label class="ib-gname"><span>${esc(T("Navn på gruppen", "Group name"))}</span><input id="shgname" maxlength="40" value="${esc(o.gname != null ? o.gname : ibDefaultName(keys))}"></label>
-        <button class="big" data-a="ibsharego" data-m="group" ${o.busy ? "disabled" : ""}>👥 ${esc(T("Lag gruppe og send", "Create group and send"))}</button><button class="exlink" data-a="ibmk" data-v="0">${esc(T("Avbryt", "Cancel"))}</button>`
-      : `<button class="big" data-a="ibsharego" data-m="each" ${o.busy ? "disabled" : ""}>${esc(keys.length === 1 ? T("Send", "Send") : T(`Send hver for seg (${keys.length})`, `Send separately (${keys.length})`))}</button>
-        ${friendsOnly ? `<button class="big ghost" data-a="ibmk" data-v="1">👥 ${esc(T("Lag gruppe", "Create group"))}</button>` : ""}`}</div>`;
+      ${!many ? `<button class="big" data-a="ibsharego" data-m="each" ${o.busy ? "disabled" : ""}>${esc(T("Send", "Send"))}</button>`
+      : `${canGroup ? `<label class="ib-gname"><span>${esc(T("Navn på gruppen (hvis du sender i gruppe)", "Group name (if you send as a group)"))}</span><input id="shgname" maxlength="40" value="${esc(o.gname != null ? o.gname : ibDefaultName(keys))}"></label>` : ""}
+        <div class="ib-two"><button class="big ${canGroup ? "ghost" : ""}" data-a="ibsharego" data-m="each" ${o.busy ? "disabled" : ""}><span>✉️</span>${esc(T("Send hver for seg", "Send separately"))}<small>${esc(T(`${keys.length} meldinger`, `${keys.length} messages`))}</small></button>
+        ${canGroup ? `<button class="big" data-a="ibsharego" data-m="group" ${o.busy ? "disabled" : ""}><span>👥</span>${esc(T("Send i gruppe", "Send as a group"))}<small>${esc(T(`ny gruppe med ${friends.length + 1}`, `new group of ${friends.length + 1}`))}</small></button>` : ""}</div>
+        ${groups.length && friends.length ? `<p class="sh-note">${esc(T("Du har valgt en gruppe, så det sendes hver for seg.", "You picked a group, so it is sent separately."))}</p>` : ""}`}</div>`;
   }
   return `<h4 class="sh-h">${esc(T("Send i Axle", "Send in Axle"))}${keys.length ? ` <span class="ib-nsel">${esc(T(`${keys.length} valgt`, `${keys.length} selected`))}</span>` : ""}</h4>${ibPickerHTML(o, true)}${act}`;
 }
@@ -180,7 +182,7 @@ function ibNewChatHTML(o){
 document.addEventListener("input", e => {
   const o = overlay && (overlay.share || overlay.newchat); if(!o) return;
   if(e.target.id === "shnote") o.note = e.target.value;
-  if(e.target.id === "shgname") o.gname = e.target.value;
+  if(e.target.id === "shgname"){ o.gname = e.target.value; o.gnameEdited = true; }
 });
 async function ibShareGo(mode){
   const o = overlay && overlay.share; if(!o || o.busy) return;
@@ -197,7 +199,7 @@ async function ibShareGo(mode){
       let ok = 0; for(const k of keys){ try{ await ibSendTo(k, note, link, title); (o.sent ||= {})[k] = 1; ok++; }catch(e){ toast(ibErr(e)); if(ibIsMissing(e)) break; } }
       if(ok) toast(ok === 1 ? T(`Sendt til ${ibWho(keys.find(k => o.sent[k])).display_name}`, `Sent to ${ibWho(keys.find(k => o.sent[k])).display_name}`) : T(`Sendt til ${ok}`, `Sent to ${ok}`));
     }
-    o.sel = {}; o.mk = false; o.note = ""; o.gname = null; IB.convs = null; buzz(true); sfx("ok", 1);
+    o.sel = {}; o.note = ""; o.gname = null; o.gnameEdited = false; IB.convs = null; buzz(true); sfx("ok", 1);
   }catch(e){ if(ibIsMissing(e)) IB.missing = mode !== "group" && IB.missing; toast(ibErr(e)); }
   o.busy = false; if(overlay && overlay.share === o) renderOverlay();
   if(IB.convs === null) ibLoadConvs();
@@ -235,8 +237,7 @@ function ibClick(a, b){
   if(a === "ibopen"){ ibOpen(d.id); return true; }
   if(a === "ibback"){ IB.with = null; IB.msgs = null; IB.convs = null; render(); window.scrollTo(0, 0); return true; }
   if(a === "ibsend"){ ibSend(); return true; }
-  if(a === "ibpick"){ const o = overlay && (overlay.share || overlay.newchat); if(o){ o.sel ||= {}; o.sel[d.id] = !o.sel[d.id]; if(!ibSelKeys(o).length) o.mk = false; o.gname = overlay.newchat ? o.gname : null; sfx("tap"); renderOverlay(); } return true; }
-  if(a === "ibmk"){ const o = overlay && overlay.share; if(o){ o.mk = d.v === "1"; renderOverlay(); } return true; }
+  if(a === "ibpick"){ const o = overlay && (overlay.share || overlay.newchat); if(o){ o.sel ||= {}; o.sel[d.id] = !o.sel[d.id]; if(!ibSelKeys(o).length) o.mk = false; if(!o.gnameEdited) o.gname = null; sfx("tap"); renderOverlay(); } return true; }
   if(a === "ibsharego"){ ibShareGo(d.m); return true; }
   if(a === "ibnewchat"){ overlay = { newchat: { sel: {} } }; renderOverlay(); return true; }
   if(a === "ibnewgo"){ ibNewGo(); return true; }
