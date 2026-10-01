@@ -53,7 +53,7 @@ def build_www(js, css, out):
 <meta charset="utf-8">
 <meta http-equiv="Content-Security-Policy" content="{csp}">
 <meta name="copyright" content="© Axle – alle rettigheter forbeholdt">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#2B59C3">
 <meta name="description" content="{cfg['description_nb']}">
 <meta name="apple-mobile-web-app-capable" content="yes">
