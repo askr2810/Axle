@@ -12,6 +12,46 @@ const fkCar = (x, y, col, s = 1) => `<g transform="translate(${x} ${y}) scale(${
 const fkPed = (x, y, s = 1, col = FK_INK, pose = "walk") => { const L = (d, w) => `<path d="${d}" fill="none" stroke="${col}" stroke-width="${w}" stroke-linecap="round" stroke-linejoin="round"/>`;
   const run = pose === "run";
   return `<g transform="translate(${x} ${y}) scale(${s})"><circle cx="${run ? 2 : 1}" cy="-26" r="5.2" fill="${col}"/>${L(run ? "M1-19L-2-6" : "M0.5-19L-0.5-6", 7.5)}${L(run ? "M0-16L-8-10L-12-14M0-16L7-11L11-5" : "M0-16L-6-8L-8-1M0-16L6-9L8-3", 4.2)}${L(run ? "M-2-6L-9 2L-15 1M-2-6L5 1L3 9" : "M-0.5-6L-5 4L-8 12M-0.5-6L4 3L6 12", 5)}</g>`; };
+// ---------- mennesker ----------
+// fkHuman tegner en person fra ledd (hode, skuldre, hofte, albuer, knær …) med lemmer som smalner av, slik piktogrammer
+// på ekte skilt er bygd opp. Med col gir den en ensfarget silhuett (skilt), uten col får den hud, hår, klær og sko (illustrasjoner).
+// Koordinater: føttene står på y = 0, høyden er omtrent 60, og personen ser mot høyre (flip speiler).
+const FK_POSES = {
+  walk: { h: [3, -53, 5.6], n: [2, -46], sh: [1, -43], hip: [-1, -24], aF: [[6, -33], [10, -25]], aB: [[-5, -34], [-8, -26]], lF: [[5, -12], [9, -1.5]], fF: [15, -0.5], lB: [[-4, -12], [-11, -3]], fB: [-5.5, -0.5] },
+  run: { h: [8, -51, 5.6], n: [6, -45], sh: [4, -42], hip: [-1, -24], aF: [[11, -36], [16, -42]], aB: [[-4, -32], [-11, -36]], lF: [[10, -17], [8, -6]], fF: [14, -5], lB: [[-6, -12], [-16, -9]], fB: [-14, -4] },
+  armsup: { front: 1, h: [0, -54, 5.6], n: [0, -47], shL: [-7, -44], shR: [7, -44], hipL: [-4, -24], hipR: [4, -24], aL: [[-14, -51], [-18, -61]], aR: [[14, -51], [18, -61]], lL: [[-4.5, -12], [-5, -1]], lR: [[4.5, -12], [5, -1]], fL: [-9, 0], fR: [9, 0] },
+  lie: { h: [-36, -7, 5.6], n: [-30, -6], sh: [-27, -6], hip: [1, -6], aF: [[-15, -3], [-5, -2]], aB: [[-15, -4], [-6, -3]], lF: [[14, -6], [28, -5]], fF: [30, -12], lB: [[14, -5], [28, -4]], fB: [31, -10] },
+  side: { h: [-33, -9, 5.6], n: [-27, -8], sh: [-24, -8], hip: [2, -8], aF: [[-30, -3], [-37, -3]], aB: [[-14, -2], [-4, -1]], lF: [[12, -1], [8, 6]], fF: [14, 6], lB: [[16, -6], [30, -5]], fB: [33, -9] },
+  kneel: { h: [6, -42, 5.6], n: [4, -36], sh: [2, -33], hip: [-8, -16], aF: [[8, -22], [13, -11]], aB: [[7, -23], [12, -12]], lF: [[2, -3], [-12, -2]], fF: [-16, -2], lB: [[1, -4], [-12, -3]], fB: [-16, -3] },
+};
+function fkCaps(a, b, w1, w2, fill){
+  const dx = b[0] - a[0], dy = b[1] - a[1], L = Math.hypot(dx, dy) || 1, nx = -dy / L, ny = dx / L, f = v => v.toFixed(2);
+  return `<path d="M${f(a[0] + nx * w1 / 2)} ${f(a[1] + ny * w1 / 2)}L${f(b[0] + nx * w2 / 2)} ${f(b[1] + ny * w2 / 2)}L${f(b[0] - nx * w2 / 2)} ${f(b[1] - ny * w2 / 2)}L${f(a[0] - nx * w1 / 2)} ${f(a[1] - ny * w1 / 2)}Z" style="fill:${fill}"/><circle cx="${f(a[0])}" cy="${f(a[1])}" r="${f(w1 / 2)}" style="fill:${fill}"/><circle cx="${f(b[0])}" cy="${f(b[1])}" r="${f(w2 / 2)}" style="fill:${fill}"/>`;
+}
+function fkHuman(x, y, s = 1, pose = "walk", o = {}){
+  const P = FK_POSES[pose] || FK_POSES.walk, mono = o.col, C = k => mono || o[k] || { skin: "#F1C7A1", hair: "#5A3B26", top: "#3B6FB6", top2: "#2F5A94", pants: "#2E3A44", pants2: "#243039", shoe: "#1B1F24" }[k];
+  const kid = o.kid ? 1.12 : 1, limb = (j0, pts, w, col, hand) => { let g = "", a = j0; pts.forEach((b, i) => { g += fkCaps(a, b, w[i], w[i + 1], col); a = b; }); if(hand) g += `<circle cx="${a[0]}" cy="${a[1]}" r="${(w[w.length - 1] * 0.62).toFixed(2)}" style="fill:${C("skin")}"/>`; return g; };
+  const foot = (ankle, toe, col) => fkCaps(ankle, toe, 4.4, 3.8, col);
+  let g = "";
+  if(P.front){ // forfra (politi)
+    g += limb(P.hipL, P.lL, [7, 5.6, 4.4], C("pants")) + limb(P.hipR, P.lR, [7, 5.6, 4.4], C("pants")) + foot(P.lL[1], P.fL, C("shoe")) + foot(P.lR[1], P.fR, C("shoe"));
+    g += `<path d="M${P.shL[0] - 2} ${P.shL[1] - 1}L${P.shR[0] + 2} ${P.shR[1] - 1}L${P.hipR[0] + 2} ${P.hipR[1]}L${P.hipL[0] - 2} ${P.hipL[1]}Z" style="fill:${C("top")}"/>`;
+    if(o.vest) g += `<path d="M${P.shL[0]} ${P.shL[1]}L${P.shR[0]} ${P.shR[1]}L${P.hipR[0] + 1} ${P.hipR[1] - 2}L${P.hipL[0] - 1} ${P.hipL[1] - 2}Z" style="fill:${o.vest}"/><path d="M${P.hipL[0] - 1} -32H${P.hipR[0] + 1}" style="stroke:#E8EDF2;stroke-width:1.8"/>`;
+    g += limb(P.shL, P.aL, [5, 4.2, 3.4], C("top"), !mono) + limb(P.shR, P.aR, [5, 4.2, 3.4], C("top"), !mono);
+  } else {
+    g += limb(P.hip, P.lB, [7.2, 5.6, 4.4], C("pants2")) + foot(P.lB[1], P.fB, C("shoe")) + limb(P.sh, P.aB, [4.6, 4, 3.2], C("top2"), !mono);
+    g += fkCaps(P.sh, P.hip, 13 * kid, 11 * kid, C("top"));
+    if(o.vest) g += fkCaps([P.sh[0] + (P.hip[0] - P.sh[0]) * .12, P.sh[1] + (P.hip[1] - P.sh[1]) * .12], [P.sh[0] + (P.hip[0] - P.sh[0]) * .82, P.sh[1] + (P.hip[1] - P.sh[1]) * .82], 11, 9.5, o.vest);
+    if(o.bag) g += fkCaps([P.sh[0] - 6, P.sh[1] + 3], [P.sh[0] - 6, P.sh[1] + 12], 7, 7, o.bag === true ? (mono || "#D23F3A") : o.bag);
+    g += limb(P.hip, P.lF, [7.4, 5.8, 4.4], C("pants")) + foot(P.lF[1], P.fF, C("shoe")) + limb(P.sh, P.aF, [4.8, 4.1, 3.3], C("top"), !mono);
+  }
+  const [hx, hy, hr0] = P.h, hr = hr0 * kid;
+  g += fkCaps(P.n || [hx, hy + hr], [hx, hy + hr * .4], 4, 4, C("skin"));
+  g += `<circle cx="${hx}" cy="${hy}" r="${hr}" style="fill:${C("skin")}"/>`;
+  if(!mono && !o.cap) g += `<path d="M${hx - hr} ${hy + 0.5}A${hr} ${hr} 0 0 1 ${hx + hr} ${hy - 1}C${hx + hr * .4} ${hy - hr * .5} ${hx - hr * .2} ${hy - hr * .3} ${hx - hr * .5} ${hy + hr * .5}Z" style="fill:${C("hair")}"/>`;
+  if(o.cap) g += `<path d="M${hx - hr - 1} ${hy - 1.5}H${hx + hr + 1}L${hx + hr - 1} ${hy - hr - 2}H${hx - hr + 1}Z" style="fill:${o.cap}"/><rect x="${hx - hr - 2}" y="${hy - 2.4}" width="${hr * 2 + 4}" height="2" style="fill:#111"/>`;
+  return `<g transform="translate(${x} ${y}) scale(${o.flip ? -s : s} ${s})">${g}</g>`;
+}
 const fkWalker = (x, y, s = 1, col = FK_INK) => `<g transform="translate(${x} ${y}) scale(${s})" fill="${col}" stroke="${col}" stroke-linecap="round"><circle cx="0" cy="-16" r="4.2" stroke="none"/><path d="M0-11l-2 12M-2 1l-6 12M-2 1l5 5 2 8M-1-8l-8 6M-1-8l7 4" fill="none" stroke-width="3.4"/></g>`;
 const fkLight = on => { // on = { r, y, g, arrow, blink } → trafikklys
   const lamp = (cy, col, lit) => `<circle cx="50" cy="${cy}" r="11" fill="${lit ? col : "#3A3F47"}"${lit ? ` style="filter:drop-shadow(0 0 4px ${col})"` : ""}/>`;
@@ -24,7 +64,7 @@ const FK_SIGNS = {
   forkjorsvei: () => `<path d="M50 4l46 46-46 46L4 50z" fill="#fff" stroke="${FK_INK}" stroke-width="1.6"/><path d="M50 18l32 32-32 32-32-32z" fill="${FK_YEL}"/>`,
   slutt_forkjorsvei: () => `<path d="M50 4l46 46-46 46L4 50z" fill="#fff" stroke="${FK_INK}" stroke-width="1.6"/><path d="M50 18l32 32-32 32-32-32z" fill="${FK_YEL}"/><path d="M24 76L76 24" stroke="${FK_INK}" stroke-width="6"/><path d="M31 83L83 31M17 69L69 17" stroke="${FK_INK}" stroke-width="2.4"/>`,
   rundkjoring: () => fkBlueRound(`<g transform="rotate(0 50 50)"><path d="M43.53 74.15A25 25 0 0 0 72.66 60.57" fill="none" stroke="#fff" stroke-width="7.5"/><path d="M76.46 52.41L79.46 63.74L65.86 57.40Z" fill="#fff"/></g><g transform="rotate(120 50 50)"><path d="M43.53 74.15A25 25 0 0 0 72.66 60.57" fill="none" stroke="#fff" stroke-width="7.5"/><path d="M76.46 52.41L79.46 63.74L65.86 57.40Z" fill="#fff"/></g><g transform="rotate(240 50 50)"><path d="M43.53 74.15A25 25 0 0 0 72.66 60.57" fill="none" stroke="#fff" stroke-width="7.5"/><path d="M76.46 52.41L79.46 63.74L65.86 57.40Z" fill="#fff"/></g>`),
-  gangfelt: () => fkBlueSq(`<path d="M50 15l34 62H16z" fill="#fff"/><path d="M28 82h44" stroke="#fff" stroke-width="0"/>${fkPed(50, 66, 1.05, FK_INK, "walk")}`),
+  gangfelt: () => fkBlueSq(`<path d="M50 13l35 64H15z" fill="#fff"/>${[0, 1, 2, 3, 4].map(k => `<rect x="${27 + k * 10}" y="70" width="6" height="5" fill="${FK_INK}"/>`).join("")}${fkHuman(49, 70, .82, "walk", { col: FK_INK })}`),
   haitenner: () => `<rect width="100" height="100" fill="#4A4F57"/><g fill="#fff">${[8, 30, 52, 74].map(x => `<path d="M${x} 40h18l-9 20z"/>`).join("")}</g><path d="M0 12h100M0 88h100" stroke="#fff" stroke-width="2.5" stroke-dasharray="10 8"/>`,
   fare_generell: () => fkTri(`<path d="M50 34v26" stroke="${FK_INK}" stroke-width="8" stroke-linecap="round"/><circle cx="50" cy="72" r="4.6" fill="${FK_INK}"/>`),
   pabud_hoyre: () => fkBlueRound(`<path d="M50 74V42q0-8 8-8h10" fill="none" stroke="#fff" stroke-width="9"/><path d="M66 22l16 12-16 12z" fill="#fff"/>`),
@@ -44,12 +84,12 @@ const FK_SIGNS = {
   tresek: () => `<rect width="100" height="100" fill="#4A4F57"/><path d="M0 50h100" stroke="#fff" stroke-width="2" stroke-dasharray="8 6"/>${fkCar(24, 72, "#2B59C3", 1.1)}${fkCar(76, 72, "#E9A100", 1.1)}<path d="M34 40h32" stroke="#fff" stroke-width="2.4"/><path d="M34 36v8M66 36v8" stroke="#fff" stroke-width="2.4"/><text x="50" y="30" text-anchor="middle" font-family="Arial,sans-serif" font-weight="800" font-size="15" style="fill:#fff">3 s</text>`,
   tilhenger: () => `<rect width="100" height="100" rx="10" fill="#E8EDF2"/><rect x="10" y="44" width="42" height="22" rx="5" fill="#2B59C3"/><rect x="18" y="34" width="24" height="12" rx="3" fill="#2B59C3"/><circle cx="20" cy="68" r="7" fill="${FK_INK}"/><circle cx="44" cy="68" r="7" fill="${FK_INK}"/><path d="M52 60h8" stroke="${FK_INK}" stroke-width="3"/><rect x="60" y="42" width="32" height="20" rx="2" fill="#9AA3AB"/><circle cx="76" cy="66" r="7" fill="${FK_INK}"/>`,
   bakketopp: () => `<rect width="100" height="100" rx="10" fill="#CFE5F7"/><path d="M0 80Q50 20 100 80V100H0z" fill="#4A4F57"/><path d="M8 84Q50 30 92 84" stroke="#F2C230" stroke-width="2" fill="none" stroke-dasharray="6 5"/>${fkCar(24, 66, "#2B59C3", 0.9)}<text x="74" y="36" font-family="Arial,sans-serif" font-weight="800" font-size="22" style="fill:${FK_RED}">?</text>`,
-  barn: () => fkTri(`${fkPed(41, 70, 0.95, FK_INK, "run")}${fkPed(59, 73, 0.72, FK_INK, "run")}`),
+  barn: () => fkTri(`${fkHuman(42, 77, .76, "run", { col: FK_INK, bag: true })}${fkHuman(61, 77, .56, "run", { col: FK_INK, kid: true })}`),
   trekant_rod: () => `<rect width="100" height="100" rx="12" fill="#fff" stroke="#DDE2E6"/><rect x="16" y="26" width="68" height="48" rx="6" fill="#EEF1F4" stroke="#9AA3AB"/><path d="M50 32l16 28H34z" fill="#fff" stroke="${FK_RED}" stroke-width="4" stroke-linejoin="round"/><path d="M50 42v8" stroke="${FK_INK}" stroke-width="3" stroke-linecap="round"/><circle cx="50" cy="55" r="1.8" fill="${FK_INK}"/>`,
   mobil: () => `<circle cx="50" cy="50" r="42" fill="#fff" stroke="${FK_RED}" stroke-width="8"/><rect x="36" y="22" width="28" height="52" rx="5" fill="${FK_INK}"/><rect x="39" y="28" width="22" height="38" rx="2" fill="#8FD3F4"/><path d="M20 20l60 60" stroke="${FK_RED}" stroke-width="8"/>`,
   dekk: () => `<rect width="100" height="100" rx="10" fill="#E8EDF2"/><circle cx="50" cy="50" r="38" fill="${FK_INK}"/><circle cx="50" cy="50" r="18" fill="#9AA3AB"/><g stroke="#4A4F57" stroke-width="4">${Array.from({ length: 12 }, (_, i) => { const a = i * Math.PI / 6; return `<path d="M${(50 + 26 * Math.cos(a)).toFixed(1)} ${(50 + 26 * Math.sin(a)).toFixed(1)}L${(50 + 36 * Math.cos(a)).toFixed(1)} ${(50 + 36 * Math.sin(a)).toFixed(1)}"/>`; }).join("")}</g>`,
   refleksvest: () => `<rect width="100" height="100" rx="10" fill="#E8EDF2"/><path d="M30 18l10 6h20l10-6 12 12-6 60H24l-6-60z" fill="#E5F23A"/><path d="M22 58h56M22 70h56" stroke="#C9CFD4" stroke-width="5"/><path d="M40 24l10 14 10-14" fill="#fff"/>`,
-  refleks: () => `<rect width="100" height="100" rx="10" fill="#1A2233"/>${fkWalker(50, 62, 1.8, "#3A4556")}<circle cx="58" cy="70" r="6" fill="#E9F3FF" style="filter:drop-shadow(0 0 6px #fff)"/>`,
+  refleks: () => `<rect width="100" height="100" rx="10" fill="#1A2233"/>${fkHuman(48, 90, 1.25, "walk", { col: "#3A4556" })}<circle cx="57" cy="61" r="5.5" fill="#E9F3FF" style="filter:drop-shadow(0 0 6px #fff)"/>`,
   glatt: () => fkTri(`<path d="M36 74q6-8 0-16M50 74q6-8 0-16M64 74q6-8 0-16" stroke="${FK_INK}" stroke-width="3.4" fill="none" stroke-linecap="round"/>${fkCar(50, 48, FK_INK, 0.9)}`),
   elg: () => fkTri(`<g fill="${FK_INK}" transform="translate(10.5 15.2) scale(.82)"><path d="M76 52C77 56 77 60 75 62L74.2 79H71.2L70 64.5H67.5L66.5 79H63.5L62 63.5L48.5 62.5L47.5 79H44.5L43.3 62.5H41.5L40.3 79H37.3L36.6 60.5C35.2 57.5 34.2 55.6 33 53.8L30 55.6C28 57.2 26 58.4 24 59L20.4 59.2C18.2 59.2 17.8 56.4 19.8 55.3L26 50.4C28 48.4 30 47.3 33 47C36 46.2 38.3 43.2 42 42C48 40.3 52 43.8 56 45.8L70 46.8C73 47 75 49 76 52Z"/><path d="M30 55.4L30.8 61.6L32.6 55Z"/><path d="M31.6 46.4C29 44 26 41 22.8 38.2C24.6 37.2 26.4 37.4 27.6 38.4C27 36.2 27.6 34.4 29 33.4C30.2 35.2 30.8 36.6 31 38C31.8 36.2 33.2 35 35 34.6C35.8 37.2 35.6 40 34.8 42.2C34.4 44 33.6 45.4 32.6 46.6Z"/><path d="M34.6 46.2L37.6 43.2L36.6 47.4Z"/></g>`),
   varseltrekant: () => `<rect width="100" height="100" rx="10" fill="#4A4F57"/><path d="M50 18l32 58H18z" fill="none" stroke="${FK_RED}" stroke-width="9" stroke-linejoin="round"/><path d="M50 30l20 38H30z" fill="none" stroke="#FFB0A8" stroke-width="2"/><path d="M40 80l-6 8M60 80l6 8" stroke="#9AA3AB" stroke-width="3"/>`,
