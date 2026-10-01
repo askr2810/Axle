@@ -488,7 +488,21 @@ Et program med 200 instruksjoner, hver på 4 klokkesykler, kjører på en mikrok
 
 Svar: 100 µs.
 
+## Assembly på en AVR (Arduino Uno)
+ATmega328P har 32 registre (\`r0\`–\`r31\`) på 8 bit. Pinnene styres med tre I/O-registre per port: **DDRx** (1 = utgang), **PORTx** (nivået du setter ut) og **PINx** (nivået du leser inn). Pinne 13 med LED-en er bit 5 i port B, **PB5**.
+\`\`\`
+    sbi  DDRB, PB5    ; PB5 er utgang
+    sbi  PORTB, PB5   ; LED på
+slutt:
+    rjmp slutt        ; evig løkke
+\`\`\`
+- Én instruksjon tar som regel 1–2 klokkesykler. Ved 16 MHz er én sykel 62,5 ns.
+- \`cp\` og \`cpi\` setter flaggene i SREG (Z, C, N …), og \`breq\`, \`brne\`, \`brlo\` osv. hopper etter dem.
+- Prøv selv i kodelaben: der kjører koden på en simulert Arduino med LED-er, registre og UART.
+
 ## Vanlige feil
+- Å bruke \`ldi\` på \`r0\`–\`r15\`. Den virker bare på \`r16\`–\`r31\`.
+- Å sette PORTx uten å gjøre pinnen til utgang i DDRx først.
 - Å telle start- og stoppbit for SPI/I²C, som ikke har dem (bare UART har det).
 - Å glemme å legge til 1 i telleverdien for en timer ($N+1$ sykler, siden telleren starter på 0).
 - Å blande MHz og Hz, eller µs og ms, i samme utregning.
@@ -525,7 +539,21 @@ A program with 200 instructions, each taking 4 clock cycles, runs on a microcont
 
 Answer: 100 µs.
 
+## Assembly on an AVR (Arduino Uno)
+The ATmega328P has 32 registers (\`r0\`–\`r31\`) of 8 bits. Pins are controlled with three I/O registers per port: **DDRx** (1 = output), **PORTx** (the level you drive) and **PINx** (the level you read). Pin 13 with the LED is bit 5 of port B, **PB5**.
+\`\`\`
+    sbi  DDRB, PB5    ; PB5 is an output
+    sbi  PORTB, PB5   ; LED on
+slutt:
+    rjmp slutt        ; endless loop
+\`\`\`
+- One instruction usually takes 1–2 clock cycles. At 16 MHz one cycle is 62.5 ns.
+- \`cp\` and \`cpi\` set the flags in SREG (Z, C, N …), and \`breq\`, \`brne\`, \`brlo\` etc. jump on them.
+- Try it in the code lab: the code runs on a simulated Arduino with LEDs, registers and UART.
+
 ## Common mistakes
+- Using \`ldi\` on \`r0\`–\`r15\`. It only works on \`r16\`–\`r31\`.
+- Setting PORTx without first making the pin an output in DDRx.
 - Counting start and stop bits for SPI/I²C, which do not have them (only UART does).
 - Forgetting to add 1 to the count value for a timer ($N+1$ cycles, since the counter starts at 0).
 - Mixing MHz and Hz, or µs and ms, in the same calculation.

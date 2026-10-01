@@ -3,6 +3,7 @@
 //  Python kjører i en worker (vendor/pyworker.mjs + Pyodide i vendor/pyodide), lastes først når noen åpner laben,
 //  og avsluttes ved evig løkke (tidsavbrudd). plt.plot/scatter/bar tegnes som SVG under koden.
 //  «Live»: koden kjøres automatisk litt etter at du slutter å skrive.
+//  Oppgaver med lang: "avr" er AVR-assembly (ATmega328P) og kjøres i simulatoren i avr.js, uten Python.
 //  Framdrift: S.codeDone[id] = 1, utkast i S.codeSrc[id]. Skjerm: "code", adresse #/kode[/FAG-enhet/oppgave].
 // ============================================================
 let CD = { view: "list", key: null, i: 0, src: "", res: null, running: false, check: null, from: "home", hint: false, sol: false };
@@ -12,6 +13,26 @@ const cdAll = () => Object.keys(CODE_TASKS).flatMap(k => CODE_TASKS[k].map((t, i
 const cdTask = () => CD.view === "task" ? cdTasks(CD.key)[CD.i] : null;
 const cdDone = id => !!(S.codeDone || {})[id];
 const cdKeyName = key => { const [code, u] = key.split(":"), c = COURSE(code); return c ? `${courseName(c)} · ${unitTitle(c, +u)}` : key; };
+const cdLang = () => { const tk = cdTask(); return tk ? tk.lang || "py" : CD.view === "play" ? CD.lang || "py" : "py"; };
+const CD_PLAY_AVR = `; Lekeplass: AVR-assembly for ATmega328P (Arduino Uno), 16 MHz
+.include "m328pdef.inc"
+
+    sbi  DDRB, PB5      ; pinne 13 (PB5) er utgang
+    ldi  r16, 10        ; 10 skift = 5 blink
+blink:
+    sbi  PINB, PB5      ; skriv 1 til PINB: veksler LED-en
+    rcall vent
+    dec  r16
+    brne blink
+slutt:
+    rjmp slutt          ; evig løkke på slutten
+
+vent:                   ; ca. 50 µs: 255 · 3 sykler
+    ldi  r17, 255
+v1: dec  r17
+    brne v1
+    ret
+`;
 const CD_PLAY = PY`# Lekeplass: skriv Python og se resultatet
 import math
 
@@ -95,6 +116,7 @@ function cdPlotSVG(plots, meta){
 // ---------- utdata ----------
 function cdOutHTML(){
   const r = CD.res;
+  if(cdLang() === "avr") return r && r.avr ? avrOutHTML(r.avr) : `<pre class="cd-con cd-empty">${esc(T("Trykk ▶ Kjør for å se registrene, LED-ene og UART-utskriften her.", "Press ▶ Run to see the registers, LEDs and UART output here."))}</pre>`;
   if(CDR.fail) return `<div class="cd-err">${esc(T("Python kunne ikke starte på denne enheten.", "Python could not start on this device."))}<br><small>${esc(CDR.fail)}</small></div>`;
   if(!r) return `<pre class="cd-con cd-empty">${esc(T("Trykk ▶ Kjør for å se resultatet her.", "Press ▶ Run to see the result here."))}</pre>`;
   const out = r.out || "";
@@ -114,11 +136,26 @@ const cdPaintOut = () => { const el = document.getElementById("cdout"); if(el) e
 const cdPaintLive = s => { const el = document.querySelector("#cdout .cd-con"); if(el) el.textContent = s; };
 function cdPaintStatus(){
   const el = document.getElementById("cdstat"); if(!el) return;
+  if(cdLang() === "avr"){ el.textContent = T("AVR-simulator · ATmega328P · 16 MHz", "AVR simulator · ATmega328P · 16 MHz"); el.className = "cd-stat ok"; return; }
   el.textContent = CDR.fail ? "" : CD.running ? T("Kjører …", "Running …") : CDR.loading ? T("Starter Python … (første gang tar det litt tid)", "Starting Python … (takes a moment the first time)") : CDR.ready ? T("Python er klar", "Python is ready") : "";
   el.className = "cd-stat " + (CDR.ready && !CD.running ? "ok" : "");
   document.querySelectorAll("[data-a=cdrun],[data-a=cdcheck]").forEach(b => { b.disabled = CD.running && !CD.live; });
 }
+function cdVerdictSet(tk, pass, msg){
+  const first = pass && !cdDone(tk.id);
+  if(pass){ (S.codeDone ||= {})[tk.id] = 1; if(first){ awardXP(5); bdgToast(checkBadges()); } save(); sfx("ok", 3); buzz(true); setTimeout(() => { const el = document.getElementById("cdverdict"); if(el){ burst(el, 14); if(first) confetti && confetti(); } }, 60); }
+  else { CD.tries = (CD.tries || 0) + 1; sfx("bad"); buzz(false); }
+  CD.check = { pass, msg, first };
+}
+function cdExecAvr(withCheck){
+  const tk = cdTask();
+  if(withCheck && tk){ const v = avrCheck(tk, CD.src); CD.res = { avr: v.m }; cdVerdictSet(tk, v.pass, v.msg); }
+  else CD.res = { avr: avrRun(CD.src, { init: tk && tk.cases ? tk.cases[0] : {}, maxCycles: tk && tk.maxCycles }) };
+  cdPaintOut();
+  if(withCheck){ const v = document.getElementById("cdverdict"); if(v) v.scrollIntoView({ behavior: "smooth", block: "nearest" }); }
+}
 async function cdExec(withCheck, live){
+  if(cdLang() === "avr") return cdExecAvr(withCheck);
   const tk = cdTask(), code = CD.src;
   CD.running = true; CD.live = !!live; cdPaintStatus();
   const r = await cdRun(code, withCheck && tk ? tk.check || null : null, tk && tk.stdin || CD.stdin || "", live ? 3000 : 10000);
@@ -131,10 +168,7 @@ async function cdExec(withCheck, live){
       if(tk.out != null && !cdOutMatch(r.out, tk.out)){ pass = false; msg = T("Utskriften er ikke helt lik. Forventet:", "The output does not match. Expected:") + "```" + tk.out + "```"; }
       if(pass && tk.check && r.pass === false){ pass = false; msg = r.fail; }
     }
-    const first = pass && !cdDone(tk.id);
-    if(pass){ (S.codeDone ||= {})[tk.id] = 1; if(first){ awardXP(5); bdgToast(checkBadges()); } save(); sfx("ok", 3); buzz(true); setTimeout(() => { const el = document.getElementById("cdverdict"); if(el){ burst(el, 14); if(first) confetti && confetti(); } }, 30); }
-    else { CD.tries = (CD.tries || 0) + 1; sfx("bad"); buzz(false); }
-    CD.check = { pass, msg, first };
+    cdVerdictSet(tk, pass, msg);
   }
   cdPaintOut();
   if(withCheck){ const v = document.getElementById("cdverdict"); if(v) v.scrollIntoView({ behavior: "smooth", block: "nearest" }); }
@@ -160,14 +194,33 @@ function cdHL(src){
   }
   return out + esc(src.slice(last));
 }
+function cdHLAsm(src){
+  const re = /(;[^\n]*|\/\/[^\n]*)|("(?:\\.|[^"\\\n])*"?|'(?:\\.|[^'\\\n])')|(\.[A-Za-z]+)|(0x[0-9A-Fa-f]+|\$[0-9A-Fa-f]+|0b[01]+|\b\d+\b)|([A-Za-z_]\w*)(\s*:)?/g;
+  let out = "", last = 0, m, lineStart = true;
+  while((m = re.exec(src))){
+    const gap = src.slice(last, m.index); out += esc(gap); if(gap.includes("\n")) lineStart = !/\S/.test(gap.slice(gap.lastIndexOf("\n") + 1)); last = re.lastIndex;
+    const [w, com, str, dir, num, id, colon] = m;
+    if(com) out += `<i class="c">${esc(com)}</i>`;
+    else if(str) out += `<i class="s">${esc(str)}</i>`;
+    else if(dir) out += `<i class="k">${esc(dir)}</i>`;
+    else if(num) out += `<i class="n">${esc(num)}</i>`;
+    else if(colon) out += `<i class="f">${esc(id)}</i>${esc(colon)}`;
+    else if(AVR_OPS[id.toLowerCase()] != null && lineStart) out += `<i class="k">${esc(id)}</i>`;
+    else if(/^(r\d{1,2}|[XYZ][LH]?)$/i.test(id)) out += `<i class="b">${esc(id)}</i>`;
+    else if(AVR_SYM[id.toUpperCase()] != null || /^(low|high)$/i.test(id)) out += `<i class="f">${esc(id)}</i>`;
+    else out += esc(id);
+    lineStart = !!colon;
+  }
+  return out + esc(src.slice(last));
+}
 function cdBindEditor(){
   const ta = document.getElementById("cded"), gut = document.getElementById("cdgut"); if(!ta) return;
   const hl = document.getElementById("cdhl");
-  const lines = () => { const n = ta.value.split("\n").length; gut.textContent = Array.from({ length: n }, (_, i) => i + 1).join("\n"); if(hl) hl.innerHTML = cdHL(ta.value) + "\n "; };
-  const save1 = () => { CD.src = ta.value; const tk = cdTask(); if(tk){ (S.codeSrc ||= {})[tk.id] = ta.value; } else S.codePlay = ta.value; clearTimeout(cdBindEditor.st); cdBindEditor.st = setTimeout(save, 600); };
+  const lines = () => { const n = ta.value.split("\n").length; gut.textContent = Array.from({ length: n }, (_, i) => i + 1).join("\n"); if(hl) hl.innerHTML = (cdLang() === "avr" ? cdHLAsm : cdHL)(ta.value) + "\n "; };
+  const save1 = () => { CD.src = ta.value; const tk = cdTask(); if(tk){ (S.codeSrc ||= {})[tk.id] = ta.value; } else if(CD.lang === "avr") S.codePlayAvr = ta.value; else S.codePlay = ta.value; clearTimeout(cdBindEditor.st); cdBindEditor.st = setTimeout(save, 600); };
   const ins = (txt, back = 0) => { const s = ta.selectionStart, e = ta.selectionEnd; ta.setRangeText(txt, s, e, "end"); if(back) ta.selectionStart = ta.selectionEnd = ta.selectionEnd - back; onInput(); };
   const onInput = () => { lines(); save1(); CD.check = null; const v = document.getElementById("cdverdict"); if(v) v.innerHTML = "";
-    if(S.cdLive !== false){ clearTimeout(cdBindEditor.lt); cdBindEditor.lt = setTimeout(() => { if(CDR.ready && !CDR.pending) cdExec(false, true); }, 900); } };
+    if(S.cdLive !== false){ clearTimeout(cdBindEditor.lt); cdBindEditor.lt = setTimeout(() => { if(cdLang() === "avr") cdExec(false, true); else if(CDR.ready && !CDR.pending) cdExec(false, true); }, cdLang() === "avr" ? 500 : 900); } };
   ta.addEventListener("input", onInput);
   ta.addEventListener("scroll", () => { gut.scrollTop = ta.scrollTop; if(hl){ hl.scrollTop = ta.scrollTop; hl.scrollLeft = ta.scrollLeft; } });
   ta.addEventListener("keydown", e => {
@@ -184,45 +237,51 @@ function cdBindEditor(){
   document.querySelectorAll(".cd-keys button").forEach(b => { b.addEventListener("pointerdown", e => e.preventDefault()); b.addEventListener("click", () => { const k = b.dataset.k; ta.focus(); if(k === "tab") ins("    "); else if(k === "()" || k === "[]" || k === '""') ins(k, 1); else ins(k); }); });
   lines();
 }
+// Oppgavetekst: avsnitt (tom linje) og **fet** utenfor `kode`.
+const cdRich = s => String(s).split(/\n{2,}/).map(par => `<p>${par.split(/(`[^`]+`)/g).map((x, i) => i % 2 ? rich(x) : rich(x).replace(/\*\*([^*]+?)\*\*/g, "<b>$1</b>")).join("")}</p>`).join("");
 // ---------- skjermer ----------
 function cdSet(key, i){
   CD.res = null; CD.check = null; CD.hint = false; CD.sol = false; CD.tries = 0;
-  if(key === "play"){ CD.view = "play"; CD.key = null; CD.src = S.codePlay || CD_PLAY; }
+  if(key === "play" || key === "playavr"){ CD.view = "play"; CD.key = null; CD.lang = key === "playavr" ? "avr" : "py"; CD.src = CD.lang === "avr" ? S.codePlayAvr || CD_PLAY_AVR : S.codePlay || CD_PLAY; }
   else if(key && CODE_TASKS[key]){ CD.view = "task"; CD.key = key; CD.i = Math.max(0, Math.min(cdTasks(key).length - 1, i || 0)); const tk = cdTask(); CD.src = (S.codeSrc || {})[tk.id] || tk.start; }
   else { CD.view = "list"; CD.key = key && Object.keys(CODE_TASKS).some(k => k.startsWith(key + ":")) ? key : null; }
 }
 function cdOpen(key, i, from){ CD.from = from || (screen === "code" ? CD.from : screen); cdSet(key, i); overlay = null; screen = "code"; render(); window.scrollTo(0, 0); }
 // Adresse: #/kode, #/kode/MEK1300, #/kode/MEK1300-0/2, #/kode/lek
-function cdRoute(){ return rtW("code") + (CD.view === "play" ? "/" + T("lek", "play") : CD.view === "task" ? "/" + CD.key.replace(":", "-") + "/" + (CD.i + 1) : CD.key ? "/" + CD.key : ""); }
+function cdRoute(){ return rtW("code") + (CD.view === "play" ? "/" + T("lek", "play") + (CD.lang === "avr" ? "-avr" : "") : CD.view === "task" ? "/" + CD.key.replace(":", "-") + "/" + (CD.i + 1) : CD.key ? "/" + CD.key : ""); }
 function cdRouteOpen(p){ const a = p[1] || ""; CD.from = "home";
   if(a === "lek" || a === "play") return cdSet("play");
+  if(a === "lek-avr" || a === "play-avr") return cdSet("playavr");
   const m = a.match(/^([A-Z0-9]+)-(\d+)$/); if(m) return cdSet(m[1] + ":" + m[2], (parseInt(p[2], 10) || 1) - 1);
   cdSet(a || null); }
 function cdEditorHTML(){
-  const keys = [["tab", "⇥"], [":", ":"], ["()", "( )"], ["[]", "[ ]"], ['""', "\" \""], ["=", "="], ["+", "+"], ["*", "*"], ["#", "#"]];
+  const keys = cdLang() === "avr" ? [["tab", "⇥"], [",", ","], [";", ";"], [":", ":"], ["r", "r"], ["0x", "0x"], ["0b", "0b"], ["(1<<", "(1<<"], [")", ")"]]
+    : [["tab", "⇥"], [":", ":"], ["()", "( )"], ["[]", "[ ]"], ['""', "\" \""], ["=", "="], ["+", "+"], ["*", "*"], ["#", "#"]];
   return `<div class="cd-edw"><pre class="cd-gut" id="cdgut" aria-hidden="true"></pre><div class="cd-edbox"><pre class="cd-hl" id="cdhl" aria-hidden="true"></pre><textarea id="cded" class="cd-ed" spellcheck="false" autocapitalize="off" autocomplete="off" autocorrect="off" wrap="off" aria-label="${esc(T("Python-kode", "Python code"))}">${esc(CD.src)}</textarea></div></div>
     <div class="cd-keys" aria-hidden="true">${keys.map(([k, l]) => `<button type="button" data-k="${esc(k)}">${esc(l)}</button>`).join("")}</div>
     <div class="cd-bar"><button class="big cd-run" data-a="cdrun">▶ ${esc(T("Kjør", "Run"))}</button>${CD.view === "task" ? `<button class="big cd-check" data-a="cdcheck">✓ ${esc(T("Sjekk", "Check"))}</button>` : ""}</div>
     <div class="cd-row2"><span id="cdstat" class="cd-stat"></span><button class="tg-chip ${S.cdLive !== false ? "on" : ""}" data-a="cdlive" aria-pressed="${S.cdLive !== false}">⚡ ${esc(T("Live", "Live"))}</button></div>`;
 }
 function renderCode(){
-  if(CD.view !== "list") cdBoot();
+  if(CD.view !== "list" && cdLang() !== "avr") cdBoot();
   const top = (title, small) => `<div class="top"><div class="wrap"><button class="iconbtn" data-a="cdback" aria-label="${esc(t("back"))}">${I.left}</button><div class="th-t"><small>${esc(small)}</small><b>${esc(title)}</b></div></div></div>`;
   if(CD.view === "list"){
     const keys = Object.keys(CODE_TASKS).filter(k => !CD.key || k.startsWith(CD.key + ":")), all = cdAll(), done = all.filter(x => cdDone(x.id)).length;
     const mine = new Set(myCourses().map(c => c.code)), order = keys.slice().sort((a, b) => mine.has(b.split(":")[0]) - mine.has(a.split(":")[0]));
-    $app.innerHTML = `${top(T("Kodelab", "Code lab"), "Python")}<main class="wrap cd-list">
+    $app.innerHTML = `${top(T("Kodelab", "Code lab"), T("Python og AVR-assembly", "Python and AVR assembly"))}<main class="wrap cd-list">
       <p class="pf-intro">${esc(T("Skriv ekte Python og se resultatet med en gang. Oppgavene sjekkes automatisk, og grafer med plt.plot tegnes rett under koden.", "Write real Python and see the result instantly. Tasks are checked automatically, and plt.plot graphs appear right below the code."))}</p>
       <div class="cd-sum"><b>${done}/${all.length}</b> ${esc(T("oppgaver løst", "tasks solved"))}<span class="dv-bar"><i class="g" style="width:${Math.round(done / all.length * 100)}%"></i></span></div>
-      <button class="pf-cta" data-a="cdgo" data-k="play"><span class="pf-cta-ic" aria-hidden="true">🛝</span><span><b>${esc(T("Lekeplass", "Playground"))}</b><small>${esc(T("Fri koding – prøv hva du vil", "Free coding – try anything"))}</small></span>${I.chevron}</button>
+      <button class="pf-cta" data-a="cdgo" data-k="play"><span class="pf-cta-ic" aria-hidden="true">🛝</span><span><b>${esc(T("Lekeplass", "Playground"))}</b><small>${esc(T("Fri koding i Python – prøv hva du vil", "Free coding in Python – try anything"))}</small></span>${I.chevron}</button>
+      <button class="pf-cta" data-a="cdgo" data-k="playavr"><span class="pf-cta-ic" aria-hidden="true">🔌</span><span><b>${esc(T("Lekeplass: AVR-assembly", "Playground: AVR assembly"))}</b><small>${esc(T("ATmega328P (Arduino Uno) med LED-er, registre og UART", "ATmega328P (Arduino Uno) with LEDs, registers and UART"))}</small></span>${I.chevron}</button>
       ${order.map(k => `<h4 class="grp">${esc(cdKeyName(k))}</h4><div class="cd-tasks">${cdTasks(k).map((tk, i) => `<button class="cd-trow ${cdDone(tk.id) ? "done" : ""}" data-a="cdgo" data-k="${k}" data-i="${i}"><i>${cdDone(tk.id) ? "✓" : i + 1}</i><span>${esc(T(tk.t[0], tk.t[1]))}</span>${I.chevron}</button>`).join("")}</div>`).join("")}
       ${CD.key ? `<button class="exlink" data-a="cdall">${esc(T("Alle kodeoppgaver", "All code tasks"))}</button>` : ""}</main>`;
     return;
   }
   if(CD.view === "play"){
-    $app.innerHTML = `${top(T("Lekeplass", "Playground"), T("Kodelab", "Code lab"))}<main class="wrap cd">
+    const avr = CD.lang === "avr";
+    $app.innerHTML = `${top(avr ? T("Lekeplass: AVR-assembly", "Playground: AVR assembly") : T("Lekeplass", "Playground"), T("Kodelab", "Code lab"))}<main class="wrap cd">
       ${cdEditorHTML()}<div id="cdout" class="cd-out">${cdOutHTML()}</div>
-      <details class="cd-help"><summary>${esc(T("Inndata til input()", "Input for input()"))}</summary><textarea id="cdstdin" rows="3" placeholder="${esc(T("Én linje per input()", "One line per input()"))}">${esc(CD.stdin || "")}</textarea></details>
+      ${avr ? avrHelpHTML() : `<details class="cd-help"><summary>${esc(T("Inndata til input()", "Input for input()"))}</summary><textarea id="cdstdin" rows="3" placeholder="${esc(T("Én linje per input()", "One line per input()"))}">${esc(CD.stdin || "")}</textarea></details>`}
       <button class="exlink" data-a="cdreset">${esc(T("Tilbakestill eksempelet", "Reset the example"))}</button></main>`;
     cdBindEditor(); cdPaintStatus();
     const si = document.getElementById("cdstdin"); if(si) si.addEventListener("input", () => { CD.stdin = si.value; });
@@ -232,7 +291,7 @@ function renderCode(){
   $app.innerHTML = `${top(T(tk.t[0], tk.t[1]), cdKeyName(CD.key))}
     <div class="cd-steps wrap">${L.map((x, i) => `<button class="${i === CD.i ? "cur" : ""} ${cdDone(x.id) ? "done" : ""}" data-a="cdgo" data-k="${CD.key}" data-i="${i}" aria-label="${i + 1}">${cdDone(x.id) ? "✓" : i + 1}</button>`).join("")}</div>
     <main class="wrap cd">
-      <div class="cd-task">${rich(T(tk.p[0], tk.p[1]))}${tk.stdin ? `<p class="cd-in">${esc(T("Inndata:", "Input:"))} <code>${esc(tk.stdin)}</code></p>` : ""}</div>
+      <div class="cd-task">${cdRich(T(tk.p[0], tk.p[1]))}${tk.stdin ? `<p class="cd-in">${esc(T("Inndata:", "Input:"))} <code>${esc(tk.stdin)}</code></p>` : ""}</div>
       ${cdEditorHTML()}
       <div id="cdverdict">${cdVerdictHTML()}</div>
       <div id="cdout" class="cd-out">${cdOutHTML()}</div>
@@ -241,6 +300,7 @@ function renderCode(){
         <button class="tg-chip ${CD.sol ? "on" : ""}" data-a="cdsol">🔑 ${esc(T("Løsningsforslag", "Solution"))}</button>
         <button class="tg-chip" data-a="cdreset">↺ ${esc(T("Start på nytt", "Start over"))}</button></div>
       ${CD.hint ? `<div class="cd-hint">${rich(T(tk.hint[0], tk.hint[1]))}</div>` : ""}
+      ${tk.lang === "avr" ? avrHelpHTML() : ""}
       ${CD.sol ? `<div class="cd-sol"><pre class="code">${esc(tk.sol)}</pre><button class="exlink" data-a="cdusesol">${esc(T("Bruk løsningen i editoren", "Use the solution in the editor"))}</button></div>` : ""}
     </main>`;
   cdBindEditor(); cdPaintStatus();
@@ -260,13 +320,13 @@ function cdClick(a, b){
   if(a === "cdhint"){ CD.hint = !CD.hint; render(); return true; }
   if(a === "cdsol"){ if(!CD.sol && !CD.tries && !confirm(T("Vil du se løsningsforslaget? Prøv gjerne én gang til først.", "Show the solution? Maybe try once more first."))) return true; CD.sol = !CD.sol; render(); return true; }
   if(a === "cdusesol"){ const tk = cdTask(); CD.src = tk.sol; (S.codeSrc ||= {})[tk.id] = tk.sol; save(); render(); return true; }
-  if(a === "cdreset"){ const tk = cdTask(); CD.src = tk ? tk.start : CD_PLAY; if(tk) delete (S.codeSrc || {})[tk.id]; else S.codePlay = null; CD.res = null; CD.check = null; save(); render(); return true; }
+  if(a === "cdreset"){ const tk = cdTask(); CD.src = tk ? tk.start : CD.lang === "avr" ? CD_PLAY_AVR : CD_PLAY; if(tk) delete (S.codeSrc || {})[tk.id]; else if(CD.lang === "avr") S.codePlayAvr = null; else S.codePlay = null; CD.res = null; CD.check = null; save(); render(); return true; }
   if(a === "cdnext"){ cdOpen(CD.key, CD.i + 1, CD.from); return true; }
   return false;
 }
 // Laben i Labben-oversikten og lenker fra teorien (lab.js), og fanen for funksjonen i studievalget.
-LABS.push({ id: "code", ic: "💻", t: ["Kodelab: Python", "Code lab: Python"], sub: ["Skriv kode og se resultatet med en gang", "Write code and see the result instantly"],
-  kw: "python kode code programmering programming koding coding løkke loop funksjon function plot graf matplotlib", units: Object.keys(CODE_TASKS), open: () => cdOpen(null, 0) });
+LABS.push({ id: "code", ic: "💻", t: ["Kodelab: Python og assembly", "Code lab: Python and assembly"], sub: ["Skriv kode og se resultatet med en gang", "Write code and see the result instantly"],
+  kw: "python assembly avr arduino mikrokontroller microcontroller kode code programmering programming koding coding løkke loop funksjon function plot graf matplotlib", units: Object.keys(CODE_TASKS), open: () => cdOpen(null, 0) });
 const labTheoryHTML0 = labTheoryHTML;
 // På teorisiden: knappen åpner oppgavene for akkurat den enheten.
 labTheoryHTML = (code, u) => labTheoryHTML0(code, u).replace(`data-a="labgo" data-id="code"`, `data-a="cdopen" data-k="${code}:${u}"`);
@@ -274,5 +334,5 @@ labTheoryHTML = (code, u) => labTheoryHTML0(code, u).replace(`data-a="labgo" dat
 function cdPracticeCardHTML(c){
   if(!c || !Object.keys(CODE_TASKS).some(k => k.startsWith(c.code + ":"))) return "";
   const L = Object.keys(CODE_TASKS).filter(k => k.startsWith(c.code + ":")).flatMap(k => CODE_TASKS[k]), done = L.filter(x => cdDone(x.id)).length;
-  return `<div class="dv-prac"><button class="qt-row" data-a="cdopen" data-k="${c.code}"><span class="qt-ic">💻</span><span><b>${esc(T("Kodeoppgaver", "Code tasks"))}</b><small>${esc(T(`Python med resultat med en gang · ${done}/${L.length} løst`, `Python with instant results · ${done}/${L.length} solved`))}</small></span>${I.chevron}</button></div>`;
+  return `<div class="dv-prac"><button class="qt-row" data-a="cdopen" data-k="${c.code}"><span class="qt-ic">💻</span><span><b>${esc(T("Kodeoppgaver", "Code tasks"))}</b><small>${esc((L.some(x => x.lang === "avr") ? T(`AVR-assembly med simulert Arduino · ${done}/${L.length} løst`, `AVR assembly on a simulated Arduino · ${done}/${L.length} solved`) : T(`Python med resultat med en gang · ${done}/${L.length} løst`, `Python with instant results · ${done}/${L.length} solved`)))}</small></span>${I.chevron}</button></div>`;
 }

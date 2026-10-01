@@ -6,8 +6,9 @@ const ROOT = path.join(__dirname, "..");
 (async () => {
   let loadPyodide;
   try { ({ loadPyodide } = await import("pyodide")); } catch(e){ console.log("kodeoppgaver: pyodide mangler (npm install) – hopper over"); return; }
-  const ctx = {}; vm.createContext(ctx);
-  vm.runInContext(fs.readFileSync(path.join(ROOT, "code_tasks.js"), "utf8") + "\nthis.CODE_TASKS = CODE_TASKS;", ctx);
+  const ctx = { T: (a, b) => a, decPoint: () => false }; vm.createContext(ctx);
+  // AVR-assembly (avr.js + code_avr.js) kjøres i simulatoren, ikke i Python.
+  vm.runInContext(fs.readFileSync(path.join(ROOT, "avr.js"), "utf8") + "\n" + fs.readFileSync(path.join(ROOT, "code_tasks.js"), "utf8") + "\n" + fs.readFileSync(path.join(ROOT, "code_avr.js"), "utf8") + "\nthis.CODE_TASKS = CODE_TASKS; this.avrCheck = avrCheck;", ctx);
   const PRELUDE = fs.readFileSync(path.join(ROOT, "vendor", "pyworker.mjs"), "utf8").match(/const PRELUDE = `([\s\S]*?)`;/)[1];
   const py = await loadPyodide();
   const norm = s => String(s || "").replace(/\r/g, "").split("\n").map(l => l.replace(/\s+$/, "")).join("\n").replace(/\n+$/, "");
@@ -23,20 +24,26 @@ const ROOT = path.join(__dirname, "..");
     const outOk = task.out == null || match(out, task.out);
     return { pass: !err && !fail && outOk, err, fail, out, outOk };
   }
-  let n = 0, bad = 0; const ids = new Set();
+  let n = 0, bad = 0, avr = 0; const ids = new Set();
   for(const key of Object.keys(ctx.CODE_TASKS)){
     for(const tk of ctx.CODE_TASKS[key]){
       n++;
       if(ids.has(tk.id)){ console.log(`  DUPLIKAT id ${tk.id}`); bad++; } ids.add(tk.id);
       for(const f of ["t", "p", "hint"]) if(!Array.isArray(tk[f]) || tk[f].length !== 2){ console.log(`  ${key} ${tk.id}: mangler ${f} [nb, en]`); bad++; }
-      if(tk.out == null && !tk.check){ console.log(`  ${key} ${tk.id}: verken out eller check`); bad++; }
+      if(tk.out == null && !tk.check && tk.lang !== "avr"){ console.log(`  ${key} ${tk.id}: verken out eller check`); bad++; }
       if(process.env.V) console.log("..", tk.id);
+      if(tk.lang === "avr"){
+        if(!tk.check && tk.out == null){ console.log(`  ${key} ${tk.id}: verken out eller check`); bad++; }
+        const s = ctx.avrCheck(tk, tk.sol); if(!s.pass){ console.log(`  ${key} ${tk.id}: løsningen består ikke:`, s.msg); bad++; }
+        const st = ctx.avrCheck(tk, tk.start); if(st.pass){ console.log(`  ${key} ${tk.id}: startkoden består allerede`); bad++; }
+        avr++; continue;
+      }
       const s = await run(tk, tk.sol);
       if(!s.pass){ console.log(`  ${key} ${tk.id}: løsningen består ikke`, s.err || s.fail || `utskrift: ${JSON.stringify(s.out)}`); bad++; }
       const st = await run(tk, tk.start);
       if(st.pass){ console.log(`  ${key} ${tk.id}: startkoden består allerede`); bad++; }
     }
   }
-  console.log(`kodeoppgaver: ${n}, feil: ${bad}`);
+  console.log(`kodeoppgaver: ${n} (${avr} i AVR-assembly), feil: ${bad}`);
   process.exit(bad ? 1 : 0);
 })();
