@@ -187,7 +187,8 @@ function fkSignName(name){ const s = FK_SIGN_INFO.find(x => x[0] === name); retu
 // ---------- Sammenligningsfigurer (krasjvekt): elefant, ku, bil og person, sett fra siden mot høyre ----------
 // fkBeast(kind, x, y, s): (x, y) er midt under føttene. Bredde ved s = 1: elefant 104, ku 92, bil 92, person 30.
 const FK_BEAST = {
-  elefant: { kg: 5000, w: 104, h: 68 }, ku: { kg: 600, w: 92, h: 58 }, bil: { kg: 1500, w: 92, h: 36 }, person: { kg: 75, w: 30, h: 60 } };
+  elefant: { kg: 5000, w: 104, h: 68 }, ku: { kg: 600, w: 92, h: 58 }, bil: { kg: 1500, w: 92, h: 36, m: 4.5 }, person: { kg: 75, w: 30, h: 60 },
+  buss: { m: 12, w: 120, h: 34 }, fotballbane: { m: 105, w: 105, h: 40 } };
 function fkBeast(kind, x, y, s = 1){
   const st = "stroke:rgba(0,0,0,.35);stroke-width:1;stroke-linejoin:round";
   let g = "";
@@ -218,6 +219,20 @@ function fkBeast(kind, x, y, s = 1){
       + `<path d="M3.5 -22V-8M-20 -15h4M10 -15h4" style="stroke:rgba(0,0,0,.35);stroke-width:1"/>`
       + `<rect x="42" y="-17" width="4" height="3" rx="1" style="fill:#FFF3B0"/><rect x="-45" y="-18" width="3" height="4" rx="1" style="fill:#E0201B"/>`
       + [-27, 29].map(cx => `<circle cx="${cx}" cy="-6" r="7" style="fill:#1F2328"/><circle cx="${cx}" cy="-6" r="3" style="fill:#AEB5BC"/>`).join("");
+  } else if(kind === "buss"){ // bybuss, 12 m
+    g = `<path d="M-60 -8V-28C-60 -31 -58 -33 -55 -33H52C56 -33 58 -31 59 -27L61 -16V-8C61 -6 59 -5 57 -5H-57C-59 -5 -60 -6 -60 -8Z" style="fill:#D23F3A;${st}"/>`
+      + [-54, -40, -26, -12, 16].map(wx => `<rect x="${wx}" y="-29" width="11" height="11" rx="1.5" style="fill:rgba(220,240,255,.92)"/>`).join("")
+      + `<path d="M46 -29H54C56 -29 57 -28 57.5 -26L59.5 -18H46Z" style="fill:rgba(220,240,255,.92)"/>`
+      + [2, 33].map(dx => `<rect x="${dx}" y="-29" width="10" height="23" rx="1" style="fill:#F0D9D7;stroke:rgba(0,0,0,.3);stroke-width:.8"/><line x1="${dx + 5}" y1="-29" x2="${dx + 5}" y2="-6" style="stroke:rgba(0,0,0,.3);stroke-width:.8"/>`).join("")
+      + `<rect x="58" y="-12" width="3" height="3" rx="1" style="fill:#FFF3B0"/><rect x="-61" y="-14" width="2.5" height="5" rx="1" style="fill:#8E0F0B"/>`
+      + [-40, 26].map(cx => `<circle cx="${cx}" cy="-5" r="6.5" style="fill:#1F2328"/><circle cx="${cx}" cy="-5" r="2.8" style="fill:#AEB5BC"/>`).join("");
+  } else if(kind === "fotballbane"){ // sett litt skrått ovenfra, 105 m lang
+    const L = "stroke:#fff;stroke-width:1.1;fill:none";
+    g = `<path d="M-52.5 0L52.5 0L45 -38L-45 -38Z" style="fill:#3E9B4F"/>`
+      + [0, 1, 2, 3, 4, 5].map(i => { const a = -52.5 + i * 17.5, b = a + 8.75, t = v => v * 45 / 52.5; return `<path d="M${a} 0L${b} 0L${t(b)} -38L${t(a)} -38Z" style="fill:#47A859"/>`; }).join("")
+      + `<path d="M-50 -2L50 -2L43 -36L-43 -36Z" style="${L}"/><path d="M0 -2L0 -36" style="${L}"/><ellipse cx="0" cy="-19" rx="8" ry="5.5" style="${L}"/>`
+      + `<path d="M-48.5 -9L-35 -9L-33.5 -29L-44.7 -29M48.5 -9L35 -9L33.5 -29L44.7 -29" style="${L}"/>`
+      + `<rect x="-51.5" y="-22" width="1.6" height="6" style="fill:#fff"/><rect x="49.9" y="-22" width="1.6" height="6" style="fill:#fff"/>`;
   } else if(kind === "person") return fkHuman(x, y, s, "walk", {});
   return `<g transform="translate(${x.toFixed(1)} ${y.toFixed(1)}) scale(${s.toFixed(3)})">${g}</g>`;
 }

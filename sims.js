@@ -331,6 +331,7 @@ function simHTML(name){
   return `<div class="sim fig" data-sim="${name}"><div class="sim-h"><span class="sim-tag">${I.bolt}${esc(t("simTry"))}</span><b>${esc(T(S0.t[0], S0.t[1]))}</b></div>
     <div class="sim-eq" aria-live="polite">${simEqHTML(r)}</div>
     <svg class="sim-svg" viewBox="0 0 320 180" role="img" aria-label="${esc(T(S0.t[0], S0.t[1]))}">${r.svg}</svg>
+    ${S0.a ? `<p class="sim-note">${esc(T(S0.a[0], S0.a[1]))}</p>` : ""}
     <div class="sim-out">${simOutHTML(r)}</div>
     <div class="sim-ctl">${S0.p.map(p => `<label${simCol(p)}><span class="sim-l">${simSub(lbl(p))}</span><input type="range" min="${p[2]}" max="${p[3]}" step="${p[4]}" value="${p[5]}" data-k="${p[0]}" aria-label="${esc(lbl(p))}"><output>${esc(smFmt(p[5]) + unit(p))}</output></label>`).join("")}</div>
     ${S0.q && !S0.g ? `<p class="sim-q"><b>${esc(t("simQ"))}</b> ${simSub(T(S0.q[0], S0.q[1]))}</p>` : ""}

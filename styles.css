@@ -960,6 +960,7 @@ body.has-tabs .toast{bottom:calc(84px + env(safe-area-inset-bottom,0px))}
 .sim input[type=range]{width:100%;accent-color:var(--accent);height:28px;margin:0}
 .sim-q{margin:10px 0 0;font-size:14px;color:var(--ink);background:color-mix(in srgb,var(--gold) 14%,transparent);border-radius:12px;padding:8px 12px}
 .sim-q b{color:var(--gold-deep)}
+.sim-note{margin:2px 4px 8px;font-size:11.5px;line-height:1.4;color:var(--muted)}
 .lfoot .wrap.gd-foot{display:flex;gap:10px}.gd-foot .big{flex:1}
 
 /* ---------- venner: brukernavn, søk og invitasjon ---------- */
