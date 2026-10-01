@@ -1011,7 +1011,15 @@ function applyTheme(){
   document.querySelector('meta[name="theme-color"]')?.setAttribute("content", dark ? (TH_PAPERS.find(p => p[0] === (S.paper || "")) || TH_PAPERS[0])[4] : thAccent()[3][0]);
 }
 try{ matchMedia("(prefers-color-scheme: dark)").addEventListener("change", applyTheme); }catch(e){}
+// Skjermer i et eget rullbart panel (.sheet, f.eks. Innstillinger) tegnes på nytt ved hver endring.
+// Er det fortsatt samme skjerm, beholder vi rulleposisjonen så man ikke kastes til toppen.
 function render(){
+  const pane = document.querySelector("#app .sheet"), keep = pane && render.last === screen ? pane.scrollTop : null;
+  renderNow();
+  render.last = screen;
+  if(keep != null){ const np = document.querySelector("#app .sheet"); if(np) np.scrollTop = keep; }
+}
+function renderNow(){
   applyTheme();
   document.documentElement.lang = LANG==="en" ? "en" : "nb";
   document.title = T(CONFIG.appName.nb, CONFIG.appName.en);
