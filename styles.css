@@ -1971,3 +1971,7 @@ textarea.fbtext{width:100%;font:13px/1.4 var(--mono,monospace);border-radius:12p
 .cd-trow{display:flex;align-items:center;gap:10px;width:100%;text-align:left;padding:10px 12px;border-radius:12px;border:2px solid var(--line);background:var(--card);color:var(--ink);font:inherit}
 .cd-trow span{flex:1;font-weight:700}.cd-trow i{font-style:normal;width:26px;height:26px;border-radius:50%;display:grid;place-items:center;background:var(--accent-soft);color:var(--accent);font-weight:800;font-size:13px}
 .cd-trow.done i{background:var(--ok);color:#fff}
+.sc-ctl{display:flex;align-items:center;gap:8px;margin:-2px 0 10px}
+.sc-ctl button{flex:none;width:42px;height:38px;border-radius:12px;border:2px solid var(--line);border-bottom-width:3px;background:var(--card);color:var(--ink);font-size:16px}
+.sc-ctl button.pp{width:52px;background:var(--accent);border-color:var(--accent-deep);color:#fff}
+.sc-ctl input{flex:1;min-width:0;accent-color:var(--accent)}

@@ -96,26 +96,51 @@ function scSVG(sc, built, st){
   return `<svg class="sc-svg" id="scsvg" viewBox="0 0 320 320" role="img" aria-label="${esc(T("Trafikksituasjon", "Traffic situation"))}">${g}</svg>`;
 }
 // ---------- avspilling ----------
+// Tidslinjen er deterministisk: posisjonene regnes ut fra tiden t, så du kan spille, pause, spole og gå steg for steg.
+// Animasjonen overlever at skjermen tegnes på nytt (synk, meldinger): elementene slås opp på nytt hver ramme.
 let SC_RAF = 0;
 function scStop(){ cancelAnimationFrame(SC_RAF); SC_RAF = 0; }
-function scPlay(){
-  const D = DV && DV.sc; if(!D) return; scStop();
-  const sc = D.list[D.i], built = D.built, order = sc.play || sc.ans, sched = {};
+function scSched(D){
+  const sc = D.list[D.i], order = sc.play || sc.ans, sched = {}, marks = [0];
   let t = 0.25;
-  for(const id of order){ const b = built.find(x => x.id === id); if(!b) continue; const sp = b.kind === "ped" ? 55 : b.kind === "bike" ? 95 : 130;
-    sched[id] = { t0: t, sp }; const clear = b.kind === "ped" ? b.len - b.s0 : Math.min(b.len - b.s0, 175); t += clear / sp * 0.85 + 0.15; }
-  built.forEach(b => { b.s = b.s0; }); D.playing = true;
-  const el = document.getElementById("scsvg"); if(el) el.classList.add("playing");
-  const T0 = performance.now(), end = t + 2.2;
+  for(const id of order){ const b = D.built.find(x => x.id === id); if(!b) continue; const sp = b.kind === "ped" ? 55 : b.kind === "bike" ? 95 : 130;
+    sched[id] = { t0: t, sp }; marks.push(t); const clear = b.kind === "ped" ? b.len - b.s0 : Math.min(b.len - b.s0, 175); t += clear / sp * 0.85 + 0.15; }
+  const end = t + 2.2; marks.push(end);
+  return { sched, marks, end, t: 0, playing: false, stopAt: null, last: 0 };
+}
+function scApply(D){
+  const A = D.anim; if(!A) return;
+  for(const b of D.built){ const s = A.sched[b.id]; if(s){ const dt = Math.max(0, A.t - s.t0), ramp = Math.min(dt, 0.6); b.s = Math.min(b.len, b.s0 + s.sp * (dt - ramp + ramp * ramp / 1.2)); } else b.s = b.s0;
+    const g = document.getElementById("scv-" + b.id); if(!g) continue; const p = scAt(b, b.s);
+    g.setAttribute("transform", `translate(${p.x.toFixed(1)} ${p.y.toFixed(1)}) rotate(${p.a.toFixed(1)})`);
+    if(b.blinkFrom != null) g.querySelectorAll(".sc-blink").forEach(c => { c.style.display = b.s >= b.blinkFrom ? "" : "none"; }); }
+  const svg = document.getElementById("scsvg"); if(svg) svg.classList.toggle("playing", A.t > 0);
+  const r = document.getElementById("scrange"); if(r && document.activeElement !== r) r.value = Math.round(A.t / A.end * 1000);
+  const pb = document.getElementById("scpp"); if(pb){ pb.textContent = A.playing ? "⏸" : A.t >= A.end ? "↺" : "▶"; pb.setAttribute("aria-label", A.playing ? T("Pause", "Pause") : T("Spill av", "Play")); }
+}
+function scLoop(){
+  if(SC_RAF) return;
   const step = now => {
-    const tt = (now - T0) / 1000;
-    for(const b of built){ const s = sched[b.id]; if(!s) continue; const dt = Math.max(0, tt - s.t0), ramp = Math.min(dt, 0.6);
-      b.s = Math.min(b.len, b.s0 + s.sp * (dt - ramp + ramp * ramp / 1.2));
-      const g = document.getElementById("scv-" + b.id); if(g){ const p = scAt(b, b.s); g.setAttribute("transform", `translate(${p.x.toFixed(1)} ${p.y.toFixed(1)}) rotate(${p.a.toFixed(1)})`);
-        if(b.blinkFrom != null) g.querySelectorAll(".sc-blink").forEach(c => { c.style.display = b.s >= b.blinkFrom ? "" : "none"; }); } }
-    if(tt < end && document.getElementById("scsvg")) SC_RAF = requestAnimationFrame(step); else { SC_RAF = 0; D.playing = false; }
+    SC_RAF = 0; const D = DV && DV.sc, A = D && D.anim; if(!A || !A.playing) return;
+    if(!document.getElementById("scsvg")){ A.playing = false; return; }
+    A.t += Math.min(0.1, (now - (A.last || now)) / 1000); A.last = now;
+    const lim = A.stopAt != null ? A.stopAt : A.end;
+    if(A.t >= lim){ A.t = lim; A.playing = false; A.stopAt = null; }
+    scApply(D); if(A.playing) SC_RAF = requestAnimationFrame(step);
   };
   SC_RAF = requestAnimationFrame(step);
+}
+function scPlay(from0 = true){
+  const D = DV && DV.sc; if(!D) return;
+  if(!D.anim) D.anim = scSched(D);
+  const A = D.anim; if(from0 || A.t >= A.end) A.t = 0;
+  A.playing = true; A.stopAt = null; A.last = 0; scApply(D); scLoop();
+}
+function scPause(){ const A = DV && DV.sc && DV.sc.anim; if(A){ A.playing = false; scApply(DV.sc); } }
+function scStepTo(dir){
+  const D = DV.sc; if(!D.anim) D.anim = scSched(D); const A = D.anim, eps = 0.05;
+  if(dir > 0){ const nx = A.marks.find(m => m > A.t + eps); if(nx == null) return; A.stopAt = nx; A.playing = true; A.last = 0; scApply(D); scLoop(); }
+  else { A.playing = false; A.stopAt = null; const pv = [...A.marks].reverse().find(m => m < A.t - eps); A.t = pv == null ? 0 : pv; scApply(D); }
 }
 // ---------- øvingsrunde ----------
 const scData = code => { const d = dvData(code); return d.sc ||= {}; };
@@ -125,17 +150,22 @@ function scStart(){
   const list = shuffle(SCENES.slice()).sort((a, b) => score(a) - score(b)).slice(0, SC_N).map(s => ({ ...s, v: s.v.map(v => v.id === "you" && mc && !v.kind ? { ...v, kind: "mc" } : v) }));
   DV = { view: "scene", code, sc: { list, i: 0, ok: 0, res: [] } }; scLoad(); screen = "drive"; overlay = null; render(); window.scrollTo(0, 0);
 }
-function scLoad(){ const D = DV.sc, sc = D.list[D.i]; D.built = sc.v.map(v => scBuild(sc, v)); D.picks = []; D.reveal = false; D.pick = null; D.playing = false; }
+// Hver situasjon husker svaret ditt (D.states), så du kan bla fram og tilbake mellom dem.
+function scLoad(){ scStop(); const D = DV.sc, sc = D.list[D.i], st = (D.states ||= [])[D.i];
+  D.built = sc.v.map(v => scBuild(sc, v)); D.anim = null;
+  if(st){ D.picks = st.picks.slice(); D.reveal = st.reveal; D.pick = st.pick; D.order = st.order; }
+  else { D.picks = []; D.reveal = false; D.pick = null; D.order = null; }
+  if(D.reveal){ D.anim = scSched(D); D.anim.t = D.anim.end; scApply(D); } }
+function scSave(){ const D = DV.sc; (D.states ||= [])[D.i] = { picks: D.picks.slice(), reveal: D.reveal, pick: D.pick, order: D.order }; }
 function scCheck(){
   const D = DV.sc, sc = D.list[D.i];
   const ok = sc.type === "tap" ? sc.ans.includes(D.picks[0]) : sc.type === "choice" ? D.order[D.pick] === 0 : sc.ans.every((id, k) => D.picks[k] === id);
-  D.reveal = true; D.res[D.i] = ok; if(ok) D.ok++;
+  D.reveal = true; D.res[D.i] = ok; if(ok) D.ok++; scSave();
   const r = scData(DV.code)[sc.id] ||= [0, 0]; r[0]++; if(ok) r[1]++; save();
-  sfx(ok ? "ok" : "bad"); buzz(ok); render(); setTimeout(scPlay, 450);
+  sfx(ok ? "ok" : "bad"); buzz(ok); D.anim = scSched(D); render(); setTimeout(() => { if(DV && DV.sc === D && D.anim && !D.anim.t) scPlay(); }, 450);
 }
 const scRich = s => rich(s).replace(/\*\*(.+?)\*\*/g, "<b>$1</b>");
 function renderScene(){
-  scStop();
   const D = DV.sc, n = D.list.length, title = T("Trafikksituasjoner", "Traffic situations");
   if(D.i >= n){
     $app.innerHTML = `${dvTop(title, T("Øving", "Practice"))}<main class="wrap dv dv-done"><div class="dv-big">${D.ok}/${n}</div><h2>${esc(D.ok === n ? T("Alt riktig!", "All correct!") : D.ok >= n * 0.75 ? T("Sterkt!", "Strong!") : T("Godt øvd", "Good practice"))}</h2>
@@ -155,12 +185,17 @@ function renderScene(){
     <main class="wrap dv scn">
       <p class="dv-qt">${scRich(T(sc.q[0], sc.q[1]))}</p>
       <div class="sc-box">${scSVG(sc, D.built, D)}</div>
+      ${rev ? `<div class="sc-ctl"><button data-a="scstep" data-d="-1" aria-label="${esc(T("Steg tilbake", "Step back"))}">⏮</button><button id="scpp" class="pp" data-a="sctoggle" aria-label="${esc(T("Spill av", "Play"))}">▶</button><button data-a="scstep" data-d="1" aria-label="${esc(T("Neste steg", "Next step"))}">⏭</button><input type="range" id="scrange" min="0" max="1000" value="0" aria-label="${esc(T("Spol i avspillingen", "Scrub the playback"))}"></div>` : ""}
       ${how && !rev ? `<p class="sc-how">${esc(how)}</p>` : ""}
       ${!rev && D.picks.length && sc.type === "order" ? `<div class="sc-picks">${D.picks.map((id, k) => `<span>${k + 1}. ${esc(scVName(D.built.find(b => b.id === id)))}</span>`).join("")}<button class="exlink" data-a="screset">${esc(T("Nullstill", "Reset"))}</button></div>` : ""}
       ${opts}
       ${rev ? `<div class="dv-fb ${ok ? "ok" : "bad"}"><b>${esc(ok ? tgPick(T(["Riktig!", "Sånn ja!", "Helt riktig!"], ["Correct!", "Nice!", "Exactly right!"])) : T("Ikke helt", "Not quite"))}</b>${right ? `<p class="sc-right">${esc(T("Riktig: ", "Correct: "))}<b>${esc(right)}</b></p>` : ""}<p>${scRich(T(sc.e[0], sc.e[1]))}</p></div>
-        <div class="sc-btns"><button class="big ghost" data-a="screplay">▶ ${esc(T("Se igjen", "Watch again"))}</button><button class="big" data-a="scnext">${esc(D.i + 1 < n ? T("Neste", "Next") : T("Se resultatet", "See the result"))}</button></div>` : ""}
+` : ""}
+      <div class="sc-btns">${D.i > 0 ? `<button class="big ghost" data-a="scprev">← ${esc(T("Forrige", "Previous"))}</button>` : "<span></span>"}${rev ? `<button class="big" data-a="scnext">${esc(D.i + 1 < n ? T("Neste", "Next") + " →" : T("Se resultatet", "See the result"))}</button>` : D.states && D.states[D.i + 1] ? `<button class="big ghost" data-a="scnext">${esc(T("Neste", "Next"))} →</button>` : ""}</div>
     </main>`;
+  if(D.anim) scApply(D);
+  const rg = document.getElementById("scrange");
+  if(rg) rg.addEventListener("input", () => { const A = D.anim || (D.anim = scSched(D)); A.playing = false; A.stopAt = null; A.t = rg.value / 1000 * A.end; scApply(D); });
 }
 function scClick(a, b){
   if(!a.startsWith("sc")) return false;
@@ -173,8 +208,11 @@ function scClick(a, b){
     sfx("tap"); if(D.picks.length === sc.ans.length) scCheck(); else render(); return true; }
   if(a === "scans"){ if(D.reveal) return true; D.pick = +dd.i; scCheck(); return true; }
   if(a === "screset"){ D.picks = []; render(); return true; }
-  if(a === "screplay"){ render(); setTimeout(scPlay, 50); return true; }
-  if(a === "scnext"){ D.i++; D.order = null; if(D.i < D.list.length) scLoad(); else { const st = awardXP(3); S.stats ||= {}; S.stats.lessons = (+S.stats.lessons || 0) + 1; bdgToast(checkBadges()); save(); } render(); window.scrollTo(0, 0); return true; }
+  if(a === "sctoggle"){ const A = D.anim; if(A && A.playing) scPause(); else scPlay(!A || A.t >= A.end); return true; }
+  if(a === "scstep"){ scStepTo(+dd.d); return true; }
+  if(a === "screplay"){ scPlay(true); return true; }
+  if(a === "scprev"){ if(D.i > 0){ scSave(); D.i--; scLoad(); render(); window.scrollTo(0, 0); } return true; }
+  if(a === "scnext"){ scSave(); D.i++; if(D.i < D.list.length) scLoad(); else { scStop(); if(D.awarded) { render(); return true; } D.awarded = 1; const st = awardXP(3); S.stats ||= {}; S.stats.lessons = (+S.stats.lessons || 0) + 1; bdgToast(checkBadges()); save(); } render(); window.scrollTo(0, 0); return true; }
   if(a === "scagain"){ scStart(); return true; }
   return false;
 }
