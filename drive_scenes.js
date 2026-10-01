@@ -35,7 +35,7 @@ function scBuild(sc, v){
   if(v.path){ pts = scJoin(...v.path.slice(1).map((p, i) => scLine(v.path[i], p, 16))); stop = 0; }
   else { const r = scPathLocal(v, sc.lay); pts = r.pts.map(p => scRot(p, SC_ROT[v.from || "S"])); stop = r.stop; }
   const cum = [0]; for(let i = 1; i < pts.length; i++) cum.push(cum[i - 1] + Math.hypot(pts[i][0] - pts[i - 1][0], pts[i][1] - pts[i - 1][1]));
-  const kind = v.kind || "car", half = kind === "ped" ? 0 : kind === "bus" ? 34 : kind === "bike" || kind === "mc" ? 14 : 21;
+  const kind = v.kind || "car", half = kind === "ped" ? 0 : kind === "tram" ? 45 : kind === "bus" ? 34 : kind === "bike" || kind === "mc" ? 14 : 21;
   const s0 = v.s0 != null ? v.s0 : v.path ? 0 : Math.max(0, stop - half - 4 - (v.q || 0) * 52);
   return { ...v, kind, pts, cum, len: cum[cum.length - 1], s0, s: s0 };
 }
@@ -54,6 +54,7 @@ function scVehicle(b, you){
     case "bike": return `<rect x="-2" y="-14" width="4" height="28" rx="2" style="fill:#333"/><rect x="-7" y="-3" width="14" height="5" rx="2" style="fill:#555"/><circle r="6" cy="1" style="fill:${col};stroke:#fff;stroke-width:1.5"/>`;
     case "mc": return `<rect x="-5" y="-15" width="10" height="30" rx="5" style="fill:#2A2F35"/><rect x="-9" y="-9" width="18" height="4" rx="2" style="fill:#555"/><circle r="7" cy="2" style="fill:${col};stroke:#fff;stroke-width:2"/>${bk(6, 13)}`;
     case "bus": return `<rect x="-13" y="-36" width="26" height="72" rx="5" style="fill:#C8312A;stroke:#fff;stroke-width:1.5"/><rect x="-10" y="-32" width="20" height="8" rx="2" style="fill:#BFE3F5"/>${bk(12, 32)}`;
+    case "tram": return `<rect x="-12" y="-44" width="24" height="88" rx="6" style="fill:#2E8B57;stroke:#fff;stroke-width:1.5"/><rect x="-12" y="-6" width="24" height="12" style="fill:#F4F6F8"/><rect x="-9" y="-40" width="18" height="8" rx="2" style="fill:#BFE3F5"/><line x1="0" y1="-44" x2="0" y2="-52" style="stroke:#333;stroke-width:2"/>`;
     case "amb": return `<rect x="-11" y="-21" width="22" height="42" rx="6" style="fill:#F7F8FA;stroke:#333;stroke-width:1"/><rect x="-11" y="-2" width="22" height="5" style="fill:#D9483B"/><rect x="-8" y="-16" width="16" height="7" rx="2" style="fill:#9DC7E0"/><rect class="sc-siren" x="-7" y="-6" width="14" height="4" rx="2" style="fill:#2F6BFF"/>`;
     default: return `<rect x="-11" y="-21" width="22" height="42" rx="6" style="fill:${col};stroke:rgba(0,0,0,.35);stroke-width:1"/><rect x="-8" y="-15" width="16" height="8" rx="2" style="fill:rgba(220,240,255,.85)"/><rect x="-8" y="10" width="16" height="5" rx="2" style="fill:rgba(220,240,255,.6)"/>${blink}`;
   }
@@ -69,8 +70,9 @@ function scLayout(sc){
     g += sc.lay === "round" ? `<circle cx="160" cy="160" r="76" style="fill:${SC_ROAD}"/><circle cx="160" cy="160" r="30" style="fill:#8DBF7E;stroke:${SC_MARK};stroke-width:3"/>` : `<rect x="120" y="120" width="80" height="80" style="fill:${SC_ROAD}"/>`;
     if(sc.lay === "avk") g += `<rect x="150" y="196" width="50" height="130" style="fill:#7A8189"/><rect x="0" y="200" width="320" height="10" style="fill:#C9CCC4"/><rect x="0" y="110" width="320" height="10" style="fill:#C9CCC4"/>`;
   }
-  for(const a of sc.zebra || []) g += scArm(SC_ROT[a], Array.from({ length: 7 }, (_, i) => `<rect x="${124 + i * 11}" y="${a === "M" ? 0 : 214}" width="6" height="22" style="fill:${SC_MARK}"/>`).join(""));
+  for(const a of sc.zebra || []) g += scArm(SC_ROT[a], Array.from({ length: 7 }, (_, i) => `<rect x="${124 + i * 11}" y="${sc.zebraAt || 214}" width="6" height="22" style="fill:${SC_MARK}"/>`).join(""));
   if(sc.cross) g += Array.from({ length: 7 }, (_, i) => `<rect x="${124 + i * 11}" y="${sc.cross}" width="6" height="24" style="fill:${SC_MARK}"/>`).join("");
+  if(sc.rails) g += [174, 186].map(y => `<line x1="0" y1="${y}" x2="320" y2="${y}" style="stroke:#3A3F45;stroke-width:2"/>`).join(""); // skinner i feltet mot øst
   if(sc.bikelane) for(const k of [0, 2]) g += scArm(k, `<rect x="186" y="208" width="13" height="117" style="fill:#B9584E;opacity:.75"/><line x1="185" y1="208" x2="185" y2="325" style="stroke:${SC_MARK};stroke-width:1.5"/>`);
   if(sc.busstop) g += `<rect x="200" y="${sc.busstop}" width="22" height="80" style="fill:#7A8189"/><rect x="226" y="${sc.busstop + 30}" width="10" height="20" rx="2" style="fill:#3B6FB6"/><text x="231" y="${sc.busstop + 44}" text-anchor="middle" style="fill:#fff;font-size:11px;font-weight:800">B</text>`;
   for(const [a, name] of Object.entries(sc.signs || {})){
@@ -83,7 +85,7 @@ function scLayout(sc){
   }
   return g;
 }
-const scVName = (b, code) => b.id === "you" ? T("Deg", "You") : b.kind === "ped" ? T("Fotgjengeren", "The pedestrian") : b.kind === "bike" ? T("Syklisten", "The cyclist") : b.kind === "bus" ? T("Bussen", "The bus") : b.kind === "amb" ? T("Ambulansen", "The ambulance") : T(...(SC_NAME[b.col] || SC_NAME.red));
+const scVName = (b, code) => b.id === "you" ? T("Deg", "You") : b.kind === "tram" ? T("Trikken", "The tram") : b.kind === "ped" ? T("Fotgjengeren", "The pedestrian") : b.kind === "bike" ? T("Syklisten", "The cyclist") : b.kind === "bus" ? T("Bussen", "The bus") : b.kind === "amb" ? T("Ambulansen", "The ambulance") : T(...(SC_NAME[b.col] || SC_NAME.red));
 function scSVG(sc, built, st){
   const showPicks = st && !st.playing && sc.type !== "choice";
   let g = scLayout(sc);
@@ -103,8 +105,8 @@ function scStop(){ cancelAnimationFrame(SC_RAF); SC_RAF = 0; }
 function scSched(D){
   const sc = D.list[D.i], order = sc.play || sc.ans, sched = {}, marks = [0];
   let t = 0.25;
-  for(const id of order){ const b = D.built.find(x => x.id === id); if(!b) continue; const sp = b.kind === "ped" ? 55 : b.kind === "bike" ? 95 : 130;
-    sched[id] = { t0: t, sp }; marks.push(t); const clear = b.kind === "ped" ? b.len - b.s0 : Math.min(b.len - b.s0, 175); t += clear / sp * 0.85 + 0.15; }
+  for(const id of order){ const b = D.built.find(x => x.id === id); if(!b) continue; const sp = b.kind === "ped" ? 55 : b.kind === "bike" ? 95 : b.kind === "tram" ? 105 : 130;
+    sched[id] = { t0: t, sp }; marks.push(t); const clear = b.kind === "ped" ? b.len - b.s0 : Math.min(b.len - b.s0, b.kind === "tram" ? 240 : 175); t += clear / sp * 0.85 + 0.15; }
   const end = t + 2.2; marks.push(end);
   return { sched, marks, end, t: 0, playing: false, stopAt: null, last: 0 };
 }
@@ -295,4 +297,32 @@ const SCENES = [
     e: ["Kryssende trafikk på hovedvegen kjører før dere med vikeplikt. Den røde er nærmest og kjører først, og så kan du og den møtende kjøre.", "Crossing traffic on the main road goes before those with give-way signs. The red car goes first, then you and the oncoming car can go."],
     play: ["b", "you", "a"],
     v: [{ id: "you" }, { id: "a", from: "N", col: "yellow" }, { id: "b", from: "W", col: "red" }] },
+  { id: "stopp1", lay: "x", type: "order", ans: ["a", "you"], signs: { S: "stopp", N: "stopp" },
+    q: ["Du har stoppskilt. Den gule bilen kommer fra venstre. Hvem kjører først?", "You have a stop sign. The yellow car comes from the left. Who goes first?"],
+    e: ["Ved **stoppskilt** skal du stanse helt ved stopplinjen og deretter vike for all trafikk på vegen du kjører inn på, også fra venstre.", "At a **stop sign** you must stop completely at the stop line and then give way to all traffic on the road you enter, also from the left."],
+    v: [{ id: "you" }, { id: "a", from: "W", col: "yellow" }] },
+  { id: "sluttfork1", lay: "x", type: "order", ans: ["a", "you"], signs: { S: "slutt_forkjorsvei" },
+    q: ["Forkjørsvegen slutter før krysset, og det er ingen andre skilt. Den grønne bilen kommer fra høyre. Hvem kjører først?", "The priority road ends before the junction, and there are no other signs. The green car comes from the right. Who goes first?"],
+    e: ["Når forkjørsvegen slutter, gjelder **høyreregelen** igjen. Den grønne kommer fra høyre, så du må vike.", "When the priority road ends, the **right-hand rule** applies again. The green car comes from the right, so you must give way."],
+    v: [{ id: "you" }, { id: "a", from: "E", col: "green" }] },
+  { id: "trikk1", lay: "x", type: "order", ans: ["t", "you"], rails: 1,
+    q: ["En trikk kommer fra venstre i et kryss uten skilt. Hvem kjører først?", "A tram comes from the left at a junction without signs. Who goes first?"],
+    e: ["Kjørende har **vikeplikt for sporvogn**, også når den kommer fra venstre, med mindre skilt sier noe annet.", "Drivers must **give way to trams**, even from the left, unless signs say otherwise."],
+    v: [{ id: "you" }, { id: "t", from: "W", kind: "tram", dx: 0 }] },
+  { id: "rund3", lay: "round", type: "order", ans: ["p", "you"], zebra: ["E"], zebraAt: 240, signs: { S: "vikeplikt", N: "vikeplikt", E: "vikeplikt", W: "vikeplikt" },
+    q: ["Du skal ta første avkjøring ut av rundkjøringen. En fotgjenger er på veg over gangfeltet der du skal ut. Hvem går eller kjører først?", "You are taking the first exit from the roundabout. A pedestrian is crossing at the zebra where you exit. Who goes first?"],
+    e: ["Du har **vikeplikt for gående** som er ute i eller på veg ut i gangfeltet, også når du kjører ut av en rundkjøring. Se etter gående i god tid før avkjøringen.", "You must **give way to pedestrians** on or stepping onto the crossing, also when leaving a roundabout. Look for pedestrians well before the exit."],
+    v: [{ id: "you", turn: "right", blink: "R" }, { id: "p", kind: "ped", col: "purple", path: [[251, 100], [251, 222]] }] },
+  { id: "venstre2", lay: "x", type: "order", ans: ["you", "a"],
+    q: ["Du skal rett fram. En møtende bil blinker til venstre og vil svinge foran deg. Hvem kjører først?", "You are going straight. An oncoming car indicates left and wants to turn in front of you. Who goes first?"],
+    e: ["Den som **svinger til venstre**, har vikeplikt for møtende. Men vær klar til å bremse: mange ulykker skjer fordi den som svinger, ikke ser deg, særlig hvis du kjører motorsykkel.", "Whoever **turns left** gives way to oncoming traffic. But be ready to brake: many accidents happen because the turning driver does not see you, especially on a motorcycle."],
+    v: [{ id: "you" }, { id: "a", from: "N", col: "red", turn: "left", blink: "L" }] },
+  { id: "venstre3", lay: "x", type: "order", ans: ["a", "you"],
+    q: ["Du skal svinge til venstre. Den møtende bilen skal svinge til høyre inn i samme veg. Hvem kjører først?", "You are turning left. The oncoming car is turning right into the same road. Who goes first?"],
+    e: ["Som **venstresvingende** viker du for møtende trafikk, også for møtende som svinger til høyre inn i samme veg som deg.", "Turning **left**, you give way to oncoming traffic, including oncoming traffic turning right into the same road."],
+    v: [{ id: "you", turn: "left", blink: "L" }, { id: "a", from: "N", col: "orange", turn: "right", blink: "R" }] },
+  { id: "utkj1", lay: "road", type: "order", ans: ["a", "you"],
+    q: ["Du står parkert langs vegkanten og skal kjøre ut. En bil kommer bakfra. Hvem kjører først?", "You are parked at the roadside and want to pull out. A car is coming from behind. Who goes first?"],
+    e: ["Den som kjører ut fra **vegkanten eller en parkeringsplass**, har vikeplikt for all trafikk. Blinklyset gir deg ingen rett, så vent til bilen har passert.", "Whoever pulls out from the **roadside or a parking place** gives way to all traffic. Indicating gives you no right, so wait until the car has passed."],
+    v: [{ id: "you", blink: "L", path: [[193, 230], [192, 200], [184, 160], [180, 110], [180, -60]] }, { id: "a", col: "green", s0: 40 }] },
 ];
