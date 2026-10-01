@@ -4,6 +4,7 @@
 //  • Øving: 10 spørsmål med svar og forklaring med en gang (per kategori, blandet, feil eller skilt).
 //  • Teoriprøve: 45 spørsmål, 90 minutter, høyst 7 feil. Hopp fritt, marker spørsmål, lever, se resultat og alle svar.
 //  • Skilt: oversikt over skilt, lys og oppmerking.
+//  • Trafikksituasjoner: animerte kryss (drive_scenes.js).
 //  Statistikk per spørsmål i S.drive[kode].st («enhet:indeks» → [sett, riktige, sist riktig]); prøver i S.drive[kode].tests.
 //  En pågående prøve ligger i S.driveRun, så den overlever at appen lukkes.
 // ============================================================
@@ -117,6 +118,7 @@ function renderDrive(){
   if(v === "test") return dvRenderTest();
   if(v === "result") return dvRenderResult();
   if(v === "signs") return dvRenderSigns();
+  if(v === "scene") return renderScene();
   goHome();
 }
 function dvRenderPractice(){
@@ -195,6 +197,7 @@ function renderDriveHome(){
           <span>${esc(T("Teoriprøven: 45 spørsmål · 90 min · høyst 7 feil", "Theory test: 45 questions · 90 min · at most 7 mistakes"))}</span></div></div>
         <button class="big dv-start" data-a="dvtest">${esc(T("Ta en teoriprøve", "Take a theory test"))}</button>
       </section>
+      <button class="dv-scene-cta" data-a="scopen"><span class="dv-sc-ic" aria-hidden="true">🚦</span><span><b>${esc(T("Trafikksituasjoner", "Traffic situations"))}</b><small>${esc(T(`Animerte kryss: hvem kjører først? · ${Object.values(scData(code)).filter(r => r[1]).length}/${SCENES.length} klart`, `Animated junctions: who goes first? · ${Object.values(scData(code)).filter(r => r[1]).length}/${SCENES.length} solved`))}</small></span>${I.chevron}</button>
       <div class="dv-tiles">
         <button data-a="dvprac" data-k="mix"><span>🎯</span><b>${esc(T("Rask øving", "Quick practice"))}</b><small>${esc(T("10 blandede spørsmål", "10 mixed questions"))}</small></button>
         <button data-a="dvbook"><span>📖</span><b>${esc(T("Teori", "Theory"))}</b><small>${esc(T(`${c.units.length} kapitler`, `${c.units.length} chapters`))}</small></button>
@@ -213,6 +216,7 @@ function dvPracticeCardHTML(c){
   if(!isDrive(c)) return "";
   return `<div class="dv-prac"><button class="qt-row" data-a="dvtest"><span class="qt-ic">📝</span><span><b>${esc(T("Teoriprøve", "Theory test"))}</b><small>${esc(T("45 spørsmål · 90 min", "45 questions · 90 min"))}</small></span>${I.chevron}</button>
     <button class="qt-row" data-a="dvprac" data-k="mix"><span class="qt-ic">🎯</span><span><b>${esc(T("Rask øving", "Quick practice"))}</b><small>${esc(T("10 blandede spørsmål med forklaring", "10 mixed questions with explanations"))}</small></span>${I.chevron}</button>
+    <button class="qt-row" data-a="scopen"><span class="qt-ic">🚗</span><span><b>${esc(T("Trafikksituasjoner", "Traffic situations"))}</b><small>${esc(T("Animerte kryss: hvem kjører først?", "Animated junctions: who goes first?"))}</small></span>${I.chevron}</button>
     <button class="qt-row" data-a="dvsigns"><span class="qt-ic">🚦</span><span><b>${esc(T("Skilt", "Signs"))}</b><small>${esc(T("Oversikt og skiltquiz", "Overview and sign quiz"))}</small></span>${I.chevron}</button></div>`;
 }
 function dvClick(a, b){
