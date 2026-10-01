@@ -1938,3 +1938,36 @@ textarea.fbtext{width:100%;font:13px/1.4 var(--mono,monospace);border-radius:12p
 .sc-right{margin:4px 0}
 @media (prefers-reduced-motion: reduce){.sc-blink,.sc-siren{animation:none}}
 .sc-svg.playing .sc-badge{opacity:0;transition:opacity .3s}
+/* kodelaben (code.js) */
+.cd-task{background:var(--card);border:2px solid var(--line);border-radius:14px;padding:12px 14px;margin:10px 0;font-size:15.5px}
+.cd-task p{margin:0}.cd-in{margin-top:6px!important;color:var(--muted);font-size:14px}
+.cd-edw{display:flex;border-radius:14px;overflow:hidden;border:2px solid var(--line);background:#14191F;margin-top:10px}
+.cd-gut{margin:0;padding:12px 6px 12px 8px;min-width:30px;text-align:right;color:#5C6873;background:#0F1318;font:13.5px/1.55 var(--mono);overflow:hidden;user-select:none;white-space:pre}
+.cd-ed{flex:1;min-height:210px;max-height:60vh;resize:vertical;border:0;outline:0;padding:12px 10px;background:transparent;color:#E6ECEF;font:13.5px/1.55 var(--mono);tab-size:4;white-space:pre;overflow:auto;caret-color:#7FB2FF}
+.cd-keys{display:flex;gap:6px;overflow-x:auto;padding:8px 0 2px;scrollbar-width:none}
+.cd-keys button{flex:none;min-width:40px;height:34px;border-radius:9px;border:2px solid var(--line);border-bottom-width:3px;background:var(--card);color:var(--ink);font:600 15px var(--mono)}
+.cd-bar{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}.cd-bar .big{margin:0}.cd-bar .cd-run:only-child{grid-column:1/-1}
+.cd-check{background:var(--ok)!important;box-shadow:0 4px 0 var(--ok-deep)!important}
+.cd-row2{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:8px 0}
+.cd-stat{font-size:13px;color:var(--muted)}.cd-stat.ok::before{content:"● ";color:var(--ok)}
+.cd-out{margin:8px 0}
+.cd-con{margin:0;background:#0F1318;color:#D7E3EA;border-radius:12px;padding:12px;font:13.5px/1.5 var(--mono);white-space:pre-wrap;word-break:break-word;min-height:46px;max-height:320px;overflow:auto}
+.cd-empty,.cd-dim{color:#6E7C88}
+.cd-err{margin-top:8px;border-radius:12px;padding:10px 12px;background:var(--bad-soft);color:var(--ink);border:2px solid var(--bad)}
+.cd-err pre{margin:0;font:13px/1.45 var(--mono);white-space:pre-wrap;color:var(--bad-deep)}.cd-err p{margin:6px 0 0;font-size:14px}
+.cd-plot{margin-top:8px;background:var(--card);border:2px solid var(--line);border-radius:12px;padding:6px}
+.cd-plot svg{display:block;width:100%;height:auto}.cd-plot small{display:block;text-align:center;color:var(--muted);font-size:12px}
+.cd-gl{stroke:var(--line);stroke-width:1}.cd-ax{stroke:var(--muted);stroke-width:1.2}.cd-tk{fill:var(--muted);font-size:10px;font-family:var(--mono)}.cd-ti{fill:var(--ink);font-size:13px;font-weight:700}
+.cd-leg{display:flex;gap:12px;justify-content:center;font-size:12.5px;flex-wrap:wrap}.cd-leg i{display:inline-block;width:14px;height:4px;border-radius:2px;margin-right:5px;vertical-align:middle}
+.cd-verdict .big{margin-top:10px}
+.cd-more{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}
+.cd-hint,.cd-sol{background:var(--card);border:2px dashed var(--line);border-radius:12px;padding:10px 12px;margin-bottom:10px}.cd-sol pre{margin:0 0 6px}
+.cd-help{margin:8px 0}.cd-help textarea{width:100%;font:13.5px var(--mono);border-radius:10px;border:2px solid var(--line);background:var(--card);color:var(--ink);padding:8px}
+.cd-steps{display:flex;gap:6px;overflow-x:auto;padding-top:8px;padding-bottom:2px}
+.cd-steps button{flex:none;width:34px;height:34px;border-radius:50%;border:2px solid var(--line);background:var(--card);font-weight:800;color:var(--muted)}
+.cd-steps button.cur{border-color:var(--accent);color:var(--accent)}.cd-steps button.done{background:var(--ok);border-color:var(--ok);color:#fff}
+.cd-sum{display:flex;align-items:center;gap:8px;margin:6px 0 12px;font-size:14px;color:var(--muted)}.cd-sum b{color:var(--ink)}.cd-sum .dv-bar{flex:1}
+.cd-tasks{display:grid;gap:6px}
+.cd-trow{display:flex;align-items:center;gap:10px;width:100%;text-align:left;padding:10px 12px;border-radius:12px;border:2px solid var(--line);background:var(--card);color:var(--ink);font:inherit}
+.cd-trow span{flex:1;font-weight:700}.cd-trow i{font-style:normal;width:26px;height:26px;border-radius:50%;display:grid;place-items:center;background:var(--accent-soft);color:var(--accent);font-weight:800;font-size:13px}
+.cd-trow.done i{background:var(--ok);color:#fff}

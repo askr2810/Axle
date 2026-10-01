@@ -6,7 +6,7 @@
 //  Ord på norsk eller engelsk etter språket; begge forstås når adressen leses.
 // ============================================================
 const RT = { practice: ["ov", "practice"], book: ["teori", "theory"], friends: ["venner", "friends"], profile: ["profil", "profile"], badges: ["merker", "badges"],
-  settings: ["innstillinger", "settings"], community: ["fellesskap", "community"], pick: ["fag", "courses"], groups: ["grupper", "groups"], theory: ["les", "read"], guided: ["steg", "steps"], topic: ["emne", "topic"], proofs: ["bevis", "proofs"], snacks: ["snacks", "snacks"], sprint: ["lynrunde", "sprint"], match: ["parjakt", "match"], truefalse: ["santusant", "truefalse"], duel: ["duell", "duel"], mydecks: ["kort", "cards"], local: ["lynduell", "sameduel"], sheet: ["formler", "formulas"], person: ["person", "person"], admin: ["admin", "admin"], trig: ["enhetssirkel", "unitcircle"], forces: ["krefter", "forces"], lab: ["lab", "lab"], messages: ["meldinger", "messages"] };
+  settings: ["innstillinger", "settings"], community: ["fellesskap", "community"], pick: ["fag", "courses"], groups: ["grupper", "groups"], theory: ["les", "read"], guided: ["steg", "steps"], topic: ["emne", "topic"], proofs: ["bevis", "proofs"], snacks: ["snacks", "snacks"], sprint: ["lynrunde", "sprint"], match: ["parjakt", "match"], truefalse: ["santusant", "truefalse"], duel: ["duell", "duel"], mydecks: ["kort", "cards"], local: ["lynduell", "sameduel"], sheet: ["formler", "formulas"], person: ["person", "person"], admin: ["admin", "admin"], trig: ["enhetssirkel", "unitcircle"], forces: ["krefter", "forces"], lab: ["lab", "lab"], messages: ["meldinger", "messages"], code: ["kode", "code"] };
 const rtW = k => RT[k][LANG === "en" ? 1 : 0];
 const rtKey = w => Object.keys(RT).find(k => RT[k].includes(String(w || "").toLowerCase()));
 const rtCourse = code => COURSES.some(c => c.code === code) ? code : null;
@@ -33,6 +33,7 @@ function routeOf(){
     case "trig": return rtW("trig") + "/" + tgSlug();
     case "forces": return rtW("forces") + "/" + fcSlug();
     case "lab": return LB.sim ? rtW("lab") + "/" + LB.sim : rtW("lab");
+    case "code": return cdRoute();
     case "duel": { const c = DU && DU.view !== "end" && (DU.code || (DU.joinCode && DU.joinCode.length === 5 ? DU.joinCode : "")); return c ? rtW("duel") + "/" + c : rtW("duel"); }
     case "guided": return GD ? (GD.proof ? [rtW("proofs"), GD.proof, GD.i + 1].join("/") : [rtW("guided"), GD.code, GD.u + 1, GD.i + 1].join("/")) : null; // steg for steg, med kortnummer
     default: return null;
@@ -79,6 +80,7 @@ function routeBoot(){
   if(k === "duel"){ DU = null; DU_PENDING = p[1] ? String(p[1]).toUpperCase() : null; screen = "duel"; return true; }
   if(k === "trig"){ tgRouteOpen(p[1]); screen = "trig"; return true; }
   if(k === "forces"){ fcRouteOpen(p[1]); screen = "forces"; return true; }
+  if(k === "code"){ cdRouteOpen(p); screen = "code"; return true; }
   if(k === "lab"){ LB.sim = p[1] && SIMS[p[1]] ? p[1] : null; LB.from = "book"; screen = "lab"; return true; }
   if(k === "local"){ LO = null; screen = "local"; return true; }
   if(k === "mydecks"){ MD = { view: "list" }; MD_PENDING = p[1] === "del" && p[2] ? p[2] : null; screen = "mydecks"; return true; }

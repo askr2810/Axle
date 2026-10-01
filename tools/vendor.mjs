@@ -21,3 +21,16 @@ for (const [family, pkg, weights] of wanted) {
 }
 fs.writeFileSync(path.join(ROOT, "vendor", "fonts.css"), css);
 console.log(`  skrifter: ${n} filer kopiert til vendor/fonts`);
+
+// Python (Pyodide) til kodeoppgavene: kopieres til vendor/pyodide og lastes først når noen åpner en kodeoppgave.
+{
+  const src = path.join(ROOT, "node_modules", "pyodide"), dst = path.join(ROOT, "vendor", "pyodide");
+  if (!fs.existsSync(src)) console.warn("  (mangler pyodide – kjør npm install; kodeoppgavene virker ikke uten)");
+  else {
+    fs.mkdirSync(dst, { recursive: true }); let k = 0;
+    for (const f of ["pyodide.mjs", "pyodide.asm.mjs", "pyodide.asm.wasm", "python_stdlib.zip", "pyodide-lock.json"]) {
+      if (fs.existsSync(path.join(src, f))) { fs.copyFileSync(path.join(src, f), path.join(dst, f)); k++; }
+    }
+    console.log(`  python: ${k} filer kopiert til vendor/pyodide`);
+  }
+}
