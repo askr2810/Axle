@@ -451,7 +451,7 @@ function renderProofs(){
   const n = PROOFS.filter(p => pfDone(p.id)).length;
   $app.innerHTML = `<div class="top"><div class="wrap"><button class="iconbtn" data-a="pfback" aria-label="${esc(t("back"))}">${I.left}</button>
       <div class="th-t"><small>${esc(t("pfKicker"))}</small><b>${esc(t("pfTitle"))}</b></div><span class="pf-count">${n}/${PROOFS.length}</span></div></div>
-    <main class="wrap pf-list"><p class="pf-intro">${esc(t("pfIntro"))}</p>${LABS.map(labCardHTML).join("")}
+    <main class="wrap pf-list"><p class="pf-intro">${esc(t("pfIntro"))}</p>${LABS.filter(l => hasFeature(l.id)).map(labCardHTML).join("")}
       <div class="pf-bar"><i style="width:${(n / PROOFS.length * 100).toFixed(0)}%"></i></div>${PROOFS.map(pfCardHTML).join("")}</main>`;
 }
 function pfClick(a, b){

@@ -220,7 +220,7 @@ const DR_INT = [0, 1, 3, 7, 16, 35, 70]; // dager til neste gang for boks 1–6
 const drState = () => (S.drill ||= {});
 const drCard = id => DRILL.find(c => c[0] === id);
 const drDeckOf = tag => Object.keys(DR_DECKS).find(k => DR_DECKS[k].tags.has(tag));
-const drStudyDecks = () => Object.keys(DR_DECKS).filter(k => DR_DECKS[k].study === (typeof curStudy === "function" ? curStudy() : "ing"));
+const drStudyDecks = () => Object.keys(DR_DECKS).filter(k => (typeof myStudies === "function" ? myStudies() : ["ing"]).includes(DR_DECKS[k].study));
 // "all" = alle kortene i studiet ditt; ellers én stokk.
 function drPool(topic){
   if(topic === "all"){ const tags = new Set(drStudyDecks().flatMap(k => [...DR_DECKS[k].tags])); return DRILL.filter(c => tags.has(c[1])); } // en tagg kan være med i stokker fra flere studier

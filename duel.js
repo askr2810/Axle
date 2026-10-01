@@ -331,7 +331,7 @@ function duChallenge(id, name){ duOpen(); DU.inviteId = id; DU.inviteName = name
 // ---------- temavelger (duell og lynduell) ----------
 const topicBtnHTML = (sc, who) => `<button class="du-topic" data-a="dutopics" data-w="${who}"><span class="du-tic">🎯</span><span><b>${esc(duScopeLabel(sc))}</b><small>${esc(t("duTopicChange"))}</small></span>${I.chevron}</button>`;
 function topicPickHTML(o){
-  const cur = duScopeParse(o.who === "lo" ? S.loScope : DU && DU.scope).key, list = studyCourses(curStudy()).filter(c => c.units.some(u => u.qs.length || (u.gen || []).length));
+  const cur = duScopeParse(o.who === "lo" ? S.loScope : DU && DU.scope).key, list = myCourses().filter(c => c.units.some(u => u.qs.length || (u.gen || []).length));
   const favs = list.filter(c => isFav(c.code) || c.code === S.current), rest = list.filter(c => !favs.includes(c));
   const opt = (v, label, sub, cls = "") => `<button class="tp-opt ${cls} ${cur === v ? "on" : ""}" data-a="dutopicset" data-s="${esc(v)}"><span><b>${esc(label)}</b>${sub ? `<small>${esc(sub)}</small>` : ""}</span>${cur === v ? I.check : ""}</button>`;
   const course = c => { const open = o.open === c.code;

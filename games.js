@@ -154,7 +154,7 @@ function layMigrate(){
   delete S.homePins; delete S.homeHide;
 }
 // Enhetssirkel-øvingen passer bare for studier med matte.
-const gmList = () => GAMES.filter(g => g[0] !== "tg" || ["ing", "vgs", "oko"].includes(curStudy()));
+const gmList = () => GAMES.filter(g => (g[0] !== "tg" || hasFeature("trig")) && (g[0] !== "lab" || hasFeature("lab")));
 const pinsOf = place => { layMigrate(); return (S.pins[place] || []).filter(id => gmList().some(g => g[0] === id)); };
 function gamesSectionHTML(place){
   const pins = GAMES.filter(g => pinsOf(place).includes(g[0]));
@@ -167,7 +167,7 @@ const LAYOUT = {
   practice: [["dc", "laySec_dc", () => dcCardHTML()], ["games", "laySec_games", () => gamesSectionHTML("practice")], ["drill", "laySec_drill", () => drCardHTML()],
     ["today", "laySec_today", x => todayCardHTML(x.c, x.today, x.goal, x.week)], ["community", "laySec_community", () => ccCardPracticeHTML()],
     ["review", "laySec_review", x => x.wrongN ? `<button class="qt-row rev" data-a="review"><span class="qt-ic">${I.redo}</span><span><b>${esc(t("reviewBtn", x.wrongN))}</b><small>${esc(t("prRevSub"))}</small></span>${I.chevron}</button>` : `<p class="prac-empty">${esc(t("prRevNone"))}</p>`],
-    ["exams", "laySec_exams", x => (examHomeActions(x.c) ? `<div class="actions">${examHomeActions(x.c)}</div>` : "") + examHomeSection(x.c)]]
+    ["exams", "laySec_exams", x => isDrive(x.c) ? "" : (examHomeActions(x.c) ? `<div class="actions">${examHomeActions(x.c)}</div>` : "") + examHomeSection(x.c)]]
 };
 function layOrder(place){
   layMigrate(); const ids = LAYOUT[place].map(s => s[0]), saved = ((S.layout || {})[place] || []).filter(id => ids.includes(id));

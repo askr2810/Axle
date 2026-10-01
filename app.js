@@ -174,6 +174,7 @@ function buzz(ok){
 
 // ---------- hjem ----------
 function renderHome(){
+  if(isDrive(COURSE(S.current))) return renderDriveHome(); // førerkort har sitt eget oppsett (drive.js)
   duCheckInvites();
   const c = COURSE(S.current), st = streakNow(), today = S.daily[dayKey()]||0, goal = S.goal||10;
   const wrongN = sub(c.code).wrong.length;
@@ -261,7 +262,8 @@ function renderSettings(){
     <div class="sgroup"><button class="srow set-av" data-a="avedit">${hasMeAv() ? meAvHTML(48) : `<span class="set-av0">${I.users}</span>`}<span class="lbl">${t(hasMeAv() ? "avEdit" : "avMake")}<span class="sub">${t("avSetSub")}</span></span>${I.chevron}</button></div>
     <h3 class="sg-h">${esc(t("sgLearning"))}</h3>
     <div class="sgroup">
-      <button class="srow" data-a="studyopen"><span class="lbl">${esc(t("stSetting"))}<span class="sub">${esc(STUDY(S.study).ic + " " + studyName(STUDY(S.study)))}</span></span>${I.chevron}</button>
+      <button class="srow" data-a="studyopen"><span class="lbl">${esc(t("stSetting"))}<span class="sub">${esc(myStudies().map(id => STUDY(id).ic + " " + studyName(STUDY(id))).join(" · "))}</span></span>${I.chevron}</button>
+      <div class="srow"><span class="lbl">${esc(T("Vis alt i appen", "Show everything"))}<span class="sub">${esc(T("Enhetssirkel, laber, bevis og alle fag – også det som ikke hører til studiene dine", "Unit circle, labs, proofs and all courses – also outside your studies"))}</span></span><button class="tog ${S.showAll?"on":""}" data-a="studyshowall" role="switch" aria-checked="${!!S.showAll}" aria-label="${esc(T("Vis alt i appen", "Show everything"))}"></button></div>
       <div class="srow"><span class="lbl">${t("setGoal")}<span class="sub">${t("setGoalUnit")}</span></span><div class="seg">${goalOpts.map(g=>`<button class="${(S.goal||10)===g?"on":""}" data-a="setgoal" data-g="${g}">${g}</button>`).join("")}</div></div>
       <button class="srow" data-a="dcsrcopen"><span class="lbl">${t("dcSrcSet")}<span class="sub">${esc(dcSrcLabel())}</span></span>${I.chevron}</button>
       <button class="srow" data-a="homecustom"><span class="lbl">${esc(t("layTitle"))}<span class="sub">${esc(t("laySetSub"))}</span></span>${I.chevron}</button>
@@ -891,6 +893,7 @@ function renderOverlay(){
   else if(overlay.drpick) d.innerHTML = drPickHTML();
   else if(overlay.mdpub) d.innerHTML = mdPubHTML(overlay.mdpub);
   else if(overlay.share) d.innerHTML = shareHTML(overlay.share);
+  else if(overlay.dvsubmit != null){ d.className = "scrim center"; d.innerHTML = dvSubmitHTML(overlay.dvsubmit); }
   else if(overlay.newchat) d.innerHTML = ibNewChatHTML(overlay.newchat);
   else if(overlay.chatmenu) d.innerHTML = ibChatMenuHTML(overlay.chatmenu);
   else if(overlay.layout) d.innerHTML = layoutEditHTML(overlay.layout);
@@ -1019,6 +1022,7 @@ function render(){
   else if(screen==="guided") renderGuided();
   else if(screen==="proofs") renderProofs();
   else if(screen==="trig") renderTrig();
+  else if(screen==="drive") renderDrive();
   else if(screen==="forces") renderForces();
   else if(screen==="lab") renderLab();
   else if(screen==="snacks") renderSnacks();
@@ -1077,7 +1081,7 @@ document.addEventListener("click", async e=>{
   if(grClick(a, b)) return; // grupper (handlinger som starter med "gr")
   if(studyClick(a, b)) return; // studier (studies.js)
   if(pfClick(a, b)) return; // bevis (proofs.js)
-  if(snEntryClick(a) || snClick(a, b) || spClick(a, b) || gmClick(a, b) || gmMenuClick(a, b) || duClick(a, b) || mdClick(a, b) || unitsClick(a, b) || tgClick(a, b) || fcClick(a, b) || labClick(a, b) || shareClick(a, b) || ibClick(a, b)) return; // snacks og lynrunde (snacks.js)
+  if(snEntryClick(a) || snClick(a, b) || spClick(a, b) || gmClick(a, b) || gmMenuClick(a, b) || duClick(a, b) || mdClick(a, b) || unitsClick(a, b) || tgClick(a, b) || fcClick(a, b) || labClick(a, b) || shareClick(a, b) || ibClick(a, b) || dvClick(a, b)) return; // snacks og lynrunde (snacks.js)
   if(adminClick(a, b)) return; // adminpanel og kunngjøringer (admin.js)
   if(psClick(a, b)) return; // profilsiden til andre + hvilke merker du viser (person.js)
   if(friendsClick(a, b)) return; // venner (handlinger som starter med "fr")

@@ -39,9 +39,9 @@ function labListHTML(){
   if(q){ const r = labSearch(q); if(!r.labs.length && !r.sims.length) return `<p class="bk-empty">${esc(T("Ingen treff. Prøv et annet ord, for eksempel «kraft», «sinus» eller «strøm».", "No hits. Try another word, for example \"force\", \"sine\" or \"current\"."))}</p>`;
     return r.labs.map(labCardHTML).join("") + r.sims.map(labSimRow).join(""); }
   const groups = {}; labSims().forEach(s => (groups[s.grp] ||= []).push(s));
-  const mine = new Set(studyCourses(curStudy()).map(c => c.group || courseName(c)));
+  const mine = new Set(myCourses().map(c => c.group || courseName(c)));
   const order = Object.keys(groups).sort((a, b) => (mine.has(b) - mine.has(a)) || a.localeCompare(b, "nb"));
-  return `<h4 class="grp">${esc(T("Store laber", "Big labs"))}</h4>${LABS.map(labCardHTML).join("")}
+  return `<h4 class="grp">${esc(T("Store laber", "Big labs"))}</h4>${LABS.filter(l => hasFeature(l.id)).map(labCardHTML).join("")}
     <h4 class="grp">${esc(T(`Prøv selv (${labSims().length})`, `Try it yourself (${labSims().length})`))}</h4>
     ${order.map(g => `<details class="lab-grp ${mine.has(g) ? "mine" : ""}"><summary><b>${esc(g)}</b><span>${groups[g].length}</span></summary>${groups[g].map(labSimRow).join("")}</details>`).join("")}`;
 }

@@ -10,7 +10,7 @@ const SN_BATCH = 10;
 
 // Fag i studiet ditt, vektet: gjeldende fag ×4, favoritter ×2.
 function snCourses(){
-  const list = studyCourses(curStudy()).filter(c => c.units.some(u => u.qs.length || (u.gen || []).length)), out = [];
+  const list = myCourses().filter(c => c.units.some(u => u.qs.length || (u.gen || []).length)), out = [];
   for(const c of list){ const w = c.code === S.current ? 4 : isFav(c.code) ? 2 : 1; for(let i = 0; i < w; i++) out.push(c); }
   return out.length ? out : [COURSE(S.current)];
 }

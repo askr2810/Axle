@@ -37,7 +37,7 @@ function dcSources(){
   const src = S.dcSrc || "auto";
   let list = src === "favs" ? favList() : src === "pick" ? (S.dcPick || []).filter(srcValid) : [];
   if(!list.length){
-    list = COURSES.filter(c => c.code === S.current || (courseProgress(c).d > 0 && inStudy(c, curStudy()))).map(c => c.code); // fag i studiet ditt som er startet
+    list = COURSES.filter(c => c.code === S.current || (courseProgress(c).d > 0 && inMyStudies(c))).map(c => c.code); // fag i studiet ditt som er startet
     if(!list.length) list = [S.current];
   }
   return list;
