@@ -342,6 +342,8 @@ Keep **at least 3 seconds** behind the vehicle in front in good conditions, more
 
 U("FKB", "Plassering, feltskifte og forbikjøring", "Positioning, changing lanes and overtaking",
 `## Plassering
+
+![pic:plassering]
 - Hold deg til **høyre** i kjørebanen, men ikke så langt ut at du er til fare for myke trafikanter.
 - Planlegg plasseringen før kryss: høyre felt for å svinge til høyre, lengst til venstre i kjøreretningen for å svinge til venstre.
 - Gi tegn med **blinklys i god tid** før du skifter felt, svinger eller kjører ut fra kanten.
@@ -350,6 +352,8 @@ U("FKB", "Plassering, feltskifte og forbikjøring", "Positioning, changing lanes
 Se i speilene **og over skulderen** (blindsonen) før du skifter felt. Den som skifter felt, skal vike for trafikken i feltet.
 
 ## Forbikjøring
+
+![pic:forbikjoring]
 - Kjør forbi på **venstre** side. Du kan kjøre forbi på høyre side når den du kjører forbi, skal svinge til venstre og har plassert seg for det.
 - Forbikjøring er forbudt der sikten er for kort, for eksempel før bakketopper og i uoversiktlige kurver, og der skilt eller sperrelinje forbyr det.
 - Du skal ikke kjøre forbi et kjøretøy som har stanset for å slippe fotgjengere over gangfeltet.
@@ -361,6 +365,8 @@ Se i speilene **og over skulderen** (blindsonen) før du skifter felt. Den som s
 - På veg med trafikk i begge retninger skal du parkere på **høyre** side. Du skal ikke stanse i gangfelt eller nærmere enn **5 meter** foran det.
 - På motorveg er det forbudt å snu og rygge.`,
 `## Positioning
+
+![pic:plassering]
 - Keep to the **right** of the carriageway, but not so far out that you endanger vulnerable road users.
 - Plan your position before junctions: the right lane to turn right, furthest left in your direction to turn left.
 - **Signal in good time** before changing lanes, turning or pulling out from the kerb.
@@ -369,6 +375,8 @@ Se i speilene **og over skulderen** (blindsonen) før du skifter felt. Den som s
 Check your mirrors **and over your shoulder** (the blind spot) before changing lanes. The one changing lanes must give way to traffic in that lane.
 
 ## Overtaking
+
+![pic:forbikjoring]
 - Overtake on the **left**. You may overtake on the right when the vehicle you pass is turning left and has positioned itself for it.
 - Overtaking is forbidden where visibility is too short, for example before hilltops and on blind bends, and where signs or a solid line forbid it.
 - Do not overtake a vehicle that has stopped to let pedestrians cross at a pedestrian crossing.
@@ -510,6 +518,8 @@ U("FKB", "Lys, signaler og trafikklys", "Lights, signals and traffic lights",
 
 U("FKB", "Myke trafikanter og samspill", "Vulnerable road users and interaction",
 `## Myke trafikanter
+
+![pic:myke]
 Fotgjengere, syklister, mopedister og motorsyklister har lite beskyttelse. Du har ansvar for å kjøre slik at de ikke kommer i fare.
 - **Barn** er uforutsigbare, ser dårlig trafikk og kan løpe ut plutselig. Senk farten ved skoler, lekeplasser og busser.
 - **Eldre** kan gå sakte og ha dårlig syn eller hørsel.
@@ -524,6 +534,8 @@ Fotgjengere, syklister, mopedister og motorsyklister har lite beskyttelse. Du ha
 - Tunge kjøretøy har store blindsoner og trenger plass i svinger.
 - Ta øyekontakt, men stol ikke på at andre har sett deg.`,
 `## Vulnerable road users
+
+![pic:myke]
 Pedestrians, cyclists, moped riders and motorcyclists have little protection. You are responsible for driving so that they are not put in danger.
 - **Children** are unpredictable, judge traffic poorly and may run out suddenly. Slow down near schools, playgrounds and buses.
 - **Older people** may walk slowly and have poor sight or hearing.
@@ -656,6 +668,8 @@ Tiredness slows your reactions and can make you fall asleep. Stop, take a break 
 
 U("FKB", "Kjøretøyet, last og tilhenger", "The vehicle, load and trailer",
 `## Dekk og bremser
+
+![pic:dekk]
 - Mønsterdybden skal være minst **1,6 mm** om sommeren og minst **3 mm** i vinterperioden (personbil).
 - Kontroller dekktrykket jevnlig. For lavt trykk gir dårligere veggrep og høyere forbruk.
 - Røde varsellamper betyr at du må stanse og finne feilen.
@@ -671,6 +685,8 @@ U("FKB", "Kjøretøyet, last og tilhenger", "The vehicle, load and trailer",
 - Med klasse B kan du trekke en tilhenger med tillatt totalvekt **inntil 750 kg**, eller en tyngre henger når bil og henger til sammen er **høyst 3500 kg**. Med kode 96 kan vogntoget være inntil 4250 kg.
 - Bilen skal jevnlig til **EU-kontroll** (periodisk kontroll).`,
 `## Tyres and brakes
+
+![pic:dekk]
 - Tread depth must be at least **1.6 mm** in summer and at least **3 mm** in the winter period (passenger car).
 - Check tyre pressure regularly. Too low pressure gives worse grip and higher consumption.
 - Red warning lights mean you must stop and find the fault.
@@ -739,6 +755,8 @@ U("FKB", "Vinter, mørke og vanskelige forhold", "Winter, darkness and difficult
 - Blir du blendet av møtende, se mot **høyre vegkant** og senk farten.
 
 ## Glatt føre
+
+![pic:skrens]
 - Is kan være ekstra glatt på **bruer**, i skygge og der det er rim. Nullføre (rundt 0 °C) er ekstra glatt.
 - Rengjør alle ruter, lys og taket for snø og is før du kjører.
 - Med **ABS**: trå bremsen hardt ned og hold den inne; du kan fortsatt styre.
@@ -753,6 +771,8 @@ U("FKB", "Vinter, mørke og vanskelige forhold", "Winter, darkness and difficult
 - If dazzled by oncoming traffic, look towards the **right edge of the road** and slow down.
 
 ## Slippery roads
+
+![pic:skrens]
 - Ice can be extra slippery on **bridges**, in shade and where there is frost. Around 0 °C is especially slippery.
 - Clear all windows, lights and the roof of snow and ice before driving.
 - With **ABS**: press the brake hard and keep it pressed; you can still steer.
@@ -884,6 +904,8 @@ Fill in an **accident report** together, and move the cars if they block traffic
 
 U("FKB", "Miljø og økonomisk kjøring", "Environment and eco-driving",
 `## Kjør smart
+
+![pic:forbruk]
 - Hold **jevn fart** og se langt fram, så slipper du unødig bremsing og akselerasjon.
 - Gir **tidlig opp** (manuelt gir) og bruk motorbremsen.
 - Unngå **tomgang**: den forurenser og bruker drivstoff uten å gi nytte.
@@ -891,6 +913,8 @@ U("FKB", "Miljø og økonomisk kjøring", "Environment and eco-driving",
 - En elbil kan lade litt tilbake når den bremser med motoren (regenerering).
 - Planlegg turen, kombiner ærender, og vurder å gå, sykle eller ta kollektivt.`,
 `## Drive smart
+
+![pic:forbruk]
 - Keep a **steady speed** and look far ahead, so you avoid needless braking and acceleration.
 - **Change up early** (manual gearbox) and use engine braking.
 - Avoid **idling**: it pollutes and uses fuel without doing anything useful.
@@ -922,6 +946,8 @@ U("FKB", "Miljø og økonomisk kjøring", "Environment and eco-driving",
 
 U("FKB", "Førerkort, prøvetid og regler", "Licence, probation and rules",
 `## Veien til førerkort
+
+![pic:lopet]
 - Du må ha gjennomført **trafikalt grunnkurs** før du kan øvelseskjøre.
 - **Øvelseskjøring** med bil er lov fra **16 år**. Ledsageren må være minst **25 år** og ha hatt førerkort for bil sammenhengende i **5 år**. Bilen skal ha **L-skilt**.
 - Opplæringen har obligatoriske kurs, blant annet **sikkerhetskurs på bane** (glattkjøring) og **sikkerhetskurs på veg**.
@@ -935,6 +961,8 @@ U("FKB", "Førerkort, prøvetid og regler", "Licence, probation and rules",
 - Får du **8 prikker i løpet av 3 år**, mister du førerretten i 6 måneder.
 - Ha med gyldig førerkort når du kjører.`,
 `## The road to a licence
+
+![pic:lopet]
 - You must complete the **basic traffic course** before practice driving.
 - **Practice driving** a car is allowed from age **16**. The accompanying person must be at least **25** and have held a car licence continuously for **5 years**. The car must have an **L plate**.
 - The training includes mandatory courses, such as a **safety course on a track** (skid training) and a **safety course on the road**.
@@ -989,6 +1017,8 @@ U("FKB", "Førerkort, prøvetid og regler", "Licence, probation and rules",
 // ===================== MOTORSYKKEL (A1, A2, A) =====================
 U("FKMC", "MC-klasser, alder og utstyr", "Motorcycle classes, age and gear",
 `## Klassene
+
+![pic:mcklasser]
 - **A1** fra **16 år**: lett motorsykkel, høyst 125 cm³ og 11 kW.
 - **A2** fra **18 år**: motorsykkel med høyst 35 kW.
 - **A** fra **24 år**, eller fra **20 år** hvis du har hatt A2 i 2 år: tung motorsykkel.
@@ -1001,6 +1031,8 @@ U("FKMC", "MC-klasser, alder og utstyr", "Motorcycle classes, age and gear",
 ## Opplæring
 Som for bil: trafikalt grunnkurs, øvelseskjøring, obligatoriske kurs og teoriprøve med 45 spørsmål (høyst 7 feil).`,
 `## The classes
+
+![pic:mcklasser]
 - **A1** from **16**: light motorcycle, at most 125 cc and 11 kW.
 - **A2** from **18**: motorcycle of at most 35 kW.
 - **A** from **24**, or from **20** if you have held A2 for 2 years: heavy motorcycle.
@@ -1047,7 +1079,7 @@ U("FKMC", "Kjøreteknikk og balanse", "Riding technique and balance",
 `## Motstyring
 Over gangfart styrer du motorsykkelen ved å **presse styret i den retningen du vil svinge**: press på høyre styrehalvdel, så legger sykkelen seg til høyre og svinger til høyre.
 
-![fig:fk_motstyring]
+![pic:motstyring]
 
 ## Blikkteknikk
 Se **dit du vil kjøre**, langt fram og gjennom svingen. Du havner der du ser.
@@ -1061,7 +1093,7 @@ Bruk clutchens slirepunkt, litt gass og **bakbremsen** for å holde balansen i s
 `## Countersteering
 Above walking speed you steer the motorcycle by **pushing the handlebar in the direction you want to turn**: push the right grip, and the bike leans right and turns right.
 
-![fig:fk_motstyring]
+![pic:motstyring]
 
 ## Looking technique
 Look **where you want to go**, far ahead and through the bend. You end up where you look.
@@ -1101,6 +1133,8 @@ Use the clutch friction point, a little throttle and the **rear brake** to keep 
 
 U("FKMC", "Bremsing og stopplengde", "Braking and stopping distance",
 `## Forbrems og bakbrems
+
+![pic:mcbrems]
 - Når du bremser, flyttes vekten framover. Derfor gir **forbremsen mest bremsekraft**, ofte rundt **70 %**.
 - Bruk **begge bremsene** samtidig for kortest mulig bremselengde.
 - Med **ABS** kan du bremse fullt uten at hjulene låser seg.
@@ -1111,6 +1145,8 @@ Bremser du hardt i en sving, vil sykkelen reise seg og gå rett fram. **Rett opp
 ## Stopplengde
 Som for bil: stopplengde = reaksjonslengde + bremselengde. Dobbel fart gir omtrent fire ganger så lang bremselengde.`,
 `## Front and rear brake
+
+![pic:mcbrems]
 - When you brake, weight shifts forward. So the **front brake gives most braking force**, often around **70%**.
 - Use **both brakes** together for the shortest braking distance.
 - With **ABS** you can brake fully without the wheels locking.
@@ -1149,6 +1185,8 @@ Like for cars: stopping distance = reaction distance + braking distance. Double 
 
 U("FKMC", "Kurver og plassering", "Bends and positioning",
 `## Plassering for sikt
+
+![pic:kurvelinje]
 Plasser deg i feltet slik at du **ser mest mulig** og **blir sett**:
 - **Venstresving:** hold deg mot høyre del av feltet før svingen for bedre sikt.
 - **Høyresving:** hold deg mer mot midten av feltet (aldri over midtlinjen).
@@ -1160,6 +1198,8 @@ Hold avstand til midtlinjen i venstresvinger. Kroppen og hjelmen stikker ut over
 ## Kolonnekjøring
 Kjør **forskjøvet** i kolonne, med god avstand til sykkelen rett foran.`,
 `## Positioning for visibility
+
+![pic:kurvelinje]
 Position yourself in the lane so that you **see as much as possible** and **are seen**:
 - **Left-hand bend:** keep to the right part of the lane before the bend for a better view.
 - **Right-hand bend:** keep more towards the middle of the lane (never over the centre line).
@@ -1195,6 +1235,8 @@ Ride **staggered** in a group, with good distance to the bike directly in front.
 
 U("FKMC", "Synlighet og samspill", "Visibility and interaction",
 `## Bli sett
+
+![pic:blindsone]
 En av de vanligste MC-ulykkene er at en bil **svinger til venstre foran motorsykkelen** fordi bilføreren ikke så den eller bedømte farten feil.
 - Motorsykkelen er smal og lett å overse. Bruk lys, synlige klær og en god plassering.
 - Vær klar til å bremse når biler venter på å svinge eller kjøre ut.
@@ -1204,6 +1246,8 @@ En av de vanligste MC-ulykkene er at en bil **svinger til venstre foran motorsyk
 - Hold god avstand og vær forutsigbar.
 - Unngå blindsonene til biler og lastebiler.`,
 `## Be seen
+
+![pic:blindsone]
 One of the most common motorcycle accidents is a car **turning left in front of the motorcycle** because the driver did not see it or misjudged its speed.
 - The motorcycle is narrow and easy to overlook. Use lights, visible clothing and good positioning.
 - Be ready to brake when cars are waiting to turn or pull out.

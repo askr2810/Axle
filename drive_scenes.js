@@ -50,7 +50,7 @@ function scVehicle(b, you){
   const bl = (x, y) => `<circle class="sc-blink" cx="${x}" cy="${y}" r="3.2" style="fill:#FFB400${b.blinkFrom != null && b.s < b.blinkFrom ? ";display:none" : ""}"/>`;
   const bk = (dx, dy) => b.blink === "L" ? bl(-dx, -dy) + bl(-dx, dy) : b.blink === "R" ? bl(dx, -dy) + bl(dx, dy) : "", blink = bk(8, 17);
   switch(b.kind){
-    case "ped": return `<circle r="9" style="fill:${col};stroke:#fff;stroke-width:2"/><circle r="4.5" cy="-1" style="fill:#F2C9A0"/>`;
+    case "ped": return `<ellipse rx="10" ry="6" style="fill:${col};stroke:#fff;stroke-width:2"/><ellipse cx="-6" cy="-4" rx="2.6" ry="3.4" style="fill:${col}"/><ellipse cx="6" cy="4" rx="2.6" ry="3.4" style="fill:${col}"/><circle r="5" cy="-0.5" style="fill:#F2C9A0;stroke:#9A6B44;stroke-width:1"/><path d="M-4.2 -2.4Q0 -6.5 4.2 -2.4" style="fill:#4A3426"/>`;
     case "bike": return `<rect x="-2" y="-14" width="4" height="28" rx="2" style="fill:#333"/><rect x="-7" y="-3" width="14" height="5" rx="2" style="fill:#555"/><circle r="6" cy="1" style="fill:${col};stroke:#fff;stroke-width:1.5"/>`;
     case "mc": return `<rect x="-5" y="-15" width="10" height="30" rx="5" style="fill:#2A2F35"/><rect x="-9" y="-9" width="18" height="4" rx="2" style="fill:#555"/><circle r="7" cy="2" style="fill:${col};stroke:#fff;stroke-width:2"/>${bk(6, 13)}`;
     case "bus": return `<rect x="-13" y="-36" width="26" height="72" rx="5" style="fill:#C8312A;stroke:#fff;stroke-width:1.5"/><rect x="-10" y="-32" width="20" height="8" rx="2" style="fill:#BFE3F5"/>${bk(12, 32)}`;
