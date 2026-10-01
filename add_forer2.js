@@ -73,6 +73,22 @@ DQ("FKB", 1, [
 ]);
 // ---------- BIL 2: Fart, avstand og stopplengde ----------
 DQ("FKB", 2, [
+ [null, "Du veier 75 kg og har på belte. Omtrent hvor tung blir kroppen i et krasj i 50 km/t?", ["Rundt 2 tonn, omtrent som en bil", "Rundt 150 kg", "Det samme som ellers, 75 kg", "Rundt 50 tonn"],
+  "Kroppen bremses over noen titalls centimeter. Det gir en kraft på omtrent 25 ganger kroppsvekten, rundt 1,8 tonn.",
+  "You weigh 75 kg and wear a belt. Roughly how heavy does your body get in a crash at 50 km/h?", ["About 2 tonnes, roughly a car", "About 150 kg", "The same as usual, 75 kg", "About 50 tonnes"],
+  "The body stops over a few tens of centimetres. That gives a force of about 25 times body weight, around 1.8 tonnes."],
+ [null, "Hva skjer med kreftene i et krasj når farten dobles?", ["De blir omtrent fire ganger så store", "De dobles", "De blir like store", "De halveres"],
+  "Bevegelsesenergien vokser med kvadratet av farten. Dobbel fart gir fire ganger så store krefter.",
+  "What happens to the forces in a crash when the speed doubles?", ["They become about four times as large", "They double", "They stay the same", "They halve"],
+  "Kinetic energy grows with the square of speed. Double the speed gives four times the force."],
+ [null, "Hvorfor er det livsfarlig å holde et barn på fanget i bil?", ["I et krasj tilsvarer barnet flere tonn, ingen klarer å holde igjen", "Barnet ser ikke ut", "Det er bare ulovlig, ikke farlig", "Barnet kan bli bilsykt"],
+  "Et barn på 20 kg i 50 km/t tilsvarer omtrent 2 tonn i et krasj. Barn skal alltid sikres i eget sete.",
+  "Why is it life-threatening to hold a child on your lap in a car?", ["In a crash the child equals several tonnes and nobody can hold on", "The child cannot see out", "It is only illegal, not dangerous", "The child may get carsick"],
+  "A 20 kg child at 50 km/h equals about 2 tonnes in a crash. Children must always be restrained in their own seat."],
+ [null, "Hvorfor blir kreftene mye større uten belte?", ["Kroppen stopper på noen få centimeter mot rattet eller ruta i stedet for over beltet og knusesonen", "Bilen kjører fortere uten belte", "Beltet gjør deg lettere", "Det blir de ikke"],
+  "Jo kortere strekning kroppen bremses på, desto større kraft. Uten belte blir strekningen kanskje en firedel så lang, og kraften fire ganger så stor.",
+  "Why are the forces much larger without a belt?", ["The body stops within a few centimetres against the wheel or windscreen instead of over the belt and crumple zone", "The car goes faster without a belt", "The belt makes you lighter", "They are not"],
+  "The shorter the distance the body stops over, the larger the force. Without a belt that distance may be a quarter as long, and the force four times as large."],
  ["tilhenger", "Hva er høyeste tillatte fart for personbil med tilhenger med bremser?", ["80 km/t", "60 km/t", "90 km/t", "100 km/t"],
   "Med bremset tilhenger er høyeste fart 80 km/t (60 km/t uten bremser), selv om skiltet viser mer.",
   "What is the maximum speed for a car with a braked trailer?", ["80 km/h", "60 km/h", "90 km/h", "100 km/h"],

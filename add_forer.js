@@ -675,7 +675,9 @@ U("FKB", "Kjøretøyet, last og tilhenger", "The vehicle, load and trailer",
 - Røde varsellamper betyr at du må stanse og finne feilen.
 
 ## Sikring
-- Alle skal bruke **bilbelte**. Føreren har ansvar for at passasjerer **under 15 år** er sikret.
+
+![pic:krasjvekt]
+- Alle skal bruke **bilbelte**. I et krasj presses kroppen fram med en kraft som tilsvarer flere tonn, og uten belte stopper du mot rattet eller ruta. Føreren har ansvar for at passasjerer **under 15 år** er sikret.
 - Barn **under 135 cm** skal sikres i godkjent barnesikringsutstyr.
 - Et **bakovervendt barnesete** skal aldri stå foran en aktiv kollisjonspute.
 - Bilen skal ha **varseltrekant** og **refleksvest** som kan nås fra førerplassen.
@@ -692,7 +694,9 @@ U("FKB", "Kjøretøyet, last og tilhenger", "The vehicle, load and trailer",
 - Red warning lights mean you must stop and find the fault.
 
 ## Restraints
-- Everyone must wear a **seat belt**. The driver is responsible for passengers **under 15** being restrained.
+
+![pic:krasjvekt]
+- Everyone must wear a **seat belt**. In a crash the body is thrown forward with a force equal to several tonnes, and without a belt you stop against the wheel or windscreen. The driver is responsible for passengers **under 15** being restrained.
 - Children **under 135 cm** must use an approved child restraint.
 - A **rear-facing child seat** must never be placed in front of an active airbag.
 - The car must carry a **warning triangle** and a **high-visibility vest** reachable from the driver's seat.

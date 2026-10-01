@@ -183,3 +183,41 @@ function fkSignName(name){ const s = FK_SIGN_INFO.find(x => x[0] === name); retu
       return { cap: T("Stopplengde på tørr asfalt: reaksjonslengde (blå) og bremselengde (rød).", "Stopping distance on dry asphalt: reaction distance (blue) and braking distance (red)."), svg: rows }; }
   });
 })();
+
+// ---------- Sammenligningsfigurer (krasjvekt): elefant, ku, bil og person, sett fra siden mot høyre ----------
+// fkBeast(kind, x, y, s): (x, y) er midt under føttene. Bredde ved s = 1: elefant 104, ku 92, bil 92, person 30.
+const FK_BEAST = {
+  elefant: { kg: 5000, w: 104, h: 68 }, ku: { kg: 600, w: 92, h: 58 }, bil: { kg: 1500, w: 92, h: 36 }, person: { kg: 75, w: 30, h: 60 } };
+function fkBeast(kind, x, y, s = 1){
+  const st = "stroke:rgba(0,0,0,.35);stroke-width:1;stroke-linejoin:round";
+  let g = "";
+  if(kind === "elefant"){
+    const c = "#8E969F", d = "#727A83";
+    g = `<path d="M10 -22h10v21.5h-10zM-26 -24h10v23.5h-10z" style="fill:${d}"/>`
+      + `<path d="M-38 -40C-38 -58 -20 -64 0 -62C14 -61 22 -60 26 -58C30 -68 46 -68 48 -54C50 -46 48 -40 46 -36C46 -24 50 -12 54 -6C56 -3 52 -1 50 -4C44 -14 40 -24 38 -32C36 -30 32 -30 30 -32L30 0L18 0L18 -20C10 -22 -10 -22 -18 -20L-18 0L-30 0L-30 -24C-34 -28 -38 -34 -38 -40Z" style="fill:${c};${st}"/>`
+      + `<path d="M22 -57C10 -57 5 -42 9 -31C13 -24 24 -27 28 -35C31 -43 29 -55 22 -57Z" style="fill:#7D858E;${st}"/>`
+      + `<path d="M40 -34C43 -28 49 -27 54 -31" style="fill:none;stroke:#F3EEDD;stroke-width:3.2;stroke-linecap:round"/>`
+      + `<circle cx="38" cy="-50" r="1.6" style="fill:#1B1F24"/><path d="M42 -44q3 1 4 4M44 -30q-2 2 0 4M45 -22q-2 2 0 4" style="fill:none;stroke:${d};stroke-width:.9"/>`
+      + `<path d="M-37 -44C-42 -38 -42 -30 -41 -23" style="fill:none;stroke:${d};stroke-width:1.6;stroke-linecap:round"/><path d="M-41 -25c-2.4 2 -2.4 5.5 -.6 7c1.8 -1.5 2.4 -5 .6 -7z" style="fill:#3A3F45"/>`
+      + `<path d="M19 -1.5h3M23 -1.5h3M-29 -1.5h3M-25 -1.5h3" style="stroke:#D9D4C6;stroke-width:1.4;stroke-linecap:round"/>`;
+  } else if(kind === "ku"){
+    const leg = (x0, col) => `<rect x="${x0}" y="-21" width="6" height="19" style="fill:${col}"/><rect x="${x0 - .3}" y="-3.5" width="6.6" height="3.5" rx="1" style="fill:#2A2D31"/>`;
+    g = leg(13, "#D9D9D9") + leg(-25, "#D9D9D9")
+      + `<path d="M-37 -44C-42 -36 -42 -28 -40 -21" style="fill:none;stroke:#BBB;stroke-width:1.6;stroke-linecap:round"/><path d="M-40 -23c-2.6 2 -2.6 6 -.6 7.5c2 -1.5 2.6 -5.5 .6 -7.5z" style="fill:#2A2D31"/>`
+      + `<path d="M-36 -42C-36 -49 -30 -50 -20 -49L20 -49C28 -49 30 -46 30 -40L30 -25C30 -20 26 -18 22 -18L-30 -18C-35 -18 -37 -22 -37 -28Z" style="fill:#FAFAF7;${st}"/>`
+      + `<path d="M-30 -46C-22 -48 -16 -44 -18 -38C-20 -33 -28 -32 -32 -35C-35 -38 -34 -44 -30 -46ZM-4 -36C2 -38 10 -35 10 -29C10 -24 2 -21 -4 -24C-8 -27 -8 -34 -4 -36ZM14 -48L22 -48C24 -44 22 -39 17 -39C13 -40 12 -45 14 -48Z" style="fill:#24272B"/>`
+      + `<ellipse cx="-14" cy="-17" rx="6" ry="3.6" style="fill:#F2A7B4"/>`
+      + leg(20, "#FAFAF7") + leg(-32, "#FAFAF7")
+      + `<path d="M26 -46L35 -52C41 -55 46 -51 46 -45L46 -36C46 -31 43 -28 39 -30L28 -38Z" style="fill:#FAFAF7;${st}"/><path d="M35 -52C40 -54 44 -51 44 -47L38 -43C35 -45 34 -49 35 -52Z" style="fill:#24272B"/>`
+      + `<ellipse cx="43.5" cy="-32" rx="4.6" ry="4" style="fill:#F2A7B4;${st}"/><circle cx="43" cy="-32.5" r=".9" style="fill:#7A3B47"/>`
+      + `<path d="M37 -53q1 -6 6 -7M33 -51q-4 -5 -2 -9" style="fill:none;stroke:#E6D9B8;stroke-width:2.2;stroke-linecap:round"/>`
+      + `<ellipse cx="30" cy="-49" rx="5" ry="2.4" transform="rotate(-20 30 -49)" style="fill:#EDEDE8;${st}"/><circle cx="40.5" cy="-44.5" r="2.1" style="fill:#FAFAF7"/><circle cx="40.8" cy="-44.5" r="1.3" style="fill:#1B1F24"/>`;
+  } else if(kind === "bil"){
+    g = `<path d="M-44 -12C-44 -18 -40 -20 -32 -21L-20 -22L-10 -32C-8 -34 -4 -35 0 -35L16 -35C20 -35 22 -34 24 -32L32 -23L40 -21C44 -20 46 -17 46 -12L46 -8C46 -6 44 -5 42 -5L-42 -5C-44 -5 -45 -7 -44 -12Z" style="fill:#2B59C3;${st}"/>`
+      + `<path d="M-16 -22L-8 -31L2 -31L2 -22ZM5 -31L16 -31C19 -31 20 -30 22 -28L28 -22L5 -22Z" style="fill:rgba(220,240,255,.9)"/>`
+      + `<path d="M3.5 -22V-8M-20 -15h4M10 -15h4" style="stroke:rgba(0,0,0,.35);stroke-width:1"/>`
+      + `<rect x="42" y="-17" width="4" height="3" rx="1" style="fill:#FFF3B0"/><rect x="-45" y="-18" width="3" height="4" rx="1" style="fill:#E0201B"/>`
+      + [-27, 29].map(cx => `<circle cx="${cx}" cy="-6" r="7" style="fill:#1F2328"/><circle cx="${cx}" cy="-6" r="3" style="fill:#AEB5BC"/>`).join("");
+  } else if(kind === "person") return fkHuman(x, y, s, "walk", {});
+  return `<g transform="translate(${x.toFixed(1)} ${y.toFixed(1)}) scale(${s.toFixed(3)})">${g}</g>`;
+}

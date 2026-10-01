@@ -68,6 +68,7 @@ for(const [k, name] of [["OBED:0", "breakeven"], ["OMAT:0", "breakeven"], ["OSAM
 
 // ---------- Førerkort: stopplengde, avstand, promille, kjørt i blinde og fart i sving ----------
 (() => {
+let dvkUid = 0;
 const FK_MU = [7, 5, 2.5, 1]; // retardasjon (m/s²): tørr asfalt, våt asfalt, snø, is
 const fkFore = k => [T("tørr asfalt", "dry tarmac"), T("våt asfalt", "wet tarmac"), T("snø", "snow"), T("is", "ice")][k - 1];
 // Bil sett ovenfra, front mot høyre, sentrert i (x, y)
@@ -133,6 +134,27 @@ Object.assign(SIMS, {
       s += fgT(306, 40, ok ? T("Bilen holder vegen", "The car holds the road") : T("Bilen sklir ut!", "The car slides off!"), ok ? "fg-t fg-okt" : "fg-t fg-redt", "end") + fgT(306, 60, T("maks", "max") + " " + smN(vmax, 0) + " km/t", "fg-s", "end");
       return { m: { vmax }, eq: [qt`v_{\max} = \sqrt{${qc(2, qn(a, 1))}\cdot ${qc(1, v.r)}} = ${qr(vmax / 3.6, 1)}\,\mathrm{m/s} = ${qr(vmax, 0)}\,\mathrm{km/t}`],
         out: [[T("høyeste fart", "max speed"), smN(vmax, 0) + " km/t"], [T("din fart", "your speed"), v.v + " km/t"], [T("føre", "surface"), fkFore(v.f)]], svg: s }; } },
+  dvkrasj: { t: ["Hvor tung blir du i et krasj?", "How heavy do you get in a crash?"],
+    p: [["v", ["fart", "speed"], 10, 110, 10, 30, "km/t", 1], ["m", ["kroppsvekt", "body weight"], 10, 120, 5, 75, "kg", 2], ["b", ["1 med belte, 2 uten belte", "1 with belt, 2 without belt"], 1, 2, 1, 1, "", 3]],
+    q: ["Grov modell: med belte bremses kroppen over omtrent 40 cm (beltet og knusesonen), uten belte bare omtrent 10 cm mot rattet, dashbordet eller ruta. Tallene er et gjennomsnitt, toppene er enda høyere.", "Rough model: with a belt the body stops over about 40 cm (belt and crumple zone), without one only about 10 cm against the wheel, dashboard or windscreen. The numbers are an average, the peaks are even higher."],
+    g: [["Med belte og 75 kg: finn den laveste farten der kroppen veier mer enn en elefant (5 tonn).", "With a belt and 75 kg: find the lowest speed where your body weighs more than an elephant (5 tonnes).", v => v.m === 75 && v.b === 1 && v.v === 90],
+        ["Samme person uten belte: hvor lav fart skal til før du veier mer enn en elefant?", "Same person without a belt: how low a speed is enough to weigh more than an elephant?", v => v.m === 75 && v.b === 2 && v.v === 50],
+        ["Et barn på 20 kg sitter på fanget uten sikring i 50 km/t. Still det inn og se hva den voksne måtte holdt igjen.", "A 20 kg child sits on a lap without restraint at 50 km/h. Set it up and see what the adult would have to hold back.", v => v.m === 20 && v.b === 2 && v.v === 50]],
+    f: v => { const ms = v.v / 3.6, d = v.b === 1 ? 0.4 : 0.1, gf = ms * ms / (2 * d * 9.81), W = v.m * gf;
+      const kind = W >= 5000 ? "elefant" : W >= 1500 ? "bil" : W >= 600 ? "ku" : "person", B = typeof FK_BEAST !== "undefined" ? FK_BEAST[kind] : { kg: { elefant: 5000, bil: 1500, ku: 600, person: 75 }[kind], w: 90, h: 60 };
+      const n = W / B.kg, nd = Math.min(12, Math.max(1, Math.ceil(n - 1e-9))), rows = nd > 6 ? 2 : 1, cols = Math.ceil(nd / rows), sc = Math.min(1.6, 300 / (cols * B.w * 1.08), (rows === 2 ? 50 : 108) / B.h), gap = (300 - cols * B.w * sc) / (cols + 1);
+      const NM = { elefant: ["elefant", "elefanter", "elephant", "elephants"], bil: ["bil", "biler", "car", "cars"], ku: ["ku", "kyr", "cow", "cows"], person: ["voksen person", "voksne personer", "adult", "adults"] }[kind];
+      const nr = Math.round(n * 10) / 10, nm = nr === 1 ? T(NM[0], NM[2]) : T(NM[1], NM[3]);
+      const one = (x, op, by) => typeof fkBeast === "function" ? fkBeast(kind, x, by, sc) : `<rect x="${(x - B.w * sc / 2).toFixed(1)}" y="${(by - B.h * sc).toFixed(1)}" width="${(B.w * sc).toFixed(1)}" height="${(B.h * sc).toFixed(1)}" rx="6" style="fill:#8E969F;opacity:${op}"/>`;
+      let s = "";
+      for(let i = 0; i < nd; i++){ const r = rows === 2 && i >= cols ? 1 : 0, j = i - r * cols, by = rows === 2 ? (r ? 172 : 116) : 172, x0 = 10 + gap * (j + 1) + B.w * sc * j, cx = x0 + B.w * sc / 2 + (kind === "elefant" ? -2 * sc : 0), fr = Math.min(1, n - i);
+        if(fr >= 0.999 || n > 12) s += one(cx, 1, by);
+        else { const id = "dvk" + (++dvkUid); s += `<g style="opacity:.18">${one(cx, 1, by)}</g><clipPath id="${id}"><rect x="${(x0 - 4).toFixed(1)}" y="${by - 120}" width="${(B.w * sc * fr + 4).toFixed(1)}" height="124"/></clipPath><g clip-path="url(#${id})">${one(cx, 1, by)}</g>`; } }
+      const big = (x, y, txt, col, an) => `<text x="${x}" y="${y}" class="fg-big" text-anchor="${an}" style="font-size:22px;fill:var(${col})">${txt}</text>`;
+      s += fgT(10, 16, T("Du veier", "You weigh") + " " + v.m + " kg, " + T("i krasjet", "in the crash"), "fg-s", "start") + big(10, 42, (W >= 10000 ? smN(W / 1000, 1) + " " + T("tonn", "t") : smN(W, 0) + " kg"), "--bad", "start");
+      s += fgT(310, 16, T("like tungt som", "as heavy as"), "fg-s", "end") + big(310, 42, "≈ " + smN(nr, 1) + " " + nm, "--accent", "end");
+      return { m: { W, gf }, eq: [qt`W = \frac{${qc(2, v.m)}\cdot ${qc(1, qn(ms, 1))}^2}{2\cdot ${qc(3, qn(d, 1))}\cdot 9{,}81} = ${qr(W, 0)}\,\mathrm{kg}`],
+        out: [[T("ganger tyngre", "times heavier"), smN(gf, gf < 10 ? 1 : 0) + " ×"], [T("tilsvarer", "equals"), smN(W, 0) + " kg"], [T("belte", "belt"), v.b === 1 ? T("ja", "yes") : T("nei", "no")]], svg: s }; } },
 });
-Object.assign(SIM_MAP, { "FKB:2": ["dvstopp", "dvavstand"], "FKB:6": ["dvblind", "dvpromille"], "FKB:8": "dvsving", "FKMC:2": "dvstopp", "FKMC:3": "dvsving" });
+Object.assign(SIM_MAP, { "FKB:2": ["dvstopp", "dvavstand", "dvkrasj"], "FKB:7": "dvkrasj", "FKB:6": ["dvblind", "dvpromille"], "FKB:8": "dvsving", "FKMC:2": "dvstopp", "FKMC:3": "dvsving" });
 })();
