@@ -209,6 +209,7 @@ function renderDriveHome(){
       <div class="dv-catlist">${cats}</div>
       ${tests.length ? `<h3 class="grp">${esc(T("Dine siste prøver", "Your latest tests"))}</h3><div class="dv-tests">${tests.map((x, k) => `<button class="dv-trow ${x.pass ? "pass" : "fail"}" data-a="dvres" data-i="${d.tests.length - 1 - k}"><b>${x.ok}/${x.n}</b><span>${esc(x.pass ? T("Bestått", "Passed") : T("Ikke bestått", "Not passed"))}</span><small>${esc(frAgo(new Date(x.at).toISOString()))}</small>${I.chevron}</button>`).join("")}</div>` : ""}
       ${layoutHTML("home")}
+      <p class="dv-disc">${esc(T("Øvingsmateriale laget med omhu, men det kan inneholde feil. Følg alltid gjeldende trafikkregler, og sjekk Statens vegvesen ved tvil.", "Practice material made with care, but it may contain mistakes. Always follow the current traffic rules, and check official sources if in doubt."))} <button class="exlink" data-a="terms">${esc(T("Vilkår", "Terms"))}</button></p>
     </main>`;
 }
 // Øv-fanen: snarveier øverst når du holder på med førerkort.

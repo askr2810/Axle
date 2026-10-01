@@ -75,7 +75,7 @@ function studyPickHTML(first){
       return `<div class="st-row"><button class="st-btn ${on ? "on" : ""}" data-a="studytog" data-s="${s.id}" aria-pressed="${on}"><span class="st-ic" aria-hidden="true">${s.ic}</span>
       <span><b>${esc(studyName(s))}</b><small>${esc(T(s.sub[0], s.sub[1]))} · ${esc(t("stCourses", studyCourses(s.id).length))}</small></span><i class="st-check" aria-hidden="true">${on ? "✓" : ""}</i></button>
       ${on && mine.length > 1 ? `<button class="st-star ${main ? "on" : ""}" data-a="studyset" data-s="${s.id}" aria-label="${esc(T("Vis først", "Show first"))}" title="${esc(T("Vis først", "Show first"))}">${main ? "★" : "☆"}</button>` : ""}</div>`; }).join("")}
-    <p class="lp-note">${esc(t("stLater"))}</p><button class="big" data-a="studydone" ${fresh ? "disabled" : ""}>${esc(first ? T("Fortsett", "Continue") : T("Ferdig", "Done"))}</button></div>`;
+    <p class="lp-note">${esc(t("stLater"))}</p>${first ? `<p class="lp-note">${esc(T("Axle er et gratis øvingsverktøy og kan inneholde feil. Ved å bruke appen godtar du", "Axle is a free practice tool and may contain mistakes. By using the app you accept the"))} <button class="exlink" data-a="terms">${esc(T("vilkårene", "terms"))}</button>.</p>` : ""}<button class="big" data-a="studydone" ${fresh ? "disabled" : ""}>${esc(first ? T("Fortsett", "Continue") : T("Ferdig", "Done"))}</button></div>`;
 }
 function studyClick(a, b){
   if(!a.startsWith("study")) return false;

@@ -97,7 +97,7 @@ img{{max-width:100%}}
     open(os.path.join(out, "app.bundle.js"), "w", encoding="utf-8").write(js)
     # statiske filer
     import hashlib
-    for f in ["manifest.webmanifest", "sw.js", "privacy.html"]:
+    for f in ["manifest.webmanifest", "sw.js", "privacy.html", "terms.html"]:
         src = os.path.join(ROOT, "web", f)
         if os.path.exists(src):
             txt = open(src, encoding="utf-8").read().replace("__BUILD__", stamp)

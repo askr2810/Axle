@@ -218,7 +218,7 @@ ${body}
 </main>
 ${/data-lab=|iframe class="lab"/.test(body) ? LAB_JS : ''}
 <footer><p class="more">${COURSES.map(c => `<a href="${courseUrl(c)}">${esc(name(c))}</a>`).join(' ')}</p>
-<p>${X().about} <a href="/privacy.html">${X().privacy}</a> · <a href="mailto:${esc(CONFIG.contactEmail)}">${X().contact}</a></p></footer>
+<p>${X().about} <a href="/privacy.html">${X().privacy}</a> · <a href="/terms.html">${L === 'nb' ? 'Vilkår' : 'Terms'}</a> · <a href="mailto:${esc(CONFIG.contactEmail)}">${X().contact}</a></p></footer>
 </body>
 </html>
 `;

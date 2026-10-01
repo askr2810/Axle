@@ -1985,3 +1985,4 @@ textarea.fbtext{width:100%;font:13px/1.4 var(--mono,monospace);border-radius:12p
 .tppic>svg{display:block;width:100%;height:auto}
 .tppic figcaption{margin-top:8px;font-size:14px;color:#3A4651;text-align:center;line-height:1.45}
 .tsignbox{display:grid;place-items:center;height:56px}.tsignbox svg{width:50px;height:50px}.temo{font-size:34px;line-height:1}
+.dv-disc{margin:18px 4px 8px;font-size:12.5px;color:var(--muted);line-height:1.5;text-align:center}

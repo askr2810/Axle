@@ -304,6 +304,7 @@ function renderSettings(){
       ${CLOUD_ON && AUTH ? `<button class="srow" data-a="frblocks"><span class="lbl">${t("blockList")}<span class="sub">${t("blockListSub")}</span></span>${I.chevron}</button>` : ""}
       <a class="srow" href="mailto:${esc(CONFIG.contactEmail)}?subject=${encodeURIComponent("Axle: rapport om misbruk")}"><span class="lbl">${t("abuseContact")}<span class="sub">${esc(CONFIG.contactEmail)}</span></span>${I.chevron}</a>
       <button class="srow" data-a="privacy"><span class="lbl">${t("setPrivacy")}</span>${I.chevron}</button>
+      <button class="srow" data-a="terms"><span class="lbl">${esc(T("Vilkår for bruk", "Terms of use"))}<span class="sub">${esc(T("Gratis øvingsverktøy, kan inneholde feil", "Free practice tool, may contain mistakes"))}</span></span>${I.chevron}</button>
       ${claudeDb&&isOwner?`<button class="srow" data-a="inbox"><span class="lbl">${t("setInbox","…")}</span>${I.chevron}</button>`:""}
     </div>
     <div class="sgroup"><div class="stext"><p><b>${esc(T(CONFIG.appName.nb,CONFIG.appName.en))}</b></p><p>${esc(t("about",CONFIG.appVersion))}</p></div></div>
@@ -930,7 +931,7 @@ function renderOverlay(){
   else if(overlay.grnew || overlay.grjoin || overlay.grmenu || overlay.grfriends || overlay.grset || overlay.gropen) d.innerHTML = grOverlayHTML();
   else if(overlay.frmod) d.innerHTML = frModHTML(overlay.frmod);
   else if(overlay.frrep) d.innerHTML = frReportHTML(overlay.frrep);
-  else if("frblocks" in overlay) d.innerHTML = frBlocksHTML(overlay.frblocks);
+  else if(typeof overlay === "object" && "frblocks" in overlay) d.innerHTML = frBlocksHTML(overlay.frblocks);
   else if(overlay.dcsrc) d.innerHTML = dcSrcHTML();
   else if(overlay.ccimport) d.innerHTML = ccImportHTML();
   else if(overlay.stat) d.innerHTML = statSheetHTML(overlay.stat);
@@ -944,6 +945,7 @@ function renderOverlay(){
       <textarea id="bkin" placeholder="AXLE1:…" aria-label="${esc(t("bkLoad"))}"></textarea>
       <label class="big ghost bkpick">${t("bkPick")}<input type="file" id="bkfilein" accept=".txt,.json,text/plain,application/json" hidden></label>
       <button class="big" data-a="bkimport">${t("bkImport")}</button><button class="big ghost" data-a="closeov">${t("cancel")}</button></div>`;
+  else if(overlay==="terms") d.innerHTML = `<div class="dialog pop privacy" role="dialog" aria-label="${esc(T("Vilkår for bruk", "Terms of use"))}"><h3>${esc(T("Vilkår for bruk", "Terms of use"))}</h3><div id="termsbody">${TERMS_HTML[LANG] || `<p>${esc(T("Laster …", "Loading …"))}</p>`}</div><button class="big" data-a="closeov">${esc(T("Lukk", "Close"))}</button></div>`;
   else if(overlay==="privacy") d.innerHTML = `<div class="dialog pop privacy" role="dialog" aria-label="${t("privacyTitle")}"><h3>${t("privacyTitle")}</h3>${PRIVACY[LANG]}<button class="big" data-a="closeov">${t("cont")}</button></div>`;
   else if(overlay.exam) d.innerHTML = examOverlayHTML();
   else if(overlay.fbtext){ d.innerHTML = `<div class="dialog pop" role="dialog"><h3>${esc(t("admFbCopy"))}</h3><textarea class="fbtext" readonly rows="12">${esc(overlay.fbtext)}</textarea><button class="big" data-a="closeov">${t("cont")}</button></div>`; const ta = d.querySelector("textarea"); if(ta){ ta.focus(); ta.select(); } }
@@ -1013,6 +1015,16 @@ function applyTheme(){
 try{ matchMedia("(prefers-color-scheme: dark)").addEventListener("change", applyTheme); }catch(e){}
 // Skjermer i et eget rullbart panel (.sheet, f.eks. Innstillinger) tegnes på nytt ved hver endring.
 // Er det fortsatt samme skjerm, beholder vi rulleposisjonen så man ikke kastes til toppen.
+// Vilkårene ligger i terms.html (samme tekst på nettsiden og i appen); appen henter riktig språkdel.
+const TERMS_HTML = {};
+function termsLoad(){
+  if(TERMS_HTML[LANG]) return;
+  fetch("terms.html").then(r => r.text()).then(html => {
+    const doc = new DOMParser().parseFromString(html, "text/html");
+    for(const l of ["nb", "en"]){ const sec = doc.getElementById(l); if(sec){ sec.querySelector("h2")?.remove(); TERMS_HTML[l] = sec.innerHTML; } }
+    const el = document.getElementById("termsbody"); if(el && TERMS_HTML[LANG]) el.innerHTML = TERMS_HTML[LANG];
+  }).catch(() => { const el = document.getElementById("termsbody"); if(el) el.innerHTML = `<p><a href="https://axle.no/terms.html" target="_blank" rel="noopener">axle.no/terms.html</a></p>`; });
+}
 function render(){
   const pane = document.querySelector("#app .sheet"), keep = pane && render.last === screen ? pane.scrollTop : null;
   renderNow();
@@ -1133,6 +1145,7 @@ document.addEventListener("click", async e=>{
   else if(a==="check"){ checkAnswer(); }
   else if(a==="next"){ nextQuestion(); window.scrollTo(0,0); }
   else if(a==="quit"){ overlay="quit"; renderOverlay(); }
+  else if(a==="closeov" && overlay==="terms" && termsLoad.back){ overlay = termsLoad.back; termsLoad.back = null; renderOverlay(); } // tilbake til f.eks. studievalget
   else if(a==="stay" || a==="closeov"){ overlay=null; renderOverlay(); if(screen==="friends") render(); } // Venner kan ha lastet ferdig mens dialogen var åpen
   else if(a==="quitok"){ goHome(); }
   else if(a==="reset"){ overlay="reset"; renderOverlay(); }
@@ -1178,6 +1191,7 @@ document.addEventListener("click", async e=>{
   else if(a==="remask"){ S.remPromptAt = Date.now(); save(); await reminderToggle(); render(); }
   else if(a==="remasknot"){ S.remPromptAt = Date.now(); S.remPromptN = (+S.remPromptN || 0) + 1; if(S.remPromptN >= 2) S.remPromptOff = 1; save(); render(); }
   else if(a==="privacy"){ overlay="privacy"; renderOverlay(); }
+  else if(a==="terms"){ termsLoad.back = overlay && overlay !== "terms" ? overlay : null; overlay="terms"; renderOverlay(); termsLoad(); }
   else if(a==="feedback"){ openReport("feedback"); }
   else if(a==="inbox"){ let items=[]; try{ const snap = await claudeDb.collection("feedback").orderBy("time","desc").limit(100).get(); items = snap.docs.map(d=>d.data()); }catch(err){} overlay={inbox:true, items}; renderOverlay(); }
   // rapport
