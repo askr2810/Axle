@@ -35,6 +35,7 @@ function renderBookTopic(){
       ${hit.tp.pic && typeof DRIVE_PICS !== "undefined" && DRIVE_PICS[hit.tp.pic] ? (p => `<figure class="tppic">${p.svg}<figcaption>${esc(p.cap)}</figcaption></figure>`)(DRIVE_PICS[hit.tp.pic](LANG)) : ""}
       <p class="intro">${rich(x.intro)}</p>
       ${formulas}${legend}${ex}
+      ${hit.tp.sim && typeof SIMS !== "undefined" && SIMS[hit.tp.sim] ? simHTML(hit.tp.sim) : ""}
       ${x.tip ? `<div class="callout">${rich(x.tip)}</div>` : ""}
       <div class="tnavs">${nav(prev, "prev")}${nav(next, "next")}</div>
       ${theoryOf(c.code, hit.u) ? `<button class="big ghost" data-a="bkunit" data-c="${esc(c.code)}" data-u="${hit.u}">${esc(t("tpFull"))}</button>` : ""}

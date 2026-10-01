@@ -67,7 +67,7 @@ TOPICS("FKB", 1, [
 
 // ================= FKB – enhet 2: Fart, avstand og stopplengde =================
 TOPICS("FKB", 2, [
-{ id: "stopplengde", pic: "stopplengde",
+{ id: "stopplengde", pic: "stopplengde", sim: "dvstopp",
   nb: { t: "Stopplengde",
     intro: "Stopplengden er strekningen fra du oppdager en fare til bilen står stille. Den er summen av reaksjonslengden (mens du reagerer) og bremselengden (mens bilen bremser). Reaksjonslengden øker i takt med farten, mens bremselengden øker med kvadratet av farten. Derfor blir stopplengden mye lengre når farten øker litt.",
     f: [["s_{\\text{stopp}} = s_{\\text{reaksjon}} + s_{\\text{brems}}", "stopplengde"], ["s_{\\text{reaksjon}} = v \\cdot t_r", "reaksjonslengde med farten i m/s"], ["s_{\\text{brems}} = \\dfrac{v^2}{2a}", "bremselengde med retardasjonen a"]],
@@ -80,7 +80,7 @@ TOPICS("FKB", 2, [
     legend: [["v", "speed", "m/s"], ["t_r", "reaction time, often about 1 s", "s"], ["a", "deceleration, about 7 on dry tarmac", "m/s²"]],
     ex: "At 50 km/h, $v \\approx 13.9$ m/s.\nReaction distance with 1 s: $13.9$ m. Braking distance: $13.9^2/(2\\cdot 7) \\approx 13.8$ m.\nThe stopping distance is about 28 m.",
     tip: "Double the speed gives four times the braking distance. Divide km/h by 3.6 to get m/s." } },
-{ id: "avstand-tresekunder", pic: "avstand-tresekunder",
+{ id: "avstand-tresekunder", pic: "avstand-tresekunder", sim: "dvavstand",
   nb: { t: "Tresekundersregelen",
     intro: "Avstanden til bilen foran bør være minst tre sekunder under gode forhold. Velg et fast punkt, for eksempel et skilt. Når bilen foran passerer det, teller du sakte til tre. Kommer du fram til punktet før du er ferdig, ligger du for tett. På glatt føre, i mørke og i regn bør avstanden være mye større.",
     f: [["d = v \\cdot 3\\ \\text{s}", "tresekundersavstand i meter med farten i m/s"]],
@@ -93,7 +93,7 @@ TOPICS("FKB", 2, [
     legend: [["d", "distance to the car in front", "m"], ["v", "speed", "m/s"]],
     ex: "At 80 km/h, $v \\approx 22.2$ m/s.\nThree seconds gives $d \\approx 22.2 \\cdot 3 \\approx 67$ m.",
     tip: "A gap in seconds works at every speed. A gap in metres must grow with speed." } },
-{ id: "fartsgrenser", pic: "fartsgrenser",
+{ id: "fartsgrenser", pic: "fartsgrenser", sim: "dvsving",
   nb: { t: "Fartsgrensene",
     intro: "Den generelle fartsgrensen er 50 km/t i tettbygd strøk og 80 km/t utenfor. Skilt kan sette andre grenser, fra 30 km/t ved skoler til 110 km/t på enkelte motorveger. Med tilhenger uten bremser er grensen 60 km/t, med bremser 80 km/t. Du skal alltid tilpasse farten til forholdene, også under fartsgrensen.",
     f: [["v_{\\text{tettbygd}} = 50\\ \\tfrac{\\text{km}}{\\text{t}}, \\quad v_{\\text{ellers}} = 80\\ \\tfrac{\\text{km}}{\\text{t}}", "generelle fartsgrenser"], ["1\\ \\tfrac{\\text{m}}{\\text{s}} = 3{,}6\\ \\tfrac{\\text{km}}{\\text{t}}", "omregning"]],
@@ -108,7 +108,7 @@ TOPICS("FKB", 2, [
 
 // ================= FKB – enhet 6: Rus, trøtthet og oppmerksomhet =================
 TOPICS("FKB", 6, [
-{ id: "promille", pic: "promille",
+{ id: "promille", pic: "promille", sim: "dvpromille",
   nb: { t: "Promille og forbrenning",
     intro: "Promillegrensen for å kjøre bil i Norge er 0,2. Kroppen forbrenner omtrent 0,15 promille i timen, og ingenting får det til å gå fortere: verken kaffe, mat, søvn eller kald dusj. Har du drukket mye kvelden før, kan du fortsatt ha promille neste morgen.",
     f: [["t \\approx \\dfrac{\\text{promille}}{0{,}15}\\ \\text{timer}", "tid før alkoholen er ute av kroppen"], ["\\text{grense: } 0{,}2\\ \\text{‰}", "promillegrensen for bil"]],
@@ -132,7 +132,7 @@ TOPICS("FKB", 6, [
     legend: [["v", "speed", "m/s"], ["t", "time asleep", "s"]],
     ex: "You fall asleep for 3 seconds at 90 km/h ($v = 25$ m/s).\n$s = 25 \\cdot 3 = 75$ m without control of the car.",
     tip: "Take a break at least every two hours on long trips, and stop as soon as you notice the first signs." } },
-{ id: "mobil-blind", pic: "mobil-blind",
+{ id: "mobil-blind", pic: "mobil-blind", sim: "dvblind",
   nb: { t: "Blikket bort fra vegen",
     intro: "Håndholdt mobil er forbudt mens du kjører, og selv et kort blikk på en skjerm gjør at du kjører langt i blinde. Håndfri samtale er lov, men tar også oppmerksomhet. Still inn navigasjon og musikk før du kjører, og la meldinger vente til du står stille.",
     f: [["s = \\dfrac{v_{\\text{km/t}}}{3{,}6} \\cdot t", "strekning i blinde med farten i km/t"]],
