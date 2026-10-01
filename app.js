@@ -272,6 +272,7 @@ function renderSettings(){
     <div class="sgroup">
       <div class="srow"><span class="lbl">${t("setLang")}</span><div class="seg"><button class="${LANG==="nb"?"on":""}" data-a="setlang" data-l="nb">Norsk</button><button class="${LANG==="en"?"on":""}" data-a="setlang" data-l="en">English</button></div></div>
       <div class="srow"><span class="lbl">${t("setTheme")}</span><div class="seg">${["auto","light","dark"].map(k=>`<button class="${(S.theme||"auto")===k?"on":""}" data-a="settheme" data-m="${k}" aria-pressed="${(S.theme||"auto")===k}">${esc(t("theme_"+k))}</button>`).join("")}</div></div>
+      ${thSettingsHTML()}
       <div class="srow"><span class="lbl">${esc(t("setUnits"))}<span class="sub">${esc(t("setUnitsSub"))}</span></span><div class="seg">${[["si","SI"],["us","US"]].map(([k,l])=>`<button class="${(S.units||"si")===k?"on":""}" data-a="setunits" data-u="${k}" aria-pressed="${(S.units||"si")===k}">${l}</button>`).join("")}</div></div>
       <div class="srow"><span class="lbl">${esc(t("setDec"))}<span class="sub">${esc(t("setDecSub"))}</span></span><div class="seg">${[["auto",t("setDecAuto")],["comma","3,14"],["point","3.14"]].map(([k,l])=>`<button class="${(S.dec||"auto")===k?"on":""}" data-a="setdec" data-d="${k}" aria-pressed="${(S.dec||"auto")===k}">${esc(l)}</button>`).join("")}</div></div>
     </div>
@@ -1004,8 +1005,9 @@ function sinceUpdate(extra){
 function applyTheme(){
   const th = S.theme === "dark" || S.theme === "light" ? S.theme : null, de = document.documentElement;
   if(th) de.setAttribute("data-theme", th); else de.removeAttribute("data-theme");
+  thApply();
   const dark = th ? th === "dark" : !!(window.matchMedia && matchMedia("(prefers-color-scheme: dark)").matches);
-  document.querySelector('meta[name="theme-color"]')?.setAttribute("content", dark ? "#0F151B" : "#2B59C3");
+  document.querySelector('meta[name="theme-color"]')?.setAttribute("content", dark ? (TH_PAPERS.find(p => p[0] === (S.paper || "")) || TH_PAPERS[0])[4] : thAccent()[3][0]);
 }
 try{ matchMedia("(prefers-color-scheme: dark)").addEventListener("change", applyTheme); }catch(e){}
 function render(){
@@ -1081,7 +1083,7 @@ document.addEventListener("click", async e=>{
   if(grClick(a, b)) return; // grupper (handlinger som starter med "gr")
   if(studyClick(a, b)) return; // studier (studies.js)
   if(pfClick(a, b)) return; // bevis (proofs.js)
-  if(snEntryClick(a) || snClick(a, b) || spClick(a, b) || gmClick(a, b) || gmMenuClick(a, b) || duClick(a, b) || mdClick(a, b) || unitsClick(a, b) || tgClick(a, b) || fcClick(a, b) || labClick(a, b) || shareClick(a, b) || ibClick(a, b) || dvClick(a, b)) return; // snacks og lynrunde (snacks.js)
+  if(snEntryClick(a) || snClick(a, b) || spClick(a, b) || gmClick(a, b) || gmMenuClick(a, b) || duClick(a, b) || mdClick(a, b) || unitsClick(a, b) || tgClick(a, b) || fcClick(a, b) || labClick(a, b) || shareClick(a, b) || ibClick(a, b) || dvClick(a, b) || thClick(a, b)) return; // snacks og lynrunde (snacks.js)
   if(adminClick(a, b)) return; // adminpanel og kunngjøringer (admin.js)
   if(psClick(a, b)) return; // profilsiden til andre + hvilke merker du viser (person.js)
   if(friendsClick(a, b)) return; // venner (handlinger som starter med "fr")

@@ -1,6 +1,6 @@
 // ============================================================
 //  ENHETSSIRKELEN – interaktiv lab for trigonometri (1T, R2 og grunnkurset i matte).
-//  Sju stasjoner: Utforsk, Eksakte verdier, Radianer, Symmetri, Grafer, Likninger og Øv (runde med poeng).
+//  Sju stasjoner (Utforsk har også Eulers formel e^{iv}): Eksakte verdier, Radianer, Symmetri, Grafer, Likninger og Øv (runde med poeng).
 //  Punktet dras rett i figuren (pekerhendelser), og en glidebryter under gjør det samme (tastatur og skjermleser).
 //  Nås fra Bevis-siden, fra teorien i trigonometri-enhetene, fra spillmenyen og på #/enhetssirkel/<stasjon>.
 //  Framdrift: S.tgSeen (besøkte stasjoner), S.tgGoals (løste utfordringer), S.tgBest (rekord i Øv).
@@ -139,6 +139,7 @@ function tgExplore(){
   }
   if(TG.ref && q){ const r0 = q === 1 ? 0 : q === 4 ? 360 : 180; g += tgArc(44, r0, v, "var(--c5)", 3.5); const m = (r0 + v) / 2, [lx, ly] = tgP(m, 62); g += tgT(lx, ly, tgAngTxt(tgRefA(v)), "var(--c5)", "middle", 12); }
   g += tgArc(26, 0, v, "var(--c2)", 3); if(v > 8){ const [lx, ly] = tgP(v / 2, TG.ref ? 16 : 40); if(!TG.ref) g += tgT(lx, ly, tgAngTxt(v), "var(--c2)", "middle", 12); }
+  if(TG.eul) g += tgT(152, -14, "Re", "var(--muted)", "end", 12, 700) + tgT(-8, -146, "Im", "var(--muted)", "end", 12, 700) + `<text x="${tf1(px + (c >= 0 ? 14 : -14))}" y="${tf1(py + (s >= 0 ? -32 : 32))}" text-anchor="${c >= 0 ? "start" : "end"}" style="fill:var(--accent);font-size:14px;font-weight:800;font-style:italic">e<tspan dy="-6" style="font-size:10px">i${tgVt()}</tspan></text>`;
   g += tgProj(v) + tgHandle(px, py, "var(--accent)", !TG.touched) + tgT(px + (c >= 0 ? 14 : -14), py + (s >= 0 ? -14 : 14), "P", "var(--ink)", c >= 0 ? "start" : "end", 13);
   const tn = Math.abs(c) < 1e-9 ? null : s / c;
   const sgn = x => Math.abs(x) < 1e-9 ? "0" : x > 0 ? T("positiv", "positive") : T("negativ", "negative");
@@ -146,8 +147,17 @@ function tgExplore(){
   const read = `<div class="tg-vals">${tgValBox("var(--c2)", `${V} = ${tgDegTex(v)} = ${tgRadTex(v)}${tgRadParts(v) && v ? " \\approx " + mf(tgRad(v), 3) : ""}`)}
       ${tgValBox("var(--c3)", tgValTex(`\\cos ${V}`, ex && ex.c, c))}${tgValBox("var(--c1)", tgValTex(`\\sin ${V}`, ex && ex.s, s))}
       ${tn === null ? `<div class="tg-val" style="--k:var(--c4)">${tex(`\\tan ${V}`)} ${esc(T("er ikke definert (cos = 0)", "is undefined (cos = 0)"))}</div>` : tgValBox("var(--c4)", tgValTex(`\\tan ${V} = \\tfrac{\\sin ${V}}{\\cos ${V}}`, ex && ex.t, tn))}</div>
-    <p class="tg-where">${where}</p><p class="tg-id">${tex(`\\sin^2 ${V} + \\cos^2 ${V} = ${mf(s * s, 3)} + ${mf(c * c, 3)} = 1`)}</p>`;
+    ${TG.eul ? tgEulerHTML(v, c, s, ex, V) : ""}<p class="tg-where">${where}</p><p class="tg-id">${tex(`\\sin^2 ${V} + \\cos^2 ${V} = ${mf(s * s, 3)} + ${mf(c * c, 3)} = 1`)}</p>`;
   return { svg: g, read };
+}
+
+// Eulers formel: punktet P er det komplekse tallet e^{iv} = cos v + i sin v (Re langs x-aksen, Im langs y-aksen).
+function tgEulerHTML(v, c, s, ex, V){
+  const cT = ex && ex.c != null ? ex.c : mf(c, 3), sT0 = ex && ex.s != null ? ex.s : mf(s, 3), neg = /^[-−]/.test(String(sT0)), sT = String(sT0).replace(/^[-−]\s*/, "");
+  const z = Math.abs(s) < 1e-9 ? `${cT}` : Math.abs(c) < 1e-9 ? `${neg ? "-" : ""}${sT === "1" ? "" : sT}\\,i` : `${cT} ${neg ? "-" : "+"} ${sT === "1" ? "" : sT}\\,i`;
+  const pi = tgIsInt(v) && mod360(Math.round(v)) === 180 && v > 0;
+  return `<div class="tg-val tg-eul" style="--k:var(--accent)">${tex(`e^{i${V}} = \\cos ${V} + i\\sin ${V} = ${z}`)}</div>
+    <p class="tg-where">${esc(T("Eulers formel: punktet P er det komplekse tallet ", "Euler's formula: the point P is the complex number "))}${tex(`e^{i${V}}`)}${esc(T(". Realdelen er cos (x-aksen), imaginærdelen er sin (y-aksen), og |", ". The real part is cos (x axis), the imaginary part is sin (y axis), and |"))}${tex(`e^{i${V}}`)}| = 1.${pi ? " " + esc(T("Ved π får du den berømte ", "At π you get the famous ")) + tex("e^{i\\pi} + 1 = 0") + "." : ""}</p>`;
 }
 
 // ---------- stasjon 2: Eksakte verdier ----------
@@ -426,7 +436,7 @@ function tgControlsHTML(){
   const range = (max = 359) => `<label class="tg-range"><span>${esc(tgVt())}</span><input type="range" id="tgrange" min="0" max="${max}" step="1" value="${Math.round(TG.v)}" aria-label="${esc(T("Vinkel i grader", "Angle in degrees"))}"></label>`;
   const spin = `<button class="tg-chip" data-a="tgspin">${TG.anim ? "⏸ " + T("Stopp", "Stop") : "▶ " + T("Snurr", "Spin")}</button>`;
   switch(TG.st){
-    case "explore": return `${range()}<div class="tg-ctl">${units}${tog("tan", "tan")}${tog("ref", T("Referansevinkel", "Reference angle"))}${tog("snap", T("Fest til fine vinkler", "Snap to nice angles"))}${spin}</div>`;
+    case "explore": return `${range()}<div class="tg-ctl">${units}${tog("tan", "tan")}${tog("ref", T("Referansevinkel", "Reference angle"))}${tog("snap", T("Fest til fine vinkler", "Snap to nice angles"))}${tog("eul", "Euler e<sup>i" + esc(tgVt()) + "</sup>")}${spin}</div>`;
     case "exact": return `<div class="tg-ctl">${seg("tgex", [["45", "45°"], ["3060", "30° / 60°"], ["all", T("Hele sirkelen", "Whole circle")]], TG.ex)}${TG.ex === "3060" ? seg("tge36", [[60, "60°"], [30, "30°"]], TG.e36) : ""}${TG.ex === "all" ? units : ""}</div>`;
     case "radians": return `${range(360)}<div class="tg-ctl tg-quick">${[30, 45, 60, 90, 120, 180, 270, 360].map(d => `<button class="tg-chip ${TG.v === d ? "on" : ""}" data-a="tgset" data-v="${d}">${tex(tgRadTex(d))}</button>`).join("")}${spin}</div>`;
     case "sym": return `${range()}<div class="tg-ctl">${seg("tgsym", [["m180", TG.rad ? "π − " + tgVt() : "180° − " + tgVt()], ["p180", TG.rad ? "π + " + tgVt() : "180° + " + tgVt()], ["neg", "−" + tgVt()], ["c90", TG.rad ? "π/2 − " + tgVt() : "90° − " + tgVt()]], TG.sym)}${units}</div>`;
