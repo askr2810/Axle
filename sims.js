@@ -365,7 +365,11 @@ function simCheck(el){
   el.querySelector(".sim-gw").innerHTML = simGoalHTML(name, k); if(st.goalHit) setTimeout(() => toast(t("goalHitTitle")), 600);
 }
 function simRefreshGoal(el){ delete el.dataset.solved; el.querySelector(".sim-gw").innerHTML = simGoalHTML(el.dataset.sim); simUpdate(el); }
-document.addEventListener("input", e => { const el = e.target.closest && e.target.closest(".sim"); if(el) simUpdate(el); });
+// iOS sender ikke alltid «change» for glidebrytere: sjekk også når fingeren slippes, og når bryteren har stått i ro et øyeblikk.
+let simCheckT = 0;
+document.addEventListener("input", e => { const el = e.target.closest && e.target.closest(".sim"); if(!el) return; simUpdate(el);
+  clearTimeout(simCheckT); simCheckT = setTimeout(() => { if(el.isConnected) simCheck(el); }, 600); });
+for(const ev of ["pointerup", "touchend"]) document.addEventListener(ev, e => { const el = e.target.closest && e.target.closest(".sim"); if(el && e.target.type === "range") setTimeout(() => { if(el.isConnected){ simUpdate(el); simCheck(el); } }, 0); }, { passive: true });
 document.addEventListener("change", e => { const el = e.target.closest && e.target.closest(".sim"); if(el && e.target.type === "range"){ simUpdate(el); simCheck(el); } });
 document.addEventListener("click", e => {
   const b = e.target.closest && e.target.closest("[data-simnext],[data-simreset]"); if(!b) return;
