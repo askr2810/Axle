@@ -52,7 +52,7 @@ function scVehicle(b, you){
   switch(b.kind){
     case "ped": return `<ellipse rx="10" ry="6" style="fill:${col};stroke:#fff;stroke-width:2"/><ellipse cx="-6" cy="-4" rx="2.6" ry="3.4" style="fill:${col}"/><ellipse cx="6" cy="4" rx="2.6" ry="3.4" style="fill:${col}"/><circle r="5" cy="-0.5" style="fill:#F2C9A0;stroke:#9A6B44;stroke-width:1"/><path d="M-4.2 -2.4Q0 -6.5 4.2 -2.4" style="fill:#4A3426"/>`;
     case "bike": return `<rect x="-2" y="-14" width="4" height="28" rx="2" style="fill:#333"/><rect x="-7" y="-3" width="14" height="5" rx="2" style="fill:#555"/><circle r="6" cy="1" style="fill:${col};stroke:#fff;stroke-width:1.5"/>`;
-    case "mc": return `<rect x="-5" y="-15" width="10" height="30" rx="5" style="fill:#2A2F35"/><rect x="-9" y="-9" width="18" height="4" rx="2" style="fill:#555"/><circle r="7" cy="2" style="fill:${col};stroke:#fff;stroke-width:2"/>${bk(6, 13)}`;
+    case "mc": return `${typeof fkMcTop === "function" ? fkMcTop(0, 0, 0, col, 0.82) : ""}${bk(6, 15)}`;
     case "bus": return `<rect x="-13" y="-36" width="26" height="72" rx="5" style="fill:#C8312A;stroke:#fff;stroke-width:1.5"/><rect x="-10" y="-32" width="20" height="8" rx="2" style="fill:#BFE3F5"/>${bk(12, 32)}`;
     case "tram": return `<rect x="-12" y="-44" width="24" height="88" rx="6" style="fill:#2E8B57;stroke:#fff;stroke-width:1.5"/><rect x="-12" y="-6" width="24" height="12" style="fill:#F4F6F8"/><rect x="-9" y="-40" width="18" height="8" rx="2" style="fill:#BFE3F5"/><line x1="0" y1="-44" x2="0" y2="-52" style="stroke:#333;stroke-width:2"/>`;
     case "amb": return `<rect x="-11" y="-21" width="22" height="42" rx="6" style="fill:#F7F8FA;stroke:#333;stroke-width:1"/><rect x="-11" y="-2" width="22" height="5" style="fill:#D9483B"/><rect x="-8" y="-16" width="16" height="7" rx="2" style="fill:#9DC7E0"/><rect class="sc-siren" x="-7" y="-6" width="14" height="4" rx="2" style="fill:#2F6BFF"/>`;
@@ -91,8 +91,9 @@ function scSVG(sc, built, st){
   const showPicks = st && !st.playing && sc.type !== "choice";
   let g = scLayout(sc);
   if(!st || !st.playing) for(const b of built) if(b.kind !== "ped" || b.path) g += `<polyline points="${b.pts.filter((_, i) => i % 2 === 0).map(p => p[0].toFixed(0) + "," + p[1].toFixed(0)).join(" ")}" style="fill:none;stroke:${b.id === "you" ? "var(--accent)" : SC_COL[b.col] || "#fff"};stroke-width:3;stroke-dasharray:5 6;opacity:.55;stroke-linecap:round"/>`;
-  for(const b of built){ const p = scAt(b, b.s), you = b.id === "you";
-    g += `<g id="scv-${b.id}" class="sc-veh ${showPicks && b.id !== "you" || showPicks && sc.type === "order" ? "tap" : ""}" transform="translate(${p.x.toFixed(1)} ${p.y.toFixed(1)}) rotate(${p.a.toFixed(1)})" ${showPicks ? `data-a="scpick" data-v="${b.id}" role="button" aria-label="${esc(scVName(b))}"` : ""}><circle r="26" style="fill:transparent"/>${scVehicle(b, you)}</g>`;
+  const small = b => ["ped", "bike", "mc"].includes(b.kind) ? 1 : 0; // små kjøretøy tegnes sist, så de ligger øverst og er lette å trykke på
+  for(const b of built.slice().sort((x, y) => small(x) - small(y))){ const p = scAt(b, b.s), you = b.id === "you";
+    g += `<g id="scv-${b.id}" class="sc-veh ${showPicks && b.id !== "you" || showPicks && sc.type === "order" ? "tap" : ""}" transform="translate(${p.x.toFixed(1)} ${p.y.toFixed(1)}) rotate(${p.a.toFixed(1)})" ${showPicks ? `data-a="scpick" data-v="${b.id}" role="button" aria-label="${esc(scVName(b))}"` : ""}><circle r="${["ped", "bike", "mc"].includes(b.kind) ? 15 : 24}" style="fill:transparent"/>${scVehicle(b, you)}</g>`;
   }
   if(showPicks) (st.picks || []).forEach((id, k) => { const b = built.find(x => x.id === id); if(!b) return; const p = scAt(b, b.s), ok = st.reveal ? (sc.type === "tap" ? sc.ans.includes(id) : sc.ans[k] === id) : null;
     g += `<g class="sc-badge" transform="translate(${p.x.toFixed(1)} ${(p.y - 30).toFixed(1)})"><circle r="11" style="fill:${ok == null ? "var(--ink)" : ok ? "#1E9A5E" : "#D23F3A"};stroke:#fff;stroke-width:2"/><text y="4.5" text-anchor="middle" style="fill:#fff;font-size:13px;font-weight:800">${sc.type === "tap" ? (ok ? "✓" : "✗") : k + 1}</text></g>`; });
@@ -296,7 +297,7 @@ const SCENES = [
   { id: "sykkel1", lay: "x", type: "order", bikelane: 1, ans: ["c", "you"],
     q: ["Du skal svinge til høyre. En syklist i sykkelfeltet til høyre for deg skal rett fram. Hvem kjører først?", "You are turning right. A cyclist in the bike lane on your right is going straight. Who goes first?"],
     e: ["Du må **slippe fram syklisten** som skal rett fram før du svinger over sykkelfeltet. Se i speilet og over skulderen (blindsonen).", "You must **let the cyclist going straight go first** before turning across the bike lane. Check your mirror and over your shoulder (blind spot)."],
-    v: [{ id: "you", turn: "right", blink: "R", dx: -8 }, { id: "c", kind: "bike", col: "green", dx: 13, s0: 118 }] },
+    v: [{ id: "you", turn: "right", blink: "R", dx: -11 }, { id: "c", kind: "bike", col: "green", dx: 14, s0: 118 }] },
   { id: "tap2", lay: "x", type: "tap", ans: ["b"], signs: { S: "vikeplikt", N: "vikeplikt" },
     q: ["Du har vikepliktskilt og skal rett fram. Trykk på bilen som kommer til å kjøre først.", "You have a give-way sign and are going straight. Tap the car that will go first."],
     e: ["Kryssende trafikk på hovedvegen kjører før dere med vikeplikt. Den røde er nærmest og kjører først, og så kan du og den møtende kjøre.", "Crossing traffic on the main road goes before those with give-way signs. The red car goes first, then you and the oncoming car can go."],

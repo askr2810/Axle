@@ -12,6 +12,34 @@ const fkCar = (x, y, col, s = 1) => `<g transform="translate(${x} ${y}) scale(${
 const fkPed = (x, y, s = 1, col = FK_INK, pose = "walk") => { const L = (d, w) => `<path d="${d}" fill="none" stroke="${col}" stroke-width="${w}" stroke-linecap="round" stroke-linejoin="round"/>`;
   const run = pose === "run";
   return `<g transform="translate(${x} ${y}) scale(${s})"><circle cx="${run ? 2 : 1}" cy="-26" r="5.2" fill="${col}"/>${L(run ? "M1-19L-2-6" : "M0.5-19L-0.5-6", 7.5)}${L(run ? "M0-16L-8-10L-12-14M0-16L7-11L11-5" : "M0-16L-6-8L-8-1M0-16L6-9L8-3", 4.2)}${L(run ? "M-2-6L-9 2L-15 1M-2-6L5 1L3 9" : "M-0.5-6L-5 4L-8 12M-0.5-6L4 3L6 12", 5)}</g>`; };
+// ---------- motorsykkel ----------
+// Styret slik føreren ser det: buet styrestang, gummihåndtak, brems (høyre) og clutch (venstre), speil, instrumenter og tank.
+// Sentrert i (0, 0), omtrent 150 bredt. hand: "R" tegner en hanske på høyre håndtak.
+function fkBars(x, y, s = 1, hand = "R"){
+  const grip = (x1, y1, x2, y2) => `<path d="M${x1} ${y1}L${x2} ${y2}" style="stroke:#1E2226;stroke-width:12;stroke-linecap:round"/><path d="M${x1} ${y1}L${x2} ${y2}" style="stroke:#3A4148;stroke-width:12;stroke-dasharray:2 3;stroke-linecap:butt;opacity:.6"/>`;
+  return `<g transform="translate(${x} ${y}) scale(${s})">
+    <path d="M-34 40C-34 22 -20 14 0 14C20 14 34 22 34 40L30 70H-30Z" style="fill:#C8312A"/><path d="M-22 40C-22 28 -12 22 0 22C12 22 22 28 22 40" style="fill:none;stroke:#E8625B;stroke-width:3"/><circle cx="0" cy="34" r="5" style="fill:#9AA3AC;stroke:#5C646C;stroke-width:1.5"/>
+    <circle cx="-14" cy="-2" r="6" style="fill:#7C858E"/><circle cx="14" cy="-2" r="6" style="fill:#7C858E"/>
+    <path d="M-30 -36L-38 -66" style="stroke:#2A2F35;stroke-width:3"/><path d="M30 -36L38 -66" style="stroke:#2A2F35;stroke-width:3"/>
+    <ellipse cx="-41" cy="-71" rx="12" ry="8" style="fill:#2A2F35"/><ellipse cx="-41" cy="-71" rx="9" ry="5.5" style="fill:#AFC6D8"/><ellipse cx="41" cy="-71" rx="12" ry="8" style="fill:#2A2F35"/><ellipse cx="41" cy="-71" rx="9" ry="5.5" style="fill:#AFC6D8"/>
+    <rect x="-26" y="-34" width="52" height="26" rx="10" style="fill:#2A2F35"/><circle cx="-12" cy="-21" r="9" style="fill:#F4F6F8"/><circle cx="12" cy="-21" r="9" style="fill:#F4F6F8"/><path d="M-12 -21L-17 -26M12 -21L16 -27" style="stroke:#D23F3A;stroke-width:1.6;stroke-linecap:round"/>
+    <path d="M-64 6Q-32 -8 0 -6Q32 -8 64 6" style="fill:none;stroke:#8C949C;stroke-width:6;stroke-linecap:round"/><rect x="-10" y="-11" width="20" height="10" rx="3" style="fill:#5C646C"/>
+    <rect x="22" y="-14" width="12" height="9" rx="2" style="fill:#2A2F35"/><rect x="-34" y="-14" width="12" height="9" rx="2" style="fill:#2A2F35"/>
+    <path d="M30 -8Q52 -16 70 -10" style="fill:none;stroke:#5C646C;stroke-width:3.5;stroke-linecap:round"/><path d="M-30 -8Q-52 -16 -70 -10" style="fill:none;stroke:#5C646C;stroke-width:3.5;stroke-linecap:round"/>
+    ${grip(58, 3, 76, 10)}${grip(-58, 3, -76, 10)}
+    ${hand === "R" ? `<path d="M56 -6C64 -10 76 -6 80 2C84 10 80 18 72 18C64 18 56 14 54 8C52 2 52 -2 56 -6Z" style="fill:#3B2F28"/><path d="M60 -4C66 -6 72 -4 74 0" style="fill:none;stroke:#5A473C;stroke-width:2"/>` : ""}
+  </g>`;
+}
+// Motorsykkel med fører, sett ovenfra (front mot -y), omtrent 52 lang.
+function fkMcTop(x, y, rot = 0, col = "#2B59C3", s = 1){
+  return `<g transform="translate(${x} ${y}) rotate(${rot}) scale(${s})">
+    <rect x="-4" y="12" width="8" height="15" rx="4" style="fill:#1E2226"/><rect x="-3.5" y="-27" width="7" height="14" rx="3.5" style="fill:#1E2226"/>
+    <path d="M-7 10L-6 -4L6 -4L7 10Z" style="fill:#2A2F35"/><path d="M-6.5 -4C-6.5 -12 6.5 -12 6.5 -4Z" style="fill:${col}"/>
+    <path d="M-15 -11L15 -11" style="stroke:#8C949C;stroke-width:2.6;stroke-linecap:round"/><circle cx="-15" cy="-11" r="2.2" style="fill:#1E2226"/><circle cx="15" cy="-11" r="2.2" style="fill:#1E2226"/>
+    <path d="M-8 2C-10 -4 -14 -8 -15 -11M8 2C10 -4 14 -8 15 -11" style="fill:none;stroke:#2E3A44;stroke-width:3.4;stroke-linecap:round"/>
+    <ellipse cx="0" cy="4" rx="9" ry="7" style="fill:#2E3A44"/><circle cx="0" cy="0" r="6.2" style="fill:${col};stroke:#fff;stroke-width:1.4"/><path d="M-4.2 -3.2Q0 -6.4 4.2 -3.2" style="fill:none;stroke:#1B1F24;stroke-width:2"/>
+  </g>`;
+}
 // ---------- mennesker ----------
 // fkHuman tegner en person fra ledd (hode, skuldre, hofte, albuer, knær …) med lemmer som smalner av, slik piktogrammer
 // på ekte skilt er bygd opp. Med col gir den en ensfarget silhuett (skilt), uten col får den hud, hår, klær og sko (illustrasjoner).
@@ -94,7 +122,7 @@ const FK_SIGNS = {
   elg: () => fkTri(`<g fill="${FK_INK}" transform="translate(10.5 15.2) scale(.82)"><path d="M76 52C77 56 77 60 75 62L74.2 79H71.2L70 64.5H67.5L66.5 79H63.5L62 63.5L48.5 62.5L47.5 79H44.5L43.3 62.5H41.5L40.3 79H37.3L36.6 60.5C35.2 57.5 34.2 55.6 33 53.8L30 55.6C28 57.2 26 58.4 24 59L20.4 59.2C18.2 59.2 17.8 56.4 19.8 55.3L26 50.4C28 48.4 30 47.3 33 47C36 46.2 38.3 43.2 42 42C48 40.3 52 43.8 56 45.8L70 46.8C73 47 75 49 76 52Z"/><path d="M30 55.4L30.8 61.6L32.6 55Z"/><path d="M31.6 46.4C29 44 26 41 22.8 38.2C24.6 37.2 26.4 37.4 27.6 38.4C27 36.2 27.6 34.4 29 33.4C30.2 35.2 30.8 36.6 31 38C31.8 36.2 33.2 35 35 34.6C35.8 37.2 35.6 40 34.8 42.2C34.4 44 33.6 45.4 32.6 46.6Z"/><path d="M34.6 46.2L37.6 43.2L36.6 47.4Z"/></g>`),
   varseltrekant: () => `<rect width="100" height="100" rx="10" fill="#4A4F57"/><path d="M50 18l32 58H18z" fill="none" stroke="${FK_RED}" stroke-width="9" stroke-linejoin="round"/><path d="M50 30l20 38H30z" fill="none" stroke="#FFB0A8" stroke-width="2"/><path d="M40 80l-6 8M60 80l6 8" stroke="#9AA3AB" stroke-width="3"/>`,
   lskilt: () => `<rect x="12" y="20" width="76" height="60" rx="6" fill="#fff" stroke="${FK_INK}" stroke-width="3"/><text x="50" y="72" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-weight="800" font-size="54" style="fill:${FK_RED}">L</text>`,
-  motstyring: () => `<rect width="100" height="100" rx="10" fill="#E8EDF2"/><path d="M18 52h64" stroke="${FK_INK}" stroke-width="7" stroke-linecap="round"/><path d="M50 52v26" stroke="${FK_INK}" stroke-width="5"/><circle cx="50" cy="52" r="6" fill="${FK_INK}"/><rect x="72" y="46" width="12" height="12" rx="3" fill="#E07A1F"/><path d="M78 40V20" stroke="#2B59C3" stroke-width="5" stroke-linecap="round"/><path d="M70 26l8-11 8 11z" fill="#2B59C3"/>`,
+  motstyring: () => `<rect width="100" height="100" rx="10" fill="#E8EDF2"/>${fkBars(50, 56, .58)}<path d="M84 92V74" stroke="#2B59C3" stroke-width="4.5" stroke-linecap="round"/><path d="M77 78l7-10 7 10z" fill="#2B59C3"/>`,
 };
 function fkSign(name, size = 96, cls = ""){
   const f = FK_SIGNS[name]; if(!f) return "";
