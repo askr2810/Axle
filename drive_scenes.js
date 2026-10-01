@@ -85,6 +85,7 @@ function scLayout(sc){
   }
   return g;
 }
+const scVerb = b => b.kind === "ped" ? T("går", "walks") : b.kind === "bike" ? T("sykler", "cycles") : T("kjører", "drives");
 const scVName = (b, code) => b.id === "you" ? T("Deg", "You") : b.kind === "tram" ? T("Trikken", "The tram") : b.kind === "ped" ? T("Fotgjengeren", "The pedestrian") : b.kind === "bike" ? T("Syklisten", "The cyclist") : b.kind === "bus" ? T("Bussen", "The bus") : b.kind === "amb" ? T("Ambulansen", "The ambulance") : T(...(SC_NAME[b.col] || SC_NAME.red));
 function scSVG(sc, built, st){
   const showPicks = st && !st.playing && sc.type !== "choice";
@@ -118,6 +119,10 @@ function scApply(D){
     if(b.blinkFrom != null) g.querySelectorAll(".sc-blink").forEach(c => { c.style.display = b.s >= b.blinkFrom ? "" : "none"; }); }
   const svg = document.getElementById("scsvg"); if(svg) svg.classList.toggle("playing", A.t > 0);
   const r = document.getElementById("scrange"); if(r && document.activeElement !== r) r.value = Math.round(A.t / A.end * 1000);
+  const cap = document.getElementById("sccap");
+  if(cap){ const order = Object.keys(A.sched).sort((x, y) => A.sched[x].t0 - A.sched[y].t0), k = order.filter(id => A.sched[id].t0 <= A.t + 0.01).length - 1;
+    const txt = k < 0 ? T("Klar …", "Ready …") : A.t >= A.end ? T("Ferdig", "Done") : (b => `${k + 1}. ${b.id === "you" ? T("Du", "You") : scVName(b)} ${b.id === "you" ? T("kjører", "drive") : scVerb(b)}`)(D.built.find(b => b.id === order[k]));
+    if(cap.textContent !== txt) cap.textContent = txt; }
   const pb = document.getElementById("scpp"); if(pb){ pb.textContent = A.playing ? "⏸" : A.t >= A.end ? "↺" : "▶"; pb.setAttribute("aria-label", A.playing ? T("Pause", "Pause") : T("Spill av", "Play")); }
 }
 function scLoop(){
@@ -187,7 +192,7 @@ function renderScene(){
     <main class="wrap dv scn">
       <p class="dv-qt">${scRich(T(sc.q[0], sc.q[1]))}</p>
       <div class="sc-box">${scSVG(sc, D.built, D)}</div>
-      ${rev ? `<div class="sc-ctl"><button data-a="scstep" data-d="-1" aria-label="${esc(T("Steg tilbake", "Step back"))}">⏮</button><button id="scpp" class="pp" data-a="sctoggle" aria-label="${esc(T("Spill av", "Play"))}">▶</button><button data-a="scstep" data-d="1" aria-label="${esc(T("Neste steg", "Next step"))}">⏭</button><input type="range" id="scrange" min="0" max="1000" value="0" aria-label="${esc(T("Spol i avspillingen", "Scrub the playback"))}"></div>` : ""}
+      ${rev ? `<div class="sc-ctl"><button data-a="scstep" data-d="-1" aria-label="${esc(T("Steg tilbake", "Step back"))}">⏮</button><button id="scpp" class="pp" data-a="sctoggle" aria-label="${esc(T("Spill av", "Play"))}">▶</button><button data-a="scstep" data-d="1" aria-label="${esc(T("Neste steg", "Next step"))}">⏭</button><input type="range" id="scrange" min="0" max="1000" value="0" aria-label="${esc(T("Spol i avspillingen", "Scrub the playback"))}"></div><p class="sc-cap" id="sccap" aria-live="polite"></p>` : ""}
       ${how && !rev ? `<p class="sc-how">${esc(how)}</p>` : ""}
       ${!rev && D.picks.length && sc.type === "order" ? `<div class="sc-picks">${D.picks.map((id, k) => `<span>${k + 1}. ${esc(scVName(D.built.find(b => b.id === id)))}</span>`).join("")}<button class="exlink" data-a="screset">${esc(T("Nullstill", "Reset"))}</button></div>` : ""}
       ${opts}

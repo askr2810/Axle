@@ -225,7 +225,9 @@ function bookClick(a, b){
     startUnitLesson(code, u, k);
   }
   else if(a === "bkpractice"){
-    const code = BK.code, u = BK.u; S.current = code; save(); goHome();
+    const code = BK.code, u = BK.u; S.current = code; save();
+    if(isDrive(COURSE(code))){ dvPractice("cat", u); return true; } // førerkort: øv på kategorien
+    goHome();
     const sec = document.querySelectorAll("main section")[u]; if(sec) sec.scrollIntoView({ block: "start" });
   }
   else return false;

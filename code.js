@@ -140,15 +140,36 @@ async function cdExec(withCheck, live){
   if(withCheck){ const v = document.getElementById("cdverdict"); if(v) v.scrollIntoView({ behavior: "smooth", block: "nearest" }); }
 }
 // ---------- editor ----------
+// Fargelegging: en <pre> under et gjennomsiktig tekstfelt viser koden med farger, mens du skriver i tekstfeltet.
+const CD_KW = new Set("False None True and as assert async await break class continue def del elif else except finally for from global if import in is lambda nonlocal not or pass raise return try while with yield".split(" "));
+const CD_BI = new Set("print len range int float str list dict set tuple abs min max sum round sorted enumerate zip input open isinstance type map filter any all super self".split(" "));
+function cdHL(src){
+  const re = /(#[^\n]*)|([rRbBfF]{0,2}(?:"""[\s\S]*?(?:"""|$)|'''[\s\S]*?(?:'''|$)|"(?:\\.|[^"\\\n])*"?|'(?:\\.|[^'\\\n])*'?))|(\b\d+(?:\.\d*)?(?:e[+-]?\d+)?\b)|([A-Za-z_]\w*)/g;
+  let out = "", last = 0, m, prev = "";
+  while((m = re.exec(src))){
+    out += esc(src.slice(last, m.index)); last = re.lastIndex;
+    const [w, com, str, num, id] = m;
+    if(com) out += `<i class="c">${esc(com)}</i>`;
+    else if(str) out += `<i class="s">${esc(str)}</i>`;
+    else if(num) out += `<i class="n">${esc(num)}</i>`;
+    else if(CD_KW.has(id)) out += `<i class="k">${id}</i>`;
+    else if(prev === "def" || prev === "class") out += `<i class="f">${id}</i>`;
+    else if(CD_BI.has(id)) out += `<i class="b">${id}</i>`;
+    else out += esc(id);
+    if(id) prev = id; else if(!/^\s*$/.test(w)) prev = "";
+  }
+  return out + esc(src.slice(last));
+}
 function cdBindEditor(){
   const ta = document.getElementById("cded"), gut = document.getElementById("cdgut"); if(!ta) return;
-  const lines = () => { const n = ta.value.split("\n").length; gut.textContent = Array.from({ length: n }, (_, i) => i + 1).join("\n"); };
+  const hl = document.getElementById("cdhl");
+  const lines = () => { const n = ta.value.split("\n").length; gut.textContent = Array.from({ length: n }, (_, i) => i + 1).join("\n"); if(hl) hl.innerHTML = cdHL(ta.value) + "\n "; };
   const save1 = () => { CD.src = ta.value; const tk = cdTask(); if(tk){ (S.codeSrc ||= {})[tk.id] = ta.value; } else S.codePlay = ta.value; clearTimeout(cdBindEditor.st); cdBindEditor.st = setTimeout(save, 600); };
   const ins = (txt, back = 0) => { const s = ta.selectionStart, e = ta.selectionEnd; ta.setRangeText(txt, s, e, "end"); if(back) ta.selectionStart = ta.selectionEnd = ta.selectionEnd - back; onInput(); };
   const onInput = () => { lines(); save1(); CD.check = null; const v = document.getElementById("cdverdict"); if(v) v.innerHTML = "";
     if(S.cdLive !== false){ clearTimeout(cdBindEditor.lt); cdBindEditor.lt = setTimeout(() => { if(CDR.ready && !CDR.pending) cdExec(false, true); }, 900); } };
   ta.addEventListener("input", onInput);
-  ta.addEventListener("scroll", () => { gut.scrollTop = ta.scrollTop; });
+  ta.addEventListener("scroll", () => { gut.scrollTop = ta.scrollTop; if(hl){ hl.scrollTop = ta.scrollTop; hl.scrollLeft = ta.scrollLeft; } });
   ta.addEventListener("keydown", e => {
     if(e.key === "Tab"){ e.preventDefault();
       if(e.shiftKey){ const s = ta.selectionStart, ls = ta.value.lastIndexOf("\n", s - 1) + 1; const m = ta.value.slice(ls).match(/^ {1,4}/); if(m){ ta.setRangeText("", ls, ls + m[0].length, "start"); ta.selectionStart = ta.selectionEnd = Math.max(ls, s - m[0].length); onInput(); } }
@@ -179,7 +200,7 @@ function cdRouteOpen(p){ const a = p[1] || ""; CD.from = "home";
   cdSet(a || null); }
 function cdEditorHTML(){
   const keys = [["tab", "⇥"], [":", ":"], ["()", "( )"], ["[]", "[ ]"], ['""', "\" \""], ["=", "="], ["+", "+"], ["*", "*"], ["#", "#"]];
-  return `<div class="cd-edw"><pre class="cd-gut" id="cdgut" aria-hidden="true"></pre><textarea id="cded" class="cd-ed" spellcheck="false" autocapitalize="off" autocomplete="off" autocorrect="off" wrap="off" aria-label="${esc(T("Python-kode", "Python code"))}">${esc(CD.src)}</textarea></div>
+  return `<div class="cd-edw"><pre class="cd-gut" id="cdgut" aria-hidden="true"></pre><div class="cd-edbox"><pre class="cd-hl" id="cdhl" aria-hidden="true"></pre><textarea id="cded" class="cd-ed" spellcheck="false" autocapitalize="off" autocomplete="off" autocorrect="off" wrap="off" aria-label="${esc(T("Python-kode", "Python code"))}">${esc(CD.src)}</textarea></div></div>
     <div class="cd-keys" aria-hidden="true">${keys.map(([k, l]) => `<button type="button" data-k="${esc(k)}">${esc(l)}</button>`).join("")}</div>
     <div class="cd-bar"><button class="big cd-run" data-a="cdrun">▶ ${esc(T("Kjør", "Run"))}</button>${CD.view === "task" ? `<button class="big cd-check" data-a="cdcheck">✓ ${esc(T("Sjekk", "Check"))}</button>` : ""}</div>
     <div class="cd-row2"><span id="cdstat" class="cd-stat"></span><button class="tg-chip ${S.cdLive !== false ? "on" : ""}" data-a="cdlive" aria-pressed="${S.cdLive !== false}">⚡ ${esc(T("Live", "Live"))}</button></div>`;

@@ -1106,7 +1106,8 @@ document.addEventListener("click", async e=>{
     startUnitLesson(c.code,u,k); }
   else if(a==="theory"){ gdOpen(S.current, +b.dataset.u, null); }
   else if(a==="thguided"){ const th=TH; if(th) gdOpen(th.code, th.u, th.go); }
-  else if(a==="thstart"){ const th=TH; if(!th) return; const c=COURSE(th.code); const nn=nextNode(c); let u=th.u, k=0;
+  else if(a==="thstart"){ const th=TH; if(!th) return; const c=COURSE(th.code);
+    if(isDrive(c)){ S.current = c.code; TH = null; dvPractice("cat", th.u); return; } // førerkort: øv på kategorien const nn=nextNode(c); let u=th.u, k=0;
     if(th.go) { u=th.go.u; k=th.go.k; } else if(nn && nn[0]===th.u) k=nn[1]; else if(sub(c.code).done[th.u+"-2"]) k=3;
     if(!isUnlocked(c,u,k)){ goHome(); toast(t("lockedNode")); return; } TH=null; startUnitLesson(c.code,u,k); }
   else if(a==="thov"){ const it=L&&L.queue[0]; if(!it) return; overlay={theory:{code:L.code,u:+it.id.split(".")[0]}}; renderOverlay(); }

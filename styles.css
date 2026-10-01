@@ -1975,3 +1975,9 @@ textarea.fbtext{width:100%;font:13px/1.4 var(--mono,monospace);border-radius:12p
 .sc-ctl button{flex:none;width:42px;height:38px;border-radius:12px;border:2px solid var(--line);border-bottom-width:3px;background:var(--card);color:var(--ink);font-size:16px}
 .sc-ctl button.pp{width:52px;background:var(--accent);border-color:var(--accent-deep);color:#fff}
 .sc-ctl input{flex:1;min-width:0;accent-color:var(--accent)}
+.sc-cap{margin:-4px 0 10px;text-align:center;font-weight:800;font-family:var(--display);color:var(--accent);min-height:1.4em}
+.cd-edbox{position:relative;flex:1;min-width:0;display:flex}
+.cd-hl{position:absolute;inset:0;margin:0;padding:12px 10px;font:13.5px/1.55 var(--mono);tab-size:4;white-space:pre;overflow:hidden;color:#E6ECEF;pointer-events:none}
+.cd-edbox .cd-ed{position:relative;color:transparent;-webkit-text-fill-color:transparent;background:transparent;z-index:1}
+.cd-edbox .cd-ed::selection{background:rgba(127,178,255,.35);-webkit-text-fill-color:transparent}
+.cd-hl i{font-style:normal}.cd-hl .k{color:#C792EA}.cd-hl .s{color:#C3E88D}.cd-hl .n{color:#F78C6C}.cd-hl .c{color:#7A8896}.cd-hl .b{color:#82AAFF}.cd-hl .f{color:#FFCB6B}
