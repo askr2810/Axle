@@ -131,12 +131,12 @@ Object.assign(SIMS, {
   dvblind: { t: ["Blikket på mobilen", "Eyes on your phone"],
     a: ["Antatt: farten er den samme mens du ser ned. Bybuss 12 m, fotballbane 105 m. Busser og bane er tegnet i samme målestokk som vegen.", "Assumed: the speed stays the same while you look down. City bus 12 m, football pitch 105 m. Buses and pitch are drawn to the same scale as the road."],
     p: [["v", ["fart", "speed"], 30, 110, 10, 50, "km/t", 1], ["t", ["sekunder du ser på mobilen", "seconds looking at your phone"], 0.5, 4, 0.5, 1, "s", 2]],
-    g: [["Du leser en melding i 2 sekunder i 80 km/t. Still det inn: hvor mange busslengder kjører du uten å se vegen?", "You read a message for 2 seconds at 80 km/h. Set it up: how many bus lengths do you travel without seeing the road?", v => v.v === 80 && v.t === 2],
+    g: [["Du leser en melding i 2 sekunder i 80 km/t. Still det inn: hvor mange busslengder kjører du uten å se på vegen?", "You read a message for 2 seconds at 80 km/h. Set it up: how many bus lengths do you travel without looking at the road?", v => v.v === 80 && v.t === 2],
         ["Du bytter sang i 3 sekunder i 90 km/t. Blir det mer eller mindre enn en halv fotballbane?", "You change songs for 3 seconds at 90 km/h. Is it more or less than half a football pitch?", v => v.v === 90 && v.t === 3]],
     f: v => { const ms = v.v / 3.6, d = ms * v.t, xs = 30, pitch = d >= 40, k = (312 - xs) / (pitch ? 125 : 45), x1 = xs + d * k, nb = d / 12, nf = d / 105;
       const big = (x, y, txt, col, an) => `<text x="${x}" y="${y}" class="fg-big" text-anchor="${an}" style="font-size:22px;fill:var(${col})">${txt}</text>`;
       let s = fgT(8, 14, T("Du ser på mobilen i", "You look at your phone for") + " " + smN(v.t, 1) + " s", "fg-s", "start") + big(8, 38, smN(d, 0) + " m", "--bad", "start");
-      s += fgT(312, 14, T("uten å se vegen, like langt som", "without seeing the road, as far as"), "fg-s", "end") + big(312, 38, "≈ " + smR(nb) + " " + (Math.round(nb * 10) === 10 ? T("buss", "bus") : T("busser", "buses")), "--accent", "end");
+      s += fgT(312, 14, T("uten å se på vegen, like langt som", "without looking at the road, as far as"), "fg-s", "end") + big(312, 38, "≈ " + smR(nb) + " " + (Math.round(nb * 10) === 10 ? T("buss", "bus") : T("busser", "buses")), "--accent", "end");
       s += `<rect x="0" y="46" width="320" height="26" style="fill:#5E656D"/><line x1="0" y1="59" x2="320" y2="59" style="stroke:#F4F4F4;stroke-width:1.4;stroke-dasharray:9 7"/>`;
       s += smCar(xs - 13, 65) + `<rect x="${xs - 18}" y="47.5" width="6" height="9" rx="1.2" style="fill:#1B1F24"/><rect x="${xs - 17.2}" y="48.6" width="4.4" height="6.6" rx=".6" style="fill:#7FB2FF"/>`;
       s += smCar(Math.min(306, x1 - 13), 65, "rgba(43,89,195,.45)") + `<rect x="${xs}" y="75" width="${(d * k).toFixed(1)}" height="5" rx="2" style="fill:#D1453B"/>`;
@@ -149,7 +149,7 @@ Object.assign(SIMS, {
       }
       if(pitch) s += `<rect x="${xs}" y="170" width="${(d * k).toFixed(1)}" height="5" rx="2" style="fill:#D1453B"/>` + fgT(312, 124, "≈ " + smR(nf, 2) + " " + T("fotballbane", "football pitch"), "fg-s fg-redt", "end");
       return { m: { d }, eq: [qt`s = ${qc(1, qn(ms, 1))}\,\mathrm{m/s}\cdot ${qc(2, qn(v.t, 1))}\,\mathrm{s} = ${qr(d, 0)}\,\mathrm{m}`],
-        out: [[T("uten å se vegen", "without seeing the road"), smN(d, 0) + " m"], [T("busslengder", "bus lengths"), smR(nb)], [T("fotballbaner", "football pitches"), smR(nf, 2)]], svg: s }; } },
+        out: [[T("uten å se på vegen", "without looking at the road"), smN(d, 0) + " m"], [T("busslengder", "bus lengths"), smR(nb)], [T("fotballbaner", "football pitches"), smR(nf, 2)]], svg: s }; } },
   dvsving: { t: ["Fart i sving og veggrep", "Speed in a bend and grip"],
     a: ["Antatt: flat sving og veggrep som gir 7, 5, 2,5 og 1 m/s² sideveis (tørt, vått, snø, is). Dårlige dekk gir mindre.", "Assumed: a flat bend and grip giving 7, 5, 2.5 and 1 m/s² sideways (dry, wet, snow, ice). Worn tyres give less."],
     p: [["r", ["svingradius", "bend radius"], 20, 200, 10, 60, "m", 1], ["f", ["føre (1 tørt – 4 is)", "surface (1 dry – 4 ice)"], 1, 4, 1, 1, "", 2], ["v", ["din fart", "your speed"], 20, 120, 5, 60, "km/t", 3]],
