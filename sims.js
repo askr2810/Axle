@@ -374,7 +374,9 @@ document.addEventListener("change", e => { const el = e.target.closest && e.targ
 document.addEventListener("click", e => {
   const b = e.target.closest && e.target.closest("[data-simnext],[data-simreset]"); if(!b) return;
   const el = b.closest(".sim"); if(!el) return; e.stopPropagation();
-  if(b.dataset.simreset){ (S.simGoals ||= {})[b.dataset.simreset] = 0; save(); }
+  if(b.dataset.simreset){ (S.simGoals ||= {})[b.dataset.simreset] = 0; save();
+    // start på nytt fra startverdiene, ellers kan svaret allerede stå inne uten at noe blir sjekket
+    const S0 = SIMS[el.dataset.sim]; if(S0) S0.p.forEach(p => { const inp = el.querySelector(`input[data-k="${p[0]}"]`); if(inp) inp.value = p[5]; }); }
   simRefreshGoal(el);
   document.querySelectorAll(`.sim[data-sim="${el.dataset.sim}"]`).forEach(o => { if(o !== el) simRefreshGoal(o); });
 });
