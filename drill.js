@@ -266,6 +266,7 @@ function drRecord(){
   return up;
 }
 function drCardHTML(){
+  if(!drStudyDecks().length) return ""; // ingen begrepskort i studiene dine (f.eks. bare førerkort): ikke vis kortet
   const c = drCounts(), started = c.total - c.fresh;
   if(!c.total) return "";
   const sub = c.due ? t("drDue", c.due) : started ? t("drAllDone") : t("drIntro");
@@ -280,7 +281,7 @@ function drPickHTML(){
   const row = (a, extra, ic, title, sub, due) => `<button class="gm-open dr-prow" data-a="${a}" ${extra}><span class="dr-pic">${ic}</span><span><b>${esc(title)}</b><small>${esc(sub)}</small></span>${due ? `<em class="dr-due">${due}</em>` : ""}</button>`;
   return `<div class="dialog gm-menu" role="dialog" aria-label="${esc(t("drPickBtn"))}"><div class="sheet-h"><h3>${esc(t("drPickBtn"))}</h3><button class="iconbtn" data-a="closeov" aria-label="${esc(t("back"))}">${I.x}</button></div>
     <div class="seg dr-mode" role="radiogroup" aria-label="${esc(t("drModeLab"))}"><button role="radio" aria-checked="${!flip}" class="${flip ? "" : "on"}" data-a="drmode" data-m="mc">${esc(t("drModeMc"))}</button><button role="radio" aria-checked="${flip}" class="${flip ? "on" : ""}" data-a="drmode" data-m="flip">🃏 ${esc(t("drModeFlip"))}</button></div>
-    <div class="dr-plist">${(() => { const n = drCounts(); return row("drstart", 'data-t="all"', "🔀", t("drMix"), t("drKnown", n.known, n.total), n.due); })()}
+    <div class="dr-plist">${decks.length ? (() => { const n = drCounts(); return row("drstart", 'data-t="all"', "🔀", t("drMix"), t("drKnown", n.known, n.total), n.due); })() : ""}
       ${decks.map(k => { const n = drCounts(k), d = DR_DECKS[k]; return row("drstart", `data-t="${k}"`, d.sym, T(d.nb, d.en), t("drKnown", n.known, n.total), n.due); }).join("")}</div>
     <h4 class="lay-h">${esc(t("mdTitle"))}</h4>
     <div class="dr-plist">${mine.map(d => row("mdplay", `data-id="${d.id}" data-m="${flip ? "flip" : "mc"}"`, "📚", d.name, t("mdCount", d.cards.length), 0)).join("")}

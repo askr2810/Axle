@@ -154,7 +154,8 @@ function layMigrate(){
   delete S.homePins; delete S.homeHide;
 }
 // Enhetssirkel-øvingen passer bare for studier med matte.
-const gmList = () => GAMES.filter(g => (g[0] !== "tg" || hasFeature("trig")) && (g[0] !== "lab" || hasFeature("lab")));
+// Spill som ikke passer studiene dine skjules: enhetssirkelen og laben etter studie, Par-jakt når det ikke finnes nok begrepspar.
+const gmList = () => GAMES.filter(g => (g[0] !== "tg" || hasFeature("trig")) && (g[0] !== "lab" || hasFeature("lab")) && (g[0] !== "mt" || drPool("all").length >= 12));
 const pinsOf = place => { layMigrate(); return (S.pins[place] || []).filter(id => gmList().some(g => g[0] === id)); };
 function gamesSectionHTML(place){
   const pins = GAMES.filter(g => pinsOf(place).includes(g[0]));
