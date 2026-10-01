@@ -12,8 +12,10 @@ const ls = re => fs.readdirSync(ROOT).filter(f => re.test(f)).sort();
 const files = [...order, ...ls(/^en_static_.*\.js$/), 'learn.js', ...ls(/^add_.*\.js$/), 'topics.js', ...ls(/^top_.*\.js$/)].filter(f => fs.existsSync(path.join(ROOT, f)));
 global.navigator = { language: 'nb' }; global.localStorage = { getItem(){ return null; }, setItem(){} };
 const tmp = path.join(os.tmpdir(), 'axle_seo_' + process.pid + '.js');
-fs.writeFileSync(tmp, files.map(f => fs.readFileSync(path.join(ROOT, f), 'utf8')).join('\n;\n') +
-  ';module.exports={COURSES,META,THEORY_DB,TOPIC_DB,GROUP_NAMES,CONFIG,nf,ENQ,UNIT_EN,setLang:l=>{LANG=l}};');
+// Tegningene til førerkortsidene (skilt, kryss): drive_signs.js, drive_scenes.js og drive_pics.js. FIGS finnes ikke her, så den lages tom.
+const drawFiles = ['drive_signs.js', 'drive_scenes.js', 'drive_pics.js'].filter(f => fs.existsSync(path.join(ROOT, f)));
+fs.writeFileSync(tmp, files.map(f => fs.readFileSync(path.join(ROOT, f), 'utf8')).join('\n;\n') + '\n;var FIGS = {};\n' + drawFiles.map(f => fs.readFileSync(path.join(ROOT, f), 'utf8')).join('\n;\n') +
+  ';module.exports={COURSES,META,THEORY_DB,TOPIC_DB,GROUP_NAMES,CONFIG,nf,ENQ,UNIT_EN,setLang:l=>{LANG=l},DRIVE_PICS:typeof DRIVE_PICS!=="undefined"?DRIVE_PICS:{}};');
 const M = require(tmp); fs.unlinkSync(tmp);
 const { COURSES, META, THEORY_DB, TOPIC_DB, CONFIG, ENQ, UNIT_EN } = M;
 
@@ -111,6 +113,7 @@ function inline(s){ // tekst med $matte$, **fet** og `kode`
   }).join('');
 }
 const plain = s => dec(s).replace(/\$[^$]*\$/g, ' ').replace(/\*\*/g, '').replace(/`/g, '').replace(/\s+/g, ' ').trim();
+const curLang = () => L; // språket som skrives nå (L skygges av linjevariabelen under)
 function mdToHtml(src){ // samme markering som teorien i appen (##, ###, lister, >, $$, ```)
   const out = []; let para = [], list = null, box = [], code = null;
   const fp = () => { if(para.length){ out.push('<p>' + inline(para.join(' ')) + '</p>'); para = []; } };
@@ -124,7 +127,8 @@ function mdToHtml(src){ // samme markering som teorien i appen (##, ###, lister,
     if(!L){ fa(); continue; }
     let m;
     if((m = L.match(/^(#{2,3})\s+(.*)$/))){ fa(); const h = m[1].length === 2 ? 'h3' : 'h4'; out.push(`<${h}>${inline(m[2])}</${h}>`); continue; }
-    if(/^!\[(fig|sim):/.test(L)) continue;
+    if((m = L.match(/^!\[pic:([\w-]+)\]$/)) && M.DRIVE_PICS[m[1]]){ fa(); const p = M.DRIVE_PICS[m[1]](curLang()); out.push(`<figure class="pic">${p.svg}<figcaption>${esc(p.cap)}</figcaption></figure>`); continue; }
+    if(/^!\[(fig|sim|pic):/.test(L)) continue;
     if((m = L.match(/^\$\$(.+)\$\$$/))){ fa(); out.push('<div class="dm">' + tex(m[1], true) + '</div>'); continue; }
     if((m = L.match(/^>\s?(.*)$/))){ fp(); fl(); box.push(m[1]); continue; }
     if((m = L.match(/^-\s+(.*)$/)) || (m = L.match(/^\d+[.)]\s+(.*)$/))){ fp(); fb(); const t = /^-/.test(L) ? 'ul' : 'ol'; if(!list || list.t !== t){ fl(); list = { t, items: [] }; } list.items.push(m[1]); continue; }
@@ -142,7 +146,7 @@ const topicsOf = (c, u) => ((TOPIC_DB[c.code] || [])[u] || []);
 const fmtNum = x => M.nf(x, 3);
 
 // ---------- stil ----------
-const CSS = `iframe.lab{display:block;width:100%;border:2px solid var(--line);border-radius:18px;background:var(--bg);margin:6px 0 14px;min-height:360px}
+const CSS = `figure.pic{margin:14px 0;padding:12px;background:#fff;border:2px solid #D5DDD3;border-radius:16px}figure.pic>svg{display:block;width:100%;height:auto}figure.pic figcaption{margin-top:8px;font-size:15px;color:#3A4651;text-align:center}iframe.lab{display:block;width:100%;border:2px solid var(--line);border-radius:18px;background:var(--bg);margin:6px 0 14px;min-height:360px}
 .lab h2{margin-bottom:2px}.labt{margin:0 0 4px;color:var(--muted)}
 .labbtn{display:block;width:100%;text-align:left;margin:8px 0;padding:12px 14px;border-radius:14px;border:2px dashed var(--acc);background:var(--accs);color:var(--acc);font:inherit;font-weight:700;cursor:pointer}
 :root{--ink:#16202A;--muted:#5B6773;--bg:#F6F8F4;--card:#fff;--line:#DCE3DA;--acc:#2B59C3;--accs:#E3EAFA;--ok:#1E9A5E;--bad:#D23F3A;--gold:#B77C00}
@@ -296,6 +300,7 @@ function topicPage(c, u, tp, prev, next){
   const lc = s => L === 'nb' ? s.toLowerCase() : s.charAt(0).toLowerCase() + s.slice(1);
   const body = `<h1>${esc(x.t)}</h1>
 ${tp.fig ? `<div class="fig" aria-hidden="true">${tp.fig}</div>` : ''}
+${tp.pic && M.DRIVE_PICS[tp.pic] ? (p => `<figure class="pic">${p.svg}<figcaption>${esc(p.cap)}</figcaption></figure>`)(M.DRIVE_PICS[tp.pic](L)) : ''}
 <p class="lead">${inline(x.intro)}</p>
 ${(() => { const lb = topicLab(c, u, tp); return lb ? labFrame(lb) : ''; })()}
 ${(x.f || []).map(([l, d]) => `<div class="fbox">${tex(l, true)}${d ? `<small>${inline(d)}</small>` : ''}</div>`).join('')}

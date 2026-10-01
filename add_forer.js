@@ -27,14 +27,23 @@ Vikeplikt betyr at du skal kjøre slik at den du har vikeplikt for, ikke må end
 ![fig:fk_vikeplikt]
 
 ## Høyreregelen
+
+![pic:hoyreregelen]
+
 I kryss uten skilt, oppmerking eller lys har du **vikeplikt for kjørende som kommer fra høyre**.
 
 ## Skilt som styrer vikeplikten
+
+![pic:hvem-bestemmer]
+
 - **Vikeplikt** (trekant med spissen ned): gi fri vei for kjørende på vegen du skal inn på. Stans om nødvendig ved vikepliktlinjen («haitenner»).
 - **Stopp** (åttekant): stans helt ved stopplinjen, og vik deretter.
 - **Forkjørsvei** (gul rute): kjørende fra sidevegene har vikeplikt for deg. Skiltet med svart strek betyr at forkjørsvegen slutter.
 
 ## Andre regler
+
+![pic:venstresving-gaaende]
+
 - Kjører du ut fra parkeringsplass, gårdsplass, bensinstasjon, gang- og sykkelveg eller over fortau, har du vikeplikt for **alle**.
 - Svinger du til venstre, har du vikeplikt for **møtende** som kjører rett fram eller svinger til høyre.
 - I rundkjøring med vikepliktskilt viker du for dem som allerede kjører i rundkjøringen.
@@ -47,14 +56,23 @@ Giving way means driving so that the person you give way to does not have to cha
 ![fig:fk_vikeplikt]
 
 ## The right-hand rule
+
+![pic:hoyreregelen]
+
 At junctions without signs, markings or lights, you **give way to traffic coming from the right**.
 
 ## Signs that control right of way
+
+![pic:hvem-bestemmer]
+
 - **Give way** (triangle pointing down): give way to traffic on the road you are entering. Stop if needed at the give-way line ("shark teeth").
 - **Stop** (octagon): stop completely at the stop line, then give way.
 - **Priority road** (yellow diamond): traffic from side roads must give way to you. The sign with a black stripe means the priority road ends.
 
 ## Other rules
+
+![pic:venstresving-gaaende]
+
 - When driving out of a car park, yard, petrol station, footpath/cycle path or across a pavement, you give way to **everyone**.
 - When turning left, you give way to **oncoming** traffic going straight on or turning right.
 - In a roundabout with give-way signs, you give way to those already in the roundabout.
@@ -130,7 +148,7 @@ Formen og fargen forteller hva slags skilt det er:
 - **Underskilt:** små skilt under et annet skilt som gir tilleggsopplysninger eller begrenser skiltet.
 - Midlertidige skilt, for eksempel ved vegarbeid, har **gul bunn**.
 
-![fig:fk_skiltgrupper]
+![pic:skiltgrupper]
 
 ## Vegoppmerking
 - **Gul** linje skiller trafikk i motsatt kjøreretning. **Hvit** linje skiller felt i samme retning og markerer kanten av vegen.
@@ -139,7 +157,8 @@ Formen og fargen forteller hva slags skilt det er:
 - **Ledelinje** (korte streker, lange mellomrom): viser midten eller feltene; kan krysses når det er trygt.
 - **Stopplinje** (hel tverrgående linje) og **vikepliktlinje** (haitenner).
 
-![fig:fk_linjer]`,
+![pic:linjer]`,
+
 `## Groups of signs
 The shape and colour tell you what kind of sign it is:
 - **Warning signs:** triangle with a red border pointing up. Warn of danger.
@@ -149,7 +168,7 @@ The shape and colour tell you what kind of sign it is:
 - **Supplementary plates:** small plates under another sign that add information or limit the sign.
 - Temporary signs, for example at roadworks, have a **yellow background**.
 
-![fig:fk_skiltgrupper]
+![pic:skiltgrupper]
 
 ## Road markings
 - A **yellow** line separates traffic in opposite directions. A **white** line separates lanes in the same direction and marks the edge of the road.
@@ -158,7 +177,8 @@ The shape and colour tell you what kind of sign it is:
 - **Guide line** (short dashes, long gaps): marks the centre or lanes; may be crossed when safe.
 - **Stop line** (solid line across) and **give-way line** (shark teeth).
 
-![fig:fk_linjer]`,
+![pic:linjer]`,
+
 [
  ["fare_generell", "Hva slags skilt er en trekant med rød kant og spissen opp?", ["Fareskilt", "Forbudsskilt", "Påbudsskilt", "Opplysningsskilt"],
   "Fareskilt er trekanter med rød kant og spissen opp. De varsler om fare lenger fram.",
@@ -228,15 +248,20 @@ U("FKB", "Fart, avstand og stopplengde", "Speed, distance and stopping distance"
 - Bil med tilhenger **uten** brems: høyst 60 km/t. Med brems: høyst 80 km/t.
 - Fartsgrensen er et **maksimum**. Du skal alltid tilpasse farten etter føre, sikt og trafikk.
 
+![pic:fartsgrenser]
+
 ## Stopplengde
 $$\\text{stopplengde} = \\text{reaksjonslengde} + \\text{bremselengde}$$
 - **Reaksjonslengden** er det du kjører før du begynner å bremse. Med reaksjonstid 1 s: $\\text{meter} = \\text{km/t} : 3{,}6$.
 - **Bremselengden** vokser med kvadratet av farten: **dobbel fart gir fire ganger så lang bremselengde**.
 - Glatt føre, slitte dekk og dårlige bremser gir lengre bremselengde.
 
-![fig:fk_stopp]
+![pic:stopplengde]
 
 ## Avstand
+
+![pic:avstand-tresekunder]
+
 Hold **minst 3 sekunder** avstand til kjøretøyet foran under gode forhold, mer på glatt føre og i mørket.
 > Kollisjonsenergien vokser også med kvadratet av farten. Litt lavere fart gir mye kortere stopplengde og mindre skade.`,
 `## Speed limits
@@ -244,15 +269,20 @@ Hold **minst 3 sekunder** avstand til kjøretøyet foran under gode forhold, mer
 - Car with a trailer **without** brakes: at most 60 km/h. With brakes: at most 80 km/h.
 - The speed limit is a **maximum**. Always adapt your speed to road conditions, visibility and traffic.
 
+![pic:fartsgrenser]
+
 ## Stopping distance
 $$\\text{stopping distance} = \\text{reaction distance} + \\text{braking distance}$$
 - The **reaction distance** is how far you travel before you start braking. With a reaction time of 1 s: $\\text{metres} = \\text{km/h} : 3.6$.
 - The **braking distance** grows with the square of the speed: **double the speed gives four times the braking distance**.
 - Slippery roads, worn tyres and poor brakes give a longer braking distance.
 
-![fig:fk_stopp]
+![pic:stopplengde]
 
 ## Distance
+
+![pic:avstand-tresekunder]
+
 Keep **at least 3 seconds** behind the vehicle in front in good conditions, more on slippery roads and in the dark.
 > Collision energy also grows with the square of the speed. A little less speed gives a much shorter stopping distance and less damage.`,
 [
@@ -414,7 +444,8 @@ U("FKB", "Lys, signaler og trafikklys", "Lights, signals and traffic lights",
 - **Grønt**: kjør, men vik for fotgjengere og møtende når du svinger. **Grønn pil**: kjør i pilens retning.
 - **Blinkende gult**: vis særlig aktsomhet; skilt og vikepliktsregler gjelder.
 
-![fig:fk_lys]`,
+![pic:trafikklys]`,
+
 `## Lights on the car
 - In Norway you must always drive with **lights** (dipped beam or daytime running lights) when the car is moving.
 - **Full beam** must be dipped for oncoming traffic, when driving close behind others, and when it may dazzle pedestrians and cyclists.
@@ -428,7 +459,8 @@ U("FKB", "Lys, signaler og trafikklys", "Lights, signals and traffic lights",
 - **Green**: go, but give way to pedestrians and oncoming traffic when turning. **Green arrow**: go in the direction of the arrow.
 - **Flashing amber**: take special care; signs and right-of-way rules apply.
 
-![fig:fk_lys]`,
+![pic:trafikklys]`,
+
 [
  [null, "Når skal du kjøre med lys på bilen i Norge?", ["Alltid når bilen er i bevegelse", "Bare når det er mørkt", "Bare i tunneler", "Bare om vinteren"],
   "I Norge er det påbudt med lys hele døgnet når bilen kjøres.",
@@ -550,10 +582,17 @@ U("FKB", "Rus, trøtthet og oppmerksomhet", "Alcohol, fatigue and attention",
 - Kroppen forbrenner omtrent **0,15 promille per time**. Kaffe, kald dusj eller mat gjør deg ikke edru raskere.
 - Legemidler merket med **rød varseltrekant** kan svekke evnen til å kjøre.
 
+![pic:promille]
+
 ## Trøtthet
+
+![pic:trotthet]
 Trøtthet gir langsommere reaksjoner og kan føre til at du sovner. Stopp, ta en pause eller sov litt. Musikk og åpent vindu hjelper ikke.
 
 ## Oppmerksomhet
+
+![pic:mobil-blind]
+
 - Det er forbudt å bruke **håndholdt mobiltelefon** under kjøring.
 - Ved 80 km/t kjører du over 40 meter på 2 sekunder med blikket et annet sted.
 - Stress og sinne gir dårligere vurderinger. Planlegg turen og beregn god tid.`,
@@ -562,10 +601,17 @@ Trøtthet gir langsommere reaksjoner og kan føre til at du sovner. Stopp, ta en
 - The body burns about **0.15 per mille per hour**. Coffee, a cold shower or food do not make you sober faster.
 - Medicines marked with a **red warning triangle** can impair your ability to drive.
 
+![pic:promille]
+
 ## Fatigue
+
+![pic:trotthet]
 Tiredness slows your reactions and can make you fall asleep. Stop, take a break or have a short sleep. Music and an open window do not help.
 
 ## Attention
+
+![pic:mobil-blind]
+
 - Using a **hand-held mobile phone** while driving is forbidden.
 - At 80 km/h you travel over 40 metres in 2 seconds with your eyes elsewhere.
 - Stress and anger lead to worse judgement. Plan your trip and allow plenty of time.`,
@@ -761,12 +807,18 @@ U("FKB", "Ulykker og førstehjelp", "Accidents and first aid",
 3. **Hjelpe:** gi førstehjelp til du får avløsning.
 Er du innblandet i en ulykke, eller kommer du til en, har du plikt til å stanse og hjelpe.
 
+![pic:sikre-ulykke]
+
 ## Førstehjelp
+
+![pic:hlr]
 - Sjekk om personen **reagerer** og om hun **puster normalt**.
 - Bevisstløs, men puster normalt: legg henne i **stabilt sideleie** og hold henne varm.
 - Puster ikke normalt: start **hjerte-lunge-redning (HLR): 30 kompresjoner og 2 innblåsninger**.
 - Stans store blødninger med **direkte trykk**.
 - Flytt ikke skadde unødig, bare hvis de er i fare (for eksempel brann).
+
+![pic:bevisstlos-blodning]
 
 ## Bare materielle skader
 Fyll ut **skademelding** sammen, og flytt bilene hvis de hindrer trafikken.`,
@@ -776,12 +828,18 @@ Fyll ut **skademelding** sammen, og flytt bilene hvis de hindrer trafikken.`,
 3. **Help:** give first aid until relieved.
 If you are involved in an accident, or come across one, you are obliged to stop and help.
 
+![pic:sikre-ulykke]
+
 ## First aid
+
+![pic:hlr]
 - Check whether the person **responds** and **breathes normally**.
 - Unconscious but breathing normally: place her in the **recovery position** and keep her warm.
 - Not breathing normally: start **CPR: 30 compressions and 2 rescue breaths**.
 - Stop major bleeding with **direct pressure**.
 - Do not move injured people unnecessarily, only if they are in danger (for example fire).
+
+![pic:bevisstlos-blodning]
 
 ## Damage only
 Fill in an **accident report** together, and move the cars if they block traffic.`,

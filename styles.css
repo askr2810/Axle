@@ -1981,3 +1981,7 @@ textarea.fbtext{width:100%;font:13px/1.4 var(--mono,monospace);border-radius:12p
 .cd-edbox .cd-ed{position:relative;color:transparent;-webkit-text-fill-color:transparent;background:transparent;z-index:1}
 .cd-edbox .cd-ed::selection{background:rgba(127,178,255,.35);-webkit-text-fill-color:transparent}
 .cd-hl i{font-style:normal}.cd-hl .k{color:#C792EA}.cd-hl .s{color:#C3E88D}.cd-hl .n{color:#F78C6C}.cd-hl .c{color:#7A8896}.cd-hl .b{color:#82AAFF}.cd-hl .f{color:#FFCB6B}
+.tppic{margin:12px 0 14px;padding:12px;background:#FFFFFF;border:2px solid var(--line);border-radius:16px}
+.tppic>svg{display:block;width:100%;height:auto}
+.tppic figcaption{margin-top:8px;font-size:14px;color:#3A4651;text-align:center;line-height:1.45}
+.tsignbox{display:grid;place-items:center;height:56px}.tsignbox svg{width:50px;height:50px}.temo{font-size:34px;line-height:1}

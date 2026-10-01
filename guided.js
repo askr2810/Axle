@@ -10,7 +10,7 @@ function gdSections(src){
   for(const line of src.split("\n")){
     const L = line.trim();
     if(/^#{2,3}\s/.test(L)){ push(); cur.push(line); continue; }
-    if(/^!\[(fig|sim):/.test(L)){ later.push(line); continue; } // figur og simulering får eget kort etter avsnittet
+    if(/^!\[(fig|sim|pic):/.test(L)){ later.push(line); continue; } // figur og simulering får eget kort etter avsnittet
     cur.push(line);
   }
   push();

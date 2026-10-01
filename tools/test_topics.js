@@ -51,7 +51,7 @@ for (const key of touched) {
       const x = tp[lang], wl = w + ' ' + lang; if (!x) { E(wl, 'mangler språk'); continue; }
       if (!x.t || x.t.length > 40) E(wl, 'tittel mangler eller er for lang (maks 40 tegn)');
       inl(x.intro, wl + ' intro', lang); const wi = words(x.intro || ''); if (wi < 20 || wi > 110) E(wl, `intro ${wi} ord (20–110)`);
-      if (!Array.isArray(x.f) || x.f.length < 1 || x.f.length > 4) E(wl, 'f: 1–4 formler');
+      if (!(tp.pic && !x.f) && (!Array.isArray(x.f) || x.f.length < 1 || x.f.length > 4)) E(wl, 'f: 1–4 formler (eller en tegning i pic)');
       (x.f || []).forEach(([l, d], k) => { kx(lang === 'en' ? l.replace(/\{,\}/g, '.') : l, wl + ' f' + k, true); if (/\$/.test(l)) E(wl + ' f' + k, 'formel skal ikke ha $'); inl(d || ' - ', wl + ' f' + k + ' tekst', lang); });
       (x.legend || []).forEach(([s, m, un], k) => { kx(s, wl + ' legend' + k, false); inl(m, wl + ' legend' + k, lang); if (typeof un !== 'string') E(wl, 'legend-enhet må være streng'); });
       inl(x.ex, wl + ' ex', lang); if (words(x.ex || '') > 90) E(wl, 'eksempel for langt (maks ca. 90 ord)');

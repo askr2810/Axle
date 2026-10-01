@@ -40,6 +40,7 @@ function richDoc(src){
     let m;
     if((m = L.match(/^(#{2,3})\s+(.*)$/))){ fAll(); const h = m[1].length===2 ? "h3" : "h4"; out.push(`<${h}>${inl(m[2])}</${h}>`); continue; }
     if((m = L.match(/^!\[fig:(\w+)\]$/))){ fAll(); out.push(figureHTML(m[1])); continue; }
+    if((m = L.match(/^!\[pic:([\w-]+)\]$/))){ fAll(); if(typeof DRIVE_PICS !== "undefined" && DRIVE_PICS[m[1]]){ const p = DRIVE_PICS[m[1]](LANG); out.push(`<figure class="tppic">${p.svg}<figcaption>${esc(p.cap)}</figcaption></figure>`); } continue; }
     if((m = L.match(/^!\[sim:(\w+)\]$/))){ fAll(); out.push(simHTML(m[1])); continue; }
     if((m = L.match(/^\$\$(.+)\$\$$/))){ fPara(); fList(); fBox(); out.push('<div class="dmath">'+texD(m[1])+"</div>"); continue; }
     if((m = L.match(/^>\s?(.*)$/))){ fPara(); fList(); box.push(m[1]); continue; }

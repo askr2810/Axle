@@ -15,7 +15,8 @@ const tpText = tp => tp[LANG] || tp.nb;
 const tpFx = s => decPoint() ? String(s).replace(/\{,\}/g, ".") : String(s);
 function tpTileHTML(code, tp, label){
   const x = tpText(tp), key = x.f && x.f[0] ? x.f[0][0] : "";
-  const art = tp.fig ? `<span class="tfig" aria-hidden="true">${tp.fig}</span>` : `<span class="tfx" aria-hidden="true">${key ? tex(tpFx(key)) : ""}</span>`;
+  const dt = tp.pic && typeof DRIVE_TILE !== "undefined" ? DRIVE_TILE[tp.pic] : null;
+  const art = dt ? `<span class="tsignbox" aria-hidden="true">${FK_SIGNS[dt] ? fkSign(dt, 46) : `<span class="temo">${dt}</span>`}</span>` : tp.fig ? `<span class="tfig" aria-hidden="true">${tp.fig}</span>` : `<span class="tfx" aria-hidden="true">${key ? tex(tpFx(key)) : ""}</span>`;
   const seen = (S.topicSeen || {})[code + ":" + tp.id];
   return `<button class="tptile ${seen ? "seen" : ""}" data-a="bktopic" data-c="${esc(code)}" data-id="${esc(tp.id)}">${art}${label ? `<span class="tc">${esc(label)}</span>` : ""}<span class="tt">${esc(x.t)}</span></button>`;
 }
@@ -31,6 +32,7 @@ function renderBookTopic(){
     <main class="wrap topic">
       <h1>${esc(x.t)}</h1>
       ${hit.tp.fig ? `<figure class="tpfig" aria-hidden="true">${hit.tp.fig}</figure>` : ""}
+      ${hit.tp.pic && typeof DRIVE_PICS !== "undefined" && DRIVE_PICS[hit.tp.pic] ? (p => `<figure class="tppic">${p.svg}<figcaption>${esc(p.cap)}</figcaption></figure>`)(DRIVE_PICS[hit.tp.pic](LANG)) : ""}
       <p class="intro">${rich(x.intro)}</p>
       ${formulas}${legend}${ex}
       ${x.tip ? `<div class="callout">${rich(x.tip)}</div>` : ""}
@@ -164,8 +166,8 @@ function renderBookCourse(){
       const src = bkDoc(c.code, u), pts = bkPoints(src), take = bkRemember(src).find(x => !/^(øvingsoppgaver|practice problems)/i.test(x)), lead = bkLead(src);
       return `<section class="bku"><button class="bku-h" data-a="bkunit" data-c="${esc(c.code)}" data-u="${u}"><span class="bk-num" style="background:${col}">${u + 1}</span><b>${esc(unitTitle(c, u))}</b>${seen ? `<span class="bk-seen" title="${esc(t("bkRead"))}">${I.checkS}</span>` : ""}${I.chevron}</button>
         ${lead ? `<p class="bku-lead">${esc(lead.length > 220 ? lead.slice(0, lead.lastIndexOf(" ", 215)) + " …" : lead)}</p>` : ""}
-        ${pts.length ? `<ul class="bku-pts">${pts.map(x => `<li>${rich(x)}</li>`).join("")}</ul>` : ""}
-        ${take ? `<div class="bku-take"><span aria-hidden="true">💡</span><div>${rich(take)}</div></div>` : ""}
+        ${pts.length ? `<ul class="bku-pts">${pts.map(x => `<li>${rich(x).replace(/\*\*([^*]+?)\*\*/g, "<b>$1</b>")}</li>`).join("")}</ul>` : ""}
+        ${take ? `<div class="bku-take"><span aria-hidden="true">💡</span><div>${rich(take).replace(/\*\*([^*]+?)\*\*/g, "<b>$1</b>")}</div></div>` : ""}
         <div class="bku-acts"><button class="bku-b" data-a="bkunit" data-c="${esc(c.code)}" data-u="${u}">${I.book}${esc(t("tpFullShort"))}</button><button class="bku-b pri" data-a="bkguided" data-c="${esc(c.code)}" data-u="${u}">${I.steps}${esc(t("gdCta"))}</button></div></section>`;
     }).join("");
   }
