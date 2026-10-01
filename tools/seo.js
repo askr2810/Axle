@@ -252,7 +252,17 @@ function coursePage(c){
   const nQ = c.units.reduce((n, u) => n + u.qs.length, 0), nG = c.units.reduce((n, u) => n + (u.gen || []).length, 0);
   const nT = (TOPIC_DB[c.code] || []).flat().filter(Boolean).length;
   const intro = lead(theory(c, 0)) || X().intro(nm);
-  const desc = X().desc(nm, nQ + nG, c.units.length, codes.map(e => e[1])).slice(0, 300);
+  const drv = c.group === 'Førerkort', mc = c.code === 'FKMC'; // førerkort: folk søker på «teoriprøve», ikke «oppgaver og formler»
+  const DX = !drv ? null : L === 'nb'
+    ? { title: mc ? 'Teoriprøve MC (A1, A2 og A) – gratis øvingsprøve med forklaringer' : 'Teoriprøve bil (klasse B) – gratis øvingsprøve med forklaringer',
+        h1: mc ? 'Teoriprøve for MC: øv gratis til førerkort A1, A2 og A' : 'Teoriprøve for bil: øv gratis til førerkort klasse B',
+        desc: `Øv gratis til teoriprøven for ${mc ? 'motorsykkel (A1, A2 og A)' : 'bil (klasse B)'}: ${nQ} spørsmål med forklaring, øvingsprøve med 45 spørsmål på 90 minutter som på den ekte prøven, skilt, animerte trafikksituasjoner og oversikt over hvor du ligger an.`,
+        facts: ['45 spørsmål · 90 min', `${nQ} spørsmål`, 'Skilt og trafikksituasjoner', 'Gratis'] }
+    : { title: mc ? 'Norwegian motorcycle theory test (A1, A2, A) – free practice test' : 'Norwegian driving theory test (class B) – free practice test',
+        h1: mc ? 'Norwegian motorcycle theory test: free practice for A1, A2 and A' : 'Norwegian driving theory test: free practice for class B',
+        desc: `Practise for the Norwegian ${mc ? 'motorcycle' : 'car'} theory test for free: ${nQ} questions with explanations, a 45-question 90-minute mock test like the real one, road signs, animated traffic situations and a readiness score.`,
+        facts: ['45 questions · 90 min', `${nQ} questions`, 'Signs and traffic situations', 'Free'] };
+  const desc = (DX ? DX.desc : X().desc(nm, nQ + nG, c.units.length, codes.map(e => e[1]))).slice(0, 300);
   const lc = s => L === 'nb' ? s.toLowerCase() : s.charAt(0).toLowerCase() + s.slice(1);
   const units = c.units.map((_, u) => {
     const src = theory(c, u), tps = topicsOf(c, u);
@@ -262,9 +272,9 @@ ${tps.length ? `<h3>${X().inPart}</h3><div class="tp">${tps.map(tp => topicBlock
 ${unitLabs(c, u)}
 <p><a class="cta" href="${appLink(c)}">${esc(X().practisePart(lc(unitName(c, u))))}</a></p></section>`;
   }).join('\n');
-  const body = `<h1>${esc(X().h1(nm, abbr))}</h1>
+  const body = `<h1>${esc(DX ? DX.h1 : X().h1(nm, abbr))}</h1>
 <p class="lead">${esc(intro)}</p>
-<div class="facts"><span>${X().parts(c.units.length)}</span><span>${X().probs(nQ + nG)}</span>${nT ? `<span>${X().concepts(nT)}</span>` : ''}<span>${X().exam}</span><span>${X().free}</span></div>
+<div class="facts">${DX ? DX.facts.map(f => `<span>${esc(f)}</span>`).join('') : `<span>${X().parts(c.units.length)}</span><span>${X().probs(nQ + nG)}</span>${nT ? `<span>${X().concepts(nT)}</span>` : ''}<span>${X().exam}</span><span>${X().free}</span>`}</div>
 <a class="cta" href="${appLink(c)}">${X().startFree}</a>
 <h2>${X().contents}</h2><ol>${c.units.map((_, u) => `<li><a href="#${L === 'nb' ? 'del' : 'part'}-${u + 1}">${esc(unitName(c, u))}</a></li>`).join('')}</ol>
 ${units}
@@ -277,7 +287,7 @@ ${codes.length ? `<h2>${X().codesH}</h2><p>${X().codesP}</p><ul class="codes">${
     url: `${SITE}${courseUrl(c)}`, provider: { '@type': 'Organization', name: 'Axle', sameAs: SITE }, ...(codes[0] ? { courseCode: codes[0][1] } : {}),
     hasCourseInstance: { '@type': 'CourseInstance', courseMode: 'Online', courseWorkload: 'PT10M' },
     offers: { '@type': 'Offer', price: 0, priceCurrency: 'NOK', category: 'Free' } };
-  return page({ url: courseUrl(c), alt: courseUrl(c, other()), title: `${X().title(nm, abbr)} | Axle`, desc, body, jsonld, crumbs: `<a href="${hubUrl()}">${X().all}</a> › ${esc(nm)}` });
+  return page({ url: courseUrl(c), alt: courseUrl(c, other()), title: `${DX ? DX.title : X().title(nm, abbr)} | Axle`, desc, body, jsonld, crumbs: `<a href="${hubUrl()}">${X().all}</a> › ${esc(nm)}` });
 }
 // ---------- emneside ----------
 function topicPage(c, u, tp, prev, next){
@@ -324,6 +334,11 @@ for(const l of ['nb', 'en']){
   }
 }
 setL('nb');
+// Korte adresser for førerkort (axle.no/teoriprove): videresender til fagsiden, med kanonisk adresse dit.
+for(const [alias, code] of [['teoriprove', 'FKB'], ['teoriprove-bil', 'FKB'], ['teoriprove-mc', 'FKMC']]){
+  const c = COURSES.find(x => x.code === code); if(!c) continue; const to = courseUrl(c);
+  write(alias + '/index.html', `<!doctype html><html lang="nb"><head><meta charset="utf-8"><title>Teoriprøve – Axle</title><link rel="canonical" href="${SITE}${to}"><meta name="robots" content="noindex"><meta http-equiv="refresh" content="0; url=${to}"></head><body><a href="${to}">Teoriprøve</a></body></html>`);
+}
 const today = new Date().toISOString().slice(0, 10), langOf = u => u.startsWith('/en/') ? 'en' : 'nb';
 write('sitemap.xml', `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">\n${pairs.map(([u, a]) => `<url><loc>${SITE}${u}</loc><lastmod>${today}</lastmod>${a ? [[langOf(u), u], [langOf(a), a]].sort().map(([l, x]) => `<xhtml:link rel="alternate" hreflang="${l}" href="${SITE}${x}"/>`).join('') + `<xhtml:link rel="alternate" hreflang="x-default" href="${SITE}${langOf(u) === 'nb' ? u : a}"/>` : ''}</url>`).join('\n')}\n</urlset>\n`);
 // axle.no/en og axle.no/english: starter appen på engelsk (appen leser ?lang=en og husker valget).

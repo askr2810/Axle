@@ -440,3 +440,296 @@ assert abs(y[-1] - 0.8**20) < 1e-9, f"y(2) ble {y[-1]}, men Euler gir 0.8^20 ≈
 assert len(_axle_plots) >= 1, "Tegn grafen med plt.plot."`, hint: ["Euler-steget: `y_ny = y + h * f(t, y)`, her `f = -2 * y`.", "The Euler step: `y_new = y + h * f(t, y)`, here `f = -2 * y`."] },
   ],
 };
+// ---------- flere oppgaver (lagt til i eget steg, så rekkefølgen i enhetene over står fast) ----------
+const CODE_MORE = {
+  "MEK1300:0": [
+    { id: "initialer", t: ["Initialer", "Initials"],
+      p: ["Lag initialene til navnet i `navn` og skriv dem ut med punktum, for eksempel `O.N.` for `\"Ola Nordmann\"`. Bruk `split()` og indeksering.", "Make the initials of the name in `navn` and print them with full stops, e.g. `O.N.` for `\"Ola Nordmann\"`. Use `split()` and indexing."],
+      start: PY`navn = "Ola Nordmann"
+deler = navn.split()
+print(deler)
+`, sol: PY`navn = "Ola Nordmann"
+deler = navn.split()
+print(deler[0][0] + "." + deler[1][0] + ".")
+`, out: "O.N.", hint: ["`deler[0][0]` er første bokstav i første ord.", "`deler[0][0]` is the first letter of the first word."] },
+  ],
+  "MEK1300:1": [
+    { id: "gyldig", t: ["Gyldig inndata", "Valid input"],
+      p: ["Les inn tall med `input()` til brukeren skriver et positivt heltall. Hopp over tekst som ikke er tall og tall som ikke er positive. Skriv så ut `Takk: 5` (med tallet). Inndataene er `-3`, `abc` og `5`.", "Read numbers with `input()` until the user types a positive integer. Skip text that is not a number and numbers that are not positive. Then print `Takk: 5` (with the number). The input is `-3`, `abc` and `5`."],
+      start: PY`tall = int(input())
+print("Takk:", tall)
+`, sol: PY`while True:
+    tekst = input()
+    try:
+        tall = int(tekst)
+    except ValueError:
+        continue
+    if tall > 0:
+        break
+print("Takk:", tall)
+`, stdin: "-3\nabc\n5", out: "Takk: 5", hint: ["Bruk `while True:` med `try`/`except ValueError` og `break` når tallet er gyldig.", "Use `while True:` with `try`/`except ValueError` and `break` when the number is valid."] },
+  ],
+  "MEK1300:2": [
+    { id: "topp3", t: ["De tre største", "The three largest"],
+      p: ["Lag `topp3(liste)` som returnerer de tre største tallene i synkende rekkefølge. Lista skal ikke endres.", "Write `topp3(liste)` returning the three largest numbers in descending order. The list must not be changed."],
+      start: PY`def topp3(liste):
+    return liste[:3]
+
+print(topp3([4, 19, 7, 25, 3, 11]))
+`, sol: PY`def topp3(liste):
+    return sorted(liste, reverse=True)[:3]
+
+print(topp3([4, 19, 7, 25, 3, 11]))
+`, check: PY`L = [4, 19, 7, 25, 3, 11]
+assert topp3(L) == [25, 19, 11], f"topp3 ga {topp3(L)}, men skal gi [25, 19, 11]."
+assert L == [4, 19, 7, 25, 3, 11], "Lista som ble sendt inn, skal ikke endres. Bruk sorted() i stedet for sort()."
+assert topp3([5, 5, 1, 9]) == [9, 5, 5], "Like tall skal være med begge gangene."`, hint: ["`sorted(liste, reverse=True)` lager en ny sortert liste.", "`sorted(liste, reverse=True)` makes a new sorted list."] },
+  ],
+  "MEK3100:0": [
+    { id: "arv", t: ["Arv: former og areal", "Inheritance: shapes and area"],
+      p: ["Lag klassene `Sirkel(r)` og `Rektangel(b, h)` som arver fra `Form` og har metoden `areal()`. Fullfør så `total_areal(former)`.", "Create `Sirkel(r)` and `Rektangel(b, h)` that inherit from `Form` and have an `areal()` method. Then finish `total_areal(former)`."],
+      start: PY`import math
+
+class Form:
+    def areal(self):
+        raise NotImplementedError
+
+class Sirkel(Form):
+    def __init__(self, r):
+        self.r = r
+
+class Rektangel(Form):
+    def __init__(self, b, h):
+        self.b = b
+        self.h = h
+
+def total_areal(former):
+    return 0
+`, sol: PY`import math
+
+class Form:
+    def areal(self):
+        raise NotImplementedError
+
+class Sirkel(Form):
+    def __init__(self, r):
+        self.r = r
+    def areal(self):
+        return math.pi * self.r ** 2
+
+class Rektangel(Form):
+    def __init__(self, b, h):
+        self.b = b
+        self.h = h
+    def areal(self):
+        return self.b * self.h
+
+def total_areal(former):
+    return sum(f.areal() for f in former)
+`, check: PY`assert isinstance(Sirkel(1), Form) and isinstance(Rektangel(1, 2), Form), "Klassene skal arve fra Form."
+assert abs(Sirkel(2).areal() - 4 * math.pi) < 1e-9, "Sirkel(2).areal() skal være 4π."
+assert Rektangel(3, 4).areal() == 12, "Rektangel(3, 4).areal() skal være 12."
+assert abs(total_areal([Sirkel(1), Rektangel(2, 5)]) - (math.pi + 10)) < 1e-9, "total_areal skal summere arealene."`, hint: ["Hver underklasse får sin egen `def areal(self):`. `total_areal` kan bruke `sum(f.areal() for f in former)`.", "Each subclass gets its own `def areal(self):`. `total_areal` can use `sum(f.areal() for f in former)`."] },
+  ],
+  "MEK3100:1": [
+    { id: "stakk", t: ["Balanserte parenteser", "Balanced brackets"],
+      p: ["Lag `balansert(tekst)` som returnerer `True` hvis alle parenteser `()`, `[]` og `{}` er riktig lukket. Bruk en liste som stakk.", "Write `balansert(tekst)` returning `True` if all brackets `()`, `[]` and `{}` are properly closed. Use a list as a stack."],
+      start: PY`def balansert(tekst):
+    return tekst.count("(") == tekst.count(")")
+`, sol: PY`def balansert(tekst):
+    par = {")": "(", "]": "[", "}": "{"}
+    stakk = []
+    for t in tekst:
+        if t in "([{":
+            stakk.append(t)
+        elif t in par:
+            if not stakk or stakk.pop() != par[t]:
+                return False
+    return not stakk
+`, check: PY`for s, ok in [("(a[b]{c})", True), ("([)]", False), ("((", False), ("", True), ("x)(", False), ("{[()()]}", True)]:
+    assert balansert(s) == ok, f"balansert({s!r}) ga {balansert(s)}, men skal gi {ok}."`, hint: ["Legg åpne parenteser på stakken. Ved en lukkende må toppen av stakken være den matchende åpne.", "Push opening brackets. At a closing one, the top of the stack must be the matching opener."] },
+  ],
+  "MEK3100:2": [
+    { id: "matmul", t: ["Matrisemultiplikasjon", "Matrix multiplication"],
+      p: ["Lag `matmul(A, B)` som multipliserer to matriser lagret som lister av rader, uten NumPy: $C_{ij} = \\sum_k A_{ik} B_{kj}$.", "Write `matmul(A, B)` multiplying two matrices stored as lists of rows, without NumPy: $C_{ij} = \\sum_k A_{ik} B_{kj}$."],
+      start: PY`def matmul(A, B):
+    n, m, p = len(A), len(B), len(B[0])
+    C = [[0] * p for _ in range(n)]
+    return C
+`, sol: PY`def matmul(A, B):
+    n, m, p = len(A), len(B), len(B[0])
+    C = [[0] * p for _ in range(n)]
+    for i in range(n):
+        for j in range(p):
+            for k in range(m):
+                C[i][j] += A[i][k] * B[k][j]
+    return C
+`, check: PY`assert matmul([[1, 2], [3, 4]], [[5, 6], [7, 8]]) == [[19, 22], [43, 50]], "2×2-eksempelet skal gi [[19, 22], [43, 50]]."
+assert matmul([[1, 2, 3]], [[1], [0], [2]]) == [[7]], "En 1×3 ganger 3×1 skal gi [[7]]."`, hint: ["Tre løkker: rad `i`, kolonne `j` og summen over `k`.", "Three loops: row `i`, column `j` and the sum over `k`."] },
+  ],
+  "NUM:0": [
+    { id: "halvering", t: ["Halveringsmetoden", "The bisection method"],
+      p: ["Finn roten til $f(x) = x^3 - x - 2$ i $[1, 2]$ med halveringsmetoden. Halver intervallet til det er kortere enn $10^{-8}$, og lagre midtpunktet i `rot`.", "Find the root of $f(x) = x^3 - x - 2$ in $[1, 2]$ by bisection. Halve the interval until it is shorter than $10^{-8}$, and store the midpoint in `rot`."],
+      start: PY`def f(x):
+    return x**3 - x - 2
+
+a, b = 1.0, 2.0
+while b - a > 1e-8:
+    m = (a + b) / 2
+    a = m  # velg riktig halvdel
+rot = (a + b) / 2
+print(rot)
+`, sol: PY`def f(x):
+    return x**3 - x - 2
+
+a, b = 1.0, 2.0
+while b - a > 1e-8:
+    m = (a + b) / 2
+    if f(a) * f(m) <= 0:
+        b = m
+    else:
+        a = m
+rot = (a + b) / 2
+print(rot)
+`, check: PY`assert abs(rot - 1.5213797068) < 1e-7, f"rot er {rot}, men roten er ≈ 1.52138."`, hint: ["Har `f(a)` og `f(m)` ulikt fortegn, ligger roten i `[a, m]`, ellers i `[m, b]`.", "If `f(a)` and `f(m)` have opposite signs, the root is in `[a, m]`, otherwise in `[m, b]`."] },
+  ],
+  "NUM:1": [
+    { id: "derivert", t: ["Numerisk derivasjon", "Numerical derivative"],
+      p: ["Lag `deriv(f, x, h=1e-5)` med sentraldifferanse: $f'(x) \\approx \\tfrac{f(x+h) - f(x-h)}{2h}$.", "Write `deriv(f, x, h=1e-5)` using the central difference: $f'(x) \\approx \\tfrac{f(x+h) - f(x-h)}{2h}$."],
+      start: PY`import math
+
+def deriv(f, x, h=1e-5):
+    return (f(x + h) - f(x)) / h
+
+print(deriv(math.sin, 0))
+`, sol: PY`import math
+
+def deriv(f, x, h=1e-5):
+    return (f(x + h) - f(x - h)) / (2 * h)
+
+print(deriv(math.sin, 0))
+`, check: PY`for x in (0, 0.5, 1, 2):
+    assert abs(deriv(math.sin, x) - math.cos(x)) < 1e-9, f"deriv(sin, {x}) skal være cos({x})."
+assert abs(deriv(lambda t: t**3, 2, 0.1) - 12.01) < 1e-9, "Med h = 0.1 gir sentraldifferansen 12.01 for t³ i 2."`, hint: ["Bruk både `f(x + h)` og `f(x - h)`, og del på `2 * h`.", "Use both `f(x + h)` and `f(x - h)`, and divide by `2 * h`."] },
+  ],
+  "ML:0": [
+    { id: "stdavvik", t: ["Standardavvik", "Standard deviation"],
+      p: ["Lag `standardavvik(data)` som regner ut utvalgsstandardavviket: $s = \\sqrt{\\tfrac{1}{n-1}\\sum (x_i - \\bar x)^2}$, uten `statistics`-modulen.", "Write `standardavvik(data)` computing the sample standard deviation: $s = \\sqrt{\\tfrac{1}{n-1}\\sum (x_i - \\bar x)^2}$, without the `statistics` module."],
+      start: PY`import math
+
+def standardavvik(data):
+    snitt = sum(data) / len(data)
+    return 0
+
+print(standardavvik([2, 4, 4, 4, 5, 5, 7, 9]))
+`, sol: PY`import math
+
+def standardavvik(data):
+    snitt = sum(data) / len(data)
+    return math.sqrt(sum((x - snitt) ** 2 for x in data) / (len(data) - 1))
+
+print(standardavvik([2, 4, 4, 4, 5, 5, 7, 9]))
+`, check: PY`import statistics
+for d in ([2, 4, 4, 4, 5, 5, 7, 9], [1.5, 2.5], [10, 12, 23, 23, 16, 23, 21, 16]):
+    assert abs(standardavvik(d) - statistics.stdev(d)) < 1e-9, f"standardavvik({d}) skal være {statistics.stdev(d):.4f}. Del på n − 1."`, hint: ["Summer `(x - snitt) ** 2`, del på `len(data) - 1` og ta kvadratroten.", "Sum `(x - snitt) ** 2`, divide by `len(data) - 1` and take the square root."] },
+  ],
+  "ML:1": [
+    { id: "linfit", t: ["Lineær regresjon med graf", "Linear regression with a graph"],
+      p: ["Lag `linfit(x, y)` som returnerer `(a, b)` for linjen $y = ax + b$ med minste kvadraters metode: $a = \\tfrac{\\sum (x_i-\\bar x)(y_i-\\bar y)}{\\sum (x_i-\\bar x)^2}$, $b = \\bar y - a\\bar x$. Tegn punktene og linjen.", "Write `linfit(x, y)` returning `(a, b)` for the line $y = ax + b$ by least squares: $a = \\tfrac{\\sum (x_i-\\bar x)(y_i-\\bar y)}{\\sum (x_i-\\bar x)^2}$, $b = \\bar y - a\\bar x$. Plot the points and the line."],
+      start: PY`import matplotlib.pyplot as plt
+
+def linfit(x, y):
+    xm = sum(x) / len(x)
+    ym = sum(y) / len(y)
+    a = 0
+    b = ym
+    return a, b
+
+x = [1, 2, 3, 4, 5, 6]
+y = [2.1, 3.9, 6.2, 7.8, 10.1, 12.2]
+a, b = linfit(x, y)
+plt.scatter(x, y, label="Målinger")
+plt.plot(x, [a * v + b for v in x], label="Linje")
+plt.show()
+`, sol: PY`import matplotlib.pyplot as plt
+
+def linfit(x, y):
+    xm = sum(x) / len(x)
+    ym = sum(y) / len(y)
+    a = sum((xi - xm) * (yi - ym) for xi, yi in zip(x, y)) / sum((xi - xm) ** 2 for xi in x)
+    b = ym - a * xm
+    return a, b
+
+x = [1, 2, 3, 4, 5, 6]
+y = [2.1, 3.9, 6.2, 7.8, 10.1, 12.2]
+a, b = linfit(x, y)
+plt.scatter(x, y, label="Målinger")
+plt.plot(x, [a * v + b for v in x], label="Linje")
+plt.show()
+`, check: PY`a2, b2 = linfit([0, 1, 2], [1, 3, 5])
+assert abs(a2 - 2) < 1e-9 and abs(b2 - 1) < 1e-9, f"linfit([0,1,2], [1,3,5]) skal gi (2, 1), men ga {(a2, b2)}."
+a3, b3 = linfit(x, y)
+assert abs(a3 - 2.02) < 1e-6 and abs(b3 + 0.02) < 1e-6, f"For målingene skal a ≈ 2.02 og b ≈ −0.02, men du fikk {(a3, b3)}."
+assert len(_axle_plots) >= 2, "Tegn både punktene (scatter) og linjen (plot)."`, hint: ["Bruk `zip(x, y)` for å gå gjennom parene samtidig.", "Use `zip(x, y)` to loop over the pairs together."] },
+  ],
+  "ML:2": [
+    { id: "presisjon", t: ["Nøyaktighet og presisjon", "Accuracy and precision"],
+      p: ["Lag `evaluer(fasit, pred)` for binær klassifisering (0/1). Den skal returnere `(nøyaktighet, presisjon)`, der presisjon er andelen riktige blant dem modellen sa var 1.", "Write `evaluer(fasit, pred)` for binary classification (0/1). Return `(accuracy, precision)`, where precision is the share of correct ones among those the model predicted as 1."],
+      start: PY`def evaluer(fasit, pred):
+    riktige = 0
+    return riktige / len(fasit), 0
+
+print(evaluer([1, 0, 1, 1, 0, 0], [1, 0, 0, 1, 1, 0]))
+`, sol: PY`def evaluer(fasit, pred):
+    riktige = sum(1 for f, p in zip(fasit, pred) if f == p)
+    tp = sum(1 for f, p in zip(fasit, pred) if f == 1 and p == 1)
+    fp = sum(1 for f, p in zip(fasit, pred) if f == 0 and p == 1)
+    presisjon = tp / (tp + fp) if tp + fp else 0
+    return riktige / len(fasit), presisjon
+
+print(evaluer([1, 0, 1, 1, 0, 0], [1, 0, 0, 1, 1, 0]))
+`, check: PY`n, p = evaluer([1, 0, 1, 1, 0, 0], [1, 0, 0, 1, 1, 0])
+assert abs(n - 4 / 6) < 1e-9, f"Nøyaktigheten skal være 4/6, men ble {n}."
+assert abs(p - 2 / 3) < 1e-9, f"Presisjonen skal være 2/3 (2 sanne positive, 1 falsk positiv), men ble {p}."
+assert evaluer([0, 0], [0, 0]) == (1.0, 0), "Uten positive prediksjoner skal presisjonen være 0 (unngå deling på null)."`, hint: ["Tell sanne positive (fasit 1, pred 1) og falske positive (fasit 0, pred 1).", "Count true positives (truth 1, pred 1) and false positives (truth 0, pred 1)."] },
+  ],
+  "DISK:0": [
+    { id: "sannhet", t: ["Sannhetstabell", "Truth table"],
+      p: ["Skriv ut sannhetstabellen for $p \\land \\lnot q$: én linje per kombinasjon med `p`, `q` og resultatet, for eksempel `True False True`. Start med `p = True, q = True`.", "Print the truth table for $p \\land \\lnot q$: one line per combination with `p`, `q` and the result, e.g. `True False True`. Start with `p = True, q = True`."],
+      start: PY`for p in [True, False]:
+    print(p)
+`, sol: PY`for p in [True, False]:
+    for q in [True, False]:
+        print(p, q, p and not q)
+`, out: "True True False\nTrue False True\nFalse True False\nFalse False False", hint: ["To nøstede løkker over `[True, False]`, og `print(p, q, p and not q)`.", "Two nested loops over `[True, False]`, and `print(p, q, p and not q)`."] },
+  ],
+  "DISK:1": [
+    { id: "binom", t: ["Binomialkoeffisient", "Binomial coefficient"],
+      p: ["Lag `binom(n, k)` som regner ut $\\binom{n}{k}$ uten `math.comb`, for eksempel med Pascals trekant: $\\binom{n}{k} = \\binom{n-1}{k-1} + \\binom{n-1}{k}$.", "Write `binom(n, k)` computing $\\binom{n}{k}$ without `math.comb`, e.g. with Pascal's triangle: $\\binom{n}{k} = \\binom{n-1}{k-1} + \\binom{n-1}{k}$."],
+      start: PY`def binom(n, k):
+    return n * k
+`, sol: PY`def binom(n, k):
+    rad = [1]
+    for _ in range(n):
+        rad = [1] + [rad[i] + rad[i + 1] for i in range(len(rad) - 1)] + [1]
+    return rad[k] if 0 <= k <= n else 0
+`, check: PY`import math
+for n in range(0, 25):
+    for k in range(0, n + 1):
+        assert binom(n, k) == math.comb(n, k), f"binom({n}, {k}) ga {binom(n, k)}, men skal være {math.comb(n, k)}."`, hint: ["Bygg rad for rad i Pascals trekant, eller bruk $n!/(k!(n-k)!)$ med heltallsdivisjon.", "Build Pascal's triangle row by row, or use $n!/(k!(n-k)!)$ with integer division."] },
+  ],
+  "DISK:2": [
+    { id: "euklid", t: ["Euklids algoritme", "Euclid's algorithm"],
+      p: ["Lag `sfd(a, b)` som finner største felles divisor med Euklids algoritme: erstatt $(a, b)$ med $(b, a \\bmod b)$ til $b = 0$.", "Write `sfd(a, b)` finding the greatest common divisor with Euclid's algorithm: replace $(a, b)$ with $(b, a \\bmod b)$ until $b = 0$."],
+      start: PY`def sfd(a, b):
+    return min(a, b)
+`, sol: PY`def sfd(a, b):
+    while b:
+        a, b = b, a % b
+    return a
+`, check: PY`import math
+for a, b in [(48, 18), (17, 5), (100, 75), (7, 0), (0, 9), (1071, 462)]:
+    assert sfd(a, b) == math.gcd(a, b), f"sfd({a}, {b}) ga {sfd(a, b)}, men skal være {math.gcd(a, b)}."`, hint: ["`while b: a, b = b, a % b`, og returner `a`.", "`while b: a, b = b, a % b`, then return `a`."] },
+  ],
+};
+for(const k of Object.keys(CODE_MORE)) (CODE_TASKS[k] ||= []).push(...CODE_MORE[k]);
