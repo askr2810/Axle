@@ -13,7 +13,7 @@ const files = [...order, ...ls(/^en_static_.*\.js$/), 'learn.js', ...ls(/^add_.*
 global.navigator = { language: 'nb' }; global.localStorage = { getItem(){ return null; }, setItem(){} };
 const tmp = path.join(os.tmpdir(), 'axle_seo_' + process.pid + '.js');
 // Tegningene til førerkortsidene (skilt, kryss): drive_signs.js, drive_scenes.js og drive_pics.js. FIGS finnes ikke her, så den lages tom.
-const drawFiles = ['drive_signs.js', 'drive_scenes.js', 'drive_pics.js'].filter(f => fs.existsSync(path.join(ROOT, f)));
+const drawFiles = ['drive_signs_ref.js', 'drive_signs.js', 'drive_scenes.js', 'drive_pics.js'].filter(f => fs.existsSync(path.join(ROOT, f)));
 fs.writeFileSync(tmp, files.map(f => fs.readFileSync(path.join(ROOT, f), 'utf8')).join('\n;\n') + '\n;var FIGS = {};\n' + drawFiles.map(f => fs.readFileSync(path.join(ROOT, f), 'utf8')).join('\n;\n') +
   ';module.exports={COURSES,META,THEORY_DB,TOPIC_DB,GROUP_NAMES,CONFIG,nf,ENQ,UNIT_EN,setLang:l=>{LANG=l},DRIVE_PICS:typeof DRIVE_PICS!=="undefined"?DRIVE_PICS:{}};');
 const M = require(tmp); fs.unlinkSync(tmp);
