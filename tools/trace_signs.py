@@ -46,6 +46,16 @@ for key, f in [("barn", "146_barn.jpg"), ("glatt", "118_glatt_kjorebane.jpg")]:
         out["triBase"] = trace(area, S, S, 0, OY, 1.2, 1.2, 4000)
         out["triRedPath"] = trace(red, S, S, 0, OY, 1.2, 1.2, 4000)
     out[key] = trace(ink, S, S, 0, OY, 0.9, 1.0, 60)
+# ---------- elg (142): lite bilde, så det forstørres før sporingen. Plasseres etter den røde trekantens ytre ramme ----------
+im = Image.open(f"{SRC}/142_elg.png").convert("RGB"); K = 5
+im = im.resize((im.width * K, im.height * K), Image.LANCZOS)
+a = np.asarray(im).astype(float); r, g, b = a[..., 0], a[..., 1], a[..., 2]
+red = (r > 140) & (g < 110) & (b < 110)
+ink = (r < 100) & (g < 100) & (b < 100)
+ys, xs = np.nonzero(red)
+# den røde trekanten i barn-referansen fyller x 0–100 og y 6,25–93,75 i skiltruten
+S = 100 / (xs.max() - xs.min() + 1); OX = -xs.min() * S; OY = 6.25 - ys.min() * S
+out["elg"] = trace(ink, S, S, OX, OY, 1.0, 1.6, 300, 2)
 # ---------- gangfelt (516) 447 × 447 ----------
 r, g, b = load("516_gangfelt.jpg")
 blue = (b > 70) & (r < 70) & (b > g + 30)
