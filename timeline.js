@@ -128,9 +128,145 @@ const TIMELINES = {
       [1851, "Jødeparagrafen", "The Jew clause", "Grunnlovens forbud mot jøder i Norge blir opphevet.", "The Constitution's ban on Jews in Norway is lifted."],
       [2012, "Ikke statsreligion", "No state religion", "Grunnloven endres: Norge har ikke lenger en offisiell statsreligion.", "The Constitution is amended: Norway no longer has an official state religion."]] }
 };
+// ---------- Årsak → virkning (fanen «Årsak») ----------
+const tlC = (name, c) => { TIMELINES[name].c = c; };
+tlC("his_epoker", [["Skriften blir tatt i bruk", "Writing comes into use", "Lover, handel og historie kan skrives ned", "Laws, trade and history can be written down"],
+  ["Boktrykkerkunsten gjør bøker billige", "Printing makes books cheap", "Luthers ideer sprer seg raskt over Europa", "Luther's ideas spread quickly across Europe"],
+  ["Columbus når Amerika", "Columbus reaches the Americas", "Kolonisering og varebytte mellom kontinentene", "Colonisation and exchange between continents"],
+  ["Opplysningstidens ideer om frihet og likhet", "Enlightenment ideas of liberty and equality", "Revolusjoner i USA og Frankrike", "Revolutions in the US and France"],
+  ["Andre verdenskrig etterlater Europa i ruiner", "WWII leaves Europe in ruins", "FN blir grunnlagt for å sikre freden", "The UN is founded to keep the peace"]]);
+tlC("his_viking", [["Olav faller på Stiklestad og blir regnet som helgen", "Olaf falls at Stiklestad and is seen as a saint", "Kristendommen får fotfeste i Norge", "Christianity takes hold in Norway"],
+  ["Kongen vil ha én lov for hele riket", "The king wants one law for the whole realm", "Landsloven til Magnus Lagabøte (1274)", "Magnus the Law-mender's code (1274)"],
+  ["Svartedauden dreper kanskje halvparten", "The Black Death kills perhaps half", "Gårder legges øde, og skatteinntektene faller", "Farms are abandoned and tax income falls"],
+  ["Kongeslektene i Norden giftes inn i hverandre", "The Nordic royal families intermarry", "Kalmarunionen samler Norden under én monark", "The Kalmar Union unites the North under one monarch"],
+  ["Gode skip og jakt på rikdom og land", "Good ships and a hunt for wealth and land", "Vikingtokt til England, Frankrike og lenger", "Viking raids on England, France and beyond"]]);
+tlC("his_reform", [["Luther kritiserer avlatshandelen", "Luther criticises indulgences", "Kirken splittes i katolikker og protestanter", "The Church splits into Catholics and Protestants"],
+  ["Kongen vil ha kirkens rikdom og makt", "The king wants the Church's wealth and power", "Reformasjonen innføres i Danmark-Norge", "The Reformation comes to Denmark-Norway"],
+  ["Kopernikus og Newton bruker observasjon og matematikk", "Copernicus and Newton use observation and maths", "Tro på fornuft og vitenskap i opplysningstiden", "Faith in reason and science in the Enlightenment"],
+  ["Opplysningsfilosofer kritiserer eneveldet", "Enlightenment thinkers criticise absolutism", "Krav om folkesuverenitet og maktfordeling", "Demands for popular sovereignty and separation of powers"],
+  ["Statsgjeld og dyrt brød i Frankrike", "State debt and expensive bread in France", "Den franske revolusjonen bryter ut", "The French Revolution breaks out"],
+  ["Watts dampmaskin", "Watt's steam engine", "Fabrikker og den industrielle revolusjonen", "Factories and the Industrial Revolution"]]);
+tlC("his_norge", [["Danmark taper på Napoleons side", "Denmark loses on Napoleon's side", "Kieltraktaten: Norge avstås til Sverige", "Treaty of Kiel: Norway is ceded to Sweden"],
+  ["Nordmenn vil bestemme selv i 1814", "Norwegians want to rule themselves in 1814", "Riksforsamlingen lager Grunnloven", "The assembly writes the Constitution"],
+  ["Fattigdom og mangel på jord", "Poverty and lack of land", "Masseutvandring til Amerika", "Mass emigration to America"],
+  ["Striden om kongens veto og riksretten", "The dispute over the royal veto and the impeachment", "Parlamentarismen innføres i 1884", "Parliamentarism is introduced in 1884"],
+  ["Uenighet om et eget norsk konsulatvesen", "Disagreement over a Norwegian consular service", "Unionen med Sverige oppløses i 1905", "The union with Sweden is dissolved in 1905"],
+  ["Kvinnesaksbevegelsens kamp", "The women's rights movement", "Kvinner får stemmerett i 1913", "Women get the vote in 1913"]]);
+tlC("his_krig", [["Skuddene i Sarajevo og alliansesystemet", "Sarajevo and the alliance system", "Europa trekkes inn i en storkrig", "Europe is pulled into a great war"],
+  ["En hard fredsavtale i Versailles", "A harsh peace treaty at Versailles", "Bitterhet i Tyskland som Hitler utnytter", "Bitterness in Germany that Hitler exploits"],
+  ["Børskrakket i 1929", "The 1929 crash", "Massearbeidsløshet og økonomisk krise", "Mass unemployment and economic crisis"],
+  ["Tyskland angriper Polen", "Germany invades Poland", "Storbritannia og Frankrike erklærer krig", "Britain and France declare war"],
+  ["Tyskland vil sikre malmtransport og kysten", "Germany wants to secure iron ore and the coast", "Angrepet på Norge 9. april 1940", "The invasion of Norway on 9 April 1940"],
+  ["Nederlaget ved Stalingrad", "The defeat at Stalingrad", "Tyskland må trekke seg tilbake i øst", "Germany has to retreat in the east"]]);
+tlC("his_kald", [["Europa ligger i ruiner etter krigen", "Europe lies in ruins after the war", "USA starter Marshallplanen", "The US launches the Marshall Plan"],
+  ["Frykt for Sovjetunionen", "Fear of the Soviet Union", "Norge går inn i NATO i 1949", "Norway joins NATO in 1949"],
+  ["Folk flykter fra Øst- til Vest-Berlin", "People flee from East to West Berlin", "Berlinmuren blir bygd i 1961", "The Berlin Wall is built in 1961"],
+  ["Sovjetiske atomraketter på Cuba", "Soviet nuclear missiles in Cuba", "Verden står på randen av atomkrig", "The world is on the brink of nuclear war"],
+  ["Oljefunnet på Ekofisk", "The Ekofisk oil find", "Norge blir et av verdens rikeste land", "Norway becomes one of the world's richest countries"],
+  ["Reformer og folkelige protester i Øst-Europa", "Reforms and popular protests in Eastern Europe", "Berlinmuren faller i 1989", "The Berlin Wall falls in 1989"]]);
+tlC("his_samer", [["Fornorskingspolitikken", "The Norwegianisation policy", "Mange samer slutter å bruke samisk", "Many Sami stop using their language"],
+  ["Planene om å demme opp Altaelva", "Plans to dam the Alta river", "Demonstrasjoner og sultestreik", "Protests and hunger strikes"],
+  ["Alta-saken setter samiske rettigheter på dagsorden", "The Alta case puts Sami rights on the agenda", "Sameloven og Sametinget", "The Sami Act and the Sami Parliament"],
+  ["Erkjennelse av statens urett", "Recognition of the state's injustice", "Kongens unnskyldning i 1997", "The King's apology in 1997"],
+  ["Europarådets rammekonvensjon", "The Council of Europe framework convention", "Fem grupper blir nasjonale minoriteter", "Five groups become national minorities"]]);
+tlC("rel_tid", [["Muhammed flytter fra Mekka til Medina", "Muhammad moves from Mecca to Medina", "Den islamske kalenderen starter (622)", "The Islamic calendar begins (622)"],
+  ["Uenighet mellom Roma og Konstantinopel", "Disagreement between Rome and Constantinople", "Det store skismaet i 1054", "The Great Schism of 1054"],
+  ["Luthers kritikk av kirken", "Luther's criticism of the Church", "Protestantiske kirker oppstår", "Protestant churches emerge"],
+  ["Dissenterloven i 1845", "The Dissenter Act of 1845", "Frikirker kan dannes i Norge", "Free churches can form in Norway"],
+  ["Babylonerne ødelegger tempelet", "The Babylonians destroy the Temple", "Jødedommen samles rundt Toraen", "Judaism gathers around the Torah"]]);
+
+// ---------- Flere fag ----------
+Object.assign(TIMELINES, {
+  samf_velferd: { t: ["Velferdsstaten bygges", "Building the welfare state"], r: [1885, 2020], w: 0.5,
+    e: [[1885, 1935, "Framvekst", "Beginnings"], [1935, 1975, "Velferdsstaten bygges", "The welfare state is built"], [1975, 2020, "Modernisering", "Modernisation"]],
+    v: [[1894, "Ulykkesforsikring", "Accident insurance", "Fabrikkarbeidere får trygd ved arbeidsulykker – Norges første sosialforsikring.", "Factory workers get insurance against work accidents – Norway's first social insurance."],
+      [1909, "Syketrygd", "Sickness insurance", "Lov om syketrygd for arbeidere med lav inntekt.", "Sickness insurance for low-income workers."],
+      [1919, "8 timers dag", "8-hour day", "Åttetimersdagen blir lovfestet.", "The eight-hour working day becomes law."],
+      [1935, "Hovedavtalen", "Basic Agreement", "LO og arbeidsgiverne inngår Hovedavtalen – grunnlaget for samarbeid i arbeidslivet.", "Unions and employers sign the Basic Agreement – the basis for cooperation in working life."],
+      [1936, "Alderstrygd", "Old-age pension", "Alle eldre får rett til pensjon fra staten.", "All elderly people get a state pension."],
+      [1938, "Arbeidsløshetstrygd", "Unemployment benefit", "Trygd ved arbeidsløshet innføres.", "Unemployment insurance is introduced."],
+      [1946, "Barnetrygd", "Child benefit", "Familier får støtte for hvert barn.", "Families get support for each child."],
+      [1956, "Syketrygd for alle", "Sick pay for all", "Syketrygden gjelder nå hele befolkningen.", "Sickness insurance now covers the whole population."],
+      [1967, "Folketrygden", "National Insurance", "Folketrygden samler pensjoner og trygder i én ordning for alle.", "National Insurance gathers pensions and benefits into one scheme for everyone."],
+      [1977, "Arbeidsmiljøloven", "Working Environment Act", "Arbeidstakere får sterkere vern om helse og sikkerhet.", "Workers get stronger protection of health and safety."],
+      [1978, "Likestillingsloven", "Gender Equality Act", "Forbud mot forskjellsbehandling på grunn av kjønn.", "Discrimination based on gender is banned."],
+      [1993, "Fedrekvote", "Paternity quota", "En del av foreldrepermisjonen blir satt av til far.", "Part of parental leave is reserved for the father."],
+      [2006, "NAV", "NAV", "Trygdeetaten, Aetat og sosialkontorene slås sammen til NAV.", "Social security, employment and welfare offices merge into NAV."],
+      [2011, "Pensjonsreformen", "Pension reform", "Pensjonen blir tilpasset at vi lever lenger: fleksibelt uttak fra 62 år.", "Pensions are adjusted to longer lives: flexible retirement from 62."]],
+    c: [["Farlig fabrikkarbeid og mange ulykker", "Dangerous factory work and many accidents", "Ulykkesforsikring for arbeidere (1894)", "Accident insurance for workers (1894)"],
+      ["Arbeiderbevegelsen krever kortere dager", "The labour movement demands shorter days", "Åttetimersdagen (1919)", "The eight-hour day (1919)"],
+      ["Krise og harde konflikter i arbeidslivet", "Crisis and bitter labour conflicts", "Hovedavtalen og samarbeid partene imellom", "The Basic Agreement and cooperation"],
+      ["Mange små trygdeordninger", "Many separate benefit schemes", "Folketrygden samler alt i én ordning", "National Insurance gathers them into one"],
+      ["Vi lever lenger og blir flere eldre", "We live longer and there are more elderly", "Pensjonsreformen i 2011", "The 2011 pension reform"]] },
+
+  samf_intl: { t: ["Internasjonalt samarbeid etter 1945", "International cooperation since 1945"], r: [1942, 2025], w: 0.55,
+    e: [[1945, 1991, "Den kalde krigen", "The Cold War"], [1991, 2025, "Etter den kalde krigen", "After the Cold War"]],
+    v: [[1945, "FN", "The UN", "FN blir grunnlagt for å hindre ny verdenskrig. Norge er med fra starten.", "The UN is founded to prevent another world war. Norway is a founding member."],
+      [1948, "Menneskerettigheter", "Human rights", "FN vedtar Verdenserklæringen om menneskerettighetene.", "The UN adopts the Universal Declaration of Human Rights."],
+      [1949, "NATO", "NATO", "Forsvarsalliansen NATO blir grunnlagt: et angrep på én er et angrep på alle.", "NATO is founded: an attack on one is an attack on all."],
+      [1951, "Kull og stål", "Coal and Steel", "Seks land danner Kull- og stålunionen – starten på det som blir EU.", "Six countries form the Coal and Steel Community – the start of what becomes the EU."],
+      [1960, "EFTA", "EFTA", "Norge er med og stifter frihandelsorganisasjonen EFTA.", "Norway co-founds the free trade association EFTA."],
+      [1972, "Nei til EF", "No to the EC", "53,5 % stemmer nei til medlemskap i EF.", "53.5% vote against joining the EC."],
+      [1992, "Maastricht", "Maastricht", "Maastricht-traktaten gjør EF til EU med felles mynt som mål.", "The Maastricht Treaty turns the EC into the EU, aiming for a common currency."],
+      [1994, "EØS", "EEA", "EØS-avtalen trer i kraft. Samme år sier nordmenn nei til EU for andre gang.", "The EEA Agreement takes effect. The same year Norwegians reject the EU a second time."],
+      [2001, "11. september", "11 September", "Terrorangrep i USA. NATO bruker artikkel 5 for første gang.", "Terror attacks in the US. NATO invokes Article 5 for the first time."],
+      [2002, "Euroen", "The euro", "Eurosedler og -mynter tas i bruk i tolv EU-land.", "Euro notes and coins come into use in twelve EU countries."],
+      [2015, "Parisavtalen", "Paris Agreement", "Nesten alle land forplikter seg til å begrense den globale oppvarmingen.", "Almost every country commits to limiting global warming."],
+      [2016, "Brexit", "Brexit", "Et flertall i Storbritannia stemmer for å forlate EU.", "A majority in the UK votes to leave the EU."],
+      [2022, "Ukraina", "Ukraine", "Russland starter en fullskala invasjon av Ukraina.", "Russia launches a full-scale invasion of Ukraine."]],
+    c: [["Andre verdenskrig", "The Second World War", "FN blir grunnlagt", "The UN is founded"],
+      ["Frykt for Sovjetunionen", "Fear of the Soviet Union", "NATO blir grunnlagt", "NATO is founded"],
+      ["Ønske om å binde Frankrike og Tyskland sammen", "A wish to bind France and Germany together", "Kull- og stålunionen", "The Coal and Steel Community"],
+      ["Nei til EU i 1994", "No to the EU in 1994", "Norge knyttes til EU gjennom EØS", "Norway is tied to the EU through the EEA"],
+      ["Terrorangrepet 11. september", "The 9/11 attacks", "Krigen i Afghanistan", "The war in Afghanistan"],
+      ["Russlands invasjon av Ukraina", "Russia's invasion of Ukraine", "Finland og Sverige blir med i NATO", "Finland and Sweden join NATO"]] },
+
+  sci_hist: { t: ["Store gjennombrudd i naturvitenskapen", "Great breakthroughs in science"], r: [-400, 2025], w: 0.25,
+    e: [[-400, 1543, "Antikken og middelalderen", "Antiquity and Middle Ages"], [1543, 1700, "Vitenskapelig revolusjon", "Scientific Revolution"], [1700, 1900, "Klassisk naturvitenskap", "Classical science"], [1900, 2025, "Moderne naturvitenskap", "Modern science"]],
+    v: [[-350, "Aristoteles", "Aristotle", "Aristoteles beskriver naturen systematisk, men mener jorda står stille i sentrum.", "Aristotle describes nature systematically, but thinks the Earth stands still at the centre.", 1],
+      [1543, "Kopernikus", "Copernicus", "Kopernikus plasserer sola i sentrum av planetsystemet.", "Copernicus puts the Sun at the centre of the planetary system."],
+      [1610, "Galileis teleskop", "Galileo's telescope", "Galilei ser månene til Jupiter – ikke alt går rundt jorda.", "Galileo sees Jupiter's moons – not everything orbits the Earth."],
+      [1687, "Newton", "Newton", "Newton forklarer bevegelse og tyngdekraft med de samme lovene på jorda og i rommet.", "Newton explains motion and gravity with the same laws on Earth and in space."],
+      [1789, "Lavoisier", "Lavoisier", "Lavoisier viser at massen er bevart i kjemiske reaksjoner.", "Lavoisier shows that mass is conserved in chemical reactions."],
+      [1859, "Darwin", "Darwin", "Darwin gir ut «Artenes opprinnelse» om evolusjon ved naturlig utvalg.", "Darwin publishes On the Origin of Species about evolution by natural selection."],
+      [1865, "Mendel", "Mendel", "Mendel finner arvelovene ved å krysse erteplanter.", "Mendel discovers the laws of inheritance by crossing pea plants."],
+      [1869, "Periodesystemet", "Periodic table", "Mendelejev ordner grunnstoffene og forutsier stoffer som ikke var funnet ennå.", "Mendeleev arranges the elements and predicts ones not yet found."],
+      [1895, "Røntgenstråler", "X-rays", "Røntgen oppdager stråler som går gjennom kroppen.", "Röntgen discovers rays that pass through the body."],
+      [1905, "Einstein", "Einstein", "Einstein legger fram relativitetsteorien og E = mc².", "Einstein presents relativity and E = mc²."],
+      [1928, "Penicillin", "Penicillin", "Fleming oppdager at en muggsopp dreper bakterier.", "Fleming discovers that a mould kills bacteria."],
+      [1953, "DNA", "DNA", "Watson og Crick, med data fra Rosalind Franklin, finner DNA-ets dobbeltspiral.", "Watson and Crick, using Rosalind Franklin's data, find the DNA double helix."],
+      [1969, "Månelandingen", "Moon landing", "Mennesker går på månen for første gang.", "Humans walk on the Moon for the first time."],
+      [2003, "Genomet kartlagt", "Genome mapped", "Hele menneskets arvestoff er kartlagt.", "The entire human genome is mapped."],
+      [2012, "Higgs-partikkelen", "Higgs boson", "CERN finner Higgs-partikkelen, som var forutsagt i 1964.", "CERN finds the Higgs boson, predicted in 1964."]],
+    c: [["Galilei ser Jupiters måner", "Galileo sees Jupiter's moons", "Støtte til at jorda ikke er sentrum", "Support for the Earth not being the centre"],
+      ["Darwin studerer fugler og fossiler", "Darwin studies birds and fossils", "Evolusjonsteorien", "The theory of evolution"],
+      ["Fleming ser mugg drepe bakterier", "Fleming sees mould kill bacteria", "Antibiotika redder millioner av liv", "Antibiotics save millions of lives"],
+      ["Røntgenstrålene oppdages", "X-rays are discovered", "Leger kan se inn i kroppen uten å operere", "Doctors can see inside the body without surgery"],
+      ["DNA-strukturen blir funnet", "The structure of DNA is found", "Genteknologi og gentester", "Gene technology and genetic tests"]] },
+
+  bio_jord: { t: ["Livets historie på jorda", "The history of life on Earth"], r: [-4.7e9, 0], w: 0.12,
+    e: [[-4.7e9, -541e6, "Prekambrium", "Precambrian"], [-541e6, -252e6, "Paleozoikum", "Paleozoic"], [-252e6, -66e6, "Mesozoikum (dinosaurene)", "Mesozoic (dinosaurs)"], [-66e6, 0, "Kenozoikum", "Cenozoic"]],
+    v: [[-4.6e9, "Jorda dannes", "Earth forms", "Jorda dannes av støv og stein rundt den unge sola.", "Earth forms from dust and rock around the young Sun."],
+      [-3.8e9, "Første liv", "First life", "De første encellede organismene oppstår i havet.", "The first single-celled organisms appear in the sea.", 1],
+      [-2.4e9, "Oksygen i lufta", "Oxygen in the air", "Cyanobakterier har laget så mye oksygen ved fotosyntese at det hoper seg opp i atmosfæren.", "Cyanobacteria have made so much oxygen by photosynthesis that it builds up in the atmosphere.", 1],
+      [-541e6, "Kambrisk eksplosjon", "Cambrian explosion", "Mange dyregrupper med skall og skjelett dukker opp på kort tid.", "Many animal groups with shells and skeletons appear in a short time."],
+      [-375e6, "Fisk på land", "Fish on land", "Fisker med kraftige finner tar de første stegene mot livet på land.", "Fish with strong fins take the first steps towards life on land.", 1],
+      [-252e6, "Masseutryddelse", "Mass extinction", "Den største masseutryddelsen: rundt 90 % av artene i havet forsvinner.", "The largest mass extinction: about 90% of marine species vanish."],
+      [-230e6, "Dinosaurene", "Dinosaurs", "De første dinosaurene dukker opp.", "The first dinosaurs appear.", 1],
+      [-66e6, "Asteroiden", "The asteroid", "En asteroide treffer Mexico, og dinosaurene (unntatt fuglene) dør ut.", "An asteroid hits Mexico, and the dinosaurs (except birds) die out."],
+      [-6e6, "Menneske og sjimpanse", "Humans and chimps", "Linjene som fører til mennesker og sjimpanser skilles.", "The lines leading to humans and chimpanzees split.", 1],
+      [-300e3, "Homo sapiens", "Homo sapiens", "Moderne mennesker oppstår i Afrika.", "Modern humans appear in Africa.", 1],
+      [-12e3, "Jordbruket", "Farming", "Mennesker begynner å dyrke jorda og holde husdyr.", "Humans begin farming and keeping livestock.", 1]],
+    c: [["Cyanobakterier driver fotosyntese", "Cyanobacteria carry out photosynthesis", "Oksygen hoper seg opp i atmosfæren", "Oxygen builds up in the atmosphere"],
+      ["Asteroiden treffer jorda", "The asteroid hits Earth", "Dinosaurene dør ut", "The dinosaurs die out"],
+      ["Dinosaurene forsvinner", "The dinosaurs disappear", "Pattedyrene sprer seg og blir store", "Mammals spread and grow large"],
+      ["Ozonlaget beskytter mot UV-stråling", "The ozone layer blocks UV radiation", "Livet kan flytte opp på land", "Life can move onto land"],
+      ["Jordbruket gir matoverskudd", "Farming gives a food surplus", "Byer og sivilisasjoner vokser fram", "Cities and civilisations grow"]] }
+});
 const TL_UNITS = [["VGHIS", "Historiefaget og kildekritikk", "his_epoker"], ["VGHIS", "Vikingtid og middelalder", "his_viking"], ["VGHIS", "Reformasjon, opplysningstid og revolusjoner", "his_reform"],
   ["VGHIS", "Norge 1814–1905", "his_norge"], ["VGHIS", "Verdenskrigene", "his_krig"], ["VGHIS", "Den kalde krigen og etterkrigstiden", "his_kald"], ["VGHIS", "Samer og nasjonale minoriteter", "his_samer"],
-  ["VGREL", "Religion i Norge og verden", "rel_tid"]];
+  ["VGREL", "Religion i Norge og verden", "rel_tid"], ["VGSAMF", "Økonomi, arbeidsliv og velferd", "samf_velferd"], ["VGSAMF", "Internasjonal politikk", "samf_intl"],
+  ["VGNAT", "Naturvitenskapelig metode", "sci_hist"], ["VGBI1", "Evolusjon", "bio_jord"]];
 const TL_MAP = {};
 for(const [code, title, name] of TL_UNITS){ const c = typeof COURSES !== "undefined" && COURSES.find(x => x.code === code), u = c ? c.units.findIndex(x => x.title === title) : -1; if(u >= 0) TL_MAP[code + ":" + u] = name; }
 const TL_XP = 3;
@@ -142,7 +278,14 @@ function withTl(code, u, src){
   if(h < 0) return src + "\n\n![tl:" + name + "]";
   lines.splice(h, 0, "![tl:" + name + "]", ""); return lines.join("\n");
 }
-const tlYear = (y, ca) => (ca ? T("ca. ", "c. ") : "") + (y < 0 ? -y + T(" fvt.", " BCE") : String(y));
+const tlGroup = n => String(n).replace(/\B(?=(\d{3})+(?!\d))/g, LANG === "en" ? "," : "\u00a0");
+const tlYear = (y, ca) => (ca ? T("ca. ", "c. ") : "") + (y <= -1e4 ? tlAgo(-y) : y < 0 ? -y + T(" fvt.", " BCE") : String(y));
+// dyp tid: 4,6 mrd. / 541 mill. / 300 000 år siden
+function tlAgo(a){
+  if(a >= 1e9) return T(nf(a / 1e9, 1) + " mrd. år siden", String(+(a / 1e9).toFixed(1)) + " bn years ago");
+  if(a >= 1e6) return T(tlGroup(Math.round(a / 1e6)) + " mill. år siden", tlGroup(Math.round(a / 1e6)) + " m years ago");
+  return T(tlGroup(a) + " år siden", tlGroup(a) + " years ago");
+}
 // Plassering: en blanding av skala og jevn avstand, og aldri tettere enn GAP px (så etikettene ikke kolliderer).
 function tlLayout(D){
   const n = D.v.length, P = 56, GAP = 66, W0 = Math.max(600, n * GAP + 2 * P), [a, b] = D.r, w = D.w == null ? 0.5 : D.w;
@@ -185,7 +328,7 @@ function tlCardHTML(name, i){
 function tlHTML(name){
   const D = TIMELINES[name]; if(!D) return "";
   return `<div class="tl fig" data-tl="${name}"><div class="sim-h"><span class="sim-tag">${I.bolt}${esc(T("Tidslinje", "Timeline"))}</span><b>${esc(T(D.t[0], D.t[1]))}</b></div>
-    <div class="tl-tabs" role="tablist"><button class="on" data-tlmode="x" role="tab">${esc(T("Utforsk", "Explore"))}</button><button data-tlmode="s" role="tab">${esc(T("Sett i rekkefølge", "Put in order"))}</button></div>
+    <div class="tl-tabs" role="tablist"><button class="on" data-tlmode="x" role="tab">${esc(T("Utforsk", "Explore"))}</button><button data-tlmode="s" role="tab">${esc(T("Sorter", "Order"))}</button><button data-tlmode="p" role="tab">${esc(T("Plasser", "Place"))}</button>${D.c ? `<button data-tlmode="c" role="tab">${esc(T("Årsak", "Cause"))}</button>` : ""}</div>
     <div class="tl-body">${tlExploreHTML(name, 0, tlSeen(name).includes(0) || tlSeen(name).push(0))}</div></div>`;
 }
 function tlExploreHTML(name, i){
@@ -231,12 +374,75 @@ function tlCheck(el){
     tlSortRender(el); setTimeout(() => burst(el.querySelector(".tl-win")), 60); if(st.goalHit) setTimeout(() => toast(t("goalHitTitle")), 600); return; }
   buzz(false); tlSortRender(el);
 }
+// ---------- Plasser (som kortspillet «Timeline»): ett og ett kort skal inn på riktig sted ----------
+const tlPl = new WeakMap(), TL_LIVES = 3;
+function tlPlNew(name){
+  const D = TIMELINES[name], deck = shuffle(D.v.map((_, i) => i)), first = deck.shift();
+  return { line: [first], deck, cur: deck.shift(), lives: TL_LIVES, score: 0, last: null, over: false };
+}
+function tlPlHTML(name, P){
+  const D = TIMELINES[name], best = ((S.tlBest ||= {})[name] | 0);
+  const hearts = Array.from({ length: TL_LIVES }, (_, k) => `<span class="tl-heart${k < P.lives ? "" : " lost"}">♥</span>`).join("");
+  const gap = k => P.over ? "" : `<button class="tl-gap" data-tlgap="${k}">${esc(T("Plasser her", "Place here"))}</button>`;
+  const card = i => { const e = D.v[i], fb = P.last && P.last.i === i ? (P.last.ok ? " ok" : " bad") : "";
+    return `<div class="tl-pc${fb}"><span class="tl-pc-y">${esc(tlYear(e[0], e[5]))}</span><b>${esc(T(e[1], e[2]))}</b></div>`; };
+  const head = P.over ? `<div class="tl-pover"><b>${esc(P.lives ? T("Alle kortene er plassert!", "All cards placed!") : T("Tom for liv", "Out of lives"))}</b>
+      <span>${esc(T(`${P.score} riktige`, `${P.score} correct`))}${P.score >= best && P.score ? " · " + esc(T("ny rekord!", "new record!")) : best ? " · " + esc(T("rekord: ", "best: ")) + best : ""}</span>
+      <button class="tl-btn" data-tlpnew="1">${esc(T("Spill igjen", "Play again"))}</button></div>`
+    : `<div class="tl-pnew"><small>${esc(T("Hvor hører dette hjemme?", "Where does this belong?"))}</small><b>${esc(T(D.v[P.cur][1], D.v[P.cur][2]))}</b></div>`;
+  return `<div class="tl-phud"><span>${hearts}</span><span class="tl-pscore">${P.score} ${esc(T("riktige", "correct"))}</span><span class="tl-pleft">${P.deck.length + (P.over ? 0 : 1)} ${esc(T("kort igjen", "cards left"))}</span></div>
+    ${head}<div class="tl-pline">${gap(0)}${P.line.map((i, k) => card(i) + gap(k + 1)).join("")}</div>
+    ${P.last && !P.last.ok ? `<p class="tl-pmiss">${esc(T(`Ikke helt – «${D.v[P.last.i][1]}» var i ${tlYear(D.v[P.last.i][0], D.v[P.last.i][5])}. Kortet er flyttet til riktig plass.`, `Not quite – '${D.v[P.last.i][2]}' was in ${tlYear(D.v[P.last.i][0], D.v[P.last.i][5])}. The card has been moved to the right place.`))}</p>` : ""}`;
+}
+function tlPlRender(el){ el.querySelector(".tl-body").innerHTML = tlPlHTML(el.dataset.tl, tlPl.get(el)); }
+function tlPlace(el, k){
+  const name = el.dataset.tl, D = TIMELINES[name], P = tlPl.get(el); if(!P || P.over) return;
+  const y = D.v[P.cur][0], lo = k > 0 ? D.v[P.line[k - 1]][0] : -Infinity, hi = k < P.line.length ? D.v[P.line[k]][0] : Infinity, ok = lo <= y && y <= hi;
+  if(ok){ P.line.splice(k, 0, P.cur); P.score++; buzz(true); sfx("ok"); }
+  else { let j = P.line.findIndex(i => D.v[i][0] > y); if(j < 0) j = P.line.length; P.line.splice(j, 0, P.cur); P.lives--; buzz(false); sfx("bad"); }
+  P.last = { i: P.cur, ok };
+  if(!P.lives || !P.deck.length){ P.over = true; S.tlBest ||= {}; const rec = P.score > (S.tlBest[name] | 0); if(rec) S.tlBest[name] = P.score;
+    if(P.score >= 5){ const st = awardXP(TL_XP); if(st.goalHit) setTimeout(() => toast(t("goalHitTitle")), 600); } save();
+    tlPlRender(el); if(P.score >= 5) setTimeout(() => { burst(el.querySelector(".tl-pover")); sfx("complete"); }, 60); return; }
+  P.cur = P.deck.shift(); tlPlRender(el);
+  const c = el.querySelector(".tl-pc.ok,.tl-pc.bad"); if(c && c.scrollIntoView) c.scrollIntoView({ block: "nearest", behavior: "smooth" });
+}
+// ---------- Årsak → virkning: koble sammen par ----------
+const tlCa = new WeakMap();
+function tlCaNew(name){ const D = TIMELINES[name], pick = shuffle(D.c.map((_, i) => i)).slice(0, 4);
+  return { pick, right: shuffle(pick), sel: null, done: false, matched: [], miss: 0, bad: null }; }
+function tlCaHTML(name, C){
+  const D = TIMELINES[name], m = new Set(C.matched);
+  const btn = (side, i, txt) => `<button class="tl-cb${m.has(i) ? " ok" : ""}${C.sel === side + i ? " sel" : ""}${C.bad === side + i ? " bad" : ""}" data-tlca="${side}${i}" ${m.has(i) ? "disabled" : ""}>${m.has(i) ? `<span class="tl-cn">${C.matched.indexOf(i) + 1}</span>` : ""}${esc(txt)}</button>`;
+  return `<p class="sim-note">${esc(T("Koble hver årsak til det den førte til. Trykk på en årsak og deretter på virkningen.", "Match each cause to what it led to. Tap a cause, then its effect."))}</p>
+    <div class="tl-ca"><div><h5>${esc(T("Årsak", "Cause"))}</h5>${C.pick.map(i => btn("a", i, T(D.c[i][0], D.c[i][1]))).join("")}</div>
+    <div><h5>${esc(T("Virkning", "Effect"))}</h5>${C.right.map(i => btn("v", i, T(D.c[i][2], D.c[i][3]))).join("")}</div></div>
+    <div class="tl-act">${C.done ? `<span class="tl-win">${esc(C.miss ? T(`Alle koblet! (${C.miss} bom)`, `All matched! (${C.miss} misses)`) : T("Alle riktige uten bom!", "All correct, no misses!"))}</span><button class="tl-btn" data-tlcnew="1">${esc(T("Nye par", "New pairs"))}</button>` : ""}</div>`;
+}
+function tlCaRender(el){ el.querySelector(".tl-body").innerHTML = tlCaHTML(el.dataset.tl, tlCa.get(el)); }
+function tlCaPick(el, id){
+  const C = tlCa.get(el); if(!C || C.done) return; C.bad = null;
+  if(!C.sel || C.sel[0] === id[0]){ C.sel = C.sel === id ? null : id; tlCaRender(el); return; }
+  const a = +C.sel.slice(1), b = +id.slice(1); C.sel = null;
+  if(a === b){ C.matched.push(a); buzz(true); sfx("ok");
+    if(C.matched.length === C.pick.length){ C.done = true; const st = awardXP(TL_XP); save(); tlCaRender(el); setTimeout(() => burst(el.querySelector(".tl-win")), 60); if(st.goalHit) setTimeout(() => toast(t("goalHitTitle")), 600); return; } }
+  else { C.miss++; C.bad = id; buzz(false); sfx("bad"); }
+  tlCaRender(el);
+}
 document.addEventListener("click", e => {
   const el = e.target.closest && e.target.closest(".tl"); if(!el) return;
-  const b = e.target.closest("[data-tlmode],[data-tlgo],[data-tli],[data-tlmv],[data-tlpick],[data-tlcheck],[data-tlnew]"); if(!b) return;
+  const b = e.target.closest("[data-tlmode],[data-tlgo],[data-tli],[data-tlmv],[data-tlpick],[data-tlcheck],[data-tlnew],[data-tlgap],[data-tlpnew],[data-tlca],[data-tlcnew]"); if(!b) return;
   e.stopPropagation(); const name = el.dataset.tl;
   if(b.dataset.tlmode){ el.querySelectorAll("[data-tlmode]").forEach(x => x.classList.toggle("on", x === b));
-    if(b.dataset.tlmode === "s"){ if(!tlGame.get(el) || tlGame.get(el).done) tlGame.set(el, tlRound(name)); tlSortRender(el); } else tlShow(el, 0, true); return; }
+    const m = b.dataset.tlmode; el.dataset.mode = m;
+    if(m === "s"){ if(!tlGame.get(el) || tlGame.get(el).done) tlGame.set(el, tlRound(name)); tlSortRender(el); }
+    else if(m === "p"){ if(!tlPl.get(el) || tlPl.get(el).over) tlPl.set(el, tlPlNew(name)); tlPlRender(el); }
+    else if(m === "c"){ if(!tlCa.get(el) || tlCa.get(el).done) tlCa.set(el, tlCaNew(name)); tlCaRender(el); }
+    else tlShow(el, 0, true); return; }
+  if(b.dataset.tlgap){ tlPlace(el, +b.dataset.tlgap); return; }
+  if(b.dataset.tlpnew){ tlPl.set(el, tlPlNew(name)); tlPlRender(el); return; }
+  if(b.dataset.tlca){ tlCaPick(el, b.dataset.tlca); return; }
+  if(b.dataset.tlcnew){ tlCa.set(el, tlCaNew(name)); tlCaRender(el); return; }
   if(b.dataset.tlgo){ const k = +el.querySelector(".tl-card").dataset.k + +b.dataset.tlgo; tlShow(el, k, true); return; }
   if(b.dataset.tli){ tlShow(el, +b.dataset.tli, false); return; }
   if(b.dataset.tlmv){ const j = +b.dataset.j; tlSwap(el, j, j + +b.dataset.tlmv); return; }
