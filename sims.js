@@ -293,6 +293,7 @@ const SIM_MAP = {
   "MEK2200:1": "normal", "GEO:1": "pressure", "GEO:2": "earth", "ML:1": "line", "ML:2": "threshold", "GMAT:6": "vector", "DISK:1": "combi", "ELFT2400:1": "pctrl"
 };
 function withSims(code, u, src){
+  if(typeof withTl === "function") src = withTl(code, u, src);
   const m = SIM_MAP[code + ":" + u]; if(!m || src.includes("![sim:")) return src;
   const add = [].concat(m).flatMap(n => ["![sim:" + n + "]", ""]);
   const lines = src.split("\n"); let i = lines.findIndex(l => /^!\[fig:/.test(l.trim()));

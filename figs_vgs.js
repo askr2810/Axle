@@ -155,7 +155,6 @@ const FV = [["VG1P", "Prosent og vekstfaktor", "pct_growth"], ["VG1P", "Geometri
   ["VGNAT", "Energi og energikilder", "energy_flow"], ["VGNAT", "Klima og bærekraft", "greenhouse"], ["VGNAT", "Stråling og radioaktivitet", "radiation"], ["VGNAT", "Kjemi i hverdagen", "ph_scale"],
   ["VGGEO", "Kart og geografiske verktøy", "latlon"], ["VGGEO", "Jordas indre og platetektonikk", "plates"], ["VGGEO", "Klima og vær", "orographic"], ["VGGEO", "Befolkning og migrasjon", "pyramids"],
   ["VGSAMF", "Demokrati og politikk i Norge", "powers"], ["VGSAMF", "Økonomi, arbeidsliv og velferd", "econ_flow"],
-  ["VGHIS", "Vikingtid og middelalder", "tl_medieval"], ["VGHIS", "Reformasjon, opplysningstid og revolusjoner", "tl_early_modern"], ["VGHIS", "Norge 1814–1905", "tl_norway"], ["VGHIS", "Verdenskrigene", "tl_wars"], ["VGHIS", "Den kalde krigen og etterkrigstiden", "tl_cold"],
   ["VGREL", "Religion i Norge og verden", "religions"], ["VGREL", "Kristendom", "trinity"], ["VGREL", "Islam", "pillars"], ["VGREL", "Hinduisme og buddhisme", "samsara"], ["VGREL", "Etiske teorier", "ethics"], ["VGREL", "Filosofi", "cave"]];
 for(const [code, title, name] of FV){ const c = typeof COURSES !== "undefined" && COURSES.find(x => x.code === code), u = c ? c.units.findIndex(x => x.title === title) : -1; if(u >= 0) FIG_MAP[code + ":" + u] = name; }
 })();

@@ -42,6 +42,7 @@ function richDoc(src){
     if((m = L.match(/^!\[fig:(\w+)\]$/))){ fAll(); out.push(figureHTML(m[1])); continue; }
     if((m = L.match(/^!\[pic:([\w-]+)\]$/))){ fAll(); if(typeof DRIVE_PICS !== "undefined" && DRIVE_PICS[m[1]]){ const p = DRIVE_PICS[m[1]](LANG); out.push(`<figure class="tppic">${p.svg}<figcaption>${esc(p.cap)}</figcaption></figure>`); } continue; }
     if((m = L.match(/^!\[sim:(\w+)\]$/))){ fAll(); out.push(simHTML(m[1])); continue; }
+    if((m = L.match(/^!\[tl:(\w+)\]$/))){ fAll(); if(typeof tlHTML === "function") out.push(tlHTML(m[1])); continue; }
     if((m = L.match(/^\$\$(.+)\$\$$/))){ fPara(); fList(); fBox(); out.push('<div class="dmath">'+texD(m[1])+"</div>"); continue; }
     if((m = L.match(/^>\s?(.*)$/))){ fPara(); fList(); box.push(m[1]); continue; }
     if((m = L.match(/^-\s+(.*)$/)) || (m = L.match(/^\d+[.)]\s+(.*)$/))){ fPara(); fBox(); const tp = /^-/.test(L) ? "ul" : "ol";
