@@ -42,7 +42,7 @@ function DEEP(code, title, nb, en, keepHead){
       return src + "\n\n" + add; }
     lines.splice(i, 0, add, ""); return lines.join("\n"); };
   const ren = (s, a, b) => keepHead ? String(s) : String(s).replace(a, b);
-  THEORY(code, u, { nb: ren(put(doc.nb, nb), /^## (Begreper og formler|Begreper)$/m, "## Kort oppsummert"), en: ren(put(doc.en || doc.nb, en), /^## (Concepts and formulas|Concepts)$/m, "## In short") });
+  THEORY(code, u, { nb: ren(put(doc.nb, nb), /^## (Begreper og formler|Begreper og regler|Begreper)$/m, "## Kort oppsummert"), en: ren(put(doc.en || doc.nb, en), /^## (Concepts and formulas|Key concepts and rules|Concepts)$/m, "## In short") });
 }
 // Samme fordypning på alle enheter med en av titlene (f.eks. «Algebra og likninger» i både 1T og S1). codes begrenser til bestemte fag.
 function DEEPT(titles, nb, en, keepHead, codes){
