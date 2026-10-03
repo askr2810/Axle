@@ -119,6 +119,7 @@ function renderDrive(){
   if(v === "result") return dvRenderResult();
   if(v === "signs") return dvRenderSigns();
   if(v === "scene") return renderScene();
+  if(v === "game") return sgRender();
   goHome();
 }
 function dvRenderPractice(){
@@ -171,8 +172,37 @@ function dvRenderResult(){
 function dvRenderSigns(){
   const sel = DV.sel;
   $app.innerHTML = `${dvTop(T("Skilt, lys og oppmerking", "Signs, lights and markings"), courseName(COURSE(S.current)))}<main class="wrap dv dv-signs">
-    <button class="big" data-a="dvprac" data-k="signs">🚦 ${esc(T("Skiltquiz", "Sign quiz"))}</button>
-    ${FK_SIGN_GROUPS.map(([g, nb, en]) => `<h3 class="grp">${esc(T(nb, en))}</h3><div class="dv-sgrid">${FK_SIGN_INFO.filter(s => s[1] === g).map(s => `<button class="dv-sg ${sel === s[0] ? "on" : ""}" data-a="dvsign" data-s="${s[0]}">${fkSign(s[0], 64)}<b>${esc(T(s[2], s[3]))}</b>${sel === s[0] ? `<small>${esc(T(s[4], s[5]))}</small>` : ""}</button>`).join("")}</div>`).join("")}</main>`;
+    ${sgMenuHTML()}
+    <button class="big ghost" data-a="dvprac" data-k="signs">🚦 ${esc(T("Skiltquiz med teorispørsmål", "Sign quiz with theory questions"))}</button>
+    ${FK_SIGN_GROUPS.map(([g, nb, en]) => `<h3 class="grp">${esc(T(nb, en))}</h3><div class="dv-sgrid">${FK_SIGN_INFO.filter(s => s[1] === g).map(s => `<button class="dv-sg ${sel === s[0] ? "on" : ""}" data-a="dvsign" data-s="${s[0]}">${sgKnown(s[0]) ? `<em class="dv-known" title="${esc(T("Du kan dette skiltet", "You know this sign"))}">✓</em>` : ""}${fkSign(s[0], 64)}<b>${esc(T(s[2], s[3]))}</b>${sel === s[0] ? `<small>${esc(T(s[4], s[5]))}</small>` : ""}</button>`).join("")}</div>`).join("")}</main>`;
+}
+// ---------- statistikk på forsiden ----------
+// Søylediagram over prøvene: grønne søyler er bestått (minst 38 av 45), varme farger ikke bestått. Søylene vokser fram.
+function dvChartHTML(tests){
+  if(!tests.length) return `<div class="dv-chart empty"><b>📊 ${esc(T("Her kommer utviklingen din", "Your progress will show here"))}</b><p>${esc(T("Ta en teoriprøve, så ser du resultatet ditt over tid, med grensen for å bestå.", "Take a theory test to see your results over time, with the pass mark."))}</p><button class="big" data-a="dvtest">${esc(T("Ta en teoriprøve", "Take a theory test"))}</button></div>`;
+  const L = tests.slice(-14), W = 340, H = 190, top = 18, base = 156, n = L.length, gap = 6, bw = Math.min(30, (W - 8 - gap * (n - 1)) / n), x0 = (W - (bw * n + gap * (n - 1))) / 2;
+  const pass = DV_TEST_N - DV_MAX_WRONG, y = v => base - v / DV_TEST_N * (base - top);
+  const date = ts => { const d = new Date(ts); return d.getDate() + "." + (d.getMonth() + 1) + "."; };
+  let g = `<defs><linearGradient id="dvgP" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#3CCB98"/><stop offset="1" stop-color="#0E9F6E"/></linearGradient><linearGradient id="dvgF" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FFA36C"/><stop offset="1" stop-color="#F0603E"/></linearGradient></defs>`;
+  L.forEach((r, k) => { const v = Math.round(r.ok / r.n * DV_TEST_N), x = x0 + k * (bw + gap), yy = y(v);
+    g += `<g class="dv-cb" style="--d:${k * 60}ms"><rect x="${x.toFixed(1)}" y="${yy.toFixed(1)}" width="${bw.toFixed(1)}" height="${(base - yy).toFixed(1)}" rx="${Math.min(7, bw / 3).toFixed(1)}" fill="url(#${r.pass ? "dvgP" : "dvgF"})"/>
+      <text x="${(x + bw / 2).toFixed(1)}" y="${(yy + 13).toFixed(1)}" text-anchor="middle" class="dv-cv">${r.ok}</text></g>`; });
+  g += `<line x1="4" x2="${W - 4}" y1="${y(pass).toFixed(1)}" y2="${y(pass).toFixed(1)}" class="dv-cpass"/><text x="${W - 6}" y="${(y(pass) - 4).toFixed(1)}" text-anchor="end" class="dv-cl">${esc(T("bestått", "pass"))} ${pass}</text>`;
+  g += `<line x1="4" x2="${W - 4}" y1="${base}" y2="${base}" class="dv-cax"/>`;
+  [0, Math.floor((n - 1) / 2), n - 1].filter((v, i, a) => a.indexOf(v) === i).forEach(k => { g += `<text x="${(x0 + k * (bw + gap) + bw / 2).toFixed(1)}" y="${base + 16}" text-anchor="middle" class="dv-cl">${date(L[k].at)}</text>`; });
+  const passed = tests.filter(r => r.pass).length, last3 = tests.slice(-3).filter(r => r.pass).length;
+  return `<div class="dv-chart"><div class="dv-chh"><span><b>${tests.length}</b> ${esc(T("prøver", "tests"))}</span><span><b>${passed}</b> ${esc(T("bestått", "passed"))}</span><span><b>${Math.max(...tests.map(r => r.ok))}</b> ${esc(T("beste", "best"))}</span></div>
+    <svg viewBox="0 0 ${W} ${H - 14}" role="img" aria-label="${esc(T("Resultatene dine på teoriprøvene over tid", "Your theory test results over time"))}">${g}</svg>
+    <p class="dv-note">${esc(last3 === 3 ? T("Tre beståtte på rad. Du er klar for prøven!", "Three passes in a row. You are ready for the test!") : T("Målet er tre beståtte prøver på rad før den ekte prøven.", "Aim for three passes in a row before the real test."))}</p></div>`;
+}
+// Personlige anbefalinger: de svakeste kategoriene (med nok svar), ellers de du ikke har øvd på.
+function dvRecHTML(c, code){
+  const rows = c.units.map((u, k) => { const [ok, n] = dvCatStat(code, k); return { k, n, p: n ? ok / n : null }; });
+  let pick = rows.filter(r => r.n >= 3 && r.p < 0.85).sort((a, b) => a.p - b.p).slice(0, 2), why = "weak";
+  if(!pick.length){ pick = rows.filter(r => !r.n).slice(0, 2); why = "new"; }
+  if(!pick.length) return `<div class="dv-rec good"><b>🌟 ${esc(T("Du ligger godt an i alle kategoriene", "You are doing well in every category"))}</b><p>${esc(T("Ta en full teoriprøve for å holde formen.", "Take a full theory test to stay sharp."))}</p></div>`;
+  return `<div class="dv-rec"><b>🎯 ${esc(T("Anbefalt for deg", "Recommended for you"))}</b><p>${esc(why === "weak" ? T("Her mister du flest poeng. Ti spørsmål hver gir rask framgang.", "This is where you lose the most points. Ten questions each gives quick progress.") : T("Disse kategoriene har du ikke øvd på ennå.", "You have not practised these categories yet."))}</p>
+    ${pick.map(r => `<button class="dv-recrow" data-a="dvprac" data-k="cat" data-u="${r.k}"><span><b>${esc(dvCatName(c, r.k))}</b><small>${esc(r.p == null ? T("Ikke øvd ennå", "Not practised yet") : T(`${Math.round(r.p * 100)} % riktig`, `${Math.round(r.p * 100)} % correct`))}</small></span><em>${esc(T("Øv nå", "Practise"))}</em></button>`).join("")}</div>`;
 }
 // ---------- forsiden for førerkort ----------
 function renderDriveHome(){
@@ -180,9 +210,9 @@ function renderDriveHome(){
   const pct = Math.round(rd.pass * 100), exp = Math.round(rd.expect);
   const other = COURSES.filter(x => isDrive(x));
   const ring = rd.enough ? `<svg class="dv-ring" viewBox="0 0 120 120" aria-hidden="true"><circle cx="60" cy="60" r="50" fill="none" stroke="rgba(255,255,255,.25)" stroke-width="12"/><circle cx="60" cy="60" r="50" fill="none" stroke="#fff" stroke-width="12" stroke-linecap="round" stroke-dasharray="${(pct / 100 * 314).toFixed(0)} 314" transform="rotate(-90 60 60)"/><text x="60" y="68" text-anchor="middle" font-size="28" font-weight="800" fill="#fff">${pct}%</text></svg>` : `<div class="dv-ring0">?</div>`;
-  const cats = c.units.map((u, k) => { const [ok, n, tot, seen] = dvCatStat(code, k), p = n ? ok / n : null;
-    return `<button class="dv-catrow" data-a="dvprac" data-k="cat" data-u="${k}"><span class="dv-ct"><b>${esc(dvCatName(c, k))}</b><small>${esc(T(`${seen} av ${tot} spørsmål sett`, `${seen} of ${tot} questions seen`))}${n ? " · " + Math.round(p * 100) + " % " + esc(T("riktig", "correct")) : ""}</small></span>
-      <span class="dv-bar"><i class="${p == null ? "" : p >= 0.85 ? "g" : p >= 0.6 ? "y" : "r"}" style="width:${p == null ? 0 : Math.max(6, Math.round(p * 100))}%"></i></span>${I.chevron}</button>`; }).join("");
+  const cats = c.units.map((u, k) => { const [ok, n, tot, seen] = dvCatStat(code, k), p = n ? ok / n : null, lvl = p == null ? "" : p >= 0.85 ? "g" : p >= 0.6 ? "y" : "r";
+    return `<button class="dv-ccard ${lvl}" style="--d:${k * 45}ms" data-a="dvprac" data-k="cat" data-u="${k}"><span class="dv-cch"><b>${esc(dvCatName(c, k))}</b><em>${p == null ? "–" : Math.round(p * 100) + " %"}</em></span>
+      <span class="dv-cbarw"><i style="--w:${p == null ? 0 : Math.max(4, Math.round(p * 100))}%"></i></span><small>${esc(n ? T(`${seen} av ${tot} spørsmål sett`, `${seen} of ${tot} questions seen`) : T("Ikke øvd ennå", "Not practised yet"))}</small></button>`; }).join("");
   const tests = d.tests.slice(-5).reverse();
   $app.innerHTML = `<div class="top"><div class="wrap">
       <button class="chip" data-a="pick" aria-label="${t("switchCourse")}"><span class="code">${esc(courseShort(c))}</span><span class="nm">${esc(courseName(c))}</span>${I.down}</button>
@@ -198,15 +228,19 @@ function renderDriveHome(){
         <button class="big dv-start" data-a="dvtest">${esc(T("Ta en teoriprøve", "Take a theory test"))}</button>
       </section>
       <button class="dv-scene-cta" data-a="scopen"><span class="dv-sc-ic" aria-hidden="true">🚦</span><span><b>${esc(T("Trafikksituasjoner", "Traffic situations"))}</b><small>${esc(T(`Animerte kryss: hvem kjører først? · ${Object.values(scData(code)).filter(r => r[1]).length}/${SCENES.length} klart`, `Animated junctions: who goes first? · ${Object.values(scData(code)).filter(r => r[1]).length}/${SCENES.length} solved`))}</small></span>${I.chevron}</button>
+      ${(() => { const m = sgMastery(), b = Math.max(0, ...Object.values(S.signBest || {})); return `<button class="dv-scene-cta sg-cta" data-a="dvsgopen"><span class="dv-sc-ic" aria-hidden="true">🎮</span><span><b>${esc(T("Skiltspillet", "Sign game"))}</b><small>${esc(T(`Finn riktig skilt på tid · du kan ${m.known} av ${m.total}`, `Find the right sign against the clock · you know ${m.known} of ${m.total}`))}${b ? " · 🏆 " + b : ""}</small></span>${I.chevron}</button>`; })()}
       <div class="dv-tiles">
         <button data-a="dvprac" data-k="mix"><span>🎯</span><b>${esc(T("Rask øving", "Quick practice"))}</b><small>${esc(T("10 blandede spørsmål", "10 mixed questions"))}</small></button>
         <button data-a="dvbook"><span>📖</span><b>${esc(T("Teori", "Theory"))}</b><small>${esc(T(`${c.units.length} kapitler`, `${c.units.length} chapters`))}</small></button>
         <button data-a="dvsigns"><span>🚦</span><b>${esc(T("Skilt", "Signs"))}</b><small>${esc(T("Skilt, lys og linjer", "Signs, lights and lines"))}</small></button>
         <button data-a="dvprac" data-k="wrong" ${wrongN ? "" : "disabled"}><span>❌</span><b>${esc(T("Feil", "Mistakes"))}</b><small>${esc(wrongN ? T(`${wrongN} å øve på`, `${wrongN} to practise`) : T("Ingen ennå", "None yet"))}</small></button>
       </div>
+      <h3 class="grp">${esc(T("Din fremgang", "Your progress"))}</h3>
+      ${dvChartHTML(d.tests)}
+      ${dvRecHTML(c, code)}
       <h3 class="grp">${esc(T("Hvor ligger du an?", "Where do you stand?"))}</h3>
       <p class="dv-note">${esc(T("Trykk på en kategori for å øve på den. Rødt betyr at du bør øve mer før prøven.", "Tap a category to practise it. Red means you should practise more before the test."))}</p>
-      <div class="dv-catlist">${cats}</div>
+      <div class="dv-ccards">${cats}</div>
       ${tests.length ? `<h3 class="grp">${esc(T("Dine siste prøver", "Your latest tests"))}</h3><div class="dv-tests">${tests.map((x, k) => `<button class="dv-trow ${x.pass ? "pass" : "fail"}" data-a="dvres" data-i="${d.tests.length - 1 - k}"><b>${x.ok}/${x.n}</b><span>${esc(x.pass ? T("Bestått", "Passed") : T("Ikke bestått", "Not passed"))}</span><small>${esc(frAgo(new Date(x.at).toISOString()))}</small>${I.chevron}</button>`).join("")}</div>` : ""}
       ${layoutHTML("home")}
       <p class="dv-disc">${esc(T("Øvingsmateriale laget med omhu, men det kan inneholde feil. Følg alltid gjeldende trafikkregler, og sjekk Statens vegvesen ved tvil.", "Practice material made with care, but it may contain mistakes. Always follow the current traffic rules, and check official sources if in doubt."))} <button class="exlink" data-a="terms">${esc(T("Vilkår", "Terms"))}</button></p>
@@ -223,6 +257,7 @@ function dvPracticeCardHTML(c){
 function dvClick(a, b){
   if(!a.startsWith("dv")) return false;
   const dd = b && b.dataset;
+  if(a.startsWith("dvsg")) return sgClick(a, dd || {});
   if(a === "dvprac"){ dvPractice(dd.k, dd.u != null ? +dd.u : null); return true; }
   if(a === "dvagain"){ dvPractice(DV.kind, DV.u); return true; }
   if(a === "dvans"){ dvAnswer(+dd.i); return true; }
