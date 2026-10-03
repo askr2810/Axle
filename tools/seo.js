@@ -206,7 +206,7 @@ function page({ url, alt, title, desc, body, jsonld, crumbs }){
 ${alt ? `<link rel="alternate" hreflang="nb" href="${SITE}${nbUrl}"><link rel="alternate" hreflang="en" href="${SITE}${enUrl}"><link rel="alternate" hreflang="x-default" href="${SITE}${nbUrl}">` : ''}
 <meta property="og:type" content="website"><meta property="og:site_name" content="Axle"><meta property="og:title" content="${esc(title)}"><meta property="og:locale" content="${L === 'nb' ? 'nb_NO' : 'en_GB'}">
 <meta property="og:description" content="${esc(desc)}"><meta property="og:url" content="${SITE}${url}"><meta property="og:image" content="${SITE}/icons/icon-512.png">
-<meta name="theme-color" content="#2B59C3"><link rel="icon" type="image/png" href="/icons/icon-192.png">
+<meta name="theme-color" content="#2B59C3"><link rel="icon" href="/favicon.ico" sizes="48x48"><link rel="icon" type="image/png" sizes="192x192" href="/icons/icon-192.png">
 ${jsonld ? `<script type="application/ld+json">${JSON.stringify(jsonld).replace(/</g, '\\u003c')}</script>` : ''}
 <style>${CSS}</style>
 </head>

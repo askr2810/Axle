@@ -67,7 +67,7 @@ def build_www(js, css, out):
 <meta property="og:url" content="https://axle.no/">
 <meta property="og:image" content="https://axle.no/icons/icon-512.png">
 <link rel="manifest" href="manifest.webmanifest">
-<link rel="icon" type="image/png" href="icons/icon-192.png">
+<link rel="icon" href="/favicon.ico" sizes="48x48"><link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <!-- Skrifter og KaTeX: lokale kopier (npm run vendor) med nett som reserve -->
 <link rel="stylesheet" href="vendor/fonts.css" onerror="this.remove()">
@@ -97,6 +97,7 @@ img{{max-width:100%}}
     open(os.path.join(out, "app.bundle.js"), "w", encoding="utf-8").write(js)
     # statiske filer
     import hashlib
+    if os.path.exists(os.path.join(ROOT, "web", "favicon.ico")): shutil.copy(os.path.join(ROOT, "web", "favicon.ico"), os.path.join(out, "favicon.ico"))  # Google henter logoen herfra
     for f in ["manifest.webmanifest", "sw.js", "privacy.html", "terms.html"]:
         src = os.path.join(ROOT, "web", f)
         if os.path.exists(src):
