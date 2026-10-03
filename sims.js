@@ -294,6 +294,7 @@ const SIM_MAP = {
 };
 function withSims(code, u, src){
   if(typeof withTl === "function") src = withTl(code, u, src);
+  if(typeof withWidgets === "function") src = withWidgets(code, u, src);
   const m = SIM_MAP[code + ":" + u]; if(!m || src.includes("![sim:")) return src;
   const add = [].concat(m).flatMap(n => ["![sim:" + n + "]", ""]);
   const lines = src.split("\n"); let i = lines.findIndex(l => /^!\[fig:/.test(l.trim()));
