@@ -36,9 +36,13 @@ function DEEP(code, title, nb, en){
   const c = COURSES.find(x => x.code === code), u = c ? c.units.findIndex(x => x.title === title) : -1; if(u < 0) return;
   const doc = theoryOf(code, u); if(!doc) return;
   const put = (src, add) => { const lines = String(src).split("\n"), i = lines.findIndex(l => /^###?\s+(Eksempel|Example)/i.test(l.trim()));
-    if(i < 0) return src + "\n\n" + add; lines.splice(i, 0, add, ""); return lines.join("\n"); };
+    if(i < 0){ // ingen eksempel: legg fordypningen foran huskeregelen (> …) helt til slutt, ellers bakerst
+      let k = lines.length - 1; while(k > 0 && !lines[k].trim()) k--;
+      if(k > 0 && /^>/.test(lines[k].trim())){ while(k > 0 && /^>/.test(lines[k - 1].trim())) k--; lines.splice(k, 0, add, ""); return lines.join("\n"); }
+      return src + "\n\n" + add; }
+    lines.splice(i, 0, add, ""); return lines.join("\n"); };
   const ren = (s, a, b) => String(s).replace(a, b);
-  THEORY(code, u, { nb: ren(put(doc.nb, nb), /^## Begreper og formler$/m, "## Kort oppsummert"), en: ren(put(doc.en || doc.nb, en), /^## Concepts and formulas$/m, "## In short") });
+  THEORY(code, u, { nb: ren(put(doc.nb, nb), /^## (Begreper og formler|Begreper)$/m, "## Kort oppsummert"), en: ren(put(doc.en || doc.nb, en), /^## (Concepts and formulas|Concepts)$/m, "## In short") });
 }
 function DQS(code, title, list){ const c = COURSES.find(x => x.code === code), u = c ? c.units.findIndex(x => x.title === title) : -1; if(u >= 0) BIQ(code, u, list); }
 

@@ -298,7 +298,7 @@ function withSims(code, u, src){
   const m = SIM_MAP[code + ":" + u]; if(!m || src.includes("![sim:")) return src;
   const add = [].concat(m).flatMap(n => ["![sim:" + n + "]", ""]);
   const lines = src.split("\n"); let i = lines.findIndex(l => /^!\[fig:/.test(l.trim()));
-  if(i < 0){ const h = lines.findIndex(l => /^##\s+(Begreper og formler|Concepts and formulas|Kort oppsummert|In short)/.test(l.trim()));
+  if(i < 0){ const h = lines.findIndex(l => /^##\s+(Begreper og formler|Concepts and formulas|Kort oppsummert|In short|Begreper|Concepts)$/.test(l.trim()));
     if(h >= 0){ i = lines.findIndex((l, k) => k > h && /^##\s/.test(l.trim())) - 1; if(i < 0) i = lines.length - 1; } }
   if(i < 0) return src + "\n\n" + add.join("\n");
   lines.splice(i + 1, 0, "", ...add);
