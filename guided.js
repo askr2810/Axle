@@ -37,6 +37,7 @@ function gdOpen(code, u, go){
   secs.forEach((s, i) => { cards.push({ kind: "text", src: s }); if((i + 1) % every === 0 && i < secs.length - 1 && qs.length) cards.push({ kind: "q", it: qs.shift(), wrong: [], done: false }); });
   while(qs.length) cards.push({ kind: "q", it: qs.shift(), wrong: [], done: false });
   cards.push({ kind: "end" });
+  if(typeof stEv === "function") stEv("theory", code + ":" + u, "guided");
   GD = { code, u, go, cards, i: 0, from: screen, right: 0, asked: cards.filter(c => c.kind === "q").length };
   (S.theorySeen ||= {})[code + ":" + u] = 1; bdgToast(checkBadges()); save();
   overlay = null; screen = "guided"; render(); window.scrollTo(0, 0);
@@ -74,7 +75,7 @@ function renderGuided(){
   const segs = GD.cards.map((k, i) => `<i class="${i < GD.i ? "on" : i === GD.i ? "cur" : ""} ${k.kind === "q" ? "q" : ""}"></i>`).join("");
   $app.innerHTML = `<div class="top gd-top"><div class="wrap"><button class="iconbtn" data-a="gdclose" aria-label="${esc(t("back"))}">${I.x}</button>
       <div class="gd-prog" role="progressbar" aria-valuemin="0" aria-valuemax="${n}" aria-valuenow="${GD.i + 1}">${segs}</div>
-      ${GD.proof ? `<span class="gd-full pf-tag">∎ ${esc(t("pfKicker"))}</span>` : `<button class="gd-full" data-a="gdfull">${esc(t("gdFull"))}</button>`}</div></div>
+      ${ttsTopBtn(".gd-text")}${GD.proof ? `<span class="gd-full pf-tag">∎ ${esc(t("pfKicker"))}</span>` : `<button class="gd-full" data-a="gdfull">${esc(t("gdFull"))}</button>`}</div></div>
     <main class="wrap gd"><div class="gd-card ${GD.dir === "r" ? "gd-from-l" : GD.dir === "l" ? "gd-from-r" : "gd-in"}">${gdCardHTML(card, c)}</div>
       ${!S.gdSwipeSeen && !isEnd ? `<p class="gd-swipe" aria-hidden="true">${esc(t("gdSwipe"))}</p>` : ""}</main>
     <div class="lfoot ${card.kind === "q" && card.done ? (card.gaveUp ? "bad" : "ok") : ""}"><div class="wrap gd-foot">

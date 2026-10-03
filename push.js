@@ -19,7 +19,7 @@ function b64uToBytes(s){ const p = "=".repeat((4 - s.length % 4) % 4), b = atob(
 const pushTz = () => { try{ return Intl.DateTimeFormat().resolvedOptions().timeZone || "Europe/Oslo"; }catch(e){ return "Europe/Oslo"; } };
 async function pushSave(sub){
   const j = sub.toJSON(), tok = await authToken(); if(!tok) throw new CloudError("auth", 401);
-  await sbFetch("/rest/v1/rpc/save_push_sub", { method: "POST", body: JSON.stringify({ p_endpoint: j.endpoint, p_p256dh: j.keys.p256dh, p_auth: j.keys.auth, p_tz: pushTz(), p_remind_at: S.reminder.time || "19:00", p_lang: LANG === "en" ? "en" : "nb" }) }, tok);
+  await sbFetch("/rest/v1/rpc/save_push_sub", { method: "POST", body: JSON.stringify({ p_endpoint: j.endpoint, p_p256dh: j.keys.p256dh, p_auth: j.keys.auth, p_tz: pushTz(), p_remind_at: S.reminder.time || "19:00", p_lang: LANG === "en" ? "en" : "nb" }) }, tok); if(typeof stEv === "function") stEv("push", "on", S.reminder.time || "19:00");
   S.pushSynced = dayKey(); save();
 }
 async function pushEnable(){

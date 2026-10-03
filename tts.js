@@ -11,6 +11,10 @@ function ttsBarHTML(){
   if(!TTS_OK) return "";
   return `<div class="tts-bar"><button class="tts-go" data-tts="play">${TTS_IC}<span><b>${esc(T("Lytt til teksten", "Listen to the text"))}</b><small>${esc(T("Få teorien lest høyt", "Have the theory read aloud"))}</small></span></button></div>`;
 }
+// Liten høyttalerknapp til topplinjen. root = CSS-velger for teksten som skal leses.
+function ttsTopBtn(root){
+  return TTS_OK ? `<button class="iconbtn tts-top" data-tts="play" data-root="${esc(root)}" aria-label="${esc(T("Les teksten høyt", "Read the text aloud"))}" title="${esc(T("Les høyt", "Read aloud"))}">${TTS_IC}</button>` : "";
+}
 // Enkel opplesning av formler: \frac{a}{b} → a delt på b, x^2 → x i andre, osv.
 function ttsTex(s){
   const nb = LANG !== "en";
@@ -33,7 +37,7 @@ function ttsSplit(s){
 }
 const TTS_SKIP = ".ty-key,.fig,figure,.sim,.tl,.wg,.tts-bar,.tch,.gd-cta,.cy,.pf-th,.lab-th,button";
 function ttsCollect(root){
-  return [...root.querySelectorAll("h3,h4,p,li,.callout")].filter(el => !el.closest(TTS_SKIP) && !(el.tagName === "P" && el.closest(".callout")) && !(el.tagName === "P" && el.closest("li")))
+  return [...root.querySelectorAll("h1,h3,h4,p,li,.callout")].filter(el => !el.closest(TTS_SKIP) && !(el.tagName === "P" && el.closest(".callout")) && !(el.tagName === "P" && el.closest("li")))
     .map(el => ({ el, parts: ttsSplit(ttsText(el)) })).filter(x => x.parts.length && x.parts[0].length > 1);
 }
 function ttsVoice(){
@@ -48,7 +52,7 @@ function ttsStart(root, from = 0){
   const items = ttsCollect(root); if(!items.length) return;
   if(LANG !== "en" && !ttsVoice() && speechSynthesis.getVoices().length && !S.ttsWarned){ S.ttsWarned = 1; save(); toast(T("Fant ingen norsk stemme på enheten – den leser med standardstemmen. Du kan laste ned norsk stemme i innstillingene for tekst-til-tale.", "No Norwegian voice found – using the default voice.")); }
   TTS = { root, items, i: from, playing: true, fails: 0, seq: (TTS ? TTS.seq : 0) + 1 };
-  S.stats ||= {}; S.stats.tts = (+S.stats.tts || 0) + 1;
+  S.stats ||= {}; S.stats.tts = (+S.stats.tts || 0) + 1; if(typeof stEv === "function") stEv("tts", typeof screen !== "undefined" ? screen : null, LANG);
   ttsSpeak(); ttsUI();
 }
 function ttsSpeak(){
@@ -77,7 +81,7 @@ function ttsResume(){ if(!TTS) return; TTS.playing = true; TTS.seq++; ttsSpeak()
 function ttsStop(){ if(TTS) TTS.seq++; TTS = null; try{ speechSynthesis.cancel(); }catch(e){} document.querySelectorAll(".tts-on").forEach(x => x.classList.remove("tts-on")); ttsUI(); }
 function ttsUI(){
   let m = document.querySelector(".tts-mini");
-  if(!TTS){ if(m) m.remove(); document.querySelectorAll(".tts-bar").forEach(b => b.classList.remove("on")); return; }
+  if(!TTS){ if(m) m.remove(); document.querySelectorAll(".tts-bar,.tts-top").forEach(b => b.classList.remove("on")); return; }
   if(!m){ m = document.createElement("div"); m.className = "tts-mini"; m.setAttribute("role", "region"); m.setAttribute("aria-label", T("Opplesning", "Read aloud")); document.body.appendChild(m); }
   const n = TTS.items.length, i = Math.min(TTS.i + 1, n);
   m.innerHTML = `<button data-tts="${TTS.playing ? "pause" : "resume"}" aria-label="${esc(TTS.playing ? T("Pause", "Pause") : T("Fortsett", "Resume"))}">${TTS.playing ? "❚❚" : "▶"}</button>
@@ -85,14 +89,14 @@ function ttsUI(){
     <span class="tts-p"><span style="width:${Math.round(100 * i / n)}%"></span></span><small>${i}/${n}</small>
     <button data-tts="rate" class="tts-rate" aria-label="${esc(T("Lesehastighet", "Speed"))}">${String(ttsRate()).replace(".", LANG === "en" ? "." : ",")}×</button>
     <button data-tts="stop" aria-label="${esc(T("Stopp", "Stop"))}">✕</button>`;
-  TTS.root.querySelectorAll(".tts-bar").forEach(b => b.classList.add("on"));
+  TTS.root.querySelectorAll(".tts-bar").forEach(b => b.classList.add("on")); document.querySelectorAll(".tts-top").forEach(b => b.classList.add("on"));
 }
 if(TTS_OK){
   try{ speechSynthesis.getVoices(); speechSynthesis.onvoiceschanged = () => {}; }catch(e){}
   document.addEventListener("click", e => {
     const b = e.target.closest && e.target.closest("[data-tts]");
     if(b){ e.stopPropagation(); const a = b.dataset.tts;
-      if(a === "play"){ const root = b.closest(".theory,.thbody,main") || document.body; if(TTS && TTS.root === root){ TTS.playing ? ttsPause() : ttsResume(); } else ttsStart(root); }
+      if(a === "play"){ const root = (b.dataset.root && document.querySelector(b.dataset.root)) || b.closest(".theory,.thbody,main") || document.body; if(TTS && TTS.root === root){ TTS.playing ? ttsPause() : ttsResume(); } else ttsStart(root); }
       else if(a === "pause") ttsPause(); else if(a === "resume") ttsResume(); else if(a === "stop") ttsStop();
       else if(a === "next" || a === "prev"){ if(!TTS) return; TTS.i = Math.max(0, Math.min(TTS.items.length - 1, TTS.i + (a === "next" ? 1 : -1))); TTS.seq++; speechSynthesis.cancel(); TTS.playing = true; ttsSpeak(); ttsUI(); }
       else if(a === "rate"){ const k = TTS_RATES.indexOf(ttsRate()); S.ttsRate = TTS_RATES[(k + 1) % TTS_RATES.length]; save(); if(TTS && TTS.playing){ TTS.seq++; speechSynthesis.cancel(); ttsSpeak(); } ttsUI(); }

@@ -65,6 +65,8 @@ function scLayout(sc){
   const arms = { x: ["S", "N", "E", "W"], t: ["S", "E", "W"], road: [], round: ["S", "N", "E", "W"], avk: ["E", "W"] }[sc.lay] || [];
   let g = `<rect width="320" height="320" style="fill:#A7CF9A"/>`;
   if(sc.lay === "road") g += `<rect x="120" y="-5" width="80" height="330" style="fill:${SC_ROAD}"/><line x1="160" y1="0" x2="160" y2="320" style="stroke:${SC_MARK};stroke-width:2;stroke-dasharray:14 12"/>`;
+  if(sc.lay === "road" && sc.park) g += `<rect x="200" y="${sc.park[0]}" width="34" height="${sc.park[1] - sc.park[0]}" rx="3" style="fill:${SC_ROAD}"/><line x1="201" y1="${sc.park[0] + 4}" x2="201" y2="${sc.park[1] - 4}" style="stroke:${SC_MARK};stroke-width:1.5;stroke-dasharray:4 4"/>` +
+    [sc.park[0] + 2, sc.park[1] - 2].map(y => `<line x1="202" y1="${y}" x2="232" y2="${y}" style="stroke:${SC_MARK};stroke-width:1.5"/>`).join(""); // parkeringslomme til høyre for kjørefeltet
   else {
     for(const a of arms) g += scArm(SC_ROT[a], `<rect x="120" y="160" width="80" height="165" style="fill:${SC_ROAD}"/><line x1="160" y1="${sc.lay === "round" ? 238 : 208}" x2="160" y2="325" style="stroke:${SC_MARK};stroke-width:2;stroke-dasharray:14 12"/>`);
     g += sc.lay === "round" ? `<circle cx="160" cy="160" r="76" style="fill:${SC_ROAD}"/><circle cx="160" cy="160" r="30" style="fill:#8DBF7E;stroke:${SC_MARK};stroke-width:3"/>` : `<rect x="120" y="120" width="80" height="80" style="fill:${SC_ROAD}"/>`;
@@ -333,5 +335,5 @@ const SCENES = [
   { id: "utkj1", lay: "road", type: "order", ans: ["a", "you"],
     q: ["Du står parkert langs vegkanten og skal kjøre ut. En bil kommer bakfra. Hvem kjører først?", "You are parked at the roadside and want to pull out. A car is coming from behind. Who goes first?"],
     e: ["Den som kjører ut fra **vegkanten eller en parkeringsplass**, har vikeplikt for all trafikk. Blinklyset gir deg ingen rett, så vent til bilen har passert.", "Whoever pulls out from the **roadside or a parking place** gives way to all traffic. Indicating gives you no right, so wait until the car has passed."],
-    v: [{ id: "you", blink: "L", path: [[193, 230], [192, 200], [184, 160], [180, 110], [180, -60]] }, { id: "a", col: "green", s0: 40 }] },
+    park: [170, 290], v: [{ id: "you", blink: "L", path: [[217, 240], [216, 205], [204, 172], [186, 140], [180, 105], [180, -60]] }, { id: "a", col: "green", s0: 40 }] },
 ];

@@ -28,7 +28,7 @@ function renderBookTopic(){
   const legend = (x.legend || []).length ? `<table class="legend"><tbody>${x.legend.map(([s, m, un]) => `<tr><td class="ls">${tex(tpFx(s))}</td><td>${rich(m)}</td><td class="lu">${/\\/.test(un || "") ? tex(un) : esc(String(un || "").replace(/\{,\}/g, decPoint() ? "." : ","))}</td></tr>`).join("")}</tbody></table>` : "";
   const ex = x.ex ? `<div class="exbox"><div class="exbox-h">${esc(t("tpExample"))}</div>${String(x.ex).split("\n").map(l => `<p>${rich(l)}</p>`).join("")}</div>` : "";
   const nav = (tpx, dir) => tpx ? `<button class="tnav ${dir}" data-a="bktopic" data-c="${esc(c.code)}" data-id="${esc(tpx.tp.id)}"><small>${esc(t(dir === "prev" ? "bkPrev" : "bkNext"))}</small><b>${esc(tpText(tpx.tp).t)}</b></button>` : `<span></span>`;
-  $app.innerHTML = `${bkTop("bkback", courseName(c) + " · " + unitTitle(c, hit.u), x.t)}
+  $app.innerHTML = `${bkTop("bkback", courseName(c) + " · " + unitTitle(c, hit.u), x.t, ttsTopBtn("main.topic"))}
     <main class="wrap topic">
       <h1>${esc(x.t)}</h1>
       ${hit.tp.fig ? `<figure class="tpfig" aria-hidden="true">${hit.tp.fig}</figure>` : ""}
@@ -183,11 +183,12 @@ function renderBookUnit(){
   const f = bkFormulas(src), secs = bkSections(src);
   let n = 0; const html = richDoc(src).replace(/<h3>/g, () => `<h3 id="bk-s${n++}">`);
   const prev = units[i - 1], next = units[i + 1];
-  $app.innerHTML = `${bkTop("bkback", courseName(c) + " · " + t("unit", u + 1), unitTitle(c, u))}
+  $app.innerHTML = `${bkTop("bkback", courseName(c) + " · " + t("unit", u + 1), unitTitle(c, u), ttsTopBtn("main.bk-unit"))}
     <main class="wrap theory bk-unit">
       ${secs.length > 1 ? `<nav class="bk-toc" aria-label="${esc(t("bkToc"))}">${secs.map((s, k) => `<button data-a="bksec" data-i="${k}">${esc(plain(s))}</button>`).join("")}</nav>` : ""}
       ${teacherBubble(c.code, esc(t("tchTheory", unitTitle(c, u))), 52, "tch-th")}
       <button class="gd-cta" data-a="bkguided">${I.steps}<span><b>${esc(t("gdCta"))}</b><small>${esc(t("gdCtaSub"))}</small></span>${I.chevron}</button>
+      ${typeof ttsBarHTML === "function" ? ttsBarHTML() : ""}
       ${topicsOf(c.code, u).length ? `<div class="bk-unit-tps"><div class="bk-glance-h">${esc(t("tpInUnit"))}</div><div class="tiles2">${topicsOf(c.code, u).map(tp => tpTileHTML(c.code, tp)).join("")}</div></div>` : ""}
       ${tyKeyHTML(src)}
       ${f.length ? `<div class="bk-glance"><div class="bk-glance-h">${esc(t("bkGlance"))}</div>${f.map(x => `<div class="dmath">${texD(x)}</div>`).join("")}</div>` : ""}
@@ -216,7 +217,7 @@ function bookClick(a, b){
   else if(a === "bkback") bookBack();
   else if(a === "bkcourse"){ BK.v = "course"; BK.code = b.dataset.c; BK.tab = "topics"; render(); window.scrollTo(0, 0); }
   else if(a === "bktab"){ BK.tab = b.dataset.t; render(); }
-  else if(a === "bkunit"){ BK.v = "unit"; BK.code = b.dataset.c; BK.u = +b.dataset.u; (S.theorySeen ||= {})[BK.code + ":" + BK.u] = 1; bdgToast(checkBadges()); save(); render(); window.scrollTo(0, 0); }
+  else if(a === "bkunit"){ BK.v = "unit"; BK.code = b.dataset.c; BK.u = +b.dataset.u; stEv("theory", BK.code + ":" + BK.u, "book"); (S.theorySeen ||= {})[BK.code + ":" + BK.u] = 1; bdgToast(checkBadges()); save(); render(); window.scrollTo(0, 0); }
   else if(a === "bksec"){ const h = document.getElementById("bk-s" + b.dataset.i); if(h) window.scrollTo({ top: h.getBoundingClientRect().top + window.scrollY - 76, behavior: "smooth" }); }
   else if(a === "bkguided"){ gdOpen(b.dataset.c || BK.code, b.dataset.u != null ? +b.dataset.u : BK.u, null); }
   else if(a === "bktopic"){ if(BK.v !== "topic") BK.from = BK.v; BK.v = "topic"; BK.code = b.dataset.c; BK.topic = b.dataset.id; (S.topicSeen ||= {})[BK.code + ":" + BK.topic] = 1; save(); render(); window.scrollTo(0, 0); }

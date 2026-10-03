@@ -81,6 +81,15 @@ out["yel"] = avg(r, g, b, yel & ndimage.binary_erosion(yel, iterations=2))
 out["sluttArea"] = trace(ndimage.binary_fill_holes(ink), S, S, O, O, 0.7, 0.6, 500, 2)
 out["sluttInk"] = trace(ink, S, S, O, O, 0.55, 0.6, 15, 2)
 out["sluttYel"] = trace(yel, S, S, O, O, 0.55, 0.6, 15, 2)
+# ---------- stopp (202) 264 × 264: rød åttekant med hvit kant og hvite bokstaver. Hele skiltet (med hvit kant) fyller 2–98 ----------
+r, g, b = load("202_stopp.png")
+red = (r > 150) & (g < 120) & (b < 110)
+octa = ndimage.binary_fill_holes(red)
+ys, xs = np.nonzero(octa)
+S = 88 / (xs.max() - xs.min() + 1); OX = 6 - xs.min() * S; OY = 6 - ys.min() * S
+out["stopRed"] = avg(r, g, b, red & ndimage.binary_erosion(red, iterations=4))
+out["stopOct"] = trace(octa, S, S, OX, OY, 0.8, 0.8, 2000, 2)
+out["stopText"] = trace(octa & ~red, S, S, OX, OY, 0.5, 0.7, 20, 2)
 
 with open("drive_signs_ref.js", "w") as fh:
     fh.write("// ============================================================\n")

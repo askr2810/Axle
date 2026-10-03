@@ -308,6 +308,7 @@ function renderSettings(){
       ${CLOUD_ON && AUTH ? `<button class="srow" data-a="frblocks"><span class="lbl">${t("blockList")}<span class="sub">${t("blockListSub")}</span></span>${I.chevron}</button>` : ""}
       <a class="srow" href="mailto:${esc(CONFIG.contactEmail)}?subject=${encodeURIComponent("Axle: rapport om misbruk")}"><span class="lbl">${t("abuseContact")}<span class="sub">${esc(CONFIG.contactEmail)}</span></span>${I.chevron}</a>
       <button class="srow" data-a="privacy"><span class="lbl">${t("setPrivacy")}</span>${I.chevron}</button>
+      ${typeof CLOUD_ON !== "undefined" && CLOUD_ON ? `<div class="srow"><span class="lbl">${esc(T("Del bruksstatistikk", "Share usage statistics"))}<span class="sub">${esc(T("Hva slags sider og øvinger som brukes – hjelper oss å gjøre Axle bedre. Ingen svar eller tekst.", "Which pages and exercises are used – helps us improve Axle. No answers or text."))}</span></span><button class="tog ${S.noStats ? "" : "on"}" data-a="stattoggle" role="switch" aria-checked="${!S.noStats}" aria-label="${esc(T("Del bruksstatistikk", "Share usage statistics"))}"></button></div>` : ""}
       <button class="srow" data-a="terms"><span class="lbl">${esc(T("Vilkår for bruk", "Terms of use"))}<span class="sub">${esc(T("Gratis øvingsverktøy, kan inneholde feil", "Free practice tool, may contain mistakes"))}</span></span>${I.chevron}</button>
       ${claudeDb&&isOwner?`<button class="srow" data-a="inbox"><span class="lbl">${t("setInbox","…")}</span>${I.chevron}</button>`:""}
     </div>
@@ -480,6 +481,7 @@ function finishLesson(){
   checkUnlocks();
   save();
   L.result = { xpBefore, levelUp: levelInfo(S.xp).lv > lvBefore ? levelInfo(S.xp).lv : 0, streakMile: st.streakUp && STREAK_MILES.includes(st.streak) ? st.streak : 0, bonus: L.bonus||0, goalHit: st.goalHit, newBadges, gained: gained + (L.bonus||0), acc: Math.round(firstTry/L.total*100), secs: Math.round((Date.now()-L.start)/1000), streak: st.streak, streakUp: st.streakUp };
+  if(typeof stEv === "function") stEv("lesson", L.code, L.kind === "unit" && L.meta ? L.meta.u : L.kind, firstTry, L.total);
   screen = "done"; render();
 }
 function correctText(it){ return it.type==="mc" ? it.opts.find(o=>o.ok).t : it.type==="flip" ? it.answer : nf(it.n,3)+(it.u?" "+it.u:""); }
@@ -995,14 +997,14 @@ function renderOverlay(){
 
 // ---------- teori og forkunnskaper ----------
 let TH = null; // {code, u, go:{u,k}|null}
-function openTheory(code, u, go){ TH = { code, u, go }; (S.theorySeen ||= {})[code+":"+u] = 1; bdgToast(checkBadges()); save(); overlay = null; screen = "theory"; render(); window.scrollTo(0,0); }
+function openTheory(code, u, go){ TH = { code, u, go }; if(typeof stEv === "function") stEv("theory", code + ":" + u, "full"); (S.theorySeen ||= {})[code+":"+u] = 1; bdgToast(checkBadges()); save(); overlay = null; screen = "theory"; render(); window.scrollTo(0,0); }
 function theoryBody(code, u, quiz){ const doc = theoryOf(code, u); if(!doc) return `<p>${esc(t("noTheory"))}</p>`; const src = withSims(code, u, withFigs(code, u, doc[LANG] || doc.nb));
   return (typeof ttsBarHTML === "function" ? ttsBarHTML() : "") + tyKeyHTML(src) + richDoc(src) + (quiz ? cyHTML(code, u) : ""); }
 function renderTheory(){
   if(!TH){ screen = "home"; renderHome(); return; }
   const c = COURSE(TH.code);
   $app.innerHTML = `<div class="top"><div class="wrap"><button class="iconbtn" data-a="home" aria-label="${esc(t("back"))}">${I.x}</button>
-      <div class="th-t"><small>${esc(courseName(c))} · ${esc(t("unit", TH.u+1))}</small><b>${esc(unitTitle(c, TH.u))}</b></div><span class="th-ic" aria-hidden="true">${I.book}</span></div></div>
+      <div class="th-t"><small>${esc(courseName(c))} · ${esc(t("unit", TH.u+1))}</small><b>${esc(unitTitle(c, TH.u))}</b></div>${ttsTopBtn("main.theory")}</div></div>
     <main class="wrap theory">${teacherBubble(TH.code, esc(t("tchTheory", unitTitle(c, TH.u))), 52, "tch-th")}<button class="gd-cta" data-a="thguided">${I.steps}<span><b>${esc(t("gdCta"))}</b><small>${esc(t("gdCtaSub"))}</small></span>${I.chevron}</button>${pfTheoryHTML(TH.code, TH.u)}${labTheoryHTML(TH.code, TH.u)}${theoryBody(TH.code, TH.u, true)}</main>
     <div class="lfoot"><div class="wrap"><button class="big" data-a="thstart">${esc(t(TH.go ? "thStartFirst" : "thStart"))}</button></div></div>`;
 }
@@ -1055,6 +1057,7 @@ function termsLoad(){
 function render(){
   const pane = document.querySelector("#app .sheet"), keep = pane && render.last === screen ? pane.scrollTop : null;
   renderNow();
+  if(render.last !== screen && typeof stScreen === "function") stScreen(screen);
   render.last = screen;
   if(keep != null){ const np = document.querySelector("#app .sheet"); if(np) np.scrollTop = keep; }
 }
@@ -1213,6 +1216,7 @@ document.addEventListener("click", async e=>{
   else if(a==="langpick"){ LANG = b.dataset.l; S.lang = LANG; S.langSet = 1; save(); overlay = null; renderOverlay(); render(); setTimeout(bootPrompts, 250); }
   else if(a==="setgoal"){ S.goal = +b.dataset.g; save(); render(); }
   else if(a==="sndtoggle"){ S.sound = S.sound === false; save(); render(); if(S.sound) sfx("ok", 3); }
+  else if(a==="stattoggle"){ S.noStats = !S.noStats; if(S.noStats) ST_Q = []; save(); render(); }
   else if(a==="haptoggle"){ S.haptics = !S.haptics; save(); render(); if(S.haptics) buzz(true); }
   else if(a==="remtoggle"){ await reminderToggle(); }
   else if(a==="pushtest"){ pushTest(); }
