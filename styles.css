@@ -2022,3 +2022,9 @@ textarea.fbtext{width:100%;font:13px/1.4 var(--mono,monospace);border-radius:12p
 .avr-ram small{font-size:9px;color:var(--muted)}
 .avr-wave svg{width:100%;height:auto}
 .avr-help div{font-size:14px}
+
+/* adminpanel: kontoinfo, og stabsmerket skal ha hvit tekst også inne i .fr-t (der span ellers er grå) */
+.fr-t .staff-tag{color:#fff;font-size:12px;margin:0 0 0 6px;vertical-align:middle}
+.adm-acct{margin:6px 0 10px;padding:8px 12px 8px 28px;border-radius:12px;font-size:14px;line-height:1.45;background:color-mix(in srgb,var(--ok) 10%,transparent)}
+.adm-acct.warn{background:color-mix(in srgb,var(--gold) 16%,transparent)}
+.adm-acct li+li{margin-top:2px}

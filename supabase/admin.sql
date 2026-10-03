@@ -131,7 +131,8 @@ $$;
 drop function if exists public.admin_find_users(text);
 create function public.admin_find_users(q text)
 returns table (user_id uuid, display_name text, username text, email text, created_at timestamptz, member_no integer,
-               app_role text, xp integer, last_active timestamptz, reports integer, avatar text, photo text)
+               app_role text, xp integer, last_active timestamptz, reports integer, avatar text, photo text,
+               confirmed boolean, last_sign_in timestamptz, has_progress boolean)
 language plpgsql stable security definer set search_path = ''
 as $$
 declare lvl int := public.staff_level(); s text := lower(btrim(coalesce(q, '')));
@@ -143,7 +144,10 @@ begin
          (select r.role from public.app_roles r where r.user_id = u.id), p.xp,
          greatest(p.updated_at, (select g.updated_at from public.progress g where g.user_id = u.id)),
          (select count(*)::int from public.content_reports c where c.target_user = u.id),
-         p.avatar, p.photo
+         p.avatar, p.photo,
+         -- en konto lages allerede når noen ber om innloggingskode; confirmed = koden er faktisk brukt
+         u.email_confirmed_at is not null, u.last_sign_in_at,
+         exists (select 1 from public.progress g where g.user_id = u.id)
   from auth.users u left join public.profiles p on p.user_id = u.id
   where s = '' or lower(coalesce(p.display_name, '')) like '%' || s || '%' or lower(coalesce(p.username, '')) like '%' || ltrim(s, '@') || '%'
      or (lvl >= 2 and lower(u.email::text) like '%' || s || '%')

@@ -87,6 +87,15 @@ function admReportsHTML(){
       ${acts ? `<div class="adm-acts">${acts}</div>` : ""}</div>`;
   }).join("");
 }
+// Hva slags konto er dette? En konto lages allerede når noen ber om kode, så «ingen venneprofil» er ofte bare et avbrutt forsøk.
+function admAcctHTML(u){
+  if(u.confirmed === undefined) return ""; // eldre admin.sql uten disse feltene
+  const lines = !u.confirmed ? [T("Har bare bedt om innloggingskode, men aldri brukt den. Kan være et avbrutt forsøk, en skrivefeil i e-posten eller en bot.", "Only requested a sign-in code but never used it. Could be an abandoned attempt, a typo in the email or a bot.")]
+    : [T("E-posten er bekreftet med kode", "Email confirmed with a code") + (u.last_sign_in ? " · " + T("sist innlogget ", "last sign-in ") + admAgo(u.last_sign_in) : ""),
+       u.has_progress ? T("Har lagret fremgang i skyen", "Has saved progress to the cloud") : T("Ingen lagret fremgang ennå", "No saved progress yet"),
+       !u.display_name ? T("Har ikke laget venneprofil (navn og brukernavn)", "Has not created a friend profile (name and username)") : ""].filter(Boolean);
+  return `<ul class="adm-acct ${u.confirmed ? "ok" : "warn"}">${lines.map(l => `<li>${esc(l)}</li>`).join("")}</ul>`;
+}
 function admUsersHTML(){
   const search = `<div class="fr-search">${I.search}<input type="search" id="admq" autocapitalize="none" autocomplete="off" spellcheck="false" placeholder="${esc(t(isAdmin() ? "admSearchPhA" : "admSearchPh"))}" value="${esc(ADM.q)}"></div>`;
   if(ADM.users === null) return search + `<p class="fr-hint">${esc(t("frLoading"))}</p>`;
@@ -96,7 +105,7 @@ function admUsersHTML(){
     const open = ADM.open === u.user_id, me = AUTH && u.user_id === AUTH.uid;
     const btn = (k, lab, bad) => `<button class="fr-act ${bad ? "adm-bad" : ""}" data-a="admuser" data-id="${esc(u.user_id)}" data-k="${k}">${esc(ADM.confirm === u.user_id + k ? t("admSure") : t(lab))}</button>`;
     return `<div class="fr-card adm-user ${open ? "open" : ""}"><button class="fr-who" data-a="admopen" data-id="${esc(u.user_id)}">${admWho(u, sub)}${+u.reports ? `<em class="fr-n adm-rn">${u.reports} ⚑</em>` : ""}</button>
-      ${open ? `<p class="adm-meta">${esc(t("admJoined", fmtDate(u.created_at)))} · ${esc(t("admLast", admAgo(u.last_active)))} · ${esc(String(u.xp || 0))} XP</p>
+      ${open ? `<p class="adm-meta">${esc(t("admJoined", fmtDate(u.created_at)))} · ${esc(t("admLast", admAgo(u.last_active)))} · ${esc(String(u.xp || 0))} XP</p>${admAcctHTML(u)}
         <div class="adm-acts">${u.display_name ? `<button class="fr-act" data-a="admperson" data-id="${esc(u.user_id)}">${esc(t("admSeeProfile"))}</button>` : ""}
           ${!me && (u.app_role !== "admin" || isAdmin()) ? btn("reset_name", "admResetName", 1) + (u.photo ? btn("remove_photo", "admRemovePhoto", 1) : "") : ""}
           ${isAdmin() && !me && u.app_role !== "admin" ? (u.app_role === "mod" ? btn("remove_role", "admRemoveMod", 1) : btn("set_mod", "admMakeMod")) : ""}</div>` : ""}</div>`;
