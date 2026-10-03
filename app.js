@@ -26,10 +26,10 @@ function texD(s){
 }
 function richDoc(src){
   let s = String(src||""); if(decPoint()) s = s.replace(/\{,\}/g,".");
-  const inl = x => inline(x).replace(/\*\*([^*]+?)\*\*/g,"<b>$1</b>");
+  const inl = x => inline(x).replace(/\*\*([^*]+?)\*\*/g,"<b>$1</b>").replace(/(^|[\s(«"\/–-])\*([^*\s](?:[^*]*?[^*\s])?)\*(?=[\s.,;:!?)»"\/–-]|$)/g,"$1<i>$2</i>"); // **fet** og *kursiv*
   const out = []; let para = [], list = null, box = [], code = null;
   const fPara = () => { if(para.length){ out.push("<p>"+inl(para.join(" "))+"</p>"); para = []; } };
-  const fList = () => { if(list){ out.push(`<${list.t}>`+list.items.map(x=>"<li>"+inl(x)+"</li>").join("")+`</${list.t}>`); list = null; } };
+  const fList = () => { if(list){ out.push(`<${list.t}>`+list.items.map((x,i)=>"<li>"+inl(x)+(list.sub[i] ? "<ul>"+list.sub[i].map(y=>"<li>"+inl(y)+"</li>").join("")+"</ul>" : "")+"</li>").join("")+`</${list.t}>`); list = null; } };
   const fBox = () => { if(box.length){ out.push('<div class="callout">'+box.map(inl).join("<br>")+"</div>"); box = []; } };
   const fAll = () => { fPara(); fList(); fBox(); };
   for(const raw of s.split("\n")){
@@ -46,8 +46,9 @@ function richDoc(src){
     if((m = L.match(/^!\[(sort|seq):(\w+)\]$/))){ fAll(); if(typeof srtHTML === "function") out.push(m[1] === "sort" ? srtHTML(m[2]) : seqHTML(m[2])); continue; }
     if((m = L.match(/^\$\$(.+)\$\$$/))){ fPara(); fList(); fBox(); out.push('<div class="dmath">'+texD(m[1])+"</div>"); continue; }
     if((m = L.match(/^>\s?(.*)$/))){ fPara(); fList(); box.push(m[1]); continue; }
+    if(list && list.items.length && /^\s{2,}-\s/.test(raw)){ const i = list.items.length - 1; (list.sub[i] = list.sub[i] || []).push(L.replace(/^-\s+/, "")); continue; } // underpunkt
     if((m = L.match(/^-\s+(.*)$/)) || (m = L.match(/^\d+[.)]\s+(.*)$/))){ fPara(); fBox(); const tp = /^-/.test(L) ? "ul" : "ol";
-      if(!list || list.t!==tp){ fList(); list = { t:tp, items:[] }; } list.items.push(m[1]); continue; }
+      if(!list || list.t!==tp){ fList(); list = { t:tp, items:[], sub:{} }; } list.items.push(m[1]); continue; }
     fList(); fBox(); para.push(L);
   }
   if(code) out.push('<pre class="code">'+esc(code.join("\n"))+"</pre>");
