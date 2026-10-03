@@ -105,7 +105,14 @@ const FK_SIGNS = {
   slutt_forkjorsvei: () => `<path d="${FK_TRACE.sluttArea}" fill="#fff" stroke="#fff" stroke-width="4" stroke-linejoin="round"/><path d="${FK_TRACE.sluttYel}" fill="${FK_YEL}" fill-rule="evenodd"/>${fkTrace("sluttInk")}`,
   rundkjoring: () => fkBlueRound(`<g transform="rotate(0 50 50)"><path d="M43.53 74.15A25 25 0 0 0 72.66 60.57" fill="none" stroke="#fff" stroke-width="7.5"/><path d="M76.46 52.41L79.46 63.74L65.86 57.40Z" fill="#fff"/></g><g transform="rotate(120 50 50)"><path d="M43.53 74.15A25 25 0 0 0 72.66 60.57" fill="none" stroke="#fff" stroke-width="7.5"/><path d="M76.46 52.41L79.46 63.74L65.86 57.40Z" fill="#fff"/></g><g transform="rotate(240 50 50)"><path d="M43.53 74.15A25 25 0 0 0 72.66 60.57" fill="none" stroke="#fff" stroke-width="7.5"/><path d="M76.46 52.41L79.46 63.74L65.86 57.40Z" fill="#fff"/></g>`),
   gangfelt: () => `<path d="${FK_TRACE.gangSquare}" fill="#fff" stroke="#fff" stroke-width="2.6" stroke-linejoin="round"/><path d="${FK_TRACE.gangBlue}" fill="${FK_BLUE}" fill-rule="evenodd"/>${fkTrace("gangfelt")}`,
-  haitenner: () => `<rect width="100" height="100" fill="#4A4F57"/><g fill="#fff">${[8, 30, 52, 74].map(x => `<path d="M${x} 40h18l-9 20z"/>`).join("")}</g><path d="M0 12h100M0 88h100" stroke="#fff" stroke-width="2.5" stroke-dasharray="10 8"/>`,
+  // Vikepliktlinje sett ovenfra: T-kryss, haitennene ligger tvers over ditt felt der sidevegen møter hovedvegen,
+  // med spissene mot deg (den som har vikeplikt). Bilen kommer nedenfra, vikepliktskiltet står til høyre.
+  haitenner: () => `<rect width="100" height="100" rx="10" fill="#A9BC72"/><rect x="0" y="10" width="100" height="30" fill="#6E747B"/><rect x="24" y="39" width="52" height="61" fill="#6E747B"/>
+    <path d="M0 12.5H24M76 12.5H100M0 37.5H24.5M75.5 37.5H100M26.5 40V100M73.5 40V100" stroke="#fff" stroke-width="1.6"/>
+    <path d="M0 25H100" stroke="#F2C230" stroke-width="1.6" stroke-dasharray="7 6"/><path d="M50 54V100" stroke="#F2C230" stroke-width="1.6" stroke-dasharray="7 6"/>
+    <g fill="#fff">${[0, 1, 2, 3].map(k => `<path d="M${51.6 + k * 5.4} 41h4.6l-2.3 7.6z"/>`).join("")}</g>
+    ${fkCar(62, 80, "#2B59C3", 1.05)}
+    <path d="M83 64V50" stroke="#5A6772" stroke-width="1.6"/><g transform="translate(75.5 40) scale(.15)">${fkTri("", true)}</g>`,
   fare_generell: () => fkTri(`<path d="M50 34v26" stroke="${FK_INK}" stroke-width="8" stroke-linecap="round"/><circle cx="50" cy="72" r="4.6" fill="${FK_INK}"/>`),
   pabud_hoyre: () => fkBlueRound(`<path d="${FK_TRACE.pabudHoyre}" fill="#fff" fill-rule="evenodd"/>`),
   innkjoring_forbudt: () => `<circle cx="50" cy="50" r="44" fill="${FK_RED}" stroke="#fff" stroke-width="3"/><rect x="18" y="41" width="64" height="18" fill="#fff"/>`,
