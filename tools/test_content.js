@@ -19,7 +19,7 @@ function checkText(s, w, lang){
   if (parts.length % 2 === 0) E(w, 'ubalansert $: ' + s.slice(0, 100));
   parts.forEach((p, i) => { if (i % 2 === 0 && p.includes('{,}')) E(w, '{,} utenfor matte: ' + p.slice(0, 80));
     if (i % 2) { let d = 0; for (const ch of p.replace(/\\[{}]/g, '')) { if (ch === '{') d++; if (ch === '}') d--; if (d < 0) break; } if (d !== 0) E(w, 'ubalanserte {} i ' + p.slice(0, 80)); } });
-  if (lang === 'en') { const t = s.replace(/\\text\{[^}]*\}/g, '').replace(/Ø(?=\d)/g, ''); if (/[æøåÆØÅ«»]/.test(t) && !/len\("ingeniør"\)/.test(t)) E(w, 'norske tegn i engelsk: ' + s.slice(0, 120)); }
+  if (lang === 'en') { const t = s.replace(/\\text\{[^}]*\}/g, '').replace(/Ø(?=\d)/g, ''); if (/[æøåÆØÅ«»]/.test(t) && !/len\("ingeniør"\)/.test(t) && !/ VGNOR /.test(" " + w + " ")) E(w, 'norske tegn i engelsk: ' + s.slice(0, 120)); }
 }
 function nums(s){ s = s.replace(/\{,\}/g, '.').replace(/(\d),(\d)/g, '$1.$2').replace(/−/g, '-').replace(/\\,/g, '').replace(/(\d)[  ](\d{3})/g, '$1$2').replace(/(\d),(\d{3})/g,'$1$2');
   return (s.match(/-?\d+(\.\d+)?(e-?\d+)?/g) || []).map(Number); }

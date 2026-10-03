@@ -263,10 +263,55 @@ Object.assign(TIMELINES, {
       ["Ozonlaget beskytter mot UV-stråling", "The ozone layer blocks UV radiation", "Livet kan flytte opp på land", "Life can move onto land"],
       ["Jordbruket gir matoverskudd", "Farming gives a food surplus", "Byer og sivilisasjoner vokser fram", "Cities and civilisations grow"]] }
 });
+Object.assign(TIMELINES, {
+  nor_lit: { t: ["Norsk litteraturhistorie", "Norwegian literary history"], r: [1150, 2030], w: 0.35,
+    e: [[1150, 1350, "Norrøn tid", "Old Norse"], [1350, 1814, "Dansketiden", "Danish period"], [1814, 1870, "Romantikken", "Romanticism"], [1870, 1890, "Realisme", "Realism"], [1890, 1914, "Nyromantikk", "Neo-romanticism"], [1914, 1990, "Modernisme", "Modernism"], [1990, 2030, "Samtid", "Contemporary"]],
+    v: [[1230, "Heimskringla", "Heimskringla", "Snorre Sturlason skriver kongesagaene på Island.", "Snorri Sturluson writes the kings' sagas in Iceland.", 1],
+      [1700, "Nordlands Trompet", "Trumpet of Nordland", "Petter Dass skildrer folk og natur i Nord-Norge i barokk diktform.", "Petter Dass depicts the people and nature of northern Norway in Baroque verse.", 1],
+      [1722, "Jeppe på Bjerget", "Jeppe on the Hill", "Holbergs komedie latterliggjør dumskap og overmot – typisk opplysningstid.", "Holberg's comedy mocks folly and arrogance – typical Enlightenment.", 0],
+      [1830, "Wergeland", "Wergeland", "Henrik Wergeland gir ut det store diktverket «Skabelsen, Mennesket og Messias».", "Henrik Wergeland publishes the great poem 'Creation, Man and Messiah'."],
+      [1841, "Folkeeventyr", "Folk tales", "Asbjørnsen og Moe begynner å gi ut «Norske Folkeeventyr».", "Asbjørnsen and Moe start publishing 'Norwegian Folk Tales'."],
+      [1854, "Amtmandens Døttre", "The District Governor's Daughters", "Camilla Collett kritiserer hvordan unge kvinner giftes bort – den første norske samfunnskritiske romanen.", "Camilla Collett criticises how young women are married off – the first Norwegian social-critical novel."],
+      [1879, "Et dukkehjem", "A Doll's House", "Ibsens drama om Nora vekker debatt over hele Europa.", "Ibsen's drama about Nora sparks debate across Europe."],
+      [1885, "Constance Ring", "Constance Ring", "Amalie Skrams naturalistiske roman om ekteskap og seksualitet.", "Amalie Skram's naturalist novel about marriage and sexuality."],
+      [1890, "Sult", "Hunger", "Hamsuns roman skildrer sinnet til en sulten forfatter – starten på nyromantikken.", "Hamsun's novel portrays the mind of a starving writer – the start of neo-romanticism."],
+      [1903, "Bjørnson Nobel", "Bjørnson Nobel", "Bjørnstjerne Bjørnson blir første nordmann med Nobelprisen i litteratur.", "Bjørnstjerne Bjørnson becomes the first Norwegian Nobel laureate in literature."],
+      [1928, "Undset Nobel", "Undset Nobel", "Sigrid Undset får Nobelprisen, blant annet for «Kristin Lavransdatter».", "Sigrid Undset wins the Nobel Prize, partly for 'Kristin Lavransdatter'."],
+      [1963, "Is-slottet", "The Ice Palace", "Tarjei Vesaas skriver en modernistisk og symboltung roman om to jenter.", "Tarjei Vesaas writes a modernist, symbol-laden novel about two girls."],
+      [1966, "Profil", "Profil", "Unge forfattere i tidsskriftet Profil gjør opprør mot den tradisjonelle modernismen.", "Young writers in the magazine Profil rebel against traditional modernism."],
+      [2009, "Min kamp", "My Struggle", "Karl Ove Knausgårds selvbiografiske romanserie blir et fenomen.", "Karl Ove Knausgård's autobiographical series becomes a phenomenon."],
+      [2023, "Fosse Nobel", "Fosse Nobel", "Jon Fosse får Nobelprisen i litteratur for sin nynorske dramatikk og prosa.", "Jon Fosse wins the Nobel Prize for his Nynorsk drama and prose."]],
+    c: [["Opplysningstidens tro på fornuften", "Enlightenment faith in reason", "Holbergs komedier latterliggjør dumskap", "Holberg's comedies mock folly"],
+      ["Nasjonsbyggingen etter 1814", "Nation-building after 1814", "Eventyr og folkeviser blir samlet inn", "Folk tales and ballads are collected"],
+      ["Industrialisering og nye samfunnsproblemer", "Industrialisation and new social problems", "Realistene setter problemer under debatt", "The realists put problems up for debate"],
+      ["Darwin og naturvitenskapen", "Darwin and natural science", "Naturalismen ser mennesket som styrt av arv og miljø", "Naturalism sees people as governed by heredity and environment"],
+      ["Lei av samfunnsdebatt i litteraturen", "Tired of social debate in literature", "Nyromantikken skildrer sjelelivet", "Neo-romanticism depicts the inner life"]] },
+  nor_sprak: { t: ["Norsk språkhistorie", "Norwegian language history"], r: [150, 2030], w: 0.35,
+    e: [[150, 1350, "Runer og norrønt", "Runes and Old Norse"], [1350, 1814, "Dansk skriftspråk", "Danish writing"], [1814, 1938, "To skriftspråk vokser fram", "Two standards emerge"], [1938, 2002, "Samnorsk-perioden", "The Samnorsk era"], [2002, 2030, "I dag", "Today"]],
+    v: [[200, "Runer", "Runes", "De eldste runeinnskriftene i Norden, skrevet med den eldre runerekken.", "The oldest runic inscriptions in the Nordic region, in the elder futhark.", 1],
+      [1030, "Latinske bokstaver", "Latin letters", "Med kristendommen kommer det latinske alfabetet og skriving på pergament.", "Christianity brings the Latin alphabet and writing on parchment.", 1],
+      [1350, "Norrønt forfaller", "Old Norse declines", "Etter svartedauden og i unionene tar dansk og svensk over som skriftspråk.", "After the Black Death and in the unions, Danish and Swedish take over as written languages.", 1],
+      [1550, "Bibel på dansk", "Danish Bible", "Christian 3.s bibel blir den danske normen for skriftspråket i Danmark-Norge.", "Christian III's Bible sets the Danish written norm in Denmark-Norway."],
+      [1814, "Selvstendighet", "Independence", "Spørsmålet melder seg: hvordan skal et norsk skriftspråk se ut?", "The question arises: what should a Norwegian written language look like?"],
+      [1848, "Ivar Aasen", "Ivar Aasen", "Aasen gir ut grammatikken over norske dialekter – grunnlaget for landsmålet.", "Aasen publishes his grammar of Norwegian dialects – the basis of Landsmål."],
+      [1856, "Knud Knudsen", "Knud Knudsen", "Knudsen vil fornorske dansken gradvis – grunnlaget for riksmålet.", "Knudsen wants to Norwegianise Danish gradually – the basis of Riksmål.", 1],
+      [1885, "Likestilling", "Equal status", "Stortinget likestiller landsmålet med det danske skriftspråket.", "The Storting gives Landsmål equal status with the Danish-based language."],
+      [1907, "Rettskrivning 1907", "1907 reform", "Riksmålet blir mer norsk, med harde konsonanter som i «gate» og «bok».", "Riksmål becomes more Norwegian, with hard consonants as in 'gate' and 'bok'."],
+      [1929, "Bokmål og nynorsk", "Bokmål and Nynorsk", "Riksmål og landsmål får de offisielle navnene bokmål og nynorsk.", "Riksmål and Landsmål get the official names Bokmål and Nynorsk."],
+      [1938, "Samnorsk", "Samnorsk", "Rettskrivningen skal føre de to språkene nærmere hverandre.", "The spelling reform aims to bring the two languages closer together."],
+      [2002, "Samnorsk oppgis", "Samnorsk dropped", "Stortinget går bort fra målet om å slå sammen bokmål og nynorsk.", "The Storting drops the aim of merging Bokmål and Nynorsk."],
+      [2021, "Språklova", "Language Act", "Ny språklov: bokmål og nynorsk er likestilte, og samisk og minoritetsspråk er vernet.", "New Language Act: Bokmål and Nynorsk are equal, and Sami and minority languages are protected."]],
+    c: [["Svartedauden og unionen med Danmark", "The Black Death and the union with Denmark", "Dansk blir skriftspråket i Norge", "Danish becomes Norway's written language"],
+      ["Selvstendigheten i 1814", "Independence in 1814", "Krav om et eget norsk skriftspråk", "Demands for a Norwegian written language"],
+      ["Aasen samler dialekter", "Aasen collects dialects", "Landsmålet (nynorsk)", "Landsmål (Nynorsk)"],
+      ["Knudsen fornorsker dansken", "Knudsen Norwegianises Danish", "Riksmålet (bokmål)", "Riksmål (Bokmål)"],
+      ["Ønsket om ett felles språk", "The wish for one common language", "Samnorskreformen i 1938", "The Samnorsk reform of 1938"]] }
+});
 const TL_UNITS = [["VGHIS", "Historiefaget og kildekritikk", "his_epoker"], ["VGHIS", "Vikingtid og middelalder", "his_viking"], ["VGHIS", "Reformasjon, opplysningstid og revolusjoner", "his_reform"],
   ["VGHIS", "Norge 1814–1905", "his_norge"], ["VGHIS", "Verdenskrigene", "his_krig"], ["VGHIS", "Den kalde krigen og etterkrigstiden", "his_kald"], ["VGHIS", "Samer og nasjonale minoriteter", "his_samer"],
   ["VGREL", "Religion i Norge og verden", "rel_tid"], ["VGSAMF", "Økonomi, arbeidsliv og velferd", "samf_velferd"], ["VGSAMF", "Internasjonal politikk", "samf_intl"],
-  ["VGNAT", "Naturvitenskapelig metode", "sci_hist"], ["VGBI1", "Evolusjon", "bio_jord"]];
+  ["VGNAT", "Naturvitenskapelig metode", "sci_hist"], ["VGBI1", "Evolusjon", "bio_jord"],
+  ["VGNOR", "Litteraturhistorie", "nor_lit"], ["VGNOR", "Språkhistorie og målstrid", "nor_sprak"]];
 const TL_MAP = {};
 for(const [code, title, name] of TL_UNITS){ const c = typeof COURSES !== "undefined" && COURSES.find(x => x.code === code), u = c ? c.units.findIndex(x => x.title === title) : -1; if(u >= 0) TL_MAP[code + ":" + u] = name; }
 const TL_XP = 3;

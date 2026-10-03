@@ -64,6 +64,23 @@ const SORTS = {
       ["y = x² − 1", "y = x² − 1", 1], ["Banen til en kastet ball", "The path of a thrown ball", 1], ["y = −x² + 4x", "y = −x² + 4x", 1],
       ["y = 3 · 2ˣ", "y = 3 · 2ˣ", 2], ["Dobles hvert år", "Doubles every year", 2, "Fast prosentvis økning = eksponentiell.", "A fixed percentage increase = exponential."], ["y = 500 · 0,9ˣ", "y = 500 · 0.9ˣ", 2], ["Mister 10 % av verdien hvert år", "Loses 10% of its value each year", 2]] }
 };
+Object.assign(SORTS, {
+  nor_sjanger: { t: ["Epikk, lyrikk eller dramatikk?", "Epic, lyric or drama?"], k: [["Epikk", "Epic"], ["Lyrikk", "Lyric"], ["Dramatikk", "Drama"]],
+    it: [["Roman", "Novel", 0], ["Novelle", "Short story", 0], ["Eventyr", "Fairy tale", 0], ["Saga", "Saga", 0], ["Dikt", "Poem", 1], ["Sonett", "Sonnet", 1, "Et dikt med 14 linjer.", "A 14-line poem."], ["Haiku", "Haiku", 1], ["Folkevise", "Ballad", 1, "Folkeviser er sangbare dikt.", "Ballads are poems meant to be sung."],
+      ["Skuespill", "Play", 2], ["Komedie", "Comedy", 2], ["Tragedie", "Tragedy", 2]] },
+  nor_virke: { t: ["Hvilket virkemiddel?", "Which device?"], k: [["Metafor", "Metaphor"], ["Sammenligning", "Simile"], ["Besjeling", "Personification"], ["Allitterasjon", "Alliteration"]],
+    it: [["«Livet er en reise»", "'Life is a journey'", 0], ["«Hun er en klippe»", "'She is a rock'", 0], ["«Sterk som en bjørn»", "'Strong as a bear'", 1], ["«Øynene var som stjerner»", "'Eyes like stars'", 1],
+      ["«Vinden hvisket»", "'The wind whispered'", 2], ["«Trærne sukket i stormen»", "'The trees sighed in the storm'", 2], ["«Sakte sank solen»", "'Slowly sank the sun'", 3], ["«Mange myke maur»", "'Many mellow mice'", 3]] },
+  nor_appell: { t: ["Etos, patos eller logos?", "Ethos, pathos or logos?"], k: [["Etos", "Ethos"], ["Patos", "Pathos"], ["Logos", "Logos"]],
+    it: [["«Som lege i 20 år kan jeg si …»", "'As a doctor for 20 years I can say …'", 0], ["Taleren er rolig, saklig og godt forberedt", "The speaker is calm, factual and well prepared", 0], ["«Jeg innrømmer at jeg tok feil før»", "'I admit I was wrong before'", 0, "Ærlighet øker troverdigheten.", "Honesty builds credibility."],
+      ["«Se for deg den lille jenta alene i kulda»", "'Picture the little girl alone in the cold'", 1], ["«Dette er en skam for hele landet!»", "'This is a disgrace to the whole country!'", 1], ["Sår musikk og sterke bilder i reklamen", "Sad music and strong images in an advert", 1],
+      ["«Ulykkene gikk ned med 30 %»", "'Accidents fell by 30%'", 2], ["«Hvis A fører til B, og B til C, fører A til C»", "'If A leads to B and B to C, A leads to C'", 2], ["«Undersøkelsen omfattet 2000 personer»", "'The survey covered 2,000 people'", 2]] },
+  nor_feil: { t: ["Hvilken argumentasjonsfeil?", "Which fallacy?"], k: [["Personangrep", "Ad hominem"], ["Stråmann", "Straw man"], ["Falskt dilemma", "False dilemma"], ["Glidebane", "Slippery slope"]],
+    it: [["«Du er jo bare 16, hva vet du om dette?»", "'You're only 16, what do you know?'", 0], ["«Han kan ikke mene noe om klima, han har jo bil selv»", "'He can't talk about climate, he owns a car'", 0],
+      ["«Så du mener at vi skal forby alle biler?»", "'So you think we should ban all cars?'", 1], ["«Hun vil ha mindre lekser – hun vil altså at ingen skal lære noe»", "'She wants less homework – so she wants nobody to learn anything'", 1],
+      ["«Enten er du med oss, eller så er du mot oss»", "'Either you're with us or against us'", 2], ["«Vil du ha ny skole, eller skal barna fryse?»", "'Do you want a new school, or should the children freeze?'", 2],
+      ["«Tillater vi mobil i friminuttet, blir det snart mobil i alle timer»", "'Allow phones at break and soon they'll be in every lesson'", 3], ["«Senker vi aldersgrensen nå, blir det ingen grenser til slutt»", "'Lower the age limit now and soon there'll be no limits'", 3]] }
+});
 // Skiltgruppene lages rett fra skiltdataene, med selve skiltet på kortet.
 if(typeof FK_SIGN_INFO !== "undefined" && typeof FK_SIGNS !== "undefined"){
   const G = { fare: 0, forbud: 1, pabud: 2, oppl: 3 }, why = [["Fareskilt varsler om farer: rød kant og trekant.", "Warning signs: red-bordered triangle."], ["Forbudsskilt er runde med rød kant.", "Prohibitory signs are round with a red border."], ["Påbudsskilt er blå sirkler med hvitt symbol.", "Mandatory signs are blue circles with a white symbol."], ["Opplysningsskilt er oftest blå rektangler.", "Information signs are usually blue rectangles."]];
@@ -80,13 +97,17 @@ const SEQS = {
   nat_metode: { t: ["Den naturvitenskapelige metoden", "The scientific method"], s: [["Observer og still et spørsmål", "Observe and ask a question"], ["Lag en hypotese", "Form a hypothesis"], ["Planlegg et forsøk med én variabel", "Plan an experiment with one variable"], ["Gjør forsøket og samle data", "Run the experiment and collect data"], ["Analyser resultatene", "Analyse the results"], ["Trekk en konklusjon og del den", "Draw a conclusion and share it"]] },
   ok_mva: { t: ["Fra faktura til regnskap", "From invoice to accounts"], s: [["Kunden bestiller varen", "The customer orders the goods"], ["Varen leveres", "The goods are delivered"], ["Faktura sendes med mva", "An invoice with VAT is sent"], ["Salget bokføres som inntekt og kundefordring", "The sale is booked as income and a receivable"], ["Kunden betaler", "The customer pays"], ["Mva betales til staten ved neste termin", "VAT is paid to the state at the next term"]] }
 };
+Object.assign(SEQS, {
+  nor_drofting: { t: ["Slik bygger du en drøftende tekst", "How to build a discussion text"], s: [["Innledning: presenter saken og problemstillingen", "Introduction: present the issue and question"], ["Argumenter for", "Arguments for"], ["Argumenter mot", "Arguments against"], ["Vei argumentene mot hverandre", "Weigh the arguments against each other"], ["Avslutning: begrunnet konklusjon", "Conclusion: a reasoned answer"]] }
+});
 const WG_UNITS = [["FKB", "Vikeplikt og forkjørsrett", "sort:fk_vik"], ["FKMC", "Vikeplikt og forkjørsrett", "sort:fk_vik"], ["FKB", "Skilt og vegoppmerking", "sort:fk_skilt"], ["FKMC", "Skilt og vegoppmerking", "sort:fk_skilt"],
   ["FKB", "Ulykker og førstehjelp", "seq:fk_ulykke"], ["FKB", "Ulykker og førstehjelp", "seq:fk_hlr"], ["FKB", "Plassering, feltskifte og forbikjøring", "seq:fk_forbi"], ["FKMC", "Plassering, feltskifte og forbikjøring", "seq:fk_forbi"],
   ["VGSAMF", "Demokrati og politikk i Norge", "sort:samf_makt"], ["VGSAMF", "Demokrati og politikk i Norge", "seq:samf_lov"], ["JSTAT", "Grunnloven og maktfordelingen", "sort:samf_makt"],
   ["VGKJ1", "Syrer, baser og pH", "sort:kj_ph"], ["VGBI1", "Cellen", "sort:bio_celle"], ["VGBI1", "Cellen", "seq:bio_mitose"], ["VGBI1", "Økologi", "sort:bio_oko"],
   ["VGNAT", "Energi og energikilder", "sort:nat_energi"], ["VGNAT", "Naturvitenskapelig metode", "seq:nat_metode"], ["VGREL", "Religion i Norge og verden", "sort:rel_begrep"], ["VGREL", "Etiske teorier", "sort:rel_etikk"],
   ["VGHIS", "Historiefaget og kildekritikk", "sort:his_kilder"], ["OREG", "Resultat og balanse", "sort:ok_konto"], ["OREG", "Merverdiavgift", "seq:ok_mva"], ["OSAM", "Makroøkonomi: BNP, inflasjon og rente", "sort:ok_politikk"],
-  ["VG1T", "Funksjoner", "sort:mat_modell"], ["VG1P", "Lineære modeller og grafer", "sort:mat_modell"]];
+  ["VG1T", "Funksjoner", "sort:mat_modell"], ["VG1P", "Lineære modeller og grafer", "sort:mat_modell"],
+  ["VGNOR", "Sjangre og virkemidler", "sort:nor_sjanger"], ["VGNOR", "Sjangre og virkemidler", "sort:nor_virke"], ["VGNOR", "Retorikk og argumentasjon", "sort:nor_appell"], ["VGNOR", "Retorikk og argumentasjon", "sort:nor_feil"], ["VGNOR", "Retorikk og argumentasjon", "seq:nor_drofting"]];
 const WG_MAP = {};
 for(const [code, title, w] of WG_UNITS){ const c = typeof COURSES !== "undefined" && COURSES.find(x => x.code === code), u = c ? c.units.findIndex(x => x.title === title) : -1; if(u >= 0) (WG_MAP[code + ":" + u] ||= []).push(w); }
 // Oppgavene settes inn foran første eksempel (etter begrepene), ellers til slutt.
