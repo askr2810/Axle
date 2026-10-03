@@ -2,7 +2,10 @@
 //  add_zdeep_mat1.js – fordypning i matematikk 1P, 2P og 1T: forklaringer, regneeksempler og vanlige feil.
 // ============================================================
 (() => {
-const M = (code, title, nb, en) => DEEP(code, title, nb, en, true);
+// Tema som finnes i flere fag (1T og S1/R1) får samme fordypning.
+const ALIAS = { "Potenser, røtter og logaritmer": ["Potenser, røtter og logaritmer", "Logaritmer og eksponentiallikninger"], "Sannsynlighet": ["Sannsynlighet"] };
+const SHARE = ["Algebra og likninger", "Ulikheter og fortegnslinjer", "Eksponentielle modeller", "Potenser, røtter og logaritmer", "Sannsynlighet"];
+const M = (code, title, nb, en) => SHARE.includes(title) ? DEEPT(ALIAS[title] || [title], nb, en, true, ["VG1P", "VG1T", "VGS1", "VGR1"]) : DEEP(code, title, nb, en, true);
 // ===================== 1P =====================
 M("VG1P", "Prosent og vekstfaktor",
 `## Forstå prosent

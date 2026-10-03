@@ -3,7 +3,9 @@
 //  Hver kategori får grundigere forklaringer, praktiske tips og «feller» som ofte går igjen på teoriprøven.
 // ============================================================
 (() => {
-DEEP("FKB", "Vikeplikt og forkjørsrett",
+// Generelle trafikkregler gjelder også MC (delte kategorier); bil-spesifikke kategorier får bare bil.
+const G = (t, nb, en) => DEEPT(t, nb, en, false, ["FKB", "FKMC"]);
+G("Vikeplikt og forkjørsrett",
 `## Slik tenker du i et kryss
 Når du nærmer deg et kryss, bør du alltid gå gjennom de samme spørsmålene, i denne rekkefølgen:
 1. **Er det politi** som dirigerer? Da gjelder tegnene deres foran alt annet.
@@ -75,7 +77,7 @@ When turning left you give way to **oncoming** traffic going straight on or turn
 - You give way to **everyone** when leaving a petrol station, including pedestrians on the pavement.
 - A green light doesn't give you priority when turning – you must still give way to pedestrians and oncoming traffic.`);
 
-DEEP("FKB", "Skilt og vegoppmerking",
+G("Skilt og vegoppmerking",
 `## Hvorfor er skiltene utformet som de er?
 Skiltene er laget slik at du skal kjenne igjen **typen** på formen og fargen lenge før du kan lese detaljene:
 - **Trekant med spissen opp og rød kant** = fare. Senk farten og vær forberedt. Fareskiltet står vanligvis **150–250 m** før faren utenfor tettbygd strøk, og nærmere i tettbygd strøk. Underskilt kan angi avstand eller lengde.
@@ -269,7 +271,7 @@ Keep **right**, don't **speed up**, and let the overtaking car in if it gets tig
 ## Parking and stopping
 Don't stop or park where it is dangerous or obstructive: on a pedestrian crossing or **less than 5 m before** it, in or **less than 5 m from** a junction, on a blind bend or hilltop, where there is less than **3 m** between the vehicle and a solid line, and at a **bus stop**. When opening the door, use the **'Dutch reach'** – open with the hand furthest from the door, so you automatically turn and look for cyclists.`);
 
-DEEP("FKB", "Lys, signaler og trafikklys",
+G("Lys, signaler og trafikklys",
 `## Se og bli sett
 Lys handler om to ting: at **du skal se** og at **andre skal se deg**. I Norge skal du **alltid** ha lys på når du kjører. Mange nyere biler har **kjørelys** (DRL) som tennes automatisk – men på mange biler lyser de bare **foran**. I mørke, tåke, regn og tunneler må du derfor slå på **nærlys**, så også baklysene tennes.
 
@@ -395,7 +397,7 @@ Older people may see and hear less well, move slowly and need longer to cross. S
 ## Good interaction
 Good interaction in traffic means being **predictable** (indicating, steady speed and correct positioning), **clear** (showing what you will do) and **generous** (letting others go and not insisting on your rights). Try to make **eye contact** with pedestrians and cyclists, but don't blindly trust that they have seen you.`);
 
-DEEP("FKB", "Rus, trøtthet og oppmerksomhet",
+G("Rus, trøtthet og oppmerksomhet",
 `## Alkohol
 - **Promillegrensen** er **0,2**. Over den er du straffbart påvirket.
 - **Alkoholen forbrennes** i et nokså fast tempo – omtrent **0,1–0,15 promille i timen**. Kaffe, kald dusj, mat eller søvn får det ikke til å gå raskere. Har du drukket mye kvelden før, kan du fortsatt ha promille **neste morgen**.

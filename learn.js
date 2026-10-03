@@ -44,6 +44,11 @@ function DEEP(code, title, nb, en, keepHead){
   const ren = (s, a, b) => keepHead ? String(s) : String(s).replace(a, b);
   THEORY(code, u, { nb: ren(put(doc.nb, nb), /^## (Begreper og formler|Begreper)$/m, "## Kort oppsummert"), en: ren(put(doc.en || doc.nb, en), /^## (Concepts and formulas|Concepts)$/m, "## In short") });
 }
+// Samme fordypning på alle enheter med en av titlene (f.eks. «Algebra og likninger» i både 1T og S1). codes begrenser til bestemte fag.
+function DEEPT(titles, nb, en, keepHead, codes){
+  for(const c of COURSES){ if(codes && !codes.includes(c.code)) continue;
+    c.units.forEach((u, i) => { if([].concat(titles).includes(u.title) && theoryOf(c.code, i)) DEEP(c.code, u.title, nb, en, keepHead); }); }
+}
 function DQS(code, title, list){ const c = COURSES.find(x => x.code === code), u = c ? c.units.findIndex(x => x.title === title) : -1; if(u >= 0) BIQ(code, u, list); }
 
 // ---------- nye fag ----------
