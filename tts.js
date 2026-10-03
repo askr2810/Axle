@@ -1,0 +1,107 @@
+// ============================================================
+//  tts.js – «Lytt»: les teorien høyt med nettleserens innebygde talesyntese (Web Speech API, gratis, ingen server).
+//  Leser overskrifter, avsnitt, punkter og huskeregler i rekkefølge og markerer det som leses.
+//  Hopper over figurer, simuleringer, tidslinjer og oppgaver. Trykk på et avsnitt mens den leser for å hoppe dit.
+// ============================================================
+const TTS_OK = typeof window !== "undefined" && "speechSynthesis" in window && typeof SpeechSynthesisUtterance !== "undefined";
+const TTS_RATES = [1, 1.25, 1.5, 0.85];
+let TTS = null;
+const TTS_IC = `<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 5 6 9H3v6h3l5 4z"/><path d="M15.5 8.5a5 5 0 0 1 0 7M18.5 5.5a9 9 0 0 1 0 13"/></svg>`; // { root, items: [{ el, parts }], i, playing }
+function ttsBarHTML(){
+  if(!TTS_OK) return "";
+  return `<div class="tts-bar"><button class="tts-go" data-tts="play">${TTS_IC}<span><b>${esc(T("Lytt til teksten", "Listen to the text"))}</b><small>${esc(T("Få teorien lest høyt", "Have the theory read aloud"))}</small></span></button></div>`;
+}
+// Enkel opplesning av formler: \frac{a}{b} → a delt på b, x^2 → x i andre, osv.
+function ttsTex(s){
+  const nb = LANG !== "en";
+  return String(s).replace(/\{,\}/g, ",").replace(/\\[dt]?frac(\d)(\d)/g, "\\frac{$1}{$2}").replace(/\\[dt]?frac\s*\{([^{}]*)\}\{([^{}]*)\}/g, nb ? "$1 delt på $2" : "$1 over $2").replace(/\^\{?2\}?/g, nb ? " i andre" : " squared").replace(/\^\{?3\}?/g, nb ? " i tredje" : " cubed")
+    .replace(/\^\{([^{}]*)\}/g, nb ? " opphøyd i $1" : " to the power $1").replace(/\^(\w)/g, nb ? " opphøyd i $1" : " to the power $1").replace(/\\sqrt\{([^{}]*)\}/g, nb ? "kvadratroten av $1" : "the square root of $1")
+    .replace(/\\cdot|\\times/g, nb ? " ganger " : " times ").replace(/\\approx/g, nb ? " omtrent lik " : " approximately ").replace(/\\Delta\s*/g, nb ? "delta " : "delta ").replace(/\\pi/g, " pi ")
+    .replace(/=/g, nb ? " er lik " : " equals ").replace(/\+/g, nb ? " pluss " : " plus ").replace(/(^|[^a-zA-Z])-/g, nb ? "$1 minus " : "$1 minus ").replace(/\\(text|mathrm|mathbf|operatorname)\{([^{}]*)\}/g, "$2").replace(/\\[a-zA-Z]+/g, " ").replace(/[{}_\\]/g, " ").replace(/\s+/g, " ").trim();
+}
+function ttsText(el){
+  const c = el.cloneNode(true);
+  c.querySelectorAll(".katex").forEach(k => { const a = k.querySelector("annotation"); k.replaceWith(" " + (a ? ttsTex(a.textContent) : "") + " "); });
+  c.querySelectorAll("button,svg,.tts-bar").forEach(x => x.remove());
+  return c.textContent.replace(/[«»"]/g, "").replace(/\s+/g, " ").trim();
+}
+// Lange avsnitt deles i setninger (Chrome stopper ofte lange ytringer etter ca. 15 sekunder).
+function ttsSplit(s){
+  const out = []; let cur = "";
+  for(const p of s.split(/(?<=[.!?:;])\s+/)){ if((cur + " " + p).length > 220 && cur){ out.push(cur); cur = p; } else cur = cur ? cur + " " + p : p; }
+  if(cur) out.push(cur); return out;
+}
+const TTS_SKIP = ".ty-key,.fig,figure,.sim,.tl,.wg,.tts-bar,.tch,.gd-cta,.cy,.pf-th,.lab-th,button";
+function ttsCollect(root){
+  return [...root.querySelectorAll("h3,h4,p,li,.callout")].filter(el => !el.closest(TTS_SKIP) && !(el.tagName === "P" && el.closest(".callout")) && !(el.tagName === "P" && el.closest("li")))
+    .map(el => ({ el, parts: ttsSplit(ttsText(el)) })).filter(x => x.parts.length && x.parts[0].length > 1);
+}
+function ttsVoice(){
+  const vs = speechSynthesis.getVoices(), want = LANG === "en" ? /^en/i : /^(nb|no|nn)/i;
+  const cand = vs.filter(v => want.test(v.lang) || (LANG !== "en" && /norw|norsk|bokm/i.test(v.name)));
+  const score = v => (/neural|natural|premium|enhanced|forbedret/i.test(v.name) ? 3 : 0) + (/google|microsoft/i.test(v.name) ? 1 : 0) + (v.localService ? 0.5 : 0);
+  return cand.sort((a, b) => score(b) - score(a))[0] || null;
+}
+const ttsRate = () => TTS_RATES.includes(+S.ttsRate) ? +S.ttsRate : 1;
+function ttsStart(root, from = 0){
+  speechSynthesis.cancel();
+  const items = ttsCollect(root); if(!items.length) return;
+  if(LANG !== "en" && !ttsVoice() && speechSynthesis.getVoices().length && !S.ttsWarned){ S.ttsWarned = 1; save(); toast(T("Fant ingen norsk stemme på enheten – den leser med standardstemmen. Du kan laste ned norsk stemme i innstillingene for tekst-til-tale.", "No Norwegian voice found – using the default voice.")); }
+  TTS = { root, items, i: from, playing: true, fails: 0, seq: (TTS ? TTS.seq : 0) + 1 };
+  S.stats ||= {}; S.stats.tts = (+S.stats.tts || 0) + 1;
+  ttsSpeak(); ttsUI();
+}
+function ttsSpeak(){
+  if(!TTS || !TTS.playing) return;
+  const T0 = TTS, it = T0.items[T0.i];
+  if(!it || !T0.root.isConnected){ ttsStop(); return; }
+  document.querySelectorAll(".tts-on").forEach(x => x.classList.remove("tts-on"));
+  it.el.classList.add("tts-on");
+  const r = it.el.getBoundingClientRect(); if(r.top < 70 || r.bottom > innerHeight - 140) it.el.scrollIntoView({ block: "center", behavior: "smooth" });
+  const v = ttsVoice(), seq = T0.seq; let k = 0;
+  const next = () => {
+    if(!TTS || TTS.seq !== seq || !TTS.playing) return;
+    if(k >= it.parts.length){ TTS.i++; ttsUI(); ttsSpeak(); return; }
+    const u = new SpeechSynthesisUtterance(it.parts[k++]);
+    u.lang = v ? v.lang : (LANG === "en" ? "en-GB" : "nb-NO"); if(v) u.voice = v; u.rate = ttsRate();
+    u.onend = () => { TTS && (TTS.fails = 0); next(); };
+    u.onerror = e => { if(e.error === "interrupted" || e.error === "canceled") return;
+      if(TTS && ++TTS.fails >= 3){ ttsStop(); toast(T("Opplesning virker ikke i denne nettleseren. Prøv en annen nettleser eller sjekk innstillingene for tekst-til-tale.", "Read-aloud doesn't work in this browser. Try another browser or check your text-to-speech settings.")); return; } next(); };
+    speechSynthesis.speak(u);
+  };
+  next();
+}
+// Pause = stopp og husk avsnittet (mer pålitelig enn speechSynthesis.pause() på Android).
+function ttsPause(){ if(!TTS) return; TTS.playing = false; TTS.seq++; speechSynthesis.cancel(); ttsUI(); }
+function ttsResume(){ if(!TTS) return; TTS.playing = true; TTS.seq++; ttsSpeak(); ttsUI(); }
+function ttsStop(){ if(TTS) TTS.seq++; TTS = null; try{ speechSynthesis.cancel(); }catch(e){} document.querySelectorAll(".tts-on").forEach(x => x.classList.remove("tts-on")); ttsUI(); }
+function ttsUI(){
+  let m = document.querySelector(".tts-mini");
+  if(!TTS){ if(m) m.remove(); document.querySelectorAll(".tts-bar").forEach(b => b.classList.remove("on")); return; }
+  if(!m){ m = document.createElement("div"); m.className = "tts-mini"; m.setAttribute("role", "region"); m.setAttribute("aria-label", T("Opplesning", "Read aloud")); document.body.appendChild(m); }
+  const n = TTS.items.length, i = Math.min(TTS.i + 1, n);
+  m.innerHTML = `<button data-tts="${TTS.playing ? "pause" : "resume"}" aria-label="${esc(TTS.playing ? T("Pause", "Pause") : T("Fortsett", "Resume"))}">${TTS.playing ? "❚❚" : "▶"}</button>
+    <button data-tts="prev" aria-label="${esc(T("Forrige avsnitt", "Previous paragraph"))}">⏮</button><button data-tts="next" aria-label="${esc(T("Neste avsnitt", "Next paragraph"))}">⏭</button>
+    <span class="tts-p"><span style="width:${Math.round(100 * i / n)}%"></span></span><small>${i}/${n}</small>
+    <button data-tts="rate" class="tts-rate" aria-label="${esc(T("Lesehastighet", "Speed"))}">${String(ttsRate()).replace(".", LANG === "en" ? "." : ",")}×</button>
+    <button data-tts="stop" aria-label="${esc(T("Stopp", "Stop"))}">✕</button>`;
+  TTS.root.querySelectorAll(".tts-bar").forEach(b => b.classList.add("on"));
+}
+if(TTS_OK){
+  try{ speechSynthesis.getVoices(); speechSynthesis.onvoiceschanged = () => {}; }catch(e){}
+  document.addEventListener("click", e => {
+    const b = e.target.closest && e.target.closest("[data-tts]");
+    if(b){ e.stopPropagation(); const a = b.dataset.tts;
+      if(a === "play"){ const root = b.closest(".theory,.thbody,main") || document.body; if(TTS && TTS.root === root){ TTS.playing ? ttsPause() : ttsResume(); } else ttsStart(root); }
+      else if(a === "pause") ttsPause(); else if(a === "resume") ttsResume(); else if(a === "stop") ttsStop();
+      else if(a === "next" || a === "prev"){ if(!TTS) return; TTS.i = Math.max(0, Math.min(TTS.items.length - 1, TTS.i + (a === "next" ? 1 : -1))); TTS.seq++; speechSynthesis.cancel(); TTS.playing = true; ttsSpeak(); ttsUI(); }
+      else if(a === "rate"){ const k = TTS_RATES.indexOf(ttsRate()); S.ttsRate = TTS_RATES[(k + 1) % TTS_RATES.length]; save(); if(TTS && TTS.playing){ TTS.seq++; speechSynthesis.cancel(); ttsSpeak(); } ttsUI(); }
+      return; }
+    // trykk på et avsnitt mens den leser: hopp dit
+    if(TTS && TTS.root.isConnected){ const el = e.target.closest && e.target.closest("h3,h4,p,li,.callout"); const k = el ? TTS.items.findIndex(x => x.el === el || x.el.contains(el)) : -1;
+      if(k >= 0 && !e.target.closest("a,button,input")){ TTS.i = k; TTS.seq++; speechSynthesis.cancel(); TTS.playing = true; ttsSpeak(); ttsUI(); } }
+  });
+  // Stopp når man går til en annen skjerm (teksten forsvinner fra siden).
+  new MutationObserver(() => { if(TTS && !TTS.root.isConnected) ttsStop(); }).observe(document.documentElement, { childList: true, subtree: true });
+  addEventListener("pagehide", () => { try{ speechSynthesis.cancel(); }catch(e){} });
+}

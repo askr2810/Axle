@@ -996,7 +996,7 @@ function renderOverlay(){
 let TH = null; // {code, u, go:{u,k}|null}
 function openTheory(code, u, go){ TH = { code, u, go }; (S.theorySeen ||= {})[code+":"+u] = 1; bdgToast(checkBadges()); save(); overlay = null; screen = "theory"; render(); window.scrollTo(0,0); }
 function theoryBody(code, u, quiz){ const doc = theoryOf(code, u); if(!doc) return `<p>${esc(t("noTheory"))}</p>`; const src = withSims(code, u, withFigs(code, u, doc[LANG] || doc.nb));
-  return tyKeyHTML(src) + richDoc(src) + (quiz ? cyHTML(code, u) : ""); }
+  return (typeof ttsBarHTML === "function" ? ttsBarHTML() : "") + tyKeyHTML(src) + richDoc(src) + (quiz ? cyHTML(code, u) : ""); }
 function renderTheory(){
   if(!TH){ screen = "home"; renderHome(); return; }
   const c = COURSE(TH.code);
