@@ -52,11 +52,12 @@ function bootPrompts(){
   if(!S.langSet && !LANG_BROWSER_NB){ overlay = "langpick"; renderOverlay(); return; } // språk først (bare når nettleseren ikke er norsk)
   if(studyNeedsAsk()){ overlay = { studypick: 1, first: 1 }; renderOverlay(); return; } // studie (én gang, for nye brukere)
   if(AUTH && !S.acEver){ S.acEver = 1; saveLocal(); } // denne enheten har vært innlogget: aldri vis innloggings-popupen
-  if(CLOUD_ON && !AUTH && !S.acEver && S.loginAsked !== dayKey()){
+  // innlogging tilbys først når man har prøvd appen litt (ellers lager mange en konto og forsvinner før de har sett noe)
+  if(CLOUD_ON && !AUTH && !S.acEver && S.loginAsked !== dayKey() && (S.xp || 0) >= 30){
     S.loginAsked = dayKey(); saveLocal(); DC_NEXT = true;
     overlay = { login: 1, step: "email", email: "", intro: true }; renderOverlay(); return;
   }
-  dcMaybePrompt();
+  if((S.xp || 0) >= 30) dcMaybePrompt(); // helt nye får prøve appen i fred først
 }
 // Tospråklig, siden vi ennå ikke vet hvilket språk personen leser.
 function langPickHTML(){

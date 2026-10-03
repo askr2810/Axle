@@ -2115,3 +2115,28 @@ textarea.fbtext{width:100%;font:13px/1.4 var(--mono,monospace);border-radius:12p
 @keyframes dvGrowH{from{transform:scaleY(0)}to{transform:scaleY(1)}}
 @keyframes dvGrowW{from{width:0}}
 @media (prefers-reduced-motion:reduce){.sg *,.dv-cb,.dv-ccard,.dv-cbarw i,.sg-mbar i{animation:none!important}}
+/* ===== Førerkort: gratis teoriprøve ===== */
+.dv-free{display:flex;align-items:center;gap:14px;width:100%;margin:6px 0 12px;padding:16px;border:0;border-radius:22px;font:inherit;color:#fff;text-align:left;cursor:pointer;background:linear-gradient(135deg,#F0603E,#E9A100);box-shadow:0 10px 24px -10px rgba(240,96,62,.7);animation:sgIn .45s ease-out,dvPulse 2.6s ease-in-out 1s infinite}
+.dv-free>span:nth-child(2){flex:1}.dv-free b{display:block;font:800 19px/1.2 var(--display)}.dv-free small{opacity:.92;font-size:13.5px}
+.dv-free-ic{display:grid;place-items:center;width:60px;height:60px;border-radius:16px;background:rgba(255,255,255,.22)}
+.dv-free em{font-style:normal;font-weight:900;padding:8px 14px;border-radius:99px;background:#fff;color:#E0482E;white-space:nowrap}
+.dv-minilink{display:block;margin:10px auto 0;border:0;background:none;color:inherit;opacity:.9;font:600 14px inherit;text-decoration:underline;cursor:pointer}
+.dv-mini-hero{margin:12px 0;padding:20px 16px;border-radius:24px;text-align:center;color:#fff;background:linear-gradient(135deg,#2B59C3,#7B4FD6);animation:sgIn .4s ease-out}
+.dv-mini-hero.pass{background:linear-gradient(135deg,#0E9F6E,#3CCB98)}
+.dv-mini-hero h2{margin:10px 0 4px;font:800 21px/1.25 var(--display)}.dv-mini-hero p{margin:0 0 12px;opacity:.93;font-size:14.5px}
+.dv-mring-w{position:relative;width:140px;height:140px;margin:0 auto}
+.dv-mring{width:140px;height:140px;transform:rotate(-90deg)}
+.dv-mring circle{fill:none;stroke-width:12;stroke-linecap:round}.dv-mring .bg{stroke:rgba(255,255,255,.22)}
+.dv-mring .fg{stroke:#fff;stroke-dasharray:var(--len) var(--C);animation:dvRing 1.1s cubic-bezier(.2,.9,.3,1) both .2s}
+.dv-mscore{position:absolute;inset:0;display:grid;place-content:center;line-height:1}.dv-mscore b{font:900 46px var(--display);animation:sgPop .6s cubic-bezier(.3,1.6,.5,1) both .5s}.dv-mscore span{font-size:15px;opacity:.85}
+.dv-mbar{position:relative;height:12px;margin:18px 4px 8px;border-radius:99px;background:rgba(255,255,255,.25)}
+.dv-mbar i{display:block;height:100%;width:var(--w);border-radius:99px;background:#fff;animation:dvGrowW 1s cubic-bezier(.2,.9,.3,1) both .4s}
+.dv-mbar em{position:absolute;top:-6px;transform:translateX(-50%);font-style:normal;font-size:11px;font-weight:800;padding:1px 6px;border-radius:99px;background:#FFC93C;color:#1B1F24;box-shadow:0 0 0 2px rgba(0,0,0,.08)}
+.dv-mbar em::after{content:"";position:absolute;left:50%;top:100%;width:2px;height:12px;background:#FFC93C;transform:translateX(-50%)}
+.dv-next{margin-top:8px}
+.dv-nrow{display:flex;align-items:center;gap:12px;width:100%;margin-bottom:8px;padding:12px 14px;border-radius:18px;border:2px solid var(--line);border-bottom-width:4px;background:var(--card);font:inherit;color:var(--ink);text-align:left;cursor:pointer}
+.dv-nrow>span:first-child{font-size:24px}.dv-nrow>span:nth-child(2){flex:1}.dv-nrow small{display:block;color:var(--muted);font-size:13px}
+.dv-save{margin:6px 0 10px;padding:14px;border-radius:18px;background:color-mix(in srgb,var(--accent) 9%,var(--card));border:2px dashed color-mix(in srgb,var(--accent) 45%,var(--line))}
+.dv-save p{margin:4px 0 10px;color:var(--muted);font-size:14px}
+@keyframes dvRing{from{stroke-dasharray:0 var(--C)}}
+@keyframes dvPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.015)}}

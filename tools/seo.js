@@ -156,7 +156,7 @@ a{color:var(--acc)}header,main,footer{max-width:760px;margin:0 auto;padding:0 18
 header{display:flex;align-items:center;justify-content:space-between;gap:10px;padding-top:14px}header nav{font-size:15px}header a.logo{font-weight:900;font-size:22px;text-decoration:none;color:var(--ink)}
 .crumbs{font-size:14px;color:var(--muted);margin:14px 0 0}.crumbs a{color:var(--muted)}
 h1{font-size:32px;line-height:1.15;margin:10px 0 12px}h2{font-size:24px;margin:34px 0 8px}h3{font-size:19px;margin:22px 0 6px}h4{font-size:17px;margin:16px 0 4px}
-.lead{font-size:19px;color:var(--muted)}.cta{display:inline-block;margin:14px 0;padding:14px 22px;border-radius:14px;background:var(--acc);color:#fff;font-weight:800;text-decoration:none;box-shadow:0 4px 0 rgba(0,0,0,.25)}
+.cta.ghost{background:transparent;color:var(--acc);box-shadow:inset 0 0 0 2px var(--acc)}.lead{font-size:19px;color:var(--muted)}.cta{display:inline-block;margin:14px 0;padding:14px 22px;border-radius:14px;background:var(--acc);color:#fff;font-weight:800;text-decoration:none;box-shadow:0 4px 0 rgba(0,0,0,.25)}
 .facts{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0}.facts span{background:var(--accs);color:var(--acc);font-weight:700;font-size:14px;padding:4px 12px;border-radius:99px}
 .unit{background:var(--card);border:2px solid var(--line);border-radius:16px;padding:6px 18px 12px;margin:14px 0}
 .note{background:var(--accs);border-radius:12px;padding:10px 14px;margin:10px 0;font-weight:600}.dm{overflow-x:auto;text-align:center;margin:8px 0}
@@ -279,7 +279,7 @@ ${unitLabs(c, u)}
   const body = `<h1>${esc(DX ? DX.h1 : X().h1(nm, abbr))}</h1>
 <p class="lead">${esc(intro)}</p>
 <div class="facts">${DX ? DX.facts.map(f => `<span>${esc(f)}</span>`).join('') : `<span>${X().parts(c.units.length)}</span><span>${X().probs(nQ + nG)}</span>${nT ? `<span>${X().concepts(nT)}</span>` : ''}<span>${X().exam}</span><span>${X().free}</span>`}</div>
-<a class="cta" href="${appLink(c)}">${X().startFree}</a>
+${drv ? `<a class="cta" href="${appLink(c).replace(/\?/, '?demo=1&')}">${curLang() === 'en' ? 'Try a free theory test (10 questions) →' : 'Prøv en gratis teoriprøve (10 spørsmål) →'}</a> ` : ''}<a class="cta${drv ? ' ghost' : ''}" href="${appLink(c)}">${X().startFree}</a>
 <h2>${X().contents}</h2><ol>${c.units.map((_, u) => `<li><a href="#${L === 'nb' ? 'del' : 'part'}-${u + 1}">${esc(unitName(c, u))}</a></li>`).join('')}</ol>
 ${units}
 <h2>${X().samplesH}</h2>

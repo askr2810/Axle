@@ -70,6 +70,16 @@ function dvNext(){
 }
 
 // ---------- teoriprøve ----------
+// Gratis prøve: 10 spørsmål på 15 minutter, med skilt og spørsmål fra flere kategorier. Lagres ikke i prøvehistorikken.
+const DV_MINI_N = 10, DV_MINI_MIN = 15;
+function dvMiniStart(){
+  const c = COURSE(S.current), code = c.code, signs = shuffle(dvSignIds(code)).slice(0, 3);
+  const cats = shuffle(dvCats(c)), rest = [];
+  for(const u of cats){ if(rest.length >= DV_MINI_N - signs.length) break; const id = shuffle(dvAllIds(c, u)).find(x => !signs.includes(x) && !dvQ(code, x).img); if(id) rest.push(id); }
+  const ids = shuffle([...signs, ...rest]).slice(0, DV_MINI_N);
+  S.driveRun = { code, mini: 1, items: ids.map(id => dvMakeItem(code, id)), ans: {}, flag: {}, i: 0, t0: Date.now(), end: Date.now() + DV_MINI_MIN * 60000 };
+  save(); DV = { view: "test" }; screen = "drive"; overlay = null; render(); window.scrollTo(0, 0); dvTick();
+}
 function dvTestStart(){
   const c = COURSE(S.current), code = c.code, plan = DRIVE_TEST[code] || c.units.map(() => Math.ceil(DV_TEST_N / c.units.length));
   let ids = []; c.units.forEach((_, u) => { ids.push(...shuffle(dvAllIds(c, u)).slice(0, plan[u] || 0)); });
@@ -93,8 +103,11 @@ function dvSubmit(timeUp){
   const c = COURSE(r.code), per = {}; let ok = 0;
   r.items.forEach((it, k) => { const a = r.ans[k], right = a != null && it.order[a] === 0; if(right) ok++;
     const u = +it.qid.split(":")[0]; (per[u] ||= [0, 0]); per[u][1]++; if(right) per[u][0]++; dvRecord(r.code, it.qid, right); });
-  const wrong = r.items.length - ok, res = { at: Date.now(), ok, n: r.items.length, pass: wrong <= DV_MAX_WRONG, time: Math.round((Math.min(Date.now(), r.end) - r.t0) / 1000), per, items: r.items, ans: r.ans, timeUp: !!timeUp };
-  const d = dvData(r.code); d.tests.push(res); while(d.tests.length > 20) d.tests.shift();
+  const wrong = r.items.length - ok, res = { at: Date.now(), ok, n: r.items.length, pass: r.mini ? wrong <= 1 : wrong <= DV_MAX_WRONG, mini: !!r.mini, time: Math.round((Math.min(Date.now(), r.end) - r.t0) / 1000), per, items: r.items, ans: r.ans, timeUp: !!timeUp };
+  const d = dvData(r.code);
+  if(r.mini){ d.minis = (d.minis || 0) + 1; S.driveRun = null; awardXP(3 + ok); S.stats ||= {}; S.stats.exams = (+S.stats.exams || 0) + 1; bdgToast(checkBadges()); save();
+    DV = { view: "result", code: r.code, res, show: "wrong" }; screen = "drive"; overlay = null; render(); window.scrollTo(0, 0); setTimeout(() => res.pass ? confetti("level") : sfx("complete"), 300); return; }
+  d.tests.push(res); while(d.tests.length > 20) d.tests.shift();
   S.driveRun = null; const st = awardXP(5 + Math.round(ok / 5)); S.stats ||= {}; S.stats.exams = (+S.stats.exams || 0) + 1; bdgToast(checkBadges()); save();
   DV = { view: "result", code: r.code, ti: d.tests.length - 1, show: "wrong" }; screen = "drive"; overlay = null; render(); window.scrollTo(0, 0);
   setTimeout(() => res.pass ? confetti("level") : sfx("complete"), 250); if(st.goalHit) setTimeout(() => toast(t("goalHitTitle")), 900);
@@ -141,7 +154,7 @@ function dvRenderPractice(){
 function dvRenderTest(){
   const r = S.driveRun; if(!r){ DV = null; goHome(); return; }
   const it = r.items[r.i], q = dvQ(r.code, it.qid), c = COURSE(r.code), nAns = Object.keys(r.ans).length;
-  $app.innerHTML = `<div class="top"><div class="wrap"><button class="iconbtn" data-a="dvpause" aria-label="${esc(t("back"))}">${I.left}</button><div class="th-t"><small>${esc(courseName(c))}</small><b>${esc(T("Teoriprøve", "Theory test"))}</b></div>
+  $app.innerHTML = `<div class="top"><div class="wrap"><button class="iconbtn" data-a="dvpause" aria-label="${esc(t("back"))}">${I.left}</button><div class="th-t"><small>${esc(courseName(c))}</small><b>${esc(r.mini ? T("Gratis teoriprøve", "Free theory test") : T("Teoriprøve", "Theory test"))}</b></div>
       <span class="dv-clock">⏱ <b id="dvclock">${dvClock(r.end - Date.now())}</b></span></div></div>
     <main class="wrap dv dv-test"><div class="dv-thead"><b>${esc(T(`Spørsmål ${r.i + 1} av ${r.items.length}`, `Question ${r.i + 1} of ${r.items.length}`))}</b>
       <button class="dv-flag ${r.flag[r.i] ? "on" : ""}" data-a="dvflag" aria-pressed="${!!r.flag[r.i]}">🚩 ${esc(r.flag[r.i] ? T("Markert", "Flagged") : T("Marker", "Flag"))}</button></div>
@@ -152,13 +165,13 @@ function dvRenderTest(){
       <button class="big dv-submit" data-a="dvsubmit">${esc(T("Lever prøven", "Submit the test"))}</button></main>`;
 }
 function dvRenderResult(){
-  const d = dvData(DV.code), res = d.tests[DV.ti], c = COURSE(DV.code); if(!res){ DV = null; goHome(); return; }
+  const d = dvData(DV.code), res = DV.res || d.tests[DV.ti], c = COURSE(DV.code); if(!res){ DV = null; goHome(); return; }
   const wrong = res.n - res.ok, mm = Math.floor(res.time / 60);
   const cats = Object.keys(res.per).map(Number).sort((a, b) => (res.per[a][0] / res.per[a][1]) - (res.per[b][0] / res.per[b][1]));
   const list = res.items.map((it, k) => ({ it, k, q: dvQ(DV.code, it.qid), a: res.ans[k] })).filter(x => x.q && (DV.show === "all" || x.a == null || x.it.order[x.a] !== 0));
   $app.innerHTML = `${dvTop(T("Resultat", "Result"), courseName(c))}<main class="wrap dv dv-res">
-    <div class="dv-verdict ${res.pass ? "pass" : "fail"}"><div class="dv-big">${res.ok}/${res.n}</div><h2>${esc(res.pass ? T("Bestått! 🎉", "Passed! 🎉") : T("Ikke bestått", "Not passed"))}</h2>
-      <p>${esc(T(`${wrong} feil (grensen er ${DV_MAX_WRONG}) · ${mm} min`, `${wrong} mistakes (the limit is ${DV_MAX_WRONG}) · ${mm} min`))}${res.timeUp ? " · " + esc(T("tiden gikk ut", "time ran out")) : ""}</p></div>
+    ${res.mini ? dvMiniHeroHTML(res) + dvMiniNextHTML(res) : `<div class="dv-verdict ${res.pass ? "pass" : "fail"}"><div class="dv-big">${res.ok}/${res.n}</div><h2>${esc(res.pass ? T("Bestått! 🎉", "Passed! 🎉") : T("Ikke bestått", "Not passed"))}</h2>
+      <p>${esc(T(`${wrong} feil (grensen er ${DV_MAX_WRONG}) · ${mm} min`, `${wrong} mistakes (the limit is ${DV_MAX_WRONG}) · ${mm} min`))}${res.timeUp ? " · " + esc(T("tiden gikk ut", "time ran out")) : ""}</p></div>`}
     <h3 class="grp">${esc(T("Per kategori", "By category"))}</h3>
     <div class="dv-cats">${cats.map(u => { const [ok, n] = res.per[u], p = ok / n; return `<div class="dv-cat"><span>${esc(dvCatName(c, u))}</span><b class="${p >= 0.85 ? "g" : p >= 0.6 ? "y" : "r"}">${ok}/${n}</b></div>`; }).join("")}</div>
     <div class="seg dv-seg"><button class="${DV.show !== "all" ? "on" : ""}" data-a="dvshow" data-v="wrong">${esc(T(`Feil (${wrong})`, `Wrong (${wrong})`))}</button><button class="${DV.show === "all" ? "on" : ""}" data-a="dvshow" data-v="all">${esc(T("Alle svar", "All answers"))}</button></div>
@@ -166,7 +179,7 @@ function dvRenderResult(){
       ${x.q.img ? `<div class="dv-img sm">${fkSign(x.q.img, 90)}</div>` : ""}
       <p class="dv-ra">${x.a == null ? esc(T("Ikke besvart", "Not answered")) : `${esc(T("Ditt svar:", "Your answer:"))} ${rich(x.q.opts[x.it.order[x.a]])}`}</p>
       <p class="dv-rc">${esc(T("Riktig:", "Correct:"))} <b>${rich(x.q.opts[0])}</b></p><p class="dv-re">${rich(x.q.expl)}</p></details>`).join("") : `<p class="dv-note">${esc(T("Ingen feil å vise. Sterkt!", "No mistakes to show. Great!"))}</p>`}
-    <button class="big" data-a="dvtest">${esc(T("Ta en ny prøve", "Take a new test"))}</button>${wrong ? `<button class="big ghost" data-a="dvprac" data-k="wrong">${esc(T("Øv på feilene", "Practise your mistakes"))}</button>` : ""}
+    ${res.mini ? "" : `<button class="big" data-a="dvtest">${esc(T("Ta en ny prøve", "Take a new test"))}</button>${wrong ? `<button class="big ghost" data-a="dvprac" data-k="wrong">${esc(T("Øv på feilene", "Practise your mistakes"))}</button>` : ""}`}
     <button class="big ghost" data-a="dvclose">${esc(T("Til oversikten", "To the overview"))}</button></main>`;
 }
 function dvRenderSigns(){
@@ -175,6 +188,26 @@ function dvRenderSigns(){
     ${sgMenuHTML()}
     <button class="big ghost" data-a="dvprac" data-k="signs">🚦 ${esc(T("Skiltquiz med teorispørsmål", "Sign quiz with theory questions"))}</button>
     ${FK_SIGN_GROUPS.map(([g, nb, en]) => `<h3 class="grp">${esc(T(nb, en))}</h3><div class="dv-sgrid">${FK_SIGN_INFO.filter(s => s[1] === g).map(s => `<button class="dv-sg ${sel === s[0] ? "on" : ""}" data-a="dvsign" data-s="${s[0]}">${sgKnown(s[0]) ? `<em class="dv-known" title="${esc(T("Du kan dette skiltet", "You know this sign"))}">✓</em>` : ""}${fkSign(s[0], 64)}<b>${esc(T(s[2], s[3]))}</b>${sel === s[0] ? `<small>${esc(T(s[4], s[5]))}</small>` : ""}</button>`).join("")}</div>`).join("")}</main>`;
+}
+// ---------- gratis prøve: resultat ----------
+function dvMiniHeroHTML(res){
+  const est = Math.round(res.ok / res.n * DV_TEST_N), need = DV_TEST_N - DV_MAX_WRONG, p = res.ok / res.n, C = 2 * Math.PI * 52;
+  const msg = p >= 0.9 ? T("Sterkt! Du er godt i gang.", "Strong! You are well on your way.") : p >= 0.7 ? T("Godt jobbet! Litt mer øving, så er du der.", "Well done! A bit more practice and you are there.") : T("En fin start. Med litt øving går det fort framover.", "A good start. With some practice you will improve quickly.");
+  return `<div class="dv-mini-hero ${res.pass ? "pass" : ""}"><div class="dv-mring-w"><svg class="dv-mring" viewBox="0 0 120 120" aria-hidden="true"><circle cx="60" cy="60" r="52" class="bg"/><circle cx="60" cy="60" r="52" class="fg" style="--len:${(p * C).toFixed(1)};--C:${C.toFixed(1)}"/></svg>
+    <div class="dv-mscore"><b>${res.ok}</b><span>/ ${res.n}</span></div></div>
+    <h2>${esc(msg)}</h2>
+    <p>${esc(T(`På den ekte prøven tilsvarer det omtrent ${est} av 45 riktige. Du trenger ${need} for å bestå.`, `On the real test that is about ${est} of 45 correct. You need ${need} to pass.`))}</p>
+    <div class="dv-mbar"><i style="--w:${Math.round(est / DV_TEST_N * 100)}%"></i><em style="left:${(need / DV_TEST_N * 100).toFixed(1)}%">${need}</em></div></div>`;
+}
+function dvMiniNextHTML(res){
+  const wrong = res.n - res.ok;
+  return `<div class="dv-next"><h3 class="grp">${esc(T("Hva nå?", "What next?"))}</h3>
+    <button class="dv-nrow" data-a="dvtest"><span>📝</span><span><b>${esc(T("Ta en full teoriprøve", "Take a full theory test"))}</b><small>${esc(T("45 spørsmål · 90 min · som den ekte", "45 questions · 90 min · like the real one"))}</small></span>${I.chevron}</button>
+    ${wrong ? `<button class="dv-nrow" data-a="dvprac" data-k="wrong"><span>🎯</span><span><b>${esc(T("Øv på det du bommet på", "Practise what you missed"))}</b><small>${esc(T(`${wrong} spørsmål med forklaring`, `${wrong} questions with explanations`))}</small></span>${I.chevron}</button>` : ""}
+    <button class="dv-nrow" data-a="dvsgopen"><span>🎮</span><span><b>${esc(T("Spill skiltspillet", "Play the sign game"))}</b><small>${esc(T("Lær alle skiltene på tid", "Learn every sign against the clock"))}</small></span>${I.chevron}</button>
+    <button class="dv-nrow" data-a="dvmini"><span>🔁</span><span><b>${esc(T("Ny gratis prøve", "Another free test"))}</b><small>${esc(T("10 nye spørsmål", "10 new questions"))}</small></span>${I.chevron}</button>
+    ${typeof CLOUD_ON !== "undefined" && CLOUD_ON && !AUTH ? `<div class="dv-save"><b>💾 ${esc(T("Lagre fremgangen din", "Save your progress"))}</b><p>${esc(T("Lag en gratis konto med e-posten din, så har du resultatene på alle enhetene dine. Ingen passord.", "Create a free account with your email to keep your results on all your devices. No password."))}</p><button class="big ghost" data-a="dvsave">${esc(T("Lag gratis konto", "Create a free account"))}</button></div>` : ""}
+    </div>`;
 }
 // ---------- statistikk på forsiden ----------
 // Søylediagram over prøvene: grønne søyler er bestått (minst 38 av 45), varme farger ikke bestått. Søylene vokser fram.
@@ -221,11 +254,13 @@ function renderDriveHome(){
     <main class="wrap dv-home">
       ${noticeHTML()}
       ${other.length > 1 ? `<div class="seg dv-cls">${other.map(x => `<button class="${x.code === code ? "on" : ""}" data-a="dvcourse" data-c="${x.code}">${x.code === "FKB" ? "🚗 " + esc(T("Bil (B)", "Car (B)")) : "🏍️ " + esc(T("MC (A1, A2, A)", "Motorcycle (A1, A2, A)"))}</button>`).join("")}</div>` : ""}
-      ${S.driveRun && S.driveRun.code === code ? `<button class="pill exgo dv-resume" data-a="dvresume"><span class="l1">⏱ ${esc(T("Fortsett teoriprøven", "Continue the theory test"))}</span><small>${esc(T(`${Object.keys(S.driveRun.ans).length} av 45 besvart · ${dvClock(S.driveRun.end - Date.now())} igjen`, `${Object.keys(S.driveRun.ans).length} of 45 answered · ${dvClock(S.driveRun.end - Date.now())} left`))}</small></button>` : ""}
+      ${S.driveRun && S.driveRun.code === code ? `<button class="pill exgo dv-resume" data-a="dvresume"><span class="l1">⏱ ${esc(S.driveRun.mini ? T("Fortsett den gratis prøven", "Continue the free test") : T("Fortsett teoriprøven", "Continue the theory test"))}</span><small>${esc(T(`${Object.keys(S.driveRun.ans).length} av ${S.driveRun.items.length} besvart · ${dvClock(S.driveRun.end - Date.now())} igjen`, `${Object.keys(S.driveRun.ans).length} of ${S.driveRun.items.length} answered · ${dvClock(S.driveRun.end - Date.now())} left`))}</small></button>` : ""}
+      ${!d.tests.length && rd.answered < 20 && !S.driveRun ? `<button class="dv-free" data-a="dvmini"><span class="dv-free-ic" aria-hidden="true">${fkSign("gangfelt", 54)}</span><span><b>${esc(T("Prøv en gratis teoriprøve", "Try a free theory test"))}</b><small>${esc(T("10 spørsmål · ca. 5 minutter · ingen innlogging", "10 questions · about 5 minutes · no sign-in"))}</small></span><em>${esc(T("Start", "Start"))} →</em></button>` : ""}
       <section class="dv-hero ${code === "FKMC" ? "mc" : ""}">
         <div class="dv-hx">${ring}<div><small>${esc(T("Sjanse for å bestå", "Chance of passing"))}</small><b>${rd.enough ? esc(T(`Anslått ${exp} av 45 riktige`, `About ${exp} of 45 correct`)) : esc(T("Svar på noen spørsmål, så regner vi ut hvor du ligger an", "Answer some questions and we will estimate where you stand"))}</b>
           <span>${esc(T("Teoriprøven: 45 spørsmål · 90 min · høyst 7 feil", "Theory test: 45 questions · 90 min · at most 7 mistakes"))}</span></div></div>
         <button class="big dv-start" data-a="dvtest">${esc(T("Ta en teoriprøve", "Take a theory test"))}</button>
+        <button class="dv-minilink" data-a="dvmini">${esc(T("eller en kort prøve med 10 spørsmål", "or a short test with 10 questions"))}</button>
       </section>
       <button class="dv-scene-cta" data-a="scopen"><span class="dv-sc-ic" aria-hidden="true">🚦</span><span><b>${esc(T("Trafikksituasjoner", "Traffic situations"))}</b><small>${esc(T(`Animerte kryss: hvem kjører først? · ${Object.values(scData(code)).filter(r => r[1]).length}/${SCENES.length} klart`, `Animated junctions: who goes first? · ${Object.values(scData(code)).filter(r => r[1]).length}/${SCENES.length} solved`))}</small></span>${I.chevron}</button>
       ${(() => { const m = sgMastery(), b = Math.max(0, ...Object.values(S.signBest || {})); return `<button class="dv-scene-cta sg-cta" data-a="dvsgopen"><span class="dv-sc-ic" aria-hidden="true">🎮</span><span><b>${esc(T("Skiltspillet", "Sign game"))}</b><small>${esc(T(`Finn riktig skilt på tid · du kan ${m.known} av ${m.total}`, `Find the right sign against the clock · you know ${m.known} of ${m.total}`))}${b ? " · 🏆 " + b : ""}</small></span>${I.chevron}</button>`; })()}
@@ -263,6 +298,8 @@ function dvClick(a, b){
   if(a === "dvans"){ dvAnswer(+dd.i); return true; }
   if(a === "dvnext"){ dvNext(); return true; }
   if(a === "dvclose"){ DV = null; goHome(); return true; }
+  if(a === "dvmini"){ if(S.driveRun && S.driveRun.code === S.current){ DV = { view: "test" }; screen = "drive"; render(); dvTick(); return true; } dvMiniStart(); return true; }
+  if(a === "dvsave"){ overlay = { login: 1, step: "email", email: "" }; renderOverlay(); return true; }
   if(a === "dvtest"){ if(S.driveRun && S.driveRun.code === S.current){ DV = { view: "test" }; screen = "drive"; render(); dvTick(); return true; } dvTestStart(); return true; }
   if(a === "dvresume"){ DV = { view: "test" }; screen = "drive"; overlay = null; render(); dvTick(); return true; }
   if(a === "dvtans"){ const r = S.driveRun; r.ans[r.i] = +dd.i; save(); sfx("tap"); render(); return true; }

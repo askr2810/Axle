@@ -1250,6 +1250,12 @@ if(grBootLink()) screen = "friends"; // axle.no/?gruppe=KODE
   if(COURSES.some(c => c.code === code)){ S.current = code; if(!S.studySet){ S.study = studyOf(COURSE(code)); S.studySet = 1; } else if(!inMyStudies(COURSE(code))) S.studies = [...new Set([...(S.studies || []), studyOf(COURSE(code))])]; saveLocal(); } // faget avgjør studiet første gang; ellers legges studiet til ved siden av dine
   try{ const q = new URLSearchParams(location.search); q.delete("fag"); history.replaceState(null, "", location.pathname + (q.toString() ? "?" + q : "") + location.hash); }catch(e){}
 })();
+(function demoLink(){ // axle.no/?fag=FKB&demo=1 fra de åpne førerkortsidene: start den gratis prøven med en gang
+  let demo = null; try{ demo = new URLSearchParams(location.search).get("demo"); }catch(e){}
+  if(!demo) return;
+  try{ const q = new URLSearchParams(location.search); q.delete("demo"); history.replaceState(null, "", location.pathname + (q.toString() ? "?" + q : "") + location.hash); }catch(e){}
+  if(typeof dvMiniStart === "function" && isDrive(COURSE(S.current)) && !S.driveRun) setTimeout(dvMiniStart, 0);
+})();
 if(window.STUDY_URL && !S.studySet){ S.study = window.STUDY_URL; S.studySet = 1; if(!inStudy(COURSE(S.current), S.study)) S.current = STUDY(S.study).home; saveLocal(); } // axle.no/?studie=…
 if(checkBadges().length) saveLocal(); // merker for fremgang fra før merkene fantes (uten varsel)
 render();
