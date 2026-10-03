@@ -209,6 +209,7 @@ function renderHome(){
   <main class="wrap">
     ${noticeHTML()}
     ${duInviteHTML()}
+    ${quickCardHTML(c)}
     ${layoutHTML("home")}
     ${examHomeActions(c) ? `<div class="actions">${examHomeActions(c)}</div>` : ""}
     ${preBarHTML(c)}
@@ -389,6 +390,27 @@ function startJump(code, u){
   let j = 0; while(ids.length < 10 && all.gen.length) ids.push(all.gen[j++ % all.gen.length]);
   startLesson("jump", code, shuffle(ids).map(id=>itemFromId(c,id,{strict:true})).filter(Boolean), {u}, 3);
 }
+// Rask quiz for nye brukere: 10 oppgaver fra de første kapitlene, feil gjentas ikke, resultatet til slutt.
+const QUICK_N = 10;
+function startQuick(code){
+  const c = COURSE(code), all = poolIds(c, range(Math.min(3, c.units.length))), ids = [];
+  pick(ids, all.mc, 4); pick(ids, all.gen, 8); pick(ids, all.num.concat(all.mc), QUICK_N);
+  let j = 0; while(ids.length < QUICK_N && all.gen.length) ids.push(all.gen[j++ % all.gen.length]);
+  const items = shuffle(ids).slice(0, QUICK_N).map(id => itemFromId(c, id, { mc: true })).filter(Boolean);
+  if(!items.length){ toast(T("Ingen oppgaver her ennå.", "No questions here yet.")); return; }
+  startLesson("quick", code, items);
+}
+// Kortet på forsiden for helt nye brukere (førerkort har sin egen gratis teoriprøve i drive.js).
+function quickCardHTML(c){
+  if((S.xp || 0) >= 30 || (S.quickDone || {})[c.code]) return "";
+  return `<button class="qk-card" data-a="quick"><span class="qk-ic" aria-hidden="true">⚡</span><span><b>${esc(T("Prøv 10 oppgaver", "Try 10 questions"))}</b><small>${esc(T(`Rask quiz i ${courseName(c)} · ca. 5 minutter · ingen innlogging`, `Quick quiz in ${courseName(c)} · about 5 minutes · no sign-in`))}</small></span><em>${esc(T("Start", "Start"))} →</em></button>`;
+}
+// Etter den første quizen eller gratis teoriprøven: én vennlig invitasjon til å lage gratis konto (kan lukkes).
+function quizAccountAsk(ok, n){
+  if(typeof CLOUD_ON === "undefined" || !CLOUD_ON || AUTH || S.acQuizAsked) return;
+  S.acQuizAsked = 1; saveLocal();
+  setTimeout(() => { if(overlay || AUTH) return; overlay = { login: 1, step: "email", email: "", intro: true, quiz: { ok, n } }; renderOverlay(); }, 1600);
+}
 function startReview(code){
   const c = COURSE(code); const ids = shuffle(sub(code).wrong).slice(0, 5);
   const items = ids.map(id=>itemFromId(c,id)).filter(Boolean);
@@ -414,9 +436,9 @@ function checkAnswer(){
 }
 function nextQuestion(){
   const it = L.queue.shift(); L.scratch = null;
-  if(L.maxHearts){
+  if(L.maxHearts || L.kind==="quick"){
     L.done++; L.answered=false; L.sel=null; L.input="";
-    if(L.hearts<=0){ screen="fail"; render(); return; }
+    if(L.maxHearts && L.hearts<=0){ screen="fail"; render(); return; }
     if(!L.queue.length) finishLesson(); else render();
     return;
   }
@@ -442,6 +464,7 @@ function finishLesson(){
   if(L.kind==="jump") for(let uu=0; uu<L.meta.u; uu++) for(let k=0;k<REQ;k++) s.done[uu+"-"+k] = true;
   if(L.kind==="challenge"){ S.dc = { day: L.meta.day, right: firstTry, n: L.total }; bdgStat("challenges"); }
   if(L.kind==="mydeck") mdRecord();
+  if(L.kind==="quick"){ (S.quickDone ||= {})[L.code] = 1; }
   if(L.kind==="drill" || L.kind==="challenge") drRecord(); // grunnbegreper i utfordringen teller også i terpinga
   noteNightLesson();
   const wrong = new Set(s.wrong);
@@ -510,7 +533,7 @@ function renderLesson(){
 }
 function renderDone(){
   const r = L.result, m = Math.floor(r.secs/60), sec = r.secs%60, c = COURSE(L.code), u = L.meta && L.meta.u;
-  const title = L.kind==="community" ? t("ccDoneTitle") : L.kind==="drill" || L.kind==="mydeck" ? t("drDoneTitle") : L.kind==="challenge" ? t("dcDoneTitle") : L.kind==="jump" ? t("doneJump") : (L.kind==="unit" && L.meta.k===3) ? t("doneCrown") : r.acc===100 ? t("doneFlawless") : L.kind==="review" ? t("doneReview") : t("doneLevel", lvShort(L.meta.k));
+  const title = L.kind==="quick" ? T(`${L.total - L.firstWrong.size} av ${L.total} riktige!`, `${L.total - L.firstWrong.size} of ${L.total} correct!`) : L.kind==="community" ? t("ccDoneTitle") : L.kind==="drill" || L.kind==="mydeck" ? t("drDoneTitle") : L.kind==="challenge" ? t("dcDoneTitle") : L.kind==="jump" ? t("doneJump") : (L.kind==="unit" && L.meta.k===3) ? t("doneCrown") : r.acc===100 ? t("doneFlawless") : L.kind==="review" ? t("doneReview") : t("doneLevel", lvShort(L.meta.k));
   const sub2 = L.kind==="drill" || L.kind==="mydeck" ? t("drDoneSub", L.total - L.firstWrong.size, L.total) : L.kind==="jump" ? t("jumpUnlocked", unitTitle(c,u)) : (L.kind==="unit" && L.meta.k===3) ? t("crownWon", unitTitle(c,u)) : null;
   $app.innerHTML = `<main class="wrap finish pop">
     ${r.goalHit ? goalCelebrateHTML(L.code, r) : teacherBubble(L.code, esc(pickLine(t(r.acc === 100 ? "tchFlawless" : r.acc >= 70 ? "tchDone" : "tchDoneLow"))), 64, "tch-done")}
@@ -530,6 +553,7 @@ function renderDone(){
     ${doneExtrasHTML(c, u, r)}
     <button class="big" data-a="home">${t("cont")}</button>
   </main>`;
+  if(!r.animated && L.kind==="quick") quizAccountAsk(L.total - L.firstWrong.size, L.total);
   if(!r.animated){ r.animated = true; countUp(); if(r.levelUp && !r.goalHit) setTimeout(() => confetti("level"), 300); else if(!r.goalHit) setTimeout(() => sfx("complete"), 150); }
 }
 // «I dag»-kortet: læreren med neste steg, dagsmålet som ring og ukas dager.
@@ -911,7 +935,7 @@ function renderOverlay(){
         <input type="text" id="lgcode" inputmode="numeric" autocomplete="one-time-code" maxlength="10" placeholder="123456" aria-label="${esc(t("acCodeTitle"))}">
         ${o.err?`<p class="lgerr">${esc(o.err)}</p>`:""}
         <button class="big" data-a="lgverify" ${o.busy?"disabled":""}>${t("acVerify")}</button><button class="big ghost" data-a="lgback" ${o.busy?"disabled":""}>${t("acOtherEmail")}</button><button class="big ghost" data-a="closeov">${t("cancel")}</button></div>`
-      : o.intro ? `<div class="dialog pop lgintro" role="dialog" aria-label="${t("acIntroTitle")}"><div class="lgi-ic">${I.users}</div><h3>${t("acIntroTitle")}</h3>
+      : o.intro ? `<div class="dialog pop lgintro" role="dialog" aria-label="${t("acIntroTitle")}">${o.quiz ? `<div class="lgi-score">${o.quiz.ok}<small>/${o.quiz.n}</small></div><h3>${esc(T("Godt jobbet! Vil du øve videre?", "Well done! Want to keep practising?"))}</h3><p class="lgi-sub">${esc(T("Lag en gratis konto, så lagres resultatene og du kan fortsette der du slapp, på mobil og PC. Det er gratis, og du trenger ikke passord.", "Create a free account to save your results and continue where you left off, on phone and computer. It is free, and no password is needed."))}</p>` : `<div class="lgi-ic">${I.users}</div><h3>${t("acIntroTitle")}</h3>`}
         <ul class="lgi-list">${t("acIntroPts").map(p=>`<li>${I.checkS}<span>${esc(p)}</span></li>`).join("")}</ul><p>${t("acLoginText")}</p>
         <input type="email" id="lgmail" autocomplete="email" placeholder="${esc(t("acEmail"))}" aria-label="${esc(t("acEmail"))}" value="${esc(o.email||"")}">
         ${o.err?`<p class="lgerr">${esc(o.err)}</p>`:""}
@@ -1138,6 +1162,7 @@ document.addEventListener("click", async e=>{
   else if(a==="jumpok"){ const u=overlay.jump; overlay=null; renderOverlay(); startJump(S.current,u); }
   else if(a==="retry"){ const m=L.meta, k=L.kind, code=L.code; if(k==="jump") startJump(code,m.u); else startUnitLesson(code,m.u,m.k); }
   else if(a==="review"){ startReview(S.current); }
+  else if(a==="quick"){ startQuick(S.current); }
   else if(a==="flipshow"){ if(L && !L.flipShown){ L.flipShown = true; render(); sfx("flip"); } }
   else if(a==="flipyes" || a==="flipno"){ if(L && L.flipShown) flipGrade(a==="flipyes"); }
   else if(a==="drmode"){ S.drMode = b.dataset.m === "flip" ? "flip" : "mc"; saveLocal(); render(); }

@@ -2140,3 +2140,11 @@ textarea.fbtext{width:100%;font:13px/1.4 var(--mono,monospace);border-radius:12p
 .dv-save p{margin:4px 0 10px;color:var(--muted);font-size:14px}
 @keyframes dvRing{from{stroke-dasharray:0 var(--C)}}
 @keyframes dvPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.015)}}
+/* rask quiz for nye brukere, og invitasjonen etterpå */
+.qk-card{display:flex;align-items:center;gap:14px;width:100%;margin:6px 0 14px;padding:16px;border:0;border-radius:22px;font:inherit;color:#fff;text-align:left;cursor:pointer;background:linear-gradient(135deg,#2B59C3,#7B4FD6);box-shadow:0 10px 24px -10px rgba(43,89,195,.7);animation:sgIn .45s ease-out,dvPulse 2.6s ease-in-out 1s infinite}
+.qk-card>span:nth-child(2){flex:1}.qk-card b{display:block;font:800 19px/1.2 var(--display)}.qk-card small{opacity:.92;font-size:13.5px}
+.qk-ic{display:grid;place-items:center;width:54px;height:54px;border-radius:16px;background:rgba(255,255,255,.2);font-size:28px}
+.qk-card em{font-style:normal;font-weight:900;padding:8px 14px;border-radius:99px;background:#fff;color:#2B59C3;white-space:nowrap}
+.lgi-score{margin:0 auto 6px;font:900 48px/1 var(--display);color:var(--accent);animation:sgPop .6s cubic-bezier(.3,1.6,.5,1)}
+.lgi-score small{font-size:20px;color:var(--muted)}
+.lgi-sub{color:var(--muted);font-size:14.5px}

@@ -106,7 +106,7 @@ function dvSubmit(timeUp){
   const wrong = r.items.length - ok, res = { at: Date.now(), ok, n: r.items.length, pass: r.mini ? wrong <= 1 : wrong <= DV_MAX_WRONG, mini: !!r.mini, time: Math.round((Math.min(Date.now(), r.end) - r.t0) / 1000), per, items: r.items, ans: r.ans, timeUp: !!timeUp };
   const d = dvData(r.code);
   if(r.mini){ d.minis = (d.minis || 0) + 1; S.driveRun = null; awardXP(3 + ok); S.stats ||= {}; S.stats.exams = (+S.stats.exams || 0) + 1; bdgToast(checkBadges()); save();
-    DV = { view: "result", code: r.code, res, show: "wrong" }; screen = "drive"; overlay = null; render(); window.scrollTo(0, 0); setTimeout(() => res.pass ? confetti("level") : sfx("complete"), 300); return; }
+    DV = { view: "result", code: r.code, res, show: "wrong" }; screen = "drive"; overlay = null; render(); window.scrollTo(0, 0); setTimeout(() => res.pass ? confetti("level") : sfx("complete"), 300); quizAccountAsk(ok, res.n); return; }
   d.tests.push(res); while(d.tests.length > 20) d.tests.shift();
   S.driveRun = null; const st = awardXP(5 + Math.round(ok / 5)); S.stats ||= {}; S.stats.exams = (+S.stats.exams || 0) + 1; bdgToast(checkBadges()); save();
   DV = { view: "result", code: r.code, ti: d.tests.length - 1, show: "wrong" }; screen = "drive"; overlay = null; render(); window.scrollTo(0, 0);
