@@ -56,6 +56,13 @@ ys, xs = np.nonzero(red)
 # den røde trekanten i barn-referansen fyller x 0–100 og y 6,25–93,75 i skiltruten
 S = 100 / (xs.max() - xs.min() + 1); OX = -xs.min() * S; OY = 6.25 - ys.min() * S
 out["elg"] = trace(ink, S, S, OX, OY, 1.0, 1.6, 300, 2)
+# ---------- påbudt kjøreretning til høyre (402): hvit pil i blå sirkel. Sirkelen legges på fkBlueRound (r 44 rundt 50, 50) ----------
+r, g, b = load("402_pabudt_hoyre.jpg")
+blue = (b > 150) & (r < 90) & (g < 120)
+disk = ndimage.binary_fill_holes(blue)
+ys, xs = np.nonzero(disk)
+S = 88 / (xs.max() - xs.min() + 1); OX = 6 - xs.min() * S; OY = 6 - ys.min() * S
+out["pabudHoyre"] = trace(disk & ~blue, S, S, OX, OY, 0.8, 1.0, 400, 2)
 # ---------- gangfelt (516) 447 × 447 ----------
 r, g, b = load("516_gangfelt.jpg")
 blue = (b > 70) & (r < 70) & (b > g + 30)
