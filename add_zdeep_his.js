@@ -3,14 +3,6 @@
 //  DEEP(kode, enhetstittel, nb, en) setter teksten inn etter «Begreper og formler» (kortversjonen) og før eksemplet,
 //  så siden går fra oversikt → tidslinje → kortversjon → fordypning → oppgaver → eksempel.
 // ============================================================
-function DEEP(code, title, nb, en){
-  const c = COURSES.find(x => x.code === code), u = c ? c.units.findIndex(x => x.title === title) : -1; if(u < 0) return;
-  const doc = theoryOf(code, u); if(!doc) return;
-  const put = (src, add) => { const lines = String(src).split("\n"), i = lines.findIndex(l => /^###?\s+(Eksempel|Example)/i.test(l.trim()));
-    if(i < 0) return src + "\n\n" + add; lines.splice(i, 0, add, ""); return lines.join("\n"); };
-  const ren = (s, a, b) => String(s).replace(a, b);
-  THEORY(code, u, { nb: ren(put(doc.nb, nb), /^## Begreper og formler$/m, "## Kort oppsummert"), en: ren(put(doc.en || doc.nb, en), /^## Concepts and formulas$/m, "## In short") });
-}
 (() => {
 DEEP("VGHIS", "Verdenskrigene",
 `## Første verdenskrig (1914–1918)
@@ -522,7 +514,6 @@ Norway has five recognised **national minorities**, groups with long ties to the
 All these groups faced **assimilation** or discrimination. In **2023** the **Truth and Reconciliation Commission** presented its report on Norwegianisation and the injustice against the Sami, Kvens/Norwegian Finns and Forest Finns – an important step in reconciliation work that is still going on.`);
 
 // Spørsmål til fordypningen (legges bakerst, så lagret statistikk beholder betydningen).
-function DQS(code, title, list){ const c = COURSES.find(x => x.code === code), u = c ? c.units.findIndex(x => x.title === title) : -1; if(u >= 0) BIQ(code, u, list); }
 DQS("VGHIS", "Verdenskrigene", [
  ["Hvem var erkehertug Franz Ferdinand?", ["Tronarvingen i Østerrike-Ungarn", "Keiseren av Tyskland", "Kongen av Serbia", "En russisk general"], "Han skulle bli neste keiser i Østerrike-Ungarn og ble skutt i Sarajevo 28. juni 1914.", "Who was Archduke Franz Ferdinand?", ["The heir to the throne of Austria-Hungary", "The German Emperor", "The King of Serbia", "A Russian general"], "He was to become the next emperor of Austria-Hungary and was shot in Sarajevo on 28 June 1914."],
  ["Hvilke land var med i Trippelententen da første verdenskrig startet?", ["Storbritannia, Frankrike og Russland", "Tyskland, Østerrike-Ungarn og Italia", "USA, Storbritannia og Japan", "Frankrike, Tyskland og Russland"], "Mot dem sto sentralmaktene Tyskland og Østerrike-Ungarn.", "Which countries were in the Triple Entente when WWI began?", ["Britain, France and Russia", "Germany, Austria-Hungary and Italy", "USA, Britain and Japan", "France, Germany and Russia"], "Against them stood the Central Powers, Germany and Austria-Hungary."],
