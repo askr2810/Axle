@@ -2294,3 +2294,4 @@ textarea.fbtext{width:100%;font:13px/1.4 var(--mono,monospace);border-radius:12p
 .hs-arr.l{left:0;margin-right:-32px}.hs-arr.r{right:0;margin-left:-32px}
 .hs-arr[hidden]{display:none}.hs-arr:hover{border-color:var(--accent);color:var(--accent)}
 .hs-drag{cursor:grabbing;user-select:none}.hs-drag *{pointer-events:none}
+.sg-n{font-weight:800;font-variant-numeric:tabular-nums;opacity:.75;margin:0 auto 0 12px}.sg-full{margin:8px 0 0;font-weight:800;color:var(--ok)}

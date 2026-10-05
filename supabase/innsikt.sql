@@ -25,6 +25,7 @@ revoke all on public.app_events from anon, authenticated;
 create index if not exists app_events_at on public.app_events (at desc);
 create index if not exists app_events_user on public.app_events (user_id, at desc);
 create index if not exists app_events_ev on public.app_events (ev, at desc);
+create index if not exists app_events_dev on public.app_events (device);
 
 -- ---------- logging fra appen (alle) ----------
 create or replace function public.log_events(p jsonb)
@@ -48,6 +49,14 @@ end $$;
 revoke all on function public.log_events(jsonb) from public;
 grant execute on function public.log_events(jsonb) to anon, authenticated;
 
+-- Statistikken skal ikke telle admin og moderatorer (de tester mye og gir «falske» tall).
+-- Hele enheten holdes utenfor hvis den noen gang er brukt av en mod/admin, også før innlogging.
+create or replace view public.app_events_clean as
+  select e.* from public.app_events e
+  where not exists (select 1 from public.app_events x join public.app_roles r on r.user_id = x.user_id where x.device = e.device)
+    and not exists (select 1 from public.app_roles r where r.user_id = e.user_id);
+revoke all on public.app_events_clean from public, anon, authenticated;
+
 -- ---------- sammendrag (brukes av adminpanelet og av eksporten til Claude) ----------
 create or replace function public.insights_core(p_days int)
 returns jsonb language plpgsql stable security definer set search_path = '' as $$
@@ -55,41 +64,41 @@ declare since timestamptz := now() - make_interval(days => greatest(1, least(coa
 begin
   return jsonb_build_object(
     'days', greatest(1, least(coalesce(p_days, 7), 180)),
-    'devices', (select count(distinct device) from public.app_events where at > since),
-    'users', (select count(distinct user_id) from public.app_events where at > since and user_id is not null),
-    'events', (select count(*) from public.app_events where at > since),
-    'signups', (select count(*) from auth.users where created_at > since and email_confirmed_at is not null),
-    'push_users', (select count(distinct user_id) from public.push_subs),
+    'devices', (select count(distinct device) from public.app_events_clean where at > since),
+    'users', (select count(distinct user_id) from public.app_events_clean where at > since and user_id is not null),
+    'events', (select count(*) from public.app_events_clean where at > since),
+    'signups', (select count(*) from auth.users u where u.created_at > since and u.email_confirmed_at is not null and not exists (select 1 from public.app_roles r where r.user_id = u.id)),
+    'push_users', (select count(distinct p.user_id) from public.push_subs p where not exists (select 1 from public.app_roles r where r.user_id = p.user_id)),
     'feedback_open', (select count(*) from public.app_feedback where not handled),
     'daily', coalesce((select jsonb_agg(x order by x.day) from (
         select to_char(date_trunc('day', at at time zone 'Europe/Oslo'), 'YYYY-MM-DD') as day, count(distinct device) as devices,
                count(distinct user_id) as users, count(*) filter (where ev = 'lesson') as lessons
-        from public.app_events where at > since group by 1) x), '[]'),
+        from public.app_events_clean where at > since group by 1) x), '[]'),
     'screens', coalesce((select jsonb_agg(x) from (
         select a as screen, count(*) as views, count(distinct device) as devices from public.app_events
         where at > since and ev = 'screen' group by a order by count(*) desc limit 25) x), '[]'),
     'features', coalesce((select jsonb_agg(x) from (
         select ev || coalesce(':' || case when ev in ('theory', 'push') then b end, '') as feature, count(*) as n, count(distinct device) as devices
-        from public.app_events where at > since and ev <> 'screen' group by 1 order by count(*) desc limit 30) x), '[]'),
+        from public.app_events_clean where at > since and ev <> 'screen' group by 1 order by count(*) desc limit 30) x), '[]'),
     'courses', coalesce((select jsonb_agg(x) from (
         select a as course, count(*) as sessions, count(distinct device) as devices, sum(m) as questions,
                round(100.0 * sum(n) / nullif(sum(m) filter (where n is not null), 0)) as accuracy
-        from public.app_events where at > since and ev = 'lesson' group by a order by count(*) desc limit 30) x), '[]'),
+        from public.app_events_clean where at > since and ev = 'lesson' group by a order by count(*) desc limit 30) x), '[]'),
     'hard_units', coalesce((select jsonb_agg(x) from (
         select a as course, b as unit, count(*) as sessions, round(100.0 * sum(n) / nullif(sum(m) filter (where n is not null), 0)) as accuracy
-        from public.app_events where at > since and ev = 'lesson' and b ~ '^\d+$' group by a, b having count(*) >= 3
+        from public.app_events_clean where at > since and ev = 'lesson' and b ~ '^\d+$' group by a, b having count(*) >= 3
         order by sum(n)::float / nullif(sum(m) filter (where n is not null), 0) asc nulls last limit 15) x), '[]'),
     'theory', coalesce((select jsonb_agg(x) from (
         select a as course, count(*) as opens, count(distinct device) as devices
-        from public.app_events where at > since and ev = 'theory' group by a order by count(*) desc limit 20) x), '[]'),
+        from public.app_events_clean where at > since and ev = 'theory' group by a order by count(*) desc limit 20) x), '[]'),
     'platforms', coalesce((select jsonb_object_agg(coalesce(platform, '?'), c) from (
-        select platform, count(distinct device) as c from public.app_events where at > since group by platform) x), '{}'),
+        select platform, count(distinct device) as c from public.app_events_clean where at > since group by platform) x), '{}'),
     'langs', coalesce((select jsonb_object_agg(coalesce(lang, '?'), c) from (
-        select lang, count(distinct device) as c from public.app_events where at > since group by lang) x), '{}'),
+        select lang, count(distinct device) as c from public.app_events_clean where at > since group by lang) x), '{}'),
     -- kommer nye brukere tilbake? (av dem som ble med i perioden: hvor mange var aktive en senere dag enn den første)
     'returning', (select jsonb_build_object('new', count(*), 'came_back', count(*) filter (where back)) from (
-        select u.id, exists (select 1 from public.app_events e where e.user_id = u.id and e.at > u.created_at + interval '20 hours') as back
-        from auth.users u where u.created_at > since and u.email_confirmed_at is not null) z)
+        select u.id, exists (select 1 from public.app_events_clean e where e.user_id = u.id and e.at > u.created_at + interval '20 hours') as back
+        from auth.users u where u.created_at > since and u.email_confirmed_at is not null and not exists (select 1 from public.app_roles r where r.user_id = u.id)) z)
   );
 end $$;
 revoke all on function public.insights_core(int) from public, anon, authenticated;

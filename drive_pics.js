@@ -49,7 +49,15 @@ const DRIVE_PICS = {
       cap: T2("Gule linjer skiller kjøreretningene. Hvite linjer skiller felt i samme retning.", "Yellow lines separate directions. White lines separate lanes in the same direction.") }; },
   trafikklys: L => { const T2 = (a, b) => L === "en" ? b : a;
     const it = [["lys_rod", T2("Stans", "Stop")], ["lys_rodgult", T2("Vent", "Wait")], ["lys_gronn", T2("Kjør", "Go")], ["lys_gult", T2("Stans", "Stop")], ["lys_blink", T2("Aktsom", "Caution")], ["lys_pil", T2("Følg pil", "Arrow")]];
-    return { svg: `<svg viewBox="0 0 360 130">${it.map(([s, a], i) => `${dpSign(s, 2 + i * 60, 6, 56)}${dpT(30 + i * 60, 82, a, { size: 11.5 })}`).join("")}${dpT(180, 116, T2("rødt → rødt og gult → grønt → gult → rødt", "red → red and amber → green → amber → red"), { size: 12, w: 600, col: "#5A6772" })}</svg>`,
+    // Animert: lyset går gjennom syklusen (8 s) og bilen stopper på rødt og kjører på grønt.
+    const D = "8s", lamp = (cy, on, keys) => `<circle cx="44" cy="${cy}" r="11" fill="#3A3F47"><animate attributeName="fill" dur="${D}" repeatCount="indefinite" calcMode="discrete" keyTimes="0;0.3125;0.4375;0.8125;1" values="${keys.map(k => k ? on : "#3A3F47").join(";")}"/></circle>`;
+    const word = (txt, keys) => `<text x="44" y="252" text-anchor="middle" style="font:800 13px system-ui,sans-serif;fill:#1B1F24" opacity="0">${txt}<animate attributeName="opacity" dur="${D}" repeatCount="indefinite" calcMode="discrete" keyTimes="0;0.3125;0.4375;0.8125;1" values="${keys.join(";")}"/></text>`;
+    const anim = `<g><rect x="25" y="146" width="38" height="88" rx="10" fill="#1B1F24"/>${lamp(164, "#FF3B30", [1, 1, 0, 0, 1])}${lamp(190, "#FFC400", [0, 1, 0, 1, 0])}${lamp(216, "#34C759", [0, 0, 1, 0, 0])}
+      ${word(T2("Stans", "Stop"), [1, 0, 0, 0, 1])}${word(T2("Vent", "Wait"), [0, 1, 0, 0, 0])}${word(T2("Kjør", "Go"), [0, 0, 1, 0, 0])}${word(T2("Stans hvis du kan", "Stop if you can"), [0, 0, 0, 1, 0])}
+      <rect x="80" y="178" width="275" height="46" fill="#6E747B"/><path d="M80 201h275" stroke="#fff" stroke-width="2" stroke-dasharray="10 8"/><rect x="240" y="203" width="5" height="21" fill="#fff"/>
+      <g><animateTransform attributeName="transform" type="translate" dur="${D}" repeatCount="indefinite" keyTimes="0;0.25;0.4375;0.75;0.751;1" values="0 0;132 0;132 0;290 0;-60 0;0 0"/>
+        <g transform="translate(92 212) rotate(90)"><rect x="-8" y="-14" width="16" height="28" rx="4" fill="#2B59C3"/><rect x="-6" y="-9" width="12" height="7" rx="2" fill="#BFE3F5"/></g></g></g>`;
+    return { svg: `<svg viewBox="0 0 360 262">${it.map(([s, a], i) => `${dpSign(s, 2 + i * 60, 6, 56)}${dpT(30 + i * 60, 82, a, { size: 11.5 })}`).join("")}${dpT(180, 116, T2("rødt → rødt og gult → grønt → gult → rødt", "red → red and amber → green → amber → red"), { size: 12, w: 600, col: "#5A6772" })}${anim}</svg>`,
       cap: T2("Rødt og gult samtidig betyr at det snart blir grønt, men du skal fortsatt vente.", "Red and amber together means green is coming, but you must still wait.") }; },
   stopplengde: L => { const T2 = (a, b) => L === "en" ? b : a;
     const sp = [30, 50, 80, 100], X = m => 70 + m * 2.6;

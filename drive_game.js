@@ -6,7 +6,7 @@
 //  Skjermen er DV.view === "game" i drive.js; handlingene heter «dvsg…».
 // ============================================================
 const SG_GROUPS = [["all", "Alle skilt", "All signs"], ["fare", "Fare", "Warning"], ["forbud", "Forbud", "Prohibitory"], ["pabud", "Påbud", "Mandatory"], ["oppl", "Opplysning", "Information"], ["vik", "Vikeplikt", "Right of way"]];
-const SG_LIVES = 3;
+const SG_LIVES = 3, SG_MAX = 25; // en runde er maks 25 skilt – fullfører du med liv igjen, får du bonus
 let SG = null;
 const sgPool = g => FK_SIGN_INFO.filter(s => FK_SIGNS[s[0]] && (g === "all" ? !["linje", "lys"].includes(s[1]) : s[1] === g));
 const sgSt = () => S.signSt ||= {};
@@ -14,7 +14,7 @@ const sgKnown = n => { const s = sgSt()[n]; return !!s && s[1] >= 2 && s[2] === 
 // Hvor mange skilt du kan (til oversikten og skiltlista).
 function sgMastery(){ const all = sgPool("all"); return { known: all.filter(s => sgKnown(s[0])).length, total: all.length }; }
 const sgBest = () => (S.signBest ||= {});
-const sgTime = () => Math.max(5, 9 - Math.floor(SG.ok / 8) * 0.5) * 1000; // litt kortere tid jo flere riktige
+const sgTime = () => Math.max(2.5, 8 - SG.ok * 0.22) * 1000; // tydelig kortere tid for hvert riktige svar (8 s → 2,5 s)
 function sgNextQ(){
   const pool = sgPool(SG.group), st = sgSt();
   // vekt: usette og feil oftere, sist spurte aldri rett etter hverandre
@@ -56,10 +56,11 @@ function sgAnswer(j){
   save(); render();
   if(ok){ const el = document.querySelector(".sg-opt.ok"); if(el) burst(el, 10); }
   clearTimeout(sgAnswer.t);
-  sgAnswer.t = setTimeout(() => { if(!SG || DV.view !== "game") return; if(SG.lives <= 0) return sgOver(); SG.fx = null; sgNextQ(); render(); sgTick(); }, ok ? 650 : 1500);
+  sgAnswer.t = setTimeout(() => { if(!SG || DV.view !== "game") return; if(SG.lives <= 0 || SG.n >= SG_MAX) return sgOver(); SG.fx = null; sgNextQ(); render(); sgTick(); }, ok ? 650 : 1500);
 }
 function sgOver(){
-  SG.over = true; const key = SG.group + ":" + SG.mode, best = sgBest(), rec = SG.score > (best[key] || 0);
+  SG.over = true; SG.full = SG.lives > 0 && SG.n >= SG_MAX; if(SG.full){ SG.bonus = SG.lives * 500; SG.score += SG.bonus; }
+  const key = SG.group + ":" + SG.mode, best = sgBest(), rec = SG.score > (best[key] || 0);
   SG.prevBest = best[key] || 0; SG.record = rec && SG.score > 0; if(rec) best[key] = SG.score;
   S.stats ||= {}; S.stats.signGames = (+S.stats.signGames || 0) + 1;
   const st = awardXP(3 + Math.min(12, Math.floor(SG.ok / 3))); bdgToast(checkBadges()); save(); render(); window.scrollTo(0, 0);
@@ -73,7 +74,7 @@ function sgRender(){
   if(SG.over){
     const missed = [...new Set(SG.missed)], acc = SG.n ? Math.round(SG.ok / SG.n * 100) : 0, m = sgMastery();
     $app.innerHTML = `${top}<main class="wrap sg sg-over">
-      <div class="sg-final ${SG.record ? "rec" : ""}">${SG.record ? `<span class="sg-rec">🏆 ${esc(T("Ny rekord!", "New record!"))}</span>` : ""}<div class="sg-big">${SG.score}</div><small>${esc(T("poeng", "points"))}</small>
+      <div class="sg-final ${SG.record ? "rec" : ""}">${SG.record ? `<span class="sg-rec">🏆 ${esc(T("Ny rekord!", "New record!"))}</span>` : ""}<div class="sg-big">${SG.score}</div><small>${esc(T("poeng", "points"))}</small>${SG.full ? `<p class="sg-full">🏁 ${esc(T(`Hele runden klart! +${SG.bonus} bonus for ${SG.lives} liv igjen`, `Whole round done! +${SG.bonus} bonus for ${SG.lives} lives left`))}</p>` : ""}
         <div class="sg-stats"><span><b>${SG.ok}</b>${esc(T("riktige", "correct"))}</span><span><b>${acc} %</b>${esc(T("treff", "accuracy"))}</span><span><b>×${SG.maxCombo}</b>${esc(T("lengste kombo", "best streak"))}</span></div>
         <p>${esc(SG.record ? T(`Forrige rekord var ${SG.prevBest}.`, `Previous record was ${SG.prevBest}.`) : T(`Rekorden din er ${sgBest()[SG.group + ":" + SG.mode] || 0}.`, `Your record is ${sgBest()[SG.group + ":" + SG.mode] || 0}.`))} ${esc(T(`Du kan ${m.known} av ${m.total} skilt.`, `You know ${m.known} of ${m.total} signs.`))}</p></div>
       <button class="big" data-a="dvsgagain">🎮 ${esc(T("Spill igjen", "Play again"))}</button>
@@ -95,7 +96,7 @@ function sgRender(){
     : `<div class="sg-list">${q.opts.map((n, j) => `<button class="sg-opt sg-txt ${cls(j)}" style="--d:${j * 55}ms" data-a="dvsgans" data-i="${j}" ${rev ? "disabled" : ""}>${esc(sgName(n))}</button>`).join("")}</div>`;
   const info = sgInfo(q.ans);
   $app.innerHTML = `${top}<main class="wrap sg">
-    <div class="sg-hud"><span class="sg-lives" aria-label="${esc(T(`${SG.lives} liv igjen`, `${SG.lives} lives left`))}">${hearts}</span>
+    <div class="sg-hud"><span class="sg-lives" aria-label="${esc(T(`${SG.lives} liv igjen`, `${SG.lives} lives left`))}">${hearts}</span><span class="sg-n">${Math.min(SG.n + (rev ? 0 : 1), SG_MAX)}/${SG_MAX}</span>
       <span class="sg-combo ${SG.combo >= 3 ? "on" : ""}" key="${SG.combo}">${SG.combo >= 3 ? `🔥 ${SG.combo} ${esc(T("på rad", "in a row"))} · ×${mult}` : esc(T(`${SG.ok} riktige`, `${SG.ok} correct`))}</span></div>
     <div class="sg-timebar"><i id="sgtime" class="sg-time g" style="transform:scaleX(${rev ? 0 : 1})"></i></div>
     <section class="sg-card ${rev ? (fx.pts ? "ok" : "bad") : ""}">${prompt}${fx.pts ? `<span class="sg-float">+${fx.pts}${fx.mult > 1 ? ` <em>×${fx.mult}</em>` : ""}</span>` : ""}</section>
@@ -105,7 +106,7 @@ function sgRender(){
 }
 function sgMenuHTML(){
   const best = sgBest(), m = sgMastery(), mode = (SG && SG.mode) || S.sgMode || "mix";
-  return `<section class="sg-menu"><div class="sg-mhead"><span class="sg-mic" aria-hidden="true">🎮</span><div><b>${esc(T("Skiltspillet", "Sign game"))}</b><small>${esc(T(`Du kan ${m.known} av ${m.total} skilt · 3 liv, kombo og rekord`, `You know ${m.known} of ${m.total} signs · 3 lives, streaks and records`))}</small></div></div>
+  return `<section class="sg-menu"><div class="sg-mhead"><span class="sg-mic" aria-hidden="true">🎮</span><div><b>${esc(T("Skiltspillet", "Sign game"))}</b><small>${esc(T(`Du kan ${m.known} av ${m.total} skilt · 25 skilt per runde, 3 liv, raskere og raskere`, `You know ${m.known} of ${m.total} signs · 25 signs per round, 3 lives, faster and faster`))}</small></div></div>
     <div class="sg-mbar"><i style="width:${Math.round(m.known / Math.max(1, m.total) * 100)}%"></i></div>
     <div class="seg sg-modes">${[["mix", "Blandet", "Mixed"], ["pick", "Finn skiltet", "Find the sign"], ["name", "Hva betyr det?", "What does it mean?"]].map(([k, nb, en]) => `<button class="${mode === k ? "on" : ""}" data-a="dvsgmode" data-m="${k}">${esc(T(nb, en))}</button>`).join("")}</div>
     <div class="sg-groups">${SG_GROUPS.map(([g, nb, en]) => { const n = sgPool(g).length, b = best[g + ":" + mode] || 0;
