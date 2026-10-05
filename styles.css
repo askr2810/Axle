@@ -107,7 +107,7 @@ math{font-size:1.08em}
 .grp{margin:18px 0 8px;font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
 .subj{width:100%;display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:12px;text-align:left;background:var(--card);border:2px solid var(--line);border-bottom-width:4px;border-radius:14px;padding:12px 14px;margin-bottom:10px}
 .subj.sel{border-color:var(--accent)}
-.subj .badge,.bk-course .badge{width:46px;height:46px;border-radius:12px;display:grid;place-items:center;font-family:var(--display);font-weight:800;color:#fff;font-size:15px}
+.subj .badge,.bk-course .badge,.bk-switch .badge{width:46px;height:46px;border-radius:12px;display:grid;place-items:center;font-family:var(--display);font-weight:800;color:#fff;font-size:15px}
 .subj .t{min-width:0}
 .subj .t b{display:block;line-height:1.25}
 .subj .t span{font-family:var(--mono);font-size:12px;color:var(--muted)}
@@ -2282,3 +2282,15 @@ textarea.fbtext{width:100%;font:13px/1.4 var(--mono,monospace);border-radius:12p
 .adm-evh{font-weight:700;font-size:.8rem;text-transform:uppercase;letter-spacing:.04em;opacity:.7;margin:10px 0 4px}
 .adm-ev{list-style:none;padding:0;margin:0;font-size:.84rem;max-height:420px;overflow:auto}.adm-ev li{padding:4px 0;border-bottom:1px solid var(--line,rgba(127,127,127,.15))}
 .adm-ev small{opacity:.6;margin-right:8px;font-variant-numeric:tabular-nums}
+.bk-switch{display:flex;align-items:center;gap:12px;width:100%;padding:10px 14px;margin:0 0 12px;border:1.5px solid var(--line,rgba(127,127,127,.25));border-radius:14px;background:var(--card,transparent);color:inherit;font:inherit;text-align:left;cursor:pointer}
+.bk-switch .badge{flex:none}.bk-switch span:not(.badge){flex:1;min-width:0;display:flex;flex-direction:column}.bk-switch small{opacity:.65;font-size:.75rem}.bk-switch b{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bk-switch em{font-style:normal;font-weight:700;color:var(--accent);display:flex;align-items:center;gap:2px;font-size:.88rem;white-space:nowrap}.bk-switch:hover{border-color:var(--accent)}
+.bk-switch .badge{width:38px;height:38px;border-radius:10px;font-size:13px}
+/* lange ord i fliser deles i stedet for å kuttes */
+.tptile{min-width:0}.tptile .tt{overflow-wrap:anywhere;hyphens:auto;-webkit-hyphens:auto}
+.tptile .tfx{padding:0 6px}
+/* piler for horisontale rader på PC (ui_fit.js) */
+.hs-arr.hs-arr{position:sticky;z-index:3;flex:0 0 32px;align-self:center;width:32px!important;height:32px!important;min-width:32px;margin-top:0;margin-bottom:0;border-radius:50%;border:1.5px solid var(--line);background:var(--card);color:var(--ink);font:700 20px/1 var(--display,inherit);display:grid;place-items:center;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.18);padding:0 0 2px}
+.hs-arr.l{left:0;margin-right:-32px}.hs-arr.r{right:0;margin-left:-32px}
+.hs-arr[hidden]{display:none}.hs-arr:hover{border-color:var(--accent);color:var(--accent)}
+.hs-drag{cursor:grabbing;user-select:none}.hs-drag *{pointer-events:none}

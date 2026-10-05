@@ -174,6 +174,7 @@ function renderBookCourse(){
   }
   $app.innerHTML = `${bkTop("bkback", t("bkTitle"), courseName(c), favStarHTML(c.code))}
     <main class="wrap bk">
+      <button class="bk-switch" data-a="bkall"><span class="badge" style="background:${col}">${esc(courseShort(c))}</span><span><small>${esc(T("Teori i", "Theory in"))}</small><b>${esc(courseName(c))}</b></span><em>${esc(T("Bytt fag", "Change course"))} ${I.chevron}</em></button>
       <div class="seg bk-tabs" role="tablist"><button role="tab" aria-selected="${BK.tab !== "sheet"}" class="${BK.tab !== "sheet" ? "on" : ""}" data-a="bktab" data-t="topics">${esc(t("bkTopicsTab"))}</button><button role="tab" aria-selected="${BK.tab === "sheet"}" class="${BK.tab === "sheet" ? "on" : ""}" data-a="bktab" data-t="sheet">${esc(t("bkSheet"))}</button></div>
       ${body}
     </main>`;
@@ -201,7 +202,10 @@ function renderBookUnit(){
     </main>
     <div class="lfoot"><div class="wrap"><button class="big" data-a="bkpractice">${esc(t("thStart"))}</button></div></div>`;
 }
-function openBook(){ BK = { v: "home", code: null, u: 0, tab: "topics", q: BK.q || "" }; screen = "book"; overlay = null; render(); window.scrollTo(0, 0); }
+// Teori-fanen åpner faget du øver på nå (S.current), med en knapp for å bytte fag. home = true går rett til alle fag.
+function openBook(home){
+  const cur = !home && typeof S !== "undefined" && S.current && bkCourses().some(c => c.code === S.current) ? S.current : null;
+  BK = { v: cur ? "course" : "home", code: cur, u: 0, tab: "topics", q: BK.q || "" }; screen = "book"; overlay = null; render(); window.scrollTo(0, 0); }
 function bookBack(){
   if(BK.v === "topic"){ const u = (topicFind(BK.code, BK.topic) || {}).u; BK.v = BK.from === "unit" ? "unit" : "course"; render();
     const el = BK.v === "course" && document.getElementById("bku" + u); if(el) el.scrollIntoView({ block: "start" }); else window.scrollTo(0, 0); return; }
@@ -215,6 +219,7 @@ function bookClick(a, b){
   if(!a.startsWith("bk") && a !== "book") return false;
   if(a === "book") openBook();
   else if(a === "bkback") bookBack();
+  else if(a === "bkall"){ BK.v = "home"; render(); window.scrollTo(0, 0); }
   else if(a === "bkcourse"){ BK.v = "course"; BK.code = b.dataset.c; BK.tab = "topics"; render(); window.scrollTo(0, 0); }
   else if(a === "bktab"){ BK.tab = b.dataset.t; render(); }
   else if(a === "bkunit"){ BK.v = "unit"; BK.code = b.dataset.c; BK.u = +b.dataset.u; stEv("theory", BK.code + ":" + BK.u, "book"); (S.theorySeen ||= {})[BK.code + ":" + BK.u] = 1; bdgToast(checkBadges()); save(); render(); window.scrollTo(0, 0); }

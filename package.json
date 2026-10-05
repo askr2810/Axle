@@ -30,7 +30,12 @@
   "devDependencies": {
     "@capacitor/assets": "latest",
     "@capacitor/cli": "latest",
-    "terser": "^5.51.2"
+    "d3-geo": "^3.1.1",
+    "i18n-iso-countries": "^7.14.0",
+    "terser": "^5.51.2",
+    "topojson-client": "^3.1.0",
+    "topojson-simplify": "^3.0.3",
+    "world-atlas": "^2.0.2"
   },
   "license": "UNLICENSED",
   "author": "Axle"

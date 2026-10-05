@@ -458,7 +458,7 @@ function pfClick(a, b){
   if(!a.startsWith("pf")) return false;
   if(a === "pflist"){ screen = "proofs"; render(); window.scrollTo(0, 0); }
   else if(a === "pfopen"){ pfOpen(b.dataset.id, screen === "guided" ? "proofs" : screen); }
-  else if(a === "pfback"){ openBook(); }
+  else if(a === "pfback"){ openBook(true); }
   else return false;
   return true;
 }
