@@ -22,6 +22,11 @@ const POINTS = { berlin: [13.4, 52.5], paris: [2.35, 48.86], london: [-0.13, 51.
   washington: [-77.04, 38.9], newyork: [-74, 40.7], tokyo: [139.7, 35.7], beijing: [116.4, 39.9], pearlharbor: [-157.95, 21.36], midway: [-177.37, 28.2], hiroshima: [132.46, 34.39],
   manila: [120.98, 14.6], singapore: [103.8, 1.35], sydney: [151.2, -33.87], delhi: [77.2, 28.6], capetown: [18.42, -33.92], nairobi: [36.82, -1.29], lagos: [3.38, 6.52],
   riodejaneiro: [-43.2, -22.9], mexico: [-99.13, 19.43], havana: [-82.37, 23.11], saigon: [106.7, 10.78], seoul: [126.98, 37.57], kabul: [69.2, 34.53], mekka: [39.83, 21.42],
+  lindisfarne: [-1.8, 55.67], dublin: [-6.26, 53.35], york: [-1.08, 53.96], reykjavik: [-21.9, 64.1], novgorod: [31.27, 58.52], sevilla: [-6.0, 37.39],
+  orknoy: [-3.0, 59.0], stamford: [-0.9, 53.98], atlant: [-24, 47], compiegne: [2.83, 49.42], wittenberg: [12.65, 51.87], geneve: [6.14, 46.2], trondheim: [10.4, 63.43],
+  hedeby: [9.57, 54.49], uppsala: [17.64, 59.86], bergen: [5.32, 60.39], bryssel: [4.35, 50.85], strasbourg: [7.75, 48.58], maastricht: [5.69, 50.85], nicosia: [33.36, 35.17],
+  murmansk: [33.08, 68.97], kaukasus: [44.8, 42.5], suez: [32.55, 30.0], gibraltar: [-5.35, 36.14], malta: [14.5, 35.9], tobruk: [23.96, 32.08],
+  baskerland: [-2.5, 43.0], sapmi: [23.5, 69.0], wales: [-3.8, 52.4], steppe: [40, 48], skottland: [-4.2, 57.0], bretagne: [-3.0, 48.2],
   varanasi: [83.0, 25.32], bodhgaya: [84.99, 24.7], kinshasa: [15.3, -4.32], dakar: [-17.44, 14.69], addis: [38.75, 9.0], alger: [3.06, 36.75] };
 const VIEWS = {
   europe: { data: "countries-50m.json", w: 1000, h: 860, proj: () => geoMercator(), box: [[-25, 27], [60, 72]], digits: 0, keep: 0.12 },
@@ -46,7 +51,8 @@ for(const [vk, V] of Object.entries(VIEWS)){
     let main = f.geometry; if(main.type === "MultiPolygon"){ const parts = main.coordinates.map(p => ({ type: "Polygon", coordinates: p })); main = parts.sort((a, b) => geoArea(b) - geoArea(a))[0]; }
     const pc = proj(geoCentroid(main)); const inView = pc && pc[0] > 0 && pc[0] < V.w && pc[1] > 0 && pc[1] < V.h;
     const nm = NAMES[k] || [countries.getName(k, "nb") || name, countries.getName(k, "en") || name];
-    (c[k] ||= { d: "", a: null, n: nm }).d += d; if(inView && !c[k].a) c[k].a = pc.map(Math.round);
+    (c[k] ||= { d: "", a: null, n: nm, b: null }).d += d; if(inView && !c[k].a) c[k].a = pc.map(Math.round);
+    const bb = path.bounds(main).flat().map(Math.round); if(bb.every(Number.isFinite)) c[k].b = c[k].b ? [Math.min(c[k].b[0], bb[0]), Math.min(c[k].b[1], bb[1]), Math.max(c[k].b[2], bb[2]), Math.max(c[k].b[3], bb[3])] : bb;
   }
   const pts = {}; for(const [p, ll] of Object.entries(POINTS)){ const xy = proj(ll); if(xy && xy[0] >= 0 && xy[0] <= V.w && xy[1] >= 0 && xy[1] <= V.h) pts[p] = xy.map(Math.round); }
   out[vk] = { w: V.w, h: V.h, c, p: pts };

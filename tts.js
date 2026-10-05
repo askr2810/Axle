@@ -35,7 +35,7 @@ function ttsSplit(s){
   for(const p of s.split(/(?<=[.!?:;])\s+/)){ if((cur + " " + p).length > 220 && cur){ out.push(cur); cur = p; } else cur = cur ? cur + " " + p : p; }
   if(cur) out.push(cur); return out;
 }
-const TTS_SKIP = ".ty-key,.fig,figure,.sim,.tl,.wg,.tts-bar,.tch,.gd-cta,.cy,.pf-th,.lab-th,button";
+const TTS_SKIP = ".mp,.ty-key,.fig,figure,.sim,.tl,.wg,.tts-bar,.tch,.gd-cta,.cy,.pf-th,.lab-th,button";
 function ttsCollect(root){
   return [...root.querySelectorAll("h1,h3,h4,p,li,.callout")].filter(el => !el.closest(TTS_SKIP) && !(el.tagName === "P" && el.closest(".callout")) && !(el.tagName === "P" && el.closest("li")))
     .map(el => ({ el, parts: ttsSplit(ttsText(el)) })).filter(x => x.parts.length && x.parts[0].length > 1);
