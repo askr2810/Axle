@@ -196,12 +196,12 @@ function renderScene(){
       <p class="dv-qt">${scRich(T(sc.q[0], sc.q[1]))}</p>
       <div class="sc-box">${scSVG(sc, D.built, D)}</div>
       ${rev ? `<div class="sc-ctl"><button data-a="scstep" data-d="-1" aria-label="${esc(T("Steg tilbake", "Step back"))}">⏮</button><button id="scpp" class="pp" data-a="sctoggle" aria-label="${esc(T("Spill av", "Play"))}">▶</button><button data-a="scstep" data-d="1" aria-label="${esc(T("Neste steg", "Next step"))}">⏭</button><input type="range" id="scrange" min="0" max="1000" value="0" aria-label="${esc(T("Spol i avspillingen", "Scrub the playback"))}"></div><p class="sc-cap" id="sccap" aria-live="polite"></p>` : ""}
+      ${rev || D.i > 0 ? `<div class="sc-btns">${D.i > 0 ? `<button class="big ghost" data-a="scprev">← ${esc(T("Forrige", "Previous"))}</button>` : "<span></span>"}${rev ? `<button class="big" data-a="scnext">${esc(D.i + 1 < n ? T("Neste", "Next") + " →" : T("Se resultatet", "See the result"))}</button>` : D.states && D.states[D.i + 1] ? `<button class="big ghost" data-a="scnext">${esc(T("Neste", "Next"))} →</button>` : ""}</div>` : ""}
       ${how && !rev ? `<p class="sc-how">${esc(how)}</p>` : ""}
       ${!rev && D.picks.length && sc.type === "order" ? `<div class="sc-picks">${D.picks.map((id, k) => `<span>${k + 1}. ${esc(scVName(D.built.find(b => b.id === id)))}</span>`).join("")}<button class="exlink" data-a="screset">${esc(T("Nullstill", "Reset"))}</button></div>` : ""}
       ${opts}
       ${rev ? `<div class="dv-fb ${ok ? "ok" : "bad"}"><b>${esc(ok ? tgPick(T(["Riktig!", "Sånn ja!", "Helt riktig!"], ["Correct!", "Nice!", "Exactly right!"])) : T("Ikke helt", "Not quite"))}</b>${right ? `<p class="sc-right">${esc(T("Riktig: ", "Correct: "))}<b>${esc(right)}</b></p>` : ""}<p>${scRich(T(sc.e[0], sc.e[1]))}</p></div>
 ` : ""}
-      <div class="sc-btns">${D.i > 0 ? `<button class="big ghost" data-a="scprev">← ${esc(T("Forrige", "Previous"))}</button>` : "<span></span>"}${rev ? `<button class="big" data-a="scnext">${esc(D.i + 1 < n ? T("Neste", "Next") + " →" : T("Se resultatet", "See the result"))}</button>` : D.states && D.states[D.i + 1] ? `<button class="big ghost" data-a="scnext">${esc(T("Neste", "Next"))} →</button>` : ""}</div>
     </main>`;
   if(D.anim) scApply(D);
   const rg = document.getElementById("scrange");

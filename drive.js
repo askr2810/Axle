@@ -148,8 +148,8 @@ function dvRenderPractice(){
   $app.innerHTML = `${dvTop(title, T("Øving", "Practice"), `<span class="dv-count">${DV.i + 1}/${DV.items.length}</span>`)}
     <div class="dv-prog wrap"><i style="width:${((DV.i + (rev ? 1 : 0)) / DV.items.length * 100).toFixed(0)}%"></i></div>
     <main class="wrap dv">${dvQuestionHTML(q, it, { picked: DV.ans, reveal: rev, locked: rev, act: "dvans" })}
-    ${rev ? `<div class="dv-fb ${it.ok ? "ok" : "bad"}"><b>${esc(it.ok ? tgPick(T(["Riktig!", "Sånn ja!", "Helt riktig!"], ["Correct!", "Nice!", "Exactly right!"])) : T("Feil", "Wrong"))}</b><p>${rich(q.expl)}</p></div>
-      <button class="big" data-a="dvnext">${esc(DV.i + 1 < DV.items.length ? T("Neste", "Next") : T("Se resultatet", "See the result"))}</button>` : ""}</main>`;
+    ${rev ? `<button class="big" data-a="dvnext">${esc(DV.i + 1 < DV.items.length ? T("Neste", "Next") : T("Se resultatet", "See the result"))}</button>
+      <div class="dv-fb ${it.ok ? "ok" : "bad"}"><b>${esc(it.ok ? tgPick(T(["Riktig!", "Sånn ja!", "Helt riktig!"], ["Correct!", "Nice!", "Exactly right!"])) : T("Feil", "Wrong"))}</b><p>${rich(q.expl)}</p></div>` : ""}</main>`;
 }
 function dvRenderTest(){
   const r = S.driveRun; if(!r){ DV = null; goHome(); return; }

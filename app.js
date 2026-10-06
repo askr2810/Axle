@@ -524,12 +524,13 @@ function renderLesson(){
   } else {
     foot = `<div class="lfoot ${L.ok?"ok":"bad"} pop"><div class="wrap">
       <div class="fb-h ${L.ok&&L.combo>=3?"combo":""}">${L.ok?(L.combo>=3?`<span class="combo-fire">${I.fire}</span>`:I.okc):I.badc}${L.ok?(L.combo>=3?t("streakN",L.combo):t("correct")):t("notQuite")}${L.ok&&L.bonusNow?`<span class="combo-xp">+1 XP</span>`:""}</div>
+      <button class="big" data-a="next">${t("cont")}</button>
       ${L.ok?"":`<div class="fb-a">${t("rightAnswer")} ${rich(correctText(it))}</div>`}
       ${L.tline && L.kind !== "exam" ? teacherBubble(L.code, esc(L.tline), 34, "tch-fb") : ""}
       ${it.expl?`<div class="fb-e">${rich(it.expl)}</div>`:""}
       ${L.ok || !theoryOf(L.code,+it.id.split(".")[0]) ? "" : `<button class="fb-th" data-a="thov">${I.book}${t("readTheory")}</button>`}
       ${L.ok?"":`<button class="fb-rep" data-a="report">${t("thinkWrong")} ${t("reportShort")}</button>`}
-      <button class="big" data-a="next">${t("cont")}</button></div></div>`;
+</div></div>`;
   }
   const side = L.maxHearts ? `<span class="hearts" aria-label="${t("livesLeft",L.hearts)}">${range(L.maxHearts).map(i=>i<L.hearts?I.heart:I.heartOff).join("")}</span>` : `<span class="combo">${L.combo>=2?L.combo+"×":""}</span>`;
   $app.innerHTML = `<div class="lesson"><div class="wrap lhead"><button class="iconbtn" data-a="quit" aria-label="${t("quitAria")}">${I.x}</button><div class="bar" role="progressbar" aria-valuenow="${Math.round(pct)}" aria-valuemin="0" aria-valuemax="100"><i style="width:${pct}%"></i></div>${side}<button class="iconbtn flag" data-a="report" aria-label="${t("report")}" title="${t("report")}">${I.flag}</button></div>

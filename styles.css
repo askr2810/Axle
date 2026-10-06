@@ -142,7 +142,7 @@ math{font-size:1.08em}
 .num .u{font-family:var(--mono);color:var(--muted)}
 .num.right{border-color:var(--ok)} .num.wrong{border-color:var(--bad)}
 .hint{font-size:13px;color:var(--muted);margin-top:8px}
-.lfoot{position:fixed;left:0;right:0;bottom:0;z-index:6;border-top:2px solid var(--line);background:var(--card);padding-bottom:env(safe-area-inset-bottom,0px)}
+.lfoot{position:fixed;left:0;right:0;bottom:0;z-index:6;max-height:72vh;max-height:72dvh;overflow-y:auto;overscroll-behavior:contain;border-top:2px solid var(--line);background:var(--card);padding-bottom:env(safe-area-inset-bottom,0px)}
 .lfoot .wrap{padding-block:16px;display:grid;gap:12px}
 .lfoot.ok{background:var(--ok-soft);border-color:transparent}
 .lfoot.bad{background:var(--bad-soft);border-color:transparent}
