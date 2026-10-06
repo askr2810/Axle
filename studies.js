@@ -40,7 +40,7 @@ function toggleStudy(id){
   S.studySet = 1; save(); return true;
 }
 // Verktøy som bare vises for studiene de hører til (med mindre «Vis alt» er slått på i Innstillinger).
-const FEATURES = { trig: ["ing", "vgs", "oko"], forces: ["ing", "vgs"], lab: ["ing", "vgs", "oko"], proofs: ["ing", "vgs", "oko"], code: ["ing", "vgs"], maps: ["vgs"] };
+const FEATURES = { trig: ["ing", "vgs", "oko"], forces: ["ing", "vgs"], lab: ["ing", "vgs", "oko"], proofs: ["ing", "vgs", "oko"], code: ["ing", "vgs"], maps: ["vgs"], motion: ["ing", "vgs"] };
 const hasFeature = f => !!S.showAll || myStudies().some(s => (FEATURES[f] || []).includes(s));
 // Bytt favorittstudie: husk siste fag i det gamle studiet og hopp til siste (eller første) fag i det nye.
 function setStudy(id){

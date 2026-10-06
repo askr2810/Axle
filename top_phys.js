@@ -59,7 +59,7 @@ TOPICS("GFYS", 0, [
 
 // ================= GFYS – enhet 1: Bevegelse =================
 TOPICS("GFYS", 1, [
-{ id: "fart-akselerasjon",
+{ id: "fart-akselerasjon", mv: "go",
   fig: `<svg viewBox="0 0 240 140"><path d="M20 115H220" class="dim"/><circle cx="60" cy="115" r="6" class="af"/><path d="M60 115H140" class="a"/><path d="M140 115l-12-5v10z" class="af"/><text x="30" y="105">s₀</text><text x="95" y="105">v</text><text x="150" y="132">s</text></svg>`,
   nb: { t: "Fart og akselerasjon",
     intro: "Farten forteller hvor mye posisjonen endres per tidsenhet, og akselerasjonen forteller hvor mye farten endres per tidsenhet. Begge kan ha positivt eller negativt fortegn når bevegelsen er langs en rett linje: fortegnet viser retningen i forhold til den du har valgt som positiv.",
@@ -73,7 +73,7 @@ TOPICS("GFYS", 1, [
     legend: [["s", "position/displacement", "m"], ["v", "velocity", "m/s"], ["a", "acceleration", "m/s²"], ["t", "time", "s"]],
     ex: "A runner moves from $s = 0$ to $s = 100$ m in $12.5$ s. The average velocity is $\\bar v = 100/12.5 = 8.0$ m/s.",
     tip: "The same sign on $a$ and $v$ means the speed is increasing; opposite signs mean it is slowing down." } },
-{ id: "bevegelseslikninger",
+{ id: "bevegelseslikninger", mv: "acc",
   fig: `<svg viewBox="0 0 240 140"><path d="M20 120H220" class="dim"/><path d="M20 120V20" class="dim"/><path d="M20 110L100 60L200 30" class="a"/><text x="9" y="20">v</text><text x="210" y="132">t</text></svg>`,
   nb: { t: "Bevegelseslikningene",
     intro: "Når akselerasjonen er konstant, knytter fire likninger sammen startfart, sluttfart, strekning, akselerasjon og tid. Kjenner du tre av de fem størrelsene, kan du finne de to andre ved å velge den likningen som mangler den størrelsen du verken kjenner eller trenger.",

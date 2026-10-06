@@ -36,6 +36,7 @@ function renderBookTopic(){
       <p class="intro">${rich(x.intro)}</p>
       ${formulas}${legend}${ex}
       ${hit.tp.sim && typeof SIMS !== "undefined" ? [].concat(hit.tp.sim).filter(n => SIMS[n]).map(simHTML).join("") : ""}
+      ${hit.tp.mv && typeof mvHTML === "function" ? mvHTML(hit.tp.mv) : ""}
       ${x.tip ? `<div class="callout">${rich(x.tip)}</div>` : ""}
       <div class="tnavs">${nav(prev, "prev")}${nav(next, "next")}</div>
       ${theoryOf(c.code, hit.u) ? `<button class="big ghost" data-a="bkunit" data-c="${esc(c.code)}" data-u="${hit.u}">${esc(t("tpFull"))}</button>` : ""}

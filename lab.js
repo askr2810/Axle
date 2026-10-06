@@ -12,6 +12,9 @@ const LABS = [
     kw: "trigonometri trigonometry sinus cosinus tangens sin cos tan enhetssirkel unit circle radianer radians vinkel angle eksakte verdier exact values likning equation graf graph periode period", units: ["VG1T:3", "VGR2:3", "GMAT:5"], open: () => tgOpen("explore", screen) },
   { id: "forces", ic: "🪢", t: ["Snorer, trinser og krefter", "Ropes, pulleys and forces"], sub: ["Lodd i to snorer, trinser med motvekter og talje, med dekomponering", "A load in two ropes, pulleys with counterweights and block and tackle, with decomposition"],
     kw: "snordrag tension kraft force krefter forces dekomponering decomposition komponenter components trinse pulley talje tackle statikk statics likevekt equilibrium vektor vector tau rope snor lodd vinkel angle newton", units: ["GFYS:2", "VGFY1:1", "MAPE1300:0", "MAPE1300:1"], open: () => fcOpen("ropes", screen) }
+,
+  { id: "motion", ic: "🚗", t: ["Bevegelseslaben", "The motion lab"], sub: ["Posisjon, fart og akselerasjon: stigning er derivasjon, areal er integrasjon", "Position, velocity and acceleration: slope is differentiation, area is integration"],
+    kw: "bevegelse motion fart velocity speed akselerasjon acceleration posisjon position strekning distance derivasjon derivative integral integrasjon areal area stigning slope tangent graf graph", units: [], open: () => mvOpen(screen) }
 ];
 // Faget (første kobling i SIM_MAP) som en simulering hører til, for gruppering og «Brukes i».
 function labSimUses(name){
