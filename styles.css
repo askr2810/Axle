@@ -2325,3 +2325,22 @@ textarea.fbtext{width:100%;font:13px/1.4 var(--mono,monospace);border-radius:12p
 .mp-quiz{margin:8px 0;padding:10px 12px;border-radius:12px;background:var(--accent-soft);font-size:.92rem}.mp-quiz em{font-style:normal;font-weight:800}
 .mp-quiz p.ok{color:var(--ok);font-weight:800}.mp-quiz p.bad{color:#D9483B;font-weight:800}.mp-quiz .big{margin-top:8px}
 .mp-desc{font-size:.95rem;line-height:1.55;margin-top:6px}.mp-note{font-size:.72rem;opacity:.6;margin:8px 0 0}
+/* Kartspillet (geo_game.js) */
+.sn-t9{background:linear-gradient(140deg,#2E9D5B,#3B6FD6)}
+.ge .sg-card{padding:12px 10px}
+.ge-name{margin-bottom:8px}
+.ge-wrap{margin-top:6px;width:100%;align-self:stretch;justify-self:stretch}
+.ge-svg .ge-c{cursor:default}.ge-live .ge-svg .ge-c{cursor:pointer}
+.ge-svg .ge-c:not(.ge-in){opacity:.55}
+@media (hover:hover){.ge-live .ge-svg .ge-in:hover{fill:color-mix(in srgb,var(--accent) 30%,var(--mp-land))}}
+.ge-svg .ge-q{fill:#FFC93C;stroke:#111;stroke-width:2;animation:mpBlink 1.2s ease-in-out infinite}
+.ge-svg .ge-ok{fill:#2FB36B;stroke:#0d5b32;stroke-width:2}
+.ge-svg .ge-show{fill:#2FB36B;stroke:#0d5b32;stroke-width:2;animation:geShow .6s ease-in-out 3}
+.ge-svg .ge-bad{fill:#E5534B}
+.ge-ring{fill:none;stroke:#E5534B;pointer-events:none}
+@keyframes geShow{50%{fill:#FFE15A}}
+.ge-grp{display:flex;align-items:center;gap:10px}.ge-grp i,.ge-mic i{display:inline-block;width:16px;height:16px;border-radius:5px;flex:none}
+.ge-gic{font-size:28px;display:grid;place-items:center;width:44px}
+.ge-mic{font-size:20px;width:28px;display:grid;place-items:center}
+.ge-how{margin:10px 2px 4px;color:var(--muted);font-size:14px;line-height:1.4}
+.ge-names{grid-template-columns:1fr 1fr}

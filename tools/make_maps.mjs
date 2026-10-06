@@ -9,7 +9,13 @@ import countries from "i18n-iso-countries";
 const require = createRequire(import.meta.url);
 countries.registerLocale(require("i18n-iso-countries/langs/nb.json")); countries.registerLocale(require("i18n-iso-countries/langs/en.json"));
 const EXTRA = { "Kosovo": "XK", "N. Cyprus": "CY_N", "Somaliland": "SO_S" }; // land uten ISO-nummer i dataene
-const NAMES = { XK: ["Kosovo", "Kosovo"], CY_N: ["Nord-Kypros", "Northern Cyprus"], SO_S: ["Somaliland", "Somaliland"] };
+const NAMES = { XK: ["Kosovo", "Kosovo"], CY_N: ["Nord-Kypros", "Northern Cyprus"], SO_S: ["Somaliland", "Somaliland"],
+  // kortere og vanligere navn enn ISO-listen (brukes i Kartspillet)
+  CD: ["DR Kongo", "DR Congo"], CG: ["Kongo-Brazzaville", "Republic of the Congo"], CI: ["Elfenbenskysten", "Ivory Coast"], MK: ["Nord-Makedonia", "North Macedonia"],
+  LA: ["Laos", "Laos"], CZ: ["Tsjekkia", "Czechia"], US: ["USA", "USA"], GB: ["Storbritannia", "United Kingdom"], RU: ["Russland", "Russia"], IR: ["Iran", "Iran"],
+  SY: ["Syria", "Syria"], KR: ["Sør-Korea", "South Korea"], KP: ["Nord-Korea", "North Korea"], VN: ["Vietnam", "Vietnam"], BO: ["Bolivia", "Bolivia"], VE: ["Venezuela", "Venezuela"],
+  TZ: ["Tanzania", "Tanzania"], MD: ["Moldova", "Moldova"], TW: ["Taiwan", "Taiwan"], PS: ["Palestina", "Palestine"], VA: ["Vatikanstaten", "Vatican City"], BN: ["Brunei", "Brunei"],
+  FK: ["Falklandsøyene", "Falkland Islands"], TL: ["Øst-Timor", "East Timor"], CN: ["Kina", "China"], CF: ["Den sentralafrikanske republikk", "Central African Rep."] };
 // Stedspunkter som piler og etiketter kan bruke: [lengdegrad, breddegrad]
 const POINTS = { berlin: [13.4, 52.5], paris: [2.35, 48.86], london: [-0.13, 51.5], moskva: [37.6, 55.75], warszawa: [21, 52.23], wien: [16.37, 48.2], roma: [12.5, 41.9],
   beograd: [20.46, 44.8], sarajevo: [18.41, 43.86], istanbul: [28.98, 41.0], gallipoli: [26.5, 40.3], verdun: [5.38, 49.16], somme: [2.7, 49.95], marne: [3.5, 48.95], ypres: [2.88, 50.85],

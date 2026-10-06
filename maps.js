@@ -294,7 +294,7 @@ function mpSVG(st){
   let paths = "";
   for(const [c, o] of Object.entries(G.c)){
     const fc = col(c), cls = "mp-c" + (fc ? " on" : "") + (st.sel === c ? " sel" : "") + (q && q.c === c ? " q" : "");
-    paths += `<path class="${cls}" data-mpc="${c}" d="${o.d}"${fc ? ` style="fill:${fc}"` : ""}/>`;
+    paths += `<path class="${cls}" data-mpc="${c}" d="${o.d}"${fc && !(q && q.c === c) ? ` style="fill:${fc}"` : ""}/>`; // landet i «Test deg» viser ikke fargen (svaret)
   }
   // piler: myke kurver gjennom punktene, pilspiss i gruppens farge
   const defs = Object.entries(M.g).map(([g, v]) => `<marker id="mpa-${st.uid}-${g}" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="4" markerHeight="4" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="${v[0]}"/></marker>`).join("");

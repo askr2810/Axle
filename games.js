@@ -138,12 +138,12 @@ function gmClick(a, b){
 // ---------- Lek og lær-menyen og tilpassede menyer ----------
 // Forsiden og Øv er bygd av seksjoner som brukeren kan skjule og flytte (S.layout / S.hidden per sted).
 // Spillene ligger bak én knapp («Spill og dueller») som åpner menyen; spill man fester (S.pins[sted]) vises som store fliser.
-const GAMES = [["du", "duopen", "⚔️", "duTitle", "sn-t5"], ["lo", "loopen", "🤜", "loTitle", "sn-t6"], ["sn", "snopen", "📱", "snTitle", "sn-t1"], ["sp", "spopen", "⚡", "spTitle", "sn-t2"], ["mt", "mtopen", "🧩", "mtTitle", "sn-t3"], ["tf", "tfopen", "👆", "tfTitle", "sn-t4"], ["tg", "tggame", "🎯", "tgTitle", "sn-t7"], ["lab", "labopen", "🧪", "labTitle", "sn-t8"]];
+const GAMES = [["du", "duopen", "⚔️", "duTitle", "sn-t5"], ["lo", "loopen", "🤜", "loTitle", "sn-t6"], ["sn", "snopen", "📱", "snTitle", "sn-t1"], ["sp", "spopen", "⚡", "spTitle", "sn-t2"], ["mt", "mtopen", "🧩", "mtTitle", "sn-t3"], ["tf", "tfopen", "👆", "tfTitle", "sn-t4"], ["tg", "tggame", "🎯", "tgTitle", "sn-t7"], ["lab", "labopen", "🧪", "labTitle", "sn-t8"], ["geo", "geoopen", "🗺️", "geoTitle", "sn-t9"]];
 function gmSub(id){
   const st = curStudy(), sp = (S.sprintBest || {})[st], mb = (S.matchBest || {})[st], tb = (S.tfBest || {})[st];
   if(id === "du") return t("duSub"); if(id === "lo") return t("loSub");
   if(id === "sn") return t("snSub"); if(id === "sp") return sp ? t("spBest", sp) : t("spSub");
-  if(id === "mt") return mb ? t("mtBest", f1(mb)) : t("mtSub"); if(id === "tg") return S.tgBest ? t("spBest", S.tgBest + "/10") : t("tgSub"); if(id === "lab") return t("labSub"); return tb ? t("spBest", tb) : t("tfSub");
+  if(id === "mt") return mb ? t("mtBest", f1(mb)) : t("mtSub"); if(id === "tg") return S.tgBest ? t("spBest", S.tgBest + "/10") : t("tgSub"); if(id === "lab") return t("labSub"); if(id === "geo"){ const b = Object.values(S.geoBest || {}); return b.length ? t("spBest", Math.max(...b)) : t("geoSub"); } return tb ? t("spBest", tb) : t("tfSub");
 }
 const gmTile = g => `<button class="sn-tile ${g[4]}" data-a="${g[1]}"><span class="sn-ti">${g[2]}</span><b>${esc(t(g[3]))}</b><small>${esc(gmSub(g[0]))}</small></button>`;
 // Gamle innstillinger (homePins/homeHide) flyttes over én gang.
@@ -155,7 +155,7 @@ function layMigrate(){
 }
 // Enhetssirkel-øvingen passer bare for studier med matte.
 // Spill som ikke passer studiene dine skjules: enhetssirkelen og laben etter studie, Par-jakt når det ikke finnes nok begrepspar.
-const gmList = () => GAMES.filter(g => (g[0] !== "tg" || hasFeature("trig")) && (g[0] !== "lab" || hasFeature("lab")) && (g[0] !== "mt" || drPool("all").length >= 12));
+const gmList = () => GAMES.filter(g => (g[0] !== "tg" || hasFeature("trig")) && (g[0] !== "lab" || hasFeature("lab")) && (g[0] !== "geo" || hasFeature("maps")) && (g[0] !== "mt" || drPool("all").length >= 12));
 const pinsOf = place => { layMigrate(); return (S.pins[place] || []).filter(id => gmList().some(g => g[0] === id)); };
 function gamesSectionHTML(place){
   const pins = GAMES.filter(g => pinsOf(place).includes(g[0]));
