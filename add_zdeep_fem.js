@@ -458,6 +458,21 @@ GU("Stavelementer og stivhetsmatriser",
      off ? T(`Bare element 3 kobler node 2 og 3, så $K_{23} = -${ks[2]}$ kN/m.`, `Only element 3 connects nodes 2 and 3, so $K_{23} = -${ks[2]}$ kN/m.`)
          : T(`Node 2 deles av element 2 og 3, så diagonalbidragene summeres: $K_{22} = ${ks[1]} + ${ks[2]} = ${val}$ kN/m.`, `Node 2 is shared by elements 2 and 3, so the diagonal contributions add: $K_{22} = ${ks[1]} + ${ks[2]} = ${val}$ kN/m.`)]; }
 );
+GU("Stavelementer og stivhetsmatriser",
+ // total potensiell energi for en gitt (lineær) prøvefunksjon
+ () => { const EA = R.p([100, 200, 400, 500]), L = R.p([1, 2]), q = R.p([0, 10, 20, 40]), P = R.p([10, 20, 50]), c = R.p([0.05, 0.1, 0.2]);
+   const U = EA * c * c * L / 2, Wq = q * c * L * L / 2, WP = P * c * L, Pi = U - Wq - WP;
+   return [T(`En stav ($EA = ${EA}$ kN, $L = ${L}$ m) er fast i $x = 0$, har jevn last $q = ${q}$ kN/m og punktlast $P = ${P}$ kN i enden. Regn ut den totale potensielle energien $\\Pi(u)$ for prøvefunksjonen $u(x) = ${mf(c)}\\,x$ (i kNm).`,
+       `A bar ($EA = ${EA}$ kN, $L = ${L}$ m) is fixed at $x = 0$, with a uniform load $q = ${q}$ kN/m and a point load $P = ${P}$ kN at the end. Compute the total potential energy $\\Pi(u)$ for the trial function $u(x) = ${mf(c)}\\,x$ (in kNm).`), { n: Pi, tol: rel(Pi, 0.01, 0.001), u: "kNm" },
+     T(`$\\Pi(u) = \\tfrac12\\int_0^L EA(u')^2dx - \\int_0^L q\\,u\\,dx - P\\,u(L)$. Med $u' = ${mf(c)}$:\n1. Tøyningsenergi: $\\tfrac12\\cdot ${EA}\\cdot ${mf(c)}^2\\cdot ${L} = ${mf(U, 3)}$.\n2. Fordelt last: $\\int_0^{${L}} ${q}\\cdot ${mf(c)}x\\,dx = ${q}\\cdot ${mf(c)}\\cdot\\frac{${L}^2}{2} = ${mf(Wq, 3)}$.\n3. Punktlast: $P\\,u(L) = ${P}\\cdot ${mf(c * L, 3)} = ${mf(WP, 3)}$.\n4. $\\Pi = ${mf(U, 3)} - ${mf(Wq, 3)} - ${mf(WP, 3)} = ${mf(Pi, 3)}$ kNm.`,
+       `$\\Pi(u) = \\tfrac12\\int_0^L EA(u')^2dx - \\int_0^L q\\,u\\,dx - P\\,u(L)$. With $u' = ${mf(c)}$:\n1. Strain energy: $\\tfrac12\\cdot ${EA}\\cdot ${mf(c)}^2\\cdot ${L} = ${mf(U, 3)}$.\n2. Distributed load: $\\int_0^{${L}} ${q}\\cdot ${mf(c)}x\\,dx = ${q}\\cdot ${mf(c)}\\cdot\\frac{${L}^2}{2} = ${mf(Wq, 3)}$.\n3. Point load: $P\\,u(L) = ${P}\\cdot ${mf(c * L, 3)} = ${mf(WP, 3)}$.\n4. $\\Pi = ${mf(U, 3)} - ${mf(Wq, 3)} - ${mf(WP, 3)} = ${mf(Pi, 3)}$ kNm.`)]; },
+ // Rayleigh–Ritz: beste c i u = c x ved å minimere Π
+ () => { const EA = R.p([100, 200, 400, 500]), L = R.p([1, 2]), q = R.p([0, 10, 20]), P = R.p([10, 20, 50]), c = (q * L / 2 + P) / EA, uL = c * L * 1000;
+   return [T(`Samme type stav: $EA = ${EA}$ kN, $L = ${L}$ m, $q = ${q}$ kN/m og $P = ${P}$ kN, fast i $x = 0$. Bruk prøvefunksjonen $u(x) = c\\,x$ og finn den $c$ som gjør $\\Pi$ minst. Hva blir da $u(L)$ (i mm)?`,
+       `The same kind of bar: $EA = ${EA}$ kN, $L = ${L}$ m, $q = ${q}$ kN/m and $P = ${P}$ kN, fixed at $x = 0$. Use the trial function $u(x) = c\\,x$ and find the $c$ that makes $\\Pi$ smallest. What is $u(L)$ then (in mm)?`), { n: uL, tol: rel(uL, 0.01, 0.001), u: "mm" },
+     T(`1. Sett inn: $\\Pi(c) = \\tfrac12 EA\\,c^2 L - q\\,c\\,\\frac{L^2}{2} - P\\,c\\,L$.\n2. Minimum der $\\frac{d\\Pi}{dc} = EA\\,c\\,L - q\\frac{L^2}{2} - P L = 0$, altså $c = \\frac{qL/2 + P}{EA} = \\frac{${mf(q * L / 2)} + ${P}}{${EA}} = ${mf(c, 5)}$.\n3. $u(L) = cL = ${mf(c * L, 5)}$ m $= ${mf(uL, 3)}$ mm.\n4. Eksakt er $u(L) = \\frac{PL + qL^2/2}{EA}$ – det samme! En rett linje kan likevel ikke følge krumningen inne i staven når $q > 0$.`,
+       `1. Insert: $\\Pi(c) = \\tfrac12 EA\\,c^2 L - q\\,c\\,\\frac{L^2}{2} - P\\,c\\,L$.\n2. Minimum where $\\frac{d\\Pi}{dc} = EA\\,c\\,L - q\\frac{L^2}{2} - P L = 0$, so $c = \\frac{qL/2 + P}{EA} = \\frac{${mf(q * L / 2)} + ${P}}{${EA}} = ${mf(c, 5)}$.\n3. $u(L) = cL = ${mf(c * L, 5)}$ m $= ${mf(uL, 3)}$ mm.\n4. The exact value is $u(L) = \\frac{PL + qL^2/2}{EA}$ – the same! A straight line still cannot follow the curvature inside the bar when $q > 0$.`)]; }
+);
 GU("Svak form og formfunksjoner",
  // Gateaux-deriverte med tall
  () => { const EA = R.p([2, 3, 4, 5]), c = R.p([1, 2, 3]), L = R.p([1, 2]), q = R.p([1, 2, 4, 6]), P = R.p([0, 1, 2, 3]), d = EA * c * L - q * L * L / 2 - P * L;
