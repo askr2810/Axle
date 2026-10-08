@@ -81,7 +81,7 @@ Ikonene ligger allerede i `assets/`, `web/icons/` og `store/`. Etter at iOS/Andr
 ```
 npm run assets
 ```
-Vil du endre ikonet: rediger `tools/make_icons.py`, kjør `npm run icons` og deretter `npm run assets`.
+Vil du endre logoen: legg de nye flisene i `brand/` (`axle-logo-a.png` = «A»-merket, `axle-logo.png` = ordmerket, kvadratiske PNG-er), kjør `npm run icons` (`tools/make_logo.py`, krever Pillow) og deretter `npm run assets`.
 
 ## 4. Android → Google Play
 

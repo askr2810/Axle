@@ -72,7 +72,7 @@ function studyPickHTML(first){
   return `<div class="dialog pop studypick" role="dialog" aria-label="${esc(t("stTitle"))}">
     <h3>${esc(t(first ? "stTitleFirst" : "stTitle"))}</h3><p>${esc(T("Velg ett eller flere. Du får fag, teori, utfordringer og verktøy som passer det du har valgt. ★ er det du ser først.", "Choose one or more. You get courses, theory, challenges and tools that fit your choices. ★ is what you see first."))}</p>
     ${STUDIES.map(s => { const on = !fresh && mine.includes(s.id), main = on && s.id === curStudy();
-      return `<div class="st-row"><button class="st-btn ${on ? "on" : ""}" data-a="studytog" data-s="${s.id}" aria-pressed="${on}"><span class="st-ic" aria-hidden="true">${s.ic}</span>
+      return `<div class="st-row"><button class="st-btn ${on ? "on" : ""}" data-a="studytog" data-s="${s.id}" aria-pressed="${on}"><span class="st-ic" aria-hidden="true">${ico(s.ic)}</span>
       <span><b>${esc(studyName(s))}</b><small>${esc(T(s.sub[0], s.sub[1]))} · ${esc(t("stCourses", studyCourses(s.id).length))}</small></span><i class="st-check" aria-hidden="true">${on ? "✓" : ""}</i></button>
       ${on && mine.length > 1 ? `<button class="st-star ${main ? "on" : ""}" data-a="studyset" data-s="${s.id}" aria-label="${esc(T("Vis først", "Show first"))}" title="${esc(T("Vis først", "Show first"))}">${main ? "★" : "☆"}</button>` : ""}</div>`; }).join("")}
     <p class="lp-note">${esc(t("stLater"))}</p>${first ? `<p class="lp-note">${esc(T("Axle er et gratis øvingsverktøy og kan inneholde feil. Ved å bruke appen godtar du", "Axle is a free practice tool and may contain mistakes. By using the app you accept the"))} <button class="exlink" data-a="terms">${esc(T("vilkårene", "terms"))}</button>.</p>` : ""}<button class="big" data-a="studydone" ${fresh ? "disabled" : ""}>${esc(first ? T("Fortsett", "Continue") : T("Ferdig", "Done"))}</button></div>`;
@@ -86,7 +86,8 @@ function studyClick(a, b){
     if(overlay && overlay.first && !S.studyPicked){ S.studyPicked = 1; S.studies = []; setStudy(id); } // første valg blir hovedstudiet
     else if(!toggleStudy(id)) toast(T("Du må ha minst ett studie", "You need at least one field"));
     renderOverlay(); }
-  else if(a === "studydone"){ const first = overlay && overlay.first; S.studySet = 1; S.studyPicked = 1; if(!inMyStudies(COURSE(S.current))) S.current = STUDY(S.study).home; save(); overlay = null; renderOverlay(); goHome(); if(first) setTimeout(bootPrompts, 400); }
+  else if(a === "studydone"){ const first = overlay && overlay.first; S.studySet = 1; S.studyPicked = 1; if(!inMyStudies(COURSE(S.current))) S.current = STUDY(S.study).home; save(); overlay = null; renderOverlay(); goHome();
+    if(first) setTimeout(bootPrompts, 400); }
   else if(a === "studyadd"){ toggleStudy(b.dataset.s); S.pickStudy = null; stBrowse = false; toast(T(`${studyName(STUDY(b.dataset.s))} er lagt til`, `${studyName(STUDY(b.dataset.s))} was added`)); render(); }
   else if(a === "studyshowall"){ S.showAll = !S.showAll; save(); render(); }
   else if(a === "studyview"){ S.pickStudy = b.dataset.s === curStudy() ? null : b.dataset.s; if(myStudies().includes(b.dataset.s)) stBrowse = false; saveLocal(); render(); }

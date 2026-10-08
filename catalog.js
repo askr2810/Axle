@@ -101,5 +101,5 @@ function catClick(a, b){
 // Kort på Øv og knapp i teorien
 function catCardHTML(c){
   const { calc, mc } = catIds(c, null); if(calc.length + mc.length < 4) return "";
-  return `<button class="qt-row cat-entry" data-a="catgo" data-c="${c.code}"><span class="qt-ic">📚</span><span><b>${esc(T("Løste oppgaver", "Solved problems"))}</b><small>${esc(T(`${calc.length} regneoppgaver og ${mc.length} forståelsesspørsmål i ${courseName(c)}, med fremgangsmåte`, `${calc.length} calculations and ${mc.length} concept questions in ${courseName(c)}, with methods`))}</small></span>${I.chevron}</button>`;
+  return `<button class="qt-row cat-entry" data-a="catgo" data-c="${c.code}"><span class="qt-ic">${I.book}</span><span><b>${esc(T("Løste oppgaver", "Solved problems"))}</b><small>${esc(T(`${calc.length} regneoppgaver og ${mc.length} forståelsesspørsmål i ${courseName(c)}, med fremgangsmåte`, `${calc.length} calculations and ${mc.length} concept questions in ${courseName(c)}, with methods`))}</small></span>${I.chevron}</button>`;
 }

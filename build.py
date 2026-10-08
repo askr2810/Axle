@@ -65,7 +65,7 @@ def build_www(js, css, out):
 <meta property="og:title" content="Axle – læring gjort enkelt">
 <meta property="og:description" content="{cfg['description_nb']}">
 <meta property="og:url" content="https://axle.no/">
-<meta property="og:image" content="https://axle.no/icons/icon-512.png">
+<meta property="og:image" content="https://axle.no/icons/og-image.png"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="/favicon.ico" sizes="48x48"><link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">

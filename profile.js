@@ -8,7 +8,7 @@ const TABS = [["home", "book2", "tabLearn"], ["practice", "bolt", "tabPractice"]
 function tabOf(){ return screen === "home" ? "home" : (screen === "practice" || screen === "community" || screen === "mydecks") ? "practice" : (screen === "book" && BK.v !== "unit" && BK.v !== "topic") || screen === "proofs" ? "book" : screen === "friends" ? "friends" : (screen === "profile" || screen === "badges") ? "profile" : screen === "person" ? (["badges", "profile", "admin"].includes(PS.from) ? "profile" : "friends") : screen === "admin" ? "profile" : null; }
 function tabbarHTML(active){
   return `<nav class="tabbar" aria-label="${esc(t("tabNav"))}"><div class="wrap">${TABS.map(([k, ic, lab]) =>
-    `<button class="${k === active ? "on" : ""}" data-a="tab" data-t="${k}" aria-current="${k === active ? "page" : "false"}">${(k === "practice" && !dcDoneToday()) || (k === "friends" && ((FR.reqs && FR.reqs.length) || (GR.inv && GR.inv.length) || IB.unread)) ? `<i class="tab-dot"></i>` : ""}${k === "profile" && hasMeAv() ? meAvHTML(26, "tab-av") : I[ic]}<span>${esc(t(lab))}</span></button>`).join("")}</div></nav>`;
+    `<button class="${k === active ? "on" : ""}" data-a="tab" data-t="${k}" aria-current="${k === active ? "page" : "false"}">${(k === "practice" && !dcDoneToday() && S.xp > 0) || (k === "friends" && ((FR.reqs && FR.reqs.length) || (GR.inv && GR.inv.length) || IB.unread)) ? `<i class="tab-dot"></i>` : ""}${k === "profile" && hasMeAv() ? meAvHTML(26, "tab-av") : I[ic]}<span>${esc(t(lab))}</span></button>`).join("")}</div></nav>`;
 }
 function renderTabbar(){
   document.querySelector(".tabbar")?.remove();
@@ -67,13 +67,13 @@ function renderProfile(){
       <div class="pf-head"><button class="pf-av" data-a="avedit" aria-label="${esc(t(hasMeAv() ? "avEdit" : "avMake"))}">${hasMeAv() ? meAvHTML(104) : `<span class="set-av0 big">${I.person}</span>`}<span class="pf-edit">${I.pencil}</span></button>
         <div class="pf-id"><b>${esc(S.name || t("pfYou"))}</b><span class="pf-lv">${esc(t("lvName", levelInfo(S.xp).lv))}</span>${isStaff() ? staffTag(S.appRole) : ""}${S.since ? `<span class="pf-since">${esc(t("pfSince", fmtDate(S.since)))}${+S.memberNo > 0 ? " · " + esc(t("pfMemberNo", S.memberNo)) : ""}</span>` : ""}<button class="exlink" data-a="pfname">${esc(t(S.name ? "frEditName" : "pfSetName"))}</button>
         <span class="pf-acc">${AUTH ? esc(AUTH.email || "") : `${esc(t("pfNotLogged"))} · <button class="exlink" data-a="aclogin">${esc(t("acLogin"))}</button>`}</span></div></div>
-      ${levelBarHTML(S.xp, S.xp)}
+      ${!(S.xp > 0) ? pfStartHTML() : `${levelBarHTML(S.xp, S.xp)}
       <div class="pf-grid">
         ${tile("statinfo", "streak", st, t("pfStreak"), I.fire)}${tile("statinfo", "streak", best, t("ssBest"), I.fire)}${tile("statinfo", "xp", S.xp, "XP", I.bolt)}
         ${tile("statinfo", "crowns", cr, t("pfCrowns"), I.crown)}${tile("", "", lv, t("pfLevels"), I.star16)}${tile("badges", "", nB + "/" + bdgAll().length, t("bdgTitle"), I.trophyS)}
       </div>
       <div class="pf-sec"><div class="pf-sh"><b>${esc(t("bdgTitle"))}</b><button class="exlink" data-a="badges">${esc(t("pfSeeAll"))}</button></div>
-        ${recent.length ? `<div class="pf-badges">${recent.map(b => `<button data-a="badges" title="${esc(bdgName(b))}">${badgeIcon(b, 50)}<small>${esc(bdgName(b))}</small></button>`).join("")}</div>` : `<p class="pf-empty">${esc(t("pfNoBadges"))}</p>`}</div>
+        ${recent.length ? `<div class="pf-badges">${recent.map(b => `<button data-a="badges" title="${esc(bdgName(b))}">${badgeIcon(b, 50)}<small>${esc(bdgName(b))}</small></button>`).join("")}</div>` : `<p class="pf-empty">${esc(t("pfNoBadges"))}</p>`}</div>`}
       <div class="pf-sec"><div class="pf-sh"><b>${esc(t("pfCourses"))}</b><button class="exlink" data-a="pick">${esc(t("switchCourse"))}</button></div>
         ${courses.map(({ c, p }) => `<button class="pf-course ${c.code === S.current ? "sel" : ""}" data-a="choose" data-c="${esc(c.code)}"><span class="badge" style="background:${bkCol(c)}">${esc(courseShort(c))}</span>
           <span class="t"><b>${esc(courseName(c))}</b><span class="pf-bar"><i style="width:${p.d / p.tot * 100}%"></i></span></span><span class="n">${Math.round(p.d / p.tot * 100)} %</span></button>`).join("")}</div>
@@ -84,6 +84,13 @@ function renderProfile(){
         <button class="srow" data-a="feedback">${I.flag}<span class="lbl">${esc(t("setFeedback"))}</span>${I.chevron}</button>
       </div>
     </main>`;
+}
+// Helt ny (0 XP): i stedet for seks fliser med 0 og tomme merker, ett kort som forklarer hva som kommer og starter første leksjon.
+function pfStartHTML(){
+  const c = COURSE(S.current), nn = nextNode(c);
+  return `<div class="pf-start"><span class="pf-start-ic">${I.target}</span><b>${esc(T("Her kommer fremgangen din", "Your progress will show up here"))}</b>
+    <p>${esc(T("Dager på rad, XP, kroner og merker dukker opp her etter den første leksjonen. Det tar bare noen minutter.", "Days in a row, XP, crowns and badges show up here after your first lesson. It only takes a few minutes."))}</p>
+    ${nn ? `<button class="big" data-a="node" data-u="${nn[0]}" data-k="${nn[1]}">${esc(T("Ta første leksjon", "Take your first lesson"))}</button>` : ""}</div>`;
 }
 function nameDialogHTML(){
   return `<div class="dialog pop" role="dialog" aria-label="${esc(t("pfSetName"))}"><h3>${esc(t("frPickName"))}</h3><p>${esc(t("pfNameText"))}</p>

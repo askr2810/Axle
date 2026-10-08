@@ -16,7 +16,7 @@ const tpFx = s => decPoint() ? String(s).replace(/\{,\}/g, ".") : String(s);
 function tpTileHTML(code, tp, label){
   const x = tpText(tp), key = x.f && x.f[0] ? x.f[0][0] : "";
   const dt = tp.pic && typeof DRIVE_TILE !== "undefined" ? DRIVE_TILE[tp.pic] : null;
-  const art = dt ? `<span class="tsignbox" aria-hidden="true">${FK_SIGNS[dt] ? fkSign(dt, 46) : `<span class="temo">${dt}</span>`}</span>` : tp.fig ? `<span class="tfig" aria-hidden="true">${tp.fig}</span>` : `<span class="tfx" aria-hidden="true">${key ? tex(tpFx(key)) : ""}</span>`;
+  const art = dt ? `<span class="tsignbox" aria-hidden="true">${FK_SIGNS[dt] ? fkSign(dt, 46) : `<span class="temo">${dt}</span>`}</span>` : tp.fig ? `<span class="tfig" aria-hidden="true">${tp.fig}</span>` : `<span class="tfx" aria-hidden="true">${key ? tex(tpFx(key)).replace(/<math(?=[\s>])/, '<math displaystyle="true"') : ""}</span>`;
   const seen = (S.topicSeen || {})[code + ":" + tp.id];
   return `<button class="tptile ${seen ? "seen" : ""}" data-a="bktopic" data-c="${esc(code)}" data-id="${esc(tp.id)}">${art}${label ? `<span class="tc">${esc(label)}</span>` : ""}<span class="tt">${esc(x.t)}</span></button>`;
 }
@@ -266,8 +266,8 @@ function cyHTML(code, u){
   return `<section class="cy" id="cyq" data-code="${esc(code)}" data-u="${u}"><h3>${esc(t("cyTitle"))}</h3><p class="cy-sub">${esc(t("cySub"))}</p>` +
     CY.items.map((it, q) => {
       const s = CY.sel[q];
-      return `<div class="cy-q"><div class="cy-p"><span class="cy-n">${q + 1}</span><div>${rich(it.prompt)}</div></div><div class="opts">` +
-        it.opts.map((o, i) => `<button class="opt ${s == null ? "" : o.ok ? "right" : s === i ? "wrong" : ""}" data-a="cyans" data-q="${q}" data-i="${i}" ${s == null ? "" : "disabled"}><span class="k">${"ABCD"[i] || i + 1}</span><span>${rich(o.t)}</span></button>`).join("") +
+      return `<div class="cy-q"><div class="cy-p"><span class="cy-n">${q + 1}</span><div>${richBig(it.prompt)}</div></div><div class="opts">` +
+        it.opts.map((o, i) => `<button class="opt ${s == null ? "" : o.ok ? "right" : s === i ? "wrong" : ""}" data-a="cyans" data-q="${q}" data-i="${i}" ${s == null ? "" : "disabled"}><span class="k">${"ABCD"[i] || i + 1}</span><span>${richBig(o.t)}</span></button>`).join("") +
         `</div>${s != null && it.expl ? `<div class="cy-e ${it.opts[s].ok ? "ok" : "bad"}"><b>${esc(t(it.opts[s].ok ? "cyRight" : "cyWrong"))}</b> ${rich(it.expl)}</div>` : ""}</div>`;
     }).join("") +
     `${done === CY.items.length ? `<p class="cy-score">${esc(t("cyScore", right, CY.items.length))}</p>` : ""}<button class="big ghost" data-a="cynew">${esc(t("cyNew"))}</button></section>`;

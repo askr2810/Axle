@@ -53,6 +53,7 @@ let DC_NEXT = false;
 function bootPrompts(){
   if(screen !== "home" || overlay) return;
   if(studyNeedsAsk()){ screen = "welcome"; render(); return; } // helt ny: velkomstsiden (med språk og studievalg)
+  if(!S.lvAsked && !S.placed && !(S.xp > 0) && !isDrive(COURSE(S.current))){ S.lvAsked = 1; saveLocal(); overlay = { levelpick: 1 }; renderOverlay(); return; } // så: hvor vil du starte? (én gang)
   if(!S.langSet && !LANG_BROWSER_NB){ overlay = "langpick"; renderOverlay(); return; } // språk (bare når nettleseren ikke er norsk)
   if(AUTH && !S.acEver){ S.acEver = 1; saveLocal(); } // denne enheten har vært innlogget: aldri vis innloggings-popupen
   // innlogging tilbys først når man har prøvd appen litt (ellers lager mange en konto og forsvinner før de har sett noe)
@@ -65,7 +66,7 @@ function bootPrompts(){
 // Tospråklig, siden vi ennå ikke vet hvilket språk personen leser.
 function langPickHTML(){
   return `<div class="dialog pop langpick" role="dialog" aria-label="Velg språk / Choose language">
-    <div class="lp-ic" aria-hidden="true">🌍</div><h3>Velg språk<br><small>Choose language</small></h3>
+    ${PLATFORM === "claude" ? `<div class="lp-ic" aria-hidden="true">🌍</div>` : `<img class="lp-logo" src="icons/logo-192.png" width="96" height="96" alt="Axle">`}<h3>Velg språk<br><small>Choose language</small></h3>
     <button class="lp-btn" data-a="langpick" data-l="nb"><span class="lp-flag" aria-hidden="true">🇳🇴</span><span><b>Norsk</b><small>Bokmål</small></span></button>
     <button class="lp-btn" data-a="langpick" data-l="en"><span class="lp-flag" aria-hidden="true">🇬🇧</span><span><b>English</b><small>All courses and theory in English</small></span></button>
     <p class="lp-note">Kan endres i Innstillinger · Can be changed in Settings</p></div>`;

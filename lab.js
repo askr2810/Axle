@@ -133,7 +133,7 @@ function labsForCourse(code){
 }
 function labCourseHTML(c){
   const { big, sims } = labsForCourse(c.code); if(!big.length && !sims.length) return "";
-  return `<section class="lab-course"><div class="lab-course-h"><b>🧪 ${esc(T(`Labber i ${courseName(c)}`, `Labs in ${courseName(c)}`))}</b><small>${esc(T("Prøv og se effekten selv", "Try it and see the effect yourself"))}</small></div>
-    ${big.map(l => `<button class="lab-cbig" data-a="labgo" data-id="${l.id}"><span aria-hidden="true">${l.ic}</span><span><b>${esc(T(l.t[0], l.t[1]))}</b><small>${esc(T(l.sub[0], l.sub[1]))}</small></span>${I.chevron}</button>`).join("")}
+  return `<section class="lab-course"><div class="lab-course-h"><b>${esc(T(`Labber i ${courseName(c)}`, `Labs in ${courseName(c)}`))}</b><small>${esc(T("Prøv og se effekten selv", "Try it and see the effect yourself"))}</small></div>
+    ${big.map(l => `<button class="lab-cbig" data-a="labgo" data-id="${l.id}"><span class="lab-cic" aria-hidden="true">${ico(l.ic)}</span><span><b>${esc(T(l.t[0], l.t[1]))}</b><small>${esc(T(l.sub[0], l.sub[1]))}</small></span>${I.chevron}</button>`).join("")}
     ${sims.length ? `<div class="lab-csims hscroll">${sims.map(n => `<button class="lab-csim" data-a="labsim" data-s="${n}">${I.bolt}<span>${esc(T(SIMS[n].t[0], SIMS[n].t[1]))}</span></button>`).join("")}</div>` : ""}</section>`;
 }

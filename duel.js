@@ -224,8 +224,8 @@ function renderDuel(){
   if(v === "play"){
     const q = DU.qs[DU.me.i % DU.qs.length], lock = DU.locked;
     const head = DU.mode === "race" ? `<div class="du-bars" id="duopp">${duRaceBars()}</div><p class="du-qn">${esc(t("duQn", Math.min(DU.me.i + 1, DU.qs.length), DU.qs.length))}</p>` : duTugHTML();
-    $app.innerHTML = `<div class="du-top wrap">${head}</div><main class="wrap du-q">${q ? `<div class="sn-prompt">${rich(q.p)}</div><div class="opts sn-opts">` +
-      q.o.map((o, j) => `<button class="opt ${lock && j === q.k ? "right" : lock && DU.pick === j ? "wrong" : ""}" data-a="duans" data-i="${j}" ${lock ? "disabled" : ""}><span class="k">${"ABCD"[j]}</span><span>${rich(o)}</span></button>`).join("") + `</div>` : ""}</main>`;
+    $app.innerHTML = `<div class="du-top wrap">${head}</div><main class="wrap du-q">${q ? `<div class="sn-prompt">${richBig(q.p)}</div><div class="opts sn-opts">` +
+      q.o.map((o, j) => `<button class="opt ${lock && j === q.k ? "right" : lock && DU.pick === j ? "wrong" : ""}" data-a="duans" data-i="${j}" ${lock ? "disabled" : ""}><span class="k">${"ABCD"[j]}</span><span>${richBig(o)}</span></button>`).join("") + `</div>` : ""}</main>`;
     return;
   }
   // slutt
@@ -294,7 +294,7 @@ function renderLocal(){
   }
   const q = LO.q, half = p => `<div class="lo-half p${p} ${p === 1 ? "flip" : ""} ${LO.lock[p] ? "locked" : ""} ${LO.winner === p ? "won" : ""}">
       <div class="lo-score">${"●".repeat(LO.s[p])}<span>${"○".repeat(LO_WIN - LO.s[p])}</span></div>
-      ${q ? `<div class="lo-p">${rich(q.p)}</div><div class="opts lo-opts">${q.o.map((o, j) => `<button class="opt ${LO.winner != null && j === q.k ? "right" : LO.pick[p] === j && j !== q.k ? "wrong" : ""}" data-a="loans" data-p="${p}" data-i="${j}" ${LO.lock[p] || LO.winner != null ? "disabled" : ""}><span>${rich(o)}</span></button>`).join("")}</div>` : ""}
+      ${q ? `<div class="lo-p">${richBig(q.p)}</div><div class="opts lo-opts">${q.o.map((o, j) => `<button class="opt ${LO.winner != null && j === q.k ? "right" : LO.pick[p] === j && j !== q.k ? "wrong" : ""}" data-a="loans" data-p="${p}" data-i="${j}" ${LO.lock[p] || LO.winner != null ? "disabled" : ""}><span>${richBig(o)}</span></button>`).join("")}</div>` : ""}
       ${LO.lock[p] && (LO.winner == null || LO.winner === -1) && LO.winner !== p ? `<p class="lo-lock">${esc(t("loLocked"))}</p>` : ""}</div>`;
   $app.innerHTML = `<div class="lo">${half(1)}<div class="lo-mid"><b>${LO.s[1]}</b><button class="iconbtn" data-a="loclose" aria-label="${esc(t("back"))}">${I.x}</button><b>${LO.s[0]}</b></div>${half(0)}</div>`;
 }

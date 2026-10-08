@@ -146,7 +146,7 @@ function gmSub(id){
   if(id === "sn") return t("snSub"); if(id === "sp") return sp ? t("spBest", sp) : t("spSub");
   if(id === "mt") return mb ? t("mtBest", f1(mb)) : t("mtSub"); if(id === "tg") return S.tgBest ? t("spBest", S.tgBest + "/10") : t("tgSub"); if(id === "lab") return t("labSub"); if(id === "geo"){ const b = Object.values(S.geoBest || {}); return b.length ? t("spBest", Math.max(...b)) : t("geoSub"); } return tb ? t("spBest", tb) : t("tfSub");
 }
-const gmTile = g => `<button class="sn-tile ${g[4]}" data-a="${g[1]}"><span class="sn-ti">${g[2]}</span><b>${esc(t(g[3]))}</b><small>${esc(gmSub(g[0]))}</small></button>`;
+const gmTile = g => `<button class="sn-tile ${g[4]}" data-a="${g[1]}"><span class="sn-ti">${ico(g[2])}</span><b>${esc(t(g[3]))}</b><small>${esc(gmSub(g[0]))}</small></button>`;
 // Gamle innstillinger (homePins/homeHide) flyttes over én gang.
 function layMigrate(){
   if(S.pins) return;
@@ -161,32 +161,40 @@ const pinsOf = place => { layMigrate(); return (S.pins[place] || []).filter(id =
 function gamesSectionHTML(place){
   const pins = GAMES.filter(g => pinsOf(place).includes(g[0]));
   return `${pins.length ? `<div class="sn-entry ${place === "practice" ? "sn-sm" : ""}">${pins.map(gmTile).join("")}</div>` : ""}
-    <button class="qt-row gm-row" data-a="gamesmenu" data-p="${place}"><span class="gm-ics" aria-hidden="true">${GAMES.slice(0, 4).map(g => `<i class="${g[4]}">${g[2]}</i>`).join("")}</span><span><b>${esc(t("gmTitle"))}</b><small>${esc(t("gmSub"))}</small></span>${I.chevron}</button>`;
+    <button class="qt-row gm-row" data-a="gamesmenu" data-p="${place}"><span class="gm-ics" aria-hidden="true">${GAMES.slice(0, 4).map(g => `<i class="${g[4]}">${ico(g[2])}</i>`).join("")}</span><span><b>${esc(t("gmTitle"))}</b><small>${esc(t("gmSub"))}</small></span>${I.chevron}</button>`;
 }
 // Seksjonene per sted: [id, tekstnøkkel, tegnefunksjon(ctx)].
 const LAYOUT = {
   home: [["fav", "laySec_fav", () => favBarHTML()], ["dc", "laySec_dc", () => dcDoneToday() ? "" : dcCardHTML()], ["games", "laySec_games", () => gamesSectionHTML("home")]],
-  practice: [["dc", "laySec_dc", () => dcCardHTML()], ["games", "laySec_games", () => gamesSectionHTML("practice")], ["drill", "laySec_drill", () => drCardHTML()],
-    ["today", "laySec_today", x => todayCardHTML(x.c, x.today, x.goal, x.week)], ["community", "laySec_community", () => ccCardPracticeHTML()],
-    ["review", "laySec_review", x => x.wrongN ? `<button class="qt-row rev" data-a="review"><span class="qt-ic">${I.redo}</span><span><b>${esc(t("reviewBtn", x.wrongN))}</b><small>${esc(t("prRevSub"))}</small></span>${I.chevron}</button>` : `<p class="prac-empty">${esc(t("prRevNone"))}</p>`],
-    ["exams", "laySec_exams", x => isDrive(x.c) ? "" : (examHomeActions(x.c) ? `<div class="actions">${examHomeActions(x.c)}</div>` : "") + examHomeSection(x.c)]]
+  // Øv: det som er personlig og viktigst først (feil å repetere, dagens utfordring), så mer øving, spill, eksamen og uka.
+  practice: [["review", "laySec_review", x => x.wrongN ? `<button class="qt-row rev" data-a="review"><span class="qt-ic">${I.redo}</span><span><b>${esc(t("reviewBtn", x.wrongN))}</b><small>${esc(t("prRevSub"))}</small></span>${I.chevron}</button>` : ""],
+    ["dc", "laySec_dc", () => dcCardHTML()], ["drill", "laySec_drill", () => drCardHTML()], ["community", "laySec_community", () => ccCardPracticeHTML()],
+    ["games", "laySec_games", () => gamesSectionHTML("practice")],
+    ["exams", "laySec_exams", x => isDrive(x.c) ? "" : (examHomeActions(x.c) ? `<div class="actions">${examHomeActions(x.c)}</div>` : "") + examHomeSection(x.c)],
+    ["today", "laySec_today", x => todayCardHTML(x.c, x.today, x.goal, x.week)]]
 };
 function layOrder(place){
   layMigrate(); const ids = LAYOUT[place].map(s => s[0]), saved = ((S.layout || {})[place] || []).filter(id => ids.includes(id));
   return [...saved, ...ids.filter(id => !saved.includes(id))];
 }
 const layHidden = (place, id) => !!((S.hidden || {})[place] || {})[id];
+// Overskrifter mellom gruppene i Øv, så siden er lett å skanne (eksamen har sin egen overskrift).
+const LAY_GROUP = { practice: { review: ["Anbefalt nå", "Recommended now"], dc: ["Anbefalt nå", "Recommended now"], drill: ["Øv mer", "Practise more"],
+  community: ["Øv mer", "Practise more"], games: ["Spill", "Games"], today: ["Uka di", "Your week"] } };
 function layoutHTML(place, ctx){
-  return layOrder(place).filter(id => !layHidden(place, id)).map(id => LAYOUT[place].find(s => s[0] === id)[2](ctx || {})).join("");
+  const G = LAY_GROUP[place] || {}; let last = null;
+  return layOrder(place).filter(id => !layHidden(place, id)).map(id => {
+    const h = LAYOUT[place].find(s => s[0] === id)[2](ctx || {}); if(!h) return "";
+    const g = G[id] ? T(G[id][0], G[id][1]) : null, head = g && g !== last ? `<h2 class="prac-h">${esc(g)}</h2>` : ""; last = g; return head + h;
+  }).join("");
 }
-const layLinkHTML = place => `<button class="exlink lay-link" data-a="layopen" data-p="${place}">⚙️ ${esc(t(place === "home" ? "layHome" : "layPractice"))}</button>`;
+const layLinkHTML = place => `<button class="exlink lay-link" data-a="layopen" data-p="${place}">${I.gear}${esc(t(place === "home" ? "layHome" : "layPractice"))}</button>`;
 function gamesMenuHTML(place){
   const pins = pinsOf(place);
   return `<div class="dialog gm-menu" role="dialog" aria-label="${esc(t("gmTitle"))}"><div class="sheet-h"><h3>${esc(t("gmTitle"))}</h3><button class="iconbtn" data-a="closeov" aria-label="${esc(t("back"))}">${I.x}</button></div>
     ${gmList().map(g => { const on = pins.includes(g[0]);
-      return `<div class="gm-item"><button class="gm-open" data-a="${g[1]}"><span class="gm-ic ${g[4]}">${g[2]}</span><span><b>${esc(t(g[3]))}</b><small>${esc(gmSub(g[0]))}</small></span></button>
-        <button class="gm-pin ${on ? "on" : ""}" data-a="gmpin" data-g="${g[0]}" data-p="${place}" aria-pressed="${on}" title="${esc(t(on ? "gmUnpinAt" : "gmPinAt", t("layPlace_" + place)))}" aria-label="${esc(t(on ? "gmUnpinAt" : "gmPinAt", t("layPlace_" + place)))}">📌</button></div>`; }).join("")}
-    <p class="lp-note">${esc(t("gmPinNoteAt", t("layPlace_" + place)))}</p>${layLinkHTML(place)}</div>`;
+      return `<div class="gm-item"><button class="gm-open" data-a="${g[1]}"><span class="gm-ic ${g[4]}">${ico(g[2])}</span><span><b>${esc(t(g[3]))}</b><small>${esc(gmSub(g[0]))}</small></span>${I.chevron}</button></div>`; }).join("")}
+    ${layLinkHTML(place)}</div>`; // spill festes til forsiden under «Tilpass», ikke med egne knapper her
 }
 // «Tilpass menyer»: skjul og flytt seksjoner, og velg hvilke spill som vises som store fliser.
 function layoutEditHTML(place){
@@ -199,7 +207,7 @@ function layoutEditHTML(place){
         <button class="iconbtn lay-mv" data-a="laymove" data-p="${place}" data-id="${id}" data-d="-1" ${i === 0 ? "disabled" : ""} aria-label="${esc(t("layUp"))}">↑</button><button class="iconbtn lay-mv" data-a="laymove" data-p="${place}" data-id="${id}" data-d="1" ${i === order.length - 1 ? "disabled" : ""} aria-label="${esc(t("layDown"))}">↓</button>
         <button class="tog ${on ? "on" : ""}" data-a="laytog" data-p="${place}" data-id="${id}" role="switch" aria-checked="${on}" aria-label="${esc(t(sec[1]))}"></button></div>`; }).join("")}</div>
     <h4 class="lay-h">${esc(t("layPinned"))}</h4>
-    <div class="lay-games">${gmList().map(g => { const on = pins.includes(g[0]); return `<button class="lay-g ${on ? "on" : ""}" data-a="gmpin" data-g="${g[0]}" data-p="${place}" aria-pressed="${on}"><span class="gm-ic ${g[4]}">${g[2]}</span><small>${esc(t(g[3]))}</small></button>`; }).join("")}</div>
+    <div class="lay-games">${gmList().map(g => { const on = pins.includes(g[0]); return `<button class="lay-g ${on ? "on" : ""}" data-a="gmpin" data-g="${g[0]}" data-p="${place}" aria-pressed="${on}"><span class="gm-ic ${g[4]}">${ico(g[2])}</span><small>${esc(t(g[3]))}</small></button>`; }).join("")}</div>
     <button class="exlink lay-reset" data-a="layreset" data-p="${place}">${esc(t("layReset"))}</button></div>`;
 }
 function gmMenuClick(a, b){
