@@ -1,0 +1,79 @@
+# Skrivebordsappen (Tauri): bygges når en versjons-tag pushes, f.eks. «git tag v1.2.0 && git push origin v1.2.0».
+# Lager Axle.dmg (Mac, universal) og Axle-Setup.exe (Windows), legger dem på GitHub Releases
+# (…/releases/latest/download/Axle.dmg) og oppdaterer Homebrew-oppskriften Casks/axle.rb.
+# Bruker bare GitHubs gratis runnere.
+name: Skrivebordsapp
+on:
+  push: { tags: ['v*.*.*'] }
+  workflow_dispatch:
+    inputs:
+      tag: { description: 'Eksisterende tag å bygge (f.eks. v1.2.0)', required: true }
+permissions: { contents: write }
+concurrency: { group: 'release-${{ github.ref }}', cancel-in-progress: false }
+env:
+  TAG: ${{ inputs.tag || github.ref_name }}
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: macos-latest
+            args: --target universal-apple-darwin --bundles dmg
+            targets: aarch64-apple-darwin,x86_64-apple-darwin
+            out: Axle.dmg
+          - os: windows-latest
+            args: --bundles nsis
+            targets: x86_64-pc-windows-msvc
+            out: Axle-Setup.exe
+    runs-on: ${{ matrix.os }}
+    defaults: { run: { shell: bash } }
+    steps:
+      - uses: actions/checkout@v4
+        with: { ref: '${{ env.TAG }}' }
+      - uses: actions/setup-node@v4
+        with: { node-version: 22 }
+      - uses: actions/setup-python@v5
+        with: { python-version: '3.12' }
+      - uses: dtolnay/rust-toolchain@stable
+        with: { targets: '${{ matrix.targets }}' }
+      - uses: Swatinem/rust-cache@v2
+        with: { workspaces: desktop/src-tauri }
+      - name: Bygg web-appen
+        run: npm install --no-audit --no-fund && python build.py
+      - name: Versjon fra taggen
+        run: node -e "const f='desktop/src-tauri/tauri.conf.json',j=JSON.parse(require('fs').readFileSync(f));j.version=process.env.TAG.replace(/^v/,'');require('fs').writeFileSync(f,JSON.stringify(j,null,2))"
+      - run: npm install -g @tauri-apps/cli@2
+      - name: Ikoner
+        working-directory: desktop/src-tauri
+        run: tauri icon ../../release/www/icons/icon-512.png
+      - name: Bygg appen
+        working-directory: desktop
+        run: tauri build ${{ matrix.args }}
+      - name: Gi filen et fast navn
+        run: |
+          f=$(find desktop/src-tauri/target -path '*/bundle/*' \( -name '*.dmg' -o -name '*-setup.exe' \) | head -1)
+          echo "Fant: $f"; cp "$f" "${{ matrix.out }}"
+      - uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ env.TAG }}
+          name: Axle ${{ env.TAG }}
+          body: |
+            **Axle for Mac og Windows.** Last ned `Axle.dmg` (Mac) eller `Axle-Setup.exe` (Windows).
+            Mac med Homebrew: `brew tap askr2810/axle https://github.com/askr2810/axle && brew install --cask --no-quarantine axle`
+            Appen er ikke signert av Apple/Microsoft ennå: på Mac høyreklikk → Åpne første gang; på Windows velg «Mer informasjon» → «Kjør likevel».
+          files: ${{ matrix.out }}
+  cask:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with: { ref: main }
+      - name: Oppdater Casks/axle.rb
+        run: |
+          v="${TAG#v}"
+          curl -fsSL -o Axle.dmg "https://github.com/${{ github.repository }}/releases/download/${TAG}/Axle.dmg"
+          sha=$(sha256sum Axle.dmg | cut -d' ' -f1)
+          sed -i "s/^  version \".*\"/  version \"$v\"/; s/^  sha256 .*/  sha256 \"$sha\"/" Casks/axle.rb
+          git config user.name "github-actions[bot]"; git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add Casks/axle.rb && git commit -m "Homebrew: Axle $v" && git push origin HEAD:main || echo "Ingen endring"

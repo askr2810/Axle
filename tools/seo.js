@@ -379,6 +379,11 @@ ${art}
 <div class="ab-cards">${studies.map(([ic, h, p, u]) => `<a class="ab-card" href="${u}"><span class="ab-ic">${ic}</span><b>${h}</b><span>${p}</span></a>`).join('')}</div>
 <h2>${TT('Gratis, uten reklame', 'Free, no ads')}</h2>
 <p>${TT('Axle er gratis å bruke og har ingen reklame eller sporing fra tredjeparter. Appen fungerer i nettleseren på mobil, nettbrett og PC – og kan legges på hjemskjermen som en vanlig app.', 'Axle is free to use with no ads or third-party tracking. It works in the browser on phones, tablets and computers – and can be added to your home screen like a normal app.')}</p>
+<h2 id="last-ned">${TT('Last ned Axle', 'Download Axle')}</h2>
+<div class="ab-dl"><a class="cta" href="https://github.com/askr2810/axle/releases/latest/download/Axle.dmg"> ${TT('Last ned for Mac', 'Download for Mac')}</a> <a class="cta ghost" href="https://github.com/askr2810/axle/releases/latest/download/Axle-Setup.exe">${TT('Last ned for Windows', 'Download for Windows')}</a></div>
+<p>${TT('Med Homebrew på Mac:', 'With Homebrew on Mac:')}</p><pre><code>brew tap askr2810/axle https://github.com/askr2810/axle
+brew install --cask --no-quarantine axle</code></pre>
+<p>${TT('På iPhone og Android: åpne <a href="/">axle.no</a> og velg «Legg til på Hjem-skjerm» (Safari: Del-knappen, Chrome: menyen ⋮). Da får du Axle som app med ett trykk.', 'On iPhone and Android: open <a href="/">axle.no</a> and choose "Add to Home Screen" (Safari: the Share button, Chrome: the ⋮ menu). You then get Axle as an app with one tap.')}</p>
 <h2>${TT('Spørsmål og svar', 'Questions and answers')}</h2>
 ${faq.map(([q, a]) => `<details><summary>${q}</summary><p>${a}</p></details>`).join('')}
 <h2>${TT('Kontakt', 'Contact')}</h2>
