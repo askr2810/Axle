@@ -10,7 +10,7 @@ Anbefalt rekkefølge: nett → Google Play (lukket test) → App Store. Reklame 
 | Hva | Pris | Hvor |
 |---|---|---|
 | GitHub-konto | gratis | github.com |
-| Web3Forms-nøkkel (tilbakemeldinger til e-post) | gratis | web3forms.com – skriv inn **engidrilli@gmail.com**, nøkkelen kommer på e-post |
+| Web3Forms-nøkkel (tilbakemeldinger til e-post) | gratis | web3forms.com – skriv inn **support@axle.no**, nøkkelen kommer på e-post |
 | Google Play Console | 25 USD én gang | play.google.com/console (krever ID-verifisering) |
 | Apple Developer Program | 99 USD per år | developer.apple.com/programs |
 
@@ -29,7 +29,7 @@ npm test          # kjører alle oppgaver og all matte på norsk og engelsk
 npm run build     # lager release/www (nett + app) og dist/artifact.html
 ```
 Lim inn Web3Forms-nøkkelen i `config.js` (`web3formsKey: "..."`) og kjør `npm run build` på nytt.
-Uten nøkkel åpner «Send» i appen e-postappen med rapporten ferdig utfylt til engidrilli@gmail.com.
+Uten nøkkel åpner «Send» i appen e-postappen med rapporten ferdig utfylt til support@axle.no.
 
 Test lokalt: `npm run serve` og åpne http://localhost:8080 i nettleseren.
 
@@ -55,7 +55,7 @@ Test lokalt: `npm run serve` og åpne http://localhost:8080 i nettleseren.
 5. Vent til DNS har spredt seg (minutter til noen timer). Når GitHub viser grønn hake, kryss av **Enforce HTTPS**.
 6. Da ligger appen på **https://axle.no** og personvernsiden på **https://axle.no/privacy.html** (allerede lagt inn i `config.js` og butikktekstene).
 
-Tips: Tilbyr domene.no e-postvideresending, lag f.eks. `kontakt@axle.no` → engidrilli@gmail.com og bytt `contactEmail` i `config.js`. Det ser mer profesjonelt ut i butikkene.
+Tips: Tilbyr domene.no e-postvideresending, lag f.eks. `kontakt@axle.no` → support@axle.no og bytt `contactEmail` i `config.js`. Det ser mer profesjonelt ut i butikkene.
 
 ## 2b. Kontoer (Supabase) – valgfritt for brukeren
 
