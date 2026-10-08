@@ -109,7 +109,8 @@ function tex(m, display){ try{ return katex.renderToString(dec(m), { output: 'ma
 function inline(s){ // tekst med $matte$, **fet** og `kode`
   return dec(s).split(/(```[\s\S]*?```)/).map((blk, j) => {
     if(j % 2) return '<pre><code>' + esc(blk.replace(/^```\n?|\n?```$/g, '')) + '</code></pre>';
-    return blk.split('$').map((p, i) => i % 2 ? tex(p) : esc(p).replace(/\*\*([^*]+?)\*\*/g, '<b>$1</b>').replace(/`([^`]+)`/g, '<code>$1</code>')).join('');
+    return blk.split(/\$\$([^$]+)\$\$/).map((part, k) => k % 2 ? '<span class="dm">' + tex(part, true) + '</span>' : // $$…$$ midt i en linje
+      part.split('$').map((p, i) => i % 2 ? tex(p) : esc(p).replace(/\*\*([^*]+?)\*\*/g, '<b>$1</b>').replace(/`([^`]+)`/g, '<code>$1</code>')).join('')).join('');
   }).join('');
 }
 const plain = s => dec(s).replace(/\$[^$]*\$/g, ' ').replace(/\*\*/g, '').replace(/`/g, '').replace(/\s+/g, ' ').trim();

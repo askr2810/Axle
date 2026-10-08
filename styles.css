@@ -2395,3 +2395,4 @@ textarea.fbtext{width:100%;font:13px/1.4 var(--mono,monospace);border-radius:12p
 .nudge b{font-size:16px}.nudge p{margin:4px 0 10px;font-size:14px;line-height:1.4;color:var(--muted)}
 .nudge-btns{display:flex;gap:10px;align-items:center;flex-wrap:wrap}.nudge-btns .big{width:auto;padding-inline:18px;margin:0}
 .hg-steps{padding-left:22px;display:grid;gap:10px;font-size:15.5px;line-height:1.45}
+.dmath-in{display:block;margin:6px 0;overflow-x:auto}

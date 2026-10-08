@@ -9,8 +9,9 @@ function tex(s){
   return '<span class="mono">'+esc(s)+'</span>';
 }
 function inline(s){
-  return s.split(/(`[^`]+`|\$[^$]+\$)/g).map(p=>{
+  return s.split(/(`[^`]+`|\$\$[^$]+\$\$|\$[^$]+\$)/g).map(p=>{
     if(p.startsWith("`")&&p.endsWith("`")&&p.length>1) return "<code>"+esc(p.slice(1,-1))+"</code>";
+    if(p.startsWith("$$")&&p.endsWith("$$")&&p.length>4) return '<span class="dmath-in">'+texD(p.slice(2,-2))+"</span>"; // $$…$$ midt i en linje (f.eks. i en liste)
     if(p.startsWith("$")&&p.endsWith("$")&&p.length>1) return tex(p.slice(1,-1));
     return esc(p).replace(/(\d) (%|‰|°C|°|kr\b|kWh\b|kW\b|kN\b|mm\b|cm\b|m\/s\b|m\b|s\b|N\b|W\b|V\b|A\b|J\b|Hz\b|kg\b|g\b)/g, "$1\u00a0$2"); // tall og enhet på samme linje
   }).join("");
