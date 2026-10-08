@@ -1004,8 +1004,28 @@ function renderOverlay(){
 // ---------- teori og forkunnskaper ----------
 let TH = null; // {code, u, go:{u,k}|null}
 function openTheory(code, u, go){ TH = { code, u, go }; if(typeof stEv === "function") stEv("theory", code + ":" + u, "full"); (S.theorySeen ||= {})[code+":"+u] = 1; bdgToast(checkBadges()); save(); overlay = null; screen = "theory"; render(); window.scrollTo(0,0); }
+// Teorien i lag: hver ##-del blir et nummerert steg som kan åpnes. Det første (det enkle) er åpent,
+// resten viser bare tittel og en kort smakebit – så siden starter enkelt og ikke blir en tekstvegg.
+function thLayers(html, mid = ""){
+  const parts = html.split(/(?=<h3[ >])/); if(parts.length < 3) return mid + html;
+  let head = parts[0].startsWith("<h3") ? "" : parts.shift();
+  // «Hva handler det om?» er den enkle starten: den vises åpen, uten boks, før stegene
+  if(!head && /^<h3[^>]*>\s*(Hva handler|What is it about|What is this about|Kort fortalt|In short|Intuisjon|Intuition)/i.test(parts[0])) head = parts.shift();
+  // Forklaringene først, så oppsummeringen med formler, så «slik løser du» og til slutt vanlige feil.
+  const rank = p => { const h = (p.match(/^<h3[^>]*>([\s\S]*?)<\/h3>/) || [])[1] || "";
+    return /^(Kort oppsummert|Begreper|Key concepts|Concepts|Formler og begreper)/i.test(h) ? 2 : /^(Slik løser du|How to solve)/i.test(h) ? 3 : /^(Vanlige feil|Common mistakes|Typiske feil)/i.test(h) ? 4 : 1; };
+  parts.sort((a, b) => rank(a) - rank(b)); // stabil sortering: samme type beholder rekkefølgen
+  const prev = body => { const d = document.createElement("div"); d.innerHTML = body; d.querySelectorAll("math,.katex,svg,.sim,.mp,.mv,figure,.fig,table,ol,ul,pre,.dmath").forEach(x => x.remove()); d.querySelectorAll("h4").forEach(h => h.textContent += ": ");
+    const tx = d.textContent.replace(/\(\s*[,;]?\s*\)/g, "").replace(/\s+([.,;:])/g, "$1").replace(/\s+/g, " ").trim(); return tx.length > 110 ? tx.slice(0, 105).replace(/\s\S*$/, "") + " …" : tx; };
+  return head + mid + `<div class="ths-bar"><span>${esc(T(`${parts.length} steg – ta dem i rekkefølge`, `${parts.length} steps – take them in order`))}</span><button class="exlink" data-a="thsall">${esc(T("Åpne alle", "Open all"))}</button></div>` + parts.map((p, i) => {
+    const m = p.match(/^<h3([^>]*)>([\s\S]*?)<\/h3>/), body = m ? p.slice(m[0].length) : p, pv = prev(body);
+    return `<details class="ths" ${i === 0 && !head ? "open" : ""}><summary><span class="ths-n">${i + 1}</span><span class="ths-t"><h3${m ? m[1] : ""}>${m ? m[2] : ""}</h3>${pv ? `<small>${esc(pv)}</small>` : ""}</span></summary><div class="ths-b">${body}</div></details>`; }).join("");
+}
+document.addEventListener("toggle", () => { if(typeof fitSoon === "function") fitSoon(); }, true);
+document.addEventListener("click", e => { const b = e.target.closest && e.target.closest('[data-a="thsall"]'); if(!b) return; e.stopPropagation();
+  const all = [...document.querySelectorAll("details.ths")], open = !all.every(d => d.open); all.forEach(d => d.open = open); b.textContent = open ? T("Lukk alle", "Close all") : T("Åpne alle", "Open all"); }, true);
 function theoryBody(code, u, quiz){ const doc = theoryOf(code, u); if(!doc) return `<p>${esc(t("noTheory"))}</p>`; const src = withSims(code, u, withFigs(code, u, doc[LANG] || doc.nb));
-  return (typeof ttsBarHTML === "function" ? ttsBarHTML() : "") + tyKeyHTML(src) + richDoc(src) + (quiz ? cyHTML(code, u) : ""); }
+  return (typeof ttsBarHTML === "function" ? ttsBarHTML() : "") + thLayers(richDoc(src), tyKeyHTML(src)) + (quiz ? cyHTML(code, u) : ""); }
 function renderTheory(){
   if(!TH){ screen = "home"; renderHome(); return; }
   const c = COURSE(TH.code);

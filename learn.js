@@ -35,7 +35,9 @@ function BIQ(code, u, list) {
 function DEEP(code, title, nb, en, keepHead){
   const c = COURSES.find(x => x.code === code), u = c ? c.units.findIndex(x => x.title === title) : -1; if(u < 0) return;
   const doc = theoryOf(code, u); if(!doc) return;
-  const put = (src, add) => { const lines = String(src).split("\n"), i = lines.findIndex(l => /^###?\s+(Eksempel|Example)/i.test(l.trim()));
+  // Fordypningen legges før «Slik løser du oppgavene» (så eksempelet blir stående der det hører hjemme), ellers før første eksempel.
+  const put = (src, add) => { const lines = String(src).split("\n"), h = lines.findIndex(l => /^##\s+(Slik løser du|How to solve)/i.test(l.trim())),
+    i = h >= 0 ? h : lines.findIndex(l => /^###?\s+(Eksempel|Example)/i.test(l.trim()));
     if(i < 0){ // ingen eksempel: legg fordypningen foran huskeregelen (> …) helt til slutt, ellers bakerst
       let k = lines.length - 1; while(k > 0 && !lines[k].trim()) k--;
       if(k > 0 && /^>/.test(lines[k].trim())){ while(k > 0 && /^>/.test(lines[k - 1].trim())) k--; lines.splice(k, 0, add, ""); return lines.join("\n"); }
