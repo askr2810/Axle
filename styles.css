@@ -616,19 +616,35 @@ input[type="time"]{font:inherit;font-weight:700;border:2px solid var(--line);bor
 .dx-badge b{font-size:13px}
 @keyframes bdgpop{0%{transform:scale(.3);opacity:0}70%{transform:scale(1.12)}100%{transform:scale(1);opacity:1}}
 
+/* ---------- neste steg (øverst på forsiden) ---------- */
+.next-card{display:flex;align-items:center;gap:14px;width:100%;margin:14px 0 2px;padding:16px;border:0;border-radius:16px;background:var(--accent);color:#fff;text-align:left;font:inherit;box-shadow:0 5px 0 var(--accent-deep);cursor:pointer}
+.next-card:active{transform:translateY(3px);box-shadow:0 2px 0 var(--accent-deep)}
+.nx-t{flex:1;min-width:0;display:grid;gap:3px}
+.nx-t small{font-family:var(--mono);font-size:11.5px;font-weight:700;letter-spacing:.1em;text-transform:uppercase}
+.nx-t b{font-family:var(--display);font-weight:800;font-size:21px;line-height:1.2;text-wrap:balance}
+.nx-s{font-size:14px;font-weight:600}
+.next-card em{flex:none;font-style:normal;font-weight:800;letter-spacing:.04em;text-transform:uppercase;padding:10px 16px;border-radius:12px;background:#fff;color:var(--accent);box-shadow:0 3px 0 rgba(0,0,0,.18)}
+/* i mørk modus er accent for lys til hvit tekst: bruk den mørkere varianten */
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .next-card{background:var(--accent-deep);box-shadow:0 5px 0 color-mix(in srgb,var(--accent-deep) 60%,#000)}:root:not([data-theme="light"]) .next-card em{color:var(--accent-deep)}}
+:root[data-theme="dark"] .next-card{background:var(--accent-deep);box-shadow:0 5px 0 color-mix(in srgb,var(--accent-deep) 60%,#000)}
+:root[data-theme="dark"] .next-card em{color:var(--accent-deep)}
+.next-alt{display:flex;align-items:center;gap:6px;margin:8px auto 0;border:0;background:none;color:var(--accent);font-weight:700;font-size:14px;padding:8px 10px;border-radius:10px}
+.next-alt svg{width:16px;height:16px}
+
 /* ---------- dagens utfordring ---------- */
-.dc-card{display:flex;align-items:center;gap:12px;margin-top:12px;padding:12px 14px;border-radius:18px;color:#fff;background:linear-gradient(135deg,var(--u2),var(--accent));box-shadow:0 4px 0 var(--accent-deep)}
+.dc-card{display:flex;align-items:center;gap:12px;margin-top:12px;padding:12px 14px;border-radius:16px;color:var(--ink);background:var(--card);border:2px solid var(--line);border-bottom-width:4px}
 .dc-card.done{background:var(--card);color:var(--ink);border:2px solid var(--line);box-shadow:none}
-.dc-ic{display:grid;place-items:center;width:44px;height:44px;border-radius:14px;background:rgba(255,255,255,.2);flex:none}
+.dc-ic{display:grid;place-items:center;width:44px;height:44px;border-radius:14px;background:var(--gold);color:#fff;flex:none}
 .dc-card.done .dc-ic{background:color-mix(in srgb,var(--ok) 18%,transparent);color:var(--ok)}
 .dc-t{flex:1;min-width:0;display:grid;gap:2px}
 .dc-t b{font-family:var(--display);font-weight:800;font-size:17px}
-.dc-t>span{font-size:13.5px;opacity:.92;line-height:1.35}
+.dc-t>span{font-size:13.5px;color:var(--muted);line-height:1.35}
 .dc-card.done .dc-t>span{color:var(--muted);opacity:1}
 .dc-chips{display:flex;gap:5px;margin-top:4px}
-.dc-chip{font-family:var(--mono);font-size:11px;font-weight:700;padding:2px 7px;border-radius:7px;background:rgba(255,255,255,.22)}
+.dc-chip{font-family:var(--mono);font-size:11px;font-weight:700;padding:2px 7px;border-radius:7px;background:var(--accent-soft);color:var(--accent)}
 .dc-card.done .dc-chip{background:var(--accent-soft);color:var(--accent)}
-.dc-go{flex:none;border:0;border-radius:12px;padding:10px 16px;background:#fff;color:var(--accent);font-weight:800;letter-spacing:.04em;text-transform:uppercase;box-shadow:0 3px 0 rgba(0,0,0,.18)}
+.dc-go{flex:none;border:2px solid var(--line);border-bottom-width:4px;border-radius:12px;padding:8px 14px;background:var(--card);color:var(--accent);font-weight:800;letter-spacing:.04em;text-transform:uppercase}
+.dc-go:active{transform:translateY(2px);border-bottom-width:2px}
 
 /* ---------- ukeliga ---------- */
 .lg{gap:8px;background:linear-gradient(135deg,color-mix(in srgb,var(--gold) 22%,var(--card)),var(--card))}
@@ -925,6 +941,8 @@ body.has-tabs .toast{bottom:calc(84px + env(safe-area-inset-bottom,0px))}
 .gd-qh svg{width:14px;height:14px}
 .gd-p{font-size:17px;font-weight:600;margin-bottom:12px;line-height:1.45}
 .gd-try{color:var(--bad);font-weight:700;margin:10px 0 0;animation:gdShake .35s}
+.gd-hint{display:grid;gap:2px;margin-top:10px;padding:10px 12px;border-radius:12px;background:var(--accent-soft);color:var(--ink);font-size:15px;line-height:1.45;animation:pop .25s ease}
+.gd-hint b{font-family:var(--mono);font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--accent)}
 @keyframes gdShake{25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}
 .gd-foot{display:flex;gap:10px;align-items:center}
 .gd-back{flex:none;width:52px;height:52px;border-radius:14px;border:2px solid var(--line);background:var(--card);color:var(--ink);display:grid;place-items:center}
@@ -1197,7 +1215,7 @@ a.srow{text-decoration:none;color:inherit}
 .favchip.on{border-color:var(--accent);color:var(--accent)}
 .favchip.dr{background:color-mix(in srgb,var(--u2) 12%,var(--card));border-color:color-mix(in srgb,var(--u2) 40%,transparent)}
 /* Kilder til dagens utfordring */
-.dc-chip.dc-src{display:inline-flex;align-items:center;gap:4px;font:inherit;font-size:12px;font-weight:800;cursor:pointer;border:1.5px dashed rgba(255,255,255,.7);background:transparent;color:inherit}
+.dc-chip.dc-src{display:inline-flex;align-items:center;gap:4px;font:inherit;font-size:12px;font-weight:800;cursor:pointer;border:1.5px dashed var(--line);background:transparent;color:var(--muted)}
 .dc-chip.dc-src svg{width:13px;height:13px}
 .dcsrc{max-height:min(86vh,720px);display:flex;flex-direction:column}
 .dcs-opts{display:grid;gap:8px;margin:4px 0 10px}
@@ -2142,10 +2160,6 @@ textarea.fbtext{width:100%;font:13px/1.4 var(--mono,monospace);border-radius:12p
 @keyframes dvRing{from{stroke-dasharray:0 var(--C)}}
 @keyframes dvPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.015)}}
 /* rask quiz for nye brukere, og invitasjonen etterpå */
-.qk-card{display:flex;align-items:center;gap:14px;width:100%;margin:6px 0 14px;padding:16px;border:0;border-radius:22px;font:inherit;color:#fff;text-align:left;cursor:pointer;background:linear-gradient(135deg,#2B59C3,#7B4FD6);box-shadow:0 10px 24px -10px rgba(43,89,195,.7);animation:sgIn .45s ease-out,dvPulse 2.6s ease-in-out 1s infinite}
-.qk-card>span:nth-child(2){flex:1}.qk-card b{display:block;font:800 19px/1.2 var(--display)}.qk-card small{opacity:.92;font-size:13.5px}
-.qk-ic{display:grid;place-items:center;width:54px;height:54px;border-radius:16px;background:rgba(255,255,255,.2);font-size:28px}
-.qk-card em{font-style:normal;font-weight:900;padding:8px 14px;border-radius:99px;background:#fff;color:#2B59C3;white-space:nowrap}
 .lgi-score{margin:0 auto 6px;font:900 48px/1 var(--display);color:var(--accent);animation:sgPop .6s cubic-bezier(.3,1.6,.5,1)}
 .lgi-score small{font-size:20px;color:var(--muted)}
 .lgi-sub{color:var(--muted);font-size:14.5px}

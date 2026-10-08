@@ -364,10 +364,10 @@ function renderExam() {
   const c = COURSE(r.code), n = r.items.length, x = r.items[r.idx], it = x.it, a = r.answers[r.idx], flag = !!r.flags[r.idx];
   const answered = exAnsweredN(r), last = r.idx === n - 1;
   const head = `${t("exTask", x.task + 1)} · ${unitTitle(c, exUnitOf(x))} · ${exLetter(x.part)} · ${t("exPts", x.pts)}`;
-  let body = `<div class="krow"><p class="kicker">${esc(head)}</p><button class="kbtn" data-a="scratch">${I.pencil}${t("scratch")}</button></div><div class="prompt">${rich(it.prompt)}</div>`;
+  let body = `<div class="krow"><p class="kicker">${esc(head)}</p><button class="kbtn" data-a="scratch">${I.pencil}${t("scratch")}</button></div><div class="prompt">${richBig(it.prompt)}</div>`;
   if (it.type === "mc") {
     body += `<div class="opts" role="radiogroup" aria-label="${esc(t("pickAnswer"))}">` + it.opts.map((o, i) =>
-      `<button class="opt ${a === i ? "sel" : ""}" role="radio" aria-checked="${a === i}" data-a="exsel" data-i="${i}"><span class="k">${i + 1}</span><span>${rich(o.t)}</span></button>`).join("") + `</div>`;
+      `<button class="opt ${a === i ? "sel" : ""}" role="radio" aria-checked="${a === i}" data-a="exsel" data-i="${i}"><span class="k">${i + 1}</span><span>${richBig(o.t)}</span></button>`).join("") + `</div>`;
     body += `<div class="exunder"><p class="hint">${esc(t("exMcHint"))}</p>${exHasAnswer(x, a) ? `<button class="exlink" data-a="exclear">${esc(t("exClear"))}</button>` : ""}</div>`;
   } else {
     body += `<label class="num"><input id="exnum" inputmode="decimal" autocomplete="off" placeholder="${esc(t("answerPh"))}" value="${esc(a == null ? "" : a)}" aria-label="${esc(t("answerPh"))}">${it.u ? `<span class="u">${esc(it.u)}</span>` : ""}</label><p class="hint">${t("numHint")}</p>`;

@@ -42,6 +42,7 @@ function gdOpen(code, u, go){
   (S.theorySeen ||= {})[code + ":" + u] = 1; bdgToast(checkBadges()); save();
   overlay = null; screen = "guided"; render(); window.scrollTo(0, 0);
 }
+const gdHintHTML = (it, i) => { const h = wrongHint(it, i); return h ? `<div class="gd-hint"><b>${esc(T("Tips", "Hint"))}</b><span>${rich(h)}</span></div>` : ""; };
 function gdCardHTML(card, c){
   if(card.kind === "text"){
     const first = GD.i === 0;
@@ -51,10 +52,10 @@ function gdCardHTML(card, c){
   }
   if(card.kind === "q"){
     const it = card.it, right = card.done && !card.gaveUp;
-    return `<div class="gd-q"><div class="krow"><div class="gd-qh">${I.star16}${esc(t("gdCheck"))}</div><button class="kbtn" data-a="scratch">${I.pencil}${t("scratch")}</button></div><div class="gd-p">${rich(it.prompt)}</div><div class="opts">` +
+    return `<div class="gd-q"><div class="krow"><div class="gd-qh">${I.star16}${esc(t("gdCheck"))}</div><button class="kbtn" data-a="scratch">${I.pencil}${t("scratch")}</button></div><div class="gd-p">${richBig(it.prompt)}</div><div class="opts">` +
       it.opts.map((o, i) => { const w = card.wrong.includes(i), show = card.done && o.ok;
-        return `<button class="opt ${show ? "right" : w ? "wrong" : ""}" data-a="gdans" data-i="${i}" ${card.done || w ? "disabled" : ""}><span class="k">${"ABCD"[i] || i + 1}</span><span>${rich(o.t)}</span></button>`; }).join("") +
-      `</div>${card.wrong.length && !card.done ? `<p class="gd-try">${esc(t("gdTryAgain"))}</p>` : ""}
+        return `<button class="opt ${show ? "right" : w ? "wrong" : ""}" data-a="gdans" data-i="${i}" ${card.done || w ? "disabled" : ""}><span class="k">${"ABCD"[i] || i + 1}</span><span>${richBig(o.t)}</span></button>`; }).join("") +
+      `</div>${card.wrong.length && !card.done ? `<p class="gd-try">${esc(t("gdTryAgain"))}</p>${gdHintHTML(it, card.wrong[card.wrong.length - 1])}` : ""}
       ${card.done ? `<div class="cy-e ${right ? "ok" : "bad"}"><b>${esc(t(right ? (card.wrong.length ? "gdRightNow" : "cyRight") : "gdAnswer"))}</b> ${it.expl ? rich(it.expl) : ""}</div>` : ""}</div>`;
   }
   // slutt

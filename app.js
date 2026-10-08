@@ -19,6 +19,9 @@ function rich(s){
   s = String(s); if(decPoint()) s = s.replace(/\{,\}/g,".");
   return s.split(/```([\s\S]*?)```/g).map((p,i)=> i%2 ? '<pre class="code">'+esc(p.replace(/^\n|\n$/g,""))+"</pre>" : inline(p)).join("");
 }
+// Oppgavetekst, svaralternativer og fasit: brøker og andre uttrykk i full størrelse (displaystyle), ikke de små
+// tallene nettleseren ellers bruker for matte inne i tekst. Gjør det lettere å lese ½, ⅚ og lignende på mobil.
+const richBig = s => rich(s).replace(/<math(?=[\s>])/g, '<math displaystyle="true"');
 // teori-dokument (markering: ## ### - 1. > $$ ``` **fet**), se learn.js
 function texD(s){
   try{ if(window.katex) return katex.renderToString(s,{output:"mathml",displayMode:true,throwOnError:false}); }catch(e){}
@@ -187,7 +190,7 @@ function renderHome(){
   const now = new Date(); const dow = (now.getDay()+6)%7; const monday = addDays(now,-dow);
   const week = t("days").map((d,i)=>{ const k=dayKey(addDays(monday,i)); const on=(S.daily[k]||0)>0; const isT=i===dow;
     return `<div><span class="dot ${on?"on":""} ${isT&&!on?"today":""}">${on?'<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg>':""}</span>${d}</div>`; }).join("");
-  const nn = nextNode(c);
+  const nn = nextNode(c), fresh = !(S.xp > 0); // helt ny: bare ett tydelig neste steg, ingen utfordringer, spill eller nuller
   let path = "";
   c.units.forEach((u,ui)=>{
     const col = `var(--u${ui%3})`, dn = sub(c.code).done, crown = dn[ui+"-3"], locked = unitLocked(c,ui);
@@ -207,15 +210,15 @@ function renderHome(){
   $app.innerHTML = `
   <div class="top"><div class="wrap">
     <button class="chip" data-a="pick" aria-label="${t("switchCourse")}"><span class="code">${esc(courseShort(c))}</span><span class="nm">${esc(courseName(c))}</span>${I.down}</button>
-    <button class="stat fire ${st?"":"off"}" data-a="statinfo" data-k="streak" aria-label="${t("streakTitle")}: ${st}">${I.fire}${st}</button>
+    ${fresh ? "" : `<button class="stat fire ${st?"":"off"}" data-a="statinfo" data-k="streak" aria-label="${t("streakTitle")}: ${st}">${I.fire}${st}</button>
     <button class="stat crowns" data-a="statinfo" data-k="crowns" aria-label="${t("crownsTitle")}: ${crowns(c)}">${I.crown}${crowns(c)}</button>
-    <button class="stat xp" data-a="statinfo" data-k="xp" aria-label="${t("xpTitle")}: ${S.xp}">${I.bolt}${S.xp}</button>
+    <button class="stat xp" data-a="statinfo" data-k="xp" aria-label="${t("xpTitle")}: ${S.xp}">${I.bolt}${S.xp}</button>`}
   </div></div>
   <main class="wrap">
     ${noticeHTML()}
     ${duInviteHTML()}
-    ${quickCardHTML(c)}
-    ${layoutHTML("home")}
+    ${nextCardHTML(c, nn)}
+    ${fresh ? "" : layoutHTML("home")}
     ${examHomeActions(c) ? `<div class="actions">${examHomeActions(c)}</div>` : ""}
     ${preBarHTML(c)}
     ${path}
@@ -339,6 +342,26 @@ function makeItem(q, id){
   if(Array.isArray(ans)){ const opts = shuffle(ans.map((x,i)=>({t:x, ok:i===0}))); return { id, type:"mc", prompt, opts, expl }; }
   return { id, type:"num", prompt, n:ans.n, tol:ans.tol ?? Math.abs(ans.n)*0.01, u:ans.u||"", expl };
 }
+// Hint etter et feil svar, hentet fra forklaringen uten å røpe fasiten: helst setningen som forklarer akkurat
+// det feile svaret («Svaret 20 får du hvis …»), ellers metoden (det som står før første kolon i første setning).
+function wrongHint(it, i){
+  const ex = String(it.expl || ""), opt = it.opts && it.opts[i]; if(!ex || !opt) return "";
+  const norm = s => String(s).replace(/\\(left|right|,|;|!|\s)|[$\s{}]/g, "").replace(/−/g, "-").replace(/\\cdot/g, "·").toLowerCase();
+  const toks = s => { const out = [];
+    String(s).replace(/\$([^$]+)\$/g, (m, x) => { x.split(/=|\\approx|≈|<|>/).forEach(p => out.push(norm(p))); return m; });
+    (String(s).replace(/\$[^$]*\$/g, " ").match(/-?\d+(?:[.,]\d+)?/g) || []).forEach(x => out.push(norm(x)));
+    return out; };
+  const has = (s, a) => !!a && (toks(s).includes(a) || (a.length > 6 && norm(s).includes(a)));
+  const rawRight = String((it.opts.find(o => o.ok) || {}).t || ""), right = norm(rawRight), wrong = norm(opt.t);
+  const plain = x => String(x).toLowerCase().replace(/[`*]/g, ""), word = plain(rawRight).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const leaks = s => has(s, right) || (!rawRight.includes("$") && rawRight.length <= 40 && new RegExp(`(^|[^\\p{L}\\d])${word}($|[^\\p{L}\\d])`, "u").test(plain(s)));
+  const sents = ex.split(/(?<=[.!?])\s+(?=[A-ZÆØÅ$«(])/);
+  const own = sents.find(s => has(s, wrong) && !leaks(s));
+  if(own && own.length <= 220) return own;
+  let m = sents[0]; const k = m.replace(/\$[^$]*\$/g, x => x.replace(/:/g, "\u0000")).indexOf(":");
+  if(k > 8) m = m.slice(0, k) + ".";
+  return m.length <= 160 && !leaks(m) ? m : "";
+}
 function fmtAns(x){ const a=Math.abs(x); const d = a===0?0 : a>=1000?0 : a>=100?1 : a>=10?2 : a>=1?3 : 4; return nf(x,d); }
 function toMC(it){
   const f = x => fmtAns(x)+(it.u?" "+it.u:""), n = Math.abs(it.n)<1e-9 ? 0 : it.n;
@@ -406,10 +429,17 @@ function startQuick(code){
   if(!items.length){ toast(T("Ingen oppgaver her ennå.", "No questions here yet.")); return; }
   startLesson("quick", code, items);
 }
-// Kortet på forsiden for helt nye brukere (førerkort har sin egen gratis teoriprøve i drive.js).
-function quickCardHTML(c){
-  if((S.xp || 0) >= 30 || (S.quickDone || {})[c.code]) return "";
-  return `<button class="qk-card" data-a="quick"><span class="qk-ic" aria-hidden="true">⚡</span><span><b>${esc(T("Prøv 10 oppgaver", "Try 10 questions"))}</b><small>${esc(T(`Rask quiz i ${courseName(c)} · ca. 5 minutter · ingen innlogging`, `Quick quiz in ${courseName(c)} · about 5 minutes · no sign-in`))}</small></span><em>${esc(T("Start", "Start"))} →</em></button>`;
+// Øverst på forsiden: ett tydelig neste steg (samme som noden med START på stien). Helt nye får i tillegg
+// en liten lenke til den raske quizen (førerkort har sin egen gratis teoriprøve i drive.js).
+function nextCardHTML(c, nn){
+  const quick = (S.xp || 0) < 30 && !(S.quickDone || {})[c.code];
+  const alt = quick ? `<button class="next-alt" data-a="quick">${I.bolt}${esc(T("Eller test deg selv med 10 raske oppgaver", "Or test yourself with 10 quick questions"))}</button>` : "";
+  if(!nn) return alt;
+  const [u, k] = nn, started = Object.keys(sub(c.code).done).length > 0;
+  const theoryFirst = k === 0 && theoryOf(c.code, u) && !(S.theorySeen || {})[c.code + ":" + u];
+  const what = theoryFirst ? T("Kort teori, så oppgaver", "Short theory, then questions") : lvName(k);
+  return `<button class="next-card" data-a="node" data-u="${u}" data-k="${k}"><span class="nx-t"><small>${esc(started ? T("Neste steg", "Next step") : T("Start her", "Start here"))}</small>
+    <b>${esc(unitTitle(c, u))}</b><span class="nx-s">${esc(t("unit", u + 1))} · ${esc(what)}</span></span><em>${esc(started ? T("Fortsett", "Continue") : T("Start", "Start"))}</em></button>${alt}`;
 }
 // Etter den første quizen eller gratis teoriprøven: én vennlig invitasjon til å lage gratis konto (kan lukkes).
 function quizAccountAsk(ok, n){
@@ -507,12 +537,12 @@ function renderLesson(){
       <div class="lfoot"><div class="wrap">${shown ? `<p class="fc-q">${esc(t("flipAsk"))}</p><div class="fc-btns"><button class="big ghost fc-no" data-a="flipno">${esc(t("flipNo"))}</button><button class="big fc-yes" data-a="flipyes">${esc(t("flipYes"))}</button></div>` : `<button class="big" data-a="flipshow">${esc(t("flipShow"))}</button>`}</div></div></div>`;
     return;
   }
-  let body = `<div class="krow"><p class="kicker">${esc(lvl)}${it.type==="mc"?t("pickAnswer"):t("writeAnswer")}</p><button class="kbtn" data-a="scratch">${I.pencil}${t("scratch")}</button></div><div class="prompt">${rich(it.prompt)}</div>`;
+  let body = `<div class="krow"><p class="kicker">${esc(lvl)}${it.type==="mc"?t("pickAnswer"):t("writeAnswer")}</p><button class="kbtn" data-a="scratch">${I.pencil}${t("scratch")}</button></div><div class="prompt">${richBig(it.prompt)}</div>`;
   if(it.type==="mc"){
     body += `<div class="opts" role="radiogroup">` + it.opts.map((o,i)=>{
       let cls = L.sel===i ? "sel" : "";
       if(L.answered){ if(o.ok) cls="right"; else if(L.sel===i) cls="wrong"; }
-      return `<button class="opt ${cls}" role="radio" aria-checked="${L.sel===i}" data-a="sel" data-i="${i}" ${L.answered?"disabled":""}><span class="k">${i+1}</span><span>${rich(o.t)}</span></button>`;
+      return `<button class="opt ${cls}" role="radio" aria-checked="${L.sel===i}" data-a="sel" data-i="${i}" ${L.answered?"disabled":""}><span class="k">${i+1}</span><span>${richBig(o.t)}</span></button>`;
     }).join("") + `</div>`;
   } else {
     const cls = L.answered ? (L.ok?"right":"wrong") : "";
@@ -526,7 +556,7 @@ function renderLesson(){
     foot = `<div class="lfoot ${L.ok?"ok":"bad"} pop"><div class="wrap">
       <div class="fb-h ${L.ok&&L.combo>=3?"combo":""}">${L.ok?(L.combo>=3?`<span class="combo-fire">${I.fire}</span>`:I.okc):I.badc}${L.ok?(L.combo>=3?t("streakN",L.combo):t("correct")):t("notQuite")}${L.ok&&L.bonusNow?`<span class="combo-xp">+1 XP</span>`:""}</div>
       <button class="big" data-a="next">${t("cont")}</button>
-      ${L.ok?"":`<div class="fb-a">${t("rightAnswer")} ${rich(correctText(it))}</div>`}
+      ${L.ok?"":`<div class="fb-a">${t("rightAnswer")} ${richBig(correctText(it))}</div>`}
       ${L.tline && L.kind !== "exam" ? teacherBubble(L.code, esc(L.tline), 34, "tch-fb") : ""}
       ${it.expl?`<div class="fb-e">${rich(it.expl)}</div>`:""}
       ${L.ok || !theoryOf(L.code,+it.id.split(".")[0]) ? "" : `<button class="fb-th" data-a="thov">${I.book}${t("readTheory")}</button>`}
