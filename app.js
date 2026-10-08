@@ -382,37 +382,37 @@ function renderPick(){
 function acErr(e, sending){ const k = e && e.kind;
   const msg = t(k==="offline" ? "acErrOffline" : k==="rate" ? "acErrRate" : k==="badcode" ? "acBadCode" : sending ? "acErrSend" : "acError");
   return e && e.status && k!=="badcode" && k!=="rate" ? msg + " (" + e.status + (e.code ? " " + e.code : "") + ")" : msg; }
+let SET_SEC = null; // valgt kategori i innstillingene (null = oversikten)
+const SET_IC = {
+  look: svg('<circle cx="12" cy="12" r="9"/><circle cx="8" cy="10" r="1.3"/><circle cx="12" cy="7.5" r="1.3"/><circle cx="16" cy="10" r="1.3"/><path d="M12 21a2.5 2.5 0 0 1 0-5h1.5a2.5 2.5 0 0 0 0-5"/>'),
+  sound: svg('<path d="M6 16V11a6 6 0 0 1 12 0v5l1.5 2h-15zM10 20.5a2 2 0 0 0 4 0"/>'),
+  account: svg('<path d="M7 18.5a4.5 4.5 0 0 1-.6-9A6 6 0 0 1 18 9a4.5 4.5 0 0 1-.5 9.5z"/><path d="m9.5 13.5 2 2 3.5-3.5"/>'),
+  help: svg('<circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.6.3-1 .8-1 1.5v.7M12 17h.01"/>')
+};
 function renderSettings(){
   const goalOpts = [10,20,30,50], rem = S.reminder;
-  $app.innerHTML = `<div class="sheet"><div class="wrap settings">
-    <div class="sheet-h"><h1>${t("setTitle")}</h1><button class="iconbtn" data-a="profile" aria-label="${t("back")}">${I.x}</button></div>
-    <h3 class="sg-h">${esc(t("sgProfile"))}</h3>
-    <div class="sgroup"><button class="srow set-av" data-a="avedit">${hasMeAv() ? meAvHTML(48) : `<span class="set-av0">${I.users}</span>`}<span class="lbl">${t(hasMeAv() ? "avEdit" : "avMake")}<span class="sub">${t("avSetSub")}</span></span>${I.chevron}</button></div>
-    <h3 class="sg-h">${esc(t("sgLearning"))}</h3>
-    <div class="sgroup">
+  const sec = {
+    learn: `<div class="sgroup">
       <button class="srow" data-a="studyopen"><span class="lbl">${esc(t("stSetting"))}<span class="sub">${esc(myStudies().map(id => studyName(STUDY(id))).join(" · "))}</span></span>${I.chevron}</button>
       <div class="srow"><span class="lbl">${esc(T("Vis alt i appen", "Show everything"))}<span class="sub">${esc(T("Enhetssirkel, laber, bevis og alle fag – også det som ikke hører til studiene dine", "Unit circle, labs, proofs and all courses – also outside your studies"))}</span></span><button class="tog ${S.showAll?"on":""}" data-a="studyshowall" role="switch" aria-checked="${!!S.showAll}" aria-label="${esc(T("Vis alt i appen", "Show everything"))}"></button></div>
       <div class="srow"><span class="lbl">${t("setGoal")}<span class="sub">${t("setGoalUnit")}</span></span><div class="seg">${goalOpts.map(g=>`<button class="${(S.goal||10)===g?"on":""}" data-a="setgoal" data-g="${g}">${g}</button>`).join("")}</div></div>
       <button class="srow" data-a="dcsrcopen"><span class="lbl">${t("dcSrcSet")}<span class="sub">${esc(dcSrcLabel())}</span></span>${I.chevron}</button>
       <button class="srow" data-a="homecustom"><span class="lbl">${esc(t("layTitle"))}<span class="sub">${esc(t("laySetSub"))}</span></span>${I.chevron}</button>
-    </div>
-    <h3 class="sg-h">${esc(t("sgLook"))}</h3>
-    <div class="sgroup">
+    </div>`,
+    look: `<div class="sgroup">
       <div class="srow"><span class="lbl">${t("setLang")}</span><div class="seg"><button class="${LANG==="nb"?"on":""}" data-a="setlang" data-l="nb">Norsk</button><button class="${LANG==="en"?"on":""}" data-a="setlang" data-l="en">English</button></div></div>
       <div class="srow"><span class="lbl">${t("setTheme")}</span><div class="seg">${["auto","light","dark"].map(k=>`<button class="${(S.theme||"auto")===k?"on":""}" data-a="settheme" data-m="${k}" aria-pressed="${(S.theme||"auto")===k}">${esc(t("theme_"+k))}</button>`).join("")}</div></div>
       ${thSettingsHTML()}
       <div class="srow"><span class="lbl">${esc(t("setUnits"))}<span class="sub">${esc(t("setUnitsSub"))}</span></span><div class="seg">${[["si","SI"],["us","US"]].map(([k,l])=>`<button class="${(S.units||"si")===k?"on":""}" data-a="setunits" data-u="${k}" aria-pressed="${(S.units||"si")===k}">${l}</button>`).join("")}</div></div>
       <div class="srow"><span class="lbl">${esc(t("setDec"))}<span class="sub">${esc(t("setDecSub"))}</span></span><div class="seg">${[["auto",t("setDecAuto")],["comma","3,14"],["point","3.14"]].map(([k,l])=>`<button class="${(S.dec||"auto")===k?"on":""}" data-a="setdec" data-d="${k}" aria-pressed="${(S.dec||"auto")===k}">${esc(l)}</button>`).join("")}</div></div>
-    </div>
-    <h3 class="sg-h">${esc(t("sgSound"))}</h3>
-    <div class="sgroup">
+    </div>`,
+    sound: `<div class="sgroup">
       <div class="srow"><span class="lbl">${t("setReminder")}<span class="sub">${esc(pushNote() || t(NATIVE ? "setReminderSubApp" : "setReminderSubWeb"))}</span></span><button class="tog ${rem.on&&(NATIVE||pushSupported())?"on":""}" data-a="remtoggle" role="switch" aria-checked="${!!(rem.on&&(NATIVE||pushSupported()))}" aria-label="${t("setReminder")}" ${NATIVE||pushSupported()?"":"disabled"}></button></div>
       ${rem.on&&(NATIVE||pushSupported())?`<div class="srow"><span class="lbl">${t("setReminderTime")}</span><input type="time" id="remtime" value="${esc(rem.time)}"></div>${NATIVE?"":`<button class="srow" data-a="pushtest"><span class="lbl">${t("pushTest")}<span class="sub">${t("pushTestSub")}</span></span>${I.chevron}</button>`}`:""}
       <div class="srow"><span class="lbl">${t("setSound")}</span><button class="tog ${S.sound!==false?"on":""}" data-a="sndtoggle" role="switch" aria-checked="${S.sound!==false}" aria-label="${t("setSound")}"></button></div>
       <div class="srow"><span class="lbl">${t("setHaptics")}</span><button class="tog ${S.haptics?"on":""}" data-a="haptoggle" role="switch" aria-checked="${!!S.haptics}" aria-label="${t("setHaptics")}"></button></div>
-    </div>
-    <h3 class="sg-h">${esc(t("sgAccount"))}</h3>
-    ${CLOUD_ON ? (AUTH ? `<div class="sgroup">
+    </div>`,
+    account: `${CLOUD_ON ? (AUTH ? `<div class="sgroup">
       <div class="srow"><span class="lbl">${esc(AUTH.email||"")}<span class="sub">${esc(cloudStatusText())}</span></span></div>
       <button class="srow" data-a="acemail"><span class="lbl">${t("acEmailChange")}${AUTH.newEmail ? `<span class="sub">${esc(t("acEmailPending", AUTH.newEmail))}</span>` : ""}</span>${I.chevron}</button>
       <button class="srow" data-a="acsync"><span class="lbl">${t("acSyncNow")}</span>${I.chevron}</button>
@@ -424,9 +424,8 @@ function renderSettings(){
     <div class="sgroup">
       <button class="srow" data-a="backup"><span class="lbl">${t("bkMake")}<span class="sub">${t("bkMakeSub")}</span></span>${I.chevron}</button>
       <button class="srow" data-a="restore"><span class="lbl">${t("bkLoad")}<span class="sub">${t("bkLoadSub")}</span></span>${I.chevron}</button>
-    </div>
-    <h3 class="sg-h">${esc(t("sgHelp"))}</h3>
-    <div class="sgroup">
+    </div>`,
+    help: `<div class="sgroup">
       <button class="srow" data-a="feedback"><span class="lbl">${t("setFeedback")}</span>${I.chevron}</button>
       ${CLOUD_ON && AUTH ? `<button class="srow" data-a="frblocks"><span class="lbl">${t("blockList")}<span class="sub">${t("blockListSub")}</span></span>${I.chevron}</button>` : ""}
       <a class="srow" href="mailto:${esc(CONFIG.contactEmail)}?subject=${encodeURIComponent("Axle: rapport om misbruk")}"><span class="lbl">${t("abuseContact")}<span class="sub">${esc(CONFIG.contactEmail)}</span></span>${I.chevron}</a>
@@ -437,7 +436,25 @@ function renderSettings(){
       ${claudeDb&&isOwner?`<button class="srow" data-a="inbox"><span class="lbl">${t("setInbox","…")}</span>${I.chevron}</button>`:""}
     </div>
     <div class="sgroup"><div class="stext"><p><b>${esc(T(CONFIG.appName.nb,CONFIG.appName.en))}</b></p><p>${esc(t("about",CONFIG.appVersion))}</p></div></div>
-    <div class="sgroup"><button class="srow danger" data-a="reset"><span class="lbl">${t("setReset")}</span></button></div>
+    <div class="sgroup"><button class="srow danger" data-a="reset"><span class="lbl">${t("setReset")}</span></button></div>`
+  };
+  // Innstillingene er delt i fem kategorier: en oversikt med ikon og kort oppsummering, og én side per kategori.
+  // På PC står oversikten til venstre og den valgte kategorien til høyre.
+  const theme = t("theme_" + (S.theme || "auto")), on = rem.on && (NATIVE || pushSupported());
+  const SECS = [
+    ["learn", t("sgLearning"), I.target, "var(--accent)", [myStudies().map(id => studyName(STUDY(id))).join(", "), (S.goal || 10) + " XP " + T("om dagen", "a day")].filter(Boolean).join(" · ")],
+    ["look", t("sgLook"), SET_IC.look, "var(--u2)", [LANG === "en" ? "English" : "Norsk", theme].join(" · ")],
+    ["sound", t("sgSound"), SET_IC.sound, "var(--gold-deep)", [T("Påminnelse ", "Reminder ") + (on ? T("på", "on") : T("av", "off")), T("lyder ", "sounds ") + (S.sound !== false ? T("på", "on") : T("av", "off"))].join(" · ")],
+    ["account", t("sgAccount"), SET_IC.account, "var(--ok)", CLOUD_ON && AUTH ? (AUTH.email || "") : T("Logg inn og sikkerhetskopi", "Log in and backup")],
+    ["help", t("sgHelp"), SET_IC.help, "var(--muted)", T("Tilbakemelding, personvern og vilkår", "Feedback, privacy and terms")]
+  ];
+  const wide = matchMedia("(min-width:1100px)").matches, cur = sec[SET_SEC] ? SET_SEC : null, show = cur || (wide ? "learn" : null), S0 = SECS.find(x => x[0] === show);
+  const me = `<button class="set-me" data-a="avedit">${hasMeAv() ? meAvHTML(56) : `<span class="set-av0">${I.person}</span>`}<span class="lbl"><b>${esc(S.name || t(hasMeAv() ? "avEdit" : "avMake"))}</b><span class="sub">${esc(S.name ? t(hasMeAv() ? "avEdit" : "avMake") : t("avSetSub"))}</span></span>${I.chevron}</button>`;
+  const cats = `<div class="sgroup set-cats">${SECS.map(([k, name, ic, col, sub]) => `<button class="srow set-cat ${k === show ? "on" : ""}" data-a="setsec" data-s="${k}" aria-current="${k === show}"><span class="set-cat-ic" style="background:${col}">${ic}</span><span class="lbl">${esc(name)}<span class="sub">${esc(sub)}</span></span>${I.chevron}</button>`).join("")}</div>`;
+  $app.innerHTML = `<div class="sheet"><div class="wrap settings ${cur ? "in-sec" : ""}">
+    <div class="sheet-h">${cur && !wide ? `<button class="iconbtn set-back" data-a="setsec" data-s="" aria-label="${esc(t("back"))}">${I.left}</button>` : ""}<h1>${esc(cur && !wide ? S0[1] : t("setTitle"))}</h1><button class="iconbtn" data-a="profile" aria-label="${esc(t("back"))}">${I.x}</button></div>
+    <div class="set-cols"><nav class="set-nav">${me}${cats}<p class="set-ver">${esc(T(CONFIG.appName.nb, CONFIG.appName.en))} ${esc(CONFIG.appVersion)}</p></nav>
+    ${show ? `<section class="set-pane" aria-label="${esc(S0[1])}">${wide ? `<h2 class="set-pane-h"><span class="set-cat-ic" style="background:${S0[3]}">${S0[2]}</span>${esc(S0[1])}</h2>` : ""}${sec[show]}</section>` : ""}</div>
   </div></div>`;
   const tm = document.getElementById("remtime");
   if(tm) tm.addEventListener("change", async ()=>{ S.reminder.time = tm.value || "19:00"; save(); if(NATIVE){ if(await scheduleReminder()) toast(t("reminderOn", S.reminder.time)); } else { await pushResync(true); toast(t("reminderOn", S.reminder.time)); } });
@@ -1380,7 +1397,8 @@ document.addEventListener("click", async e=>{
   if(profileClick(a, b)) return; // tab-meny, profil og infoark
   if(a==="pick"){ screen="pick"; render(); window.scrollTo(0,0); }
   else if(a==="home"){ goHome(); }
-  else if(a==="settings"){ overlay=null; screen="settings"; render(); window.scrollTo(0,0); }
+  else if(a==="settings"){ overlay=null; SET_SEC=null; screen="settings"; render(); window.scrollTo(0,0); }
+  else if(a==="setsec"){ SET_SEC = b.dataset.s || null; render(); window.scrollTo(0,0); document.querySelector(".sheet")?.scrollTo(0,0); }
   else if(a==="dcstart"){ if(!dcDoneToday()) startChallenge(); }
   else if(a==="drstart"){ if(overlay){ overlay = null; renderOverlay(); } startDrill(b.dataset.t || "all"); }
   else if(a==="drpick"){ overlay = { drpick: 1 }; renderOverlay(); }
@@ -1546,6 +1564,8 @@ if(NATIVE){
     else if(screen==="exam"){ examFlush(); overlay={exam:"close"}; renderOverlay(); }
     else if(screen==="examReview"){ screen="examResult"; render(); window.scrollTo(0,0); }
     else if(screen==="book"){ bookBack(); }
+    else if(screen==="settings" && SET_SEC){ SET_SEC = null; render(); }
+    else if(screen==="settings"){ screen = "profile"; render(); }
     else if(screen!=="home"){ goHome(); }
     else PL.App.exitApp();
   });
