@@ -173,7 +173,10 @@ const blank = () => ({ v:1, current:"GMAT", theorySeen:{}, preHidden:{}, pickMod
   examPrefs:{time:"rec", custom:90, extra:0}, exams:{}, examLog:[], examRun:null });
 function loadLocal(){ try{ const r = JSON.parse(localStorage.getItem(LS_KEY)); if(r && r.v===1) return Object.assign(blank(), r); }catch(e){} return blank(); }
 function saveLocal(){ try{ localStorage.setItem(LS_KEY, JSON.stringify(S)); }catch(e){} }
-let S = loadLocal(); if(LANG_URL){ S.lang = LANG_URL; S.langSet = 1; saveLocal(); } LANG = S.lang || LANG; // langSet = valgt selv (spør ikke igjen)
+// ?lang= i adressen velger språk. I en innebygd lab (iframe på en norsk/engelsk nettside) gjelder sidens språk,
+// uten at det endrer språket personen har valgt i appen.
+function langOf(){ return (EMBED && LANG_URL) || S.lang || LANG; }
+let S = loadLocal(); if(LANG_URL && !EMBED){ S.lang = LANG_URL; S.langSet = 1; saveLocal(); } LANG = langOf(); // langSet = valgt selv (spør ikke igjen)
 const sub = code => (S.subjects[code] ||= { done:{}, wrong:[] });
 
 let remoteRef = null, remoteChain = Promise.resolve(), claudeDb = null, isOwner = false, FB_NO_DB = false;
@@ -188,7 +191,7 @@ async function nativeLoad(){
   if(!PL.Preferences) return;
   try{
     const { value } = await PL.Preferences.get({ key: LS_KEY });
-    if(value){ const r = JSON.parse(value); if(r && r.v===1 && (r.updatedAt||0) > (S.updatedAt||0)){ S = Object.assign(blank(), r); LANG = S.lang || LANG; saveLocal(); examBoot(screen==="home"); if(screen!=="lesson") render(); } }
+    if(value){ const r = JSON.parse(value); if(r && r.v===1 && (r.updatedAt||0) > (S.updatedAt||0)){ S = Object.assign(blank(), r); LANG = langOf(); saveLocal(); examBoot(screen==="home"); if(screen!=="lesson") render(); } }
   }catch(e){}
 }
 
@@ -1188,13 +1191,18 @@ function termsLoad(){
     const el = document.getElementById("termsbody"); if(el && TERMS_HTML[LANG]) el.innerHTML = TERMS_HTML[LANG];
   }).catch(() => { const el = document.getElementById("termsbody"); if(el) el.innerHTML = `<p><a href="https://axle.no/terms.html" target="_blank" rel="noopener">axle.no/terms.html</a></p>`; });
 }
+// Samme skjerm tegnet på nytt (et valg, en bryter): bli stående der du var – både på siden og i paneler som ruller selv
+// (ark, fokusrommet). Bytte av skjerm starter øverst som før (der det kalles scrollTo etter render).
 function render(){
-  const pane = document.querySelector("#app .sheet"), keep = pane && render.last === screen ? pane.scrollTop : null;
+  const same = render.last === screen, y = window.scrollY, path = el => { const p = []; for(let e = el; e && e.id !== "app"; e = e.parentElement) p.unshift([...e.parentElement.children].indexOf(e)); return p; };
+  const keep = same ? [...document.querySelectorAll("#app > *, #app > * > *, #app > * > * > *, #app .sheet")].filter(e => e.scrollTop > 0).map(e => [e.className, path(e), e.scrollTop]) : [];
   renderNow();
-  if(render.last !== screen && typeof stScreen === "function") stScreen(screen);
+  if(!same && typeof stScreen === "function") stScreen(screen);
   render.last = screen;
   if(typeof poDraw === "function") poDraw();
-  if(keep != null){ const np = document.querySelector("#app .sheet"); if(np) np.scrollTop = keep; }
+  if(!same) return;
+  for(const [cls, p, top] of keep){ let e = document.getElementById("app"); for(const i of p) e = e && e.children[i]; if(e && e.className === cls) e.scrollTop = top; }
+  if(window.scrollY !== y) window.scrollTo(0, y);
 }
 function renderNow(){
   applyTheme();
@@ -1331,7 +1339,7 @@ document.addEventListener("click", async e=>{
   else if(a==="bkfile") downloadBackup(overlay.code);
   else if(a==="bkshare") navigator.share({ title: backupFileName(), text: overlay.code }).catch(()=>{});
   else if(a==="bkimport"){ const v = document.getElementById("bkin").value; if(!v.trim()){ toast(t("bkEmpty")); return; }
-    if(importBackup(v)){ LANG = S.lang || LANG; overlay = null; renderOverlay(); render(); toast(t("bkDone")); } else toast(t("bkBad")); }
+    if(importBackup(v)){ LANG = langOf(); overlay = null; renderOverlay(); render(); toast(t("bkDone")); } else toast(t("bkBad")); }
   else if(a==="aclogin"){ overlay = { login:1, step:"email", email:"" }; renderOverlay(); }
   else if(a==="lgsend"){ const email = (document.getElementById("lgmail").value||"").trim().toLowerCase();
     if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){ overlay.err = t("acBadEmail"); renderOverlay(); return; }
@@ -1341,7 +1349,7 @@ document.addEventListener("click", async e=>{
   else if(a==="lgverify"){ const code = (document.getElementById("lgcode").value||"").replace(/\D/g,""), email = overlay.email;
     if(code.length < 6){ overlay.err = t("acBadCode"); renderOverlay(); return; }
     overlay = { login:1, step:"code", email, busy:true }; renderOverlay();
-    cloudVerify(email, code).then(()=>{ LANG = S.lang || LANG; S.acEver = 1; saveLocal(); overlay = null; renderOverlay(); render(); toast(t("acLoggedIn", email)); },
+    cloudVerify(email, code).then(()=>{ LANG = langOf(); S.acEver = 1; saveLocal(); overlay = null; renderOverlay(); render(); toast(t("acLoggedIn", email)); },
       e=>{ if(overlay && overlay.login){ overlay = { login:1, step:"code", email, err: acErr(e) }; renderOverlay(); } }); }
   else if(a==="lgback"){ overlay = { login:1, step:"email", email: overlay.email }; renderOverlay(); }
   else if(a==="acsync"){ cloudSync().then(()=>{ if(CLOUD.status==="ok") toast(t("acSyncedToast")); else if(CLOUD.status==="offline") toast(t("acOffline")); else if(CLOUD.status==="error") toast(t("acError")); }); }
@@ -1481,7 +1489,7 @@ if(!NATIVE && !window.claude && "serviceWorker" in navigator && /^https?:$/.test
     const snap = await ref.get(); remoteRef = ref;
     const r = snap.exists ? snap.data().state : null;
     if(r && r.v===1 && (r.updatedAt||0) > (S.updatedAt||0)){
-      const outbox = S.outbox; S = Object.assign(blank(), JSON.parse(JSON.stringify(r)), {outbox}); LANG = S.lang || LANG; saveLocal();
+      const outbox = S.outbox; S = Object.assign(blank(), JSON.parse(JSON.stringify(r)), {outbox}); LANG = langOf(); saveLocal();
       examBoot(false);
       if(screen==="home" || screen==="pick" || screen==="settings") render();
     } else if(S.updatedAt > ((r && r.updatedAt)||0)) pushRemote();

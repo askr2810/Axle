@@ -2605,7 +2605,7 @@ details.cat-mc{margin:6px 0}details.cat-mc>summary{cursor:pointer;font-size:12px
 @keyframes posbreath{0%,100%{transform:scale(1)}50%{transform:scale(1.12)}}
 @media (prefers-reduced-motion:reduce){.pos-big-ic{animation:none}}
 .pos-ctl{display:flex;align-items:center;gap:22px}
-.pos-play{width:78px;height:78px;border-radius:50%;border:0;background:var(--pc);color:#fff;font-size:26px;cursor:pointer;box-shadow:0 10px 30px rgba(0,0,0,.3);transition:transform .15s}
+.pos-play{width:78px;height:78px;border-radius:50%;border:0;background:var(--pc);color:#fff;font-size:26px;cursor:pointer;box-shadow:0 10px 30px rgba(0,0,0,.3);transition:transform .15s;display:grid;place-items:center}
 .pos-play:active{transform:scale(.94)}
 .pos-sm{width:52px;height:52px;border-radius:50%;border:0;background:rgba(255,255,255,.12);color:inherit;font-size:18px;cursor:pointer}.pos.light .pos-sm{background:rgba(0,0,0,.07)}
 .pos-sm-sp{width:52px}

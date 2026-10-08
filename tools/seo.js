@@ -40,7 +40,13 @@ const LAB_TOPIC = {
 // Laber per enhet (til fagsidene), samme som LABS[].units i lab.js.
 const LAB_UNIT = { 'VG1T:3': 0, 'VGR2:3': 0, 'GMAT:5': 0, 'GFYS:2': 1, 'VGFY1:1': 1, 'MAPE1300:0': 1, 'MAPE1300:1': 1 };
 const LAB_MAIN = [['enhetssirkel/utforsk', 'unitcircle/explore', 'Enhetssirkelen', 'The unit circle'], ['krefter/snorer', 'forces/ropes', 'Snorer, trinser og krefter', 'Ropes, pulleys and forces']];
-const embedSrc = r => `/?embed=1${L === 'en' ? '&lang=en' : ''}#/${r}`;
+// Illustrasjonene (tp.art) er tegnet med appens fargevariabler og skrifter (var(--accent), var(--body) …). Uten dem blir
+// søylene svarte og teksten for stor og havner utenfor. Hent variablene fra styles.css og bruk dem bare i illustrasjonene.
+const ART_CSS = (() => { const css = fs.readFileSync(path.join(ROOT, 'styles.css'), 'utf8'), blk = re => (css.match(re) || [, ''])[1];
+  const light = blk(/^:root\{([^}]*)\}/m), dark = blk(/:root:not\(\[data-theme="light"\]\)\{([^}]*)\}/);
+  return `.tpart{${light};margin:12px 0 16px;padding:14px 10px;background:var(--card);border:2px solid var(--line);border-radius:14px;color:var(--ink)}.tpart svg{display:block;width:100%;height:auto}`
+    + `@media (prefers-color-scheme:dark){.tpart{${dark}}}`; })();
+const embedSrc = r => `/?embed=1&lang=${L === 'en' ? 'en' : 'nb'}#/${r}`; // sidens språk, uansett hva personen har valgt i appen
 const simsOf = (c, u) => [].concat(SIMDATA.SIM_MAP[c.code + ':' + u] || []).filter(n => SIMDATA.SIMS[n]);
 const simTitle = n => SIMDATA.SIMS[n].t[L === 'en' ? 1 : 0];
 const words = s => new Set(String(s).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').split(/[^a-z0-9æøå]+/).filter(w => w.length >= 4).map(w => w.slice(0, 5)).filter(w => !['forde', 'syste', 'orden', 'order', 'distr'].includes(w)));
@@ -210,7 +216,7 @@ ${alt ? `<link rel="alternate" hreflang="nb" href="${SITE}${nbUrl}"><link rel="a
 <meta property="og:description" content="${esc(desc)}"><meta property="og:url" content="${SITE}${url}"><meta property="og:image" content="${SITE}/icons/og-image.png">
 <meta name="theme-color" content="#2B59C3"><link rel="icon" href="/favicon.ico" sizes="48x48"><link rel="icon" type="image/png" sizes="192x192" href="/icons/icon-192.png">
 ${jsonld ? `<script type="application/ld+json">${JSON.stringify(jsonld).replace(/</g, '\\u003c')}</script>` : ''}
-<style>${CSS}${M.FL_CSS || ''}.fig.fig-art svg{max-height:none}.fig.fig-art{padding:14px 10px}</style>
+<style>${CSS}${M.FL_CSS || ''}${ART_CSS}</style>
 </head>
 <body>
 <header><a class="logo" href="${L === 'nb' ? '/' : '/?lang=en'}">Axle</a><nav><a href="${hubUrl()}">${X().all}</a>${alt ? ` · <a href="${alt}" hreflang="${other()}" lang="${other()}">${X().other}</a>` : ''}</nav></header>
@@ -333,7 +339,7 @@ function topicPage(c, u, tp, prev, next){
   const desc = plain(x.intro).slice(0, 155);
   const lc = s => L === 'nb' ? s.toLowerCase() : s.charAt(0).toLowerCase() + s.slice(1);
   const body = `<h1>${esc(x.t)}</h1>
-${tp.art ? `<div class="fig fig-art">${tp.art()}</div>` : tp.fig ? `<div class="fig" aria-hidden="true">${tp.fig}</div>` : ''}
+${tp.art ? `<div class="tpart">${tp.art()}</div>` : tp.fig ? `<div class="fig" aria-hidden="true">${tp.fig}</div>` : ''}
 ${tp.pic && M.DRIVE_PICS[tp.pic] ? (p => `<figure class="pic">${p.svg}<figcaption>${esc(p.cap)}</figcaption></figure>`)(M.DRIVE_PICS[tp.pic](L)) : ''}
 <p class="lead">${inline(x.intro)}</p>
 ${(() => { const lb = topicLab(c, u, tp); return lb ? labFrame(lb) : ''; })()}

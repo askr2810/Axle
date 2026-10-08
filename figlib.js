@@ -160,7 +160,7 @@ FL.rc = (o = {}) => {
   if(type === "charge"){
     const P = FL.plot([[t => 1 - Math.exp(-t), "fl-sig2"]], [0, 5.6], [0, 1.15], [50, 22, 270, 140], { xl: "t", yl: "u_C" });
     let s = P.s + `<path d="M${P.X(0)} ${flN(P.Y(1))}H${flN(P.X(5.6))}" class="fl-dim" style="stroke-dasharray:5 4"/>` + flT(P.X(0) - 6, P.Y(1) + 4, "U", "fl-sym", "end");
-    [[1, "63 %"], [2, "86 %"], [3, "95 %"], [5, "99 %"]].forEach(([k, l]) => { const y = 1 - Math.exp(-k); s += `<path d="M${flN(P.X(k))} ${flN(P.Y(0))}V${flN(P.Y(y))}" class="fl-dim" style="stroke-dasharray:3 3"/><circle cx="${flN(P.X(k))}" cy="${flN(P.Y(y))}" r="3.5" class="fl-loadf"/>` + flT(P.X(k), P.Y(0) + 16, k === 1 ? "τ" : k + "τ", "fl-sym") + flT(P.X(k) + (k === 5 ? -4 : 6), P.Y(y) + (k === 1 ? 16 : -6), l, "fl-sm fl-lt", k === 5 ? "end" : "start"); });
+    [[1, "63 %"], [2, "86 %"], [3, "95 %"], [5, "99 %"]].forEach(([k, l]) => { const y = 1 - Math.exp(-k); s += `<path d="M${flN(P.X(k))} ${flN(P.Y(0))}V${flN(P.Y(y))}" class="fl-dim" style="stroke-dasharray:3 3"/><circle cx="${flN(P.X(k))}" cy="${flN(P.Y(y))}" r="3.5" class="fl-loadf"/>` + flT(P.X(k), P.Y(0) + 16, k === 1 ? "τ" : k + "τ", "fl-sym") + flT(P.X(k) + (k === 5 ? -6 : 6), P.Y(y) + 16, l, "fl-sm fl-lt", k === 5 ? "end" : "start"); });
     s += flT(200, 196, "τ = R·C", "fl-sym");
     return `<svg class="fl" viewBox="0 0 360 205" role="img">${s}</svg>`;
   }
@@ -246,9 +246,9 @@ FL.stressStrain = () => {
   let d = `M${flN(P.X(0))} ${flN(P.Y(0))}L${flN(P.X(0.12))} ${flN(P.Y(0.62))}`; d += `C${flN(P.X(0.13))} ${flN(P.Y(0.66))} ${flN(P.X(0.16))} ${flN(P.Y(0.6))} ${flN(P.X(0.3))} ${flN(P.Y(0.66))}`;
   d += `C${flN(P.X(0.45))} ${flN(P.Y(0.75))} ${flN(P.X(0.6))} ${flN(P.Y(1.02))} ${flN(P.X(0.75))} ${flN(P.Y(1))}C${flN(P.X(0.85))} ${flN(P.Y(0.98))} ${flN(P.X(0.9))} ${flN(P.Y(0.9))} ${flN(P.X(0.92))} ${flN(P.Y(0.82))}`;
   let s = P.s + `<path d="${d}" class="fl-sig2"/>` + `<path d="M${flN(P.X(0.04))} ${flN(P.Y(0.207))}h18v-${flN(0.31 * 150 * 0.65)}" class="fl-dim"/>` + flT(P.X(0.04) + 22, P.Y(0.12), "E", "fl-sym fl-vt", "start");
-  s += `<circle cx="${flN(P.X(0.12))}" cy="${flN(P.Y(0.62))}" r="4" class="fl-loadf"/>` + flT(P.X(0.12) - 6, P.Y(0.62) - 8, T("flytegrense", "yield"), "fl-sm fl-lt", "end");
+  s += `<circle cx="${flN(P.X(0.12))}" cy="${flN(P.Y(0.62))}" r="4" class="fl-loadf"/>` + flT(P.X(0.12) + 8, P.Y(0.62) + 16, T("flytegrense", "yield"), "fl-sm fl-lt", "start");
   s += `<circle cx="${flN(P.X(0.75))}" cy="${flN(P.Y(1))}" r="4" class="fl-loadf"/>` + flT(P.X(0.75), P.Y(1) - 10, T("strekkfasthet", "tensile strength"), "fl-sm fl-lt") + `<path d="M${flN(P.X(0.92))} ${flN(P.Y(0.82))}l6 6m0 -6l-6 6" class="fl-load"/>` + flT(P.X(0.92), P.Y(0.82) + 20, T("brudd", "fracture"), "fl-sm");
-  s += flT(P.X(0.06), P.Y(0) - 8, T("elastisk", "elastic"), "fl-sm", "start") + flT(P.X(0.45), P.Y(0) - 8, T("plastisk", "plastic"), "fl-sm");
+  s += flT(P.X(0.06), P.Y(0) + 15, T("elastisk", "elastic"), "fl-sm", "start") + flT(P.X(0.45), P.Y(0) + 15, T("plastisk", "plastic"), "fl-sm"); // under aksen, så de ikke treffer E-trekanten
   return `<svg class="fl" viewBox="0 0 360 200" role="img">${s}</svg>`;
 };
 

@@ -18,7 +18,7 @@ TOPICS("FEM", 0, [
     ex: "Constant $EA$, uniform load $q$, point load $P$:\n$u(x) = \\frac{1}{EA}\\big((P + qL)x - \\tfrac12 qx^2\\big)$ and $N(x) = P + q(L - x)$.",
     tip: "Displacement conditions are essential (built into the function space). Force conditions are natural (enter through the boundary term in the weak form)." } },
 { id: "potensiell-energi",
-  fig: `<svg viewBox="0 0 240 140"><path d="M30 118H214" class="dim"/><path d="M34 30Q120 190 206 30" class="a"/><circle cx="120" cy="110" r="5" class="af"/><text x="128" y="104">min Π</text><text x="40" y="26">Π</text></svg>`,
+  fig: `<svg viewBox="0 0 240 140"><path d="M30 118H214" class="dim"/><path d="M34 30Q120 190 206 30" class="a"/><circle cx="120" cy="110" r="5" class="af"/><text x="102" y="135">min Π</text><text x="40" y="26">Π</text></svg>`,
   nb: { t: "Total potensiell energi",
     intro: "Staven velger forskyvningen som gjør den totale potensielle energien minst. Energien er tøyningsenergien minus arbeidet lastene kan gjøre. Med $L^2$-indreproduktet $(f, g) = \\int_0^L fg\\,dx$ blir uttrykket kort.",
     f: [["\\Pi(u) = \\tfrac12\\int_0^L EA(u')^2dx - \\int_0^L F_x\\,u\\,dx - P\\,u(L)", "total potensiell energi"], ["\\Pi(u) = \\tfrac12 B(u, u) - F(u)", "kort form"]],
