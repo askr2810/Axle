@@ -568,11 +568,12 @@ function finishLesson(){
   if(L.kind==="challenge"){ S.dc = { day: L.meta.day, right: firstTry, n: L.total }; bdgStat("challenges"); }
   if(L.kind==="mydeck") mdRecord();
   if(L.kind==="quick"){ (S.quickDone ||= {})[L.code] = 1; }
+  if(L.kind==="homework" && typeof hwSubmit === "function") hwSubmit(L);
   const fcMsg = (L.kind==="focus" || (L.meta && L.meta.focus)) && typeof focRecord === "function" ? focRecord() : null;
   if(L.kind==="drill" || L.kind==="challenge") drRecord(); // grunnbegreper i utfordringen teller også i terpinga
   noteNightLesson();
   const wrong = new Set(s.wrong);
-  if(L.kind!=="challenge" && L.kind!=="drill" && L.kind!=="community" && L.kind!=="mydeck") L.firstWrong.forEach(id=>wrong.add(id)); // utfordringen blander fag, feil der havner ikke i «Repeter feil»
+  if(L.kind!=="challenge" && L.kind!=="drill" && L.kind!=="community" && L.kind!=="mydeck" && !(L.kind==="homework" && L.meta.hw.cc)) L.firstWrong.forEach(id=>wrong.add(id)); // utfordringen blander fag, feil der havner ikke i «Repeter feil»
   if(L.kind==="review") [...L.solved].forEach(id=>{ if(!L.firstWrong.has(id)) wrong.delete(id); });
   s.wrong = [...wrong];
   if(L.firstWrong.size === 0) bdgStat("flawless");
@@ -597,7 +598,7 @@ function flipGrade(ok){
 function renderLesson(){
   const it = L.queue[0];
   const pct = (L.maxHearts ? (L.done + (L.answered?1:0)) : L.solved.size) / L.total * 100;
-  const lvl = L.kind==="place" ? T("Finn nivået ditt · ", "Find your level · ") : L.kind==="unit" ? `${lvShort(L.meta.k)} · ${lvName(L.meta.k)} · ` : L.kind==="jump" ? t("jumpTest")+" · " : L.kind==="review" ? t("review")+" · " : L.kind==="challenge" ? t("dcTitle")+" · " : L.kind==="focus" ? "🎯 "+T("Mitt fokus","My focus")+" · " : L.kind==="drill" ? drTitle()+" · "+(it.drTag ? T(DR_TAGS[it.drTag][0], DR_TAGS[it.drTag][1])+" · " : "") : L.kind==="community" || L.kind==="mydeck" ? (L.meta.title||t("ccTitle"))+" · " : "";
+  const lvl = L.kind==="place" ? T("Finn nivået ditt · ", "Find your level · ") : L.kind==="unit" ? `${lvShort(L.meta.k)} · ${lvName(L.meta.k)} · ` : L.kind==="jump" ? t("jumpTest")+" · " : L.kind==="review" ? t("review")+" · " : L.kind==="challenge" ? t("dcTitle")+" · " : L.kind==="focus" ? "🎯 "+T("Mitt fokus","My focus")+" · " : L.kind==="drill" ? drTitle()+" · "+(it.drTag ? T(DR_TAGS[it.drTag][0], DR_TAGS[it.drTag][1])+" · " : "") : L.kind==="community" || L.kind==="mydeck" || L.kind==="homework" ? (L.meta.title||t("ccTitle"))+" · " : "";
   if(it.type==="flip"){ // flashcard
     const shown = !!L.flipShown;
     $app.innerHTML = `<div class="lesson"><div class="wrap lhead"><button class="iconbtn" data-a="quit" aria-label="${t("quitAria")}">${I.x}</button><div class="bar" role="progressbar" aria-valuenow="${Math.round(pct)}" aria-valuemin="0" aria-valuemax="100"><i style="width:${pct}%"></i></div><span class="combo">${L.combo>=2?L.combo+"×":""}</span><button class="iconbtn flag" data-a="report" aria-label="${t("report")}" title="${t("report")}">${I.flag}</button></div>
@@ -641,12 +642,13 @@ function renderLesson(){
 }
 function renderDone(){
   const r = L.result, m = Math.floor(r.secs/60), sec = r.secs%60, c = COURSE(L.code), u = L.meta && L.meta.u;
-  const title = L.kind==="place" ? (u > 0 ? T("Du kan mye allerede!", "You already know a lot!") : T("Fint, da starter vi fra bunnen", "Great, we'll start from the beginning")) : L.kind==="quick" ? T(`${L.total - L.firstWrong.size} av ${L.total} riktige!`, `${L.total - L.firstWrong.size} of ${L.total} correct!`) : L.kind==="community" ? t("ccDoneTitle") : L.kind==="drill" || L.kind==="mydeck" ? t("drDoneTitle") : L.kind==="challenge" ? t("dcDoneTitle") : L.kind==="focus" ? T("Fokusøkt fullført 🎯", "Focus session done 🎯") : L.kind==="jump" ? t("doneJump") : (L.kind==="unit" && L.meta.k===3) ? t("doneCrown") : r.acc===100 ? t("doneFlawless") : L.kind==="review" ? t("doneReview") : t("doneLevel", lvShort(L.meta.k));
+  const title = L.kind==="place" ? (u > 0 ? T("Du kan mye allerede!", "You already know a lot!") : T("Fint, da starter vi fra bunnen", "Great, we'll start from the beginning")) : L.kind==="quick" || L.kind==="homework" ? T(`${L.total - L.firstWrong.size} av ${L.total} riktige!`, `${L.total - L.firstWrong.size} of ${L.total} correct!`) : L.kind==="community" ? t("ccDoneTitle") : L.kind==="drill" || L.kind==="mydeck" ? t("drDoneTitle") : L.kind==="challenge" ? t("dcDoneTitle") : L.kind==="focus" ? T("Fokusøkt fullført 🎯", "Focus session done 🎯") : L.kind==="jump" ? t("doneJump") : (L.kind==="unit" && L.meta.k===3) ? t("doneCrown") : r.acc===100 ? t("doneFlawless") : L.kind==="review" ? t("doneReview") : t("doneLevel", lvShort(L.meta.k));
   const sub2 = L.kind==="place" ? (u >= c.units.length ? T("Du kan alt i dette faget. Velg gjerne et nytt fag.", "You know everything in this course. Pick a new one.") : u > 0 ? T(`Enhet 1–${u} er hoppet over. Du starter på «${unitTitle(c, u)}».`, `Units 1–${u} are skipped. You start at "${unitTitle(c, u)}".`) : T("Det er helt greit. Teorien tar deg steg for steg.", "That's perfectly fine. The theory takes you step by step.")) : L.kind==="drill" || L.kind==="mydeck" ? t("drDoneSub", L.total - L.firstWrong.size, L.total) : L.kind==="jump" ? t("jumpUnlocked", unitTitle(c,u)) : (L.kind==="unit" && L.meta.k===3) ? t("crownWon", unitTitle(c,u)) : null;
   $app.innerHTML = `<main class="wrap finish pop">
     ${doneHeroHTML(r)}
     <h1>${esc(title)}</h1>
     ${sub2?`<p>${esc(sub2)}</p>`:""}
+    ${L.kind==="homework" && typeof hwDoneHTML === "function" ? hwDoneHTML(L) : ""}
     <p>${r.streakUp?esc(t("streakLine",r.streak)):esc(courseName(c))}</p>
     <div class="tiles">
       <div class="tile t1"><small>${t("tileXp")}</small><b data-count="${r.gained}" data-pre="+">+${r.gained}</b></div>
@@ -1229,6 +1231,7 @@ function renderNow(){
   else if(screen==="ctl") renderCtl();
   else if(screen==="pomo") renderPomo();
   else if(screen==="teach") renderTeach();
+  else if(screen==="hw") renderHw();
   else if(screen==="welcome") renderWelcome();
   else if(screen==="edit") renderEdit();
   else if(screen==="mq") renderMq();
@@ -1290,7 +1293,7 @@ document.addEventListener("click", async e=>{
   if(grClick(a, b)) return; // grupper (handlinger som starter med "gr")
   if(studyClick(a, b)) return; // studier (studies.js)
   if(pfClick(a, b)) return; // bevis (proofs.js)
-  if(snEntryClick(a) || snClick(a, b) || spClick(a, b) || gmClick(a, b) || gmMenuClick(a, b) || duClick(a, b) || mdClick(a, b) || unitsClick(a, b) || tgClick(a, b) || fcClick(a, b) || labClick(a, b) || geClick(a, b) || mvClick(a) || ctClick(a, b) || catClick(a, b) || focClick(a, b) || poClick(a, b) || welClick(a, b) || edClick(a, b) || mqClick(a, b) || tcClick(a, b) || nudgeClick(a, b) || shareClick(a, b) || ibClick(a, b) || dvClick(a, b) || scClick(a, b) || cdClick(a, b) || thClick(a, b)) return; // snacks og lynrunde (snacks.js)
+  if(snEntryClick(a) || snClick(a, b) || spClick(a, b) || gmClick(a, b) || gmMenuClick(a, b) || duClick(a, b) || mdClick(a, b) || unitsClick(a, b) || tgClick(a, b) || fcClick(a, b) || labClick(a, b) || geClick(a, b) || mvClick(a) || ctClick(a, b) || catClick(a, b) || focClick(a, b) || poClick(a, b) || welClick(a, b) || edClick(a, b) || mqClick(a, b) || tcClick(a, b) || hwClick(a) || nudgeClick(a, b) || shareClick(a, b) || ibClick(a, b) || dvClick(a, b) || scClick(a, b) || cdClick(a, b) || thClick(a, b)) return; // snacks og lynrunde (snacks.js)
   if(adminClick(a, b)) return; // adminpanel og kunngjøringer (admin.js)
   if(psClick(a, b)) return; // profilsiden til andre + hvilke merker du viser (person.js)
   if(friendsClick(a, b)) return; // venner (handlinger som starter med "fr")
