@@ -150,7 +150,7 @@ const ED_FXQ = [["a⁄b", "\\frac{#@}{#?}", "Brøk", "Fraction"], ["x²", "#@^{#
   ["π", "\\pi ", "Pi", "Pi"], ["Δ", "\\Delta ", "Delta", "Delta"], ["α", "\\alpha ", "Alfa", "Alpha"], ["θ", "\\theta ", "Theta", "Theta"], ["ω", "\\omega ", "Omega", "Omega"], ["μ", "\\mu ", "My", "Mu"],
   ["°", "^{\\circ}", "Grader", "Degrees"], ["→", "\\to ", "Pil", "Arrow"], ["∫", "\\int_{#?}^{#?}", "Integral", "Integral"], ["Σ", "\\sum_{#?}^{#?}", "Sum", "Sum"], ["abc", "\\text{#?}", "Vanlig tekst (f.eks. enheter)", "Plain text (e.g. units)"]];
 function edFxClose(){ const b = document.getElementById("edfx"); if(b) b.remove(); try{ window.mathVirtualKeyboard && window.mathVirtualKeyboard.hide(); }catch(e){} }
-// o: { tex, onOk(tex), onDel? }
+// o: { tex, onOk(tex), onDel?, tpl? (mal som settes inn med tomme bokser, f.eks. \\frac{#?}{#?}) }
 async function edFx(o){
   edFxClose();
   const bg = document.createElement("div"); bg.className = "ed-fxbg"; bg.id = "edfx";
@@ -190,8 +190,10 @@ async function edFx(o){
       mf.value = cur; slot.innerHTML = ""; slot.appendChild(mf);
       mf.addEventListener("input", () => { cur = mf.getValue("latex-without-placeholders"); touched = true; src.value = cur; draw(); });
       mf.addEventListener("keydown", e => { if(e.key === "Enter" && !e.shiftKey){ e.preventDefault(); done("ok"); } });
+      if(o.tpl){ try{ mf.insert(o.tpl, { focus: true, selectionMode: "placeholder", format: "latex" }); cur = mf.getValue("latex-without-placeholders"); touched = true; src.value = cur; draw(); }catch(e){} }
       setTimeout(() => { try{ mf.focus(); }catch(e){} }, 60); return; }catch(e){ mf = null; }
   }
+  if(o.tpl && !cur){ cur = o.tpl.replace(/#[@?0]/g, ""); touched = true; src.value = cur; draw(); }
   slot.innerHTML = ""; bg.querySelector("#edfxdet").open = true; setTimeout(() => src.focus(), 30);
 }
 

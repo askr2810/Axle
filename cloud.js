@@ -108,6 +108,8 @@ function cloudSync(overwrite){
 let cloudChanged = false;
 function cloudRefreshUI(){
   if(typeof screen === "undefined") return;
+  // Logget inn fra velkomstsiden: kontoen har allerede valgt studie, så gå rett til forsiden.
+  if(screen === "welcome" && typeof studyNeedsAsk === "function" && !studyNeedsAsk()){ cloudChanged = false; screen = "home"; render(); return; }
   if(cloudChanged && (screen === "home" || screen === "pick")){ cloudChanged = false; render(); return; }
   if(screen === "settings" && !overlay) render();
 }

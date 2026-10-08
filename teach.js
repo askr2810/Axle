@@ -233,10 +233,53 @@ async function teOpen(id){
     TE.busy = false; if(screen === "tcedit") render(); }
 }
 const teDraft = () => { if(TE && !TE.id){ S.teDraft = { title: TE.title, qs: TE.qs }; saveLocal(); } };
+// Symbolmeny i oppgavebyggeren (som formelverktøyet i Word): tegn settes inn der markøren står.
+// Vanlige tegn settes inn som tekst; brøk, potens og rot åpner formelvinduet med tomme bokser å fylle ut.
+const TE_SYM = [
+  ["calc", ["Regning", "Arithmetic"], ["+", "−", "·", ":", "×", "÷", "=", "≠", "≈", "±", "<", ">", "≤", "≥", "(", ")", "%"]],
+  ["frac", ["Brøk og potens", "Fractions & powers"], [["\\frac{a}{b}", "\\frac{#?}{#?}", "Brøk", "Fraction"], ["x^2", "#?^{#?}", "Potens", "Power"], ["\\sqrt{x}", "\\sqrt{#?}", "Kvadratrot", "Square root"],
+    ["\\sqrt[n]{x}", "\\sqrt[#?]{#?}", "n-te rot", "n-th root"], ["2\\tfrac{1}{2}", "#?\\frac{#?}{#?}", "Blandet tall", "Mixed number"], ["x_n", "#?_{#?}", "Senket skrift", "Subscript"], ["|x|", "\\left|#?\\right|", "Tallverdi", "Absolute value"],
+    "½", "⅓", "¼", "¾", "²", "³"]],
+  ["geo", ["Geometri", "Geometry"], ["°", "π", "∠", "⊥", "∥", "△", "≅", "∼", "cm²", "m²", "cm³", "m³"]],
+  ["unit", ["Enheter", "Units"], ["mm", "cm", "m", "km", "g", "kg", "L", "dL", "mL", "kr", "s", "min", "h", "°C", "km/h", "m/s"]],
+  ["abc", ["Bokstaver", "Letters"], ["α", "β", "γ", "θ", "λ", "μ", "σ", "Δ", "Ω", "ω", "∞", "→"]]];
+function teSymHTML(){
+  const tab = TE_SYM.find(x => x[0] === TE.symTab) || TE_SYM[0];
+  return `<div class="te-symtabs" role="tablist">${TE_SYM.map(([k, l]) => `<button type="button" role="tab" aria-selected="${tab[0] === k}" class="${tab[0] === k ? "on" : ""}" data-a="tesymtab" data-k="${k}">${esc(T(l[0], l[1]))}</button>`).join("")}</div>
+    <div class="te-symk">${tab[2].map((it, j) => typeof it === "string" ? `<button type="button" data-a="tesym" data-j="${j}" aria-label="${esc(it)}">${esc(it)}</button>`
+      : `<button type="button" class="fx" data-a="tesym" data-j="${j}" title="${esc(T(it[2], it[3]))}" aria-label="${esc(T(it[2], it[3]))}">${rich("$" + it[0] + "$")}</button>`).join("")}
+      <button type="button" class="fx free" data-a="tefx" title="${esc(T("Skriv en hel formel", "Write a whole formula"))}">∑ ${esc(T("Formel", "Formula"))}</button></div>`;
+}
+// Siste tekstfelt læreren var i (spørsmål, svaralternativ, forklaring eller enhet)
+// Smart tekstfelt (samme som i fagfolk-redigereren): formler vises tegnet som brikker, ingen $ eller \\frac å se.
+const teRT = (k, i, j, val, ph, multi, cls = "") => `<div class="ed-rt te-rt ${cls}" contenteditable="true" role="textbox" spellcheck="true" data-te="${k}" data-i="${i}"${j != null ? ` data-j="${j}"` : ""} data-multi="${multi ? 1 : 0}" aria-label="${esc(ph)}" data-ph="${esc(ph)}">${edToHTML(val || "")}</div>`;
+// Husk hvor markøren sto i et smart felt, så et tegn fra menyen havner der
+document.addEventListener("selectionchange", () => { if(screen !== "tcedit" || !TE) return; const sel = document.getSelection(); if(!sel || !sel.rangeCount) return;
+  const r = sel.getRangeAt(0), n = r.startContainer, el = (n.nodeType === 1 ? n : n.parentElement); const f = el && el.closest && el.closest(".te-rt"); if(f){ TE.fe = f; TE.rng = r.cloneRange(); } });
+// Siste felt læreren var i (spørsmål, svaralternativ, forklaring eller enhet)
+function teTarget(){ const el = TE.fe; if(el && document.body.contains(el)) return el; return document.querySelector(`[data-te="q"][data-i="${TE.act || 0}"]`); }
+function teCaret(el){ el.focus(); const sel = document.getSelection(); let r = TE.rng && el.contains(TE.rng.startContainer) ? TE.rng : null;
+  if(!r){ r = document.createRange(); r.selectNodeContents(el); r.collapse(false); } sel.removeAllRanges(); sel.addRange(r); return r; }
+// Sett inn vanlig tekst (txt) eller en formel (fx = LaTeX) der markøren står
+function teIns(txt, fx){
+  const el = teTarget(); if(!el) return;
+  if(!el.isContentEditable){ const a = el.selectionStart ?? el.value.length, b = el.selectionEnd ?? a; el.focus(); el.setRangeText(fx ? "$" + fx + "$" : txt, a, b, "end"); el.dispatchEvent(new Event("input", { bubbles: true })); return; }
+  const r = teCaret(el);
+  if(!fx){ document.execCommand("insertText", false, txt); }
+  else { const tmp = document.createElement("span"); tmp.innerHTML = edChip(fx, false); const chip = tmp.firstChild, sp = document.createTextNode("\u00a0");
+    r.deleteContents(); r.insertNode(sp); r.insertNode(chip);
+    const s2 = document.getSelection(), r2 = document.createRange(); r2.setStartAfter(sp); r2.collapse(true); s2.removeAllRanges(); s2.addRange(r2); }
+  TE.rng = document.getSelection().rangeCount ? document.getSelection().getRangeAt(0).cloneRange() : null; TE.fe = el;
+  el.dispatchEvent(new Event("input", { bubbles: true }));
+}
+function teSymMount(i){
+  const bar = document.getElementById("tesym"), at = document.querySelector(`.te-q[data-qi="${i}"] .te-qq`); if(!bar || !at) return;
+  if(at.nextElementSibling !== bar) at.insertAdjacentElement("afterend", bar);
+}
 function renderTeEdit(){
   if(!TE) return teOpen(null);
-  const q = TE.qs, mc = (x, i) => `<div class="te-ans ok"><span>✓</span><input data-te="o" data-i="${i}" data-j="0" value="${esc(x.o[0] || "")}" placeholder="${esc(T("Riktig svar", "Correct answer"))}" aria-label="${esc(T("Riktig svar", "Correct answer"))}"></div>
-      ${x.o.slice(1).map((o, j) => `<div class="te-ans bad"><span>✗</span><input data-te="o" data-i="${i}" data-j="${j + 1}" value="${esc(o)}" placeholder="${esc(T("Feil svar", "Wrong answer"))}" aria-label="${esc(T("Feil svar", "Wrong answer"))}">${x.o.length > 2 ? `<button class="te-x" data-a="teodel" data-i="${i}" data-j="${j + 1}" aria-label="${esc(T("Fjern", "Remove"))}">✕</button>` : ""}</div>`).join("")}
+  const q = TE.qs, mc = (x, i) => `<div class="te-ans ok"><span>✓</span>${teRT("o", i, 0, x.o[0], T("Riktig svar", "Correct answer"))}</div>
+      ${x.o.slice(1).map((o, j) => `<div class="te-ans bad"><span>✗</span>${teRT("o", i, j + 1, o, T("Feil svar", "Wrong answer"))}${x.o.length > 2 ? `<button class="te-x" data-a="teodel" data-i="${i}" data-j="${j + 1}" aria-label="${esc(T("Fjern", "Remove"))}">✕</button>` : ""}</div>`).join("")}
       ${x.o.length < 4 ? `<button class="te-more" data-a="teoadd" data-i="${i}">＋ ${esc(T("Feil svar", "Wrong answer"))}</button>` : ""}`;
   const num = (x, i) => `<div class="te-num"><div class="te-ans ok"><span>✓</span><input data-te="n" data-i="${i}" inputmode="decimal" value="${esc(x.n)}" placeholder="${esc(T("Svaret (tall)", "The answer (number)"))}" aria-label="${esc(T("Svaret", "The answer"))}"></div><input class="te-u" data-te="u" data-i="${i}" value="${esc(x.u || "")}" placeholder="${esc(T("enhet", "unit"))}" aria-label="${esc(T("Enhet", "Unit"))}"></div>
       <div class="chips te-tol">${[[0, T("Helt likt", "Exact")], [1, "± 1 %"], [5, "± 5 %"]].map(([v, l]) => `<button class="${(+x.tol || 0) === v ? "on" : ""}" data-a="tetol" data-i="${i}" data-v="${v}">${esc(l)}</button>`).join("")}</div>`;
@@ -245,29 +288,42 @@ function renderTeEdit(){
   <main class="wrap te">
     ${TE.busy && !q.length ? `<p class="tc-note">${esc(T("Henter …", "Loading …"))}</p>` : ""}
     <label class="te-title"><span>${esc(T("Navn", "Name"))}</span><input id="tetitle" maxlength="80" value="${esc(TE.title)}" placeholder="${esc(T("F.eks. «Brøk 6B» eller «Gloser uke 12»", "E.g. \"Fractions 6B\""))}"></label>
-    ${q.map((x, i) => `<section class="te-q">
+    ${q.map((x, i) => `<section class="te-q" data-qi="${i}">
       <div class="te-qh"><b>${i + 1}</b><div class="seg te-type">${[["mc", T("Flervalg", "Choice")], ["num", T("Tall", "Number")], ["tf", T("Sant/usant", "True/false")]].map(([k, l]) => `<button class="${x.t === k ? "on" : ""}" data-a="tetype" data-i="${i}" data-k="${k}">${esc(l)}</button>`).join("")}</div>
         <button class="te-x" data-a="teqdel" data-i="${i}" aria-label="${esc(T("Slett oppgaven", "Delete the problem"))}" ${q.length < 2 ? "disabled" : ""}>🗑</button></div>
-      <div class="te-qq"><textarea data-te="q" data-i="${i}" rows="2" maxlength="500" placeholder="${esc(x.t === "tf" ? T("Skriv en påstand, f.eks. «Et kvadrat har fire like lange sider.»", "Write a statement") : T("Skriv spørsmålet, f.eks. «Hva er 3 · 4?»", "Write the question, e.g. \"What is 3 · 4?\""))}">${esc(x.q)}</textarea>
-        <button class="te-fx" data-a="tefx" data-i="${i}" title="${esc(T("Sett inn formel", "Insert formula"))}">∑</button></div>
-      <div class="te-pv" id="tepv${i}">${/\$/.test(x.q) ? rich(x.q) : ""}</div>
+      <div class="te-qq">${teRT("q", i, null, x.q, x.t === "tf" ? T("Skriv en påstand, f.eks. «Et kvadrat har fire like lange sider.»", "Write a statement") : T("Skriv spørsmålet, f.eks. «Hva er 3 · 4?»", "Write the question, e.g. \"What is 3 · 4?\""), true, "lg")}</div>
+      ${i === (TE.act || 0) ? `<div class="te-sym" id="tesym">${teSymHTML()}</div>` : ""}
       ${x.t === "num" ? num(x, i) : x.t === "tf" ? tf(x, i) : mc(x, i)}
-      ${x.e || x.showE ? `<textarea class="te-e" data-te="e" data-i="${i}" rows="2" maxlength="600" placeholder="${esc(T("Forklaring som vises etter svaret (valgfritt)", "Explanation shown after the answer (optional)"))}">${esc(x.e)}</textarea>` : `<button class="te-more" data-a="teeshow" data-i="${i}">＋ ${esc(T("Forklaring (valgfritt)", "Explanation (optional)"))}</button>`}
+      ${x.e || x.showE ? teRT("e", i, null, x.e, T("Forklaring som vises etter svaret (valgfritt)", "Explanation shown after the answer (optional)"), true, "te-e") : `<button class="te-more" data-a="teeshow" data-i="${i}">＋ ${esc(T("Forklaring (valgfritt)", "Explanation (optional)"))}</button>`}
     </section>`).join("")}
     ${q.length < 50 ? `<button class="te-add" data-a="teqadd">＋ ${esc(T("Ny oppgave", "New problem"))}</button>` : ""}
     ${TE.err ? `<p class="du-err">${esc(TE.err)}</p>` : ""}
   </main>
   <div class="ed-savebar"><div class="wrap"><span>${esc(T(`${q.length} ${q.length === 1 ? "oppgave" : "oppgaver"}`, `${q.length} problem${q.length === 1 ? "" : "s"}`))}</span><button class="kbtn ghost" data-a="tetest">${esc(T("Prøv selv", "Try it"))}</button><button class="kbtn" data-a="tesave" ${TE.busy ? "disabled" : ""}>${esc(TE.busy ? T("Lagrer …", "Saving …") : T("Lagre", "Save"))}</button></div></div>`;
   const m = $app.querySelector("main.te");
-  m.addEventListener("input", e => { const el = e.target, k = el.dataset.te; if(el.id === "tetitle"){ TE.title = el.value; teDraft(); return; } if(!k) return;
-    const x = TE.qs[+el.dataset.i]; if(!x) return;
-    if(k === "o") x.o[+el.dataset.j] = el.value; else x[k] = el.value;
-    if(k === "q"){ const pv = document.getElementById("tepv" + el.dataset.i); if(pv) pv.innerHTML = /\$/.test(el.value) ? rich(el.value) : ""; }
+  m.addEventListener("input", e => { const el = e.target.closest ? e.target.closest("[data-te], #tetitle") : e.target; if(!el) return; if(el.id === "tetitle"){ TE.title = el.value; teDraft(); return; }
+    const k = el.dataset.te, x = TE.qs[+el.dataset.i]; if(!k || !x) return; const v = el.isContentEditable ? edVal(el) : el.value;
+    if(k === "o") x.o[+el.dataset.j] = v; else x[k] = v;
     teDraft(); });
+  // Smarte felt: lim inn som ren tekst, Enter gir ikke linjeskift i svaralternativer, og trykk på en formel for å endre den
+  m.addEventListener("paste", e => { const el = e.target.closest && e.target.closest(".te-rt"); if(!el) return; e.preventDefault();
+    let t2 = (e.clipboardData || window.clipboardData).getData("text") || ""; if(el.dataset.multi !== "1") t2 = t2.replace(/\s*\n\s*/g, " ");
+    document.execCommand("insertHTML", false, edToHTML(t2)); });
+  m.addEventListener("keydown", e => { const el = e.target.closest && e.target.closest(".te-rt"); if(el && e.key === "Enter" && el.dataset.multi !== "1") e.preventDefault(); });
+  m.addEventListener("click", e => { const chip = e.target.closest(".te-rt .ed-mx"); if(!chip) return; const el = chip.closest(".te-rt");
+    edFx({ tex: chip.dataset.tex, onOk: v => { if(!document.body.contains(chip)) return; chip.dataset.tex = v; chip.innerHTML = tex(v); el.dispatchEvent(new Event("input", { bubbles: true })); },
+      onDel: () => { if(!document.body.contains(chip)) return; chip.remove(); el.dispatchEvent(new Event("input", { bubbles: true })); } }); });
+  // Symbolmenyen følger feltet læreren skriver i (tallsvaret tar bare tall, så der står den stille)
+  m.addEventListener("focusin", e => { const el = e.target, k = el.dataset && el.dataset.te; if(!k || k === "n") return; TE.fe = el; const i = +el.dataset.i;
+    if(i !== (TE.act || 0)){ TE.act = i; teSymMount(i); } });
+  m.addEventListener("mousedown", e => { if(e.target.closest("#tesym")) e.preventDefault(); });
 }
 function teClean(){
   const out = [], bad = i => { TE.err = T(`Oppgave ${i + 1} mangler noe.`, `Problem ${i + 1} is missing something.`); return null; };
-  for(const [i, x] of TE.qs.entries()){ const q = String(x.q || "").trim(); if(!q) return bad(i); const e = String(x.e || "").trim().slice(0, 600);
+  const long = (i, nb, en) => { TE.err = T(`Oppgave ${i + 1}: ${nb}.`, `Problem ${i + 1}: ${en}.`); return null; };
+  for(const [i, x] of TE.qs.entries()){ const q = String(x.q || "").trim(); if(!q) return bad(i); if(q.length > 500) return long(i, "spørsmålet er for langt (maks 500 tegn)", "the question is too long (max 500 characters)");
+    const e = String(x.e || "").trim(); if(e.length > 600) return long(i, "forklaringen er for lang (maks 600 tegn)", "the explanation is too long (max 600 characters)");
+    if(x.t === "mc" && x.o.some(o => String(o || "").trim().length > 150)) return long(i, "et svaralternativ er for langt (maks 150 tegn)", "an answer option is too long (max 150 characters)");
     if(x.t === "num"){ const n = +String(x.n).replace(/\s/g, "").replace(",", ".").replace("−", "-"); if(!Number.isFinite(n) || String(x.n).trim() === "") return bad(i); out.push({ t: "num", q, n, u: String(x.u || "").trim().slice(0, 20), tol: +x.tol || 0, e }); }
     else if(x.t === "tf") out.push({ t: "tf", q, a: +x.a ? 1 : 0, e });
     else { const o = x.o.map(s => String(s || "").trim()); if(o.some(s => !s)) return bad(i); if(new Set(o).size !== o.length){ TE.err = T(`Oppgave ${i + 1} har like svar.`, `Problem ${i + 1} has identical answers.`); return null; } out.push({ t: "mc", q, o, a: 0, e }); } }
@@ -296,8 +352,11 @@ function teClick(a, b){
     case "tetol": if(x){ x.tol = +d.v; teDraft(); render(); } return true;
     case "tetf": if(x){ x.a = +d.v; teDraft(); render(); } return true;
     case "teeshow": if(x){ x.showE = true; render(); setTimeout(() => document.querySelector(`[data-te="e"][data-i="${d.i}"]`)?.focus(), 30); } return true;
-    case "tefx": { const ta = document.querySelector(`[data-te="q"][data-i="${d.i}"]`), pos = ta ? ta.selectionStart : (x.q || "").length;
-      if(typeof edFx === "function") edFx({ tex: "", onOk: v => { x.q = (x.q || "").slice(0, pos) + (pos && !/\s$/.test((x.q || "").slice(0, pos)) ? " " : "") + "$" + v + "$ " + (x.q || "").slice(pos); teDraft(); render(); } }); return true; }
+    case "tesymtab": TE.symTab = d.k; { const bar = document.getElementById("tesym"); if(bar) bar.innerHTML = teSymHTML(); } return true;
+    case "tesym": { const tab = TE_SYM.find(z => z[0] === TE.symTab) || TE_SYM[0], it = tab[2][+d.j]; if(it == null) return true;
+      if(typeof it === "string"){ teIns(it); return true; }
+      const el = teTarget(); if(typeof edFx === "function") edFx({ tex: "", tpl: it[1], onOk: v => { if(el && document.body.contains(el)) TE.fe = el; teIns("", v); } }); return true; }
+    case "tefx": { const el = teTarget(); if(typeof edFx === "function") edFx({ tex: "", onOk: v => { if(el && document.body.contains(el)) TE.fe = el; teIns("", v); } }); return true; }
     case "tesave": teSave(); return true;
     case "tetest": { TE.err = null; const qs = teClean(); if(!qs){ render(); return true; } const items = lsItems(qs); startLesson("homework", S.current, items, { hw: { key: "", title: TE.title || T("Prøv selv", "Try it"), cc: true, test: true }, title: TE.title || T("Prøv selv", "Try it") }); return true; }
   }
