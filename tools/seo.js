@@ -147,7 +147,7 @@ const topicsOf = (c, u) => ((TOPIC_DB[c.code] || [])[u] || []);
 const fmtNum = x => M.nf(x, 3);
 
 // ---------- stil ----------
-const CSS = `.ab-hero h1{font-size:40px;line-height:1.1;margin:22px 0 8px}.ab-steps{display:grid;gap:10px}.ab-step{display:flex;gap:14px;background:var(--card);border:2px solid var(--line);border-radius:16px;padding:12px 16px}.ab-step h3{margin:2px 0}.ab-step p{margin:4px 0 0;color:var(--muted)}.ab-n{flex:none;width:34px;height:34px;border-radius:50%;display:grid;place-items:center;background:var(--acc);color:#fff;font-size:18px}.ab-cards{display:grid;gap:10px;grid-template-columns:repeat(auto-fill,minmax(220px,1fr))}.ab-card{display:grid;gap:4px;background:var(--card);border:2px solid var(--line);border-radius:16px;padding:14px;text-decoration:none;color:var(--ink)}.ab-card span:last-child{color:var(--muted);font-size:15px}.ab-ic{font-size:28px}.ab-art{background:var(--card);border:2px solid var(--line);border-radius:16px;padding:12px;color:var(--ink)}
+const CSS = `.dv-hero{margin:14px 0 6px;padding:22px 20px;border-radius:22px;background:linear-gradient(150deg,#1C3F91,#2B59C3 55%,#0F8A83);color:#fff}.dv-hero h1{color:#fff;font-size:34px;line-height:1.12;margin:6px 0 10px}.dv-hero .lead{color:#E6EEFF}.dv-hero .facts span{background:rgba(255,255,255,.14);color:#fff;border-color:transparent}.dv-hero .cta{background:#fff;color:#1C3F91}.dv-hero .cta.ghost{background:transparent;color:#fff;border:2px solid rgba(255,255,255,.6)}.dv-kick{margin:0;font-weight:700;opacity:.85}.dv-choose{display:grid;grid-template-columns:1fr 1fr;gap:10px}.dv-ch{display:grid;gap:2px;justify-items:center;text-align:center;background:var(--card);border:2px solid var(--line);border-radius:18px;padding:16px 10px;text-decoration:none;color:var(--ink)}.dv-ch.on{border-color:var(--acc);box-shadow:0 0 0 3px color-mix(in srgb,var(--acc) 20%,transparent)}.dv-ci{font-size:34px}.dv-ch small{color:var(--muted)}.dv-pics{display:grid;gap:12px;grid-template-columns:repeat(auto-fill,minmax(280px,1fr))}.dv-pics figure{margin:0}@media(max-width:520px){.dv-hero h1{font-size:28px}}.ab-hero h1{font-size:40px;line-height:1.1;margin:22px 0 8px}.ab-steps{display:grid;gap:10px}.ab-step{display:flex;gap:14px;background:var(--card);border:2px solid var(--line);border-radius:16px;padding:12px 16px}.ab-step h3{margin:2px 0}.ab-step p{margin:4px 0 0;color:var(--muted)}.ab-n{flex:none;width:34px;height:34px;border-radius:50%;display:grid;place-items:center;background:var(--acc);color:#fff;font-size:18px}.ab-cards{display:grid;gap:10px;grid-template-columns:repeat(auto-fill,minmax(220px,1fr))}.ab-card{display:grid;gap:4px;background:var(--card);border:2px solid var(--line);border-radius:16px;padding:14px;text-decoration:none;color:var(--ink)}.ab-card span:last-child{color:var(--muted);font-size:15px}.ab-ic{font-size:28px}.ab-art{background:var(--card);border:2px solid var(--line);border-radius:16px;padding:12px;color:var(--ink)}
 figure.pic{margin:14px 0;padding:12px;background:#fff;border:2px solid #D5DDD3;border-radius:16px}figure.pic>svg{display:block;width:100%;height:auto}figure.pic figcaption{margin-top:8px;font-size:15px;color:#3A4651;text-align:center}iframe.lab{display:block;width:100%;border:2px solid var(--line);border-radius:18px;background:var(--bg);margin:6px 0 14px;min-height:360px}
 .lab h2{margin-bottom:2px}.labt{margin:0 0 4px;color:var(--muted)}
 .labbtn{display:block;width:100%;text-align:left;margin:8px 0;padding:12px 14px;border-radius:14px;border:2px dashed var(--acc);background:var(--accs);color:var(--acc);font:inherit;font-weight:700;cursor:pointer}
@@ -253,6 +253,36 @@ function unitLabs(c, u){
   return out.join('');
 }
 // ---------- fagside ----------
+
+// ---------- Førerkort: landingsside (axle.no/forerkort-bil-klasse-b/ og MC) ----------
+function driveFaq(mc){
+  const nb = L === 'nb', TT = (a, b) => nb ? a : b;
+  return [[TT('Hvor mange spørsmål er det på teoriprøven?', 'How many questions are there in the theory test?'), TT('Teoriprøven har 45 spørsmål, og du har 90 minutter. Du må ha minst 38 riktige for å bestå.', 'The theory test has 45 questions and you have 90 minutes. You need at least 38 correct answers to pass.')],
+    [TT('Er spørsmålene i Axle de samme som på prøven?', 'Are the questions in Axle the same as in the test?'), TT('Nei. De ekte spørsmålene er ikke offentlige. Axle dekker de samme temaene – skilt, vikeplikt, plassering, fart, risiko og førstehjelp – med forklaring på hvert svar, så du forstår i stedet for å pugge.', 'No. The real questions are not public. Axle covers the same topics – signs, right of way, positioning, speed, risk and first aid – with an explanation for every answer, so you understand instead of memorising.')],
+    [TT('Må jeg ha trafikalt grunnkurs før teoriprøven?', 'Do I need the basic traffic course before the theory test?'), TT('Ja, trafikalt grunnkurs må være fullført før du kan ta teoriprøven.', 'Yes, the basic traffic course must be completed before you can take the theory test.')],
+    [TT('Hvordan vet jeg at jeg er klar?', 'How do I know I am ready?'), TT('Ta øvingsprøver med 45 spørsmål i Axle. Klarer du 38 riktige flere ganger på rad – og forstår forklaringene på det du bommer på – er du godt forberedt.', 'Take 45-question mock tests in Axle. If you get 38 right several times in a row – and understand the explanations for what you miss – you are well prepared.')],
+    [TT('Koster det noe?', 'Does it cost anything?'), TT('Nei. Alt i Axle er gratis, uten reklame. Du trenger ikke konto for å øve.', 'No. Everything in Axle is free, with no ads. You do not need an account to practise.')]];
+}
+function driveLanding(c, nQ){
+  const nb = L === 'nb', TT = (a, b) => nb ? a : b, mc = c.code === 'FKMC';
+  const B = COURSES.find(x => x.code === 'FKB'), A = COURSES.find(x => x.code === 'FKMC');
+  const pics = (mc ? ['motstyring', 'mcbrems', 'kurvelinje'] : ['hoyreregelen', 'stopplengde', 'forbikjoring']).filter(k => M.DRIVE_PICS[k]).map(k => M.DRIVE_PICS[k](L));
+  const steps = [['🚦', TT('Lær skiltene som et spill', 'Learn the signs as a game'), TT('Skiltspillet viser skiltet – du svarer på tid. Det du bommer på, kommer igjen til det sitter.', 'The sign game shows a sign – you answer against the clock. What you miss comes back until it sticks.')],
+    ['📖', TT('Forstå reglene – kort og tegnet', 'Understand the rules – short and drawn'), TT('Hvert tema starter med en enkel forklaring og en tegning: vikeplikt, plassering, forbikjøring, fart og risiko.', 'Every topic starts with a simple explanation and a drawing: right of way, positioning, overtaking, speed and risk.')],
+    ['▶️', TT('Spill av trafikksituasjoner', 'Replay traffic situations'), TT('Se hva som skjer i krysset, i svingen og på glatt føre – og hvorfor bremselengden vokser så fort med farten.', 'See what happens at the junction, in the bend and on slippery roads – and why braking distance grows so fast with speed.')],
+    ['✅', TT('Ta prøver til du er klar', 'Take tests until you are ready'), TT('Øvingsprøver med 45 spørsmål på 90 minutter, som den ekte. Du ser hvor du ligger an og hva du bør øve mer på.', 'Mock tests with 45 questions in 90 minutes, like the real one. You see where you stand and what to practise more.')]];
+  const choose = [[B, '🚗', TT('Bil', 'Car'), TT('Klasse B', 'Class B')], [A, '🏍️', TT('Motorsykkel', 'Motorcycle'), 'A1 · A2 · A']].filter(x => x[0]);
+  return `<section class="dv-hero"><p class="dv-kick">${mc ? '🏍️' : '🚗'} ${TT('Teoriprøven', 'The theory test')} ${mc ? 'MC' : TT('klasse B', 'class B')} · ${TT('gratis', 'free')}</p>
+<h1>${mc ? TT('Øv deg trygt til teoriprøven for MC', 'Get ready for the motorcycle theory test') : TT('Lær det du trenger for å bestå teoriprøven', 'Learn what you need to pass the theory test')}</h1>
+<p class="lead">${TT('Korte forklaringer med tegninger, skilt du lærer som et spill, trafikksituasjoner du kan spille av – og øvingsprøver med 45 spørsmål på 90 minutter, akkurat som den ekte.', 'Short explanations with drawings, signs you learn as a game, traffic situations you can replay – and mock tests with 45 questions in 90 minutes, just like the real one.')}</p>
+<p class="dv-ctas"><a class="cta" href="${appLink(c).replace(/\?/, '?demo=1&')}">${TT('Prøv en gratis teoriprøve →', 'Try a free theory test →')}</a> <a class="cta ghost" href="${appLink(c)}">${TT('Start å øve', 'Start practising')}</a></p>
+<div class="facts"><span>${TT('45 spørsmål · 90 min', '45 questions · 90 min')}</span><span>${nQ} ${TT('spørsmål med forklaring', 'questions with explanations')}</span><span>${TT('Skilt og trafikksituasjoner', 'Signs and traffic situations')}</span><span>${TT('Gratis, uten reklame', 'Free, no ads')}</span></div></section>
+<h2>${TT('Hva skal du ta?', 'What are you taking?')}</h2>
+<div class="dv-choose">${choose.map(([x, ic, h, sub]) => `<a class="dv-ch${x.code === c.code ? ' on' : ''}" href="${courseUrl(x)}"><span class="dv-ci">${ic}</span><b>${h}</b><small>${sub}</small></a>`).join('')}</div>
+<h2>${TT('Slik blir du klar', 'How you get ready')}</h2>
+<div class="ab-steps">${steps.map(([ic, h, t], i) => `<div class="ab-step"><b class="ab-n">${i + 1}</b><div><h3>${ic} ${h}</h3><p>${t}</p></div></div>`).join('')}</div>
+${pics.length ? `<h2>${TT('Tegnet så du forstår', 'Drawn so you understand')}</h2><div class="dv-pics">${pics.map(p => `<figure class="pic">${p.svg}<figcaption>${esc(p.cap)}</figcaption></figure>`).join('')}</div>` : ''}`;
+}
 function coursePage(c){
   const nm = name(c), abbr = ABBR[c.code], codes = codesOf(c);
   const nQ = c.units.reduce((n, u) => n + u.qs.length, 0), nG = c.units.reduce((n, u) => n + (u.gen || []).length, 0);
@@ -278,22 +308,24 @@ ${tps.length ? `<h3>${X().inPart}</h3><div class="tp">${tps.map(tp => topicBlock
 ${unitLabs(c, u)}
 <p><a class="cta" href="${appLink(c)}">${esc(X().practisePart(lc(unitName(c, u))))}</a></p></section>`;
   }).join('\n');
-  const body = `<h1>${esc(DX ? DX.h1 : X().h1(nm, abbr))}</h1>
+  const body = (drv ? driveLanding(c, nQ) : `<h1>${esc(X().h1(nm, abbr))}</h1>
 <p class="lead">${esc(intro)}</p>
-<div class="facts">${DX ? DX.facts.map(f => `<span>${esc(f)}</span>`).join('') : `<span>${X().parts(c.units.length)}</span><span>${X().probs(nQ + nG)}</span>${nT ? `<span>${X().concepts(nT)}</span>` : ''}<span>${X().exam}</span><span>${X().free}</span>`}</div>
-${drv ? `<a class="cta" href="${appLink(c).replace(/\?/, '?demo=1&')}">${curLang() === 'en' ? 'Try a free theory test (10 questions) →' : 'Prøv en gratis teoriprøve (10 spørsmål) →'}</a> ` : ''}<a class="cta${drv ? ' ghost' : ''}" href="${appLink(c)}">${X().startFree}</a>
+<div class="facts"><span>${X().parts(c.units.length)}</span><span>${X().probs(nQ + nG)}</span>${nT ? `<span>${X().concepts(nT)}</span>` : ''}<span>${X().exam}</span><span>${X().free}</span></div>
+<a class="cta" href="${appLink(c)}">${X().startFree}</a>`) + `
 <h2>${X().contents}</h2><ol>${c.units.map((_, u) => `<li><a href="#${L === 'nb' ? 'del' : 'part'}-${u + 1}">${esc(unitName(c, u))}</a></li>`).join('')}</ol>
 ${units}
 <h2>${X().samplesH}</h2>
 <p>${esc(X().samplesP(lc(nm)))}</p>
 ${samples(c)}
 <a class="cta" href="${appLink(c)}">${X().allProbs}</a>
-${codes.length ? `<h2>${X().codesH}</h2><p>${X().codesP}</p><ul class="codes">${codes.map(([sch, k]) => `<li><b>${esc(k)}</b> (${esc(sch)})</li>`).join('')}</ul>` : ''}`;
+${codes.length ? `<h2>${X().codesH}</h2><p>${X().codesP}</p><ul class="codes">${codes.map(([sch, k]) => `<li><b>${esc(k)}</b> (${esc(sch)})</li>`).join('')}</ul>` : ''}
+${drv ? `<h2>${L === 'nb' ? 'Spørsmål og svar' : 'Questions and answers'}</h2>${driveFaq(mc).map(([q, a]) => `<details><summary>${q}</summary><p>${a}</p></details>`).join('')}<p><a class="cta" href="${appLink(c).replace(/\?/, '?demo=1&')}">${L === 'nb' ? 'Prøv en gratis teoriprøve →' : 'Try a free theory test →'}</a></p>` : ''}`;
   const jsonld = { '@context': 'https://schema.org', '@type': 'Course', name: nm, description: desc, inLanguage: L, isAccessibleForFree: true,
     url: `${SITE}${courseUrl(c)}`, provider: { '@type': 'Organization', name: 'Axle', sameAs: SITE }, ...(codes[0] ? { courseCode: codes[0][1] } : {}),
     hasCourseInstance: { '@type': 'CourseInstance', courseMode: 'Online', courseWorkload: 'PT10M' },
     offers: { '@type': 'Offer', price: 0, priceCurrency: 'NOK', category: 'Free' } };
-  return page({ url: courseUrl(c), alt: courseUrl(c, other()), title: `${DX ? DX.title : X().title(nm, abbr)} | Axle`, desc, body, jsonld, crumbs: `<a href="${hubUrl()}">${X().all}</a> › ${esc(nm)}` });
+  return page({ url: courseUrl(c), alt: courseUrl(c, other()), title: `${DX ? DX.title : X().title(nm, abbr)} | Axle`, desc, body,
+    jsonld: drv ? [jsonld, { '@context': 'https://schema.org', '@type': 'FAQPage', mainEntity: driveFaq(mc).map(([q, a]) => ({ '@type': 'Question', name: q, acceptedAnswer: { '@type': 'Answer', text: a } })) }] : jsonld, crumbs: `<a href="${hubUrl()}">${X().all}</a> › ${esc(nm)}` });
 }
 // ---------- emneside ----------
 function topicPage(c, u, tp, prev, next){
@@ -402,5 +434,13 @@ const enPage = `<!doctype html><html lang="en"><head><meta charset="utf-8"><titl
 <meta http-equiv="refresh" content="0; url=/?lang=en"><script>location.replace("/?lang=en" + location.hash)</script></head>
 <body><p><a href="/?lang=en">Open Axle in English</a> · <a href="/en/courses/">All courses</a></p></body></html>`;
 write('en/index.html', enPage); write('english/index.html', enPage);
-write('robots.txt', `User-agent: *\nAllow: /\n\nSitemap: ${SITE}/sitemap.xml\n`);
+// KI-søkemotorer (ChatGPT, Claude, Perplexity, Gemini …) er velkomne: åpne fagsider gjør at Axle kan siteres i svar.
+const AI_BOTS = ['GPTBot', 'ChatGPT-User', 'OAI-SearchBot', 'ClaudeBot', 'Claude-User', 'Claude-SearchBot', 'anthropic-ai', 'PerplexityBot', 'Perplexity-User', 'Google-Extended', 'Applebot-Extended', 'Bingbot', 'DuckAssistBot', 'CCBot', 'Amazonbot', 'Meta-ExternalAgent', 'MistralAI-User'];
+write('robots.txt', `User-agent: *\nAllow: /\n\n${AI_BOTS.map(b => `User-agent: ${b}\nAllow: /\n`).join('\n')}\nSitemap: ${SITE}/sitemap.xml\n`);
+// llms.txt: kort oversikt over Axle for språkmodeller (https://llmstxt.org)
+{ const groups = {}; for(const c of COURSES){ (groups[c.group || 'Annet'] ||= []).push(c); }
+  write('llms.txt', `# Axle\n\n> Axle (axle.no) er en gratis norsk læringsapp uten reklame: enkel teori steg for steg, interaktive figurer og oppgaver med løsning for førerkort (teoriprøven bil og MC), videregående, ingeniørfag, sykepleie, økonomi og jus. Slagord: «Læring gjort enkelt».\n\n` +
+    `Fagsidene under er åpne og kan siteres. Hvert fag har teori, emnesider med formler og eksempler, og eksempeloppgaver. Appen ligger på ${SITE}/.\n\n` +
+    `## Viktige sider\n\n- [Om Axle](${SITE}/about/): hva Axle er og hvordan man lærer med den\n- [Teoriprøve bil (klasse B)](${SITE}${courseUrl(COURSES.find(c => c.code === 'FKB'))}): gratis øving til teoriprøven\n- [Alle fag](${SITE}${hubUrl()}): oversikt over alle ${COURSES.length} fag\n\n` +
+    Object.entries(groups).map(([g, cs]) => `## ${g}\n\n${cs.map(c => `- [${name(c)}](${SITE}${courseUrl(c)})`).join('\n')}`).join('\n\n') + '\n'); }
 console.log(`  seo: ${COURSES.length} fagsider og ${nTopic} emnesider på norsk og engelsk, oversikter, /en, sitemap.xml (${pairs.length} adresser) og robots.txt`);
