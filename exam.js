@@ -258,6 +258,7 @@ function examClick(a, b) {
   const r = S.examRun;
   switch (a) {
     case "exjump": { const el = document.getElementById("exams"); if (el) el.scrollIntoView({ behavior: "smooth", block: "start" }); break; }
+    case "exprint": if (EX.setup) examPrint(EX.setup.code, EX.setup.v); break;
     case "exsetup": EX.setup = { code: b.dataset.c || S.current, v: +b.dataset.v || 1 }; overlay = null; screen = "examSetup"; render(); window.scrollTo(0, 0); break;
     case "extime": { const P = exPrefs(), v = b.dataset.t; P.time = /^\d+$/.test(v) ? +v : v; save(); render();
       if (v === "custom") { const inp = document.getElementById("excustom"); if (inp) { inp.focus({ preventScroll: true }); inp.select(); } } break; }
@@ -355,7 +356,50 @@ function renderExamSetup() {
       <p class="extotal" data-extotal aria-live="polite">${esc(exTotalText(bp, P))}</p>
     </div>
     <button class="big exstartbtn" data-a="exstart">${esc(t("exStart"))}</button>
+    <button class="big ghost" data-a="exprint">🖨️ ${esc(T("Skriv ut / lagre som PDF – med løsningsforslag", "Print / save as PDF – with solutions"))}</button>
+    <p class="exsub">${esc(T("Samme oppgavesett på papir. Løsningsforslaget med fremgangsmåte steg for steg står bakerst. Velg «Lagre som PDF» i utskriftsvinduet.", "The same exam on paper. The solutions with step-by-step methods are at the back. Choose \"Save as PDF\" in the print dialog."))}</p>
   </main>`;
+}
+// ---------- utskrift / PDF ----------
+// Faste tall for utskriften (frø fra fag og settnummer), så samme PDF kommer igjen neste gang.
+function exPrintItems(c, v) {
+  const bp = examBlueprint(c, v), orig = Math.random, items = [];
+  Math.random = exRng(exHash(c.code + ":" + v + ":pdf"));
+  try {
+    bp.tasks.forEach(tk => {
+      const parts = tk.parts.map(p => { const q = rawQ(c, p.id); return q ? makeItem(q, p.id) : null; }).filter(Boolean);
+      parts.sort((a, b) => (a.type === "mc" ? 0 : 1) - (b.type === "mc" ? 0 : 1));
+      if (!parts.length) return;
+      const task = items.length ? items[items.length - 1].task + 1 : 0;
+      parts.forEach((it, k) => items.push({ id: it.id, task, part: k, pts: EX_PTS[it.type], it }));
+    });
+  } finally { Math.random = orig; }
+  return { bp, items };
+}
+function examPrint(code, v) {
+  const c = COURSE(code), { bp, items } = exPrintItems(c, v), ABC = "ABCDEFG";
+  let qs = "", sol = "", last = -1;
+  items.forEach(x => {
+    const it = x.it;
+    if (x.task !== last) { last = x.task; const h = `<h2>${esc(t("exTask", x.task + 1))} <small>${esc(unitTitle(c, exUnitOf(x)))}</small></h2>`; qs += h; sol += h; }
+    qs += `<div class="pr-q"><div class="pr-qh"><b>${esc(exLetter(x.part))}</b><span>${x.pts} ${esc(T("poeng", "points"))}</span></div><div class="pr-p">${rich(it.prompt)}</div>
+      ${it.type === "mc" ? `<ol class="pr-opts">${it.opts.map((o, k) => `<li><span class="pr-box">${ABC[k]}</span>${rich(o.t)}</li>`).join("")}</ol>` : `<div class="pr-ans">${esc(T("Svar", "Answer"))}: <span class="pr-line"></span> ${it.u ? esc(it.u) : ""}</div><div class="pr-work"></div>`}</div>`;
+    const k = it.type === "mc" ? it.opts.findIndex(o => o.ok) : -1, steps = String(it.expl || "").split(/\n+/).map(s => s.trim()).filter(Boolean);
+    sol += `<div class="pr-s"><div class="pr-qh"><b>${esc(exLetter(x.part))}</b><span>${esc(T("Svar", "Answer"))}: <b>${k >= 0 ? ABC[k] + ") " : ""}${rich(correctText(it))}</b></span></div>
+      ${steps.length > 1 ? `<ol class="pr-steps">${steps.map(s => `<li>${rich(s)}</li>`).join("")}</ol>` : steps.length ? `<p class="pr-p">${rich(steps[0])}</p>` : ""}</div>`;
+  });
+  let el = document.getElementById("print-root"); if (!el) { el = document.createElement("div"); el.id = "print-root"; document.body.appendChild(el); }
+  el.innerHTML = `<header class="pr-head"><div class="pr-brand"><b>Axle</b> · ${esc(courseName(c))}</div><h1>${esc(t("exName", v))}</h1>
+    <p>${esc(t("exMeta", bp.nParts, bp.pts, exDur(bp.recMin)))}</p>
+    <p class="pr-name">${esc(T("Navn", "Name"))}: <span class="pr-line w"></span> ${esc(T("Dato", "Date"))}: <span class="pr-line"></span></p>
+    <p class="pr-note">${esc(T("Flervalg: kryss av for ett svar. Regneoppgaver: vis utregningen, og skriv svaret med enhet. Løsningsforslag med fremgangsmåte står bakerst.", "Multiple choice: tick one answer. Calculations: show your working and give the answer with its unit. Solutions with methods are at the back."))}</p></header>
+    ${qs}<section class="pr-sol"><h1>${esc(T("Løsningsforslag", "Solutions"))}</h1><p class="pr-note">${esc(t("exName", v))} · ${esc(courseName(c))}</p>${sol}</section>
+    <footer class="pr-foot">axle.no · ${esc(T("læring gjort enkelt", "learning made simple"))}</footer>`;
+  document.body.classList.add("printing");
+  const done = () => { document.body.classList.remove("printing"); window.removeEventListener("afterprint", done); };
+  window.addEventListener("afterprint", done);
+  setTimeout(() => { try { window.print(); } catch (e) { done(); } }, 60);
+  if (typeof stEv === "function") stEv("exam", "print", c.code);
 }
 
 // ---------- eksamen ----------

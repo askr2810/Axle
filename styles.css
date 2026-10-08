@@ -2672,3 +2672,28 @@ details.cat-mc{margin:6px 0}details.cat-mc>summary{cursor:pointer;font-size:12px
 .wel-go{position:sticky;bottom:0;padding:14px 0 calc(env(safe-area-inset-bottom,0px) + 6px);background:linear-gradient(transparent,var(--paper) 22%);text-align:center}
 .wel-go .big{margin:0 0 8px}.wel-go p{margin:4px 0;font-size:14px;color:var(--muted)}
 @media(max-width:420px){.wel-pts{grid-template-columns:1fr}.wel-pts div{flex-direction:row;align-items:center;gap:8px}.wel-pts small{display:none}}
+/* Utskrift av prøveeksamen (PDF) */
+#print-root{display:none}
+@media print{
+  body.printing{background:#fff!important;color:#000}
+  body.printing>*:not(#print-root){display:none!important}
+  body.printing #print-root{display:block;font:11pt/1.45 var(--body),system-ui,sans-serif;color:#000}
+  #print-root h1{font:800 22pt var(--display),sans-serif;margin:4pt 0}
+  #print-root h2{font:800 14pt var(--display),sans-serif;margin:16pt 0 6pt;padding-bottom:3pt;border-bottom:1.5pt solid #000;break-after:avoid}
+  #print-root h2 small{font-weight:600;font-size:11pt;color:#444;margin-left:6pt}
+  .pr-head{border:1.5pt solid #000;border-radius:8pt;padding:10pt 14pt;margin-bottom:10pt}
+  .pr-brand{font-size:10pt;color:#333}.pr-brand b{color:#2B59C3}
+  .pr-note{font-size:9.5pt;color:#333}
+  .pr-line{display:inline-block;width:90pt;border-bottom:1pt solid #000;margin:0 4pt}.pr-line.w{width:200pt}
+  .pr-q,.pr-s{break-inside:avoid;margin:0 0 10pt}
+  .pr-qh{display:flex;gap:10pt;align-items:baseline}.pr-qh>span{font-size:9.5pt;color:#444}
+  .pr-p{margin:2pt 0 4pt}
+  .pr-opts{list-style:none;padding:0;margin:4pt 0 0 4pt;display:grid;gap:3pt}
+  .pr-opts li{display:flex;gap:8pt;align-items:baseline}
+  .pr-box{display:inline-grid;place-items:center;width:14pt;height:14pt;border:1pt solid #000;border-radius:3pt;font-size:8.5pt;font-weight:700;flex:none}
+  .pr-ans{margin-top:6pt}.pr-work{height:70pt;border:0.75pt dashed #999;border-radius:4pt;margin-top:6pt}
+  .pr-sol{break-before:page}
+  .pr-steps{margin:4pt 0 0 14pt;padding:0}.pr-steps li{margin:2pt 0}
+  .pr-foot{margin-top:14pt;font-size:8.5pt;color:#666;text-align:center}
+  @page{margin:16mm 15mm}
+}
