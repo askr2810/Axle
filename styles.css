@@ -3003,7 +3003,7 @@ details.cat-mc{margin:6px 0}details.cat-mc>summary{cursor:pointer;font-size:12px
 @media (min-width:1100px){
   .prac>.lay-grp{display:block;break-inside:avoid;padding-bottom:4px}
   .prac>.lay-grp>.prac-h:first-child{margin-top:14px}
-  body[data-scr=book] .wrap{max-width:1060px}
+  body[data-scr=book] .wrap,body[data-scr=book-course] .wrap,body[data-scr=book-home] .wrap{max-width:1060px}
   .bk-units:not(.sheet){display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);column-gap:32px;align-items:start}
   .bk-units .tptile .tt{font-size:14px}
   .bk-units.sheet .bk-sheet{columns:2;column-gap:32px}
@@ -3072,3 +3072,29 @@ details.cat-mc{margin:6px 0}details.cat-mc>summary{cursor:pointer;font-size:12px
 .qp .qp-kf{fill:var(--ink);stroke:none}
 .qp .qp-sf{fill:var(--accent);stroke:none;opacity:.35}
 @media (max-height:700px){.q-fig svg{max-height:120px}}
+
+/* Illustrasjoner skal alltid få plass i vinduet: aldri høyere enn skjermen minus topp- og bunnfelt.
+   SVG-ene beholder formen (preserveAspectRatio) og sentreres i rammen når de blir lavere. */
+:root{--fig-fit:max(240px,calc(100dvh - 240px))}
+.tppic>svg,.tpart>svg,figure.tpart>svg,.tpfig>svg,.fig:not(.q-fig) svg,.gd-fig svg,.theory figure svg,.theory figure img,.lbody .prompt svg,.lbody .prompt img{max-height:var(--fig-fit);margin-inline:auto}
+@media (min-width:1100px){body[data-scr=book-topic] .wrap,body[data-scr=book-unit] .wrap,body[data-scr=theory] .wrap,body[data-scr=guided] .wrap{max-width:760px}}
+/* Emnesider på PC: figuren til venstre (står fast), teksten til høyre */
+@media (min-width:1100px){
+  body[data-scr=book-topic]:has(.topic.has-media) .wrap{max-width:1140px}
+  .topic.has-media{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,1fr);column-gap:36px;align-items:start}
+  .topic.has-media>h1{grid-column:1/-1}
+  .tp-media{position:sticky;top:76px;display:grid;gap:12px}
+  .tp-media figure{margin:0}
+  .tp-media svg,.tp-media .tpfig svg{max-height:calc(100dvh - 260px)}
+  .tp-body>:first-child{margin-top:0}
+}
+/* Førerkort-forsiden på PC: prøver og øving til venstre, fremgang og kategorier til høyre */
+.dvh-a,.dvh-b{display:contents}
+@media (min-width:1100px){
+  body[data-scr=home] .dv-home{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);column-gap:32px;align-items:start}
+  .dv-home>*:not(.dvh-a):not(.dvh-b){grid-column:1/-1}
+  .dvh-a,.dvh-b{display:block;min-width:0}
+
+  .dvh-b>.grp:first-child{margin-top:12px}
+}
+.sc-svg{max-height:var(--fig-fit);margin-inline:auto}

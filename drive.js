@@ -255,7 +255,7 @@ function renderDriveHome(){
       ${noticeHTML()}${qsHTML("home")}
       ${other.length > 1 ? `<div class="seg dv-cls">${other.map(x => `<button class="${x.code === code ? "on" : ""}" data-a="dvcourse" data-c="${x.code}">${x.code === "FKB" ? "🚗 " + esc(T("Bil (B)", "Car (B)")) : "🏍️ " + esc(T("MC (A1, A2, A)", "Motorcycle (A1, A2, A)"))}</button>`).join("")}</div>` : ""}
       ${S.driveRun && S.driveRun.code === code ? `<button class="pill exgo dv-resume" data-a="dvresume"><span class="l1">⏱ ${esc(S.driveRun.mini ? T("Fortsett den gratis prøven", "Continue the free test") : T("Fortsett teoriprøven", "Continue the theory test"))}</span><small>${esc(T(`${Object.keys(S.driveRun.ans).length} av ${S.driveRun.items.length} besvart · ${dvClock(S.driveRun.end - Date.now())} igjen`, `${Object.keys(S.driveRun.ans).length} of ${S.driveRun.items.length} answered · ${dvClock(S.driveRun.end - Date.now())} left`))}</small></button>` : ""}
-      ${!d.tests.length && rd.answered < 20 && !S.driveRun ? `<button class="dv-free" data-a="dvmini"><span class="dv-free-ic" aria-hidden="true">${fkSign("gangfelt", 54)}</span><span><b>${esc(T("Prøv en gratis teoriprøve", "Try a free theory test"))}</b><small>${esc(T("10 spørsmål · ca. 5 minutter · ingen innlogging", "10 questions · about 5 minutes · no sign-in"))}</small></span><em>${esc(T("Start", "Start"))} →</em></button>` : ""}
+      <div class="dvh-a">${!d.tests.length && rd.answered < 20 && !S.driveRun ? `<button class="dv-free" data-a="dvmini"><span class="dv-free-ic" aria-hidden="true">${fkSign("gangfelt", 54)}</span><span><b>${esc(T("Prøv en gratis teoriprøve", "Try a free theory test"))}</b><small>${esc(T("10 spørsmål · ca. 5 minutter · ingen innlogging", "10 questions · about 5 minutes · no sign-in"))}</small></span><em>${esc(T("Start", "Start"))} →</em></button>` : ""}
       <section class="dv-hero ${code === "FKMC" ? "mc" : ""}">
         <div class="dv-hx">${ring}<div><small>${esc(T("Sjanse for å bestå", "Chance of passing"))}</small><b>${rd.enough ? esc(T(`Anslått ${exp} av 45 riktige`, `About ${exp} of 45 correct`)) : esc(T("Svar på noen spørsmål, så regner vi ut hvor du ligger an", "Answer some questions and we will estimate where you stand"))}</b>
           <span>${esc(T("Teoriprøven: 45 spørsmål · 90 min · høyst 7 feil", "Theory test: 45 questions · 90 min · at most 7 mistakes"))}</span></div></div>
@@ -269,7 +269,7 @@ function renderDriveHome(){
         <button data-a="dvbook"><span>📖</span><b>${esc(T("Teori", "Theory"))}</b><small>${esc(T(`${c.units.length} kapitler`, `${c.units.length} chapters`))}</small></button>
         <button data-a="dvsigns"><span>🚦</span><b>${esc(T("Skilt", "Signs"))}</b><small>${esc(T("Skilt, lys og linjer", "Signs, lights and lines"))}</small></button>
         <button data-a="dvprac" data-k="wrong" ${wrongN ? "" : "disabled"}><span>❌</span><b>${esc(T("Feil", "Mistakes"))}</b><small>${esc(wrongN ? T(`${wrongN} å øve på`, `${wrongN} to practise`) : T("Ingen ennå", "None yet"))}</small></button>
-      </div>
+      </div></div><div class="dvh-b">
       <h3 class="grp">${esc(T("Din fremgang", "Your progress"))}</h3>
       ${dvChartHTML(d.tests)}
       ${dvRecHTML(c, code)}
@@ -278,7 +278,7 @@ function renderDriveHome(){
       <div class="dv-ccards">${cats}</div>
       ${tests.length ? `<h3 class="grp">${esc(T("Dine siste prøver", "Your latest tests"))}</h3><div class="dv-tests">${tests.map((x, k) => `<button class="dv-trow ${x.pass ? "pass" : "fail"}" data-a="dvres" data-i="${d.tests.length - 1 - k}"><b>${x.ok}/${x.n}</b><span>${esc(x.pass ? T("Bestått", "Passed") : T("Ikke bestått", "Not passed"))}</span><small>${esc(frAgo(new Date(x.at).toISOString()))}</small>${I.chevron}</button>`).join("")}</div>` : ""}
       ${layoutHTML("home")}
-      <p class="dv-disc">${esc(T("Øvingsmateriale laget med omhu, men det kan inneholde feil. Følg alltid gjeldende trafikkregler, og sjekk Statens vegvesen ved tvil.", "Practice material made with care, but it may contain mistakes. Always follow the current traffic rules, and check official sources if in doubt."))} <button class="exlink" data-a="terms">${esc(T("Vilkår", "Terms"))}</button></p>
+      <p class="dv-disc">${esc(T("Øvingsmateriale laget med omhu, men det kan inneholde feil. Følg alltid gjeldende trafikkregler, og sjekk Statens vegvesen ved tvil.", "Practice material made with care, but it may contain mistakes. Always follow the current traffic rules, and check official sources if in doubt."))} <button class="exlink" data-a="terms">${esc(T("Vilkår", "Terms"))}</button></p></div>
     </main>`;
 }
 // Øv-fanen: snarveier øverst når du holder på med førerkort.
