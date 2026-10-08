@@ -52,8 +52,8 @@ function dcCardHTML(){
 let DC_NEXT = false;
 function bootPrompts(){
   if(screen !== "home" || overlay) return;
-  if(!S.langSet && !LANG_BROWSER_NB){ overlay = "langpick"; renderOverlay(); return; } // språk først (bare når nettleseren ikke er norsk)
-  if(studyNeedsAsk()){ overlay = { studypick: 1, first: 1 }; renderOverlay(); return; } // studie (én gang, for nye brukere)
+  if(studyNeedsAsk()){ screen = "welcome"; render(); return; } // helt ny: velkomstsiden (med språk og studievalg)
+  if(!S.langSet && !LANG_BROWSER_NB){ overlay = "langpick"; renderOverlay(); return; } // språk (bare når nettleseren ikke er norsk)
   if(AUTH && !S.acEver){ S.acEver = 1; saveLocal(); } // denne enheten har vært innlogget: aldri vis innloggings-popupen
   // innlogging tilbys først når man har prøvd appen litt (ellers lager mange en konto og forsvinner før de har sett noe)
   if(CLOUD_ON && !AUTH && !S.acEver && S.loginAsked !== dayKey() && (S.xp || 0) >= 30){

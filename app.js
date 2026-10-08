@@ -1124,6 +1124,7 @@ function renderNow(){
   else if(screen==="motion") renderMotion();
   else if(screen==="ctl") renderCtl();
   else if(screen==="pomo") renderPomo();
+  else if(screen==="welcome") renderWelcome();
   else if(screen==="mq") renderMq();
   else if(screen==="catalog") renderCatalog();
   else if(screen==="code") renderCode();
@@ -1183,7 +1184,7 @@ document.addEventListener("click", async e=>{
   if(grClick(a, b)) return; // grupper (handlinger som starter med "gr")
   if(studyClick(a, b)) return; // studier (studies.js)
   if(pfClick(a, b)) return; // bevis (proofs.js)
-  if(snEntryClick(a) || snClick(a, b) || spClick(a, b) || gmClick(a, b) || gmMenuClick(a, b) || duClick(a, b) || mdClick(a, b) || unitsClick(a, b) || tgClick(a, b) || fcClick(a, b) || labClick(a, b) || geClick(a, b) || mvClick(a) || ctClick(a, b) || catClick(a, b) || focClick(a, b) || poClick(a, b) || mqClick(a, b) || nudgeClick(a, b) || shareClick(a, b) || ibClick(a, b) || dvClick(a, b) || scClick(a, b) || cdClick(a, b) || thClick(a, b)) return; // snacks og lynrunde (snacks.js)
+  if(snEntryClick(a) || snClick(a, b) || spClick(a, b) || gmClick(a, b) || gmMenuClick(a, b) || duClick(a, b) || mdClick(a, b) || unitsClick(a, b) || tgClick(a, b) || fcClick(a, b) || labClick(a, b) || geClick(a, b) || mvClick(a) || ctClick(a, b) || catClick(a, b) || focClick(a, b) || poClick(a, b) || welClick(a, b) || mqClick(a, b) || nudgeClick(a, b) || shareClick(a, b) || ibClick(a, b) || dvClick(a, b) || scClick(a, b) || cdClick(a, b) || thClick(a, b)) return; // snacks og lynrunde (snacks.js)
   if(adminClick(a, b)) return; // adminpanel og kunngjøringer (admin.js)
   if(psClick(a, b)) return; // profilsiden til andre + hvilke merker du viser (person.js)
   if(friendsClick(a, b)) return; // venner (handlinger som starter med "fr")
@@ -1338,6 +1339,7 @@ if(grBootLink()) screen = "friends"; // axle.no/?gruppe=KODE
 })();
 if(window.STUDY_URL && !S.studySet){ S.study = window.STUDY_URL; S.studySet = 1; if(!inStudy(COURSE(S.current), S.study)) S.current = STUDY(S.study).home; saveLocal(); } // axle.no/?studie=…
 if(checkBadges().length) saveLocal(); // merker for fremgang fra før merkene fantes (uten varsel)
+if(typeof EMBED !== "undefined" && !EMBED && screen === "home" && !/^#\/./.test(location.hash) && studyNeedsAsk()) screen = "welcome"; // helt ny: velkomstsiden
 render();
 if(EMBED) embedInit();
 AUTH_READY.then(()=>{ if(EMBED) return; setTimeout(bootPrompts, 900); pushResync(); setTimeout(pioneerFetch, 1500); setTimeout(noticeFetch, 1200); }); // innlogging og dagens utfordring som popup ved første åpning i dag

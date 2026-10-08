@@ -2650,3 +2650,25 @@ details.cat-mc{margin:6px 0}details.cat-mc>summary{cursor:pointer;font-size:12px
 .mq-pc.p1 .mq-pb{height:120px;background:linear-gradient(var(--gold),var(--gold-deep))}.mq-pc.p2 .mq-pb{height:84px;background:linear-gradient(#B9C3CF,#8A97A3)}.mq-pc.p3 .mq-pb{height:60px;background:linear-gradient(#D99A6C,#B06B3E)}
 .mq-pc.me b{color:var(--accent)}
 .mq-brow b{text-align:left}
+/* Velkomstsiden */
+.wel{max-width:640px;margin:0 auto;padding:calc(env(safe-area-inset-top,0px) + 14px) 16px 40px}
+.wel-top{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.wel-logo{font:800 26px var(--display);color:var(--accent);letter-spacing:-.02em}
+.wel-lang{margin:0}
+.wel-hero{margin:18px 0 10px;padding:24px 20px;border-radius:24px;background:linear-gradient(150deg,#1C3F91,#2B59C3 55%,#0F8A83);color:#fff}
+.wel-hero h1{margin:0 0 8px;font:800 clamp(30px,8vw,40px)/1.08 var(--display)}
+.wel-hero>p{margin:0 0 16px;opacity:.9;font-size:16px;line-height:1.45}
+.wel-pts{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.wel-pts div{background:rgba(255,255,255,.12);border-radius:16px;padding:10px;display:flex;flex-direction:column;gap:2px}
+.wel-pts span{font-size:22px}.wel-pts b{font-size:14px}.wel-pts small{font-size:12px;opacity:.85;line-height:1.35}
+.wel-h{margin:22px 0 2px;font:800 22px var(--display)}.wel-sub{margin:0 0 12px;color:var(--muted);font-size:14px}
+.wel-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
+.wel-st{position:relative;display:flex;flex-direction:column;align-items:flex-start;gap:3px;text-align:left;padding:14px;border-radius:18px;border:2px solid var(--line);border-bottom-width:4px;background:var(--card);color:var(--ink);cursor:pointer;transition:border-color .15s,transform .1s}
+.wel-st:active{transform:translateY(2px)}
+.wel-st.on{border-color:var(--accent);background:color-mix(in srgb,var(--card) 90%,var(--accent))}
+.wel-ic{font-size:28px}.wel-st b{font-size:16px}.wel-st small{color:var(--muted);font-size:12.5px;line-height:1.35}
+.wel-ck{position:absolute;right:10px;top:10px;width:24px;height:24px;border-radius:50%;border:2px solid var(--line);display:grid;place-items:center;font-style:normal;font-weight:900;font-size:13px;color:#fff}
+.wel-st.on .wel-ck{background:var(--accent);border-color:var(--accent)}
+.wel-go{position:sticky;bottom:0;padding:14px 0 calc(env(safe-area-inset-bottom,0px) + 6px);background:linear-gradient(transparent,var(--paper) 22%);text-align:center}
+.wel-go .big{margin:0 0 8px}.wel-go p{margin:4px 0;font-size:14px;color:var(--muted)}
+@media(max-width:420px){.wel-pts{grid-template-columns:1fr}.wel-pts div{flex-direction:row;align-items:center;gap:8px}.wel-pts small{display:none}}
