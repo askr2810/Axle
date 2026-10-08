@@ -1,5 +1,5 @@
 -- ============================================================
---  HODEREGNING – Kahoot-stil mattespill (mq.js).
+--  HODEREGNING – mattespill med lynpoeng (mq.js).
 --  Kjør denne i Supabase → SQL Editor (etter oppsett.sql og venner.sql). Trygg å kjøre flere ganger.
 --  Appen virker uten denne filen (alene-spill og utfordringslenker), men live-rom og topplister krever den.
 --
@@ -160,7 +160,7 @@ begin
   if me is null then raise exception 'not_logged_in'; end if;
   if p_key !~ '^(w[0-9]{4}-[0-9]{2}-[0-9]{2}|[0-9]{1,10}\.[1-4]\.[0-9]{1,2}\.[0-9]{1,2})$' then raise exception 'bad_key'; end if;
   n := case when p_key like 'w%' then 15 else split_part(p_key, '.', 3)::int end;
-  if p_ok not between 0 and n or p_score not between 0 and n * 1500 then raise exception 'bad_score'; end if;
+  if p_ok not between 0 and n or p_score not between 0 and n * 400 then raise exception 'bad_score'; end if;
   insert into public.mq_results (ckey, uid, name, av, score, ok) values (p_key, me, left(coalesce(btrim(p_name), ''), 24), left(p_av, 200), p_score, p_ok)
     on conflict (ckey, uid) do update set score = greatest(mq_results.score, excluded.score),
       ok = case when excluded.score > mq_results.score then excluded.ok else mq_results.ok end,

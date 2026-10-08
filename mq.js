@@ -1,5 +1,5 @@
 // ============================================================
-//  HODEREGNING – Kahoot-stil: mattestykker du klarer i hodet, fire fargede svar, poeng etter hvor fort du svarer.
+//  HODEREGNING – mattestykker du klarer i hodet. Fire svarkort med hver sin tast (1–4), poeng etter hvor fort du svarer.
 //  • Alene: 10, 15 eller 20 stykker på fire nivåer. Rekord per nivå.
 //  • Utfordre en venn: en lenke (axle.no/#/hoderegning/…) med de samme stykkene og poengsummen din; vennen spiller når det passer.
 //  • Ukens hoderegning: alle får de samme 15 stykkene hele uka – én felles toppliste.
@@ -7,13 +7,13 @@
 //    toppliste etter hvert stykke og pall til slutt.
 //  Live og topplister krever konto og supabase/hoderegning.sql; alene og lenker virker uten.
 //  Stykkene lages fra et tall (seed), så alle med samme seed får nøyaktig de samme stykkene og svaralternativene.
-//  Poeng som i Kahoot: riktig svar gir 500–1000 etter hvor raskt du svarte, pluss 100 per svar på rad (maks +500).
+//  Lynpoeng: riktig svar gir 100 + inntil 100 for fart. Svar på rad gir lynfaktor ×1,1, ×1,2 … opptil ×1,5. Feil eller for sent gir 0.
 // ============================================================
-Object.assign(UI.nb, { mqTitle: "Hoderegning", mqSub: "Kahoot-stil: regn kjapt, spill live eller utfordre venner" });
-Object.assign(UI.en, { mqTitle: "Mental maths", mqSub: "Kahoot style: calculate fast, play live or challenge friends" });
+Object.assign(UI.nb, { mqTitle: "Hoderegning", mqSub: "Regn kjapt i hodet, spill live eller utfordre venner" });
+Object.assign(UI.en, { mqTitle: "Mental maths", mqSub: "Calculate fast, play live or challenge friends" });
 let MQ = null, MQ_PENDING = null;
 const MQ_REV = 5000, MQ_WEEK = { lvl: 2, n: 15, secs: 10 };
-const MQ_COL = [["#E21B3C", "▲"], ["#1368CE", "◆"], ["#D89E00", "●"], ["#26890C", "■"]];
+const MQ_COL = ["var(--u0)", "var(--u1)", "var(--u2)", "var(--c2)"];   // Axles egne farger: blå, petrol, fiolett, oransje
 const MQ_LV = () => [[1, T("Lett", "Easy"), "7 + 5", T("Pluss, minus og gangetabellen til 5", "Add, subtract, times tables to 5")], [2, T("Middels", "Medium"), "48 : 6", T("Hele gangetabellen og deling", "All times tables and division")],
   [3, T("Vanskelig", "Hard"), T("25 % av 80", "25% of 80"), T("Store tall, kvadrater og prosent", "Larger numbers, squares and percent")], [4, T("Ekspert", "Expert"), "14 × 13", T("Regnerekkefølge, brøk og negative tall", "Order of operations, fractions, negatives")]];
 const mqN = x => x < 0 ? "−" + (-x) : String(x);
@@ -59,7 +59,8 @@ function mqOne(r, lv){
   return mqMake(r, q, ans, near, lv >= 4);
 }
 const mqQs = cfg => { const r = mqRng(cfg.seed); return Array.from({ length: cfg.n }, () => mqOne(r, cfg.lvl)); };
-const mqPoints = (ms, secs, streak) => Math.round(1000 * (1 - Math.min(1, ms / (secs * 1000)) / 2)) + Math.min(500, Math.max(0, streak - 1) * 100);
+const mqMult = streak => 1 + Math.min(5, Math.max(0, streak - 1)) / 10;
+const mqPoints = (ms, secs, streak) => Math.round((100 + 100 * (1 - Math.min(1, ms / (secs * 1000)))) * mqMult(streak));
 const mqKey = cfg => `${cfg.seed}.${cfg.lvl}.${cfg.n}.${cfg.secs}`;
 const mqWeekKey = () => "w" + weekKeyOf(new Date());
 const mqLvName = lv => (MQ_LV().find(x => x[0] === lv) || [])[1] || "";
@@ -216,11 +217,11 @@ function mqBoardHTML(b, title){
 function mqTiles(q, rev){
   return `<div class="mq-tiles ${rev ? "rev" : ""} ${MQ.chosen != null && !rev ? "sent" : ""}">${q.o.map((v, i) => {
     const st = rev ? (i === q.k ? "ok" : i === MQ.chosen ? "bad" : "dim") : MQ.chosen != null ? (i === MQ.chosen ? "pick" : "dim") : "";
-    return `<button class="mq-tile ${st}" style="--c:${MQ_COL[i][0]}" data-a="mqans" data-i="${i}" ${rev || MQ.chosen != null ? "disabled" : ""} aria-label="${esc(mqN(v))}"><span class="mq-sh" aria-hidden="true">${MQ_COL[i][1]}</span><b>${mqN(v)}</b>${rev && i === q.k ? `<span class="mq-ck" aria-hidden="true">✓</span>` : ""}</button>`; }).join("")}</div>`;
+    return `<button class="mq-tile ${st}" style="--c:${MQ_COL[i]}" data-a="mqans" data-i="${i}" ${rev || MQ.chosen != null ? "disabled" : ""} aria-label="${esc(mqN(v))}"><kbd class="mq-key" aria-hidden="true">${i + 1}</kbd><b>${mqN(v)}</b>${rev && i === q.k ? `<span class="mq-ck" aria-hidden="true">✓</span>` : ""}</button>`; }).join("")}</div>`;
 }
 function mqResultBanner(q){
   const ok = MQ.chosen === q.k;
-  return `<div class="mq-res ${ok ? "ok" : "bad"} pop"><b>${ok ? T("Riktig!", "Correct!") : MQ.chosen == null || MQ.chosen < 0 ? T("For sent!", "Too late!") : T("Feil", "Wrong")}</b>${ok ? `<span>+${mqF(MQ.gained)}</span>${MQ.streak > 1 ? `<span class="mq-fire">🔥 ${MQ.streak} ${esc(T("på rad", "in a row"))}</span>` : ""}` : `<span>${esc(T("Svaret er", "The answer is"))} ${mqN(q.a)}</span>`}</div>`;
+  return `<div class="mq-res ${ok ? "ok" : "bad"} pop"><b>${ok ? T("Riktig!", "Correct!") : MQ.chosen == null || MQ.chosen < 0 ? T("For sent!", "Too late!") : T("Feil", "Wrong")}</b>${ok ? `<span>+${mqF(MQ.gained)}</span>${MQ.streak > 1 ? `<span class="mq-fire">⚡×${String(mqMult(MQ.streak)).replace(".", LANG === "en" ? "." : ",")} · ${MQ.streak} ${esc(T("på rad", "in a row"))}</span>` : ""}` : `<span>${esc(T("Svaret er", "The answer is"))} ${mqN(q.a)}</span>`}</div>`;
 }
 function renderMq(){
   if(!MQ){ const a = MQ_PENDING; MQ_PENDING = null; mqOpen(a); return; }
@@ -232,13 +233,13 @@ function renderMq(){
         <small>${esc(mqLvName(ch.cfg.lvl))} · ${ch.cfg.n} ${esc(T("stykker", "problems"))} · ${ch.cfg.secs} s${ch.score != null ? " · " + esc(T(`å slå: ${mqF(ch.score)} poeng`, `to beat: ${mqF(ch.score)} points`)) : ""}</small></div>
         <button class="big" data-a="mqchal">${esc(T("Ta utfordringen", "Take the challenge"))}</button></section>` : ""}
       <section class="mq-hero"><div class="mq-hq" aria-hidden="true"><span>7 × 8</span><i>=</i><span>?</span></div><h2>${esc(T("Regn i hodet – kjappest vinner", "Calculate in your head – fastest wins"))}</h2>
-        <p>${esc(T("Fire svar, fire farger. Riktig svar gir 500–1000 poeng – jo raskere, jo flere. Svar på rad gir bonus.", "Four answers, four colours. A correct answer gives 500–1000 points – the faster, the more. Answers in a row give a bonus."))}</p></section>
+        <p>${esc(T("Velg blant fire svar – med fingeren eller tastene 1–4. Riktig svar gir 100 lynpoeng pluss inntil 100 for fart, og svar på rad gir lynfaktor opptil ×1,5.", "Pick one of four answers – tap or press 1–4. A correct answer gives 100 lightning points plus up to 100 for speed, and answers in a row give a multiplier up to ×1.5."))}</p></section>
       <h3 class="mq-h">${esc(T("Nivå", "Level"))}</h3>
       <div class="mq-lvls">${lv.map(([n, name, ex, sub]) => `<button class="mq-lv ${MQ.lvl === n ? "on" : ""}" data-a="mqlvl" data-n="${n}"><span>${esc(ex)}</span><b>${esc(name)}</b><small>${esc(sub)}</small></button>`).join("")}</div>
       <div class="mq-opts"><div><h3 class="mq-h">${esc(T("Antall stykker", "Problems"))}</h3><div class="seg">${[10, 15, 20].map(n => `<button class="${MQ.n === n ? "on" : ""}" data-a="mqn" data-n="${n}">${n}</button>`).join("")}</div></div>
         <div><h3 class="mq-h">${esc(T("Tid per stykke", "Time per problem"))}</h3><div class="seg">${[5, 10, 20].map(n => `<button class="${MQ.secs === n ? "on" : ""}" data-a="mqsecs" data-n="${n}">${n} s</button>`).join("")}</div></div></div>
       <button class="big mq-go" data-a="mqsolo">▶ ${esc(T("Spill alene", "Play solo"))}</button>${best ? `<p class="mq-rec">🏆 ${esc(T(`Rekord på dette nivået: ${mqF(best)} poeng`, `Record at this level: ${mqF(best)} points`))}</p>` : ""}
-      <section class="mq-card mq-live"><div class="mq-ch"><span>🎉</span><div><b>${esc(T("Live med venner", "Live with friends"))}</b><small>${esc(T("Som Kahoot: lag et rom, del koden, og alle får samme stykke samtidig. Toppliste etter hvert stykke og pall til slutt.", "Like Kahoot: create a room, share the code, and everyone gets the same problem at once. Leaderboard after each problem and a podium at the end."))}</small></div></div>
+      <section class="mq-card mq-live"><div class="mq-ch"><span>⚡</span><div><b>${esc(T("Lynrom med venner", "Live room with friends"))}</b><small>${esc(T("Lag et rom, del koden, og alle får samme stykke samtidig. Toppliste etter hvert stykke og pall til slutt.", "Create a room, share the code, and everyone gets the same problem at once. Leaderboard after each problem and a podium at the end."))}</small></div></div>
         ${MQ.err ? `<p class="du-err">${esc(MQ.err)}</p>` : ""}
         ${AUTH ? `<button class="big" data-a="mqcreate" ${MQ.busy ? "disabled" : ""}>${esc(MQ.busy ? T("Et øyeblikk …", "One moment …") : T("Lag et rom", "Create a room"))}</button>
           <div class="du-join"><input id="mqjoin" maxlength="5" autocapitalize="characters" autocomplete="off" placeholder="${esc(T("Kode", "Code"))}" value="${esc(MQ.joinCode || "")}" aria-label="${esc(T("Kode", "Code"))}"><button class="big ghost" data-a="mqjoin" ${MQ.busy ? "disabled" : ""}>${esc(T("Bli med", "Join"))}</button></div>`
