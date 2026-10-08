@@ -190,6 +190,7 @@ function renderBookUnit(){
       <button class="gd-cta" data-a="bkguided">${I.steps}<span><b>${esc(t("gdCta"))}</b><small>${esc(t("gdCtaSub"))}</small></span>${I.chevron}</button>
       ${typeof ttsBarHTML === "function" ? ttsBarHTML() : ""}
       ${thLayers(html, tyKeyHTML(src))}
+      ${catIds(c, u).calc.length + catIds(c, u).mc.length ? `<button class="qt-row cat-entry" data-a="catgo" data-c="${esc(c.code)}" data-u="${u}"><span class="qt-ic">📚</span><span><b>${esc(T("Løste eksempler i denne enheten", "Solved examples in this unit"))}</b><small>${esc(T("Se fremgangsmåten på oppgaver av samme type", "See the method for problems of the same type"))}</small></span>${I.chevron}</button>` : ""}
       ${topicsOf(c.code, u).length ? `<div class="bk-unit-tps"><div class="bk-glance-h">${esc(t("tpInUnit"))}</div><div class="tiles2">${topicsOf(c.code, u).map(tp => tpTileHTML(c.code, tp)).join("")}</div></div>` : ""}
       ${f.length ? `<details class="bk-glance bk-sheet"><summary class="bk-glance-h">📋 ${esc(t("bkGlance"))} (${f.length})</summary>${f.map(x => `<div class="dmath">${texD(x)}</div>`).join("")}</details>` : ""}
       ${cyHTML(c.code, u)}

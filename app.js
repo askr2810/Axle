@@ -59,7 +59,17 @@ function richDoc(src){
   fAll(); return out.join("");
 }
 // ren tekst (til rapporter)
-const plain = s => String(s).replace(/```([\s\S]*?)```/g," [kode: $1] ").replace(/\$/g,"").replace(/`/g,"").replace(/\s+/g," ").trim();
+// Matte i ren tekst (snutter i søk, opplesing): \frac{a}{b} → a/b, \Pi → Π, ^2 → ² osv.
+const TEXP_G = { alpha:"α",beta:"β",gamma:"γ",delta:"δ",epsilon:"ε",varepsilon:"ε",zeta:"ζ",eta:"η",theta:"θ",kappa:"κ",lambda:"λ",mu:"μ",nu:"ν",xi:"ξ",pi:"π",rho:"ρ",sigma:"σ",tau:"τ",phi:"φ",varphi:"φ",chi:"χ",psi:"ψ",omega:"ω",
+  Gamma:"Γ",Delta:"Δ",Theta:"Θ",Lambda:"Λ",Pi:"Π",Sigma:"Σ",Phi:"Φ",Psi:"Ψ",Omega:"Ω",cdot:"·",times:"×",le:"≤",leq:"≤",ge:"≥",geq:"≥",pm:"±",infty:"∞",to:"→",rightarrow:"→",Rightarrow:"⇒",approx:"≈",neq:"≠",int:"∫",sum:"Σ",partial:"∂",nabla:"∇",circ:"°",degree:"°",in:"∈",dots:"…",ldots:"…" };
+function texPlain(m){
+  let t = m;
+  for(let i = 0; i < 3; i++) t = t.replace(/\\[dt]?frac\{([^{}]*)\}\{([^{}]*)\}/g, "($1)/($2)").replace(/\\sqrt\{([^{}]*)\}/g, "√($1)");
+  t = t.replace(/\\(text|mathrm|mathbf|operatorname|vec|bar|hat)\{([^{}]*)\}/g, "$2").replace(/\\(left|right|big|Big)/g, "").replace(/\\[,;:! ]|\\q?quad/g, " ")
+    .replace(/\^\{?2\}?/g, "²").replace(/\^\{?3\}?/g, "³").replace(/\\([A-Za-z]+)/g, (_, w) => TEXP_G[w] || w).replace(/[{}]/g, "").replace(/\(([A-Za-z0-9.,²³]+)\)\/\(([A-Za-z0-9.,²³]+)\)/g, "$1/$2");
+  return t;
+}
+const plain = s => String(s).replace(/```([\s\S]*?)```/g," [kode: $1] ").replace(/\$\$?([^$]+)\$\$?/g, (_, m) => texPlain(m)).replace(/\$/g,"").replace(/`/g,"").replace(/\{,\}/g, decPoint() ? "." : ",").replace(/\s+/g," ").trim();
 const shuffle = a => { a=a.slice(); for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];} return a; };
 const pad = n => String(n).padStart(2,"0");
 const dayKey = (d=new Date()) => d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate());
@@ -1108,6 +1118,7 @@ function renderNow(){
   else if(screen==="geo") renderGeo();
   else if(screen==="motion") renderMotion();
   else if(screen==="ctl") renderCtl();
+  else if(screen==="catalog") renderCatalog();
   else if(screen==="code") renderCode();
   else if(screen==="snacks") renderSnacks();
   else if(screen==="sprint") renderSprint();
@@ -1165,7 +1176,7 @@ document.addEventListener("click", async e=>{
   if(grClick(a, b)) return; // grupper (handlinger som starter med "gr")
   if(studyClick(a, b)) return; // studier (studies.js)
   if(pfClick(a, b)) return; // bevis (proofs.js)
-  if(snEntryClick(a) || snClick(a, b) || spClick(a, b) || gmClick(a, b) || gmMenuClick(a, b) || duClick(a, b) || mdClick(a, b) || unitsClick(a, b) || tgClick(a, b) || fcClick(a, b) || labClick(a, b) || geClick(a, b) || mvClick(a) || ctClick(a, b) || nudgeClick(a, b) || shareClick(a, b) || ibClick(a, b) || dvClick(a, b) || scClick(a, b) || cdClick(a, b) || thClick(a, b)) return; // snacks og lynrunde (snacks.js)
+  if(snEntryClick(a) || snClick(a, b) || spClick(a, b) || gmClick(a, b) || gmMenuClick(a, b) || duClick(a, b) || mdClick(a, b) || unitsClick(a, b) || tgClick(a, b) || fcClick(a, b) || labClick(a, b) || geClick(a, b) || mvClick(a) || ctClick(a, b) || catClick(a, b) || nudgeClick(a, b) || shareClick(a, b) || ibClick(a, b) || dvClick(a, b) || scClick(a, b) || cdClick(a, b) || thClick(a, b)) return; // snacks og lynrunde (snacks.js)
   if(adminClick(a, b)) return; // adminpanel og kunngjøringer (admin.js)
   if(psClick(a, b)) return; // profilsiden til andre + hvilke merker du viser (person.js)
   if(friendsClick(a, b)) return; // venner (handlinger som starter med "fr")

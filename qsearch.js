@@ -11,8 +11,10 @@ function qsHits(q){
 function qsResultsHTML(place){
   const q = QS.q.trim(); if(q.length < 2) return "";
   const hits = qsHits(q);
-  if(!hits.length) return `<p class="qs-empty">${esc(T("Fant ingen emner. Prøv et annet ord, eller se alle fag i Teori-fanen.", "No topics found. Try another word, or see all subjects in the Theory tab."))}</p>`;
-  return hits.map(({ it, snip }) => {
+  const tasks = typeof catSearch === "function" ? catSearch(q).slice(0, 3) : [];
+  const taskHTML = tasks.map(e => `<div class="qs-hit qs-task"><button class="qs-main" data-a="catgo" data-c="${e.code}" data-u="${e.u}" data-id="${e.id}"><small>📚 ${esc(T("Løst oppgave", "Solved problem"))} · ${esc(courseName(COURSE(e.code)))}</small><span class="qs-tp">${(() => { const it = catItem(COURSE(e.code), e.id); return it ? rich(it.prompt) : esc(e.title); })()}</span></button></div>`).join("");
+  if(!hits.length && !tasks.length) return `<p class="qs-empty">${esc(T("Fant ingen emner. Prøv et annet ord, eller se alle fag i Teori-fanen.", "No topics found. Try another word, or see all subjects in the Theory tab."))}</p>`;
+  return (tasks.length ? `<div class="qs-sub">📚 ${esc(T("Løste oppgaver", "Solved problems"))}</div>` + taskHTML + (hits.length ? `<div class="qs-sub">📖 ${esc(T("Teori og emner", "Theory and topics"))}</div>` : "") : "") + hits.map(({ it, snip }) => {
     const c = COURSE(it.code), read = it.id ? `data-a="bktopic" data-c="${esc(it.code)}" data-id="${esc(it.id)}"` : `data-a="bkunit" data-c="${esc(it.code)}" data-u="${it.u}"`;
     const prac = c && c.units[it.u] ? `<button class="qs-go" data-a="bktopicpractice" data-c="${esc(it.code)}" data-u="${it.u}">✏️ ${esc(T("Øv", "Practise"))}</button>` : "";
     const readBtn = `<button class="qs-go ${place === "practice" ? "ghost" : ""}" ${read}>📖 ${esc(T("Les", "Read"))}</button>`;
