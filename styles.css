@@ -2412,3 +2412,40 @@ details.ths[open] .ths-t small{display:none}
 .ths-b>*:first-child{margin-top:0}
 details.bk-sheet>summary{cursor:pointer;list-style:none}
 details.bk-sheet>summary::-webkit-details-marker{display:none}
+/* Reguleringslaben (control.js) */
+.ct{padding:12px}
+.ct-hd{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:4px}
+.ct-lead{margin:4px 0 8px;font-size:14px;color:var(--muted);line-height:1.4}
+.ct-pre{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0}
+.ct-pre button{border:1.5px solid var(--line);background:var(--card);color:inherit;border-radius:99px;padding:6px 12px;font:700 13px inherit;cursor:pointer}
+.ct-pre button.on{border-color:var(--accent);color:var(--accent)}
+.ct-eq{margin:6px 0;padding:6px 8px;border-radius:12px;background:color-mix(in srgb,var(--accent) 6%,var(--card))}
+.fig .ct-svg,.ct-svg{display:block;width:100%;height:auto;max-height:none;user-select:none;-webkit-user-select:none;margin:4px 0}
+.ct-lhp{fill:color-mix(in srgb,#1E9A5E 8%,var(--card))}.ct-rhp{fill:color-mix(in srgb,#D9483B 10%,var(--card))}
+.ct-grid{stroke:var(--line);stroke-width:.7}.ct-ax{stroke:var(--muted);stroke-width:1.4;fill:none}
+.ct-tl{font:600 8.5px system-ui,sans-serif;fill:var(--muted);text-anchor:middle}.ct-al{font:700 10px system-ui,sans-serif;fill:var(--muted)}
+.ct-zone{font:800 10px system-ui,sans-serif;letter-spacing:.05em;text-transform:uppercase}.ct-zone.ok{fill:#1E9A5E}.ct-zone.bad{fill:#D9483B}
+.ct-guide{stroke:var(--muted);stroke-width:1;stroke-dasharray:3 3;fill:none}.ct-gl{font:700 9.5px system-ui,sans-serif;fill:var(--ink)}
+.ct-pole{stroke-width:3.2;stroke-linecap:round;fill:none}.ct-zero{fill:var(--card);stroke-width:3}
+.ct-h{fill:transparent;cursor:grab;touch-action:none}.ct-h:active{cursor:grabbing}
+.ct-resp{fill:none;stroke:#2B6FD6;stroke-width:2.6;stroke-linejoin:round}
+.ct-ref{stroke:#5A6772;stroke-width:1.3;stroke-dasharray:6 4}.ct-fin{stroke:#1E9A5E;stroke-width:1;stroke-dasharray:2 3}
+.ct-band{fill:color-mix(in srgb,#1E9A5E 14%,transparent)}.ct-ts{stroke:#1E9A5E;stroke-width:1.2;stroke-dasharray:4 3}
+.ct-chips{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin:6px 0}
+.ct-chips span{display:grid;justify-items:center;padding:6px 2px;border-radius:12px;border:2px solid var(--line);background:var(--card);text-align:center}
+.ct-chips small{font-size:10.5px;color:var(--muted);line-height:1.2}.ct-chips b{font:800 15px var(--display,inherit)}
+.ct-ex p{margin:8px 0;font-size:14.5px;line-height:1.5}
+.ct-sl{display:grid;gap:10px;margin:8px 0}
+.ct-sl label{display:grid;gap:4px}.ct-sl label>span{display:flex;gap:8px;align-items:baseline;flex-wrap:wrap}
+.ct-sl b{color:var(--c);font-size:16px}.ct-sl output{font-weight:800}.ct-sl small{color:var(--muted);font-size:12.5px}
+.ct-sl input{accent-color:var(--c);width:100%}
+.ct-tabs{margin:6px 0 10px}
+/* Labber i faget (Øv) */
+.lab-course{margin:4px 0 14px;padding:12px;border-radius:20px;border:2px solid var(--line);background:var(--card)}
+.lab-course-h{display:grid;margin-bottom:8px}.lab-course-h small{color:var(--muted);font-size:13px}
+.lab-cbig{display:flex;gap:12px;align-items:center;width:100%;text-align:left;padding:10px 12px;margin:6px 0;border-radius:14px;border:2px solid color-mix(in srgb,var(--accent) 30%,var(--line));background:color-mix(in srgb,var(--accent) 6%,var(--card));color:inherit;font:inherit;cursor:pointer}
+.lab-cbig>span:first-child{font-size:26px}.lab-cbig b{display:block}.lab-cbig small{color:var(--muted);font-size:12.5px;line-height:1.3}
+.lab-cbig svg:last-child{margin-left:auto;flex:none}
+.lab-csims{display:flex;gap:8px;overflow-x:auto;padding:4px 0 2px}
+.lab-csim{flex:none;display:flex;gap:6px;align-items:center;padding:8px 12px;border-radius:99px;border:1.5px solid var(--line);background:var(--card);color:inherit;font:700 13px inherit;cursor:pointer;white-space:nowrap}
+.lab-csim svg{width:14px;height:14px;color:var(--accent)}
