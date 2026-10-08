@@ -2918,3 +2918,27 @@ details.cat-mc{margin:6px 0}details.cat-mc>summary{cursor:pointer;font-size:12px
 .hw-pts{list-style:none;padding:0;margin:0 0 16px;text-align:left;display:flex;flex-direction:column;gap:8px}.hw-pts li{padding:10px 12px;border-radius:12px;background:var(--paper);font-size:14.5px}
 .hw-note{font-size:13.5px;color:var(--muted);margin:12px 0 0}
 .hw-sent{margin:10px 0;padding:10px 12px;border-radius:12px;font-weight:700;background:var(--paper)}.hw-sent.ok{background:var(--ok-soft);color:var(--ok-deep)}.hw-sent.err,.hw-sent.nologin{background:color-mix(in srgb,var(--gold) 15%,var(--card))}
+/* Lærerens oppgavebygger (teach.js: renderTeEdit) */
+.te{padding-bottom:110px}
+.te-title{display:flex;flex-direction:column;gap:4px;margin:10px 0 14px}.te-title span{font-size:12px;font-weight:800;color:var(--muted)}
+.te-title input{padding:12px;border-radius:14px;border:2px solid var(--line);background:var(--card);color:var(--ink);font:700 17px var(--body)}
+.te-q{margin:0 0 12px;padding:12px;border-radius:18px;border:2px solid var(--line);background:var(--card);display:flex;flex-direction:column;gap:8px}
+.te-qh{display:flex;align-items:center;gap:8px}.te-qh>b{display:grid;place-items:center;flex:none;width:28px;height:28px;border-radius:50%;background:var(--accent);color:#fff;font:800 14px var(--display)}
+.te-type{flex:1;justify-content:flex-start;flex-wrap:nowrap;overflow-x:auto}.te-type button{white-space:nowrap;padding:6px 9px;font-size:13px}
+.te-x{flex:none;width:36px;height:36px;border-radius:10px;border:2px solid var(--line);background:var(--paper);color:var(--muted);font-size:15px;cursor:pointer}.te-x:disabled{opacity:.35;cursor:default}
+.te-qq{display:flex;gap:6px;align-items:stretch}
+.te-q textarea{flex:1;min-width:0;width:100%;box-sizing:border-box;padding:10px;border-radius:12px;border:2px solid var(--line);background:var(--paper);color:var(--ink);font:500 15.5px var(--body);resize:vertical}
+.te-fx{flex:none;width:44px;border-radius:12px;border:2px solid var(--line);background:var(--paper);color:var(--accent);font:800 20px var(--display);cursor:pointer}
+.te-pv:empty{display:none}.te-pv{padding:8px 10px;border-radius:12px;background:var(--accent-soft);font-size:15px}
+.te-ans{display:flex;align-items:center;gap:6px;min-width:0}.te-ans>span{flex:none;display:grid;place-items:center;width:28px;height:28px;border-radius:50%;font-weight:900;color:#fff;background:var(--ok)}
+.te-ans.bad>span{background:var(--muted)}
+.te-ans input{flex:1;min-width:0;padding:10px;border-radius:12px;border:2px solid var(--line);background:var(--paper);color:var(--ink);font:600 15px var(--body)}
+.te-ans.ok input{border-color:var(--ok)}
+.te-more{align-self:flex-start;border:0;background:none;color:var(--accent);font:700 14px var(--body);padding:4px 2px;cursor:pointer}
+.te-num{display:flex;gap:6px;align-items:center}.te-num .te-ans{flex:1}
+.te-u{flex:none;width:84px;padding:10px;border-radius:12px;border:2px solid var(--line);background:var(--paper);color:var(--ink);font:600 15px var(--body)}
+.te-tf button{min-width:96px}.te-hint{margin:0;color:var(--muted);font-size:13px}
+.te-add{width:100%;padding:14px;border-radius:16px;border:2px dashed var(--accent);background:none;color:var(--accent);font:800 16px var(--body);cursor:pointer}
+.tc-qrow{display:flex;gap:6px;align-items:stretch}.tc-qrow .tc-q{flex:1;min-width:0}.tc-qrow .kbtn{margin:0;padding:8px 12px}
+.tc-q small{color:var(--muted);font-size:12.5px}
+.tc-new{margin-top:4px}

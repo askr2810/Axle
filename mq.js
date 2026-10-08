@@ -62,7 +62,15 @@ function mqOne(r, lv){
 // cfg.src = «AX:KODE:0,2» (enheter i et fag) eller «CC:<id>» (et quiz-kurs). Tilfeldighetene (utvalg, tall i generatorene,
 // rekkefølgen på svarene) styres av seed, så alle i rommet får nøyaktig de samme spørsmålene.
 const MQ_CC = {};   // quiz-kurs som er hentet: id → { title, questions }
+// Lærerens egne oppgavesett (supabase/laerer.sql): «LS:<id>». Kan hentes uten konto, så elever slipper å logge inn for å gjøre leksen.
+const MQ_LS = {};
+function lsItems(qs){ return qs.map((x, i) => { const id = "ls." + i;
+  if(x.t === "num"){ const n = +x.n, tp = +x.tol || 0; return { id, type: "num", prompt: x.q, n, tol: tp > 0 ? Math.abs(n) * tp / 100 : 1e-9, u: x.u || "", expl: x.e || "" }; }
+  const opts = x.t === "tf" ? [{ t: t("ccTrue"), ok: +x.a === 1 }, { t: t("ccFalse"), ok: +x.a === 0 }] : shuffle(x.o.map((o, k) => ({ t: o, ok: k === +x.a })));
+  return { id, type: "mc", prompt: x.q, opts, expl: x.e || "" }; }); }
 async function mqPrep(cfg){
+  if(cfg && cfg.src && /^LS:/.test(cfg.src)){ const id = cfg.src.slice(3); if(MQ_LS[id]) return true;
+    try{ const r = await sbFetch("/rest/v1/rpc/lekse_get", { method: "POST", body: JSON.stringify({ p_id: id }) }, AUTH ? await authToken() : null); if(!r || !r.questions) return false; MQ_LS[id] = { title: r.title, questions: r.questions }; return true; }catch(e){ return false; } }
   if(!cfg || !cfg.src || !/^CC:/.test(cfg.src)) return true; const id = cfg.src.slice(3); if(MQ_CC[id]) return true;
   try{ const c = await ccFetchQuestions(id); MQ_CC[id] = { title: c.title, questions: c.questions || [] }; return true; }catch(e){ return false; }
 }
@@ -72,6 +80,7 @@ function mqQuizItems(cfg, max){
   return mqSeeded(cfg.seed, () => {
     let items = [];
     if(s.startsWith("CC:")) items = shuffle(ccItems(((MQ_CC[s.slice(3)] || {}).questions || []).filter(x => x.t !== "fc")));
+    else if(s.startsWith("LS:")) items = lsItems((MQ_LS[s.slice(3)] || {}).questions || []); // lærerens rekkefølge
     else { const [, code, us] = s.split(":"), c = COURSES.find(x => x.code === code); if(!c) return [];
       // fast tak på 60 kandidater, så utvalget (og rekkefølgen) er det samme uansett hvor mange spørsmål som spilles
       const units = String(us || "0").split(",").map(Number).filter(u => c.units[u]), P = poolIds(c, units);
@@ -89,6 +98,7 @@ const mqQs = cfg => { if(cfg.src) return mqQuizItems(cfg); const r = mqRng(cfg.s
 function mqSrcName(cfg){
   if(!cfg || !cfg.src) return mqLvName(cfg && cfg.lvl);
   if(/^CC:/.test(cfg.src)){ const c = MQ_CC[cfg.src.slice(3)]; return c ? c.title : T("Quiz", "Quiz"); }
+  if(/^LS:/.test(cfg.src)){ const c = MQ_LS[cfg.src.slice(3)]; return c ? c.title : T("Lærerens oppgaver", "Teacher's problems"); }
   const [, code, us] = cfg.src.split(":"), c = COURSES.find(x => x.code === code); if(!c) return T("Quiz", "Quiz");
   const u = String(us || "").split(",").map(Number); return courseShort(c) + " · " + (u.length === 1 ? unitTitle(c, u[0]) : T(`${u.length} enheter`, `${u.length} units`));
 }
