@@ -28,11 +28,13 @@ function renderBookTopic(){
   const legend = (x.legend || []).length ? `<table class="legend"><tbody>${x.legend.map(([s, m, un]) => `<tr><td class="ls">${tex(tpFx(s))}</td><td>${rich(m)}</td><td class="lu">${/\\/.test(un || "") ? tex(un) : esc(String(un || "").replace(/\{,\}/g, decPoint() ? "." : ","))}</td></tr>`).join("")}</tbody></table>` : "";
   const ex = x.ex ? `<div class="exbox"><div class="exbox-h">${esc(t("tpExample"))}</div>${String(x.ex).split("\n").map(l => `<p>${rich(l)}</p>`).join("")}</div>` : "";
   const nav = (tpx, dir) => tpx ? `<button class="tnav ${dir}" data-a="bktopic" data-c="${esc(c.code)}" data-id="${esc(tpx.tp.id)}"><small>${esc(t(dir === "prev" ? "bkPrev" : "bkNext"))}</small><b>${esc(tpText(tpx.tp).t)}</b></button>` : `<span></span>`;
+  // Figuren for seg: på PC står den til venstre (og blir stående) mens teksten står til høyre.
+  const media = (hit.tp.art ? `<figure class="tpart">${hit.tp.art()}</figure>` : hit.tp.fig ? `<figure class="tpfig" aria-hidden="true">${hit.tp.fig}</figure>` : "") +
+    (hit.tp.pic && typeof DRIVE_PICS !== "undefined" && DRIVE_PICS[hit.tp.pic] ? (p => `<figure class="tppic">${p.svg}<figcaption>${esc(p.cap)}</figcaption></figure>`)(DRIVE_PICS[hit.tp.pic](LANG)) : "");
   $app.innerHTML = `${bkTop("bkback", courseName(c) + " · " + unitTitle(c, hit.u), x.t, ttsTopBtn("main.topic"))}
-    <main class="wrap topic">
+    <main class="wrap topic ${media ? "has-media" : ""}">
       <h1>${esc(x.t)}</h1>
-      ${hit.tp.art ? `<figure class="tpart">${hit.tp.art()}</figure>` : hit.tp.fig ? `<figure class="tpfig" aria-hidden="true">${hit.tp.fig}</figure>` : ""}
-      ${hit.tp.pic && typeof DRIVE_PICS !== "undefined" && DRIVE_PICS[hit.tp.pic] ? (p => `<figure class="tppic">${p.svg}<figcaption>${esc(p.cap)}</figcaption></figure>`)(DRIVE_PICS[hit.tp.pic](LANG)) : ""}
+      ${media ? `<div class="tp-media">${media}</div>` : ""}<div class="tp-body">
       <p class="intro">${rich(x.intro)}</p>
       ${hit.tp.sim && typeof SIMS !== "undefined" ? [].concat(hit.tp.sim).filter(n => SIMS[n]).map(simHTML).join("") : ""}
       ${hit.tp.mv && typeof mvHTML === "function" ? mvHTML(hit.tp.mv) : ""}
@@ -41,7 +43,7 @@ function renderBookTopic(){
       ${typeof edBtnHTML === "function" ? edBtnHTML("tp", c.code, hit.tp.id) : ""}
       <div class="tnavs">${nav(prev, "prev")}${nav(next, "next")}</div>
       ${theoryOf(c.code, hit.u) ? `<button class="big ghost" data-a="bkunit" data-c="${esc(c.code)}" data-u="${hit.u}">${esc(t("tpFull"))}</button>` : ""}
-    </main>
+    </div></main>
     <div class="lfoot"><div class="wrap"><button class="big" data-a="bktopicpractice" data-c="${esc(c.code)}" data-u="${hit.u}">${esc(t("thStart"))}</button></div></div>`;
 }
 // Formler fra forklaringen, ikke fra utregninger i eksempler eller «slik løser du»-delen.

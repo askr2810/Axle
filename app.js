@@ -215,6 +215,28 @@ Object.assign(EMO, {
 });
 EMO["📲"] = EMO["📱"]; EMO["🌏"] = EMO["🌎"] = EMO["🌍"];
 // Etter hver tegning: et element som bare inneholder ett emoji vi har et ikon for, får linjeikonet i stedet.
+// Flere emoji som dukker opp i knapper og overskrifter (førerkort, fellesskap, editor …), i samme strek
+Object.assign(EMO, {
+  "🏍": svg('<circle cx="5.5" cy="16.5" r="3.5"/><circle cx="18.5" cy="16.5" r="3.5"/><path d="M5.5 16.5 9 10h5l4.5 6.5M9 10 7.5 7H5M14 10l2-3h3"/>'),
+  "✅": svg('<rect x="3.5" y="3.5" width="17" height="17" rx="4"/><path d="m8 12.5 3 3 5.5-6"/>'),
+  "👍": svg('<path d="M7 11v9H4v-9zM7 11l4-7c1.5 0 2.5 1 2.2 2.6L12.6 10H18a2 2 0 0 1 2 2.3l-1.2 6a2 2 0 0 1-2 1.7H7"/>'),
+  "🃏": svg('<rect x="3" y="6" width="11" height="15" rx="2"/><path d="M8 3.5h9a2 2 0 0 1 2 2V17"/>'),
+  "📌": I.pin, "❌": I.x, "✖": I.x,
+  "🥚": svg('<path d="M12 3c-4 0-7 6.5-7 10.5a7 7 0 0 0 14 0C19 9.5 16 3 12 3z"/>'),
+  "❓": svg('<circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.6.3-1 .8-1 1.5v.7M12 17h.01"/>'),
+  "🔓": svg('<rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 7.5-2"/>'),
+  "💾": svg('<path d="M5 3h11l3 3v15H5z"/><path d="M8 3v5h7V3M8 21v-7h8v7"/>'),
+  "🖨": svg('<path d="M7 9V3h10v6M7 17H4V9h16v8h-3"/><rect x="7" y="14" width="10" height="7"/>'),
+  "🔑": svg('<circle cx="8" cy="15" r="4"/><path d="m11 12 9-9M17 6l3 3M15 8l2 2"/>'),
+  "📥": svg('<path d="M3 13h5l1.5 3h5l1.5-3h5v7H3zM12 3v9M8.5 8.5 12 12l3.5-3.5"/>'),
+  "🔀": svg('<path d="M3 7h4l10 10h4M3 17h4l3-3M14 10l3-3h4M18 4l3 3-3 3M18 14l3 3-3 3"/>'),
+  "🏅": svg('<circle cx="12" cy="15" r="5"/><path d="M8.5 11 6 3h4l2 5 2-5h4l-2.5 8"/>'),
+  "🔕": svg('<path d="M6 16v-5a6 6 0 0 1 9.5-4.9M18 11v5l1.5 2H8M10 20.5a2 2 0 0 0 4 0M3 3l18 18"/>'),
+  "⚛": svg('<circle cx="12" cy="12" r="1.5"/><ellipse cx="12" cy="12" rx="9" ry="3.5"/><ellipse cx="12" cy="12" rx="9" ry="3.5" transform="rotate(60 12 12)"/><ellipse cx="12" cy="12" rx="9" ry="3.5" transform="rotate(-60 12 12)"/>'),
+  "🛰": svg('<rect x="9" y="9" width="6" height="6" rx="1" transform="rotate(45 12 12)"/><path d="m4 4 4 4M16 16l4 4M3 8l5-5M16 21l5-5M17 4a3 3 0 0 1 3 3"/>'),
+  "👋": svg('<path d="M7 12V6.5a1.5 1.5 0 0 1 3 0V11M10 10V4.5a1.5 1.5 0 0 1 3 0V11M13 10.5V6a1.5 1.5 0 0 1 3 0v7M16 11a1.5 1.5 0 0 1 3 0v3a7 7 0 0 1-12.5 4.3L4 15a1.5 1.5 0 0 1 2.2-2L7 14"/>'),
+  "💪": I.bolt
+});
 function emoIcons(root){
   if(!root || !root.querySelectorAll) return;
   for(const el of root.querySelectorAll("span, i, b, div, button, em, strong, small")){
