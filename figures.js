@@ -194,10 +194,32 @@ const FIGS = {
     <line x1="236" y1="70" x2="236" y2="120"/><line x1="230" y1="70" x2="242" y2="70"/><line x1="230" y1="120" x2="242" y2="120"/></g>
     ${fgT(197, 172, "z", "fg-i")}${fgT(246, 99, "z", "fg-i", "start")}` })
 };
+// Brøkstaver: ½ + ⅓ med felles nevner 6 (Grunnleggende matematikk, enhet 1)
+FIGS.fractions = () => {
+  const x0 = 120, w = 180, c = w / 6, row = (y, n, fill, lab) => {
+    let s = `<rect class="fg-box" x="${x0}" y="${y}" width="${w}" height="24" rx="3"/>`;
+    fill.forEach((cl, i) => { if(cl) s += `<rect class="${cl}" x="${x0 + i * c}" y="${y}" width="${c}" height="24"/>`; });
+    for(let i = 1; i < 6; i++) s += `<line class="${n && i % (6 / n) === 0 ? "fg-line" : "fg-mut"}" x1="${x0 + i * c}" y1="${y}" x2="${x0 + i * c}" y2="${y + 24}"/>`;
+    return s + `<rect class="fg-line" x="${x0}" y="${y}" width="${w}" height="24" rx="3"/>` + fgT(x0 - 12, y + 17, lab, "fg-b", "end");
+  };
+  return { cap: T("Felles nevner: del begge brøkene i sjettedeler, så kan tellerne legges sammen. ½ + ⅓ = 3/6 + 2/6 = 5/6.", "Common denominator: split both fractions into sixths, then the numerators can be added. ½ + ⅓ = 3/6 + 2/6 = 5/6."),
+    svg: row(18, 2, ["fg-water", "fg-water", "fg-water"], "1/2 = 3/6") + row(70, 3, ["fg-okw", "fg-okw"], "1/3 = 2/6") +
+      row(122, 0, ["fg-water", "fg-water", "fg-water", "fg-okw", "fg-okw"], T("sum = 5/6", "sum = 5/6")) + fgT(x0 + w / 2, 168, T("seks like store biter", "six equal pieces"), "fg-s") };
+};
+// En ligning er en vekt i balanse: x + 3 = 7 (Grunnleggende matematikk, enhet 3)
+FIGS.balance = () => {
+  const sq = (x, y) => `<rect class="fg-unitsq" x="${x}" y="${y}" width="14" height="14" rx="2"/>`;
+  let s = `<line class="fg-line" x1="30" y1="110" x2="290" y2="110" stroke-width="3"/><polygon class="fg-box" points="160,110 146,134 174,134"/>${fgGround(160, 134, 60)}`;
+  s += `<rect class="fg-box" x="48" y="76" width="34" height="34" rx="3"/>` + fgT(65, 99, "x", "fg-i fg-acct");
+  [92, 110, 128].forEach(x => { s += sq(x, 96); });
+  [180, 198, 216, 234, 252].forEach(x => { s += sq(x, 96); }); [189, 207].forEach(x => { s += sq(x, 78); });
+  s += fgT(160, 162, T("x + 3 = 7   ⇒   x = 7 − 3 = 4", "x + 3 = 7   ⇒   x = 7 − 3 = 4"), "fg-b");
+  return { cap: T("En ligning er en vekt i balanse. Gjør det samme på begge sider (her: ta bort 3), så holder balansen og x står igjen alene.", "An equation is a balance. Do the same to both sides (here: remove 3), and it stays balanced with x left on its own."), svg: s };
+};
 // Kobling enhet → figur (settes inn etter «Begreper og formler»)
 const FIG_MAP = {
   "MAPE1300:0": "beam_fbd", "MAPE1300:1": "incline", "MAPE1300:3": "beam_moment",
-  "MEK1000:0": "tangent", "MEK1000:1": "area", "GMAT:7": "tangent", "GMAT:5": "triangle",
+  "MEK1000:0": "tangent", "MEK1000:1": "area", "GMAT:7": "tangent", "GMAT:5": "triangle", "GMAT:0": "fractions", "GMAT:2": "balance",
   "ELPE1300:0": "circuit_sp", "ELPE1300:1": "rc_curve", "ELPE1300:2": "sine", "ELPE1300:4": "three_phase", "ELFT2400:3": "rc_curve",
   "FLUID:1": "venturi", "FLUID:3": "pump_curves", "MEK2200:3": "regression", "MATS2100:3": "heat_pump",
   "FAST:0": "stress_strain", "MATS1500:1": "stress_strain", "GFYS:2": "incline", "GFYS:6": "wave", "MEK1400:0": "wave", "MATS1600:3": "fillet_weld"
@@ -209,7 +231,7 @@ function figureHTML(name){
 }
 function withFigs(code, u, src){
   const name = FIG_MAP[code + ":" + u]; if(!name || src.includes("![fig:")) return src;
-  const lines = src.split("\n"); let i = lines.findIndex(l => /^##\s+(Begreper og formler|Concepts and formulas|Kort oppsummert|In short|Begreper|Concepts)$/.test(l.trim()));
+  const lines = src.split("\n"); let i = lines.findIndex(l => /^##\s+(Begreper og formler|Concepts and formulas|Begreper og regler|Concepts and rules|Kort oppsummert|In short|Begreper|Concepts)$/.test(l.trim()));
   if(i < 0) i = lines.findIndex((l, k) => k > 0 && /^##\s/.test(l.trim())) - 1;
   if(i < 0) return src + "\n\n![fig:" + name + "]";
   lines.splice(i + 1, 0, "", "![fig:" + name + "]", "");

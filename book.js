@@ -16,7 +16,7 @@ const tpFx = s => decPoint() ? String(s).replace(/\{,\}/g, ".") : String(s);
 function tpTileHTML(code, tp, label){
   const x = tpText(tp), key = x.f && x.f[0] ? x.f[0][0] : "";
   const dt = tp.pic && typeof DRIVE_TILE !== "undefined" ? DRIVE_TILE[tp.pic] : null;
-  const art = dt ? `<span class="tsignbox" aria-hidden="true">${FK_SIGNS[dt] ? fkSign(dt, 46) : `<span class="temo">${dt}</span>`}</span>` : tp.fig ? `<span class="tfig" aria-hidden="true">${tp.fig}</span>` : `<span class="tfx" aria-hidden="true">${key ? tex(tpFx(key)) : ""}</span>`;
+  const art = dt ? `<span class="tsignbox" aria-hidden="true">${FK_SIGNS[dt] ? fkSign(dt, 46) : `<span class="temo">${dt}</span>`}</span>` : tp.fig ? `<span class="tfig" aria-hidden="true">${tp.fig}</span>` : `<span class="tfx" aria-hidden="true">${key ? tex(tpFx(key)).replace(/<math(?=[\s>])/, '<math displaystyle="true"') : ""}</span>`;
   const seen = (S.topicSeen || {})[code + ":" + tp.id];
   return `<button class="tptile ${seen ? "seen" : ""}" data-a="bktopic" data-c="${esc(code)}" data-id="${esc(tp.id)}">${art}${label ? `<span class="tc">${esc(label)}</span>` : ""}<span class="tt">${esc(x.t)}</span></button>`;
 }

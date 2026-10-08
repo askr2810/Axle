@@ -21,7 +21,22 @@ function gdSections(src){
     if(out.length && body.length === 1 && body[0].length < 60 && !/^!\[/.test(body[0].trim()) && !/^!\[/.test(out[out.length - 1].trim())) out[out.length - 1] += "\n\n" + s;
     else out.push(s);
   }
-  return out;
+  return out.flatMap(gdSplitList);
+}
+// Lange punktlister («Begreper og regler») deles i flere kort med 2–3 punkter, så hvert kort er lett å lese.
+// Et punkt tar med seg linjene under seg (innrykk, formler og underpunkter) til neste punkt begynner.
+function gdSplitList(s){
+  const lines = s.split("\n"), hi = lines.findIndex(l => /^#{2,3}\s/.test(l.trim())), head = hi >= 0 ? lines[hi].trim() : "";
+  const body = lines.filter((_, i) => i !== hi), first = body.findIndex(l => /^[-*]\s/.test(l));
+  if(s.length < 800 || first < 0) return [s];
+  const pre = body.slice(0, first), items = [];
+  for(const l of body.slice(first)){ if(/^[-*]\s/.test(l)) items.push([l]); else items[items.length - 1].push(l); }
+  if(items.length < 4) return [s];
+  const chunks = [[]]; let len = pre.join("\n").length;
+  for(const it of items){ const n = it.join("\n").length, cur = chunks[chunks.length - 1];
+    if(cur.length >= 2 && len + n > 520){ chunks.push([it]); len = n; } else { cur.push(it); len += n; } }
+  if(chunks.length < 2) return [s];
+  return chunks.map((ch, j) => [head ? `${head} (${j + 1}/${chunks.length})` : "", ...(j ? [] : pre), ...ch.flat()].filter((l, i) => i || l).join("\n").replace(/\n+$/, ""));
 }
 function gdQuestions(code, u, n){
   const c = COURSE(code), P = poolIds(c, [u]), ids = [], items = [];
@@ -29,13 +44,23 @@ function gdQuestions(code, u, n){
   for(const id of shuffle(ids)){ if(items.length >= n) break; try{ const it = itemFromId(c, id, { mc: true }); if(it && it.type === "mc" && it.opts.length >= 2) items.push(it); }catch(e){} }
   return items;
 }
+// Spørsmålet som deler flest ord med kortene som nettopp ble lest (også matte-ord som frac og sqrt), tas ut av bunken.
+function gdBest(pool, text){
+  const words = s => new Set(String(s).toLowerCase().match(/[a-zæøå]{4,}/g) || []), seen = words(text);
+  let best = 0, bs = -1;
+  pool.forEach((it, i) => { const w = words(it.prompt + " " + (it.expl || "") + " " + it.opts.map(o => o.t).join(" "));
+    let n = 0; w.forEach(x => { if(seen.has(x)) n++; }); const sc = n / Math.sqrt(w.size + 1); if(sc > bs){ bs = sc; best = i; } });
+  return pool.splice(best, 1)[0];
+}
 function gdOpen(code, u, go){
   const doc = theoryOf(code, u); if(!doc){ if(go) startUnitLesson(code, go.u, go.k); return; }
   const src = withSims(code, u, withFigs(code, u, doc[LANG] || doc.nb)), secs = gdSections(src);
-  const qs = gdQuestions(code, u, Math.min(4, Math.max(1, Math.floor(secs.length / 2)))), cards = [];
-  const every = Math.max(2, Math.floor(secs.length / (qs.length + 1)));
-  secs.forEach((s, i) => { cards.push({ kind: "text", src: s }); if((i + 1) % every === 0 && i < secs.length - 1 && qs.length) cards.push({ kind: "q", it: qs.shift(), wrong: [], done: false }); });
-  while(qs.length) cards.push({ kind: "q", it: qs.shift(), wrong: [], done: false });
+  // Lær litt, prøv litt: et spørsmål etter hvert andre kort, valgt blant enhetens oppgaver etter hva kortene handlet om.
+  const want = Math.min(6, Math.max(1, Math.floor((secs.length - 1) / 2))), pool = gdQuestions(code, u, want * 2 + 2), cards = [];
+  let qn = 0;
+  secs.forEach((s, i) => { cards.push({ kind: "text", src: s });
+    if((i + 1) % 2 === 0 && i < secs.length - 1 && qn < want && pool.length){ cards.push({ kind: "q", it: gdBest(pool, secs[i - 1] + "\n" + s), wrong: [], done: false }); qn++; } });
+  while(qn < want && pool.length){ cards.push({ kind: "q", it: pool.shift(), wrong: [], done: false }); qn++; }
   cards.push({ kind: "end" });
   if(typeof stEv === "function") stEv("theory", code + ":" + u, "guided");
   GD = { code, u, go, cards, i: 0, from: screen, right: 0, asked: cards.filter(c => c.kind === "q").length };
@@ -48,7 +73,8 @@ function gdCardHTML(card, c){
     const first = GD.i === 0;
     const p = GD.proof && pfById(GD.proof);
     const head = !first ? "" : p ? `<div class="pf-head"><span class="pf-ic" aria-hidden="true">${p.ic}</span><div><small>${esc(t("pfKicker"))}</small><b>${rich(T(p.t[0], p.t[1]))}</b></div></div>` : teacherBubble(GD.code, esc(t("gdHello", unitTitle(c, GD.u))), 48, "tch-th");
-    return `${head}<div class="gd-text theory">${richDoc(card.src)}</div>`;
+    const skip = first && !p && !GD.proof ? `<button class="gd-skip" data-a="gdpractice">${I.bolt}${esc(T("Kan du dette fra før? Hopp rett til oppgavene", "Know this already? Skip to the questions"))}</button>` : "";
+    return `${head}<div class="gd-text theory">${richDoc(card.src).replace(/<li><b>([^<]*?):?<\/b>:?\s*/g, '<li class="rule"><b>$1</b>').replace(/<math(?=[\s>])(?![^>]*display="block")/g, '<math displaystyle="true"')}</div>${skip}`;
   }
   if(card.kind === "q"){
     const it = card.it, right = card.done && !card.gaveUp;
