@@ -17,6 +17,7 @@
   "dependencies": {
     "@capacitor/android": "latest",
     "@capacitor/app": "latest",
+    "@capacitor-community/app-icon": "latest",
     "@capacitor/core": "latest",
     "@capacitor/haptics": "latest",
     "@capacitor/ios": "latest",

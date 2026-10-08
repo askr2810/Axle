@@ -10,7 +10,7 @@ function renderWelcome(){
     ["🧪", T("Prøv selv", "Try it yourself"), T("Dra i figurene og se hva som skjer.", "Drag the figures and see what happens.")],
     ["🔁", T("Øv til det sitter", "Practise until it sticks"), T("Det du bommer på, kommer igjen.", "What you miss comes back.")]];
   $app.innerHTML = `<main class="wel">
-    <div class="wel-top"><span class="wel-logo">${PLATFORM !== "claude" ? `<img src="icons/logo-192.png" width="40" height="40" alt="">` : ""}Axle</span>
+    <div class="wel-top"><span class="wel-logo">${PLATFORM !== "claude" ? `<img src="${markSrc()}" width="40" height="40" alt="">` : ""}Axle</span>
       <div class="seg wel-lang" role="group" aria-label="Språk / Language">${[["nb", "Norsk"], ["en", "English"]].map(([l, n]) => `<button class="${LANG === l ? "on" : ""}" data-a="wellang" data-l="${l}" aria-pressed="${LANG === l}">${n}</button>`).join("")}</div></div>
     <section class="wel-hero"><h1>${esc(T("Læring gjort enkelt", "Learning made simple"))}</h1>
       <p>${esc(T("Axle gjør vanskelige temaer enkle – fra teoriprøven til ingeniørmatte. Gratis og uten reklame.", "Axle makes hard topics simple – from the driving test to engineering maths. Free and without ads."))}</p>
