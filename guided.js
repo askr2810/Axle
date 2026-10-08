@@ -104,7 +104,7 @@ function renderGuided(){
       <div class="gd-prog" role="progressbar" aria-valuemin="0" aria-valuemax="${n}" aria-valuenow="${GD.i + 1}">${segs}</div>
       ${ttsTopBtn(".gd-text")}${GD.proof ? `<span class="gd-full pf-tag">∎ ${esc(t("pfKicker"))}</span>` : `<button class="gd-full" data-a="gdfull">${esc(t("gdFull"))}</button>`}</div></div>
     <main class="wrap gd"><div class="gd-card ${GD.dir === "r" ? "gd-from-l" : GD.dir === "l" ? "gd-from-r" : "gd-in"}">${gdCardHTML(card, c)}</div>
-      ${!S.gdSwipeSeen && !isEnd ? `<p class="gd-swipe" aria-hidden="true">${esc(t("gdSwipe"))}</p>` : ""}</main>
+      ${!S.gdSwipeSeen && !isEnd ? `<p class="gd-swipe" aria-hidden="true">${esc(matchMedia("(pointer:fine)").matches ? T("← → Bruk piltastene for å bla", "← → Use the arrow keys to move") : t("gdSwipe"))}</p>` : ""}</main>
     <div class="lfoot ${card.kind === "q" && card.done ? (card.gaveUp ? "bad" : "ok") : ""}"><div class="wrap gd-foot">
       ${GD.i > 0 && !isEnd ? `<button class="gd-back" data-a="gdprev" aria-label="${esc(t("back"))}">${I.left}</button>` : ""}
       ${isEnd && GD.proof ? (() => { const nx = pfNext(GD.proof); return nx ? `<button class="big" data-a="pfopen" data-id="${nx.id}">${esc(t("pfNext"))}</button><button class="big ghost pf-more" data-a="pflist">${esc(t("pfMore"))}</button>` : `<button class="big" data-a="pflist">${esc(t("pfMore"))}</button>`; })()

@@ -363,7 +363,7 @@ function renderPick(){
   else { SC.filter(c=>c.group==="Forkurs").forEach(c=>add(c.group,c)); SC.filter(c=>c.group!=="Forkurs").forEach(c=>add(c.group,c)); }
   const decks = Object.keys(FAV_DRILL).filter(x => FAV_DRILL[x][4] === viewStudy());
   const favs = COURSES.filter(c=>isFav(c.code)); // favorittene øverst (står også i sin vanlige gruppe)
-  let h = `<div class="sheet"><div class="wrap"><div class="sheet-h"><h1>${t("pickTitle")}</h1><button class="iconbtn" data-a="home" aria-label="${t("back")}">${I.x}</button></div>
+  let h = `<div class="sheet"><div class="wrap pickw"><div class="sheet-h"><h1>${t("pickTitle")}</h1><button class="iconbtn" data-a="home" aria-label="${t("back")}">${I.x}</button></div>
     ${studyTabsHTML()}
     <div class="seg pickseg" role="radiogroup"><button role="radio" aria-checked="${!order}" class="${order?"":"on"}" data-a="pickmode" data-m="theme">${esc(t("pickTheme"))}</button><button role="radio" aria-checked="${order}" class="${order?"on":""}" data-a="pickmode" data-m="order">${esc(t("pickOrder"))}</button></div>
     ${order?`<p class="picknote">${esc(t("orderNote"))}</p>`:""}
