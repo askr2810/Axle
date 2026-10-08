@@ -1100,6 +1100,7 @@ function render(){
   renderNow();
   if(render.last !== screen && typeof stScreen === "function") stScreen(screen);
   render.last = screen;
+  if(typeof poDraw === "function") poDraw();
   if(keep != null){ const np = document.querySelector("#app .sheet"); if(np) np.scrollTop = keep; }
 }
 function renderNow(){
@@ -1122,6 +1123,7 @@ function renderNow(){
   else if(screen==="geo") renderGeo();
   else if(screen==="motion") renderMotion();
   else if(screen==="ctl") renderCtl();
+  else if(screen==="pomo") renderPomo();
   else if(screen==="catalog") renderCatalog();
   else if(screen==="code") renderCode();
   else if(screen==="snacks") renderSnacks();
