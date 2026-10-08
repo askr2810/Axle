@@ -13,7 +13,7 @@
     "targets": ["dmg", "nsis"],
     "category": "Education",
     "shortDescription": "Læring gjort enkelt",
-    "longDescription": "Axle – gratis læring for førerkort, videregående, ingeniørfag, sykepleie, økonomi og jus.",
+    "longDescription": "Axle – gratis læring for barneskole, ungdomsskole, videregående, førerkort, ingeniørfag, sykepleie, økonomi, jus og arkitektur.",
     "icon": ["icons/32x32.png", "icons/128x128.png", "icons/128x128@2x.png", "icons/icon.icns", "icons/icon.ico"],
     "macOS": { "minimumSystemVersion": "11.0" }
   }

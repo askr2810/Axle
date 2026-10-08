@@ -2,7 +2,7 @@
   "name": "axle",
   "version": "1.0.0",
   "private": true,
-  "description": "Axle – daglig ingeniørtrening (nett, iOS og Android)",
+  "description": "Axle – læring gjort enkelt (nett, iOS, Android, Mac og Windows)",
   "scripts": {
     "build": "node tools/vendor.mjs && python3 build.py && node tools/minify.mjs",
     "build:web": "npm run build && node tools/seo.js",

@@ -103,7 +103,7 @@ I Android Studio:
 3. Du får en `.aab`-fil.
 
 I Play Console:
-1. **Opprett app**: navn «Axle – ingeniørtrening», standardspråk norsk, app, gratis.
+1. **Opprett app**: navn «Axle – læring gjort enkelt», standardspråk norsk, app, gratis.
 2. Fyll ut **Butikkoppføring** med tekstene i `store/listing_nb.md` (og engelsk oversettelse fra `store/listing_en.md`), ikon `store/play-icon-512.png`, funksjonsgrafikk `store/play-feature-graphic-1024x500.png` og minst 2 skjermbilder (ta dem i emulatoren).
 3. **Appinnhold**: personvern-URL, ingen annonser (foreløpig), målgruppe 18+ (eller 13+), innholdsvurdering (utdanning, ingen støtende innhold).
 4. **Datasikkerhet**: Appen samler bare inn data når brukeren selv sender en rapport:
@@ -127,7 +127,7 @@ I Xcode:
 4. **Product → Archive** → *Distribute App* → *App Store Connect* → Upload.
 
 I App Store Connect (appstoreconnect.apple.com):
-1. **Mine apper → + Ny app**: navn «Axle – ingeniørtrening» (eller «Axle: Engineering Practice»), primærspråk norsk, bundle-ID `no.axle.app`, SKU f.eks. `axle-1`.
+1. **Mine apper → + Ny app**: navn «Axle – læring gjort enkelt» (eller «Axle: Learning Made Simple»), primærspråk norsk, bundle-ID `no.axle.app`, SKU f.eks. `axle-1`.
 2. Legg til engelsk som ekstra språk og lim inn tekstene fra `store/`.
 3. **App-personvern**: *Data som samles inn*: Kontaktinfo → E-postadresse (valgfri, kundestøtte) og Brukerinnhold → Kundestøtte (feilrapporter). Ikke brukt til sporing.
 4. Alder: 4+. Kategori: Utdanning. Pris: gratis.

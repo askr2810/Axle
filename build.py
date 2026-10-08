@@ -59,7 +59,7 @@ def build_www(js, css, out):
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="Axle">
-<title>Axle – læring gjort enkelt | førerkort, videregående, ingeniørfag og mer</title>
+<title>Axle – læring gjort enkelt | fra barneskole til universitet</title>
 <link rel="canonical" href="https://axle.no/">
 <meta name="google-site-verification" content="j54Juhy7GF-aUyFcZUlrv9hU12YIX0HtdH2GT5nl7aM">
 <meta property="og:title" content="Axle – læring gjort enkelt">

@@ -1,29 +1,33 @@
 # Store listing – English
 
-**Name (App Store, max 30):** Axle: Engineering Practice
-**Subtitle (App Store, max 30):** Maths, physics and mechanics
-**Short description (Google Play, max 80):** Daily engineering practice: theory, questions with new numbers and mock exams.
+**Name (App Store, max 30):** Axle: Learning Made Simple
+**Subtitle (App Store, max 30):** Simple theory in 82 subjects
+**Short description (Google Play, max 80):** Free learning from primary school to university: simple theory and practice.
 **Category:** Education · **Age rating:** 4+ / PEGI 3 · Everyone · **Price:** Free
 
 **Promotional text (App Store, max 170):**
-Learn engineering five minutes a day – from fractions and percentages to Laplace, FEM and control. New numbers every time, theory for every unit and mock exams with a grade.
+Learn a little every day – from times tables and fractions to the driving theory test, nursing, law and engineering. Simple theory, a picture for every question.
 
 **Description:**
-Axle turns engineering subjects into a daily habit. Pick a course, read a short theory section and practise with questions that get new numbers every time – just like a language app, but for maths, physics and engineering.
+Axle turns learning into a daily habit, wherever you start. Pick what you study, read a short theory section and practise with questions that give you a hint when you miss – just like a language app, but for school subjects, the driving licence and university courses.
 
-START FROM SCRATCH
-• Foundations of Mathematics and Physics take you from fractions, powers and equations to the level you need for calculus and mechanics.
-• "Builds on" shows which courses to take first, and the course picker can sort everything in the recommended order.
-
-35 COURSES
-Calculus, linear algebra, multivariable calculus, Laplace and Fourier, statistics, numerical methods, statics and dynamics, strength of materials, machine design, vibrations, thermodynamics, fluid mechanics, heat transfer, the finite element method (FEM), electric circuits, electronics, control engineering, robotics, embedded systems, materials, chemistry, Python, engineering economics, product development and more.
+FOR EVERY LEVEL
+• Primary and lower secondary school: numbers, fractions, times tables, science and more
+• Upper secondary: maths 1T–R2 and 1P–S2, physics, chemistry, biology, history, social studies, religion and Norwegian
+• Driving licence: the theory test for car and motorcycle, with signs and traffic situations
+• University: engineering, nursing, business, law and architecture
+• "Find my level" tests you in, or you start from scratch
 
 LEARN, PRACTISE AND TEST YOURSELF
-• Theory for every unit with worked examples and common mistakes
-• More than 1,600 questions – calculation questions get new numbers every time
+• Short step-by-step theory, with figures and simulations you can drag
+• More than 4,800 questions – calculation questions get new numbers every time
+• A hint when you answer wrong, and an explanation for every question
 • Levels from basics to master, with a crown when you master a unit
-• Mock exams with a timer, optional extra time, points and an indicative A–F grade
+• Mock exams with a timer, points and an indicative grade
 • Review of the questions you got wrong
+
+TOGETHER WITH OTHERS
+Friends, duels, sprints and teacher tools for homework and class quizzes.
 
 WORK IT OUT LIKE ON PAPER
 A scratchpad where you can draw with your finger or a stylus and zoom in and out – plus a calculator that remembers your answers.
@@ -32,12 +36,12 @@ ENGLISH AND NORWEGIAN
 The whole app is available in English and Norwegian.
 
 PRIVACY
-No tracking or ads. An account is optional – without one, your progress is stored only on your phone.
+No tracking or ads. An account is optional – without one, your progress is stored only on your device.
 
 Found a mistake in a question? Tap the flag – the report goes straight to the developer.
 
 **Keywords (App Store, max 100 chars):**
-engineering,math,physics,calculus,mechanics,statics,exam,FEM,control,thermodynamics,circuits,study
+math,driving test,exam,homework,physics,fractions,nursing,engineering,law,business,school,study
 
 **Support / marketing URL:** https://axle.no
 **Privacy policy URL:** https://axle.no/privacy.html

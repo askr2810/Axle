@@ -18,5 +18,5 @@ const CONFIG = {
   // Offentlig VAPID-nøkkel for påminnelser i nettleseren (web push). Den private nøkkelen ligger bare i Supabase (Edge Function-secret).
   vapidPublicKey: "BNyz9NRf8XCFb7UuP384TEXYjqDZ6An2io4EYv4JJtQePWcPeFQeXD8UK94kdPEdLXZ1SIxFlFutUmbjQP0iTy0",
   appName: { nb: "Axle", en: "Axle" },
-  storeName: { nb: "Axle – ingeniørtrening", en: "Axle: Engineering Practice" }
+  storeName: { nb: "Axle – læring gjort enkelt", en: "Axle: Learning Made Simple" }
 };

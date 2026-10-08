@@ -81,9 +81,9 @@ const TX = {
     desc: (n, q, u, codes) => `Øv på ${n.toLowerCase()} gratis: ${q} oppgaver med løsningsforslag, ${u} deler med teori og formler, og prøveeksamen.${codes.length ? ' Passer for ' + codes.slice(0, 3).join(', ') + '.' : ''}`,
     tpTitle: (t, n) => `${t} – forklaring, formel og eksempel | ${n} | Axle`, symbols: 'Symboler', example: 'Eksempel', practiseFree: u => `Øv på ${u} gratis →`, partOf: 'Del av',
     hubTitle: 'Alle fag – læring gjort enkelt | Axle', hubH1: 'Alle fagene i Axle',
-    hubLead: n => `Enkel teori, interaktive figurer og oppgaver med løsningsforslag i ${n} fag – førerkort, videregående, ingeniørfag, sykepleie, økonomi og jus.`,
-    hubDesc: n => `Gratis læring i ${n} fag: teoriprøven for førerkort, videregående (matte, fysikk, historie …), ingeniørfag, sykepleie, økonomi og jus. Enkel teori, interaktive figurer og oppgaver med løsning.`,
-    open: 'Åpne Axle →', about: 'Axle – læring gjort enkelt. Gratis for førerkort, videregående, ingeniørfag, sykepleie, økonomi og jus.', privacy: 'Personvern', contact: 'Kontakt',
+    hubLead: n => `Enkel teori, interaktive figurer og oppgaver med løsningsforslag i ${n} fag – barneskole, ungdomsskole, videregående, førerkort, ingeniørfag, sykepleie, økonomi, jus og arkitektur.`,
+    hubDesc: n => `Gratis læring i ${n} fag: barneskole og ungdomsskole, videregående (matte, fysikk, historie …), teoriprøven for førerkort, ingeniørfag, sykepleie, økonomi, jus og arkitektur. Enkel teori, interaktive figurer og oppgaver med løsning.`,
+    open: 'Åpne Axle →', about: 'Axle – læring gjort enkelt. Gratis for barneskole, ungdomsskole, videregående, førerkort, ingeniørfag, sykepleie, økonomi, jus og arkitektur.', privacy: 'Personvern', contact: 'Kontakt',
     other: 'English', currency: 'NOK' },
   en: { all: 'All courses', hub: '/en/courses/', parts: n => `${n} parts`, probs: n => `${n} problems`, concepts: n => `${n} concepts explained`, exam: 'Practice exam', free: 'Free',
     startFree: 'Start practising for free →', contents: 'Contents', inPart: 'Concepts in this part', practisePart: u => `Practise ${u} in the app →`, samplesH: 'Example problems with solutions',
@@ -94,7 +94,7 @@ const TX = {
     desc: (n, q, u, codes) => `Practise ${n} for free: ${q} problems with worked solutions, ${u} parts with theory and formulas, and a practice exam.${codes.length ? ' Matches ' + codes.slice(0, 3).join(', ') + '.' : ''}`,
     tpTitle: (t, n) => `${t} – explanation, formula and example | ${n} | Axle`, symbols: 'Symbols', example: 'Example', practiseFree: u => `Practise ${u} for free →`, partOf: 'Part of',
     hubTitle: 'All subjects – learning made simple | Axle', hubH1: 'All subjects in Axle',
-    hubLead: n => `Simple theory, interactive figures and problems with worked solutions in ${n} subjects – driving licence, upper secondary, engineering, nursing, business and law.`,
+    hubLead: n => `Simple theory, interactive figures and problems with worked solutions in ${n} subjects – primary and lower secondary school, upper secondary, the driving licence, engineering, nursing, business, law and architecture.`,
     hubDesc: n => `Free learning in ${n} subjects: the driving theory test, upper secondary (maths, physics, history …), engineering, nursing, business and law. Simple theory, interactive figures and worked problems.`,
     open: 'Open Axle →', about: 'Axle – learning made simple. Free for the driving test, upper secondary, engineering, nursing, business and law.', privacy: 'Privacy', contact: 'Contact',
     other: 'Norsk', currency: 'NOK' }
@@ -400,7 +400,7 @@ function aboutPage(){
     ['3', TT('Øv til det sitter', 'Practise until it sticks'), TT('Oppgavene får nye tall hver gang. Det du bommer på, kommer igjen – og det du kan, repeteres akkurat ofte nok.', 'Problems get new numbers every time. What you miss comes back – and what you know is reviewed just often enough.')],
     ['4', TT('Bygg videre', 'Build on it'), TT('Når et tema sitter, går du videre. Løste eksempler viser fremgangsmåten når du står fast.', 'When a topic sticks, you move on. Worked examples show the method when you are stuck.')]];
   const faq = [[TT('Er Axle gratis?', 'Is Axle free?'), TT('Ja. All teori, alle oppgaver, prøvene og laberne er gratis, uten reklame.', 'Yes. All theory, problems, tests and labs are free, with no ads.')],
-    [TT('Hvilke fag finnes?', 'Which subjects are there?'), TT(`${COURSES.length} fag innen førerkort, videregående, ingeniørfag, sykepleie, økonomi og jus.`, `${COURSES.length} subjects in the driving licence, upper secondary, engineering, nursing, business and law.`)],
+    [TT('Hvilke fag finnes?', 'Which subjects are there?'), TT(`${COURSES.length} fag innen barneskole, ungdomsskole, videregående, førerkort, ingeniørfag, sykepleie, økonomi, jus og arkitektur.`, `${COURSES.length} subjects in the primary and lower secondary school, upper secondary, the driving licence, engineering, nursing, business, law and architecture.`)],
     [TT('Kan jeg bruke Axle på mobilen?', 'Can I use Axle on my phone?'), TT('Ja. Åpne axle.no og legg den til på hjemskjermen – da fungerer den som en vanlig app, også på PC og Mac.', 'Yes. Open axle.no and add it to your home screen – it then works like a normal app, also on PC and Mac.')],
     [TT('Hvordan øver jeg til teoriprøven?', 'How do I prepare for the theory test?'), TT('Gå til Førerkort i Axle: lær skiltene i Skiltspillet, spill av trafikksituasjoner og ta prøver med samme format som den ekte.', 'Go to Driving licence in Axle: learn the signs in the sign game, replay traffic situations and take tests in the same format as the real one.')],
     [TT('Hva skjer med dataene mine?', 'What happens to my data?'), TT('Fremgangen lagres på enheten din, og i skyen bare hvis du lager konto. Ingen sporing fra tredjeparter.', 'Progress is stored on your device, and in the cloud only if you create an account. No third-party tracking.')]];
@@ -427,7 +427,7 @@ ${faq.map(([q, a]) => `<details><summary>${q}</summary><p>${a}</p></details>`).j
 <h2>${TT('Kontakt', 'Contact')}</h2>
 <p>${TT('Har du forslag, funnet en feil eller vil samarbeide? Skriv til', 'Have a suggestion, found a mistake or want to work together? Write to')} <a href="mailto:ask@axle.no">ask@axle.no</a>. ${TT('Trenger du hjelp med kontoen eller appen:', 'Need help with your account or the app:')} <a href="mailto:${esc(CONFIG.contactEmail)}">${esc(CONFIG.contactEmail)}</a>.</p>`;
   const url = nb ? '/about/' : '/en/about/';
-  return page({ url, alt: nb ? '/en/about/' : '/about/', title: TT('Om Axle – læring gjort enkelt', 'About Axle – learning made simple'), desc: TT('Axle er en gratis læringsapp for førerkort, videregående, ingeniørfag, sykepleie, økonomi og jus. Enkel teori steg for steg, figurer du kan dra i og oppgaver med løsning.', 'Axle is a free learning app for the driving test, upper secondary, engineering, nursing, business and law. Simple step-by-step theory, figures you can drag and worked problems.'), body,
+  return page({ url, alt: nb ? '/en/about/' : '/about/', title: TT('Om Axle – læring gjort enkelt', 'About Axle – learning made simple'), desc: TT('Axle er en gratis læringsapp for barneskole, ungdomsskole, videregående, førerkort, ingeniørfag, sykepleie, økonomi, jus og arkitektur. Enkel teori steg for steg, figurer du kan dra i og oppgaver med løsning.', 'Axle is a free learning app for the driving test, upper secondary, engineering, nursing, business and law. Simple step-by-step theory, figures you can drag and worked problems.'), body,
     jsonld: [{ '@context': 'https://schema.org', '@type': 'Organization', name: 'Axle', url: SITE, logo: SITE + '/icons/icon-512.png', slogan: TT('Læring gjort enkelt', 'Learning made simple'), email: CONFIG.contactEmail },
       { '@context': 'https://schema.org', '@type': 'FAQPage', mainEntity: faq.map(([q, a]) => ({ '@type': 'Question', name: q, acceptedAnswer: { '@type': 'Answer', text: a } })) }] });
 }
@@ -435,7 +435,7 @@ for(const l of ['nb', 'en']){ setL(l); const html = aboutPage(); write((l === 'n
 setL('nb');
 write('sitemap.xml', `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">\n${pairs.map(([u, a]) => `<url><loc>${SITE}${u}</loc><lastmod>${today}</lastmod>${a ? [[langOf(u), u], [langOf(a), a]].sort().map(([l, x]) => `<xhtml:link rel="alternate" hreflang="${l}" href="${SITE}${x}"/>`).join('') + `<xhtml:link rel="alternate" hreflang="x-default" href="${SITE}${langOf(u) === 'nb' ? u : a}"/>` : ''}</url>`).join('\n')}\n</urlset>\n`);
 // axle.no/en og axle.no/english: starter appen på engelsk (appen leser ?lang=en og husker valget).
-const enPage = `<!doctype html><html lang="en"><head><meta charset="utf-8"><title>Axle – free engineering practice in English</title>
+const enPage = `<!doctype html><html lang="en"><head><meta charset="utf-8"><title>Axle – free learning made simple, in English</title>
 <meta name="viewport" content="width=device-width, initial-scale=1"><meta name="robots" content="noindex"><link rel="canonical" href="${SITE}/en/courses/">
 <meta http-equiv="refresh" content="0; url=/?lang=en"><script>location.replace("/?lang=en" + location.hash)</script></head>
 <body><p><a href="/?lang=en">Open Axle in English</a> · <a href="/en/courses/">All courses</a></p></body></html>`;
@@ -445,7 +445,7 @@ const AI_BOTS = ['GPTBot', 'ChatGPT-User', 'OAI-SearchBot', 'ClaudeBot', 'Claude
 write('robots.txt', `User-agent: *\nAllow: /\n\n${AI_BOTS.map(b => `User-agent: ${b}\nAllow: /\n`).join('\n')}\nSitemap: ${SITE}/sitemap.xml\n`);
 // llms.txt: kort oversikt over Axle for språkmodeller (https://llmstxt.org)
 { const groups = {}; for(const c of COURSES){ (groups[c.group || 'Annet'] ||= []).push(c); }
-  write('llms.txt', `# Axle\n\n> Axle (axle.no) er en gratis norsk læringsapp uten reklame: enkel teori steg for steg, interaktive figurer og oppgaver med løsning for førerkort (teoriprøven bil og MC), videregående, ingeniørfag, sykepleie, økonomi og jus. Slagord: «Læring gjort enkelt».\n\n` +
+  write('llms.txt', `# Axle\n\n> Axle (axle.no) er en gratis norsk læringsapp uten reklame: enkel teori steg for steg, interaktive figurer og oppgaver med løsning for barneskole, ungdomsskole, videregående, førerkort (teoriprøven bil og MC), ingeniørfag, sykepleie, økonomi, jus og arkitektur. Slagord: «Læring gjort enkelt».\n\n` +
     `Fagsidene under er åpne og kan siteres. Hvert fag har teori, emnesider med formler og eksempler, og eksempeloppgaver. Appen ligger på ${SITE}/.\n\n` +
     `## Viktige sider\n\n- [Om Axle](${SITE}/about/): hva Axle er og hvordan man lærer med den\n- [Teoriprøve bil (klasse B)](${SITE}${courseUrl(COURSES.find(c => c.code === 'FKB'))}): gratis øving til teoriprøven\n- [Alle fag](${SITE}${hubUrl()}): oversikt over alle ${COURSES.length} fag\n\n` +
     Object.entries(groups).map(([g, cs]) => `## ${g}\n\n${cs.map(c => `- [${name(c)}](${SITE}${courseUrl(c)})`).join('\n')}`).join('\n\n') + '\n'); }

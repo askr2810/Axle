@@ -1,6 +1,6 @@
 
 // ============================================================
-//  Axle – ingeniørtrening / engineering practice
+//  Axle – læring gjort enkelt / learning made simple
 // ============================================================
 const $app = document.getElementById("app");
 const esc = s => String(s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));

@@ -1,7 +1,7 @@
 {
-  "name": "Axle – ingeniørtrening",
+  "name": "Axle – læring gjort enkelt",
   "short_name": "Axle",
-  "description": "Daglig trening i ingeniørfag: matte, fysikk, mekanikk, elektro og mer. Teori, oppgaver med nye tall og prøveeksamener.",
+  "description": "Gratis læring for alle nivåer: barneskole, ungdomsskole, videregående, førerkort, ingeniørfag, sykepleie, økonomi, jus og arkitektur. Enkel teori steg for steg, figurer og oppgaver med løsning.",
   "lang": "nb",
   "start_url": "./",
   "scope": "./",

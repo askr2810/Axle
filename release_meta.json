@@ -1,7 +1,7 @@
 {
   "appId": "no.axle.app",
   "appName": "Axle",
-  "description_nb": "Læring gjort enkelt: gratis app for teoriprøven (førerkort), videregående, ingeniørfag, sykepleie, økonomi og jus. Enkel teori steg for steg, figurer du kan dra i og oppgaver med løsning.",
-  "description_en": "Learning made simple: a free app for the driving theory test, upper secondary, engineering, nursing, business and law. Simple step-by-step theory, figures you can drag and problems with worked solutions.",
+  "description_nb": "Læring gjort enkelt: gratis app for barneskole, ungdomsskole, videregående, teoriprøven (førerkort), ingeniørfag, sykepleie, økonomi, jus og arkitektur. Enkel teori steg for steg, figurer du kan dra i og oppgaver med løsning.",
+  "description_en": "Learning made simple: a free app for primary and lower secondary school, upper secondary, the driving theory test, engineering, nursing, business, law and architecture. Simple step-by-step theory, figures you can drag and problems with worked solutions.",
   "domain": "axle.no"
 }

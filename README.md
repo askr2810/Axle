@@ -1,4 +1,4 @@
-# Axle – ingeniørtrening
+# Axle – læring gjort enkelt
 
 https://axle.no
 
