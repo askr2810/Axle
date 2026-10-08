@@ -483,6 +483,7 @@ function finishLesson(){
   if(L.kind==="challenge"){ S.dc = { day: L.meta.day, right: firstTry, n: L.total }; bdgStat("challenges"); }
   if(L.kind==="mydeck") mdRecord();
   if(L.kind==="quick"){ (S.quickDone ||= {})[L.code] = 1; }
+  const fcMsg = (L.kind==="focus" || (L.meta && L.meta.focus)) && typeof focRecord === "function" ? focRecord() : null;
   if(L.kind==="drill" || L.kind==="challenge") drRecord(); // grunnbegreper i utfordringen teller også i terpinga
   noteNightLesson();
   const wrong = new Set(s.wrong);
@@ -497,6 +498,7 @@ function finishLesson(){
   L.result = { xpBefore, levelUp: levelInfo(S.xp).lv > lvBefore ? levelInfo(S.xp).lv : 0, streakMile: st.streakUp && STREAK_MILES.includes(st.streak) ? st.streak : 0, bonus: L.bonus||0, goalHit: st.goalHit, newBadges, gained: gained + (L.bonus||0), acc: Math.round(firstTry/L.total*100), secs: Math.round((Date.now()-L.start)/1000), streak: st.streak, streakUp: st.streakUp };
   if(typeof stEv === "function") stEv("lesson", L.code, L.kind === "unit" && L.meta ? L.meta.u : L.kind, firstTry, L.total);
   screen = "done"; render();
+  if(fcMsg) setTimeout(() => toast(fcMsg), 900);
 }
 function correctText(it){ return it.type==="mc" ? it.opts.find(o=>o.ok).t : it.type==="flip" ? it.answer : nf(it.n,3)+(it.u?" "+it.u:""); }
 // Flashcard: personen snur kortet og sier selv om hen kunne det. Teller som riktig/feil akkurat som et vanlig svar.
@@ -510,7 +512,7 @@ function flipGrade(ok){
 function renderLesson(){
   const it = L.queue[0];
   const pct = (L.maxHearts ? (L.done + (L.answered?1:0)) : L.solved.size) / L.total * 100;
-  const lvl = L.kind==="unit" ? `${lvShort(L.meta.k)} · ${lvName(L.meta.k)} · ` : L.kind==="jump" ? t("jumpTest")+" · " : L.kind==="review" ? t("review")+" · " : L.kind==="challenge" ? t("dcTitle")+" · " : L.kind==="drill" ? drTitle()+" · "+(it.drTag ? T(DR_TAGS[it.drTag][0], DR_TAGS[it.drTag][1])+" · " : "") : L.kind==="community" || L.kind==="mydeck" ? (L.meta.title||t("ccTitle"))+" · " : "";
+  const lvl = L.kind==="unit" ? `${lvShort(L.meta.k)} · ${lvName(L.meta.k)} · ` : L.kind==="jump" ? t("jumpTest")+" · " : L.kind==="review" ? t("review")+" · " : L.kind==="challenge" ? t("dcTitle")+" · " : L.kind==="focus" ? "🎯 "+T("Mitt fokus","My focus")+" · " : L.kind==="drill" ? drTitle()+" · "+(it.drTag ? T(DR_TAGS[it.drTag][0], DR_TAGS[it.drTag][1])+" · " : "") : L.kind==="community" || L.kind==="mydeck" ? (L.meta.title||t("ccTitle"))+" · " : "";
   if(it.type==="flip"){ // flashcard
     const shown = !!L.flipShown;
     $app.innerHTML = `<div class="lesson"><div class="wrap lhead"><button class="iconbtn" data-a="quit" aria-label="${t("quitAria")}">${I.x}</button><div class="bar" role="progressbar" aria-valuenow="${Math.round(pct)}" aria-valuemin="0" aria-valuemax="100"><i style="width:${pct}%"></i></div><span class="combo">${L.combo>=2?L.combo+"×":""}</span><button class="iconbtn flag" data-a="report" aria-label="${t("report")}" title="${t("report")}">${I.flag}</button></div>
@@ -553,7 +555,7 @@ function renderLesson(){
 }
 function renderDone(){
   const r = L.result, m = Math.floor(r.secs/60), sec = r.secs%60, c = COURSE(L.code), u = L.meta && L.meta.u;
-  const title = L.kind==="quick" ? T(`${L.total - L.firstWrong.size} av ${L.total} riktige!`, `${L.total - L.firstWrong.size} of ${L.total} correct!`) : L.kind==="community" ? t("ccDoneTitle") : L.kind==="drill" || L.kind==="mydeck" ? t("drDoneTitle") : L.kind==="challenge" ? t("dcDoneTitle") : L.kind==="jump" ? t("doneJump") : (L.kind==="unit" && L.meta.k===3) ? t("doneCrown") : r.acc===100 ? t("doneFlawless") : L.kind==="review" ? t("doneReview") : t("doneLevel", lvShort(L.meta.k));
+  const title = L.kind==="quick" ? T(`${L.total - L.firstWrong.size} av ${L.total} riktige!`, `${L.total - L.firstWrong.size} of ${L.total} correct!`) : L.kind==="community" ? t("ccDoneTitle") : L.kind==="drill" || L.kind==="mydeck" ? t("drDoneTitle") : L.kind==="challenge" ? t("dcDoneTitle") : L.kind==="focus" ? T("Fokusøkt fullført 🎯", "Focus session done 🎯") : L.kind==="jump" ? t("doneJump") : (L.kind==="unit" && L.meta.k===3) ? t("doneCrown") : r.acc===100 ? t("doneFlawless") : L.kind==="review" ? t("doneReview") : t("doneLevel", lvShort(L.meta.k));
   const sub2 = L.kind==="drill" || L.kind==="mydeck" ? t("drDoneSub", L.total - L.firstWrong.size, L.total) : L.kind==="jump" ? t("jumpUnlocked", unitTitle(c,u)) : (L.kind==="unit" && L.meta.k===3) ? t("crownWon", unitTitle(c,u)) : null;
   $app.innerHTML = `<main class="wrap finish pop">
     ${r.goalHit ? goalCelebrateHTML(L.code, r) : teacherBubble(L.code, esc(pickLine(t(r.acc === 100 ? "tchFlawless" : r.acc >= 70 ? "tchDone" : "tchDoneLow"))), 64, "tch-done")}
@@ -938,6 +940,7 @@ function renderOverlay(){
   else if(overlay.studypick) d.innerHTML = studyPickHTML(overlay.first);
   else if(overlay.games) d.innerHTML = gamesMenuHTML(overlay.games);
   else if(overlay.homeGuide) d.innerHTML = homeGuideHTML();
+  else if(overlay.focusPick) d.innerHTML = focPickHTML(overlay.focusPick);
   else if(overlay.mdimport){ d.className = "scrim center"; d.innerHTML = mdImportHTML(overlay.mdimport); }
   else if(overlay.drpick) d.innerHTML = drPickHTML();
   else if(overlay.mdpub) d.innerHTML = mdPubHTML(overlay.mdpub);
@@ -1176,7 +1179,7 @@ document.addEventListener("click", async e=>{
   if(grClick(a, b)) return; // grupper (handlinger som starter med "gr")
   if(studyClick(a, b)) return; // studier (studies.js)
   if(pfClick(a, b)) return; // bevis (proofs.js)
-  if(snEntryClick(a) || snClick(a, b) || spClick(a, b) || gmClick(a, b) || gmMenuClick(a, b) || duClick(a, b) || mdClick(a, b) || unitsClick(a, b) || tgClick(a, b) || fcClick(a, b) || labClick(a, b) || geClick(a, b) || mvClick(a) || ctClick(a, b) || catClick(a, b) || nudgeClick(a, b) || shareClick(a, b) || ibClick(a, b) || dvClick(a, b) || scClick(a, b) || cdClick(a, b) || thClick(a, b)) return; // snacks og lynrunde (snacks.js)
+  if(snEntryClick(a) || snClick(a, b) || spClick(a, b) || gmClick(a, b) || gmMenuClick(a, b) || duClick(a, b) || mdClick(a, b) || unitsClick(a, b) || tgClick(a, b) || fcClick(a, b) || labClick(a, b) || geClick(a, b) || mvClick(a) || ctClick(a, b) || catClick(a, b) || focClick(a, b) || nudgeClick(a, b) || shareClick(a, b) || ibClick(a, b) || dvClick(a, b) || scClick(a, b) || cdClick(a, b) || thClick(a, b)) return; // snacks og lynrunde (snacks.js)
   if(adminClick(a, b)) return; // adminpanel og kunngjøringer (admin.js)
   if(psClick(a, b)) return; // profilsiden til andre + hvilke merker du viser (person.js)
   if(friendsClick(a, b)) return; // venner (handlinger som starter med "fr")
