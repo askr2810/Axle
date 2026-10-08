@@ -66,7 +66,7 @@ function bootPrompts(){
 // Tospråklig, siden vi ennå ikke vet hvilket språk personen leser.
 function langPickHTML(){
   return `<div class="dialog pop langpick" role="dialog" aria-label="Velg språk / Choose language">
-    ${PLATFORM === "claude" ? `<div class="lp-ic" aria-hidden="true">🌍</div>` : `<img class="lp-logo" src="icons/logo-192.png" width="96" height="96" alt="Axle">`}<h3>Velg språk<br><small>Choose language</small></h3>
+    ${PLATFORM === "claude" ? `<div class="lp-ic" aria-hidden="true">🌍</div>` : `<img class="lp-logo" src="icons/logo-192.png" width="72" height="72" alt="Axle">`}<h3>Velg språk<br><small>Choose language</small></h3>
     <button class="lp-btn" data-a="langpick" data-l="nb"><span class="lp-flag" aria-hidden="true">🇳🇴</span><span><b>Norsk</b><small>Bokmål</small></span></button>
     <button class="lp-btn" data-a="langpick" data-l="en"><span class="lp-flag" aria-hidden="true">🇬🇧</span><span><b>English</b><small>All courses and theory in English</small></span></button>
     <p class="lp-note">Kan endres i Innstillinger · Can be changed in Settings</p></div>`;

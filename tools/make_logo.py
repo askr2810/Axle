@@ -1,8 +1,10 @@
 #!/usr/bin/env python3
 """Lager alle ikon-, splash- og butikkbildene for Axle fra de to logoene i brand/.
 
-  brand/axle-logo-a.png  – «A»-merket (app-ikon, favicon, PWA, butikkikon)
-  brand/axle-logo.png    – «Axle»-ordmerket (splash, delingsbilde, språkvalget i appen)
+  brand/axle-logo-a.png        – «A»-merket: hovedmerket, brukes overalt (ikoner, favicon, i appen)
+  brand/axle-lockup(-light).png – «A»-merket med «Axle» i Bricolage Grotesque ved siden av (splash, delingsbilde),
+                                  mørk tekst for lys bakgrunn og lys tekst for mørk
+  brand/axle-logo.png          – «Axle» inne i flisen; brukes bare som kilde for rutenettet (navnet blir for trangt i flisen)
 
 Begge er flisene slik de er tegnet: blått rutenett, gult bokmerke, sort kant og avrundede hjørner.
 Der et ikon må fylle hele flaten (iOS, Android, maskable), klippes kanten bort og rutenettet
@@ -22,6 +24,7 @@ CELL = (522, 1622)   # øvre venstre hjørne av en tom rute i ordmerket (linjene
 
 def src(name): return Image.open(os.path.join(ROOT, "brand", name)).convert("RGBA")
 A, WORD = src("axle-logo-a.png"), src("axle-logo.png")
+LOCK, LOCK_L = src("axle-lockup.png"), src("axle-lockup-light.png")
 
 def grid(w, h, x0, y0):
     """Tomt rutenett i kildeoppløsning, med en linje i (x0, y0)."""
@@ -49,6 +52,11 @@ def centered(bg, tile, size, canvas):
     out.alpha_composite(tile.resize((size, size), Image.LANCZOS), ((canvas[0] - size) // 2, (canvas[1] - size) // 2))
     return out
 
+def lockup(bg, lk, width, canvas):
+    out = Image.new("RGBA", canvas, bg + (255,)); h = round(lk.height * width / lk.width)
+    out.alpha_composite(lk.resize((width, h), Image.LANCZOS), ((canvas[0] - width) // 2, (canvas[1] - h) // 2))
+    return out
+
 def save(im, *parts, size=None, rgb=False):
     if size: im = im.resize(size if isinstance(size, tuple) else (size, size), Image.LANCZOS)
     if rgb: im = im.convert("RGB")
@@ -64,20 +72,20 @@ print("Axle-logo:")
 save(APP, "assets", "icon-only.png", size=1024, rgb=True)
 save(ADAPTIVE, "assets", "icon-foreground.png", size=1024, rgb=True)
 save(grid(2161, 2161, LINE0, LINE0), "assets", "icon-background.png", size=1024, rgb=True)
-for name, col in (("splash.png", PAPER), ("splash-dark.png", PAPER_DARK)):
-    save(centered(col, WORD, 640, (2732, 2732)), "assets", name, rgb=True)
+for name, col, lk in (("splash.png", PAPER, LOCK), ("splash-dark.png", PAPER_DARK, LOCK_L)):
+    save(lockup(col, lk, 1000, (2732, 2732)), "assets", name, rgb=True)
 
 # Butikkene
 save(APP, "store", "app-store-icon-1024.png", size=1024, rgb=True)
 save(APP, "store", "play-icon-512.png", size=512, rgb=True)
-# 1024 × 500: ordmerket med rutenettet forlenget til sidene (2017 × 2017 kjerne → 4131 × 2017)
-save(extend(WORD, 1057, 0, 1057, 0), "store", "play-feature-graphic-1024x500.png", size=(1024, 500), rgb=True)
+# 1024 × 500: «A»-merket med rutenettet forlenget rundt (2017 × 2017 kjerne → 5359 × 2617)
+save(extend(A, 1671, 300, 1671, 300), "store", "play-feature-graphic-1024x500.png", size=(1024, 500), rgb=True)  # luft rundt merket
 
 # Nett / PWA
 for s in (48, 192, 512): save(A, "web", "icons", "icon-%d.png" % s, size=s)   # flisen med runde hjørner
 save(MASKABLE, "web", "icons", "icon-maskable-512.png", size=512, rgb=True)
 save(APP, "web", "icons", "apple-touch-icon.png", size=180, rgb=True)
-save(WORD, "web", "icons", "logo-192.png", size=192)                          # språkvalget i appen
-save(centered(PAPER, WORD, 520, (1200, 630)), "web", "icons", "og-image.png", rgb=True)  # delingsbilde
+save(A, "web", "icons", "logo-192.png", size=192)                             # merket i appen (velkomst, språkvalg)
+save(lockup(PAPER, LOCK, 820, (1200, 630)), "web", "icons", "og-image.png", rgb=True)  # delingsbilde
 A.resize((256, 256), Image.LANCZOS).save(os.path.join(ROOT, "web", "favicon.ico"), sizes=[(16, 16), (32, 32), (48, 48)])
 print("   web/favicon.ico 16/32/48")

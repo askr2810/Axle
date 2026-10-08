@@ -1258,7 +1258,7 @@ a.srow{text-decoration:none;color:inherit}
 .langpick{text-align:center}
 .langpick h3{margin:4px 0 14px;line-height:1.2}.langpick h3 small{font-size:15px;color:var(--muted);font-weight:600}
 .lp-ic{font-size:40px;line-height:1}
-.lp-logo{display:block;width:96px;height:96px;margin:0 auto 4px}
+.lp-logo{display:block;width:72px;height:72px;margin:0 auto 4px}
 .lp-btn{display:flex;align-items:center;gap:14px;width:100%;text-align:left;font:inherit;padding:14px 16px;margin-bottom:10px;border-radius:16px;border:2px solid var(--line);border-bottom-width:4px;background:var(--card);color:var(--ink);cursor:pointer}
 .lp-btn:hover{border-color:var(--accent)}
 .lp-btn b{display:block;font-size:17px}.lp-btn small{color:var(--muted);font-size:13px}
