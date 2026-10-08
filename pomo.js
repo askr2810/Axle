@@ -133,7 +133,13 @@ function poScreenTick(){
   document.title = (p.running && !p.hide ? poFmt(poLeft(p)) + " · " : "") + T("Fokusrom", "Focus room") + " – Axle";
 }
 // ---------- kort i Øv (Hjelpemidler) ----------
+// Kompakt flis i Øv: status og start/stopp. Lengder og bakgrunn velges i fokusrommet.
 function poCardHTML(){
+  const p = po(), on = p.running || p.left != null;
+  return `<section class="po-card po-tile"><button class="po-mt" data-a="posopen"><span aria-hidden="true">🍅</span><span><b>${esc(T("Pomodoro", "Pomodoro"))}</b><small>${esc(on ? `${poPhaseName(p.phase)} · ${poFmt(poLeft(p))}` : T(`${p.work}/${p.brk} min · fokusrom`, `${p.work}/${p.brk} min · focus room`))}</small></span></button>
+    <button class="po-mgo ${on ? "on" : ""}" data-a="${on ? "postop" : "postart"}" aria-label="${esc(on ? T("Stopp timeren", "Stop the timer") : T(`Start ${p.work} min fokus`, `Start ${p.work} min focus`))}">${on ? PO_SQ : "▶"}</button></section>`;
+}
+function poCardHTMLBig(){
   const p = po(), on = p.running || p.left != null;
   return `<section class="po-card"><div class="po-h"><span aria-hidden="true">🍅</span><div><b>${esc(T("Pomodoro", "Pomodoro"))}</b><small>${esc(T("Jobb konsentrert, ta en kort pause, gjenta. Tiden vises i en liten øy øverst – eller åpne fokusrommet med bare klokken på skjermen.", "Work focused, take a short break, repeat. The time shows in a small island at the top – or open the focus room with just the clock on screen."))}</small></div></div>
     <div class="seg po-sets">${PO_SETS.map(([w, b]) => `<button class="${p.work === w ? "on" : ""}" data-a="posset" data-w="${w}" data-b="${b}">${w}/${b} min</button>`).join("")}</div>

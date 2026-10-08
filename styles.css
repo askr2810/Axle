@@ -2901,3 +2901,14 @@ details.cat-mc{margin:6px 0}details.cat-mc>summary{cursor:pointer;font-size:12px
 .tts-tip{padding:10px 12px;border-radius:12px;background:color-mix(in srgb,var(--gold) 14%,var(--card));font-size:13.5px;line-height:1.45}
 .tts-da{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}.tts-da .big{margin:0}
 @media(min-width:700px){.tts-dlgbg{align-items:center}.tts-dlg{border-radius:22px}}
+/* rydding i Øv: kompakte eksamener og hjelpemidler */
+.exsec{margin-top:22px}.exsec-h h2{font-size:18px}.exsec-h p{font-size:13px;margin:2px 0 8px}
+.exlist{border:2px solid var(--line);border-bottom-width:4px;border-radius:16px;background:var(--card);overflow:hidden}
+.exlist .excard{border:0;border-radius:0;margin:0;padding:10px 12px;border-top:1px solid var(--line)}.exlist .excard:first-child{border-top:0}
+.exlist .excard:active{transform:none;border-bottom-width:0}.exlist .excard .exno{width:32px;height:32px;font-size:15px;border-radius:10px}
+.tools2{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:8px}.tools2>*{min-width:0}.tools2 .tc-entry b{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.po-card.po-tile{display:flex;align-items:center;gap:6px;width:auto;height:auto;padding:8px 8px 8px 10px;margin:0;overflow:visible}
+.po-mt{flex:1;min-width:0;display:flex;align-items:center;gap:8px;border:0;background:none;color:inherit;font:inherit;text-align:left;cursor:pointer;padding:4px 0}.po-mt>span:first-child{font-size:24px}
+.po-mt b{display:block;font-size:15px}.po-mt small{display:block;color:var(--muted);font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.po-mgo{flex:0 0 40px;height:40px;border-radius:50%;border:0;background:#FF6B4A;color:#fff;font-size:15px;display:grid;place-items:center;cursor:pointer}.po-mgo svg{width:16px;height:16px}
+.tools2 .tc-entry{margin:0;padding:10px}.tools2 .tc-entry>span{font-size:24px}.tools2 .tc-entry small{font-size:12px}

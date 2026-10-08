@@ -321,7 +321,7 @@ function examHomeSection(c) {
       <span class="t"><b>${esc(t("exName", v))}</b><span>${esc(t("exMeta", bp.nParts, bp.pts, exDur(bp.recMin)))}</span></span>
       <span class="exside" aria-hidden="true">${side}</span></button>`;
   }
-  return `<section class="exsec" id="exams" aria-labelledby="exsec-h"><div class="exsec-h"><h2 id="exsec-h">${esc(t("exSection"))}</h2><p>${esc(t("exIntro"))}</p></div>${cards}</section>`;
+  return `<section class="exsec" id="exams" aria-labelledby="exsec-h"><div class="exsec-h"><h2 id="exsec-h">${esc(t("exSection"))}</h2><p>${esc(t("exIntro"))}</p></div><div class="exlist">${cards}</div></section>`;
 }
 
 // ---------- oppsett ----------
