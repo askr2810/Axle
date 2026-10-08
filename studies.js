@@ -9,6 +9,10 @@ const STUDIES = [
     sub: ["Matte, fysikk, mekanikk, elektro, data og mer", "Maths, physics, mechanics, electrical, computing and more"] },
   { id: "syk", nb: "Sykepleie", en: "Nursing", ic: "🩺", home: "SLMR", slug: ["sykepleie", "nursing"],
     sub: ["Legemiddelregning, anatomi, farmakologi og smittevern", "Drug calculations, anatomy, pharmacology and infection control"] },
+  { id: "barn", nb: "Barneskole", en: "Primary school", ic: "🎈", home: "GS14", tab: ["Barneskole", "Primary"], slug: ["barneskole", "primary-school"],
+    sub: ["Matte og naturfag for 1.–7. trinn – enkelt og lekent", "Maths and science for years 1–7 – simple and playful"] },
+  { id: "ungdom", nb: "Ungdomsskole", en: "Lower secondary", ic: "🏫", home: "GU810", tab: ["Ungdomsskole", "Lower sec."], slug: ["ungdomsskole", "lower-secondary"],
+    sub: ["Matte og naturfag for 8.–10. trinn – fram mot eksamen", "Maths and science for years 8–10 – towards the exams"] },
   { id: "vgs", nb: "Videregående", en: "Upper secondary", ic: "🎒", home: "VG1T", tab: ["VGS", "Upper sec."], slug: ["videregaende", "upper-secondary"],
     sub: ["Matte (1P–R2), realfag, naturfag, samfunnskunnskap, geografi, historie og religion og etikk", "Maths (1P–R2), sciences, natural science, social studies, geography, history and religion and ethics"] },
   { id: "oko", nb: "Økonomi og administrasjon", en: "Business and administration", ic: "📊", home: "OBED", tab: ["Økonomi", "Business"], slug: ["okonomi", "business"],
@@ -40,7 +44,7 @@ function toggleStudy(id){
   S.studySet = 1; save(); return true;
 }
 // Verktøy som bare vises for studiene de hører til (med mindre «Vis alt» er slått på i Innstillinger).
-const FEATURES = { trig: ["ing", "vgs", "oko"], forces: ["ing", "vgs"], lab: ["ing", "vgs", "oko"], proofs: ["ing", "vgs", "oko"], code: ["ing", "vgs"], maps: ["vgs"], motion: ["ing", "vgs"], ctl: ["ing"] };
+const FEATURES = { trig: ["ing", "vgs", "oko"], forces: ["ing", "vgs", "ungdom"], lab: ["ing", "vgs", "oko", "ungdom"], proofs: ["ing", "vgs", "oko", "ungdom"], code: ["ing", "vgs", "ungdom"], maps: ["vgs", "ungdom"], motion: ["ing", "vgs", "ungdom"], ctl: ["ing"] };
 const hasFeature = f => !!S.showAll || myStudies().some(s => (FEATURES[f] || []).includes(s));
 // Bytt favorittstudie: husk siste fag i det gamle studiet og hopp til siste (eller første) fag i det nye.
 function setStudy(id){
