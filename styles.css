@@ -1263,6 +1263,9 @@ a.srow{text-decoration:none;color:inherit}
 .lp-btn:hover{border-color:var(--accent)}
 .lp-btn b{display:block;font-size:17px}.lp-btn small{color:var(--muted);font-size:13px}
 .lp-flag{font-size:30px;line-height:1}
+.prac-h{margin:22px 0 2px;font-family:var(--display);font-weight:800;font-size:18px}
+.prac > .prac-h:first-child{margin-top:14px}
+.gm-open>svg:last-child{margin-left:auto;color:var(--muted);flex:none}
 .pf-start{display:grid;justify-items:center;text-align:center;gap:8px;margin:16px 0 4px;padding:20px 18px;border-radius:16px;background:var(--card);border:2px solid var(--line)}
 .pf-start-ic{width:56px;height:56px;border-radius:16px;display:grid;place-items:center;background:var(--accent-soft);color:var(--accent)}
 .pf-start-ic svg{width:30px;height:30px}

@@ -216,10 +216,91 @@ FIGS.balance = () => {
   s += fgT(160, 162, T("x + 3 = 7   ⇒   x = 7 − 3 = 4", "x + 3 = 7   ⇒   x = 7 − 3 = 4"), "fg-b");
   return { cap: T("En ligning er en vekt i balanse. Gjør det samme på begge sider (her: ta bort 3), så holder balansen og x står igjen alene.", "An equation is a balance. Do the same to both sides (here: remove 3), and it stays balanced with x left on its own."), svg: s };
 };
+// Potenser: 3² som et kvadrat med 9 ruter og 2³ som en kube med 8 små kuber (Grunnleggende matematikk, enhet 2)
+FIGS.pow_sq = () => {
+  let s = "";
+  for(let i = 0; i < 3; i++) for(let j = 0; j < 3; j++) s += `<rect class="fg-fill2" x="${34 + j * 22}" y="${36 + i * 22}" width="22" height="22"/><rect class="fg-line" x="${34 + j * 22}" y="${36 + i * 22}" width="22" height="22" stroke-width="1.4"/>`;
+  s += fgT(67, 130, "3² = 3 · 3 = 9", "fg-b");
+  const X = 184, Y = 60, U = 24, dx = 14, dy = -10;
+  s += `<polygon class="fg-fill" points="${X},${Y} ${X + 2 * U},${Y} ${X + 2 * U + 2 * dx},${Y + 2 * dy} ${X + 2 * dx},${Y + 2 * dy}"/>`;
+  s += `<polygon class="fg-mfill" points="${X + 2 * U},${Y} ${X + 2 * U + 2 * dx},${Y + 2 * dy} ${X + 2 * U + 2 * dx},${Y + 2 * U + 2 * dy} ${X + 2 * U},${Y + 2 * U}"/>`;
+  s += `<rect class="fg-fill2" x="${X}" y="${Y}" width="${2 * U}" height="${2 * U}"/>`;
+  s += `<g class="fg-line" stroke-width="1.4"><line x1="${X + U}" y1="${Y}" x2="${X + U}" y2="${Y + 2 * U}"/><line x1="${X}" y1="${Y + U}" x2="${X + 2 * U}" y2="${Y + U}"/>
+    <line x1="${X + U}" y1="${Y}" x2="${X + U + 2 * dx}" y2="${Y + 2 * dy}"/><line x1="${X + dx}" y1="${Y + dy}" x2="${X + 2 * U + dx}" y2="${Y + dy}"/>
+    <line x1="${X + 2 * U + dx}" y1="${Y + dy}" x2="${X + 2 * U + dx}" y2="${Y + 2 * U + dy}"/><line x1="${X + 2 * U}" y1="${Y + U}" x2="${X + 2 * U + 2 * dx}" y2="${Y + U + 2 * dy}"/></g>`;
+  s += `<polygon class="fg-line" fill="none" points="${X},${Y} ${X + 2 * dx},${Y + 2 * dy} ${X + 2 * U + 2 * dx},${Y + 2 * dy} ${X + 2 * U + 2 * dx},${Y + 2 * U + 2 * dy} ${X + 2 * U},${Y + 2 * U} ${X},${Y + 2 * U}"/><line class="fg-line" x1="${X + 2 * U}" y1="${Y}" x2="${X + 2 * U}" y2="${Y + 2 * U}"/><line class="fg-line" x1="${X}" y1="${Y}" x2="${X + 2 * U}" y2="${Y}"/><line class="fg-line" x1="${X + 2 * U}" y1="${Y}" x2="${X + 2 * U + 2 * dx}" y2="${Y + 2 * dy}"/>`;
+  s += fgT(222, 130, "2³ = 2 · 2 · 2 = 8", "fg-b");
+  return { cap: T("En potens er gjentatt ganging. 3² er et kvadrat med 9 ruter, og 2³ er en kube med 8 små kuber.", "A power is repeated multiplication. 3² is a square of 9 cells, and 2³ is a cube of 8 small cubes."), svg: s };
+};
+// Gjennomsnitt og median med en uteligger (Grunnleggende matematikk, enhet 9)
+FIGS.mean_median = () => {
+  const x = v => 30 + v * 26, data = [2, 3, 3, 4, 5, 9], seen = {};
+  let s = `<line class="fg-line" x1="24" y1="112" x2="296" y2="112"/>`;
+  for(let v = 0; v <= 10; v++) s += `<line class="fg-mut" x1="${x(v)}" y1="108" x2="${x(v)}" y2="116"/>` + fgT(x(v), 130, String(v), "fg-s");
+  data.forEach(v => { const k = seen[v] = (seen[v] || 0) + 1; s += `<circle class="fg-dot" cx="${x(v)}" cy="${108 - k * 14 + 4}" r="6"/>`; });
+  s += `<line class="fg-ok" x1="${x(3.5)}" y1="54" x2="${x(3.5)}" y2="112" stroke-width="2.4" stroke-dasharray="5 4"/>` + fgT(x(3.5), 46, T("median 3,5", "median 3.5"), "fg-okt");
+  s += `<polygon class="fg-water" points="${x(26 / 6)},140 ${x(26 / 6) - 8},154 ${x(26 / 6) + 8},154"/>` + fgT(x(26 / 6) + 12, 152, T("gjennomsnitt ≈ 4,33", "mean ≈ 4.33"), "fg-acct", "start");
+  s += fgT(x(9), 78, T("uteligger", "outlier"), "fg-s");
+  return { cap: T("Tallene 2, 3, 3, 4, 5 og 9. Uteliggeren 9 drar gjennomsnittet opp, mens medianen (tallet i midten) nesten ikke flytter seg.", "The numbers 2, 3, 3, 4, 5 and 9. The outlier 9 pulls the mean up, while the median (the middle value) hardly moves."), svg: s };
+};
+// SI-prefikser som en trapp med faktor 1000 (Grunnleggende fysikk, enhet 1)
+FIGS.prefixes = () => {
+  const box = (cx, t, sub) => `<rect class="fg-box" x="${cx - 28}" y="52" width="56" height="34" rx="8"/>` + fgT(cx, 75, t, "fg-b") + fgT(cx, 104, sub, "fg-s"); // under boksen: navn og tierpotens
+  let s = box(40, "km", "kilo · 10³") + box(120, "m", "") + box(200, "mm", "milli · 10⁻³") + box(280, "µm", "mikro · 10⁻⁶");
+  [[68, 92], [148, 172], [228, 252]].forEach(([a, b]) => { s += fgAr(a, 44, b, 44, "fg-acc") + fgT((a + b) / 2, 34, "× 1000", "fg-s") + fgAr(b, 126, a, 126, "fg-red") + fgT((a + b) / 2, 142, "÷ 1000", "fg-s"); });
+  return { cap: T("Hvert steg er en faktor 1000: 1 km = 1000 m og 1 m = 1000 mm. Mot en mindre enhet ganger du, mot en større deler du.", "Each step is a factor of 1000: 1 km = 1000 m and 1 m = 1000 mm. Towards a smaller unit you multiply, towards a larger one you divide."), svg: s };
+};
+// Energi i en bakke uten friksjon (Grunnleggende fysikk, enhet 4)
+FIGS.energy = () => {
+  const bar = (x, y, ep, ek) => `<rect class="fg-box" x="${x}" y="${y}" width="14" height="40"/><rect class="fg-water" x="${x}" y="${y + 40 - ep}" width="14" height="${ep}"/>` +
+    `<rect class="fg-box" x="${x + 20}" y="${y}" width="14" height="40"/><rect class="fg-okw" x="${x + 20}" y="${y + 40 - ek}" width="14" height="${ek}"/>` + fgT(x + 7, y + 54, "E_p", "fg-s") + fgT(x + 27, y + 54, "E_k", "fg-s");
+  let s = `<path class="fg-mfill" d="M20 50 C 90 50, 120 140, 200 140 L 300 140 L 300 160 L 20 160 Z"/><path class="fg-line" d="M20 50 C 90 50, 120 140, 200 140 L 300 140"/>`;
+  s += `<circle class="fg-dot" cx="36" cy="41" r="9"/><circle class="fg-dot" cx="262" cy="131" r="9"/>` + fgAr(282, 131, 300, 131, "fg-acc");
+  s += `<line class="fg-mut" x1="14" y1="50" x2="14" y2="140" stroke-dasharray="4 4"/>` + fgT(8, 100, "h", "fg-i", "end");
+  s += bar(112, 4, 40, 0) + bar(214, 50, 0, 40);
+  s += fgT(150, 176, T("E_p = mgh   →   E_k = ½mv²", "E_p = mgh   →   E_k = ½mv²"), "fg-b");
+  return { cap: T("Uten friksjon blir stillingsenergien mgh på toppen til bevegelsesenergi ½mv² nederst. Summen er hele tiden den samme.", "Without friction, the potential energy mgh at the top becomes kinetic energy ½mv² at the bottom. The sum stays the same."), svg: s };
+};
+// Sannsynlighetstre for to myntkast (vgs 1P, sannsynlighet)
+FIGS.tree = () => {
+  const [A, B] = [T("K", "H"), T("M", "T")], node = (x, y, t) => `<circle class="fg-box" cx="${x}" cy="${y}" r="13"/>` + fgT(x, y + 5, t, "fg-b");
+  const edge = (x1, y1, x2, y2) => `<line class="fg-line" x1="${x1 + 13}" y1="${y1}" x2="${x2 - 13}" y2="${y2}"/>` + fgT((x1 + x2) / 2, (y1 + y2) / 2 - 6, "½", "fg-s");
+  let s = `<circle class="fg-dot" cx="30" cy="90" r="5"/>` + `<line class="fg-line" x1="34" y1="88" x2="117" y2="52"/><line class="fg-line" x1="34" y1="92" x2="117" y2="128"/>` + fgT(72, 62, "½", "fg-s") + fgT(72, 124, "½", "fg-s");
+  s += node(130, 50, A) + node(130, 130, B);
+  [[50, A, 28], [50, B, 72], [130, A, 108], [130, B, 152]].forEach(([y0, t, y1]) => { s += edge(130, y0, 220, y1) + node(220, y1, t); });
+  [[28, A + A], [72, A + B], [108, B + A], [152, B + B]].forEach(([y, t]) => { s += fgT(258, y + 5, t, "fg-s", "start") + fgT(300, y + 5, "¼", "fg-b fg-acct", "end"); });
+  return { cap: T("To myntkast (K = kron, M = mynt). Gang sannsynlighetene langs greinene: ½ · ½ = ¼. Legg sammen greinene som gir det du er ute etter, for eksempel én kron og én mynt: ¼ + ¼ = ½.", "Two coin tosses (H = heads, T = tails). Multiply along the branches: ½ · ½ = ¼. Add the branches you are after, for example one of each: ¼ + ¼ = ½."), svg: s };
+};
+// Standardform: flytt kommaet (vgs 2P, potenser og standardform)
+FIGS.shift = () => {
+  const ch = [["0", 70], [",", 86], ["0", 104], ["0", 128], ["0", 152], ["4", 176], ["5", 200]];
+  let s = ch.map(([c, x]) => `<text x="${x}" y="70" class="fg-big" text-anchor="middle">${c}</text>`).join("");
+  [[86, 116], [116, 140], [140, 164], [164, 188]].forEach(([a, b], i) => { s += `<path class="fg-acc" d="M${a} 80 Q ${(a + b) / 2} 102 ${b} 80" stroke-width="2"/>` + fgT((a + b) / 2, 114, String(i + 1), "fg-s fg-acct"); });
+  s += `<circle class="fg-dotr" cx="188" cy="74" r="3.5"/>` + fgT(160, 158, "0,00045 = 4,5 · 10⁻⁴", "fg-b");
+  return { cap: T("Flytt kommaet til det står ett siffer (1–9) foran det. Fire plasser mot høyre gir 10⁻⁴. Flytter du mot venstre, blir eksponenten positiv.", "Move the decimal point until one digit (1–9) is in front of it. Four places to the right gives 10⁻⁴. Moving left makes the exponent positive."), svg: s };
+};
+// Faktorisering som areal: (x + 2)(x + 3) (vgs 1T, faktorisering)
+FIGS.area_factor = () => {
+  const X = 40, Y = 30, a = 84, u = 20, cell = (x, y, w, h, cls, t) => `<rect class="${cls}" x="${x}" y="${y}" width="${w}" height="${h}"/><rect class="fg-line" x="${x}" y="${y}" width="${w}" height="${h}" stroke-width="1.4"/>` + fgT(x + w / 2, y + h / 2 + 5, t, "fg-b");
+  let s = cell(X, Y, a, a, "fg-fill2", "x²") + cell(X + a, Y, 3 * u, a, "fg-okw", "3x") + cell(X, Y + a, a, 2 * u, "fg-unitsq", "2x") + cell(X + a, Y + a, 3 * u, 2 * u, "fg-water", "6");
+  s += fgT(X + a / 2, Y - 8, "x", "fg-i") + fgT(X + a + 1.5 * u, Y - 8, "3", "fg-b") + fgT(X - 10, Y + a / 2 + 5, "x", "fg-i", "end") + fgT(X - 10, Y + a + u + 5, "2", "fg-b", "end");
+  s += fgT(250, 80, "(x + 2)(x + 3)", "fg-b") + fgT(250, 106, "= x² + 5x + 6", "fg-b fg-acct");
+  return { cap: T("Gang ut parentesene som et areal: hver bit er ett ledd, og x² + 3x + 2x + 6 = x² + 5x + 6. Å faktorisere er å gå motsatt vei.", "Multiply out the brackets as an area: each piece is one term, and x² + 3x + 2x + 6 = x² + 5x + 6. Factorising goes the other way."), svg: s };
+};
+// Bohrs atommodell for karbon (vgs kjemi 1, atomer)
+FIGS.atom = () => {
+  const cx = 96, cy = 92, e = (r, deg) => `<circle class="fg-dot" cx="${(cx + r * Math.cos(deg * Math.PI / 180)).toFixed(1)}" cy="${(cy + r * Math.sin(deg * Math.PI / 180)).toFixed(1)}" r="5"/>`;
+  let s = `<circle class="fg-mut" cx="${cx}" cy="${cy}" r="42"/><circle class="fg-mut" cx="${cx}" cy="${cy}" r="72"/><circle class="fg-water" cx="${cx}" cy="${cy}" r="18"/>` + fgT(cx, cy + 5, "6p 6n", "fg-s");
+  s += e(42, 0) + e(42, 180) + [45, 135, 225, 315].map(d => e(72, d)).join("");
+  s += fgT(190, 50, T("Karbon (C)", "Carbon (C)"), "fg-b", "start") + fgT(190, 76, T("6 protoner i kjernen", "6 protons in the nucleus"), "fg-s", "start") +
+    fgT(190, 98, T("6 elektroner: 2 + 4", "6 electrons: 2 + 4"), "fg-s", "start") + fgT(190, 120, T("4 i ytterste skall", "4 in the outer shell"), "fg-s fg-acct", "start") + fgT(190, 140, T("→ 4 bindinger", "→ 4 bonds"), "fg-s fg-acct", "start");
+  return { cap: T("Bohrs atommodell for karbon: protoner og nøytroner i kjernen, elektronene i skall. Elektronene i det ytterste skallet bestemmer hvordan atomet binder seg.", "Bohr's model of carbon: protons and neutrons in the nucleus, electrons in shells. The electrons in the outer shell decide how the atom bonds."), svg: s };
+};
 // Kobling enhet → figur (settes inn etter «Begreper og formler»)
 const FIG_MAP = {
   "MAPE1300:0": "beam_fbd", "MAPE1300:1": "incline", "MAPE1300:3": "beam_moment",
-  "MEK1000:0": "tangent", "MEK1000:1": "area", "GMAT:7": "tangent", "GMAT:5": "triangle", "GMAT:0": "fractions", "GMAT:2": "balance",
+  "MEK1000:0": "tangent", "MEK1000:1": "area", "GMAT:7": "tangent", "GMAT:5": "triangle", "GMAT:0": "fractions", "GMAT:2": "balance", "GMAT:1": "pow_sq", "GMAT:8": "mean_median",
+  "GFYS:0": "prefixes", "GFYS:3": "energy", "VG1P:4": "tree", "VG2P:2": "shift", "VG1T:5": "area_factor", "VGS1:0": "balance", "VGKJ1:0": "atom",
   "ELPE1300:0": "circuit_sp", "ELPE1300:1": "rc_curve", "ELPE1300:2": "sine", "ELPE1300:4": "three_phase", "ELFT2400:3": "rc_curve",
   "FLUID:1": "venturi", "FLUID:3": "pump_curves", "MEK2200:3": "regression", "MATS2100:3": "heat_pump",
   "FAST:0": "stress_strain", "MATS1500:1": "stress_strain", "GFYS:2": "incline", "GFYS:6": "wave", "MEK1400:0": "wave", "MATS1600:3": "fillet_weld"

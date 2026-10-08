@@ -291,7 +291,7 @@ function renderSettings(){
     <div class="sgroup"><button class="srow set-av" data-a="avedit">${hasMeAv() ? meAvHTML(48) : `<span class="set-av0">${I.users}</span>`}<span class="lbl">${t(hasMeAv() ? "avEdit" : "avMake")}<span class="sub">${t("avSetSub")}</span></span>${I.chevron}</button></div>
     <h3 class="sg-h">${esc(t("sgLearning"))}</h3>
     <div class="sgroup">
-      <button class="srow" data-a="studyopen"><span class="lbl">${esc(t("stSetting"))}<span class="sub">${esc(myStudies().map(id => STUDY(id).ic + " " + studyName(STUDY(id))).join(" · "))}</span></span>${I.chevron}</button>
+      <button class="srow" data-a="studyopen"><span class="lbl">${esc(t("stSetting"))}<span class="sub">${esc(myStudies().map(id => studyName(STUDY(id))).join(" · "))}</span></span>${I.chevron}</button>
       <div class="srow"><span class="lbl">${esc(T("Vis alt i appen", "Show everything"))}<span class="sub">${esc(T("Enhetssirkel, laber, bevis og alle fag – også det som ikke hører til studiene dine", "Unit circle, labs, proofs and all courses – also outside your studies"))}</span></span><button class="tog ${S.showAll?"on":""}" data-a="studyshowall" role="switch" aria-checked="${!!S.showAll}" aria-label="${esc(T("Vis alt i appen", "Show everything"))}"></button></div>
       <div class="srow"><span class="lbl">${t("setGoal")}<span class="sub">${t("setGoalUnit")}</span></span><div class="seg">${goalOpts.map(g=>`<button class="${(S.goal||10)===g?"on":""}" data-a="setgoal" data-g="${g}">${g}</button>`).join("")}</div></div>
       <button class="srow" data-a="dcsrcopen"><span class="lbl">${t("dcSrcSet")}<span class="sub">${esc(dcSrcLabel())}</span></span>${I.chevron}</button>
