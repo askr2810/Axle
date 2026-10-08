@@ -623,6 +623,7 @@ function renderLesson(){
       ${L.ok || !theoryOf(L.code,+it.id.split(".")[0]) ? "" : `<button class="fb-th" data-a="thov">${I.book}${t("readTheory")}</button>`}
       ${L.tline && L.kind !== "exam" ? teacherBubble(L.code, esc(L.tline), 34, "tch-fb") : ""}
       ${L.ok?"":`<button class="fb-rep" data-a="report">${t("thinkWrong")} ${t("reportShort")}</button>`}
+      ${typeof edBtnHTML === "function" && /^\d+\.\d+$/.test(it.id||"") && L.code && L.kind !== "community" ? edBtnHTML("q", L.code, it.id, "fb-ed") : ""}
       <button class="big fb-next" data-a="next">${t("cont")}</button>
 </div></div>`;
   }
