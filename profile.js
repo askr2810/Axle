@@ -114,6 +114,7 @@ function renderPractice(){
     <main class="wrap prac">
       ${qsHTML("practice")}${isDrive(c) ? "" : focCardHTML()}${dvPracticeCardHTML(c)}${isDrive(c) ? "" : labCourseHTML(c) + catCardHTML(c)}${cdPracticeCardHTML(c)}
       ${layoutHTML("practice", { c, today, goal, week, wrongN })}
+      <h4 class="grp">🧰 ${esc(T("Hjelpemidler", "Study tools"))}</h4>${poCardHTML()}
       ${layLinkHTML("practice")}
     </main>`;
 }
