@@ -252,7 +252,7 @@ function renderDriveHome(){
       <button class="stat fire ${st ? "" : "off"}" data-a="statinfo" data-k="streak" aria-label="${t("streakTitle")}: ${st}">${I.fire}${st}</button>
       <button class="stat xp" data-a="statinfo" data-k="xp" aria-label="${t("xpTitle")}: ${S.xp}">${I.bolt}${S.xp}</button></div></div>
     <main class="wrap dv-home">
-      ${noticeHTML()}
+      ${noticeHTML()}${qsHTML("home")}
       ${other.length > 1 ? `<div class="seg dv-cls">${other.map(x => `<button class="${x.code === code ? "on" : ""}" data-a="dvcourse" data-c="${x.code}">${x.code === "FKB" ? "🚗 " + esc(T("Bil (B)", "Car (B)")) : "🏍️ " + esc(T("MC (A1, A2, A)", "Motorcycle (A1, A2, A)"))}</button>`).join("")}</div>` : ""}
       ${S.driveRun && S.driveRun.code === code ? `<button class="pill exgo dv-resume" data-a="dvresume"><span class="l1">⏱ ${esc(S.driveRun.mini ? T("Fortsett den gratis prøven", "Continue the free test") : T("Fortsett teoriprøven", "Continue the theory test"))}</span><small>${esc(T(`${Object.keys(S.driveRun.ans).length} av ${S.driveRun.items.length} besvart · ${dvClock(S.driveRun.end - Date.now())} igjen`, `${Object.keys(S.driveRun.ans).length} of ${S.driveRun.items.length} answered · ${dvClock(S.driveRun.end - Date.now())} left`))}</small></button>` : ""}
       ${!d.tests.length && rd.answered < 20 && !S.driveRun ? `<button class="dv-free" data-a="dvmini"><span class="dv-free-ic" aria-hidden="true">${fkSign("gangfelt", 54)}</span><span><b>${esc(T("Prøv en gratis teoriprøve", "Try a free theory test"))}</b><small>${esc(T("10 spørsmål · ca. 5 minutter · ingen innlogging", "10 questions · about 5 minutes · no sign-in"))}</small></span><em>${esc(T("Start", "Start"))} →</em></button>` : ""}

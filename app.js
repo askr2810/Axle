@@ -212,7 +212,7 @@ function renderHome(){
     <button class="stat xp" data-a="statinfo" data-k="xp" aria-label="${t("xpTitle")}: ${S.xp}">${I.bolt}${S.xp}</button>
   </div></div>
   <main class="wrap">
-    ${noticeHTML()}
+    ${noticeHTML()}${qsHTML("home")}
     ${duInviteHTML()}
     ${quickCardHTML(c)}
     ${layoutHTML("home")}
@@ -559,6 +559,7 @@ function renderDone(){
     ${levelBarHTML(r.xpBefore ?? S.xp, S.xp)}
     ${r.newBadges && r.newBadges.length ? `<div class="dx-badges"><small>${esc(t("bdgNewTitle"))}</small><div>${r.newBadges.map(b => `<button class="dx-badge" data-a="badges">${badgeIcon(b, 54)}<b>${esc(bdgName(b))}</b></button>`).join("")}</div></div>` : ""}
     ${doneExtrasHTML(c, u, r)}
+    ${nudgeHTML(r)}
     <button class="big" data-a="home">${t("cont")}</button>
   </main>`;
   if(!r.animated && L.kind==="quick") quizAccountAsk(L.total - L.firstWrong.size, L.total);
@@ -924,6 +925,7 @@ function renderOverlay(){
   else if(overlay.crop) d.innerHTML = cropHTML();
   else if(overlay.studypick) d.innerHTML = studyPickHTML(overlay.first);
   else if(overlay.games) d.innerHTML = gamesMenuHTML(overlay.games);
+  else if(overlay.homeGuide) d.innerHTML = homeGuideHTML();
   else if(overlay.mdimport){ d.className = "scrim center"; d.innerHTML = mdImportHTML(overlay.mdimport); }
   else if(overlay.drpick) d.innerHTML = drPickHTML();
   else if(overlay.mdpub) d.innerHTML = mdPubHTML(overlay.mdpub);
@@ -1140,7 +1142,7 @@ document.addEventListener("click", async e=>{
   if(grClick(a, b)) return; // grupper (handlinger som starter med "gr")
   if(studyClick(a, b)) return; // studier (studies.js)
   if(pfClick(a, b)) return; // bevis (proofs.js)
-  if(snEntryClick(a) || snClick(a, b) || spClick(a, b) || gmClick(a, b) || gmMenuClick(a, b) || duClick(a, b) || mdClick(a, b) || unitsClick(a, b) || tgClick(a, b) || fcClick(a, b) || labClick(a, b) || geClick(a, b) || mvClick(a) || shareClick(a, b) || ibClick(a, b) || dvClick(a, b) || scClick(a, b) || cdClick(a, b) || thClick(a, b)) return; // snacks og lynrunde (snacks.js)
+  if(snEntryClick(a) || snClick(a, b) || spClick(a, b) || gmClick(a, b) || gmMenuClick(a, b) || duClick(a, b) || mdClick(a, b) || unitsClick(a, b) || tgClick(a, b) || fcClick(a, b) || labClick(a, b) || geClick(a, b) || mvClick(a) || nudgeClick(a, b) || shareClick(a, b) || ibClick(a, b) || dvClick(a, b) || scClick(a, b) || cdClick(a, b) || thClick(a, b)) return; // snacks og lynrunde (snacks.js)
   if(adminClick(a, b)) return; // adminpanel og kunngjøringer (admin.js)
   if(psClick(a, b)) return; // profilsiden til andre + hvilke merker du viser (person.js)
   if(friendsClick(a, b)) return; // venner (handlinger som starter med "fr")

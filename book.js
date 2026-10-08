@@ -223,15 +223,16 @@ function bookClick(a, b){
   else if(a === "bkall"){ BK.v = "home"; render(); window.scrollTo(0, 0); }
   else if(a === "bkcourse"){ BK.v = "course"; BK.code = b.dataset.c; BK.tab = "topics"; render(); window.scrollTo(0, 0); }
   else if(a === "bktab"){ BK.tab = b.dataset.t; render(); }
-  else if(a === "bkunit"){ BK.v = "unit"; BK.code = b.dataset.c; BK.u = +b.dataset.u; stEv("theory", BK.code + ":" + BK.u, "book"); (S.theorySeen ||= {})[BK.code + ":" + BK.u] = 1; bdgToast(checkBadges()); save(); render(); window.scrollTo(0, 0); }
+  else if(a === "bkunit"){ if(screen !== "book"){ screen = "book"; BK.q = BK.q || ""; } BK.v = "unit"; BK.code = b.dataset.c; BK.u = +b.dataset.u; stEv("theory", BK.code + ":" + BK.u, "book"); (S.theorySeen ||= {})[BK.code + ":" + BK.u] = 1; bdgToast(checkBadges()); save(); render(); window.scrollTo(0, 0); }
   else if(a === "bksec"){ const h = document.getElementById("bk-s" + b.dataset.i); if(h) window.scrollTo({ top: h.getBoundingClientRect().top + window.scrollY - 76, behavior: "smooth" }); }
   else if(a === "bkguided"){ gdOpen(b.dataset.c || BK.code, b.dataset.u != null ? +b.dataset.u : BK.u, null); }
-  else if(a === "bktopic"){ if(BK.v !== "topic") BK.from = BK.v; BK.v = "topic"; BK.code = b.dataset.c; BK.topic = b.dataset.id; (S.topicSeen ||= {})[BK.code + ":" + BK.topic] = 1; save(); render(); window.scrollTo(0, 0); }
+  else if(a === "bktopic"){ if(screen !== "book"){ screen = "book"; BK.v = "course"; } if(BK.v !== "topic") BK.from = BK.v; BK.v = "topic"; BK.code = b.dataset.c; BK.topic = b.dataset.id; (S.topicSeen ||= {})[BK.code + ":" + BK.topic] = 1; save(); render(); window.scrollTo(0, 0); }
   else if(a === "bktopicpractice"){
     const code = b.dataset.c, u = +b.dataset.u, c = COURSE(code);
     if(S.current !== code){ S.current = code; save(); }
+    if(isDrive(c)){ dvPractice("cat", u); return true; } // førerkort: øv på kategorien
     let k = 0; const nn = nextNode(c); if(nn && nn[0] === u) k = nn[1]; else if(sub(code).done[u + "-2"]) k = 3;
-    if(!isUnlocked(c, u, k)){ goHome(); toast(t("lockedNode")); return true; }
+    if(!isUnlocked(c, u, k)) k = 0; // låst enhet: øv likevel på grunnleggende nivå (du har valgt temaet selv)
     startUnitLesson(code, u, k);
   }
   else if(a === "bkpractice"){
