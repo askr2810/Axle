@@ -26,7 +26,7 @@ const SIMDATA = (() => {
 const decPoint = () => LANG === "en"; const nf = (x, d = 2) => String(x);`;
   const f = path.join(os.tmpdir(), 'axle_seo_sims_' + process.pid + '.js'); global.COURSES = COURSES;
   fs.writeFileSync(f, stub + '\n' + fig.join('\n') + '\n' + fs.readFileSync(path.join(ROOT, 'sims.js'), 'utf8').replace(/^document\.addEventListener[\s\S]*$/m, '') + '\n' +
-    ['sims2.js', 'sims3.js', 'sims4.js', 'sims5.js', 'sims6.js'].map(x => fs.readFileSync(path.join(ROOT, x), 'utf8')).join('\n') + '\nmodule.exports = { SIMS, SIM_MAP };');
+    ['sims2.js', 'sims3.js', 'sims4.js', 'sims5.js', 'sims6.js', 'sims7.js'].map(x => fs.readFileSync(path.join(ROOT, x), 'utf8')).join('\n') + '\nmodule.exports = { SIMS, SIM_MAP };');
   try{ return require(f); }catch(e){ console.log('  seo: fant ikke simuleringene (' + e.message + ')'); return { SIMS: {}, SIM_MAP: {} }; }finally{ try{ fs.unlinkSync(f); }catch(e){} }
 })();
 // Interaktive laber (lab.js) for bestemte emner: [lab, nb-adresse, en-adresse, nb-tittel, en-tittel]
