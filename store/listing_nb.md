@@ -42,4 +42,4 @@ fasthetslære,elementmetoden,kalkulus,statikk,eksamen,termodynamikk,regulering,e
 
 **Støtte-URL / markedsførings-URL:** https://axle.no
 **Personvern-URL:** https://axle.no/privacy.html
-**Kontakt-e-post:** engidrilli@gmail.com
+**Kontakt-e-post:** support@axle.no

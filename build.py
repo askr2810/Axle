@@ -8,7 +8,7 @@ import os, shutil, json
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
 JS = ["config.js", "i18n.js", "data.js", "gens.js","gens_b.js", "more.js", "more2.js", "more2_b.js", "subjects2.js", "subjects2_b.js", "more3.js",
-      "en_static_*.js", "learn.js", "add_*.js", "topics.js", "top_*.js", "exam.js", "backup.js", "cloud.js", "studies.js", "book.js", "friends.js", "groups.js", "person.js", "admin.js", "community.js", "avatar.js", "unlocks.js", "badges.js", "challenge.js", "drill.js", "drill_*.js", "favs.js", "push.js", "sfx.js", "figures.js", "figs_vgs.js", "sims.js", "sims2.js", "sims3.js", "sims4.js", "sims5.js", "sims6.js", "timeline.js", "maps_data.js", "maps.js", "geo_game.js", "motion.js", "guided.js", "proofs.js", "trig.js", "forces.js", "lab.js", "avr.js", "code_tasks.js", "code_avr.js", "code.js", "drive_signs_ref.js", "drive_signs.js", "drive_signs_more.js", "drive.js", "drive_game.js", "drive_scenes.js", "drive_pics.js", "sorts.js", "tts.js", "share.js", "inbox.js", "theme.js", "snacks.js", "games.js", "duel.js", "mydecks.js", "units.js", "profile.js", "engage.js", "route.js", "stats.js", "ui_fit.js", "app.js"]
+      "en_static_*.js", "learn.js", "add_*.js", "figlib.js", "topics.js", "top_*.js", "exam.js", "backup.js", "cloud.js", "studies.js", "book.js", "qsearch.js", "catalog.js", "focus.js", "pomo.js", "friends.js", "groups.js", "person.js", "admin.js", "community.js", "avatar.js", "unlocks.js", "badges.js", "challenge.js", "drill.js", "drill_*.js", "favs.js", "push.js", "sfx.js", "figures.js", "figs_vgs.js", "sims.js", "sims2.js", "sims3.js", "sims4.js", "sims5.js", "sims6.js", "timeline.js", "maps_data.js", "maps.js", "geo_game.js", "motion.js", "control.js", "guided.js", "proofs.js", "trig.js", "forces.js", "lab.js", "avr.js", "code_tasks.js", "code_avr.js", "code.js", "drive_signs_ref.js", "drive_signs.js", "drive_signs_more.js", "drive.js", "drive_game.js", "drive_scenes.js", "drive_pics.js", "sorts.js", "tts.js", "share.js", "inbox.js", "theme.js", "snacks.js", "games.js", "duel.js", "mq.js", "mydecks.js", "units.js", "profile.js", "engage.js", "route.js", "stats.js", "ui_fit.js", "app.js"]
 FONTS = '<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Figtree:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap">'
 KATEX_CDN = "https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js"
 
@@ -59,10 +59,10 @@ def build_www(js, css, out):
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="Axle">
-<title>Axle – gratis øving i ingeniørfag: matte, fysikk, mekanikk og elektro</title>
+<title>Axle – læring gjort enkelt | førerkort, videregående, ingeniørfag og mer</title>
 <link rel="canonical" href="https://axle.no/">
 <meta name="google-site-verification" content="j54Juhy7GF-aUyFcZUlrv9hU12YIX0HtdH2GT5nl7aM">
-<meta property="og:title" content="Axle – gratis øving i ingeniørfag">
+<meta property="og:title" content="Axle – læring gjort enkelt">
 <meta property="og:description" content="{cfg['description_nb']}">
 <meta property="og:url" content="https://axle.no/">
 <meta property="og:image" content="https://axle.no/icons/og-image.png"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">

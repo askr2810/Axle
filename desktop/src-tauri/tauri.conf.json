@@ -1,0 +1,20 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "Axle",
+  "version": "1.0.0",
+  "identifier": "no.axle.app",
+  "build": { "frontendDist": "../../release/www" },
+  "app": {
+    "windows": [{ "title": "Axle", "width": 1100, "height": 820, "minWidth": 380, "minHeight": 560, "center": true }],
+    "security": { "csp": null }
+  },
+  "bundle": {
+    "active": true,
+    "targets": ["dmg", "nsis"],
+    "category": "Education",
+    "shortDescription": "Læring gjort enkelt",
+    "longDescription": "Axle – gratis læring for førerkort, videregående, ingeniørfag, sykepleie, økonomi og jus.",
+    "icon": ["icons/32x32.png", "icons/128x128.png", "icons/128x128@2x.png", "icons/icon.icns", "icons/icon.ico"],
+    "macOS": { "minimumSystemVersion": "11.0" }
+  }
+}

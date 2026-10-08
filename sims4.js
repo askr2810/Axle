@@ -67,7 +67,7 @@ Object.assign(SIMS, {
         out: [["a² + b²", smN(a * a + b * b, 2)], ["c", smN(Math.hypot(a, b), 3)]], svg }; } },
 
   // ---------- Gauss: 1 + 2 + … + n ----------
-  gauss: { t: ["Gauss' triks: 1 + 2 + … + n", "Gauss's trick: 1 + 2 + … + n"], p: [["n", "n", 1, 12, 1, 5, "", 1], ["c", ["vis kopien (0/1)", "show the copy (0/1)"], 0, 1, 1, 0, "", 2]],
+  gauss: { t: ["Gauss' triks: 1 + 2 + … + n", "Gauss's trick: 1 + 2 + … + n"], p: [["n", "n", 1, 12, 1, 5, "", 1], ["c", ["vis kopien", "show the copy"], 0, 1, 1, 0, "", 2, [["skjult", "hidden", "🙈", "#8A9097"], ["vis", "show", "👀", "#2B6FD6"]]]],
     q: ["To like trapper blir et rektangel. Hvor stort er det?", "Two equal staircases make a rectangle. How big is it?"],
     g: [["Vis kopien (sett den til 1) og tell rutene i rektangelet.", "Show the copy (set it to 1) and count the squares in the rectangle.", v => v.c === 1]],
     f: v => { const n = v.n, cell = Math.min(200 / n, 138 / (n + 1)), x0 = 60, y0 = 158, S = n * (n + 1) / 2; let svg = "";

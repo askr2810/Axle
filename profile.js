@@ -119,8 +119,9 @@ function renderPractice(){
   $app.innerHTML = `<div class="top"><div class="wrap"><div class="th-t"><small>${esc(courseName(c))}</small><b>${esc(t("tabPractice"))}</b></div>
       <button class="chip mini-chip" data-a="pick" aria-label="${esc(t("switchCourse"))}"><span class="code">${esc(courseShort(c))}</span>${I.down}</button></div></div>
     <main class="wrap prac">
-      ${dvPracticeCardHTML(c)}${cdPracticeCardHTML(c)}
+      ${qsHTML("practice")}${isDrive(c) ? "" : focCardHTML()}${dvPracticeCardHTML(c)}${isDrive(c) ? "" : labCourseHTML(c) + catCardHTML(c)}${cdPracticeCardHTML(c)}
       ${layoutHTML("practice", { c, today, goal, week, wrongN })}
+      <h4 class="grp">🧰 ${esc(T("Hjelpemidler", "Study tools"))}</h4>${poCardHTML()}
       ${layLinkHTML("practice")}
     </main>`;
 }

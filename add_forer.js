@@ -520,6 +520,8 @@ U("FKB", "Myke trafikanter og samspill", "Vulnerable road users and interaction"
 `## Myke trafikanter
 
 ![pic:myke]
+
+![pic:ballbarn]
 Fotgjengere, syklister, mopedister og motorsyklister har lite beskyttelse. Du har ansvar for å kjøre slik at de ikke kommer i fare.
 - **Barn** er uforutsigbare, ser dårlig trafikk og kan løpe ut plutselig. Senk farten ved skoler, lekeplasser og busser.
 - **Eldre** kan gå sakte og ha dårlig syn eller hørsel.
@@ -536,6 +538,8 @@ Fotgjengere, syklister, mopedister og motorsyklister har lite beskyttelse. Du ha
 `## Vulnerable road users
 
 ![pic:myke]
+
+![pic:ballbarn]
 Pedestrians, cyclists, moped riders and motorcyclists have little protection. You are responsible for driving so that they are not put in danger.
 - **Children** are unpredictable, judge traffic poorly and may run out suddenly. Slow down near schools, playgrounds and buses.
 - **Older people** may walk slowly and have poor sight or hearing.

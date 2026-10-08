@@ -1146,6 +1146,7 @@ TOPICS("MATS1500", 0, [
 ]);
 TOPICS("MATS1500", 1, [
 { id: "spenning-toyning",
+  art: () => FL.stressStrain(),
   fig: `<svg viewBox="0 0 240 140"><path d="M30 120H220" class="dim"/><path d="M30 120V20" class="dim"/><path d="M30 120L90 55" class="d"/><path d="M90 55C 130 35, 160 30, 195 45" class="d"/><path d="M195 45L205 70" class="d"/><path d="M30 120H90V55" class="dash"/><text x="12" y="60">σ</text><text x="205" y="132">ε</text><text x="75" y="132">ε₀</text></svg>`,
   nb: { t: "Spenning–tøyning-kurve",
     intro: "Spenning–tøyning-kurven viser hvordan et materiale reagerer på last. I det elastiske området er spenning og tøyning proporsjonale via E-modulen. Flytegrensen ($R_e$ eller $R_{p0{,}2}$) markerer starten på plastisk deformasjon, og strekkfastheten $R_m$ er den høyeste spenningen kurven når.",

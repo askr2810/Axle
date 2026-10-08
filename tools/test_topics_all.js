@@ -7,7 +7,7 @@ for (const f of fs.readdirSync(ROOT).filter(f => /^top_.*\.js$/.test(f)).sort())
 }
 // id-er må være unike innen hvert fag, også på tvers av filene
 { const files = ['config.js','i18n.js','data.js','gens.js','gens_b.js','more.js','more2.js','more2_b.js','subjects2.js','subjects2_b.js','more3.js',
-    ...fs.readdirSync(ROOT).filter(f => /^en_static_.*\.js$/.test(f)).sort(), 'learn.js', ...fs.readdirSync(ROOT).filter(f => /^add_.*\.js$/.test(f)).sort(), 'topics.js', ...fs.readdirSync(ROOT).filter(f => /^top_.*\.js$/.test(f)).sort()];
+    ...fs.readdirSync(ROOT).filter(f => /^en_static_.*\.js$/.test(f)).sort(), 'learn.js', ...fs.readdirSync(ROOT).filter(f => /^add_.*\.js$/.test(f)).sort(), 'figlib.js', 'topics.js', ...fs.readdirSync(ROOT).filter(f => /^top_.*\.js$/.test(f)).sort()];
   global.navigator = { language: 'nb' }; global.localStorage = { getItem(){ return null; }, setItem(){} };
   const tmp = require('os').tmpdir() + '/tpa_' + process.pid + '.js';
   fs.writeFileSync(tmp, files.map(f => fs.readFileSync(path.join(ROOT, f), 'utf8')).join('\n;\n') + ';module.exports={COURSES,TOPIC_DB};');

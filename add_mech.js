@@ -1184,12 +1184,12 @@ GEN("MATS1600", 1,
  // enkel: største/minste tillatte mål fra avvik
  () => { const nom = R.p([16, 20, 25, 30, 40, 50, 60, 80]), up = R.i(10, 60), lo = R.p([0, -R.i(5, 20)]);
    const which = R.p(["max", "min"]); const dev = which === "max" ? up : lo; const val = nom + dev / 1000;
-   const devMath = "$" + (dev >= 0 ? "+" : "") + dev + "$", loMath = "$" + (lo >= 0 ? "+" : "") + lo + "$";
+   const loMath = "$" + (lo >= 0 ? "+" : "") + lo + "$";
    return [T(`Et hull er merket Ø${nom} med øvre avvik $+${up}$ µm og nedre avvik ${loMath} µm. Hva er det ${which === "max" ? "største" : "minste"} tillatte hullmålet?`,
              `A hole is marked Ø${nom} with an upper deviation of $+${up}$ µm and a lower deviation of ${loMath} µm. What is the ${which === "max" ? "largest" : "smallest"} allowable hole size?`),
      { n: val, tol: 0.001, u: "mm" },
-     T(`${which === "max" ? "Største" : "Minste"} mål $=$ nominelt mål $+$ ${which === "max" ? "øvre" : "nedre"} avvik $= ${nom}\\text{ mm} + ${devMath}$ µm $\\approx ${mf(val, 3)}$ mm.`,
-       `${which === "max" ? "Largest" : "Smallest"} size $=$ nominal size $+$ ${which === "max" ? "upper" : "lower"} deviation $= ${nom}\\text{ mm} + ${devMath}$ µm $\\approx ${mf(val, 3)}$ mm.`)]; },
+     T(`${which === "max" ? "Største" : "Minste"} mål = nominelt mål + ${which === "max" ? "øvre" : "nedre"} avvik: $${nom}\\text{ mm} ${dev >= 0 ? "+" : "-"} ${Math.abs(dev)}\\text{ µm} = ${mf(val, 3)}\\text{ mm}$ (1 µm = 0,001 mm).`,
+       `${which === "max" ? "Largest" : "Smallest"} size = nominal size + ${which === "max" ? "upper" : "lower"} deviation: $${nom}\\text{ mm} ${dev >= 0 ? "+" : "-"} ${Math.abs(dev)}\\text{ µm} = ${mf(val, 3)}\\text{ mm}$ (1 µm = 0.001 mm).`)]; },
  // middels: største klaring
  () => { const holeU = R.i(15, 60), shaftL = -R.i(5, 40); const maxC = holeU - shaftL; const shaftLMath = "$" + shaftL + "$";
    return [T(`Et hull har øvre avvik $+${holeU}$ µm (nedre avvik $0$), og en aksel har nedre avvik ${shaftLMath} µm. Hva er den største klaringen?`,

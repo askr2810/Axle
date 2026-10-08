@@ -345,6 +345,7 @@ $\lim_{s\to 0} s\cdot\frac{4}{2s+1}\cdot\frac1s = 4$.`, "Check stability first. 
 // ---------- FLUID 3: Pumper og rørsystemer ----------
 TOPICS("FLUID", 3, [
 { id: "serie-parallell",
+  art: () => FL.circuit({ kind: "series" }),
   nb: O("Pumper i serie og parallell", "Når én pumpe ikke er nok, kan flere kobles sammen. I serie går den samme vannstrømmen gjennom begge, og løftehøydene legges sammen. I parallell deler de strømmen, og volumstrømmene legges sammen ved samme løftehøyde.",
     [[R`H_{serie}(Q) = H_1(Q) + H_2(Q)`, "serie: høyde legges sammen"], [R`Q_{par}(H) = Q_1(H) + Q_2(H)`, "parallell: strøm legges sammen"]],
     [["H", "løftehøyde", "m"], ["Q", "volumstrøm", "m³/s"]],

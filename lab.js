@@ -14,7 +14,10 @@ const LABS = [
     kw: "snordrag tension kraft force krefter forces dekomponering decomposition komponenter components trinse pulley talje tackle statikk statics likevekt equilibrium vektor vector tau rope snor lodd vinkel angle newton", units: ["GFYS:2", "VGFY1:1", "MAPE1300:0", "MAPE1300:1"], open: () => fcOpen("ropes", screen) }
 ,
   { id: "motion", ic: "🚗", t: ["Bevegelseslaben", "The motion lab"], sub: ["Posisjon, fart og akselerasjon: stigning er derivasjon, areal er integrasjon", "Position, velocity and acceleration: slope is differentiation, area is integration"],
-    kw: "bevegelse motion fart velocity speed akselerasjon acceleration posisjon position strekning distance derivasjon derivative integral integrasjon areal area stigning slope tangent graf graph", units: [], open: () => mvOpen(screen) }
+    kw: "bevegelse motion fart velocity speed akselerasjon acceleration posisjon position strekning distance derivasjon derivative integral integrasjon areal area stigning slope tangent graf graph", units: [], courses: ["GFYS", "VGFY1", "GMAT", "VGR1", "VGR2", "MEK1000", "MAT1000"], open: () => mvOpen(screen) }
+,
+  { id: "ctl", ic: "🎛️", t: ["Reguleringslaben", "The control lab"], sub: ["Dra poler og nullpunkter, se sprangresponsen – og skru på en PID-regulator", "Drag poles and zeros, see the step response – and tune a PID controller"],
+    kw: "regulering control kybernetikk cybernetics pol pole poler poles nullpunkt zero s-plan s-plane overføringsfunksjon transfer function sprangrespons step response tidskonstant time constant dempning damping oversving overshoot pid regulator controller stabilitet stability laplace", units: [], courses: ["ELFT2400"], open: () => ctOpen(screen) }
 ];
 // Faget (første kobling i SIM_MAP) som en simulering hører til, for gruppering og «Brukes i».
 function labSimUses(name){
@@ -120,4 +123,17 @@ function embedAfterRender(){
   const bar = `<div class="emb-bar"><span>⚡ ${esc(T("Interaktivt fra Axle", "Interactive from Axle"))}</span><a href="${esc(url)}" target="_blank" rel="noopener">${esc(T("Åpne i appen", "Open in the app"))} ↗</a></div>`;
   $app.insertAdjacentHTML("afterbegin", bar);
   setTimeout(embedPost, 30);
+}
+
+// ---------- «Labber i faget» på Øv: det som hører til faget du er i, samlet ett sted ----------
+function labsForCourse(code){
+  const big = LABS.filter(l => (l.courses || []).includes(code) || l.units.some(k => k.startsWith(code + ":")));
+  const sims = []; for(const k in SIM_MAP){ if(k.startsWith(code + ":")) for(const n of [].concat(SIM_MAP[k])) if(SIMS[n] && !sims.includes(n)) sims.push(n); }
+  return { big, sims };
+}
+function labCourseHTML(c){
+  const { big, sims } = labsForCourse(c.code); if(!big.length && !sims.length) return "";
+  return `<section class="lab-course"><div class="lab-course-h"><b>${esc(T(`Labber i ${courseName(c)}`, `Labs in ${courseName(c)}`))}</b><small>${esc(T("Prøv og se effekten selv", "Try it and see the effect yourself"))}</small></div>
+    ${big.map(l => `<button class="lab-cbig" data-a="labgo" data-id="${l.id}"><span class="lab-cic" aria-hidden="true">${ico(l.ic)}</span><span><b>${esc(T(l.t[0], l.t[1]))}</b><small>${esc(T(l.sub[0], l.sub[1]))}</small></span>${I.chevron}</button>`).join("")}
+    ${sims.length ? `<div class="lab-csims hscroll">${sims.map(n => `<button class="lab-csim" data-a="labsim" data-s="${n}">${I.bolt}<span>${esc(T(SIMS[n].t[0], SIMS[n].t[1]))}</span></button>`).join("")}</div>` : ""}</section>`;
 }

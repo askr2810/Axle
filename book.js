@@ -31,7 +31,7 @@ function renderBookTopic(){
   $app.innerHTML = `${bkTop("bkback", courseName(c) + " · " + unitTitle(c, hit.u), x.t, ttsTopBtn("main.topic"))}
     <main class="wrap topic">
       <h1>${esc(x.t)}</h1>
-      ${hit.tp.fig ? `<figure class="tpfig" aria-hidden="true">${hit.tp.fig}</figure>` : ""}
+      ${hit.tp.art ? `<figure class="tpart">${hit.tp.art()}</figure>` : hit.tp.fig ? `<figure class="tpfig" aria-hidden="true">${hit.tp.fig}</figure>` : ""}
       ${hit.tp.pic && typeof DRIVE_PICS !== "undefined" && DRIVE_PICS[hit.tp.pic] ? (p => `<figure class="tppic">${p.svg}<figcaption>${esc(p.cap)}</figcaption></figure>`)(DRIVE_PICS[hit.tp.pic](LANG)) : ""}
       <p class="intro">${rich(x.intro)}</p>
       ${formulas}${legend}${ex}
@@ -182,19 +182,17 @@ function renderBookCourse(){
 }
 function renderBookUnit(){
   const c = COURSE(BK.code), u = BK.u, src = bkDoc(c.code, u), units = bkUnits(c), i = units.indexOf(u);
-  const f = bkFormulas(src), secs = bkSections(src);
+  const f = bkFormulas(src);
   let n = 0; const html = richDoc(src).replace(/<h3>/g, () => `<h3 id="bk-s${n++}">`);
   const prev = units[i - 1], next = units[i + 1];
   $app.innerHTML = `${bkTop("bkback", courseName(c) + " · " + t("unit", u + 1), unitTitle(c, u), ttsTopBtn("main.bk-unit"))}
     <main class="wrap theory bk-unit">
-      ${secs.length > 1 ? `<nav class="bk-toc" aria-label="${esc(t("bkToc"))}">${secs.map((s, k) => `<button data-a="bksec" data-i="${k}">${esc(plain(s))}</button>`).join("")}</nav>` : ""}
-      ${teacherBubble(c.code, esc(t("tchTheory", unitTitle(c, u))), 52, "tch-th")}
       <button class="gd-cta" data-a="bkguided">${I.steps}<span><b>${esc(t("gdCta"))}</b><small>${esc(t("gdCtaSub"))}</small></span>${I.chevron}</button>
       ${typeof ttsBarHTML === "function" ? ttsBarHTML() : ""}
+      ${thLayers(html, tyKeyHTML(src))}
+      ${catIds(c, u).calc.length + catIds(c, u).mc.length ? `<button class="qt-row cat-entry" data-a="catgo" data-c="${esc(c.code)}" data-u="${u}"><span class="qt-ic">📚</span><span><b>${esc(T("Løste eksempler i denne enheten", "Solved examples in this unit"))}</b><small>${esc(T("Se fremgangsmåten på oppgaver av samme type", "See the method for problems of the same type"))}</small></span>${I.chevron}</button>` : ""}
       ${topicsOf(c.code, u).length ? `<div class="bk-unit-tps"><div class="bk-glance-h">${esc(t("tpInUnit"))}</div><div class="tiles2">${topicsOf(c.code, u).map(tp => tpTileHTML(c.code, tp)).join("")}</div></div>` : ""}
-      ${tyKeyHTML(src)}
-      ${f.length ? `<div class="bk-glance"><div class="bk-glance-h">${esc(t("bkGlance"))}</div>${f.map(x => `<div class="dmath">${texD(x)}</div>`).join("")}</div>` : ""}
-      ${html}
+      ${f.length ? `<details class="bk-glance bk-sheet"><summary class="bk-glance-h">📋 ${esc(t("bkGlance"))} (${f.length})</summary>${f.map(x => `<div class="dmath">${texD(x)}</div>`).join("")}</details>` : ""}
       ${cyHTML(c.code, u)}
       <div class="bk-nav">
         ${prev != null ? `<button class="bk-pn" data-a="bkunit" data-c="${esc(c.code)}" data-u="${prev}"><small>${esc(t("bkPrev"))}</small><b>${esc(unitTitle(c, prev))}</b></button>` : "<span></span>"}
@@ -223,15 +221,16 @@ function bookClick(a, b){
   else if(a === "bkall"){ BK.v = "home"; render(); window.scrollTo(0, 0); }
   else if(a === "bkcourse"){ BK.v = "course"; BK.code = b.dataset.c; BK.tab = "topics"; render(); window.scrollTo(0, 0); }
   else if(a === "bktab"){ BK.tab = b.dataset.t; render(); }
-  else if(a === "bkunit"){ BK.v = "unit"; BK.code = b.dataset.c; BK.u = +b.dataset.u; stEv("theory", BK.code + ":" + BK.u, "book"); (S.theorySeen ||= {})[BK.code + ":" + BK.u] = 1; bdgToast(checkBadges()); save(); render(); window.scrollTo(0, 0); }
-  else if(a === "bksec"){ const h = document.getElementById("bk-s" + b.dataset.i); if(h) window.scrollTo({ top: h.getBoundingClientRect().top + window.scrollY - 76, behavior: "smooth" }); }
+  else if(a === "bkunit"){ if(screen !== "book"){ screen = "book"; BK.q = BK.q || ""; } BK.v = "unit"; BK.code = b.dataset.c; BK.u = +b.dataset.u; stEv("theory", BK.code + ":" + BK.u, "book"); (S.theorySeen ||= {})[BK.code + ":" + BK.u] = 1; bdgToast(checkBadges()); save(); render(); window.scrollTo(0, 0); }
+  else if(a === "bksec"){ const h = document.getElementById("bk-s" + b.dataset.i); if(h && h.closest("details")) h.closest("details").open = true; if(h) window.scrollTo({ top: h.getBoundingClientRect().top + window.scrollY - 76, behavior: "smooth" }); }
   else if(a === "bkguided"){ gdOpen(b.dataset.c || BK.code, b.dataset.u != null ? +b.dataset.u : BK.u, null); }
-  else if(a === "bktopic"){ if(BK.v !== "topic") BK.from = BK.v; BK.v = "topic"; BK.code = b.dataset.c; BK.topic = b.dataset.id; (S.topicSeen ||= {})[BK.code + ":" + BK.topic] = 1; save(); render(); window.scrollTo(0, 0); }
+  else if(a === "bktopic"){ if(screen !== "book"){ screen = "book"; BK.v = "course"; } if(BK.v !== "topic") BK.from = BK.v; BK.v = "topic"; BK.code = b.dataset.c; BK.topic = b.dataset.id; (S.topicSeen ||= {})[BK.code + ":" + BK.topic] = 1; save(); render(); window.scrollTo(0, 0); }
   else if(a === "bktopicpractice"){
     const code = b.dataset.c, u = +b.dataset.u, c = COURSE(code);
     if(S.current !== code){ S.current = code; save(); }
+    if(isDrive(c)){ dvPractice("cat", u); return true; } // førerkort: øv på kategorien
     let k = 0; const nn = nextNode(c); if(nn && nn[0] === u) k = nn[1]; else if(sub(code).done[u + "-2"]) k = 3;
-    if(!isUnlocked(c, u, k)){ goHome(); toast(t("lockedNode")); return true; }
+    if(!isUnlocked(c, u, k)) k = 0; // låst enhet: øv likevel på grunnleggende nivå (du har valgt temaet selv)
     startUnitLesson(code, u, k);
   }
   else if(a === "bkpractice"){

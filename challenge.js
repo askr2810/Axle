@@ -26,6 +26,8 @@ function dcPlan(){
 }
 const dcDoneToday = () => !!(S.dc && S.dc.day === dayKey());
 function startChallenge(){
+  // følger «Mitt fokus» når det er slått på: oppgavene velges etter hva som er på tur og hva som er nytt i temaet
+  if(S.focus && S.focus.daily && COURSE(S.focus.code) && typeof focItems === "function"){ const it = focItems(dcN()); if(it.length){ startLesson("challenge", S.focus.code, it, { day: dayKey(), focus: 1 }); return; } }
   const items = dcPlan().map(p => {
     if(p.dr){ const c = DRILL.find(d => d[0] === p.dr); if(!c) return null; const it = drItem(c); it.dcCode = p.code; return it; }
     const it = itemFromId(COURSE(p.code), p.id); if(it){ it.id = p.code + ":" + it.id; it.dcCode = p.code; } return it; }).filter(Boolean);
@@ -38,7 +40,8 @@ function dcTileHTML(){
 }
 function dcCardHTML(){
   const plan = dcPlan(), done = dcDoneToday();
-  const chips = [...new Set(plan.map(p => p.code))].map(code => `<span class="dc-chip">${esc(srcShort(code))}</span>`).join("") +
+  const fcOn = S.focus && S.focus.daily && COURSE(S.focus.code);
+  const chips = (fcOn ? `<span class="dc-chip">🎯 ${esc(unitTitle(COURSE(S.focus.code), S.focus.cur))}</span>` : [...new Set(plan.map(p => p.code))].map(code => `<span class="dc-chip">${esc(srcShort(code))}</span>`).join("")) +
     (done ? "" : `<button class="dc-chip dc-src" data-a="dcsrcopen" aria-label="${esc(t("dcSrcTitle"))}">${I_STAR_O}${esc(t("dcSrcBtn"))}</button>`);
   return `<div class="dc-card ${done ? "done" : ""}"><div class="dc-ic">${done ? I.checkS : I.bolt}</div>
     <div class="dc-t"><b>${esc(t("dcTitle"))}</b><span>${esc(done ? t("dcDone", S.dc.right, S.dc.n) : t("dcSub", dcN(), S.goal || 10))}</span><div class="dc-chips">${chips}</div></div>

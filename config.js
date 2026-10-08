@@ -10,7 +10,7 @@ const CONFIG = {
   privacyUrl: "https://axle.no/privacy.html",
   siteUrl: "https://axle.no",
   // Kontaktadresse (vises i appen). Brukes også som reserve: uten Web3Forms-nøkkel åpnes e-postappen med rapporten ferdig utfylt.
-  contactEmail: "engidrilli@gmail.com",
+  contactEmail: "support@axle.no",
   // Kontoer og synkronisering (Supabase). Den offentlige «publishable»-nøkkelen skal ligge her.
   // Den hemmelige «secret»-nøkkelen skal ALDRI inn i appen. Tomme verdier = ingen kontoer.
   supabaseUrl: "https://yhzgdipjpdmovegbkybx.supabase.co",

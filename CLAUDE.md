@@ -6,3 +6,4 @@
   Krever miljøvariabelen `AXLE_FEEDBACK_KEY` og nettilgang til `*.supabase.co`. Se kommentarene i `supabase/tilbakemelding.sql` og `supabase/innsikt.sql`.
   Når noe er fikset: `node tools/feedback.mjs --mark 12,13 "hva som ble gjort"`.
 - Eieren skriver norsk; svar på norsk.
+- Plattformer: én kodebase (vanilla JS, ingen rammeverk) bygges til `release/www`. Web/PWA på axle.no, iOS/Android via Capacitor (`capacitor.config.json`), Mac/Windows via Tauri (`desktop/`, bygges av `.github/workflows/release.yml` når en tag `vX.Y.Z` pushes; Homebrew-oppskrift i `Casks/axle.rb`). Bare gratis tjenester og GitHubs gratis runnere.

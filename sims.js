@@ -296,6 +296,7 @@ function withSims(code, u, src){
   if(typeof withTl === "function") src = withTl(code, u, src);
   if(typeof withMaps === "function") src = withMaps(code, u, src);
   if(typeof withMv === "function") src = withMv(code, u, src);
+  if(typeof withCtl === "function") src = withCtl(code, u, src);
   if(typeof withWidgets === "function") src = withWidgets(code, u, src);
   const m = SIM_MAP[code + ":" + u]; if(!m || src.includes("![sim:")) return src;
   const add = [].concat(m).flatMap(n => ["![sim:" + n + "]", ""]);
@@ -328,6 +329,15 @@ function simGoalHTML(name, solved){ // solved = nr. på oppgaven som akkurat ble
 const SIM_XP = 3;
 // Farge per glidebryter (p[7] = 1–5): samme farge på etiketten og på det den styrer i tegningen (klassene sc1–sc5).
 const simCol = p => p[7] ? ` class="sc${p[7]}"` : "";
+// Glidebryter med navngitte trinn (p[8] = [[nb, en, ikon, farge], …], ett per heltall fra min til maks): viser ikon, navn og farge i stedet for tall.
+function simStepHTML(p, label){
+  const cur = Math.round(p[5] - p[2]), st = p[8];
+  return `<label class="sim-stepl" style="--sc:${st[cur][3]}"><span class="sim-l">${simSub(label)}</span><input type="range" min="${p[2]}" max="${p[3]}" step="1" value="${p[5]}" data-k="${p[0]}" aria-label="${esc(label)}"><output>${st[cur][2]} ${esc(T(st[cur][0], st[cur][1]))}</output>
+    <span class="sim-steps">${st.map((x, j) => `<span class="sim-step ${j === cur ? "on" : ""}" data-sv="${p[2] + j}" style="--c:${x[3]}"><i>${x[2]}</i>${esc(T(x[0], x[1]))}</span>`).join("")}</span></label>`;
+}
+// Trykk på et trinn = flytt glidebryteren dit
+document.addEventListener("click", e => { const b = e.target.closest && e.target.closest(".sim-step[data-sv]"); if(!b) return; e.preventDefault();
+  const inp = b.closest("label").querySelector("input"); inp.value = b.dataset.sv; inp.dispatchEvent(new Event("input", { bubbles: true })); inp.dispatchEvent(new Event("change", { bubbles: true })); });
 function simHTML(name){
   const S0 = SIMS[name]; if(!S0) return "";
   let r; try{ r = S0.f(simVals(name)); }catch(e){ return ""; }
@@ -337,7 +347,7 @@ function simHTML(name){
     <svg class="sim-svg" viewBox="0 0 320 180" role="img" aria-label="${esc(T(S0.t[0], S0.t[1]))}">${r.svg}</svg>
     ${S0.a ? `<p class="sim-note">${esc(T(S0.a[0], S0.a[1]))}</p>` : ""}
     <div class="sim-out">${simOutHTML(r)}</div>
-    <div class="sim-ctl">${S0.p.map(p => `<label${simCol(p)}><span class="sim-l">${simSub(lbl(p))}</span><input type="range" min="${p[2]}" max="${p[3]}" step="${p[4]}" value="${p[5]}" data-k="${p[0]}" aria-label="${esc(lbl(p))}"><output>${esc(smFmt(p[5]) + unit(p))}</output></label>`).join("")}</div>
+    <div class="sim-ctl">${S0.p.map(p => p[8] ? simStepHTML(p, lbl(p)) : `<label${simCol(p)}><span class="sim-l">${simSub(lbl(p))}</span><input type="range" min="${p[2]}" max="${p[3]}" step="${p[4]}" value="${p[5]}" data-k="${p[0]}" aria-label="${esc(lbl(p))}"><output>${esc(smFmt(p[5]) + unit(p))}</output></label>`).join("")}</div>
     ${S0.q && !S0.g ? `<p class="sim-q"><b>${esc(t("simQ"))}</b> ${simSub(T(S0.q[0], S0.q[1]))}</p>` : ""}
     <div class="sim-gw">${simGoalHTML(name)}</div></div>`;
 }
@@ -354,7 +364,9 @@ function simUpdate(el){
   const name = el.dataset.sim, S0 = SIMS[name]; if(!S0) return;
   const v = simVals(name, el); let r; try{ r = S0.f(v); }catch(e){ return; }
   el.querySelector(".sim-svg").innerHTML = r.svg; simFit(el.querySelector(".sim-svg")); el.querySelector(".sim-out").innerHTML = simOutHTML(r); el.querySelector(".sim-eq").innerHTML = simEqHTML(r);
-  el.querySelectorAll(".sim-ctl label").forEach((lb, i) => { const p = S0.p[i]; lb.querySelector("output").textContent = smFmt(v[p[0]]) + (p[6] ? " " + p[6] : ""); });
+  el.querySelectorAll(".sim-ctl label").forEach((lb, i) => { const p = S0.p[i], st = p[8] && p[8][Math.round(v[p[0]] - p[2])];
+    if(st){ lb.querySelector("output").textContent = st[2] + " " + T(st[0], st[1]); lb.style.setProperty("--sc", st[3]); lb.querySelectorAll(".sim-step").forEach((b, j) => b.classList.toggle("on", j === Math.round(v[p[0]] - p[2]))); }
+    else lb.querySelector("output").textContent = smFmt(v[p[0]]) + (p[6] ? " " + p[6] : ""); });
   if(!el.dataset.played){ el.dataset.played = 1; S.stats ||= {}; S.stats.sims = (+S.stats.sims || 0) + 1; }
   return r;
 }

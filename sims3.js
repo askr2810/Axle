@@ -130,7 +130,7 @@ Object.assign(SIMS, {
       return { eq: [qt`N(t) = \frac{K}{1 + \frac{K - N_0}{N_0}e^{-rt}} = \frac{${qc(2, v.K)}}{1 + \frac{${qc(2, v.K)} - ${qc(3, v.N0)}}{${qc(3, v.N0)}}e^{-${qc(1, qn(v.r, 1))}t}}`, qt`N(10) = ${qr(N(10), 0)}`], m: { th }, out: [[T("halve K nås ved t", "half of K at t"), smN(th, 1)], ["N(10)", smN(N(10), 0)]], svg: g.svg }; } },
 
   // ---------- Biologi: krysningsskjema ----------
-  punnett: { t: ["Krysningsskjema", "Punnett square"], p: [["m", ["mor (0 AA, 1 Aa, 2 aa)", "mother (0 AA, 1 Aa, 2 aa)"], 0, 2, 1, 0, "", 1], ["f", ["far (0 AA, 1 Aa, 2 aa)", "father (0 AA, 1 Aa, 2 aa)"], 0, 2, 1, 0, "", 2]],
+  punnett: { t: ["Krysningsskjema", "Punnett square"], p: [["m", ["mor", "mother"], 0, 2, 1, 0, "", 1, [["AA", "AA", "🟦", "#2B6FD6"], ["Aa", "Aa", "🟪", "#7B4FD6"], ["aa", "aa", "🟥", "#D9483B"]]], ["f", ["far", "father"], 0, 2, 1, 0, "", 2, [["AA", "AA", "🟦", "#2B6FD6"], ["Aa", "Aa", "🟪", "#7B4FD6"], ["aa", "aa", "🟥", "#D9483B"]]]],
     q: ["Hvilke foreldre kan få et barn med den recessive egenskapen (aa)?", "Which parents can have a child with the recessive trait (aa)?"],
     g: [["Få 25 % sannsynlighet for aa.", "Get a 25 % probability of aa.", v => v.m === 1 && v.f === 1], ["Få 50 % sannsynlighet for aa.", "Get a 50 % probability of aa.", v => v.m + v.f === 3]],
     f: v => { const G = ["AA", "Aa", "aa"], mo = G[v.m], fa = G[v.f], cells = []; for(const x of mo) for(const y of fa) cells.push([x, y].sort().join(""));
@@ -153,7 +153,7 @@ Object.assign(SIMS, {
 
   // ---------- Bil i sving: sentripetalkraft og friksjon ----------
   curve: { t: ["Bil i sving", "Car in a curve"], p: [["r", ["radius", "radius"], 10, 200, 5, 50, "m", 1], ["v", ["fart", "speed"], 10, 150, 5, 60, T("km/t", "km/h"), 2],
-      ["s", ["underlag (0 is, 1 vått, 2 tørt)", "surface (0 ice, 1 wet, 2 dry)"], 0, 2, 1, 2, "", 3], ["m", ["masse", "mass"], 800, 2500, 100, 1300, "kg", 4]],
+      ["s", ["underlag", "surface"], 0, 2, 1, 2, "", 3, [["is", "ice", "🧊", "#8FD3F4"], ["vått", "wet", "💧", "#3D6A9E"], ["tørt", "dry", "☀️", "#8A9097"]]], ["m", ["masse", "mass"], 800, 2500, 100, 1300, "kg", 4]],
     q: ["Doble farten: hvor mye større blir kraften som trengs? Doble radien: hva skjer da?", "Double the speed: how much larger does the required force become? Double the radius: what happens then?"],
     g: [["Tørr asfalt, radius 50 m: finn den høyeste farten (i trinn på 5 km/t) uten å skli.", "Dry asphalt, radius 50 m: find the highest speed (in steps of 5 km/h) without skidding.", v => { const ok = sp => Math.pow(sp / 3.6, 2) / 50 <= 0.8 * 9.81; return v.s === 2 && v.r === 50 && ok(v.v) && !ok(v.v + 5); }],
         ["Is, 40 km/t: finn den minste radiusen (i trinn på 5 m) der bilen holder seg på veien.", "Ice, 40 km/h: find the smallest radius (in steps of 5 m) where the car stays on the road.", v => { const ok = r => Math.pow(40 / 3.6, 2) / r <= 0.1 * 9.81; return v.s === 0 && v.v === 40 && ok(v.r) && !ok(v.r - 5); }]],
@@ -171,7 +171,7 @@ Object.assign(SIMS, {
         ${car}${fgT(296, 26, ["❄ " + T("is", "ice"), "💧 " + T("vått", "wet"), "☀ " + T("tørt", "dry")][v.s] + "  μ = " + smN(mu, 1), "fg-s", "end")}` }; } },
 
   // ---------- Sentripetalakselerasjon som graf ----------
-  centri: { t: ["Sentripetalakselerasjon", "Centripetal acceleration"], p: [["r", ["radius", "radius"], 10, 200, 5, 100, "m", 1], ["v", ["fart", "speed"], 10, 150, 5, 60, T("km/t", "km/h"), 2], ["s", ["underlag (0 is, 1 vått, 2 tørt)", "surface (0 ice, 1 wet, 2 dry)"], 0, 2, 1, 1, "", 3]],
+  centri: { t: ["Sentripetalakselerasjon", "Centripetal acceleration"], p: [["r", ["radius", "radius"], 10, 200, 5, 100, "m", 1], ["v", ["fart", "speed"], 10, 150, 5, 60, T("km/t", "km/h"), 2], ["s", ["underlag", "surface"], 0, 2, 1, 1, "", 3, [["is", "ice", "🧊", "#8FD3F4"], ["vått", "wet", "💧", "#3D6A9E"], ["tørt", "dry", "☀️", "#8A9097"]]]],
     q: ["a = v²/r: hva skjer med a når farten dobles? Når radien dobles?", "a = v²/r: what happens to a when the speed doubles? When the radius doubles?"],
     g: [["Vått føre, radius 100 m: finn farten der akselerasjonen treffer friksjonsgrensen.", "Wet road, radius 100 m: find the speed where the acceleration reaches the friction limit.", v => v.s === 1 && v.r === 100 && Math.abs(Math.pow(v.v / 3.6, 2) / 100 - 0.5 * 9.81) < 0.2]],
     f: v => { const MU = [0.1, 0.5, 0.8], a = sp => Math.pow(sp / 3.6, 2) / v.r, lim = MU[v.s] * 9.81, cols = ["fg-c1", "fg-c3", "fg-c4"];
@@ -181,7 +181,7 @@ Object.assign(SIMS, {
 
   // ---------- Sykepleie: NEWS2 ----------
   news2: { t: ["NEWS2-kalkulator", "NEWS2 calculator"], p: [["rr", ["resp.frekvens", "resp. rate"], 6, 32, 1, 16, "/min", 1], ["sp", "SpO₂", 85, 100, 1, 97, "%", 2], ["sbp", ["syst. BT", "syst. BP"], 80, 230, 5, 125, "mmHg", 3],
-      ["hr", ["puls", "pulse"], 35, 150, 5, 75, "/min", 4], ["tp", ["temp.", "temp."], 34, 41, 0.1, 37, "°C", 5], ["o2", ["oksygen (0 nei, 1 ja)", "oxygen (0 no, 1 yes)"], 0, 1, 1, 0, ""], ["cv", ["ny forvirring (0/1)", "new confusion (0/1)"], 0, 1, 1, 0, ""]],
+      ["hr", ["puls", "pulse"], 35, 150, 5, 75, "/min", 4], ["tp", ["temp.", "temp."], 34, 41, 0.1, 37, "°C", 5], ["o2", ["får oksygen", "on oxygen"], 0, 1, 1, 0, "", 0, [["nei", "no", "🚫", "#8A9097"], ["ja", "yes", "🫁", "#2B6FD6"]]], ["cv", ["ny forvirring", "new confusion"], 0, 1, 1, 0, "", 0, [["nei", "no", "🙂", "#1E9A5E"], ["ja", "yes", "😵‍💫", "#D9483B"]]]],
     q: ["Hvilke enkeltmålinger gir 3 poeng alene?", "Which single measurements score 3 points on their own?"],
     g: [["Lag en pasient med NEWS2 = 5.", "Create a patient with NEWS2 = 5.", (v, m) => m.sum === 5],
         ["Lag en pasient med høy risiko (7+) uten at noen enkeltmåling gir 3.", "Create a high-risk patient (7+) without any single measurement scoring 3.", (v, m) => m.sum >= 7 && m.max < 3]],

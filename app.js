@@ -9,8 +9,9 @@ function tex(s){
   return '<span class="mono">'+esc(s)+'</span>';
 }
 function inline(s){
-  return s.split(/(`[^`]+`|\$[^$]+\$)/g).map(p=>{
+  return s.split(/(`[^`]+`|\$\$[^$]+\$\$|\$[^$]+\$)/g).map(p=>{
     if(p.startsWith("`")&&p.endsWith("`")&&p.length>1) return "<code>"+esc(p.slice(1,-1))+"</code>";
+    if(p.startsWith("$$")&&p.endsWith("$$")&&p.length>4) return '<span class="dmath-in">'+texD(p.slice(2,-2))+"</span>"; // $$…$$ midt i en linje (f.eks. i en liste)
     if(p.startsWith("$")&&p.endsWith("$")&&p.length>1) return tex(p.slice(1,-1));
     return esc(p).replace(/(\d) (%|‰|°C|°|kr\b|kWh\b|kW\b|kN\b|mm\b|cm\b|m\/s\b|m\b|s\b|N\b|W\b|V\b|A\b|J\b|Hz\b|kg\b|g\b)/g, "$1\u00a0$2"); // tall og enhet på samme linje
   }).join("");
@@ -48,6 +49,7 @@ function richDoc(src){
     if((m = L.match(/^!\[tl:(\w+)\]$/))){ fAll(); if(typeof tlHTML === "function") out.push(tlHTML(m[1])); continue; }
     if((m = L.match(/^!\[map:(\w+)\]$/))){ fAll(); if(typeof mapHTML === "function") out.push(mapHTML(m[1])); continue; }
     if((m = L.match(/^!\[mv:(\w+)\]$/))){ fAll(); if(typeof mvHTML === "function") out.push(mvHTML(m[1])); continue; }
+    if((m = L.match(/^!\[ctl:(\w+)\]$/))){ fAll(); if(typeof ctHTML === "function") out.push(ctHTML(m[1])); continue; }
     if((m = L.match(/^!\[(sort|seq):(\w+)\]$/))){ fAll(); if(typeof srtHTML === "function") out.push(m[1] === "sort" ? srtHTML(m[2]) : seqHTML(m[2])); continue; }
     if((m = L.match(/^\$\$(.+)\$\$$/))){ fPara(); fList(); fBox(); out.push('<div class="dmath">'+texD(m[1])+"</div>"); continue; }
     if((m = L.match(/^>\s?(.*)$/))){ fPara(); fList(); box.push(m[1]); continue; }
@@ -60,7 +62,17 @@ function richDoc(src){
   fAll(); return out.join("");
 }
 // ren tekst (til rapporter)
-const plain = s => String(s).replace(/```([\s\S]*?)```/g," [kode: $1] ").replace(/\$/g,"").replace(/`/g,"").replace(/\s+/g," ").trim();
+// Matte i ren tekst (snutter i søk, opplesing): \frac{a}{b} → a/b, \Pi → Π, ^2 → ² osv.
+const TEXP_G = { alpha:"α",beta:"β",gamma:"γ",delta:"δ",epsilon:"ε",varepsilon:"ε",zeta:"ζ",eta:"η",theta:"θ",kappa:"κ",lambda:"λ",mu:"μ",nu:"ν",xi:"ξ",pi:"π",rho:"ρ",sigma:"σ",tau:"τ",phi:"φ",varphi:"φ",chi:"χ",psi:"ψ",omega:"ω",
+  Gamma:"Γ",Delta:"Δ",Theta:"Θ",Lambda:"Λ",Pi:"Π",Sigma:"Σ",Phi:"Φ",Psi:"Ψ",Omega:"Ω",cdot:"·",times:"×",le:"≤",leq:"≤",ge:"≥",geq:"≥",pm:"±",infty:"∞",to:"→",rightarrow:"→",Rightarrow:"⇒",approx:"≈",neq:"≠",int:"∫",sum:"Σ",partial:"∂",nabla:"∇",circ:"°",degree:"°",in:"∈",dots:"…",ldots:"…" };
+function texPlain(m){
+  let t = m;
+  for(let i = 0; i < 3; i++) t = t.replace(/\\[dt]?frac\{([^{}]*)\}\{([^{}]*)\}/g, "($1)/($2)").replace(/\\sqrt\{([^{}]*)\}/g, "√($1)");
+  t = t.replace(/\\(text|mathrm|mathbf|operatorname|vec|bar|hat)\{([^{}]*)\}/g, "$2").replace(/\\(left|right|big|Big)/g, "").replace(/\\[,;:! ]|\\q?quad/g, " ")
+    .replace(/\^\{?2\}?/g, "²").replace(/\^\{?3\}?/g, "³").replace(/\\([A-Za-z]+)/g, (_, w) => TEXP_G[w] || w).replace(/[{}]/g, "").replace(/\(([A-Za-z0-9.,²³]+)\)\/\(([A-Za-z0-9.,²³]+)\)/g, "$1/$2");
+  return t;
+}
+const plain = s => String(s).replace(/```([\s\S]*?)```/g," [kode: $1] ").replace(/\$\$?([^$]+)\$\$?/g, (_, m) => texPlain(m)).replace(/\$/g,"").replace(/`/g,"").replace(/\{,\}/g, decPoint() ? "." : ",").replace(/\s+/g," ").trim();
 const shuffle = a => { a=a.slice(); for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];} return a; };
 const pad = n => String(n).padStart(2,"0");
 const dayKey = (d=new Date()) => d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate());
@@ -135,7 +147,10 @@ const EMO = {
   "🧩": svg('<rect x="3.5" y="6.5" width="10" height="14" rx="2"/><path d="M9 6.5V5a1.5 1.5 0 0 1 1.5-1.5h8A1.5 1.5 0 0 1 20 5v11a1.5 1.5 0 0 1-1.5 1.5h-5"/>'),
   "👆": svg('<path d="m3.5 12 3.5 3.5L13 9.5M15 9.5l5.5 5.5M20.5 9.5 15 15"/>'),
   "🧪": svg('<path d="M9 3h6M10 3v6l-5.6 9.3A1.8 1.8 0 0 0 6 21h12a1.8 1.8 0 0 0 1.6-2.7L14 9V3M7 15h10"/>'),
-  "🗺️": svg('<path d="M9 4 3 6v14l6-2 6 2 6-2V4l-6 2zM9 4v14M15 6v14"/>')
+  "🗺️": svg('<path d="M9 4 3 6v14l6-2 6 2 6-2V4l-6 2zM9 4v14M15 6v14"/>'),
+  "🪢": svg('<circle cx="12" cy="6" r="3"/><path d="M9.2 7 6 20M14.8 7 18 20M4 20h4M16 20h4"/>'),
+  "🎛️": svg('<path d="M4 6h10M18 6h2M4 12h4M12 12h8M4 18h12"/><circle cx="16" cy="6" r="2"/><circle cx="10" cy="12" r="2"/><circle cx="18" cy="18" r="2"/>'),
+  "🧮": svg('<rect x="5" y="2.5" width="14" height="19" rx="2.5"/><path d="M8.5 6.5h7M9 11h.01M12 11h.01M15 11h.01M9 14.5h.01M12 14.5h.01M15 14.5h.01M9 18h.01M12 18h3"/>')
 };
 const ico = e => EMO[e] || e;
 
@@ -234,7 +249,7 @@ function renderHome(){
     <button class="stat xp" data-a="statinfo" data-k="xp" aria-label="${t("xpTitle")}: ${S.xp}">${I.bolt}${S.xp}</button>`}
   </div></div>
   <main class="wrap">
-    ${noticeHTML()}
+    ${noticeHTML()}${qsHTML("home")}
     ${duInviteHTML()}
     ${nextCardHTML(c, nn)}
     ${fresh ? "" : layoutHTML("home")}
@@ -331,6 +346,7 @@ function renderSettings(){
       <button class="srow" data-a="feedback"><span class="lbl">${t("setFeedback")}</span>${I.chevron}</button>
       ${CLOUD_ON && AUTH ? `<button class="srow" data-a="frblocks"><span class="lbl">${t("blockList")}<span class="sub">${t("blockListSub")}</span></span>${I.chevron}</button>` : ""}
       <a class="srow" href="mailto:${esc(CONFIG.contactEmail)}?subject=${encodeURIComponent("Axle: rapport om misbruk")}"><span class="lbl">${t("abuseContact")}<span class="sub">${esc(CONFIG.contactEmail)}</span></span>${I.chevron}</a>
+      <a class="srow" href="${LANG === "en" ? "/en/about/" : "/about/"}" target="_blank" rel="noopener"><span class="lbl">${esc(T("Om Axle", "About Axle"))}</span>${I.chevron}</a>
       <button class="srow" data-a="privacy"><span class="lbl">${t("setPrivacy")}</span>${I.chevron}</button>
       ${typeof CLOUD_ON !== "undefined" && CLOUD_ON ? `<div class="srow"><span class="lbl">${esc(T("Del bruksstatistikk", "Share usage statistics"))}<span class="sub">${esc(T("Hva slags sider og øvinger som brukes – hjelper oss å gjøre Axle bedre. Ingen svar eller tekst.", "Which pages and exercises are used – helps us improve Axle. No answers or text."))}</span></span><button class="tog ${S.noStats ? "" : "on"}" data-a="stattoggle" role="switch" aria-checked="${!S.noStats}" aria-label="${esc(T("Del bruksstatistikk", "Share usage statistics"))}"></button></div>` : ""}
       <button class="srow" data-a="terms"><span class="lbl">${esc(T("Vilkår for bruk", "Terms of use"))}<span class="sub">${esc(T("Gratis øvingsverktøy, kan inneholde feil", "Free practice tool, may contain mistakes"))}</span></span>${I.chevron}</button>
@@ -545,6 +561,7 @@ function finishLesson(){
   if(L.kind==="challenge"){ S.dc = { day: L.meta.day, right: firstTry, n: L.total }; bdgStat("challenges"); }
   if(L.kind==="mydeck") mdRecord();
   if(L.kind==="quick"){ (S.quickDone ||= {})[L.code] = 1; }
+  const fcMsg = (L.kind==="focus" || (L.meta && L.meta.focus)) && typeof focRecord === "function" ? focRecord() : null;
   if(L.kind==="drill" || L.kind==="challenge") drRecord(); // grunnbegreper i utfordringen teller også i terpinga
   noteNightLesson();
   const wrong = new Set(s.wrong);
@@ -559,6 +576,7 @@ function finishLesson(){
   L.result = { xpBefore, levelUp: levelInfo(S.xp).lv > lvBefore ? levelInfo(S.xp).lv : 0, streakMile: st.streakUp && STREAK_MILES.includes(st.streak) ? st.streak : 0, bonus: L.bonus||0, goalHit: st.goalHit, newBadges, gained: gained + (L.bonus||0), acc: Math.round(firstTry/L.total*100), secs: Math.round((Date.now()-L.start)/1000), streak: st.streak, streakUp: st.streakUp };
   if(typeof stEv === "function") stEv("lesson", L.code, L.kind === "unit" && L.meta ? L.meta.u : L.kind, firstTry, L.total);
   screen = "done"; render();
+  if(fcMsg) setTimeout(() => toast(fcMsg), 900);
 }
 function correctText(it){ return it.type==="mc" ? it.opts.find(o=>o.ok).t : it.type==="flip" ? it.answer : nf(it.n,3)+(it.u?" "+it.u:""); }
 // Flashcard: personen snur kortet og sier selv om hen kunne det. Teller som riktig/feil akkurat som et vanlig svar.
@@ -572,7 +590,7 @@ function flipGrade(ok){
 function renderLesson(){
   const it = L.queue[0];
   const pct = (L.maxHearts ? (L.done + (L.answered?1:0)) : L.solved.size) / L.total * 100;
-  const lvl = L.kind==="place" ? T("Finn nivået ditt · ", "Find your level · ") : L.kind==="unit" ? `${lvShort(L.meta.k)} · ${lvName(L.meta.k)} · ` : L.kind==="jump" ? t("jumpTest")+" · " : L.kind==="review" ? t("review")+" · " : L.kind==="challenge" ? t("dcTitle")+" · " : L.kind==="drill" ? drTitle()+" · "+(it.drTag ? T(DR_TAGS[it.drTag][0], DR_TAGS[it.drTag][1])+" · " : "") : L.kind==="community" || L.kind==="mydeck" ? (L.meta.title||t("ccTitle"))+" · " : "";
+  const lvl = L.kind==="place" ? T("Finn nivået ditt · ", "Find your level · ") : L.kind==="unit" ? `${lvShort(L.meta.k)} · ${lvName(L.meta.k)} · ` : L.kind==="jump" ? t("jumpTest")+" · " : L.kind==="review" ? t("review")+" · " : L.kind==="challenge" ? t("dcTitle")+" · " : L.kind==="focus" ? "🎯 "+T("Mitt fokus","My focus")+" · " : L.kind==="drill" ? drTitle()+" · "+(it.drTag ? T(DR_TAGS[it.drTag][0], DR_TAGS[it.drTag][1])+" · " : "") : L.kind==="community" || L.kind==="mydeck" ? (L.meta.title||t("ccTitle"))+" · " : "";
   if(it.type==="flip"){ // flashcard
     const shown = !!L.flipShown;
     $app.innerHTML = `<div class="lesson"><div class="wrap lhead"><button class="iconbtn" data-a="quit" aria-label="${t("quitAria")}">${I.x}</button><div class="bar" role="progressbar" aria-valuenow="${Math.round(pct)}" aria-valuemin="0" aria-valuemax="100"><i style="width:${pct}%"></i></div><span class="combo">${L.combo>=2?L.combo+"×":""}</span><button class="iconbtn flag" data-a="report" aria-label="${t("report")}" title="${t("report")}">${I.flag}</button></div>
@@ -615,7 +633,7 @@ function renderLesson(){
 }
 function renderDone(){
   const r = L.result, m = Math.floor(r.secs/60), sec = r.secs%60, c = COURSE(L.code), u = L.meta && L.meta.u;
-  const title = L.kind==="place" ? (u > 0 ? T("Du kan mye allerede!", "You already know a lot!") : T("Fint, da starter vi fra bunnen", "Great, we'll start from the beginning")) : L.kind==="quick" ? T(`${L.total - L.firstWrong.size} av ${L.total} riktige!`, `${L.total - L.firstWrong.size} of ${L.total} correct!`) : L.kind==="community" ? t("ccDoneTitle") : L.kind==="drill" || L.kind==="mydeck" ? t("drDoneTitle") : L.kind==="challenge" ? t("dcDoneTitle") : L.kind==="jump" ? t("doneJump") : (L.kind==="unit" && L.meta.k===3) ? t("doneCrown") : r.acc===100 ? t("doneFlawless") : L.kind==="review" ? t("doneReview") : t("doneLevel", lvShort(L.meta.k));
+  const title = L.kind==="place" ? (u > 0 ? T("Du kan mye allerede!", "You already know a lot!") : T("Fint, da starter vi fra bunnen", "Great, we'll start from the beginning")) : L.kind==="quick" ? T(`${L.total - L.firstWrong.size} av ${L.total} riktige!`, `${L.total - L.firstWrong.size} of ${L.total} correct!`) : L.kind==="community" ? t("ccDoneTitle") : L.kind==="drill" || L.kind==="mydeck" ? t("drDoneTitle") : L.kind==="challenge" ? t("dcDoneTitle") : L.kind==="focus" ? T("Fokusøkt fullført 🎯", "Focus session done 🎯") : L.kind==="jump" ? t("doneJump") : (L.kind==="unit" && L.meta.k===3) ? t("doneCrown") : r.acc===100 ? t("doneFlawless") : L.kind==="review" ? t("doneReview") : t("doneLevel", lvShort(L.meta.k));
   const sub2 = L.kind==="place" ? (u >= c.units.length ? T("Du kan alt i dette faget. Velg gjerne et nytt fag.", "You know everything in this course. Pick a new one.") : u > 0 ? T(`Enhet 1–${u} er hoppet over. Du starter på «${unitTitle(c, u)}».`, `Units 1–${u} are skipped. You start at "${unitTitle(c, u)}".`) : T("Det er helt greit. Teorien tar deg steg for steg.", "That's perfectly fine. The theory takes you step by step.")) : L.kind==="drill" || L.kind==="mydeck" ? t("drDoneSub", L.total - L.firstWrong.size, L.total) : L.kind==="jump" ? t("jumpUnlocked", unitTitle(c,u)) : (L.kind==="unit" && L.meta.k===3) ? t("crownWon", unitTitle(c,u)) : null;
   $app.innerHTML = `<main class="wrap finish pop">
     ${doneHeroHTML(r)}
@@ -632,6 +650,7 @@ function renderDone(){
     ${levelBarHTML(r.xpBefore ?? S.xp, S.xp)}
     ${r.newBadges && r.newBadges.length ? `<div class="dx-badges"><small>${esc(t("bdgNewTitle"))}</small><div>${r.newBadges.map(b => `<button class="dx-badge" data-a="badges">${badgeIcon(b, 54)}<b>${esc(bdgName(b))}</b></button>`).join("")}</div></div>` : ""}
     ${doneExtrasHTML(c, u, r)}
+    ${nudgeHTML(r)}
     <button class="big" data-a="home">${t("cont")}</button>
   </main>`;
   if(!r.animated && L.kind==="quick") quizAccountAsk(L.total - L.firstWrong.size, L.total);
@@ -1012,6 +1031,8 @@ function renderOverlay(){
   else if(overlay.studypick) d.innerHTML = studyPickHTML(overlay.first);
   else if(overlay.levelpick){ d.className = "scrim center"; d.innerHTML = levelPickHTML(); }
   else if(overlay.games) d.innerHTML = gamesMenuHTML(overlay.games);
+  else if(overlay.homeGuide) d.innerHTML = homeGuideHTML();
+  else if(overlay.focusPick) d.innerHTML = focPickHTML(overlay.focusPick);
   else if(overlay.mdimport){ d.className = "scrim center"; d.innerHTML = mdImportHTML(overlay.mdimport); }
   else if(overlay.drpick) d.innerHTML = drPickHTML();
   else if(overlay.mdpub) d.innerHTML = mdPubHTML(overlay.mdpub);
@@ -1089,8 +1110,28 @@ function renderOverlay(){
 // ---------- teori og forkunnskaper ----------
 let TH = null; // {code, u, go:{u,k}|null}
 function openTheory(code, u, go){ TH = { code, u, go }; if(typeof stEv === "function") stEv("theory", code + ":" + u, "full"); (S.theorySeen ||= {})[code+":"+u] = 1; bdgToast(checkBadges()); save(); overlay = null; screen = "theory"; render(); window.scrollTo(0,0); }
+// Teorien i lag: hver ##-del blir et nummerert steg som kan åpnes. Det første (det enkle) er åpent,
+// resten viser bare tittel og en kort smakebit – så siden starter enkelt og ikke blir en tekstvegg.
+function thLayers(html, mid = ""){
+  const parts = html.split(/(?=<h3[ >])/); if(parts.length < 3) return mid + html;
+  let head = parts[0].startsWith("<h3") ? "" : parts.shift();
+  // «Hva handler det om?» er den enkle starten: den vises åpen, uten boks, før stegene
+  if(!head && /^<h3[^>]*>\s*(Hva handler|What is it about|What is this about|Kort fortalt|In short|Intuisjon|Intuition)/i.test(parts[0])) head = parts.shift();
+  // Forklaringene først, så oppsummeringen med formler, så «slik løser du» og til slutt vanlige feil.
+  const rank = p => { const h = (p.match(/^<h3[^>]*>([\s\S]*?)<\/h3>/) || [])[1] || "";
+    return /^(Kort oppsummert|Begreper|Key concepts|Concepts|Formler og begreper)/i.test(h) ? 2 : /^(Slik løser du|How to solve)/i.test(h) ? 3 : /^(Vanlige feil|Common mistakes|Typiske feil)/i.test(h) ? 4 : 1; };
+  parts.sort((a, b) => rank(a) - rank(b)); // stabil sortering: samme type beholder rekkefølgen
+  const prev = body => { const d = document.createElement("div"); d.innerHTML = body; d.querySelectorAll("math,.katex,svg,.sim,.mp,.mv,figure,.fig,table,ol,ul,pre,.dmath").forEach(x => x.remove()); d.querySelectorAll("h4").forEach(h => h.textContent += ": ");
+    const tx = d.textContent.replace(/\(\s*[,;]?\s*\)/g, "").replace(/\s+([.,;:])/g, "$1").replace(/\s+/g, " ").trim(); return tx.length > 110 ? tx.slice(0, 105).replace(/\s\S*$/, "") + " …" : tx; };
+  return head + mid + `<div class="ths-bar"><span>${esc(T(`${parts.length} steg – ta dem i rekkefølge`, `${parts.length} steps – take them in order`))}</span><button class="exlink" data-a="thsall">${esc(T("Åpne alle", "Open all"))}</button></div>` + parts.map((p, i) => {
+    const m = p.match(/^<h3([^>]*)>([\s\S]*?)<\/h3>/), body = m ? p.slice(m[0].length) : p, pv = prev(body);
+    return `<details class="ths" ${i === 0 && !head ? "open" : ""}><summary><span class="ths-n">${i + 1}</span><span class="ths-t"><h3${m ? m[1] : ""}>${m ? m[2] : ""}</h3>${pv ? `<small>${esc(pv)}</small>` : ""}</span></summary><div class="ths-b">${body}</div></details>`; }).join("");
+}
+document.addEventListener("toggle", () => { if(typeof fitSoon === "function") fitSoon(); }, true);
+document.addEventListener("click", e => { const b = e.target.closest && e.target.closest('[data-a="thsall"]'); if(!b) return; e.stopPropagation();
+  const all = [...document.querySelectorAll("details.ths")], open = !all.every(d => d.open); all.forEach(d => d.open = open); b.textContent = open ? T("Lukk alle", "Close all") : T("Åpne alle", "Open all"); }, true);
 function theoryBody(code, u, quiz){ const doc = theoryOf(code, u); if(!doc) return `<p>${esc(t("noTheory"))}</p>`; const src = withSims(code, u, withFigs(code, u, doc[LANG] || doc.nb));
-  return (typeof ttsBarHTML === "function" ? ttsBarHTML() : "") + tyKeyHTML(src) + richDoc(src) + (quiz ? cyHTML(code, u) : ""); }
+  return (typeof ttsBarHTML === "function" ? ttsBarHTML() : "") + thLayers(richDoc(src), tyKeyHTML(src)) + (quiz ? cyHTML(code, u) : ""); }
 function renderTheory(){
   if(!TH){ screen = "home"; renderHome(); return; }
   const c = COURSE(TH.code);
@@ -1150,6 +1191,7 @@ function render(){
   renderNow();
   if(render.last !== screen && typeof stScreen === "function") stScreen(screen);
   render.last = screen;
+  if(typeof poDraw === "function") poDraw();
   if(keep != null){ const np = document.querySelector("#app .sheet"); if(np) np.scrollTop = keep; }
 }
 function renderNow(){
@@ -1171,6 +1213,10 @@ function renderNow(){
   else if(screen==="lab") renderLab();
   else if(screen==="geo") renderGeo();
   else if(screen==="motion") renderMotion();
+  else if(screen==="ctl") renderCtl();
+  else if(screen==="pomo") renderPomo();
+  else if(screen==="mq") renderMq();
+  else if(screen==="catalog") renderCatalog();
   else if(screen==="code") renderCode();
   else if(screen==="snacks") renderSnacks();
   else if(screen==="sprint") renderSprint();
@@ -1228,7 +1274,7 @@ document.addEventListener("click", async e=>{
   if(grClick(a, b)) return; // grupper (handlinger som starter med "gr")
   if(studyClick(a, b)) return; // studier (studies.js)
   if(pfClick(a, b)) return; // bevis (proofs.js)
-  if(snEntryClick(a) || snClick(a, b) || spClick(a, b) || gmClick(a, b) || gmMenuClick(a, b) || duClick(a, b) || mdClick(a, b) || unitsClick(a, b) || tgClick(a, b) || fcClick(a, b) || labClick(a, b) || geClick(a, b) || mvClick(a) || shareClick(a, b) || ibClick(a, b) || dvClick(a, b) || scClick(a, b) || cdClick(a, b) || thClick(a, b)) return; // snacks og lynrunde (snacks.js)
+  if(snEntryClick(a) || snClick(a, b) || spClick(a, b) || gmClick(a, b) || gmMenuClick(a, b) || duClick(a, b) || mdClick(a, b) || unitsClick(a, b) || tgClick(a, b) || fcClick(a, b) || labClick(a, b) || geClick(a, b) || mvClick(a) || ctClick(a, b) || catClick(a, b) || focClick(a, b) || poClick(a, b) || mqClick(a, b) || nudgeClick(a, b) || shareClick(a, b) || ibClick(a, b) || dvClick(a, b) || scClick(a, b) || cdClick(a, b) || thClick(a, b)) return; // snacks og lynrunde (snacks.js)
   if(adminClick(a, b)) return; // adminpanel og kunngjøringer (admin.js)
   if(psClick(a, b)) return; // profilsiden til andre + hvilke merker du viser (person.js)
   if(friendsClick(a, b)) return; // venner (handlinger som starter med "fr")

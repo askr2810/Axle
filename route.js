@@ -5,7 +5,7 @@
 //  Adressen byttes med replaceState, så tilbakeknappen i nettleseren oppfører seg som før.
 //  Ord på norsk eller engelsk etter språket; begge forstås når adressen leses.
 // ============================================================
-const RT = { geo: ["kartspill", "map-game"], motion: ["bevegelse", "motion"], practice: ["ov", "practice"], book: ["teori", "theory"], friends: ["venner", "friends"], profile: ["profil", "profile"], badges: ["merker", "badges"],
+const RT = { geo: ["kartspill", "map-game"], motion: ["bevegelse", "motion"], ctl: ["regulering", "control"], pomo: ["pomodoro", "pomodoro"], mq: ["hoderegning", "mental-maths"], catalog: ["oppgaver", "problems"], practice: ["ov", "practice"], book: ["teori", "theory"], friends: ["venner", "friends"], profile: ["profil", "profile"], badges: ["merker", "badges"],
   settings: ["innstillinger", "settings"], community: ["fellesskap", "community"], pick: ["fag", "courses"], groups: ["grupper", "groups"], theory: ["les", "read"], guided: ["steg", "steps"], topic: ["emne", "topic"], proofs: ["bevis", "proofs"], snacks: ["snacks", "snacks"], sprint: ["lynrunde", "sprint"], match: ["parjakt", "match"], truefalse: ["santusant", "truefalse"], duel: ["duell", "duel"], mydecks: ["kort", "cards"], local: ["lynduell", "sameduel"], sheet: ["formler", "formulas"], person: ["person", "person"], admin: ["admin", "admin"], trig: ["enhetssirkel", "unitcircle"], forces: ["krefter", "forces"], lab: ["lab", "lab"], messages: ["meldinger", "messages"], code: ["kode", "code"] };
 const rtW = k => RT[k][LANG === "en" ? 1 : 0];
 const rtKey = w => Object.keys(RT).find(k => RT[k].includes(String(w || "").toLowerCase()));
@@ -34,6 +34,10 @@ function routeOf(){
     case "forces": return rtW("forces") + "/" + fcSlug();
     case "geo": return rtW("geo");
     case "motion": return rtW("motion");
+    case "pomo": return rtW("pomo");
+    case "mq": if(!MQ) return rtW("mq"); if(MQ.live && MQ.view === "lobby") return rtW("mq") + "/live/" + MQ.live.code; if(MQ.chal && MQ.view === "menu"){ const c = MQ.chal.cfg; return rtW("mq") + "/" + [c.seed, c.lvl, c.n, c.secs].concat(MQ.chal.score != null ? [MQ.chal.score, MQ.chal.name] : []).join("."); } return rtW("mq");
+    case "catalog": return CAT.code ? [rtW("catalog"), CAT.code].concat(CAT.u != null ? [CAT.u + 1] : []).join("/") : null;
+    case "ctl": return rtW("ctl") + (CTS.tab === "pid" ? "/pid" : "");
     case "lab": return LB.sim ? rtW("lab") + "/" + LB.sim : rtW("lab");
     case "code": return cdRoute();
     case "duel": { const c = DU && DU.view !== "end" && (DU.code || (DU.joinCode && DU.joinCode.length === 5 ? DU.joinCode : "")); return c ? rtW("duel") + "/" + c : rtW("duel"); }
@@ -85,6 +89,10 @@ function routeBoot(){
   if(k === "code"){ cdRouteOpen(p); screen = "code"; return true; }
   if(k === "lab"){ LB.sim = p[1] && SIMS[p[1]] ? p[1] : null; LB.from = "book"; screen = "lab"; return true; }
   if(k === "geo"){ GE = null; screen = "geo"; return true; }
+  if(k === "catalog"){ const c = rtCourse(p[1]); if(!c) return false; const u = parseInt(p[2], 10) - 1; CAT = { code: c, u: Number.isInteger(u) && u >= 0 ? u : null, q: "", open: null, items: {}, from: "practice" }; screen = "catalog"; return true; }
+  if(k === "ctl"){ CTS = { from: "home", tab: p[1] === "pid" ? "pid" : "poles", uid: {} }; screen = "ctl"; return true; }
+  if(k === "mq"){ MQ = null; MQ_PENDING = p.slice(1).join("/") || null; screen = "mq"; return true; }
+  if(k === "pomo"){ PO_FROM = "home"; screen = "pomo"; return true; }
   if(k === "motion"){ MVS = { from: "home", uid: null }; screen = "motion"; return true; }
   if(k === "local"){ LO = null; screen = "local"; return true; }
   if(k === "mydecks"){ MD = { view: "list" }; MD_PENDING = p[1] === "del" && p[2] ? p[2] : null; screen = "mydecks"; return true; }

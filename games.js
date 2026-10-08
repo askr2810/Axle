@@ -138,9 +138,10 @@ function gmClick(a, b){
 // ---------- Lek og lær-menyen og tilpassede menyer ----------
 // Forsiden og Øv er bygd av seksjoner som brukeren kan skjule og flytte (S.layout / S.hidden per sted).
 // Spillene ligger bak én knapp («Spill og dueller») som åpner menyen; spill man fester (S.pins[sted]) vises som store fliser.
-const GAMES = [["du", "duopen", "⚔️", "duTitle", "sn-t5"], ["lo", "loopen", "🤜", "loTitle", "sn-t6"], ["sn", "snopen", "📱", "snTitle", "sn-t1"], ["sp", "spopen", "⚡", "spTitle", "sn-t2"], ["mt", "mtopen", "🧩", "mtTitle", "sn-t3"], ["tf", "tfopen", "👆", "tfTitle", "sn-t4"], ["tg", "tggame", "🎯", "tgTitle", "sn-t7"], ["lab", "labopen", "🧪", "labTitle", "sn-t8"], ["geo", "geoopen", "🗺️", "geoTitle", "sn-t9"]];
+const GAMES = [["mq", "mqopen", "🧮", "mqTitle", "sn-t10"], ["du", "duopen", "⚔️", "duTitle", "sn-t5"], ["lo", "loopen", "🤜", "loTitle", "sn-t6"], ["sn", "snopen", "📱", "snTitle", "sn-t1"], ["sp", "spopen", "⚡", "spTitle", "sn-t2"], ["mt", "mtopen", "🧩", "mtTitle", "sn-t3"], ["tf", "tfopen", "👆", "tfTitle", "sn-t4"], ["tg", "tggame", "🎯", "tgTitle", "sn-t7"], ["lab", "labopen", "🧪", "labTitle", "sn-t8"], ["geo", "geoopen", "🗺️", "geoTitle", "sn-t9"]];
 function gmSub(id){
   const st = curStudy(), sp = (S.sprintBest || {})[st], mb = (S.matchBest || {})[st], tb = (S.tfBest || {})[st];
+  if(id === "mq"){ const b = Object.values(S.mqBest || {}); return b.length ? t("spBest", mqF(Math.max(...b))) : t("mqSub"); }
   if(id === "du") return t("duSub"); if(id === "lo") return t("loSub");
   if(id === "sn") return t("snSub"); if(id === "sp") return sp ? t("spBest", sp) : t("spSub");
   if(id === "mt") return mb ? t("mtBest", f1(mb)) : t("mtSub"); if(id === "tg") return S.tgBest ? t("spBest", S.tgBest + "/10") : t("tgSub"); if(id === "lab") return t("labSub"); if(id === "geo"){ const b = Object.values(S.geoBest || {}); return b.length ? t("spBest", Math.max(...b)) : t("geoSub"); } return tb ? t("spBest", tb) : t("tfSub");
