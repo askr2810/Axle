@@ -4,6 +4,7 @@
 // ================= MAPE1300 – enhet 1: Fagverk og friksjon =================
 TOPICS("MAPE1300", 1, [
 { id: "knutepunktmetoden",
+  art: () => FL.truss({ joint: 0 }),
   fig: `<svg viewBox="0 0 240 140"><circle cx="130" cy="70" r="4" class="d"/><path d="M130 70H30" class="d"/><path d="M130 70L205 25" class="d"/><path d="M130 70V125" class="a"/><path d="M130 125l-6-12h12z" class="af"/><path d="M95 70l-15 4 4-15z" class="af"/><text x="55" y="62">S<tspan dy="4" font-size="10">1</tspan></text><path d="M162 52l15-9-2 17z" class="af"/><text x="161" y="33">S<tspan dy="4" font-size="10">2</tspan></text><text x="138" y="111">P</text></svg>`,
   nb: { t: "Knutepunktmetoden",
     intro: "I et fagverk er hver stav et to-kraft-element: kraften virker langs staven, enten i strekk eller trykk. Knutepunktmetoden isolerer ett knutepunkt om gangen og bruker likevekt der. Med bare to likevektsligninger i planet kan du løse maks to ukjente stavkrefter per knutepunkt.",
@@ -18,6 +19,7 @@ TOPICS("MAPE1300", 1, [
     ex: "Assume tension in every member. If you get $S_1 = -8$ kN,\nthe member is in compression with 8 kN, not a mistake.",
     tip: "Start at a joint with at most two unknown members, and let the sign tell you when it becomes compression." } },
 { id: "snittmetoden",
+  art: () => FL.truss({ cut: true }),
   fig: `<svg viewBox="0 0 240 140"><path d="M20 100H220" class="dim"/><path d="M50 100L110 40H180L220 100" class="b"/><path d="M110 40L20 100 M180 40L220 100" class="dash"/><path d="M20 118V90M20 118l-8-4M20 118l8-4" class="g"/><path d="M215 40l14 8-4 14z" class="af"/><path d="M215 40H90" class="a"/><text x="150" y="35">P</text><text x="30" y="112">A</text></svg>`,
   nb: { t: "Snittmetoden",
     intro: "Snittmetoden tar for seg en hel del av fagverket på én gang i stedet for ett knutepunkt. Du snitter gjennom maks tre staver, fjerner den ene delen og setter inn stavkreftene som ytre krefter. Da kan du bruke alle tre likevektsligningene, inkludert moment, på den gjenværende delen.",
@@ -32,6 +34,7 @@ TOPICS("MAPE1300", 1, [
     ex: "Cut through three members in a truss with a known load $P$.\nTake moments about the point where two of the unknown members meet – then only one unknown remains.",
     tip: "Choose the moment point where two of the three unknown members intersect, so they drop out of the equation." } },
 { id: "friksjon",
+  art: () => FL.incline({ angle: 30 }),
   fig: `<svg viewBox="0 0 240 140"><path d="M20 120L220 60" class="d"/><rect x="0" y="0" width="0" height="0"/><path d="M110 92L150 79L157 101L117 114Z" class="b"/><path d="M134 96L134 40" class="a"/><path d="M134 40l-6 12h12z" class="af"/><path d="M134 96L104 106" class="g"/><path d="M104 106l4-12 10 6z" class="gf"/><path d="M134 96L174 84" class="r"/><path d="M174 84l-12 -3 5 -11z" class="rf"/><text x="140" y="35">W</text><text x="83" y="117">N</text><text x="178" y="90">F</text></svg>`,
   nb: { t: "Friksjon",
     intro: "Friksjon er en reaksjonskraft langs kontaktflaten som motvirker glidning. Statisk friksjon er ikke fast, men akkurat så stor som likevekten krever, opp til en grense $\\mu_s N$. Når kroppen glir, er friksjonen kinetisk og som regel litt lavere.",
