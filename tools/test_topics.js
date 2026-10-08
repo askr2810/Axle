@@ -6,7 +6,7 @@ if (!target || !/^top_.*\.js$/.test(target) || !fs.existsSync(APP + target)) { c
 const katex = require(APP + 'vendor/katex.min.js');
 global.navigator = { language: 'nb' }; global.localStorage = { getItem(){ return null; }, setItem(){} };
 const base = ['config.js','i18n.js','data.js','gens.js','gens_b.js','more.js','more2.js','more2_b.js','subjects2.js','subjects2_b.js','more3.js',
-  ...fs.readdirSync(APP).filter(f => /^en_static_.*\.js$/.test(f)).sort(), 'learn.js', ...fs.readdirSync(APP).filter(f => /^add_.*\.js$/.test(f)).sort(), 'topics.js'];
+  ...fs.readdirSync(APP).filter(f => /^en_static_.*\.js$/.test(f)).sort(), 'learn.js', ...fs.readdirSync(APP).filter(f => /^add_.*\.js$/.test(f)).sort(), 'figlib.js', 'topics.js'];
 const bf = require('os').tmpdir() + '/ct_' + process.pid + '.js';
 fs.writeFileSync(bf, base.map(f => fs.readFileSync(APP + f, 'utf8')).join('\n;\n') + '\n;\n' + fs.readFileSync(APP + target, 'utf8') + '\n;module.exports={COURSES,META,TOPIC_DB};');
 let M; try { M = require(bf); } catch (e) { console.log('SYNTAKS/LASTEFEIL: ' + e.stack.split('\n').slice(0, 5).join('\n')); try { fs.unlinkSync(bf); } catch (_) {} process.exit(1); }

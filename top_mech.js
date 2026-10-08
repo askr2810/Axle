@@ -124,6 +124,7 @@ TOPICS("MAPE1300", 2, [
 // ================= MAPE1300 – enhet 3: Bøyning av bjelker =================
 TOPICS("MAPE1300", 3, [
 { id: "skjaer-moment",
+  art: () => FL.beam({ L: "L", loads: [{ x: 0.5, label: "P" }], dims: [[0, 0.5, "L/2"], [0.5, 1, "L/2"]], diagrams: true, vLab: "+P/2", vLab2: "−P/2", mLab: "PL/4" }),
   fig: `<svg viewBox="0 0 240 140"><path d="M30 60H210" class="b"/><path d="M30 60l-10 18h20z M180 60l-10 18h20z" class="d"/><path d="M120 20V52" class="a"/><path d="M120 60l-6-13h12z" class="af"/><path d="M30 100Q120 130 210 100" class="t"/><text x="117" y="30">P</text><text x="115" y="122">M</text></svg>`,
   nb: { t: "Skjærkraft og moment",
     intro: "Skjærkraften $V$ og bøyemomentet $M$ varierer langs en bjelke og henger sammen: momentet er arealet under skjærdiagrammet. Der skjærkraften skifter fortegn (eller er null), har momentet en ekstremverdi. Diagrammene viser hvor bjelken er mest utsatt.",

@@ -9,13 +9,13 @@ const katex = require(path.join(ROOT, 'vendor', 'katex.min.js'));
 // ---------- last innholdet slik appen gjør ----------
 const order = ['config.js', 'i18n.js', 'data.js', 'gens.js', 'gens_b.js', 'more.js', 'more2.js', 'more2_b.js', 'subjects2.js', 'subjects2_b.js', 'more3.js'];
 const ls = re => fs.readdirSync(ROOT).filter(f => re.test(f)).sort();
-const files = [...order, ...ls(/^en_static_.*\.js$/), 'learn.js', ...ls(/^add_.*\.js$/), 'topics.js', ...ls(/^top_.*\.js$/)].filter(f => fs.existsSync(path.join(ROOT, f)));
+const files = [...order, ...ls(/^en_static_.*\.js$/), 'learn.js', ...ls(/^add_.*\.js$/), 'figlib.js', 'topics.js', ...ls(/^top_.*\.js$/)].filter(f => fs.existsSync(path.join(ROOT, f)));
 global.navigator = { language: 'nb' }; global.localStorage = { getItem(){ return null; }, setItem(){} };
 const tmp = path.join(os.tmpdir(), 'axle_seo_' + process.pid + '.js');
 // Tegningene til førerkortsidene (skilt, kryss): drive_signs.js, drive_scenes.js og drive_pics.js. FIGS finnes ikke her, så den lages tom.
 const drawFiles = ['drive_signs_ref.js', 'drive_signs.js', 'drive_signs_more.js', 'drive_scenes.js', 'drive_pics.js'].filter(f => fs.existsSync(path.join(ROOT, f)));
 fs.writeFileSync(tmp, files.map(f => fs.readFileSync(path.join(ROOT, f), 'utf8')).join('\n;\n') + '\n;var FIGS = {};\n' + drawFiles.map(f => fs.readFileSync(path.join(ROOT, f), 'utf8')).join('\n;\n') +
-  ';module.exports={COURSES,META,THEORY_DB,TOPIC_DB,GROUP_NAMES,CONFIG,nf,ENQ,UNIT_EN,setLang:l=>{LANG=l},DRIVE_PICS:typeof DRIVE_PICS!=="undefined"?DRIVE_PICS:{}};');
+  ';module.exports={COURSES,META,THEORY_DB,TOPIC_DB,GROUP_NAMES,CONFIG,nf,ENQ,UNIT_EN,setLang:l=>{LANG=l},DRIVE_PICS:typeof DRIVE_PICS!=="undefined"?DRIVE_PICS:{},FL_CSS:typeof FL_CSS!=="undefined"?FL_CSS:""};');
 const M = require(tmp); fs.unlinkSync(tmp);
 const { COURSES, META, THEORY_DB, TOPIC_DB, CONFIG, ENQ, UNIT_EN } = M;
 
@@ -209,7 +209,7 @@ ${alt ? `<link rel="alternate" hreflang="nb" href="${SITE}${nbUrl}"><link rel="a
 <meta property="og:description" content="${esc(desc)}"><meta property="og:url" content="${SITE}${url}"><meta property="og:image" content="${SITE}/icons/icon-512.png">
 <meta name="theme-color" content="#2B59C3"><link rel="icon" href="/favicon.ico" sizes="48x48"><link rel="icon" type="image/png" sizes="192x192" href="/icons/icon-192.png">
 ${jsonld ? `<script type="application/ld+json">${JSON.stringify(jsonld).replace(/</g, '\\u003c')}</script>` : ''}
-<style>${CSS}</style>
+<style>${CSS}${M.FL_CSS || ''}.fig.fig-art svg{max-height:none}.fig.fig-art{padding:14px 10px}</style>
 </head>
 <body>
 <header><a class="logo" href="${L === 'nb' ? '/' : '/?lang=en'}">Axle</a><nav><a href="${hubUrl()}">${X().all}</a>${alt ? ` · <a href="${alt}" hreflang="${other()}" lang="${other()}">${X().other}</a>` : ''}</nav></header>
@@ -300,7 +300,7 @@ function topicPage(c, u, tp, prev, next){
   const desc = plain(x.intro).slice(0, 155);
   const lc = s => L === 'nb' ? s.toLowerCase() : s.charAt(0).toLowerCase() + s.slice(1);
   const body = `<h1>${esc(x.t)}</h1>
-${tp.fig ? `<div class="fig" aria-hidden="true">${tp.fig}</div>` : ''}
+${tp.art ? `<div class="fig fig-art">${tp.art()}</div>` : tp.fig ? `<div class="fig" aria-hidden="true">${tp.fig}</div>` : ''}
 ${tp.pic && M.DRIVE_PICS[tp.pic] ? (p => `<figure class="pic">${p.svg}<figcaption>${esc(p.cap)}</figcaption></figure>`)(M.DRIVE_PICS[tp.pic](L)) : ''}
 <p class="lead">${inline(x.intro)}</p>
 ${(() => { const lb = topicLab(c, u, tp); return lb ? labFrame(lb) : ''; })()}

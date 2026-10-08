@@ -31,7 +31,7 @@ function renderBookTopic(){
   $app.innerHTML = `${bkTop("bkback", courseName(c) + " · " + unitTitle(c, hit.u), x.t, ttsTopBtn("main.topic"))}
     <main class="wrap topic">
       <h1>${esc(x.t)}</h1>
-      ${hit.tp.fig ? `<figure class="tpfig" aria-hidden="true">${hit.tp.fig}</figure>` : ""}
+      ${hit.tp.art ? `<figure class="tpart">${hit.tp.art()}</figure>` : hit.tp.fig ? `<figure class="tpfig" aria-hidden="true">${hit.tp.fig}</figure>` : ""}
       ${hit.tp.pic && typeof DRIVE_PICS !== "undefined" && DRIVE_PICS[hit.tp.pic] ? (p => `<figure class="tppic">${p.svg}<figcaption>${esc(p.cap)}</figcaption></figure>`)(DRIVE_PICS[hit.tp.pic](LANG)) : ""}
       <p class="intro">${rich(x.intro)}</p>
       ${formulas}${legend}${ex}
