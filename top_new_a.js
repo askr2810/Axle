@@ -457,17 +457,29 @@ $f'(x) = 12x^3 - 2$.`, "The constant term (here 7) always disappears when you di
 
 // ---------- GMAT 8: Statistikk og sannsynlighet ----------
 TOPICS("GMAT", 8, [
-{ id: "gjennomsnitt-median",
-  nb: O("Gjennomsnitt og median", "Gjennomsnitt og median beskriver hvor midten av et datasett ligger. Gjennomsnittet er summen delt på antallet. Medianen er verdien i midten når tallene er sortert, og den påvirkes lite av enkelte ekstreme verdier.",
-    [[R`\bar x = \frac{1}{n}\sum_{i=1}^{n} x_i`, "gjennomsnitt"]],
-    [[R`\bar x`, "gjennomsnitt", ""], ["n", "antall verdier", ""]],
-    R`Lønninger 30, 32, 35, 36 og 200 (tusen kr):
-gjennomsnitt 66,6 og median 35. Medianen gir et bedre bilde av det typiske.`, "Er det noen få svært store verdier, bruk medianen."),
-  en: O("Mean and median", "The mean and the median describe where the middle of a data set lies. The mean is the sum divided by the count. The median is the middle value when the numbers are sorted, and it is barely affected by a few extreme values.",
-    [[R`\bar x = \frac{1}{n}\sum_{i=1}^{n} x_i`, "mean"]],
-    [[R`\bar x`, "mean", ""], ["n", "number of values", ""]],
-    R`Salaries 30, 32, 35, 36 and 200 (thousand):
-mean 66.6 and median 35. The median gives a better picture of the typical salary.`, "If there are a few very large values, use the median.") },
+{ id: "gjennomsnitt-median", sim: "meanmed",
+  // Fem venner med 2, 3, 3, 4 og 8 hundrelapper: gjennomsnittet er nivået om alt fordeles likt, medianen er den midterste søylen.
+  art: () => { const v = [2, 3, 3, 4, 8], X = i => 30 + i * 40, Y = n => 118 - n * 12, en = LANG === "en";
+    const bars = v.map((n, i) => `<rect x="${X(i)}" y="${Y(n)}" width="28" height="${n * 12}" rx="4" style="fill:${i === 2 ? "var(--gold)" : "var(--accent)"};opacity:${i === 2 ? 1 : .8}"/><text x="${X(i) + 14}" y="${Y(n) - 5}" text-anchor="middle" style="font:700 12px var(--body);fill:var(--ink)">${n}</text>`).join("");
+    return `<svg viewBox="0 0 320 150" role="img" aria-label="${en ? "Mean as levelling out, median as the middle bar" : "Gjennomsnitt som utjevning, median som den midterste søylen"}">${bars}
+      <path d="M22 ${Y(4)}H222" style="stroke:var(--ok);stroke-width:2.5;stroke-dasharray:6 4"/><text x="226" y="${Y(4) + 4}" style="font:700 12px var(--body);fill:var(--ok)">${en ? "mean = 4" : "gjennomsnitt = 4"}</text>
+      <text x="226" y="${Y(4) + 18}" style="font:500 11px var(--body);fill:var(--muted)">${en ? "(if shared equally)" : "(om alt deles likt)"}</text>
+      <text x="${X(2) + 14}" y="136" text-anchor="middle" style="font:700 12px var(--body);fill:var(--gold-deep)">${en ? "median = 3" : "median = 3"}</text>
+      <path d="M22 118H222" style="stroke:var(--muted);stroke-width:1.5"/></svg>`; },
+  nb: O("Gjennomsnitt og median", "Gjennomsnitt og median er to måter å si hva som er «vanlig» i en samling tall. Gjennomsnittet er det alle ville fått om alt ble delt likt: legg sammen og del på hvor mange det er. Medianen er tallet i midten når du stiller tallene opp fra minst til størst. Én som har veldig mye, drar gjennomsnittet opp – medianen bryr seg nesten ikke.",
+    [[R`\bar x = \frac{\text{summen av tallene}}{\text{antall tall}} = \frac{1}{n}\sum_{i=1}^{n} x_i`, "gjennomsnitt"], [R`\text{median} = \text{det midterste tallet i sortert rekkefølge}`, "ved et partall antall: snittet av de to midterste"]],
+    [[R`\bar x`, "gjennomsnitt (les: «x strek»)", ""], ["n", "antall tall", ""]],
+    R`Fem venner har 2, 3, 3, 4 og 8 hundrelapper.
+Gjennomsnitt: $(2 + 3 + 3 + 4 + 8)/5 = 20/5 = 4$.
+Median: sortert er det 2, 3, 3, 4, 8 – den midterste er $3$.
+Vennen med 8 drar gjennomsnittet opp. Medianen viser bedre hva de fleste har.`, "Er det noen få svært store (eller små) tall, gir medianen et ærligere bilde av det typiske. Lønn og boligpriser oppgis derfor ofte som median."),
+  en: O("Mean and median", "The mean and the median are two ways of saying what is \"typical\" in a set of numbers. The mean is what everyone would get if everything were shared equally: add up and divide by how many there are. The median is the number in the middle when you line the numbers up from smallest to largest. One person with a lot pulls the mean up – the median barely cares.",
+    [[R`\bar x = \frac{\text{sum of the numbers}}{\text{number of numbers}} = \frac{1}{n}\sum_{i=1}^{n} x_i`, "mean"], [R`\text{median} = \text{the middle number in sorted order}`, "with an even count: the average of the two middle ones"]],
+    [[R`\bar x`, "mean (read: \"x bar\")", ""], ["n", "number of values", ""]],
+    R`Five friends have 2, 3, 3, 4 and 8 hundred-kroner notes.
+Mean: $(2 + 3 + 3 + 4 + 8)/5 = 20/5 = 4$.
+Median: sorted it is 2, 3, 3, 4, 8 – the middle one is $3$.
+The friend with 8 pulls the mean up. The median shows better what most of them have.`, "If there are a few very large (or small) numbers, the median gives a more honest picture of what is typical. Salaries and house prices are therefore often given as the median.") },
 { id: "standardavvik",
   nb: O("Standardavvik", "Standardavviket måler hvor mye verdiene sprer seg rundt gjennomsnittet. Lite standardavvik betyr at verdiene ligger tett samlet. I produksjon brukes det for å vurdere om en prosess er jevn nok.",
     [[R`s = \sqrt{\frac{1}{n-1}\sum (x_i - \bar x)^2}`, "standardavvik i et utvalg"]],

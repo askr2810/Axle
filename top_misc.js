@@ -547,7 +547,7 @@ TOPICS("MEK2200", 1, [
     legend: [["\\lambda", "average number of events per interval", ""], ["\\theta", "expected lifetime", ""]],
     ex: "$\\lambda = 4$ failures per hour: $P(X=2) = \\dfrac{4^2 e^{-4}}{2!} \\approx 0.1465$.\nExpected lifetime 1000 h: $P(T > 500) = e^{-0.5} \\approx 0.6065$.",
     tip: "Poisson counts events, exponential measures the time between them — both are governed by the same rate." } },
-{ id: "sentraltendens-spredning",
+{ id: "sentraltendens-spredning", sim: "meanmed",
   nb: { t: "Gjennomsnitt, median og standardavvik",
     intro: "Gjennomsnittet er summen delt på antallet, mens medianen er den midterste verdien i sortert rekkefølge, og er mindre følsom for ekstremverdier. Utvalgsvariansen $s^2$ bruker $n-1$ i nevneren, og standardavviket $s$ er kvadratroten av variansen — det har samme enhet som dataene.",
     f: [["\\bar x = \\frac{1}{n}\\sum_i x_i", "gjennomsnitt"], ["s^2 = \\frac{1}{n-1}\\sum_i (x_i - \\bar x)^2", "utvalgsvarians"], ["s = \\sqrt{s^2}", "utvalgets standardavvik"]],
