@@ -37,12 +37,24 @@ function snProof(courses){
   const codes = new Set(courses.map(c => c.code)), ps = PROOFS.filter(p => p.units.some(k => codes.has(k.split(":")[0])));
   const fresh = ps.filter(p => !pfDone(p.id)); const p = snRand(fresh.length ? fresh : ps); return p ? { kind: "proof", id: p.id } : null;
 }
+// Ett emne som et lite, visuelt kort: tegningen, en kort forklaring og den viktigste formelen.
+function snTopic(courses){
+  const c = snRand(courses), us = c.units.map((_, i) => i).filter(u => topicsOf(c.code, u).length); if(!us.length) return null;
+  const u = snRand(us), tp = snRand(topicsOf(c.code, u)); return { kind: "topic", code: c.code, u, id: tp.id };
+}
+// Repetisjon: noe du bommet på tidligere kommer tilbake. Riktig med en gang = ut av repetisjonslista.
+function snReview(){
+  const pool = []; for(const c of myCourses()) for(const id of ((S.subjects[c.code] || {}).wrong || [])) pool.push([c, id]);
+  for(let k = 0; k < 4 && pool.length; k++){ const [c, id] = snRand(pool);
+    try{ const it = itemFromId(c, id, { mc: true }); if(it && it.type === "mc" && it.opts.length >= 2) return { kind: "q", rev: true, id, code: c.code, u: +String(id).split(".")[0], it, wrong: [], done: false }; }catch(e){} }
+  return null;
+}
 function snMore(n = SN_BATCH){
   const courses = snCourses(), out = [];
   for(let k = 0; out.length < n && k < n * 4; k++){
     const r = Math.random(), c = snRand(courses);
-    const card = r < 0.46 ? snQuestion(c) : r < 0.66 ? snFact(c) : r < 0.84 ? snFlash() : r < 0.95 ? snSim(courses) : snProof(courses);
-    if(card && !(card.kind === "sim" && out.some(x => x.kind === "sim"))) out.push(card);
+    const card = r < 0.36 ? snQuestion(c) : r < 0.44 ? (snReview() || snQuestion(c)) : r < 0.57 ? snFact(c) : r < 0.71 ? snTopic(courses) : r < 0.85 ? snFlash() : r < 0.95 ? snSim(courses) : snProof(courses);
+    if(card && !(["sim", "topic"].includes(card.kind) && out.some(x => x.kind === card.kind && (x.kind === "sim" || x.id === card.id)))) out.push(card);
   }
   return out;
 }
@@ -51,11 +63,16 @@ const snTag = card => card.code ? `<span class="sn-tag">${esc(courseShort(COURSE
 function snCardInner(card, i){
   if(card.kind === "q"){
     const it = card.it;
-    return `${snTag(card)}<div class="krow sn-krow"><div class="sn-kicker">❓ ${esc(t("snQ"))}</div><button class="kbtn" data-a="scratch" data-c="${i}">${I.pencil}${t("scratch")}</button></div><div class="sn-prompt">${richBig(it.prompt)}</div><div class="opts sn-opts">` +
+    return `${snTag(card)}<div class="krow sn-krow"><div class="sn-kicker">${card.rev ? `🔁 ${esc(T("Repetisjon – denne bommet du på", "Review – you missed this one"))}` : `❓ ${esc(t("snQ"))}`}</div><button class="kbtn" data-a="scratch" data-c="${i}">${I.pencil}${t("scratch")}</button></div><div class="sn-prompt">${richBig(it.prompt)}</div><div class="opts sn-opts">` +
       it.opts.map((o, j) => { const w = card.wrong.includes(j), show = card.done && o.ok;
         return `<button class="opt ${show ? "right" : w ? "wrong" : ""}" data-a="snans" data-c="${i}" data-i="${j}" ${card.done || w ? "disabled" : ""}><span class="k">${"ABCD"[j] || j + 1}</span><span>${richBig(o.t)}</span></button>`; }).join("") +
       `</div>${card.done ? `<div class="sn-expl ${card.wrong.length ? "bad" : "ok"}"><b>${esc(card.wrong.length ? t("snAlmost") : pickLine(t("snYes")))}</b>${it.expl ? " " + rich(it.expl) : ""}</div>` : ""}`;
   }
+  if(card.kind === "topic"){ const hit = topicFind(card.code, card.id); if(!hit) return ""; const tp = hit.tp, x = tpText(tp), f = (x.f || [])[0];
+    return `${snTag(card)}<div class="sn-kicker">🧩 ${esc(T("Ett emne på et blunk", "One topic in a blink"))}</div>
+      ${tp.art ? `<figure class="tpart sn-art">${tp.art()}</figure>` : tp.fig ? `<figure class="tpfig sn-art" aria-hidden="true">${tp.fig}</figure>` : ""}
+      <h3 class="sn-tpt">${esc(x.t)}</h3><p class="sn-tpi">${rich(x.intro)}</p>${f ? `<div class="sn-tpf">${texD(tpFx(f[0]))}</div>` : ""}
+      <button class="sn-more" data-a="bktopic" data-c="${esc(card.code)}" data-id="${esc(card.id)}">${I.book}${esc(T("Les hele emnet", "Read the whole topic"))}</button>`; }
   if(card.kind === "fact") return `${snTag(card)}<div class="sn-kicker">💡 ${esc(t("snFact"))}</div><div class="sn-big theory">${richDoc(card.txt)}</div>
     <button class="sn-more" data-a="snread" data-c="${i}">${I.book}${esc(t("snReadMore"))}</button>`;
   if(card.kind === "flash") return `<div class="sn-kicker">🃏 ${esc(t("snFlash"))}</div><button class="sn-flip ${card.flipped ? "on" : ""}" data-a="snflip" data-c="${i}">
@@ -94,7 +111,8 @@ function snClick(a, b){
   if(a === "snclose"){ SN = null; save(); goHome(); return true; }
   if(a === "snans" && card && card.kind === "q" && !card.done){
     const j = +b.dataset.i, ok = card.it.opts[j].ok; buzz(ok);
-    if(ok){ card.done = true; if(!card.wrong.length){ SN.combo++; SN.right++; SN.best = Math.max(SN.best, SN.combo); SN.xp++; const st = awardXP(1); if(st.goalHit) setTimeout(() => { toast(t("goalHitTitle")); confetti(); }, 500); } }
+    if(ok){ card.done = true; if(!card.wrong.length && card.rev){ const sb = sub(card.code); sb.wrong = (sb.wrong || []).filter(x => x !== card.id); }
+      if(!card.wrong.length){ SN.combo++; SN.right++; SN.best = Math.max(SN.best, SN.combo); SN.xp++; const st = awardXP(1); if(st.goalHit) setTimeout(() => { toast(t("goalHitTitle")); confetti(); }, 500); } }
     else { card.wrong.push(j); SN.combo = 0; if(card.wrong.length >= Math.min(2, card.it.opts.length - 1)) card.done = true; }
     snRedraw(i); sfx(ok ? "ok" : "bad", SN.combo);
     if(ok){ const el = document.querySelector(`.sn-card[data-i="${i}"] .opt.right`); burst(el, SN.combo >= 3 ? 18 : 12); if(!card.wrong.length) floatXP(el, "+1 XP"); }

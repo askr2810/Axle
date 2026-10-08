@@ -1553,6 +1553,8 @@ textarea.fbtext{width:100%;font:13px/1.4 var(--mono,monospace);border-radius:12p
 .sn-prompt{font-size:20px;font-weight:700;line-height:1.4}
 .sn-big{font-size:21px;font-weight:700;line-height:1.45}.sn-big p{margin:0}
 .sn-fact .sn-in{background:color-mix(in srgb,var(--gold) 20%,var(--card));border-radius:24px;padding:22px;border:2px solid color-mix(in srgb,var(--gold) 50%,var(--line))}
+.sn-topic .sn-in{background:var(--card);border-radius:24px;padding:18px;border:2px solid var(--line)}.sn-art{margin:4px 0 10px!important}.sn-art svg{display:block;width:100%;max-height:34vh;height:auto}
+.sn-tpt{font:800 22px/1.2 var(--display);margin:4px 0 6px}.sn-tpi{font-size:16px;line-height:1.5;margin:0 0 8px;display:-webkit-box;-webkit-line-clamp:6;-webkit-box-orient:vertical;overflow:hidden}.sn-tpf{padding:8px;border-radius:14px;background:var(--accent-soft);overflow-x:auto;text-align:center;margin:0 0 8px}
 .sn-more{justify-self:start;display:inline-flex;gap:6px;align-items:center;border:0;background:none;color:var(--accent);font:inherit;font-weight:800;cursor:pointer}.sn-more svg{width:18px;height:18px}
 .sn-expl{padding:10px 12px;border-radius:14px;background:var(--ok-soft);font-size:14.5px}.sn-expl.bad{background:var(--bad-soft)}
 .sn-flip{position:relative;height:min(58vh,420px);border:0;background:none;padding:0;perspective:1200px;cursor:pointer;font:inherit;color:var(--ink)}
