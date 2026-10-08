@@ -7,12 +7,12 @@
 const TABS = [["home", "book2", "tabLearn"], ["practice", "bolt", "tabPractice"], ["book", "book", "tabTheory"], ["friends", "users", "tabFriends"], ["profile", "person", "tabProfile"]];
 function tabOf(){ return screen === "home" ? "home" : (screen === "practice" || screen === "community" || screen === "mydecks") ? "practice" : (screen === "book" && BK.v !== "unit" && BK.v !== "topic") || screen === "proofs" ? "book" : screen === "friends" ? "friends" : (screen === "profile" || screen === "badges") ? "profile" : screen === "person" ? (["badges", "profile", "admin"].includes(PS.from) ? "profile" : "friends") : screen === "admin" ? "profile" : null; }
 function tabbarHTML(active){
-  return `<nav class="tabbar" aria-label="${esc(t("tabNav"))}"><div class="wrap">${TABS.map(([k, ic, lab]) =>
+  return `<nav class="tabbar" aria-label="${esc(t("tabNav"))}"><div class="wrap"><button class="tab-brand" data-a="tab" data-t="home" tabindex="-1" aria-hidden="true"><img src="${markSrc()}" alt="" width="36" height="36"><b>Axle</b></button>${TABS.map(([k, ic, lab]) =>
     `<button class="${k === active ? "on" : ""}" data-a="tab" data-t="${k}" aria-current="${k === active ? "page" : "false"}">${(k === "practice" && !dcDoneToday() && S.xp > 0) || (k === "friends" && ((FR.reqs && FR.reqs.length) || (GR.inv && GR.inv.length) || IB.unread)) ? `<i class="tab-dot"></i>` : ""}${k === "profile" && hasMeAv() ? meAvHTML(26, "tab-av") : I[ic]}<span>${esc(t(lab))}</span></button>`).join("")}</div></nav>`;
 }
 function renderTabbar(){
   document.querySelector(".tabbar")?.remove();
-  const active = EMBED ? null : tabOf(); document.body.classList.toggle("has-tabs", !!active);
+  const active = EMBED ? null : tabOf(); document.body.classList.toggle("has-tabs", !!active); document.body.dataset.scr = screen;
   if(active) document.body.insertAdjacentHTML("beforeend", tabbarHTML(active));
 }
 function goTab(k){
@@ -63,15 +63,15 @@ function renderProfile(){
   const tile = (a, k, v, lab, ic) => `<button class="pf-tile" ${a ? `data-a="${a}" ${k ? `data-k="${k}"` : ""}` : "disabled"}>${ic}<b>${v}</b><span>${esc(lab)}</span></button>`;
   $app.innerHTML = `<div class="top"><div class="wrap"><div class="th-t"><small>${esc(t("tabProfile"))}</small><b>${esc(S.name || t("pfYou"))}</b></div>
       <button class="iconbtn" data-a="settings" aria-label="${esc(t("settings"))}">${I.gear}</button></div></div>
-    <main class="wrap pf">
+    <main class="wrap pf"><div class="pf-a">
       <div class="pf-head"><button class="pf-av" data-a="avedit" aria-label="${esc(t(hasMeAv() ? "avEdit" : "avMake"))}">${hasMeAv() ? meAvHTML(104) : `<span class="set-av0 big">${I.person}</span>`}<span class="pf-edit">${I.pencil}</span></button>
         <div class="pf-id"><b>${esc(S.name || t("pfYou"))}</b><span class="pf-lv">${esc(t("lvName", levelInfo(S.xp).lv))}</span>${isStaff() ? staffTag(S.appRole) : ""}${S.since ? `<span class="pf-since">${esc(t("pfSince", fmtDate(S.since)))}${+S.memberNo > 0 ? " · " + esc(t("pfMemberNo", S.memberNo)) : ""}</span>` : ""}<button class="exlink" data-a="pfname">${esc(t(S.name ? "frEditName" : "pfSetName"))}</button>
         <span class="pf-acc">${AUTH ? esc(AUTH.email || "") : `${esc(t("pfNotLogged"))} · <button class="exlink" data-a="aclogin">${esc(t("acLogin"))}</button>`}</span></div></div>
-      ${!(S.xp > 0) ? pfStartHTML() : `${levelBarHTML(S.xp, S.xp)}
+      ${!(S.xp > 0) ? pfStartHTML() + `</div><div class="pf-b">` : `${levelBarHTML(S.xp, S.xp)}
       <div class="pf-grid">
         ${tile("statinfo", "streak", st, t("pfStreak"), I.fire)}${tile("statinfo", "streak", best, t("ssBest"), I.fire)}${tile("statinfo", "xp", S.xp, "XP", I.bolt)}
         ${tile("statinfo", "crowns", cr, t("pfCrowns"), I.crown)}${tile("", "", lv, t("pfLevels"), I.star16)}${tile("badges", "", nB + "/" + bdgAll().length, t("bdgTitle"), I.trophyS)}
-      </div>
+      </div></div><div class="pf-b">
       <div class="pf-sec"><div class="pf-sh"><b>${esc(t("bdgTitle"))}</b><button class="exlink" data-a="badges">${esc(t("pfSeeAll"))}</button></div>
         ${recent.length ? `<div class="pf-badges">${recent.map(b => `<button data-a="badges" title="${esc(bdgName(b))}">${badgeIcon(b, 50)}<small>${esc(bdgName(b))}</small></button>`).join("")}</div>` : `<p class="pf-empty">${esc(t("pfNoBadges"))}</p>`}</div>`}
       <div class="pf-sec"><div class="pf-sh"><b>${esc(t("pfCourses"))}</b><button class="exlink" data-a="pick">${esc(t("switchCourse"))}</button></div>
@@ -83,7 +83,7 @@ function renderProfile(){
       <div class="sgroup pf-links">
         <button class="srow" data-a="settings">${I.gear}<span class="lbl">${esc(t("settings"))}</span>${I.chevron}</button>
         <button class="srow" data-a="feedback">${I.flag}<span class="lbl">${esc(t("setFeedback"))}</span>${I.chevron}</button>
-      </div>
+      </div></div>
     </main>`;
 }
 // Helt ny (0 XP): i stedet for seks fliser med 0 og tomme merker, ett kort som forklarer hva som kommer og starter første leksjon.
@@ -123,8 +123,8 @@ function renderPractice(){
     <main class="wrap prac">
       ${qsHTML("practice")}${isDrive(c) ? "" : focCardHTML()}${dvPracticeCardHTML(c)}${isDrive(c) ? "" : labCourseHTML(c) + catCardHTML(c)}${cdPracticeCardHTML(c)}
       ${layoutHTML("practice", { c, today, goal, week, wrongN })}
-      <h4 class="grp">🧰 ${esc(T("Hjelpemidler", "Study tools"))}</h4><div class="tools2">${poCardHTML()}
-      <button class="tc-entry" data-a="tcopen"><span aria-hidden="true">🎓</span><div><b>${esc(T("Lærerverktøy", "Teacher tools"))}</b><small>${esc(T("Live-quiz og lekser", "Live quiz and homework"))}</small></div></button></div>
+      <div class="lay-grp"><h4 class="grp">🧰 ${esc(T("Hjelpemidler", "Study tools"))}</h4><div class="tools2">${poCardHTML()}
+      <button class="tc-entry" data-a="tcopen"><span aria-hidden="true">🎓</span><div><b>${esc(T("Lærerverktøy", "Teacher tools"))}</b><small>${esc(T("Live-quiz og lekser", "Live quiz and homework"))}</small></div></button></div></div>
       ${layLinkHTML("practice")}
     </main>`;
 }

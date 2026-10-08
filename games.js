@@ -182,11 +182,14 @@ const layHidden = (place, id) => !!((S.hidden || {})[place] || {})[id];
 const LAY_GROUP = { practice: { review: ["Anbefalt nå", "Recommended now"], dc: ["Anbefalt nå", "Recommended now"], drill: ["Øv mer", "Practise more"],
   community: ["Øv mer", "Practise more"], games: ["Spill", "Games"], today: ["Uka di", "Your week"] } };
 function layoutHTML(place, ctx){
-  const G = LAY_GROUP[place] || {}; let last = null;
-  return layOrder(place).filter(id => !layHidden(place, id)).map(id => {
-    const h = LAYOUT[place].find(s => s[0] === id)[2](ctx || {}); if(!h) return "";
-    const g = G[id] ? T(G[id][0], G[id][1]) : null, head = g && g !== last ? `<h2 class="prac-h">${esc(g)}</h2>` : ""; last = g; return head + h;
-  }).join("");
+  // Hver gruppe (overskrift + kortene under) i sin egen boks, så de holder sammen i to kolonner på PC.
+  const G = LAY_GROUP[place] || {}, out = [];
+  for(const id of layOrder(place).filter(id => !layHidden(place, id))){
+    const h = LAYOUT[place].find(s => s[0] === id)[2](ctx || {}); if(!h) continue;
+    const g = G[id] ? T(G[id][0], G[id][1]) : null, prev = out[out.length - 1];
+    if(g && prev && prev.g === g) prev.h += h; else out.push({ g, h: (g ? `<h2 class="prac-h">${esc(g)}</h2>` : "") + h });
+  }
+  return out.map(x => `<div class="lay-grp">${x.h}</div>`).join("");
 }
 const layLinkHTML = place => `<button class="exlink lay-link" data-a="layopen" data-p="${place}">${I.gear}${esc(t(place === "home" ? "layHome" : "layPractice"))}</button>`;
 function gamesMenuHTML(place){

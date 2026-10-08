@@ -332,16 +332,16 @@ function renderHome(){
     <button class="stat crowns" data-a="statinfo" data-k="crowns" aria-label="${t("crownsTitle")}: ${crowns(c)}">${I.crown}${crowns(c)}</button>
     <button class="stat xp" data-a="statinfo" data-k="xp" aria-label="${t("xpTitle")}: ${S.xp}">${I.bolt}${S.xp}</button>`}
   </div></div>
-  <main class="wrap">
-    ${noticeHTML()}${qsHTML("home")}
+  <main class="wrap hm">
+    <div class="hm-side">${noticeHTML()}${qsHTML("home")}
     ${duInviteHTML()}
     ${nextCardHTML(c, nn)}
     ${fresh ? "" : layoutHTML("home")}
     ${examHomeActions(c) ? `<div class="actions">${examHomeActions(c)}</div>` : ""}
-    ${preBarHTML(c)}
-    ${path}
-    ${layLinkHTML("home")}
-    <p class="foot-note">${esc(t("foot1",courseName(c),nQ,nG))}<br>${d===tot?(crowns(c)===c.units.length?t("allCrowns"):t("allLevels")):esc(t("foot2",d,tot,crowns(c),c.units.length))}</p>
+    ${preBarHTML(c)}</div>
+    <div class="hm-path">${path}</div>
+    <div class="hm-more">${layLinkHTML("home")}
+    <p class="foot-note">${esc(t("foot1",courseName(c),nQ,nG))}<br>${d===tot?(crowns(c)===c.units.length?t("allCrowns"):t("allLevels")):esc(t("foot2",d,tot,crowns(c),c.units.length))}</p></div>
   </main>`;
 }
 

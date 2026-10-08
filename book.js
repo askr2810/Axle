@@ -178,7 +178,7 @@ function renderBookCourse(){
     <main class="wrap bk">
       <button class="bk-switch" data-a="bkall"><span class="badge" style="background:${col}">${esc(courseShort(c))}</span><span><small>${esc(T("Teori i", "Theory in"))}</small><b>${esc(courseName(c))}</b></span><em>${esc(T("Bytt fag", "Change course"))} ${I.chevron}</em></button>
       <div class="seg bk-tabs" role="tablist"><button role="tab" aria-selected="${BK.tab !== "sheet"}" class="${BK.tab !== "sheet" ? "on" : ""}" data-a="bktab" data-t="topics">${esc(t("bkTopicsTab"))}</button><button role="tab" aria-selected="${BK.tab === "sheet"}" class="${BK.tab === "sheet" ? "on" : ""}" data-a="bktab" data-t="sheet">${esc(t("bkSheet"))}</button></div>
-      ${body}
+      <div class="bk-units ${BK.tab === "sheet" ? "sheet" : ""}">${body}</div>
     </main>`;
 }
 function renderBookUnit(){

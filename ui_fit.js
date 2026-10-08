@@ -5,7 +5,7 @@
 //  Kjøres etter hver endring i siden (MutationObserver), samlet i én animasjonsramme.
 // ============================================================
 const FIT_SEL = ".dmath,.fbox .fm,.sim-eq,.tptile .tfx,.tg-val,.tg-fx,.tg-forms,.tg-solve,.tg-gen,.tg-id,.bk-glance .dmath,.cy-e .katex-display,.gd-p .katex-display,.prompt .katex-display";
-const HS_SEL = ".favbar,.study-tabs,.bk-toc,.adm-tabs,.tg-tabs,.sh-friends,.ib-fresh,.pf-badges,.ave-tabs,.cd-keys,.cd-steps,.chips,.hscroll,.sw-row";
+const HS_SEL = ".favbar,.study-tabs,.bk-toc,.adm-tabs,.tg-tabs,.sh-friends,.ib-fresh,.ave-tabs,.cd-keys,.cd-steps,.chips,.hscroll,.sw-row";
 const FIT_MIN = 0.55; // aldri mindre enn 55 % av vanlig størrelse
 function fitOne(el){
   if(!el.isConnected || !el.clientWidth) return;
