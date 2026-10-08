@@ -661,4 +661,202 @@ $2x + 3 = 11$. Subtract 3: $2x = 8$. Divide by 2: $x = 4$. Check: $2 \\cdot 4 + 
  () => { const x = R.i(1, 10), a = R.i(2, 6), c = R.i(1, 15), b = a * x + c;
    return [T(`Løs $${a}x + ${c} = ${b}$.`, `Solve $${a}x + ${c} = ${b}$.`), N(x), T(`Trekk fra ${c}: $${a}x = ${b - c}$. Del på ${a}: $x = ${x}$.`, `Subtract ${c}: $${a}x = ${b - c}$. Divide by ${a}: $x = ${x}$.`)]; }
 );
+// ================= LK20-hull: måling, koding, negative tall/koordinater, sannsynlighet =================
+U("GS14", "Måle og veie", "Measuring and weighing",
+`## Hva handler det om?
+Når vi måler, finner vi ut hvor langt, hvor tungt eller hvor mye noe er. Vi bruker linjal, vekt og litermål.
+
+## Det viktigste
+- **Lengde** måler vi i centimeter (cm) og meter (m). 1 meter er 100 centimeter.
+- **Vekt** måler vi i gram (g) og kilogram (kg). 1 kilo er 1000 gram.
+- **Hvor mye det er plass til** måler vi i liter (L) og desiliter (dL). 1 liter er 10 desiliter.
+- På linjalen begynner du å måle ved **0** – ikke ved kanten.
+
+### Eksempel
+En blyant er 15 cm lang. To blyanter etter hverandre blir $15 + 15 = 30$ cm.
+
+> Velg en enhet som passer: en maur måler vi i cm, en fotballbane i meter.`,
+`## What is it about?
+When we measure, we find out how long, how heavy or how much something is. We use a ruler, scales and a measuring jug.
+
+## Key points
+- **Length** is measured in centimetres (cm) and metres (m). 1 metre is 100 centimetres.
+- **Weight** is measured in grams (g) and kilograms (kg). 1 kilo is 1000 grams.
+- **How much fits inside** is measured in litres (L) and decilitres (dL). 1 litre is 10 decilitres.
+- On a ruler you start measuring at **0** – not at the edge.
+
+### Example
+A pencil is 15 cm long. Two pencils end to end make $15 + 15 = 30$ cm.
+
+> Pick a unit that fits: an ant in cm, a football pitch in metres.`,
+[["Hvor mange centimeter er 1 meter?", ["100", "10", "1000", "60"], "1 meter er 100 centimeter.",
+  "How many centimetres are there in 1 metre?", ["100", "10", "1000", "60"], "1 metre is 100 centimetres."],
+ ["Hvor mange gram er 1 kilogram?", ["1000", "100", "10", "60"], "1 kilogram er 1000 gram.",
+  "How many grams are there in 1 kilogram?", ["1000", "100", "10", "60"], "1 kilogram is 1000 grams."],
+ ["Hvilken enhet passer best for lengden av en fotballbane?", ["meter", "centimeter", "gram", "liter"], "En fotballbane er omtrent 100 meter lang – meter passer.",
+  "Which unit fits best for the length of a football pitch?", ["metres", "centimetres", "grams", "litres"], "A football pitch is about 100 metres long – metres fit."],
+ ["Hva veier mest?", ["1 kg poteter", "500 g smør", "100 g sjokolade", "10 g godteri"], "1 kg er 1000 g, og det er mer enn de andre.",
+  "Which weighs the most?", ["1 kg of potatoes", "500 g of butter", "100 g of chocolate", "10 g of sweets"], "1 kg is 1000 g, more than the others."],
+ ["Hvor mange desiliter er 1 liter?", ["10", "100", "1000", "5"], "1 liter er 10 desiliter.",
+  "How many decilitres are there in 1 litre?", ["10", "100", "1000", "5"], "1 litre is 10 decilitres."],
+ ["Hvor begynner du å måle på linjalen?", ["Ved 0", "Ved 1", "Ved kanten av linjalen", "Hvor som helst"], "Du legger tingen inntil 0-streken. Kanten er ofte litt før 0.",
+  "Where do you start measuring on a ruler?", ["At 0", "At 1", "At the edge of the ruler", "Anywhere"], "Put the object at the 0 mark. The edge is often a little before 0."],
+ ["Hvilken enhet passer for hvor mye vann det er i en bøtte?", ["liter", "meter", "kilometer", "minutter"], "Hvor mye det er plass til, måler vi i liter.",
+  "Which unit fits for how much water there is in a bucket?", ["litres", "metres", "kilometres", "minutes"], "How much fits inside is measured in litres."],
+ ["En bok er 2 cm tykk. Hvor høy er en stabel med 5 bøker?", ["10 cm", "7 cm", "25 cm", "52 cm"], "$5 \\cdot 2 = 10$ cm.",
+  "A book is 2 cm thick. How tall is a pile of 5 books?", ["10 cm", "7 cm", "25 cm", "52 cm"], "$5 \\cdot 2 = 10$ cm."]],
+ () => { const a = R.i(1, 9); return [T(`Hvor mange centimeter er ${a} meter?`, `How many centimetres are ${a} metres?`), N(a * 100, 0, "cm"), T(`1 m = 100 cm, så ${a} m = $${a} \\cdot 100 = ${a * 100}$ cm.`, `1 m = 100 cm, so ${a} m = $${a} \\cdot 100 = ${a * 100}$ cm.`)]; },
+ () => { const a = R.i(1, 5), b = R.i(1, 9) * 100; return [T(`En pakke veier ${a} kg og ${b} g. Hvor mange gram er det til sammen?`, `A parcel weighs ${a} kg and ${b} g. How many grams is that in total?`), N(a * 1000 + b, 0, "g"), T(`${a} kg = ${a * 1000} g. $${a * 1000} + ${b} = ${a * 1000 + b}$ g.`, `${a} kg = ${a * 1000} g. $${a * 1000} + ${b} = ${a * 1000 + b}$ g.`)]; },
+ () => { const n = who(), a = R.i(60, 140), b = R.i(60, 140); return [T(`${n} hopper ${a} cm i første hopp og ${b} cm i andre. Hvor langt er det til sammen?`, `${n} jumps ${a} cm the first time and ${b} cm the second. How far is that in total?`), N(a + b, 0, "cm"), T(`$${a} + ${b} = ${a + b}$ cm.`, `$${a} + ${b} = ${a + b}$ cm.`)]; }
+);
+
+U("GS14", "Koding: steg for steg", "Coding: step by step",
+`## Hva handler det om?
+En datamaskin gjør nøyaktig det vi sier – verken mer eller mindre. Derfor må beskjedene være klare og stå i riktig rekkefølge. En slik oppskrift kaller vi en **algoritme**.
+
+## Det viktigste
+- En **algoritme** er en oppskrift med steg som gjøres ett for ett.
+- **Rekkefølgen** betyr noe: du tar på sokkene *før* skoene.
+- En **løkke** gjentar noe: «gjenta 4 ganger: gå 1 fram» er det samme som å skrive «gå 1 fram» fire ganger.
+- En feil i koden kalles en **bug**. Å finne og rette feilen heter å **feilsøke**.
+
+### Eksempel
+Roboten ser mot høyre. Koden «gå 2 fram, snu til venstre, gå 1 fram» flytter den 2 ruter til høyre og så 1 rute opp.
+
+> Les koden ett steg om gangen, og flytt fingeren på rutenettet mens du leser.`,
+`## What is it about?
+A computer does exactly what we tell it – no more, no less. So the instructions must be clear and in the right order. A recipe like that is called an **algorithm**.
+
+## Key points
+- An **algorithm** is a recipe with steps done one at a time.
+- **Order** matters: you put on your socks *before* your shoes.
+- A **loop** repeats something: "repeat 4 times: move 1 forward" is the same as writing "move 1 forward" four times.
+- A mistake in code is called a **bug**. Finding and fixing it is called **debugging**.
+
+### Example
+The robot faces right. The code "move 2 forward, turn left, move 1 forward" moves it 2 squares right and then 1 square up.
+
+> Read the code one step at a time and move your finger on the grid as you read.`,
+[["Hva er en algoritme?", ["En oppskrift med steg i riktig rekkefølge", "En type datamaskin", "Et dataspill", "En feil i koden"], "En algoritme er en oppskrift – steg som gjøres ett for ett.",
+  "What is an algorithm?", ["A recipe with steps in the right order", "A type of computer", "A computer game", "A mistake in the code"], "An algorithm is a recipe – steps done one at a time."],
+ ["Hva kaller vi en feil i koden?", ["En bug", "En løkke", "En algoritme", "En robot"], "En feil i koden kalles en bug (engelsk for «insekt»).",
+  "What do we call a mistake in code?", ["A bug", "A loop", "An algorithm", "A robot"], "A mistake in code is called a bug."],
+ ["Hvilken rekkefølge er riktig når du pusser tennene?", ["Tannkrem på børsten → puss → skyll", "Puss → tannkrem på børsten → skyll", "Skyll → puss → tannkrem på børsten", "Puss → skyll → tannkrem på børsten"], "Tannkremen må på før du pusser, og du skyller til slutt.",
+  "Which order is right when you brush your teeth?", ["Toothpaste on the brush → brush → rinse", "Brush → toothpaste on the brush → rinse", "Rinse → brush → toothpaste on the brush", "Brush → rinse → toothpaste on the brush"], "The toothpaste goes on before you brush, and you rinse at the end."],
+ ["«Gjenta 3 ganger: hopp». Hvor mange hopp blir det?", ["3", "1", "4", "6"], "Løkka gjør «hopp» 3 ganger.",
+  "\"Repeat 3 times: jump\". How many jumps is that?", ["3", "1", "4", "6"], "The loop does \"jump\" 3 times."],
+ ["«Gjenta 4 ganger: gå 2 fram». Hvor mange ruter går roboten?", ["8", "6", "4", "2"], "$4 \\cdot 2 = 8$ ruter.",
+  "\"Repeat 4 times: move 2 forward\". How many squares does the robot move?", ["8", "6", "4", "2"], "$4 \\cdot 2 = 8$ squares."],
+ ["Roboten ser mot høyre og får beskjeden «snu til venstre». Hvilken vei ser den nå?", ["Opp", "Ned", "Til venstre", "Til høyre"], "Ser du mot høyre og snur deg en kvart runde mot venstre, ser du opp.",
+  "The robot faces right and is told \"turn left\". Which way does it face now?", ["Up", "Down", "Left", "Right"], "Facing right and turning a quarter turn to the left, you face up."],
+ ["Hvorfor må beskjedene til en datamaskin være helt nøyaktige?", ["Den gjør akkurat det som står – den gjetter ikke", "Den blir lei seg ellers", "Den liker lange beskjeder", "Det spiller ingen rolle"], "En datamaskin forstår ikke hva du mente, bare hva du skrev.",
+  "Why must instructions to a computer be exact?", ["It does exactly what is written – it doesn't guess", "It gets sad otherwise", "It likes long messages", "It doesn't matter"], "A computer doesn't understand what you meant, only what you wrote."],
+ ["Hva er en løkke i koding?", ["Noe som gjentas flere ganger", "En feil", "Det første steget", "En tegning"], "En løkke gjentar de samme stegene.",
+  "What is a loop in coding?", ["Something that repeats several times", "A mistake", "The first step", "A drawing"], "A loop repeats the same steps."]],
+ () => { const n = R.i(2, 6), k = R.i(2, 5); return [T(`«Gjenta ${n} ganger: gå ${k} fram». Hvor mange ruter går roboten?`, `"Repeat ${n} times: move ${k} forward". How many squares does the robot move?`), N(n * k), T(`Løkka går ${n} ganger, ${k} ruter hver gang: $${n} \\cdot ${k} = ${n * k}$.`, `The loop runs ${n} times, ${k} squares each time: $${n} \\cdot ${k} = ${n * k}$.`)]; },
+ () => { const a = R.i(4, 9), b = R.i(1, a - 1), c = R.i(1, 6), e = a - b + c; return [T(`En robot står på 0 på en tallinje. Koden er: «gå ${a} fram, gå ${b} tilbake, gå ${c} fram». Hvor står den nå?`, `A robot stands at 0 on a number line. The code is: "move ${a} forward, move ${b} back, move ${c} forward". Where is it now?`), N(e), T(`$${a} - ${b} + ${c} = ${e}$.`, `$${a} - ${b} + ${c} = ${e}$.`)]; },
+ () => { const n = R.i(3, 8); return [T(`«Gjenta ${n} ganger: gå 2 fram og 1 tilbake». Hvor langt fra start kommer roboten?`, `"Repeat ${n} times: move 2 forward and 1 back". How far from the start does the robot get?`), N(n), T(`Hver runde kommer den $2 - 1 = 1$ rute videre. Etter ${n} runder: ${n} ruter.`, `Each round it gets $2 - 1 = 1$ square further. After ${n} rounds: ${n} squares.`)]; }
+);
+
+U("GS57", "Negative tall og koordinater", "Negative numbers and coordinates",
+`## Hva handler det om?
+Termometeret viser minusgrader om vinteren. Tall under null kaller vi **negative tall**. Med to tallinjer på kryss kan vi også vise hvor et punkt er – det kalles et **koordinatsystem**.
+
+## Det viktigste
+- Negative tall står til venstre for 0 på tallinja. $-3$ er mindre enn $-1$.
+- Fra $-4$ grader til $3$ grader har det blitt $7$ grader varmere.
+- Et punkt skrives $(x, y)$: gå først $x$ bortover, så $y$ opp. Punktet $(3, 2)$ er 3 bortover og 2 opp.
+- Der aksene krysser hverandre, er **origo**: $(0, 0)$.
+
+### Eksempel
+Det er $-2$ grader om morgenen og $5$ grader om ettermiddagen. Det har blitt $2 + 5 = 7$ grader varmere.
+
+> Bortover først, så opp – gå inn døra før du går opp trappa.`,
+`## What is it about?
+Thermometers show minus degrees in winter. Numbers below zero are called **negative numbers**. With two number lines crossing, we can also show where a point is – that is a **coordinate system**.
+
+## Key points
+- Negative numbers are to the left of 0 on the number line. $-3$ is less than $-1$.
+- From $-4$ degrees to $3$ degrees it has become $7$ degrees warmer.
+- A point is written $(x, y)$: first go $x$ across, then $y$ up. The point $(3, 2)$ is 3 across and 2 up.
+- Where the axes cross is the **origin**: $(0, 0)$.
+
+### Example
+It is $-2$ degrees in the morning and $5$ degrees in the afternoon. It has become $2 + 5 = 7$ degrees warmer.
+
+> Across first, then up – walk in the door before you go up the stairs.`,
+[["Hvilket tall er minst?", ["$-5$", "$-1$", "$0$", "$2$"], "Jo lenger til venstre på tallinja, jo mindre. $-5$ er lengst til venstre.",
+  "Which number is the smallest?", ["$-5$", "$-1$", "$0$", "$2$"], "The further left on the number line, the smaller. $-5$ is furthest left."],
+ ["Det er $-3$ grader. Det blir 4 grader varmere. Hva viser termometeret nå?", ["$1$ grad", "$7$ grader", "$-7$ grader", "$-1$ grad"], "Fra $-3$ går du 4 steg opp: $-2, -1, 0, 1$.",
+  "It is $-3$ degrees. It gets 4 degrees warmer. What does the thermometer show now?", ["$1$ degree", "$7$ degrees", "$-7$ degrees", "$-1$ degree"], "From $-3$ go 4 steps up: $-2, -1, 0, 1$."],
+ ["Hvor ligger punktet $(4, 1)$?", ["4 bortover og 1 opp", "1 bortover og 4 opp", "4 ned og 1 til venstre", "5 bortover"], "Første tall er bortover, andre tall er opp.",
+  "Where is the point $(4, 1)$?", ["4 across and 1 up", "1 across and 4 up", "4 down and 1 left", "5 across"], "The first number is across, the second is up."],
+ ["Hva heter punktet $(0, 0)$?", ["Origo", "Diagonalen", "Vinkelen", "Arealet"], "Der aksene krysser, er origo.",
+  "What is the point $(0, 0)$ called?", ["The origin", "The diagonal", "The angle", "The area"], "Where the axes cross is the origin."],
+ ["Hvilket tall ligger midt mellom $-4$ og $4$?", ["$0$", "$4$", "$-4$", "$8$"], "Begge er 4 steg fra 0.",
+  "Which number is halfway between $-4$ and $4$?", ["$0$", "$4$", "$-4$", "$8$"], "Both are 4 steps from 0."],
+ ["Hvilket tall er størst?", ["$-2$", "$-7$", "$-10$", "De er like store"], "$-2$ er nærmest 0 og lengst til høyre av disse.",
+  "Which number is the biggest?", ["$-2$", "$-7$", "$-10$", "They are equal"], "$-2$ is closest to 0 and furthest right of these."],
+ ["Hvor mange steg er det fra $-6$ til $-1$ på tallinja?", ["5", "7", "6", "$-7$"], "Tell: $-5, -4, -3, -2, -1$ – 5 steg.",
+  "How many steps is it from $-6$ to $-1$ on the number line?", ["5", "7", "6", "$-7$"], "Count: $-5, -4, -3, -2, -1$ – 5 steps."],
+ ["Hvilket tall er 3 mindre enn 1?", ["$-2$", "$2$", "$4$", "$-3$"], "$1 - 3 = -2$. Gå 3 steg til venstre fra 1.",
+  "Which number is 3 less than 1?", ["$-2$", "$2$", "$4$", "$-3$"], "$1 - 3 = -2$. Go 3 steps left from 1."]],
+ () => { const a = R.i(1, 9), b = R.i(1, 9); return [T(`Om natta er det $-${a}$ grader. Om dagen er det $${b}$ grader. Hvor mange grader varmere er det om dagen?`, `At night it is $-${a}$ degrees. In the daytime it is $${b}$ degrees. How many degrees warmer is it in the daytime?`), N(a + b, 0, "grader"), T(`Fra $-${a}$ opp til 0 er ${a} grader, og fra 0 opp til ${b} er ${b} grader: $${a} + ${b} = ${a + b}$.`, `From $-${a}$ up to 0 is ${a} degrees, and from 0 up to ${b} is ${b} degrees: $${a} + ${b} = ${a + b}$.`)]; },
+ () => { const a = R.i(2, 12), b = R.i(1, 15), e = b - a; return [T(`Regn ut $-${a} + ${b}$.`, `Work out $-${a} + ${b}$.`), N(e), T(`Start på $-${a}$ og gå ${b} steg mot høyre. Du ender på $${e}$.`, `Start at $-${a}$ and move ${b} steps right. You end at $${e}$.`)]; },
+ () => { const y = R.i(1, 6), x1 = R.i(-5, 1), x2 = R.i(x1 + 2, 7); return [T(`Hvor mange ruter er det bortover fra punktet $(${x1}, ${y})$ til punktet $(${x2}, ${y})$?`, `How many squares across is it from the point $(${x1}, ${y})$ to the point $(${x2}, ${y})$?`), N(x2 - x1), T(`Begge har $y = ${y}$, så vi teller bare bortover: $${x2} - (${x1}) = ${x2 - x1}$.`, `Both have $y = ${y}$, so we only count across: $${x2} - (${x1}) = ${x2 - x1}$.`)]; }
+);
+
+U("GS57", "Sannsynlighet", "Probability",
+`## Hva handler det om?
+Noe er **sikkert**, noe er **umulig**, og det meste er et sted midt imellom. Sannsynlighet sier hvor stor sjanse det er for at noe skjer.
+
+## Det viktigste
+- Sjansen går fra **0** (umulig) til **1** (sikkert). «Like stor sjanse» er $\\frac{1}{2}$.
+- Sannsynlighet = antall utfall som passer, delt på antall mulige utfall.
+- En terning har 6 sider. Sjansen for å få en sekser er $\\frac{1}{6}$.
+- En mynt har to sider. Sjansen for kron er $\\frac{1}{2}$.
+- Jo flere ganger du prøver, jo nærmere kommer resultatet sannsynligheten.
+
+### Eksempel
+I en pose er det 3 røde kuler og 1 blå. Sjansen for rød er $\\frac{3}{4}$, fordi 3 av de 4 kulene er røde.
+
+> Tell først alle mulige utfall. Tell så dem som passer.`,
+`## What is it about?
+Some things are **certain**, some are **impossible**, and most are somewhere in between. Probability says how big the chance is that something happens.
+
+## Key points
+- The chance goes from **0** (impossible) to **1** (certain). "Even chance" is $\\frac{1}{2}$.
+- Probability = number of outcomes that fit, divided by the number of possible outcomes.
+- A die has 6 faces. The chance of a six is $\\frac{1}{6}$.
+- A coin has two sides. The chance of heads is $\\frac{1}{2}$.
+- The more times you try, the closer the result gets to the probability.
+
+### Example
+A bag has 3 red balls and 1 blue. The chance of red is $\\frac{3}{4}$, because 3 of the 4 balls are red.
+
+> First count all possible outcomes. Then count the ones that fit.`,
+[["Hva er sjansen for å få 7 på en vanlig terning?", ["$0$ – det er umulig", "$\\frac{1}{6}$", "$\\frac{1}{7}$", "$1$"], "En vanlig terning har bare 1–6. Å få 7 er umulig.",
+  "What is the chance of getting 7 on an ordinary die?", ["$0$ – it is impossible", "$\\frac{1}{6}$", "$\\frac{1}{7}$", "$1$"], "An ordinary die only has 1–6. Getting 7 is impossible."],
+ ["Du kaster en mynt. Hva er sjansen for kron?", ["$\\frac{1}{2}$", "$\\frac{1}{3}$", "$\\frac{1}{4}$", "$1$"], "To like mulige sider, én av dem er kron.",
+  "You toss a coin. What is the chance of heads?", ["$\\frac{1}{2}$", "$\\frac{1}{3}$", "$\\frac{1}{4}$", "$1$"], "Two equally likely sides, one of them is heads."],
+ ["Hva er sjansen for et partall på en terning?", ["$\\frac{1}{2}$", "$\\frac{1}{6}$", "$\\frac{1}{3}$", "$\\frac{2}{3}$"], "Partallene er 2, 4 og 6 – 3 av 6, altså $\\frac{3}{6} = \\frac{1}{2}$.",
+  "What is the chance of an even number on a die?", ["$\\frac{1}{2}$", "$\\frac{1}{6}$", "$\\frac{1}{3}$", "$\\frac{2}{3}$"], "The even numbers are 2, 4 and 6 – 3 of 6, so $\\frac{3}{6} = \\frac{1}{2}$."],
+ ["Hvilket ord passer når sannsynligheten er 1?", ["Sikkert", "Umulig", "Lite sannsynlig", "Like stor sjanse"], "1 betyr at det skjer hver gang.",
+  "Which word fits when the probability is 1?", ["Certain", "Impossible", "Unlikely", "Even chance"], "1 means it happens every time."],
+ ["En pose har 2 røde og 8 grønne kuler. Hvilken farge trekker du mest sannsynlig?", ["Grønn", "Rød", "Like stor sjanse", "Blå"], "Det er flest grønne: 8 av 10.",
+  "A bag has 2 red and 8 green balls. Which colour are you most likely to draw?", ["Green", "Red", "Even chance", "Blue"], "There are most green: 8 of 10."],
+ ["Et lykkehjul har 4 like store felt. Ett av dem er gull. Hva er sjansen for gull?", ["$\\frac{1}{4}$", "$\\frac{1}{3}$", "$\\frac{3}{4}$", "$4$"], "1 felt passer av 4 mulige.",
+  "A spinner has 4 equal sections. One of them is gold. What is the chance of gold?", ["$\\frac{1}{4}$", "$\\frac{1}{3}$", "$\\frac{3}{4}$", "$4$"], "1 section fits out of 4 possible."],
+ ["Du kaster en terning 600 ganger. Omtrent hvor mange seksere får du?", ["100", "6", "300", "600"], "Sjansen er $\\frac{1}{6}$, og $600 : 6 = 100$. Det blir sjelden nøyaktig 100, men nær.",
+  "You roll a die 600 times. About how many sixes do you get?", ["100", "6", "300", "600"], "The chance is $\\frac{1}{6}$, and $600 : 6 = 100$. Rarely exactly 100, but close."],
+ ["Hva betyr sannsynlighet 0?", ["Det kan aldri skje", "Det skjer alltid", "Det skjer halvparten av gangene", "Det skjer nesten alltid"], "0 er umulig – det skjer aldri.",
+  "What does probability 0 mean?", ["It can never happen", "It always happens", "It happens half the time", "It almost always happens"], "0 is impossible – it never happens."]],
+ () => { const [r, b] = R.p([[1, 3], [3, 1], [1, 4], [2, 3], [3, 2], [1, 9], [3, 7], [7, 3], [1, 19], [5, 15]]), p = r * 100 / (r + b);
+   return [T(`En pose har ${r} røde og ${b} blå kuler. Hva er sjansen for å trekke en rød, i prosent?`, `A bag has ${r} red and ${b} blue balls. What is the chance of drawing a red one, in percent?`), N(p, 0, "%"), T(`${r} av ${r + b} kuler er røde: $\\frac{${r}}{${r + b}} = ${mf(p)}\\ \\%$.`, `${r} of ${r + b} balls are red: $\\frac{${r}}{${r + b}} = ${mf(p)}\\ \\%$.`)]; },
+ () => { const n = R.i(2, 20) * 6; return [T(`Du kaster en terning ${n} ganger. Omtrent hvor mange seksere kan du vente å få?`, `You roll a die ${n} times. About how many sixes can you expect?`), N(n / 6), T(`Sjansen for sekser er $\\frac{1}{6}$: $${n} : 6 = ${n / 6}$.`, `The chance of a six is $\\frac{1}{6}$: $${n} : 6 = ${n / 6}$.`)]; },
+ () => { const f = R.p([4, 5, 6, 8, 10]), k = R.i(1, f - 1), w = [`$\\frac{${k}}{${f}}$`, `$\\frac{${f - k}}{${f}}$`, `$\\frac{1}{${f}}$`, `$\\frac{${k}}{${f + k}}$`, `$\\frac{${f}}{${k}}$`];
+   const o = w.filter((x, i, a) => a.indexOf(x) === i).slice(0, 4);
+   return [T(`Et lykkehjul har ${f} like store felt. ${k} av dem gir premie. Hva er sjansen for premie?`, `A spinner has ${f} equal sections. ${k} of them win a prize. What is the chance of a prize?`), o, T(`${k} felt passer av ${f} mulige: $\\frac{${k}}{${f}}$.`, `${k} sections fit out of ${f} possible: $\\frac{${k}}{${f}}$.`)]; }
+);
+
 })();
