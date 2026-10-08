@@ -77,7 +77,9 @@ function renderProfile(){
       <div class="pf-sec"><div class="pf-sh"><b>${esc(t("pfCourses"))}</b><button class="exlink" data-a="pick">${esc(t("switchCourse"))}</button></div>
         ${courses.map(({ c, p }) => `<button class="pf-course ${c.code === S.current ? "sel" : ""}" data-a="choose" data-c="${esc(c.code)}"><span class="badge" style="background:${bkCol(c)}">${esc(courseShort(c))}</span>
           <span class="t"><b>${esc(courseName(c))}</b><span class="pf-bar"><i style="width:${p.d / p.tot * 100}%"></i></span></span><span class="n">${Math.round(p.d / p.tot * 100)} %</span></button>`).join("")}</div>
+      ${canEdit() ? `<button class="adm-entry" data-a="edopenscreen"><span class="adm-entry-ic">✏️</span><span><b>${esc(T("Rett innhold", "Edit content"))}</b><small>${esc(T("Rett oppgaver, teori og emnesider – med logg og angre", "Fix problems, theory and topic pages – with a log and undo"))}</small></span>${I.chevron}</button>` : ""}
       ${isStaff() ? `<button class="adm-entry" data-a="admin"><span class="adm-entry-ic">🛡️</span><span><b>${esc(t("admTitle"))}</b><small>${esc(t("admEntrySub"))}</small></span>${I.chevron}</button>` : ""}
+      <button class="adm-entry" data-a="tcopen"><span class="adm-entry-ic">🎓</span><span><b>${esc(T("For lærere", "For teachers"))}</b><small>${esc(T("Lag lekser og quiz for klassen og se resultatene", "Make homework and quizzes for the class and see the results"))}</small></span>${I.chevron}</button>
       <div class="sgroup pf-links">
         <button class="srow" data-a="settings">${I.gear}<span class="lbl">${esc(t("settings"))}</span>${I.chevron}</button>
         <button class="srow" data-a="feedback">${I.flag}<span class="lbl">${esc(t("setFeedback"))}</span>${I.chevron}</button>
@@ -121,7 +123,8 @@ function renderPractice(){
     <main class="wrap prac">
       ${qsHTML("practice")}${isDrive(c) ? "" : focCardHTML()}${dvPracticeCardHTML(c)}${isDrive(c) ? "" : labCourseHTML(c) + catCardHTML(c)}${cdPracticeCardHTML(c)}
       ${layoutHTML("practice", { c, today, goal, week, wrongN })}
-      <h4 class="grp">🧰 ${esc(T("Hjelpemidler", "Study tools"))}</h4>${poCardHTML()}
+      <h4 class="grp">🧰 ${esc(T("Hjelpemidler", "Study tools"))}</h4><div class="tools2">${poCardHTML()}
+      <button class="tc-entry" data-a="tcopen"><span aria-hidden="true">🎓</span><div><b>${esc(T("Lærerverktøy", "Teacher tools"))}</b><small>${esc(T("Live-quiz og lekser", "Live quiz and homework"))}</small></div></button></div>
       ${layLinkHTML("practice")}
     </main>`;
 }

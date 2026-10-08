@@ -224,7 +224,7 @@ TOPICS("GMAT", 4, [
 // Enhet 5: Trigonometri og geometri
 TOPICS("GMAT", 5, [
 { id: "trigonometri",
-  fig: `<svg viewBox="0 0 240 140"><path d="M40 120H200V30L40 120Z" class="d"/><path d="M180 120V100H200V120" class="dim"/><path d="M60 120a20 20 0 0 1 18-9" class="t"/><text x="70" y="117">v</text><text x="115" y="132">b</text><text x="207" y="78">a</text><text x="105" y="70">c</text></svg>`,
+  fig: `<svg viewBox="0 0 240 140"><path d="M40 120H200V30L40 120Z" class="d"/><path d="M180 120V100H200V120" class="dim"/><path d="M60 120a20 20 0 0 1 18-9" class="t"/><text x="83" y="116">v</text><text x="115" y="132">b</text><text x="207" y="78">a</text><text x="105" y="70">c</text></svg>`,
   nb: { t: "Trigonometri i rettvinklet trekant",
     intro: "I en rettvinklet trekant knytter sinus, cosinus og tangens vinkelen $v$ til forholdet mellom sidene. Pythagoras' setning knytter sidene sammen uten vinkler.",
     f: [["\\sin v = \\frac{\\text{motstående}}{\\text{hypotenus}},\\ \\cos v = \\frac{\\text{hosliggende}}{\\text{hypotenus}}", "sinus og cosinus"], ["a^2 + b^2 = c^2", "Pythagoras' setning, $c$ er hypotenusen"]],
@@ -252,7 +252,7 @@ TOPICS("GMAT", 5, [
     ex: "$210^\\circ = 210\\cdot\\frac{\\pi}{180} = \\frac{7\\pi}{6}\\approx 3.67$ rad, and $\\sin 210^\\circ=-0.5$.",
     tip: "The sign of $\\sin$ and $\\cos$ depends on which quadrant the point $P$ is in." } },
 { id: "sinus-cosinussetning",
-  fig: `<svg viewBox="0 0 240 140"><path d="M40 120L190 120L140 30Z" class="d"/><text x="105" y="132">c</text><text x="170" y="79">a</text><text x="84" y="79">b</text><text x="30" y="128">A</text><text x="195" y="128">B</text><text x="140" y="22">C</text></svg>`,
+  fig: `<svg viewBox="0 0 240 140"><path d="M40 120L190 120L140 30Z" class="d"/><text x="105" y="132">c</text><text x="170" y="79">a</text><text x="70" y="70">b</text><text x="30" y="128">A</text><text x="195" y="128">B</text><text x="140" y="22">C</text></svg>`,
   nb: { t: "Sinus- og cosinussetningen",
     intro: "I en vilkårlig trekant, uten rett vinkel, brukes sinussetningen når vi kjenner en side og vinkelen rett overfor den, og cosinussetningen når vi kjenner to sider og vinkelen mellom dem.",
     f: [["\\frac{a}{\\sin A} = \\frac{b}{\\sin B} = \\frac{c}{\\sin C}", "sinussetningen"], ["c^2 = a^2 + b^2 - 2ab\\cos C", "cosinussetningen"]],

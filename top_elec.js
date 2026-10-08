@@ -6,7 +6,7 @@
 TOPICS("ELPE1300", 0, [
 { id: "ohms-lov",
   art: () => FL.circuit({ kind: "ohm" }),
-  fig: `<svg viewBox="0 0 240 140"><path d="M40 30H200M200 30V55M200 85V110M200 110H40M40 88V110M40 30V52" class="d"/><circle cx="40" cy="70" r="18" class="d"/><rect x="185" y="55" width="30" height="30" class="d"/><text x="15" y="74">U</text><text x="221" y="75">R</text><text x="34" y="60">+</text><text x="37" y="86">-</text></svg>`,
+  fig: `<svg viewBox="0 0 240 140"><path d="M40 30H200M200 30V55M200 85V110M200 110H40M40 88V110M40 30V52" class="d"/><circle cx="40" cy="70" r="18" class="d"/><rect x="185" y="55" width="30" height="30" class="d"/><text x="6" y="75">U</text><text x="221" y="75">R</text><text x="34" y="60">+</text><text x="37" y="86">-</text></svg>`,
   nb: { t: "Ohms lov og effekt",
     intro: "Ohms lov knytter sammen spenningen over en motstand, strømmen gjennom den og motstandsverdien. Kjenner du to av de tre størrelsene, finner du alltid den tredje. Effekten som varmes opp i motstanden kan regnes ut på tre likeverdige måter, avhengig av hvilke størrelser du kjenner.",
     f: [["U = RI", "Ohms lov: spenning er motstand ganger strøm"], ["P = UI = RI^2 = \\dfrac{U^2}{R}", "effekt i en motstand, tre likeverdige former"]],
@@ -54,7 +54,7 @@ TOPICS("ELPE1300", 0, [
 // ================= ELPE1300 – enhet 1: Kondensator og spole =================
 TOPICS("ELPE1300", 1, [
 { id: "kondensator",
-  fig: `<svg viewBox="0 0 240 140"><path d="M40 30H200M200 30V62M200 78V110M200 110H40M40 88V110M40 30V52" class="d"/><circle cx="40" cy="70" r="18" class="d"/><path d="M185 62H215M185 78H215" class="d"/><text x="15" y="74">U</text><text x="222" y="74">C</text></svg>`,
+  fig: `<svg viewBox="0 0 240 140"><path d="M40 30H200M200 30V62M200 78V110M200 110H40M40 88V110M40 30V52" class="d"/><circle cx="40" cy="70" r="18" class="d"/><path d="M185 62H215M185 78H215" class="d"/><text x="6" y="75">U</text><text x="222" y="74">C</text></svg>`,
   nb: { t: "Kondensator",
     intro: "En kondensator lagrer energi i et elektrisk felt mellom to plater. Ladningen den lagrer er proporsjonal med spenningen over den, og den «liker» konstant spenning – strømmen gjennom den avhenger av hvor fort spenningen endrer seg. I en likestrømskrets i stasjonær tilstand oppfører den seg som et brudd.",
     f: [["Q = CU", "ladning lagret på en kondensator"], ["i = C\\dfrac{du}{dt}", "strøm som funksjon av spenningens endringstakt"], ["E = \\tfrac12CU^2", "energi lagret i det elektriske feltet"]],
@@ -68,7 +68,7 @@ TOPICS("ELPE1300", 1, [
     ex: "$C=220$ µF charged to $U=15$ V:\n$Q=CU=220\\cdot10^{-6}\\cdot15\\approx3.3$ mC.",
     tip: "The voltage across a capacitor cannot jump instantaneously – only the current can." } },
 { id: "spole",
-  fig: `<svg viewBox="0 0 240 140"><path d="M40 30H200M200 30V50M200 90V110M200 110H40M40 88V110M40 30V52" class="d"/><circle cx="40" cy="70" r="18" class="d"/><path d="M200 50a8 8 0 0 1 0 16a8 8 0 0 1 0 16a8 8 0 0 1 0 8" class="d"/><text x="15" y="74">U</text><text x="215" y="74">L</text></svg>`,
+  fig: `<svg viewBox="0 0 240 140"><path d="M40 30H200M200 30V50M200 90V110M200 110H40M40 88V110M40 30V52" class="d"/><circle cx="40" cy="70" r="18" class="d"/><path d="M200 50a6.67 6.67 0 0 1 0 13.33a6.67 6.67 0 0 1 0 13.33a6.67 6.67 0 0 1 0 13.34" class="d"/><text x="6" y="75">U</text><text x="215" y="74">L</text></svg>`,
   nb: { t: "Spole",
     intro: "En spole lagrer energi i et magnetisk felt når strøm flyter gjennom den. Den «liker» konstant strøm og reagerer med en spenning som er proporsjonal med hvor fort strømmen endrer seg. I en likestrømskrets i stasjonær tilstand oppfører den seg som en kortslutning.",
     f: [["u = L\\dfrac{di}{dt}", "spenning som funksjon av strømmens endringstakt"], ["E=\\tfrac12LI^2", "energi lagret i det magnetiske feltet"]],
@@ -147,7 +147,7 @@ TOPICS("ELPE1300", 2, [
 // ================= ELPE1300 – enhet 3: Nettverksanalyse =================
 TOPICS("ELPE1300", 3, [
 { id: "superposisjon",
-  fig: `<svg viewBox="0 0 240 140"><path d="M30 30H210M30 110H210M30 30V52M30 88V110M120 30V55M120 85V110M210 30V52M210 88V110" class="d"/><circle cx="30" cy="70" r="16" class="d"/><rect x="105" y="55" width="30" height="30" class="d"/><circle cx="210" cy="70" r="16" class="d"/><path d="M210 60V80" class="a"/><path d="M210 80l-5-9h10z" class="af"/><text x="5" y="74">U</text><text x="140" y="75">R</text><text x="224" y="82">I</text></svg>`,
+  fig: `<svg viewBox="0 0 240 140"><path d="M40 30H200M40 110H200M40 30V54M40 86V110M120 30V55M120 85V110M200 30V54M200 86V110" class="d"/><circle cx="40" cy="70" r="16" class="d"/><rect x="105" y="55" width="30" height="30" class="d"/><circle cx="200" cy="70" r="16" class="d"/><path d="M200 60V80" class="a"/><path d="M200 80l-5-9h10z" class="af"/><text x="7" y="75">U</text><text x="140" y="75">R</text><text x="223" y="75">I</text></svg>`,
   nb: { t: "Superposisjon",
     intro: "I en lineær krets med flere uavhengige kilder kan du finne strømmen eller spenningen i en gren ved å legge sammen bidraget fra hver kilde alene. Da slår du av alle de andre kildene: en spenningskilde kortsluttes til 0 V, og en strømkilde brytes til 0 A. Metoden gjelder aldri direkte for effekt, siden effekt er kvadratisk i strøm og spenning.",
     f: [["I=I'+I''+\\dots", "total strøm er summen av bidrag fra hver kilde alene"]],
@@ -161,6 +161,7 @@ TOPICS("ELPE1300", 3, [
     ex: "$U_1=12$ V gives $I'=1.2$ A, $I_2=2$ A gives $I''=0.8$ A:\n$I=I'+I''=1.2+0.8=2$ A.",
     tip: "Turn off sources by shorting voltage sources and opening current sources – never the other way around." } },
 { id: "thevenin",
+  art: () => FL.thevenin(),
   fig: `<svg viewBox="0 0 240 140"><rect x="20" y="30" width="70" height="60" class="d"/><path d="M55 90V110M40 110h30" class="d"/><circle cx="40" cy="110" r="3" class="d"/><circle cx="70" cy="110" r="3" class="d"/><path d="M100 65H140" class="a"/><path d="M140 65l-10-5v10z" class="af"/><circle cx="170" cy="60" r="14" class="d"/><rect x="185" y="52" width="26" height="16" class="d"/><path d="M170 74V110M211 60H225V110M170 110H225" class="d"/><circle cx="170" cy="110" r="3" class="d"/><circle cx="225" cy="110" r="3" class="d"/><text x="35" y="60">?</text><text x="132" y="95">U<tspan dy="4" font-size="10">th</tspan></text><text x="189" y="42">R<tspan dy="4" font-size="10">th</tspan></text></svg>`,
   nb: { t: "Thévenin-ekvivalent",
     intro: "Enhver lineær krets sett fra to klemmer kan erstattes med én spenningskilde $U_{th}$ i serie med én motstand $R_{th}$. Dette forenkler kraftig når du skal analysere hvordan kretsen oppfører seg med forskjellige laster, siden du bare trenger å regne ut ekvivalenten én gang.",
@@ -175,6 +176,7 @@ TOPICS("ELPE1300", 3, [
     ex: "Open circuit $U_{\\text{open}}=10$ V, short circuit $I_{\\text{short}}=2$ A:\n$R_{th}=10/2=5$ Ω.",
     tip: "Find $R_{th}$ with the sources turned off, or from the ratio of the open-circuit voltage to the short-circuit current." } },
 { id: "maks-effekt",
+  art: () => FL.thevenin(),
   fig: `<svg viewBox="0 0 240 140"><path d="M30 120H220M30 120V20" class="dim"/><path d="M30 115C70 40 110 25 130 25S190 60 215 115" class="d"/><path d="M130 25V120M30 120H130" class="dash"/><text x="222" y="45">P</text><text x="215" y="132">R<tspan dy="4" font-size="10">L</tspan></text><text x="122" y="132">R<tspan dy="4" font-size="10">th</tspan></text></svg>`,
   nb: { t: "Maksimal effektoverføring",
     intro: "Når en last kobles til en krets med indre (Thévenin-)motstand, blir effekten som overføres til lasten størst når lastmotstanden er lik kildens indre motstand. Ved denne betingelsen er virkningsgraden bare 50 %, siden like mye effekt går tapt i kilden selv – maksimal effekt og god virkningsgrad er altså ikke det samme.",
@@ -193,7 +195,7 @@ TOPICS("ELPE1300", 3, [
 // ================= ELEK – enhet 0: Dioder og transistorer =================
 TOPICS("ELEK", 0, [
 { id: "diode-likeretter",
-  fig: `<svg viewBox="0 0 240 140"><path d="M40 30H200M200 30V55M200 85V110M200 110H40M40 88V110M40 30V52" class="d"/><circle cx="40" cy="70" r="18" class="d"/><rect x="185" y="55" width="30" height="30" class="d"/><text x="15" y="74">U</text><text x="221" y="75">D</text></svg>`,
+  fig: `<svg viewBox="0 0 240 140"><path d="M40 30H200M200 30V55M200 85V110M200 110H40M40 88V110M40 30V52" class="d"/><circle cx="40" cy="70" r="18" class="d"/><rect x="185" y="55" width="30" height="30" class="d"/><text x="6" y="75">U</text><text x="221" y="75">D</text></svg>`,
   nb: { t: "Diode og likeretter",
     intro: "En diode slipper strøm gjennom i én retning, med et nesten konstant spenningsfall når den leder. En silisiumdiode har typisk et spenningsfall på omtrent 0,7 V uavhengig av strømmen. En brolikeretter bruker fire dioder til å gjøre begge halvperiodene av en vekselspenning om til samme polaritet.",
     f: [["V_D\\approx0{,}7\\ \\text{V}", "spenningsfall over en silisiumdiode i lederetning"], ["I=\\dfrac{V_S-V_D}{R}", "strøm gjennom en diode i serie med en motstand"]],
@@ -207,7 +209,7 @@ TOPICS("ELEK", 0, [
     ex: "$V_S=5$ V, $R=330$ Ω:\n$I=(5-0.7)/330\\approx13$ mA.",
     tip: "Reverse bias means (almost) no current – do not mix up forward and reverse bias." } },
 { id: "zenerdiode",
-  fig: `<svg viewBox="0 0 240 140"><path d="M40 30H200M200 30V55M200 85V110M200 110H40M40 88V110M40 30V52" class="d"/><circle cx="40" cy="70" r="18" class="d"/><rect x="185" y="55" width="30" height="30" class="d"/><text x="15" y="74">U</text><text x="221" y="75">Z</text></svg>`,
+  fig: `<svg viewBox="0 0 240 140"><path d="M40 30H200M200 30V55M200 85V110M200 110H40M40 88V110M40 30V52" class="d"/><circle cx="40" cy="70" r="18" class="d"/><rect x="185" y="55" width="30" height="30" class="d"/><text x="6" y="75">U</text><text x="221" y="75">Z</text></svg>`,
   nb: { t: "Zenerdiode",
     intro: "En zenerdiode kobles bakvendt, i sperreretning, og holder en fast spenning $V_Z$ over seg selv når den leder i denne retningen. Den brukes ofte som en enkel spenningsregulator: en seriemotstand tar opp resten av spenningen fra kilden, og strømmen gjennom motstanden setter zenerstrømmen.",
     f: [["R_S=\\dfrac{V_{inn}-V_Z}{I_Z}", "seriemotstand for en enkel zenerregulator"]],
@@ -451,7 +453,8 @@ TOPICS("ELFT2500", 2, [
     ex: "Signal up to $1$ kHz:\nMinimum theoretical sampling frequency: $f_s>2\\cdot1=2$ kHz.",
     tip: "Filter out everything above $f_s/2$ *before* sampling – aliasing cannot be removed afterward." } },
 { id: "wheatstone-bro",
-  fig: `<svg viewBox="0 0 240 140"><path d="M120 20L200 70L120 120L40 70Z" class="d"/><rect x="65" y="35" width="30" height="14" class="d"/><rect x="145" y="35" width="30" height="14" class="d"/><rect x="65" y="91" width="30" height="14" class="d"/><rect x="145" y="91" width="30" height="14" class="d"/><path d="M120 20V10M120 130V120" class="d"/><path d="M40 70H20M200 70H220" class="d"/><text x="108" y="17">+</text><text x="108" y="135">-</text></svg>`,
+  art: () => FL.bridge(),
+  fig: `<svg viewBox="0 0 240 140"><path d="M120 20L200 70L120 120L40 70Z" class="d"/><rect x="65" y="35" width="30" height="14" class="d"/><rect x="145" y="35" width="30" height="14" class="d"/><rect x="65" y="91" width="30" height="14" class="d"/><rect x="145" y="91" width="30" height="14" class="d"/><path d="M120 20V10M120 130V120" class="d"/><path d="M40 70H20M200 70H220" class="d"/><text x="127" y="15">+</text><text x="127" y="136">−</text></svg>`,
   nb: { t: "Wheatstone-bro",
     intro: "En Wheatstone-bro består av fire motstander koblet i en diamantform, og brukes til å måle svært små motstandsendringer, for eksempel fra en strekklapp. Når broen er i balanse, er utgangsspenningen null; en liten endring $\\Delta R$ i én arm gir en liten, målbar differansespenning som kan forsterkes.",
     f: [["\\Delta R = GF\\cdot\\varepsilon\\cdot R", "motstandsendring fra tøyning i en strekklapp"]],

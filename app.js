@@ -140,6 +140,9 @@ const EMO = {
   "🩺": svg('<path d="M6 3v5a5 5 0 0 0 10 0V3"/><path d="M11 13v2.5a4.5 4.5 0 0 0 9 0V13"/><circle cx="20" cy="11" r="2"/>'),
   "🎒": svg('<rect x="5" y="7" width="14" height="14" rx="4"/><path d="M9 7V5.5a3 3 0 0 1 6 0V7M9 14h6"/>'),
   "📊": svg('<path d="M4 20h16M7 16v-5M12 16V7M17 16v-8"/>'),
+  "🏛️": svg('<path d="M3 9l9-5 9 5M3 9h18M5 10v8M9.5 10v8M14.5 10v8M19 10v8M3 20h18"/>'),
+  "🎈": svg('<ellipse cx="12" cy="9" rx="6" ry="7"/><path d="M12 16l-1.5 2h3zM12 18c0 2-2 2-2 4"/>'),
+  "🏫": svg('<path d="M3 21h18M5 21V10l7-5 7 5v11M10 21v-5h4v5"/><circle cx="12" cy="10" r="1.5"/>'),
   "🚗": svg('<path d="M3 16h18v-3l-2.2-5H5.2L3 13z"/><circle cx="7.5" cy="17" r="1.8"/><circle cx="16.5" cy="17" r="1.8"/>'),
   "⚖️": svg('<path d="M12 4v16M8 20h8M5 7h14M5 7l-3 6a3 3 0 0 0 6 0zM19 7l-3 6a3 3 0 0 0 6 0z"/>'),
   "⚔️": svg('<path d="M14.5 17.5 3 6V3h3l11.5 11.5M13 19l6-6M16 16l4 4M19 21l2-2M14.5 6.5 18 3h3v3l-3.5 3.5M5 14l4 4M7 17l-3 3M3 19l2 2"/>'),
@@ -173,7 +176,10 @@ const blank = () => ({ v:1, current:"GMAT", theorySeen:{}, preHidden:{}, pickMod
   examPrefs:{time:"rec", custom:90, extra:0}, exams:{}, examLog:[], examRun:null });
 function loadLocal(){ try{ const r = JSON.parse(localStorage.getItem(LS_KEY)); if(r && r.v===1) return Object.assign(blank(), r); }catch(e){} return blank(); }
 function saveLocal(){ try{ localStorage.setItem(LS_KEY, JSON.stringify(S)); }catch(e){} }
-let S = loadLocal(); if(LANG_URL){ S.lang = LANG_URL; S.langSet = 1; saveLocal(); } LANG = S.lang || LANG; // langSet = valgt selv (spør ikke igjen)
+// ?lang= i adressen velger språk. I en innebygd lab (iframe på en norsk/engelsk nettside) gjelder sidens språk,
+// uten at det endrer språket personen har valgt i appen.
+function langOf(){ return (EMBED && LANG_URL) || S.lang || LANG; }
+let S = loadLocal(); if(LANG_URL && !EMBED){ S.lang = LANG_URL; S.langSet = 1; saveLocal(); } LANG = langOf(); // langSet = valgt selv (spør ikke igjen)
 const sub = code => (S.subjects[code] ||= { done:{}, wrong:[] });
 
 let remoteRef = null, remoteChain = Promise.resolve(), claudeDb = null, isOwner = false, FB_NO_DB = false;
@@ -188,7 +194,7 @@ async function nativeLoad(){
   if(!PL.Preferences) return;
   try{
     const { value } = await PL.Preferences.get({ key: LS_KEY });
-    if(value){ const r = JSON.parse(value); if(r && r.v===1 && (r.updatedAt||0) > (S.updatedAt||0)){ S = Object.assign(blank(), r); LANG = S.lang || LANG; saveLocal(); examBoot(screen==="home"); if(screen!=="lesson") render(); } }
+    if(value){ const r = JSON.parse(value); if(r && r.v===1 && (r.updatedAt||0) > (S.updatedAt||0)){ S = Object.assign(blank(), r); LANG = langOf(); saveLocal(); examBoot(screen==="home"); if(screen!=="lesson") render(); } }
   }catch(e){}
 }
 
@@ -562,11 +568,12 @@ function finishLesson(){
   if(L.kind==="challenge"){ S.dc = { day: L.meta.day, right: firstTry, n: L.total }; bdgStat("challenges"); }
   if(L.kind==="mydeck") mdRecord();
   if(L.kind==="quick"){ (S.quickDone ||= {})[L.code] = 1; }
+  if(L.kind==="homework" && typeof hwSubmit === "function") hwSubmit(L);
   const fcMsg = (L.kind==="focus" || (L.meta && L.meta.focus)) && typeof focRecord === "function" ? focRecord() : null;
   if(L.kind==="drill" || L.kind==="challenge") drRecord(); // grunnbegreper i utfordringen teller også i terpinga
   noteNightLesson();
   const wrong = new Set(s.wrong);
-  if(L.kind!=="challenge" && L.kind!=="drill" && L.kind!=="community" && L.kind!=="mydeck") L.firstWrong.forEach(id=>wrong.add(id)); // utfordringen blander fag, feil der havner ikke i «Repeter feil»
+  if(L.kind!=="challenge" && L.kind!=="drill" && L.kind!=="community" && L.kind!=="mydeck" && !(L.kind==="homework" && L.meta.hw.cc)) L.firstWrong.forEach(id=>wrong.add(id)); // utfordringen blander fag, feil der havner ikke i «Repeter feil»
   if(L.kind==="review") [...L.solved].forEach(id=>{ if(!L.firstWrong.has(id)) wrong.delete(id); });
   s.wrong = [...wrong];
   if(L.firstWrong.size === 0) bdgStat("flawless");
@@ -591,7 +598,7 @@ function flipGrade(ok){
 function renderLesson(){
   const it = L.queue[0];
   const pct = (L.maxHearts ? (L.done + (L.answered?1:0)) : L.solved.size) / L.total * 100;
-  const lvl = L.kind==="place" ? T("Finn nivået ditt · ", "Find your level · ") : L.kind==="unit" ? `${lvShort(L.meta.k)} · ${lvName(L.meta.k)} · ` : L.kind==="jump" ? t("jumpTest")+" · " : L.kind==="review" ? t("review")+" · " : L.kind==="challenge" ? t("dcTitle")+" · " : L.kind==="focus" ? "🎯 "+T("Mitt fokus","My focus")+" · " : L.kind==="drill" ? drTitle()+" · "+(it.drTag ? T(DR_TAGS[it.drTag][0], DR_TAGS[it.drTag][1])+" · " : "") : L.kind==="community" || L.kind==="mydeck" ? (L.meta.title||t("ccTitle"))+" · " : "";
+  const lvl = L.kind==="place" ? T("Finn nivået ditt · ", "Find your level · ") : L.kind==="unit" ? `${lvShort(L.meta.k)} · ${lvName(L.meta.k)} · ` : L.kind==="jump" ? t("jumpTest")+" · " : L.kind==="review" ? t("review")+" · " : L.kind==="challenge" ? t("dcTitle")+" · " : L.kind==="focus" ? "🎯 "+T("Mitt fokus","My focus")+" · " : L.kind==="drill" ? drTitle()+" · "+(it.drTag ? T(DR_TAGS[it.drTag][0], DR_TAGS[it.drTag][1])+" · " : "") : L.kind==="community" || L.kind==="mydeck" || L.kind==="homework" ? (L.meta.title||t("ccTitle"))+" · " : "";
   if(it.type==="flip"){ // flashcard
     const shown = !!L.flipShown;
     $app.innerHTML = `<div class="lesson"><div class="wrap lhead"><button class="iconbtn" data-a="quit" aria-label="${t("quitAria")}">${I.x}</button><div class="bar" role="progressbar" aria-valuenow="${Math.round(pct)}" aria-valuemin="0" aria-valuemax="100"><i style="width:${pct}%"></i></div><span class="combo">${L.combo>=2?L.combo+"×":""}</span><button class="iconbtn flag" data-a="report" aria-label="${t("report")}" title="${t("report")}">${I.flag}</button></div>
@@ -623,6 +630,7 @@ function renderLesson(){
       ${L.ok || !theoryOf(L.code,+it.id.split(".")[0]) ? "" : `<button class="fb-th" data-a="thov">${I.book}${t("readTheory")}</button>`}
       ${L.tline && L.kind !== "exam" ? teacherBubble(L.code, esc(L.tline), 34, "tch-fb") : ""}
       ${L.ok?"":`<button class="fb-rep" data-a="report">${t("thinkWrong")} ${t("reportShort")}</button>`}
+      ${typeof edBtnHTML === "function" && /^\d+\.\d+$/.test(it.id||"") && L.code && L.kind !== "community" ? edBtnHTML("q", L.code, it.id, "fb-ed") : ""}
       <button class="big fb-next" data-a="next">${t("cont")}</button>
 </div></div>`;
   }
@@ -634,12 +642,13 @@ function renderLesson(){
 }
 function renderDone(){
   const r = L.result, m = Math.floor(r.secs/60), sec = r.secs%60, c = COURSE(L.code), u = L.meta && L.meta.u;
-  const title = L.kind==="place" ? (u > 0 ? T("Du kan mye allerede!", "You already know a lot!") : T("Fint, da starter vi fra bunnen", "Great, we'll start from the beginning")) : L.kind==="quick" ? T(`${L.total - L.firstWrong.size} av ${L.total} riktige!`, `${L.total - L.firstWrong.size} of ${L.total} correct!`) : L.kind==="community" ? t("ccDoneTitle") : L.kind==="drill" || L.kind==="mydeck" ? t("drDoneTitle") : L.kind==="challenge" ? t("dcDoneTitle") : L.kind==="focus" ? T("Fokusøkt fullført 🎯", "Focus session done 🎯") : L.kind==="jump" ? t("doneJump") : (L.kind==="unit" && L.meta.k===3) ? t("doneCrown") : r.acc===100 ? t("doneFlawless") : L.kind==="review" ? t("doneReview") : t("doneLevel", lvShort(L.meta.k));
+  const title = L.kind==="place" ? (u > 0 ? T("Du kan mye allerede!", "You already know a lot!") : T("Fint, da starter vi fra bunnen", "Great, we'll start from the beginning")) : L.kind==="quick" || L.kind==="homework" ? T(`${L.total - L.firstWrong.size} av ${L.total} riktige!`, `${L.total - L.firstWrong.size} of ${L.total} correct!`) : L.kind==="community" ? t("ccDoneTitle") : L.kind==="drill" || L.kind==="mydeck" ? t("drDoneTitle") : L.kind==="challenge" ? t("dcDoneTitle") : L.kind==="focus" ? T("Fokusøkt fullført 🎯", "Focus session done 🎯") : L.kind==="jump" ? t("doneJump") : (L.kind==="unit" && L.meta.k===3) ? t("doneCrown") : r.acc===100 ? t("doneFlawless") : L.kind==="review" ? t("doneReview") : t("doneLevel", lvShort(L.meta.k));
   const sub2 = L.kind==="place" ? (u >= c.units.length ? T("Du kan alt i dette faget. Velg gjerne et nytt fag.", "You know everything in this course. Pick a new one.") : u > 0 ? T(`Enhet 1–${u} er hoppet over. Du starter på «${unitTitle(c, u)}».`, `Units 1–${u} are skipped. You start at "${unitTitle(c, u)}".`) : T("Det er helt greit. Teorien tar deg steg for steg.", "That's perfectly fine. The theory takes you step by step.")) : L.kind==="drill" || L.kind==="mydeck" ? t("drDoneSub", L.total - L.firstWrong.size, L.total) : L.kind==="jump" ? t("jumpUnlocked", unitTitle(c,u)) : (L.kind==="unit" && L.meta.k===3) ? t("crownWon", unitTitle(c,u)) : null;
   $app.innerHTML = `<main class="wrap finish pop">
     ${doneHeroHTML(r)}
     <h1>${esc(title)}</h1>
     ${sub2?`<p>${esc(sub2)}</p>`:""}
+    ${L.kind==="homework" && typeof hwDoneHTML === "function" ? hwDoneHTML(L) : ""}
     <p>${r.streakUp?esc(t("streakLine",r.streak)):esc(courseName(c))}</p>
     <div class="tiles">
       <div class="tile t1"><small>${t("tileXp")}</small><b data-count="${r.gained}" data-pre="+">+${r.gained}</b></div>
@@ -1187,13 +1196,18 @@ function termsLoad(){
     const el = document.getElementById("termsbody"); if(el && TERMS_HTML[LANG]) el.innerHTML = TERMS_HTML[LANG];
   }).catch(() => { const el = document.getElementById("termsbody"); if(el) el.innerHTML = `<p><a href="https://axle.no/terms.html" target="_blank" rel="noopener">axle.no/terms.html</a></p>`; });
 }
+// Samme skjerm tegnet på nytt (et valg, en bryter): bli stående der du var – både på siden og i paneler som ruller selv
+// (ark, fokusrommet). Bytte av skjerm starter øverst som før (der det kalles scrollTo etter render).
 function render(){
-  const pane = document.querySelector("#app .sheet"), keep = pane && render.last === screen ? pane.scrollTop : null;
+  const same = render.last === screen, y = window.scrollY, path = el => { const p = []; for(let e = el; e && e.id !== "app"; e = e.parentElement) p.unshift([...e.parentElement.children].indexOf(e)); return p; };
+  const keep = same ? [...document.querySelectorAll("#app > *, #app > * > *, #app > * > * > *, #app .sheet")].filter(e => e.scrollTop > 0).map(e => [e.className, path(e), e.scrollTop]) : [];
   renderNow();
-  if(render.last !== screen && typeof stScreen === "function") stScreen(screen);
+  if(!same && typeof stScreen === "function") stScreen(screen);
   render.last = screen;
   if(typeof poDraw === "function") poDraw();
-  if(keep != null){ const np = document.querySelector("#app .sheet"); if(np) np.scrollTop = keep; }
+  if(!same) return;
+  for(const [cls, p, top] of keep){ let e = document.getElementById("app"); for(const i of p) e = e && e.children[i]; if(e && e.className === cls) e.scrollTop = top; }
+  if(window.scrollY !== y) window.scrollTo(0, y);
 }
 function renderNow(){
   applyTheme();
@@ -1216,7 +1230,11 @@ function renderNow(){
   else if(screen==="motion") renderMotion();
   else if(screen==="ctl") renderCtl();
   else if(screen==="pomo") renderPomo();
+  else if(screen==="teach") renderTeach();
+  else if(screen==="hw") renderHw();
+  else if(screen==="tcedit") renderTeEdit();
   else if(screen==="welcome") renderWelcome();
+  else if(screen==="edit") renderEdit();
   else if(screen==="mq") renderMq();
   else if(screen==="catalog") renderCatalog();
   else if(screen==="code") renderCode();
@@ -1276,7 +1294,7 @@ document.addEventListener("click", async e=>{
   if(grClick(a, b)) return; // grupper (handlinger som starter med "gr")
   if(studyClick(a, b)) return; // studier (studies.js)
   if(pfClick(a, b)) return; // bevis (proofs.js)
-  if(snEntryClick(a) || snClick(a, b) || spClick(a, b) || gmClick(a, b) || gmMenuClick(a, b) || duClick(a, b) || mdClick(a, b) || unitsClick(a, b) || tgClick(a, b) || fcClick(a, b) || labClick(a, b) || geClick(a, b) || mvClick(a) || ctClick(a, b) || catClick(a, b) || focClick(a, b) || poClick(a, b) || welClick(a, b) || mqClick(a, b) || nudgeClick(a, b) || shareClick(a, b) || ibClick(a, b) || dvClick(a, b) || scClick(a, b) || cdClick(a, b) || thClick(a, b)) return; // snacks og lynrunde (snacks.js)
+  if(snEntryClick(a) || snClick(a, b) || spClick(a, b) || gmClick(a, b) || gmMenuClick(a, b) || duClick(a, b) || mdClick(a, b) || unitsClick(a, b) || tgClick(a, b) || fcClick(a, b) || labClick(a, b) || geClick(a, b) || mvClick(a) || ctClick(a, b) || catClick(a, b) || focClick(a, b) || poClick(a, b) || welClick(a, b) || edClick(a, b) || mqClick(a, b) || tcClick(a, b) || hwClick(a) || teClick(a, b) || nudgeClick(a, b) || shareClick(a, b) || ibClick(a, b) || dvClick(a, b) || scClick(a, b) || cdClick(a, b) || thClick(a, b)) return; // snacks og lynrunde (snacks.js)
   if(adminClick(a, b)) return; // adminpanel og kunngjøringer (admin.js)
   if(psClick(a, b)) return; // profilsiden til andre + hvilke merker du viser (person.js)
   if(friendsClick(a, b)) return; // venner (handlinger som starter med "fr")
@@ -1329,7 +1347,7 @@ document.addEventListener("click", async e=>{
   else if(a==="bkfile") downloadBackup(overlay.code);
   else if(a==="bkshare") navigator.share({ title: backupFileName(), text: overlay.code }).catch(()=>{});
   else if(a==="bkimport"){ const v = document.getElementById("bkin").value; if(!v.trim()){ toast(t("bkEmpty")); return; }
-    if(importBackup(v)){ LANG = S.lang || LANG; overlay = null; renderOverlay(); render(); toast(t("bkDone")); } else toast(t("bkBad")); }
+    if(importBackup(v)){ LANG = langOf(); overlay = null; renderOverlay(); render(); toast(t("bkDone")); } else toast(t("bkBad")); }
   else if(a==="aclogin"){ overlay = { login:1, step:"email", email:"" }; renderOverlay(); }
   else if(a==="lgsend"){ const email = (document.getElementById("lgmail").value||"").trim().toLowerCase();
     if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){ overlay.err = t("acBadEmail"); renderOverlay(); return; }
@@ -1339,7 +1357,7 @@ document.addEventListener("click", async e=>{
   else if(a==="lgverify"){ const code = (document.getElementById("lgcode").value||"").replace(/\D/g,""), email = overlay.email;
     if(code.length < 6){ overlay.err = t("acBadCode"); renderOverlay(); return; }
     overlay = { login:1, step:"code", email, busy:true }; renderOverlay();
-    cloudVerify(email, code).then(()=>{ LANG = S.lang || LANG; S.acEver = 1; saveLocal(); overlay = null; renderOverlay(); render(); toast(t("acLoggedIn", email)); },
+    cloudVerify(email, code).then(()=>{ LANG = langOf(); S.acEver = 1; saveLocal(); overlay = null; renderOverlay(); render(); toast(t("acLoggedIn", email)); },
       e=>{ if(overlay && overlay.login){ overlay = { login:1, step:"code", email, err: acErr(e) }; renderOverlay(); } }); }
   else if(a==="lgback"){ overlay = { login:1, step:"email", email: overlay.email }; renderOverlay(); }
   else if(a==="acsync"){ cloudSync().then(()=>{ if(CLOUD.status==="ok") toast(t("acSyncedToast")); else if(CLOUD.status==="offline") toast(t("acOffline")); else if(CLOUD.status==="error") toast(t("acError")); }); }
@@ -1479,7 +1497,7 @@ if(!NATIVE && !window.claude && "serviceWorker" in navigator && /^https?:$/.test
     const snap = await ref.get(); remoteRef = ref;
     const r = snap.exists ? snap.data().state : null;
     if(r && r.v===1 && (r.updatedAt||0) > (S.updatedAt||0)){
-      const outbox = S.outbox; S = Object.assign(blank(), JSON.parse(JSON.stringify(r)), {outbox}); LANG = S.lang || LANG; saveLocal();
+      const outbox = S.outbox; S = Object.assign(blank(), JSON.parse(JSON.stringify(r)), {outbox}); LANG = langOf(); saveLocal();
       examBoot(false);
       if(screen==="home" || screen==="pick" || screen==="settings") render();
     } else if(S.updatedAt > ((r && r.updatedAt)||0)) pushRemote();

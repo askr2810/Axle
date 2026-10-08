@@ -397,7 +397,7 @@ TOPICS("NUM", 1, [
 ]);
 TOPICS("NUM", 2, [
 { id: "eulers-metode",
-  fig: `<svg viewBox="0 0 240 140"><path d="M25 110H225" class="dim"/><path d="M25 110V20" class="dim"/><path d="M35 95C 90 30, 150 25, 210 45" class="dash"/><path d="M35 95L80 78L125 68L170 60L210 55" class="d"/><circle cx="35" cy="95" r="3" class="af"/><circle cx="80" cy="78" r="3" class="af"/><circle cx="125" cy="68" r="3" class="af"/><circle cx="170" cy="60" r="3" class="af"/><text x="20" y="113">y₀</text></svg>`,
+  fig: `<svg viewBox="0 0 240 140"><path d="M25 110H225" class="dim"/><path d="M25 110V20" class="dim"/><path d="M35 95C 90 30, 150 25, 210 45" class="dash"/><path d="M35 95L80 78L125 68L170 60L210 55" class="d"/><circle cx="35" cy="95" r="3" class="af"/><circle cx="80" cy="78" r="3" class="af"/><circle cx="125" cy="68" r="3" class="af"/><circle cx="170" cy="60" r="3" class="af"/><text x="6" y="99">y₀</text></svg>`,
   nb: { t: "Eulers metode",
     intro: "Eulers eksplisitte metode løser en ODE $y' = f(t, y)$ numerisk ved å følge stigningstallet fra hvert punkt et lite steg $h$ fremover. Den er enkel, men har lav orden: den globale feilen er $O(h)$, så det trengs korte steg for god nøyaktighet.",
     f: [["y_{n+1} = y_n + h\\,f(t_n, y_n)", "ett Euler-steg"]],

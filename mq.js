@@ -58,10 +58,57 @@ function mqOne(r, lv){
   }
   return mqMake(r, q, ans, near, lv >= 4);
 }
-const mqQs = cfg => { const r = mqRng(cfg.seed); return Array.from({ length: cfg.n }, () => mqOne(r, cfg.lvl)); };
+// ---------- quiz fra lærerverktøyet: spørsmål fra et Axle-fag eller lærerens egne (Fellesskap) ----------
+// cfg.src = «AX:KODE:0,2» (enheter i et fag) eller «CC:<id>» (et quiz-kurs). Tilfeldighetene (utvalg, tall i generatorene,
+// rekkefølgen på svarene) styres av seed, så alle i rommet får nøyaktig de samme spørsmålene.
+const MQ_CC = {};   // quiz-kurs som er hentet: id → { title, questions }
+// Lærerens egne oppgavesett (supabase/laerer.sql): «LS:<id>». Kan hentes uten konto, så elever slipper å logge inn for å gjøre leksen.
+const MQ_LS = {};
+function lsItems(qs){ return qs.map((x, i) => { const id = "ls." + i;
+  if(x.t === "num"){ const n = +x.n, tp = +x.tol || 0; return { id, type: "num", prompt: x.q, n, tol: tp > 0 ? Math.abs(n) * tp / 100 : 1e-9, u: x.u || "", expl: x.e || "" }; }
+  const opts = x.t === "tf" ? [{ t: t("ccTrue"), ok: +x.a === 1 }, { t: t("ccFalse"), ok: +x.a === 0 }] : shuffle(x.o.map((o, k) => ({ t: o, ok: k === +x.a })));
+  return { id, type: "mc", prompt: x.q, opts, expl: x.e || "" }; }); }
+async function mqPrep(cfg){
+  if(cfg && cfg.src && /^LS:/.test(cfg.src)){ const id = cfg.src.slice(3); if(MQ_LS[id]) return true;
+    try{ const r = await sbFetch("/rest/v1/rpc/lekse_get", { method: "POST", body: JSON.stringify({ p_id: id }) }, AUTH ? await authToken() : null); if(!r || !r.questions) return false; MQ_LS[id] = { title: r.title, questions: r.questions }; return true; }catch(e){ return false; } }
+  if(!cfg || !cfg.src || !/^CC:/.test(cfg.src)) return true; const id = cfg.src.slice(3); if(MQ_CC[id]) return true;
+  try{ const c = await ccFetchQuestions(id); MQ_CC[id] = { title: c.title, questions: c.questions || [] }; return true; }catch(e){ return false; }
+}
+function mqSeeded(seed, fn){ const orig = Math.random; Math.random = mqRng(seed); try{ return fn(); } finally { Math.random = orig; } }
+function mqQuizItems(cfg, max){
+  const s = String(cfg.src), want = max || cfg.n;
+  return mqSeeded(cfg.seed, () => {
+    let items = [];
+    if(s.startsWith("CC:")) items = shuffle(ccItems(((MQ_CC[s.slice(3)] || {}).questions || []).filter(x => x.t !== "fc")));
+    else if(s.startsWith("LS:")) items = lsItems((MQ_LS[s.slice(3)] || {}).questions || []); // lærerens rekkefølge
+    else { const [, code, us] = s.split(":"), c = COURSES.find(x => x.code === code); if(!c) return [];
+      // fast tak på 60 kandidater, så utvalget (og rekkefølgen) er det samme uansett hvor mange spørsmål som spilles
+      const units = String(us || "0").split(",").map(Number).filter(u => c.units[u]), P = poolIds(c, units);
+      for(const id of shuffle([...P.mc, ...P.num, ...P.gen])){ if(items.length >= 60) break; try{ const it = itemFromId(c, id, { mc: true }); if(it) items.push(it); }catch(e){} } }
+    const out = [];
+    for(const it0 of items){ if(out.length >= want) break; const it = it0.type === "num" ? toMC(it0) : it0;
+      if(it.type !== "mc" || !it.opts || it.opts.length < 2 || String(it.prompt).length > 420) continue;
+      let o = it.opts; if(o.length > 4){ const ok = o.find(x => x.ok); o = shuffle([ok, ...o.filter(x => !x.ok).slice(0, 3)]); }
+      out.push({ q: it.prompt, o: o.map(x => x.t), k: o.findIndex(x => x.ok), a: (o.find(x => x.ok) || {}).t, rich: true, e: it.expl || "" }); }
+    return out;
+  });
+}
+const mqQs = cfg => { if(cfg.src) return mqQuizItems(cfg); const r = mqRng(cfg.seed); return Array.from({ length: cfg.n }, () => mqOne(r, cfg.lvl)); };
+// Navn på det som spilles: nivået i hoderegning, eller faget/quizen.
+function mqSrcName(cfg){
+  if(!cfg || !cfg.src) return mqLvName(cfg && cfg.lvl);
+  if(/^CC:/.test(cfg.src)){ const c = MQ_CC[cfg.src.slice(3)]; return c ? c.title : T("Quiz", "Quiz"); }
+  if(/^LS:/.test(cfg.src)){ const c = MQ_LS[cfg.src.slice(3)]; return c ? c.title : T("Lærerens oppgaver", "Teacher's problems"); }
+  const [, code, us] = cfg.src.split(":"), c = COURSES.find(x => x.code === code); if(!c) return T("Quiz", "Quiz");
+  const u = String(us || "").split(",").map(Number); return courseShort(c) + " · " + (u.length === 1 ? unitTitle(c, u[0]) : T(`${u.length} enheter`, `${u.length} units`));
+}
+const mqWord = cfg => cfg && cfg.src ? T("spørsmål", "questions") : T("stykker", "problems");
+const mqTitleOf = cfg => cfg && cfg.src ? T("Quiz", "Quiz") : T("Hoderegning", "Mental maths");
 const mqMult = streak => 1 + Math.min(5, Math.max(0, streak - 1)) / 10;
 const mqPoints = (ms, secs, streak) => Math.round((100 + 100 * (1 - Math.min(1, ms / (secs * 1000)))) * mqMult(streak));
-const mqKey = cfg => `${cfg.seed}.${cfg.lvl}.${cfg.n}.${cfg.secs}`;
+const mqKey = cfg => cfg.src ? `q${cfg.seed}.${cfg.n}.${cfg.secs}.${cfg.src}` : `${cfg.seed}.${cfg.lvl}.${cfg.n}.${cfg.secs}`;
+// Lenke til en quiz-utfordring: #/hoderegning/quiz/<kilde>/<seed>.<antall>.<sek>[.<poeng>.<navn>]
+const mqQuizPath = (cfg, score, name) => "quiz/" + encodeURIComponent(cfg.src) + "/" + [cfg.seed, cfg.n, cfg.secs].concat(score != null ? [score, encodeURIComponent(String(name || "").replace(/\./g, " ").slice(0, 24))] : []).join(".");
 const mqWeekKey = () => "w" + weekKeyOf(new Date());
 const mqLvName = lv => (MQ_LV().find(x => x[0] === lv) || [])[1] || "";
 
@@ -70,21 +117,27 @@ const mqLvName = lv => (MQ_LV().find(x => x[0] === lv) || [])[1] || "";
 function mqOpen(arg, from){
   MQ = { view: "menu", lvl: S.mqLvl || 2, n: S.mqN || 10, secs: S.mqSecs || 10, from: from || (screen !== "mq" ? screen : "home"), chal: null, live: null, board: null, joinCode: "" };
   const s = String(arg || "");
-  if(/^live\//i.test(s)){ MQ.joinCode = s.slice(5).toUpperCase().slice(0, 5); if(AUTH) setTimeout(() => mqLiveJoin(MQ.joinCode), 0); }
+  const qm = s.match(/^quiz\/([^/]+)\/(\d{1,10})\.(\d{1,2})\.(\d{1,2})(?:\.(\d+)\.?(.*))?$/);
+  if(qm){ const cfg = { seed: +qm[2], lvl: 0, n: Math.min(30, Math.max(3, +qm[3])), secs: Math.min(60, Math.max(3, +qm[4])), src: decodeURIComponent(qm[1]).slice(0, 80) };
+    MQ.chal = { cfg, score: qm[5] != null ? +qm[5] : null, name: decodeURIComponent(qm[6] || "").slice(0, 24) };
+    mqPrep(cfg).then(() => { if(MQ && screen === "mq") render(); }); }
+  else if(/^live\//i.test(s)){ MQ.joinCode = s.slice(5).toUpperCase().slice(0, 5); if(AUTH) setTimeout(() => mqLiveJoin(MQ.joinCode), 0); }
   else if(/^\d{1,10}\.[1-4]\.\d{1,2}\.\d{1,2}/.test(s)){
     const p = s.split("."), cfg = { seed: +p[0], lvl: +p[1], n: Math.min(30, Math.max(5, +p[2])), secs: Math.min(30, Math.max(3, +p[3])) };
     MQ.chal = { cfg, score: p[4] != null && /^\d+$/.test(p[4]) ? +p[4] : null, name: p.slice(5).join(".").slice(0, 24) };
   }
   screen = "mq"; render(); window.scrollTo(0, 0);
 }
-function mqStart(mode, cfg){
+async function mqStart(mode, cfg){
   clearInterval(MQ.tick);
-  Object.assign(MQ, { mode, cfg, qs: mqQs(cfg), i: 0, score: 0, ok: 0, streak: 0, bestStreak: 0, times: [], chosen: null, gained: 0, view: "count", goAt: Date.now() + 3000, board: null, result: null });
+  if(cfg.src && !(await mqPrep(cfg))){ toast(T("Fant ikke spørsmålene. Sjekk nettet og prøv igjen.", "Could not load the questions. Check your connection and try again.")); return; }
+  const qs = mqQs(cfg); if(!qs.length){ toast(T("Fant ingen spørsmål å spille.", "No questions to play.")); return; } cfg = Object.assign({}, cfg, { n: qs.length });
+  Object.assign(MQ, { mode, cfg, qs, i: 0, score: 0, ok: 0, streak: 0, bestStreak: 0, times: [], chosen: null, gained: 0, view: "count", goAt: Date.now() + 3000, board: null, result: null });
   MQ.tick = setInterval(mqTick, 100); render(); if(typeof stEv === "function") stEv("mq", mode, "lv" + cfg.lvl);
 }
 function mqShow(i){ MQ.i = i; MQ.chosen = null; MQ.gained = 0; MQ.qStart = Date.now(); MQ.view = "q"; render(); }
 function mqAnswer(idx){
-  if(!MQ || MQ.view !== "q" || MQ.chosen != null) return;
+  if(!MQ || MQ.view !== "q" || MQ.chosen != null || mqTeach()) return;
   const q = MQ.qs[MQ.i], ms = Date.now() - MQ.qStart; if(ms > MQ.cfg.secs * 1000 + 300) return;
   MQ.chosen = idx;
   if(idx === q.k){ MQ.streak++; MQ.bestStreak = Math.max(MQ.bestStreak, MQ.streak); MQ.ok++; MQ.gained = mqPoints(ms, MQ.cfg.secs, MQ.streak); MQ.times.push(ms); sfx("ok"); }
@@ -109,7 +162,7 @@ function mqBar(left){
 function mqFinish(){
   clearInterval(MQ.tick); MQ.view = "end";
   const key = MQ.mode === "week" ? mqWeekKey() : mqKey(MQ.cfg), bk = MQ.cfg.lvl + "." + MQ.cfg.n;
-  S.mqBest ||= {}; MQ.newBest = MQ.score > (S.mqBest[bk] || 0); if(MQ.newBest) S.mqBest[bk] = MQ.score;
+  S.mqBest ||= {}; MQ.newBest = !MQ.cfg.src && MQ.score > (S.mqBest[bk] || 0); if(MQ.newBest) S.mqBest[bk] = MQ.score;
   if(MQ.mode === "week"){ const w = S.mqWeek && S.mqWeek.key === key ? S.mqWeek : { key, best: 0, n: 0 }; w.n++; w.best = Math.max(w.best, MQ.score); S.mqWeek = w; }
   const st = awardXP(Math.max(1, MQ.ok)); save(); render();
   setTimeout(() => (MQ.newBest && MQ.score > 0) || (MQ.chal && MQ.chal.score != null && MQ.score > MQ.chal.score) ? confetti("level") : sfx("complete"), 200);
@@ -138,8 +191,8 @@ async function mqBoard(key){
   if(MQ === m && screen === "mq") render();
 }
 function mqShare(){
-  const c = MQ.cfg, url = location.origin + location.pathname + "#/" + rtW("mq") + "/" + [c.seed, c.lvl, c.n, c.secs, MQ.score, encodeURIComponent((S.name || "").replace(/\./g, " ").slice(0, 24))].join(".");
-  const txt = T(`Jeg fikk ${mqF(MQ.score)} poeng i hoderegning (${mqLvName(c.lvl).toLowerCase()}) på Axle. Klarer du å slå meg? 🧮`, `I scored ${mqF(MQ.score)} in mental maths (${mqLvName(c.lvl).toLowerCase()}) on Axle. Can you beat me? 🧮`);
+  const c = MQ.cfg, url = location.origin + location.pathname + "#/" + rtW("mq") + "/" + (c.src ? mqQuizPath(c, MQ.score, S.name) : [c.seed, c.lvl, c.n, c.secs, MQ.score, encodeURIComponent((S.name || "").replace(/\./g, " ").slice(0, 24))].join("."));
+  const txt = c.src ? T(`Jeg fikk ${mqF(MQ.score)} poeng på quizen «${mqSrcName(c)}» på Axle. Klarer du mer? 🎯`, `I scored ${mqF(MQ.score)} on the quiz "${mqSrcName(c)}" on Axle. Can you beat it? 🎯`) : T(`Jeg fikk ${mqF(MQ.score)} poeng i hoderegning (${mqLvName(c.lvl).toLowerCase()}) på Axle. Klarer du å slå meg? 🧮`, `I scored ${mqF(MQ.score)} in mental maths (${mqLvName(c.lvl).toLowerCase()}) on Axle. Can you beat me? 🧮`);
   if(navigator.share) navigator.share({ title: "Axle", text: txt, url }).catch(() => {});
   else navigator.clipboard?.writeText(txt + " " + url).then(() => toast(T("Lenken er kopiert – send den til en venn!", "Link copied – send it to a friend!")), () => toast(url));
 }
@@ -168,7 +221,7 @@ async function mqLiveJoin(code){
   if(code.length !== 5){ MQ.err = T("Koden har 5 tegn.", "The code has 5 characters."); render(); return; }
   if(!AUTH){ MQ.err = mqErr({ kind: "auth" }); render(); return; }
   MQ.busy = true; MQ.err = null; render();
-  try{ const r = await frRpc("mq_join", { p_code: code, p_name: S.name || "", p_av: S.avatar || null }); MQ.busy = false; MQ.view = "lobby"; MQ.cfg = r.cfg; mqLiveApply(r); render(); mqPoll(800); }
+  try{ const r = await frRpc("mq_join", { p_code: code, p_name: S.name || "", p_av: S.avatar || null }); await mqPrep(r.cfg); MQ.busy = false; MQ.view = "lobby"; MQ.cfg = r.cfg; mqLiveApply(r); render(); mqPoll(800); }
   catch(e){ MQ.busy = false; MQ.err = mqErr(e); render(); }
 }
 function mqPoll(ms){ clearTimeout(MQ.pollT); const m = MQ; m.pollT = setTimeout(async () => {
@@ -192,21 +245,23 @@ function mqLiveTick(){
   else if(MQ.view !== "rev" || MQ.i !== idx){ MQ.i = idx; if(MQ.chosen == null){ MQ.streak = 0; MQ.gained = 0; } MQ.view = "rev"; MQ.dirty = true; mqPoll(100); render(); }
 }
 // Alle spillere sortert etter poeng. Min egen poengsum er alltid den lokale (nyest).
-function mqRanked(){ return (MQ.live && MQ.live.players || []).map(p => p.me ? Object.assign({}, p, { st: mqLiveState() }) : p).sort((a, b) => ((b.st || {}).s || 0) - ((a.st || {}).s || 0)); }
-function mqAnsweredTxt(){ const ps = (MQ.live && MQ.live.players) || [], n = ps.filter(p => p.me ? MQ.chosen != null : ((p.st || {}).a ?? -1) >= MQ.i).length; return T(`${n} av ${ps.length} har svart`, `${n} of ${ps.length} answered`); }
+const mqTeach = () => !!(MQ && MQ.cfg && MQ.cfg.src && MQ.live && MQ.live.isHost); // læreren viser quizen på tavla og spiller ikke selv
+function mqRanked(){ return (MQ.live && MQ.live.players || []).filter(p => !(MQ.cfg && MQ.cfg.src && p.host)).map(p => p.me ? Object.assign({}, p, { st: mqLiveState() }) : p).sort((a, b) => ((b.st || {}).s || 0) - ((a.st || {}).s || 0)); }
+function mqAnsweredTxt(){ const ps = ((MQ.live && MQ.live.players) || []).filter(p => !(MQ.cfg && MQ.cfg.src && p.host)), n = ps.filter(p => p.me ? MQ.chosen != null : ((p.st || {}).a ?? -1) >= MQ.i).length; return T(`${n} av ${ps.length} har svart`, `${n} of ${ps.length} answered`); }
 function mqLeave(){
   if(MQ){ clearInterval(MQ.tick); clearTimeout(MQ.pollT); if(MQ.live && MQ.view === "lobby") frRpc("mq_leave", { p_code: MQ.live.code }).catch(() => {}); }
   const back = (MQ && MQ.from) || "home"; MQ = null; screen = back === "mq" ? "home" : back; render();
 }
+const mqRoomUrl = () => location.origin + location.pathname + "#/" + rtW("mq") + "/live/" + MQ.live.code;
 function mqShareRoom(){
-  const url = location.origin + location.pathname + "#/" + rtW("mq") + "/live/" + MQ.live.code, txt = T(`Bli med på hoderegning live på Axle! Kode: ${MQ.live.code}`, `Join live mental maths on Axle! Code: ${MQ.live.code}`);
+  const url = mqRoomUrl(), txt = T(`Bli med på hoderegning live på Axle! Kode: ${MQ.live.code}`, `Join live mental maths on Axle! Code: ${MQ.live.code}`);
   if(navigator.share) navigator.share({ title: "Axle", text: txt, url }).catch(() => {});
   else navigator.clipboard?.writeText(url).then(() => toast(T("Lenken er kopiert!", "Link copied!")), () => toast(url));
 }
 
 // ---------- tegning ----------
 const mqAv = (p, i, size) => p.me ? (meAvHTML(size, "fr-avs") || frAvatar(S.name || "?", 0, null, size)) : frAvatar(p.name || "?", i + 1, p.av, size);
-const mqTop = (sub, title) => `<div class="top mq-top"><div class="wrap"><button class="iconbtn" data-a="mqback" aria-label="${esc(t("back"))}">${I.x}</button><div class="th-t"><small>${esc(sub)}</small><b>${esc(title)}</b></div>${MQ && MQ.qs && ["q", "rev"].includes(MQ.view) ? `<span class="mq-sc">${mqF(MQ.score)}</span>` : ""}</div></div>`;
+const mqTop = (sub, title) => `<div class="top mq-top"><div class="wrap"><button class="iconbtn" data-a="mqback" aria-label="${esc(t("back"))}">${I.x}</button><div class="th-t"><small>${esc(sub)}</small><b>${esc(title)}</b></div>${MQ && MQ.qs && ["q", "rev"].includes(MQ.view) && !mqTeach() ? `<span class="mq-sc">${mqF(MQ.score)}</span>` : ""}</div></div>`;
 function mqBoardHTML(b, title){
   if(!b) return "";
   if(b.err) return `<p class="mq-note">${esc(b.err)}</p>`;
@@ -215,13 +270,15 @@ function mqBoardHTML(b, title){
   return `<section class="mq-board"><h3>🏆 ${esc(title || T("Toppliste", "Leaderboard"))}</h3>${b.rows.map((r, i) => `<div class="mq-brow ${r.me ? "me" : ""}"><span class="mq-pos">${r.pos <= 3 ? ["🥇", "🥈", "🥉"][r.pos - 1] : r.pos}</span>${frAvatar(r.name || "?", i, r.av, 30)}<b>${esc(r.name || T("Anonym", "Anonymous"))}${r.friend ? ` <small>${esc(T("venn", "friend"))}</small>` : ""}${r.me ? ` <small>${esc(T("deg", "you"))}</small>` : ""}</b><span class="mq-bs">${mqF(r.score)}</span></div>`).join("")}</section>`;
 }
 function mqTiles(q, rev){
-  return `<div class="mq-tiles ${rev ? "rev" : ""} ${MQ.chosen != null && !rev ? "sent" : ""}">${q.o.map((v, i) => {
+  return `<div class="mq-tiles ${q.rich ? "quiz" : ""} ${rev ? "rev" : ""} ${MQ.chosen != null && !rev ? "sent" : ""}">${q.o.map((v, i) => {
+    if(mqTeach()) return `<div class="mq-tile ${rev ? (i === q.k ? "ok" : "dim") : ""}" style="--c:${MQ_COL[i]}"><kbd class="mq-key" aria-hidden="true">${i + 1}</kbd><b>${q.rich ? richBig(v) : mqN(v)}</b>${rev && i === q.k ? `<span class="mq-ck" aria-hidden="true">✓</span>` : ""}</div>`;
     const st = rev ? (i === q.k ? "ok" : i === MQ.chosen ? "bad" : "dim") : MQ.chosen != null ? (i === MQ.chosen ? "pick" : "dim") : "";
-    return `<button class="mq-tile ${st}" style="--c:${MQ_COL[i]}" data-a="mqans" data-i="${i}" ${rev || MQ.chosen != null ? "disabled" : ""} aria-label="${esc(mqN(v))}"><kbd class="mq-key" aria-hidden="true">${i + 1}</kbd><b>${mqN(v)}</b>${rev && i === q.k ? `<span class="mq-ck" aria-hidden="true">✓</span>` : ""}</button>`; }).join("")}</div>`;
+    return `<button class="mq-tile ${st}" style="--c:${MQ_COL[i]}" data-a="mqans" data-i="${i}" ${rev || MQ.chosen != null ? "disabled" : ""} aria-label="${esc(q.rich ? plain(v) : mqN(v))}"><kbd class="mq-key" aria-hidden="true">${i + 1}</kbd><b>${q.rich ? richBig(v) : mqN(v)}</b>${rev && i === q.k ? `<span class="mq-ck" aria-hidden="true">✓</span>` : ""}</button>`; }).join("")}</div>`;
 }
 function mqResultBanner(q){
+  if(mqTeach()) return `<div class="mq-res ok pop"><b>${esc(T("Riktig svar", "Correct answer"))}</b><span>${richBig(q.a)}</span></div>`;
   const ok = MQ.chosen === q.k;
-  return `<div class="mq-res ${ok ? "ok" : "bad"} pop"><b>${ok ? T("Riktig!", "Correct!") : MQ.chosen == null || MQ.chosen < 0 ? T("For sent!", "Too late!") : T("Feil", "Wrong")}</b>${ok ? `<span>+${mqF(MQ.gained)}</span>${MQ.streak > 1 ? `<span class="mq-fire">⚡×${String(mqMult(MQ.streak)).replace(".", LANG === "en" ? "." : ",")} · ${MQ.streak} ${esc(T("på rad", "in a row"))}</span>` : ""}` : `<span>${esc(T("Svaret er", "The answer is"))} ${mqN(q.a)}</span>`}</div>`;
+  return `<div class="mq-res ${ok ? "ok" : "bad"} pop"><b>${ok ? T("Riktig!", "Correct!") : MQ.chosen == null || MQ.chosen < 0 ? T("For sent!", "Too late!") : T("Feil", "Wrong")}</b>${ok ? `<span>+${mqF(MQ.gained)}</span>${MQ.streak > 1 ? `<span class="mq-fire">⚡×${String(mqMult(MQ.streak)).replace(".", LANG === "en" ? "." : ",")} · ${MQ.streak} ${esc(T("på rad", "in a row"))}</span>` : ""}` : `<span>${esc(T("Svaret er", "The answer is"))} ${q.rich ? richBig(q.a) : mqN(q.a)}</span>`}</div>`;
 }
 function renderMq(){
   if(!MQ){ const a = MQ_PENDING; MQ_PENDING = null; mqOpen(a); return; }
@@ -230,7 +287,7 @@ function renderMq(){
     const wk = mqWeekKey(), my = S.mqWeek && S.mqWeek.key === wk ? S.mqWeek.best : 0, best = (S.mqBest || {})[MQ.lvl + "." + MQ.n] || 0, ch = MQ.chal;
     $app.innerHTML = `${mqTop(T("Spill", "Games"), T("Hoderegning", "Mental maths"))}<main class="wrap mq-menu">
       ${ch ? `<section class="mq-chal"><span class="mq-chic">⚔️</span><div><b>${esc(ch.score != null ? T(`${ch.name || "En venn"} utfordrer deg!`, `${ch.name || "A friend"} challenges you!`) : T("Du har fått en utfordring", "You got a challenge"))}</b>
-        <small>${esc(mqLvName(ch.cfg.lvl))} · ${ch.cfg.n} ${esc(T("stykker", "problems"))} · ${ch.cfg.secs} s${ch.score != null ? " · " + esc(T(`å slå: ${mqF(ch.score)} poeng`, `to beat: ${mqF(ch.score)} points`)) : ""}</small></div>
+        <small>${esc(mqSrcName(ch.cfg))} · ${ch.cfg.n} ${esc(mqWord(ch.cfg))} · ${ch.cfg.secs} s${ch.score != null ? " · " + esc(T(`å slå: ${mqF(ch.score)} poeng`, `to beat: ${mqF(ch.score)} points`)) : ""}</small></div>
         <button class="big" data-a="mqchal">${esc(T("Ta utfordringen", "Take the challenge"))}</button></section>` : ""}
       <section class="mq-hero"><div class="mq-hq" aria-hidden="true"><span>7 × 8</span><i>=</i><span>?</span></div><h2>${esc(T("Regn i hodet – kjappest vinner", "Calculate in your head – fastest wins"))}</h2>
         <p>${esc(T("Velg blant fire svar – med fingeren eller tastene 1–4. Riktig svar gir 100 lynpoeng pluss inntil 100 for fart, og svar på rad gir lynfaktor opptil ×1,5.", "Pick one of four answers – tap or press 1–4. A correct answer gives 100 lightning points plus up to 100 for speed, and answers in a row give a multiplier up to ×1.5."))}</p></section>
@@ -253,29 +310,35 @@ function renderMq(){
   }
   if(v === "lobby"){
     const L = MQ.live, ps = L.players || [];
-    $app.innerHTML = `${mqTop(T("Live", "Live"), T("Hoderegning", "Mental maths"))}<main class="wrap mq-lobby">
-      <p class="du-k">${esc(T("Koden til rommet", "Room code"))}</p><div class="du-code">${esc(L.code)}</div>
-      <p class="mq-cfg">${esc(mqLvName(MQ.cfg.lvl))} · ${MQ.cfg.n} ${esc(T("stykker", "problems"))} · ${MQ.cfg.secs} s</p>
+    const quiz = !!MQ.cfg.src, pl = quiz ? ps.filter(p => !p.host) : ps;
+    $app.innerHTML = `${mqTop(T("Live", "Live"), mqTitleOf(MQ.cfg))}<main class="wrap mq-lobby ${mqTeach() ? "teach" : ""}">
+      ${mqTeach() ? `<div class="mq-join"><div><p class="du-k">${esc(T("Gå til", "Go to"))} <b>${esc(location.host + location.pathname.replace(/\/$/, ""))}</b> → ${esc(T("Spill → Hoderegning", "Games → Mental maths"))} ${esc(T("og skriv koden", "and type the code"))}</p><div class="du-code">${esc(L.code)}</div>
+        <p class="mq-cfg">${esc(mqSrcName(MQ.cfg))} · ${MQ.cfg.n} ${esc(mqWord(MQ.cfg))} · ${MQ.cfg.secs} s</p></div><div class="qr mq-qr" data-qr="${esc(mqRoomUrl())}" aria-label="${esc(T("QR-kode til rommet", "QR code for the room"))}"></div></div>
+        <p class="mq-note">${esc(T("Eller skann QR-koden med mobilkameraet. Elevene trenger en gratis konto for å bli med.", "Or scan the QR code with the phone camera. Students need a free account to join."))}</p>`
+      : `<p class="du-k">${esc(T("Koden til rommet", "Room code"))}</p><div class="du-code">${esc(L.code)}</div>
+      <p class="mq-cfg">${esc(mqSrcName(MQ.cfg))} · ${MQ.cfg.n} ${esc(mqWord(MQ.cfg))} · ${MQ.cfg.secs} s</p>`}
       <button class="big ghost" data-a="mqshareroom">${esc(T("Del lenke til rommet", "Share a link to the room"))}</button>
-      <h3 class="mq-h">${esc(T(`Spillere (${ps.length})`, `Players (${ps.length})`))}</h3>
-      <div class="mq-pl">${ps.map((p, i) => `<span class="mq-p ${p.me ? "me" : ""}">${mqAv(p, i, 34)}<b>${esc(p.me ? T("Deg", "You") : p.name || "?")}</b>${p.host ? `<small>${esc(T("vert", "host"))}</small>` : ""}</span>`).join("")}</div>
-      ${L.isHost ? `<button class="big mq-go" data-a="mqlstart">${esc(ps.length > 1 ? T("Start spillet!", "Start the game!") : T("Start (vent gjerne på flere)", "Start (or wait for more)"))}</button>` : `<p class="du-wt"><span class="du-dots"><i></i><i></i><i></i></span> ${esc(T("Venter på at verten starter …", "Waiting for the host to start …"))}</p>`}
+      <h3 class="mq-h">${esc(quiz ? T(`Elever (${pl.length})`, `Students (${pl.length})`) : T(`Spillere (${ps.length})`, `Players (${ps.length})`))}</h3>
+      <div class="mq-pl">${pl.map((p, i) => `<span class="mq-p ${p.me ? "me" : ""}">${mqAv(p, i, 34)}<b>${esc(p.me ? T("Deg", "You") : p.name || "?")}</b>${p.host ? `<small>${esc(T("vert", "host"))}</small>` : ""}</span>`).join("")}</div>
+      ${L.isHost ? `<button class="big mq-go" data-a="mqlstart">${esc(quiz ? (pl.length ? T("Start quizen!", "Start the quiz!") : T("Start (venter på elever)", "Start (waiting for students)")) : ps.length > 1 ? T("Start spillet!", "Start the game!") : T("Start (vent gjerne på flere)", "Start (or wait for more)"))}</button>` : `<p class="du-wt"><span class="du-dots"><i></i><i></i><i></i></span> ${esc(T("Venter på at verten starter …", "Waiting for the host to start …"))}</p>`}
     </main>`;
+    qrFill();
     return;
   }
   if(v === "count"){
     const n = MQ.mode === "live" ? Math.max(1, Math.ceil((MQ.live.startAt - Date.now()) / 1000)) : Math.max(1, Math.ceil((MQ.goAt - Date.now()) / 1000));
-    $app.innerHTML = `${mqTop(mqLvName(MQ.cfg.lvl), T("Hoderegning", "Mental maths"))}<main class="wrap mq-count"><div class="du-count pop" id="mqcount">${n}</div><p>${esc(T("Gjør deg klar!", "Get ready!"))}</p><small>${esc(T("Tips: trykk 1–4 på tastaturet", "Tip: press 1–4 on the keyboard"))}</small></main>`;
+    $app.innerHTML = `${mqTop(mqSrcName(MQ.cfg), mqTitleOf(MQ.cfg))}<main class="wrap mq-count"><div class="du-count pop" id="mqcount">${n}</div><p>${esc(T("Gjør deg klar!", "Get ready!"))}</p>${mqTeach() ? "" : `<small>${esc(T("Tips: trykk 1–4 på tastaturet", "Tip: press 1–4 on the keyboard"))}</small>`}</main>`;
     return;
   }
   if(v === "q" || v === "rev"){
     const q = MQ.qs[MQ.i], rev = v === "rev", live = MQ.mode === "live";
     const ranked = live && rev ? mqRanked() : null, myPos = ranked ? ranked.findIndex(p => p.me) : -1;
-    $app.innerHTML = `${mqTop(`${MQ.i + 1} / ${MQ.qs.length}`, T("Hoderegning", "Mental maths"))}<main class="wrap mq-play">
-      <div class="mq-qc"><div class="mq-q">${esc(q.q)} <i>= ?</i></div>${!rev ? `<div class="mq-timer"><span id="mqsec">${MQ.cfg.secs}</span><div class="mq-bar"><i id="mqbar"></i></div></div>` : mqResultBanner(q)}</div>
+    $app.innerHTML = `${mqTop(`${MQ.i + 1} / ${MQ.qs.length}`, mqTitleOf(MQ.cfg))}<main class="wrap mq-play">
+      <div class="mq-qc ${q.rich ? "quiz" : ""}"><div class="mq-q">${q.rich ? richBig(q.q) : `${esc(q.q)} <i>= ?</i>`}</div>${!rev ? `<div class="mq-timer"><span id="mqsec">${MQ.cfg.secs}</span><div class="mq-bar"><i id="mqbar"></i></div></div>` : mqResultBanner(q)}</div>
       ${mqTiles(q, rev)}
-      ${live && !rev ? `<p class="mq-wait" id="mqans">${esc(mqAnsweredTxt())}</p>${MQ.chosen != null ? `<p class="mq-sent">${esc(T("Svar sendt! Venter på de andre …", "Answer sent! Waiting for the others …"))}</p>` : ""}` : ""}
-      ${ranked ? `<section class="mq-board mq-live-b"><h3>${esc(T(`Du er nr. ${myPos + 1} av ${ranked.length}`, `You are #${myPos + 1} of ${ranked.length}`))}</h3>${ranked.slice(0, 5).map((p, i) => `<div class="mq-brow ${p.me ? "me" : ""}"><span class="mq-pos">${i + 1}</span>${mqAv(p, i, 30)}<b>${esc(p.me ? T("Deg", "You") : p.name || "?")}${(p.st || {}).r > 1 ? ` <small>🔥${p.st.r}</small>` : ""}</b><span class="mq-bs">${mqF((p.st || {}).s || 0)}</span></div>`).join("")}</section>` : ""}
+      ${rev && q.rich && q.e ? `<div class="mq-expl">${rich(q.e)}</div>` : ""}
+      ${live && !rev ? `<p class="mq-wait" id="mqans">${esc(mqAnsweredTxt())}</p>${MQ.chosen != null && !mqTeach() ? `<p class="mq-sent">${esc(T("Svar sendt! Venter på de andre …", "Answer sent! Waiting for the others …"))}</p>` : ""}` : ""}
+      ${ranked ? `<section class="mq-board mq-live-b"><h3>${esc(mqTeach() ? T("Toppliste", "Leaderboard") : T(`Du er nr. ${myPos + 1} av ${ranked.length}`, `You are #${myPos + 1} of ${ranked.length}`))}</h3>${ranked.slice(0, 5).map((p, i) => `<div class="mq-brow ${p.me ? "me" : ""}"><span class="mq-pos">${i + 1}</span>${mqAv(p, i, 30)}<b>${esc(p.me ? T("Deg", "You") : p.name || "?")}${(p.st || {}).r > 1 ? ` <small>🔥${p.st.r}</small>` : ""}</b><span class="mq-bs">${mqF((p.st || {}).s || 0)}</span></div>`).join("")}</section>` : ""}
       ${!live && rev ? `<button class="big ghost mq-next" data-a="mqnext">${esc(T("Neste", "Next"))} →</button>` : ""}
     </main>`;
     if(!rev) mqBar(MQ.cfg.secs * 1000 - (Date.now() - MQ.qStart));
@@ -285,8 +348,8 @@ function renderMq(){
     const r = mqRanked(), me = r.findIndex(p => p.me), top = [r[1], r[0], r[2]], an = !MQ.podDrawn; MQ.podDrawn = true;
     $app.innerHTML = `${mqTop(T("Live", "Live"), T("Resultat", "Results"))}<main class="wrap mq-end">
       <div class="mq-pod ${an ? "anim" : ""}">${top.map((p, j) => p ? `<div class="mq-pc p${[2, 1, 3][j]} ${p.me ? "me" : ""}">${mqAv(p, j, j === 1 ? 64 : 50)}<b>${esc(p.me ? T("Deg", "You") : p.name || "?")}</b><span>${mqF((p.st || {}).s || 0)}</span><div class="mq-pb">${[2, 1, 3][j]}</div></div>` : `<div class="mq-pc empty"></div>`).join("")}</div>
-      <h2>${esc(me === 0 ? T("Du vant! 🏆", "You won! 🏆") : T(`Du ble nr. ${me + 1}`, `You came #${me + 1}`))}</h2>
-      <p class="mq-stat">${esc(T(`${MQ.ok} av ${MQ.cfg.n} riktige · ${mqF(MQ.score)} poeng · lengste rekke ${MQ.bestStreak}`, `${MQ.ok} of ${MQ.cfg.n} correct · ${mqF(MQ.score)} points · longest streak ${MQ.bestStreak}`))}</p>
+      <h2>${esc(mqTeach() ? T("Gratulerer til alle! 🎉", "Well done, everyone! 🎉") : me === 0 ? T("Du vant! 🏆", "You won! 🏆") : T(`Du ble nr. ${me + 1}`, `You came #${me + 1}`))}</h2>
+      ${mqTeach() ? "" : `<p class="mq-stat">${esc(T(`${MQ.ok} av ${MQ.cfg.n} riktige · ${mqF(MQ.score)} poeng · lengste rekke ${MQ.bestStreak}`, `${MQ.ok} of ${MQ.cfg.n} correct · ${mqF(MQ.score)} points · longest streak ${MQ.bestStreak}`))}</p>`}
       ${r.length > 3 ? `<section class="mq-board">${r.slice(3).map((p, i) => `<div class="mq-brow ${p.me ? "me" : ""}"><span class="mq-pos">${i + 4}</span>${mqAv(p, i + 3, 30)}<b>${esc(p.me ? T("Deg", "You") : p.name || "?")}</b><span class="mq-bs">${mqF((p.st || {}).s || 0)}</span></div>`).join("")}</section>` : ""}
       <button class="big" data-a="mqmenu">${esc(T("Spill igjen", "Play again"))}</button></main>`;
     return;
@@ -294,7 +357,7 @@ function renderMq(){
   if(v === "end"){
     const ch = MQ.mode === "chal" && MQ.chal && MQ.chal.score != null ? MQ.chal : null, avg = MQ.times.length ? MQ.times.reduce((a, b) => a + b, 0) / MQ.times.length / 1000 : 0;
     const won = ch && MQ.score > ch.score, tie = ch && MQ.score === ch.score;
-    $app.innerHTML = `${mqTop(mqLvName(MQ.cfg.lvl), MQ.mode === "week" ? T("Ukens hoderegning", "This week's mental maths") : T("Hoderegning", "Mental maths"))}<main class="wrap mq-end">
+    $app.innerHTML = `${mqTop(mqSrcName(MQ.cfg), MQ.mode === "week" ? T("Ukens hoderegning", "This week's mental maths") : mqTitleOf(MQ.cfg))}<main class="wrap mq-end">
       <div class="mq-big">${mqF(MQ.score)}<small>${esc(T("poeng", "points"))}</small></div>
       ${MQ.newBest && MQ.score > 0 ? `<p class="mq-rec">🏆 ${esc(T("Ny rekord!", "New record!"))}</p>` : ""}
       <div class="mq-stats"><span><b>${MQ.ok}/${MQ.cfg.n}</b><small>${esc(T("riktige", "correct"))}</small></span><span><b>${avg ? avg.toFixed(1).replace(".", LANG === "en" ? "." : ",") + " s" : "–"}</b><small>${esc(T("snittid", "avg. time"))}</small></span><span><b>🔥 ${MQ.bestStreak}</b><small>${esc(T("lengste rekke", "best streak"))}</small></span></div>

@@ -7,7 +7,7 @@ const O = (t, intro, f, legend, ex, tip) => ({ t, intro, f, legend, ex, tip });
 // ---------- MAPE1300 4: Arbeid, energi og impuls ----------
 TOPICS("MAPE1300", 4, [
 { id: "arbeid",
-  fig: `<svg viewBox="0 0 240 140"><path d="M20 110H220" class="d"/><rect x="60" y="80" width="40" height="30" class="fill"/><path d="M100 95L170 60" class="a"/><path d="M170 60l-14 1 6 11z" class="af"/><path d="M130 95H175" class="dash"/><path d="M60 125H180M60 119v12M180 119v12" class="dim"/><text x="176" y="56">F</text><text x="120" y="102">θ</text><text x="115" y="135">s</text></svg>`,
+  fig: `<svg viewBox="0 0 240 140"><path d="M20 110H220" class="d"/><rect x="60" y="80" width="40" height="30" class="fill"/><path d="M100 95L170 60" class="a"/><path d="M170 60l-14 1 6 11z" class="af"/><path d="M130 95H175" class="dash"/><path d="M60 120H180M60 115v10M180 115v10" class="dim"/><text x="176" y="56">F</text><text x="120" y="102">θ</text><text x="116" y="138">s</text></svg>`,
   nb: O("Arbeid", "Arbeid er energi som overføres når en kraft flytter noe. Bare kraftkomponenten langs bevegelsen gjør arbeid. En kraft vinkelrett på bevegelsen, som normalkraften på et flatt gulv, gjør ikke noe arbeid.",
     [[R`W = F\,s\cos\theta`, "arbeid fra en konstant kraft"], [R`P = \frac{W}{t} = F\,v`, "effekt er arbeid per tid"]],
     [["W", "arbeid", "J"], ["F", "kraft", "N"], ["s", "strekning", "m"], [R`\theta`, "vinkel mellom kraft og bevegelse", "°"], ["P", "effekt", "W"]],
@@ -460,12 +460,13 @@ TOPICS("GMAT", 8, [
 { id: "gjennomsnitt-median", sim: "meanmed",
   // Fem venner med 2, 3, 3, 4 og 8 hundrelapper: gjennomsnittet er nivået om alt fordeles likt, medianen er den midterste søylen.
   art: () => { const v = [2, 3, 3, 4, 8], X = i => 30 + i * 40, Y = n => 118 - n * 12, en = LANG === "en";
-    const bars = v.map((n, i) => `<rect x="${X(i)}" y="${Y(n)}" width="28" height="${n * 12}" rx="4" style="fill:${i === 2 ? "var(--gold)" : "var(--accent)"};opacity:${i === 2 ? 1 : .8}"/><text x="${X(i) + 14}" y="${Y(n) - 5}" text-anchor="middle" style="font:700 12px var(--body);fill:var(--ink)">${n}</text>`).join("");
-    return `<svg viewBox="0 0 320 150" role="img" aria-label="${en ? "Mean as levelling out, median as the middle bar" : "Gjennomsnitt som utjevning, median som den midterste søylen"}">${bars}
-      <path d="M22 ${Y(4)}H222" style="stroke:var(--ok);stroke-width:2.5;stroke-dasharray:6 4"/><text x="226" y="${Y(4) + 4}" style="font:700 12px var(--body);fill:var(--ok)">${en ? "mean = 4" : "gjennomsnitt = 4"}</text>
-      <text x="226" y="${Y(4) + 18}" style="font:500 11px var(--body);fill:var(--muted)">${en ? "(if shared equally)" : "(om alt deles likt)"}</text>
-      <text x="${X(2) + 14}" y="136" text-anchor="middle" style="font:700 12px var(--body);fill:var(--gold-deep)">${en ? "median = 3" : "median = 3"}</text>
-      <path d="M22 118H222" style="stroke:var(--muted);stroke-width:1.5"/></svg>`; },
+    // tallene står inne i søylene, så den stiplede gjennomsnittslinjen aldri krysser tekst
+    const bars = v.map((n, i) => `<rect x="${X(i)}" y="${Y(n)}" width="28" height="${n * 12}" rx="4" style="fill:${i === 2 ? "var(--gold)" : "var(--accent)"};opacity:${i === 2 ? 1 : .85}"/><text x="${X(i) + 14}" y="112" text-anchor="middle" style="font:800 12px var(--body);fill:#fff">${n}</text>`).join("");
+    return `<svg viewBox="0 0 344 150" role="img" aria-label="${en ? "Mean as levelling out, median as the middle bar" : "Gjennomsnitt som utjevning, median som den midterste søylen"}">${bars}
+      <path d="M22 ${Y(4)}H222" style="fill:none;stroke:var(--ok);stroke-width:2.5;stroke-dasharray:6 4"/><text x="228" y="${Y(4) + 4}" style="font:700 12px var(--body);fill:var(--ok)">${en ? "mean = 4" : "gjennomsnitt = 4"}</text>
+      <text x="228" y="${Y(4) + 18}" style="font:500 11px var(--body);fill:var(--muted)">${en ? "(if shared equally)" : "(om alt deles likt)"}</text>
+      <text x="${X(2) + 14}" y="136" text-anchor="middle" style="font:700 12px var(--body);fill:var(--gold-deep)">median = 3</text>
+      <path d="M22 118H222" style="fill:none;stroke:var(--muted);stroke-width:1.5"/></svg>`; },
   nb: O("Gjennomsnitt og median", "Gjennomsnitt og median er to måter å si hva som er «vanlig» i en samling tall. Gjennomsnittet er det alle ville fått om alt ble delt likt: legg sammen og del på hvor mange det er. Medianen er tallet i midten når du stiller tallene opp fra minst til størst. Én som har veldig mye, drar gjennomsnittet opp – medianen bryr seg nesten ikke.",
     [[R`\bar x = \frac{\text{summen av tallene}}{\text{antall tall}} = \frac{1}{n}\sum_{i=1}^{n} x_i`, "gjennomsnitt"], [R`\text{median} = \text{det midterste tallet i sortert rekkefølge}`, "ved et partall antall: snittet av de to midterste"]],
     [[R`\bar x`, "gjennomsnitt (les: «x strek»)", ""], ["n", "antall tall", ""]],
@@ -530,7 +531,7 @@ $10\lg(2\cdot 10^8) \approx 83$ dB, ikke 160 dB.`, "Desibel kan ikke legges samm
     R`Two identical machines at 80 dB each:
 $10\lg(2\cdot 10^8) \approx 83$ dB, not 160 dB.`, "Decibels cannot be added directly. Convert to intensity first.") },
 { id: "brytning",
-  fig: `<svg viewBox="0 0 240 140"><path d="M20 70H220" class="d"/><path d="M120 15V125" class="dash"/><path d="M60 15L120 70" class="a"/><path d="M120 70L150 125" class="a"/><path d="M120 40a30 30 0 0 0-17-9" class="t"/><path d="M120 100a30 30 0 0 0 13 -5" class="t"/><text x="97" y="31">θ<tspan dy="4" font-size="10">1</tspan></text><text x="136" y="118">θ<tspan dy="4" font-size="10">2</tspan></text><text x="30" y="60">n<tspan dy="4" font-size="10">1</tspan></text><text x="30" y="92">n<tspan dy="4" font-size="10">2</tspan></text></svg>`,
+  fig: `<svg viewBox="0 0 240 140"><path d="M20 70H220" class="d"/><path d="M120 15V125" class="dash"/><path d="M60 15L120 70" class="a"/><path d="M120 70L150 125" class="a"/><path d="M120 40a30 30 0 0 0-17-9" class="t"/><path d="M120 100a30 30 0 0 0 13 -5" class="t"/><text x="90" y="22">θ<tspan dy="4" font-size="10">1</tspan></text><text x="150" y="100">θ<tspan dy="4" font-size="10">2</tspan></text><text x="30" y="60">n<tspan dy="4" font-size="10">1</tspan></text><text x="30" y="92">n<tspan dy="4" font-size="10">2</tspan></text></svg>`,
   nb: O("Brytning", "Når lys går fra ett stoff til et annet, endrer det fart og bøyer av. Brytningsindeksen n sier hvor mye saktere lyset går enn i vakuum. Går lyset inn i et tettere stoff, bøyer det mot normalen.",
     [[R`n_1\sin\theta_1 = n_2\sin\theta_2`, "Snells lov"], [R`n = \frac{c}{v}`, "brytningsindeks"]],
     [["n", "brytningsindeks", ""], [R`\theta`, "vinkel fra normalen", "°"], ["c", "lysfarten i vakuum", "m/s"]],

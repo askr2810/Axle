@@ -49,6 +49,14 @@ FL.beam = (o = {}) => {
     else { s += `<path d="M${flN(x)} ${yB + 6}l-12 20h24z" class="fl-sup"/>`;
       if(k === "roller") s += `<circle cx="${flN(x - 7)}" cy="${yB + 30}" r="3.6" class="fl-sup"/><circle cx="${flN(x + 7)}" cy="${yB + 30}" r="3.6" class="fl-sup"/><path d="M${flN(x - 18)} ${yB + 34}h36" class="fl-gnd"/>`;
       else s += `<path d="M${flN(x - 18)} ${yB + 26}h36" class="fl-gnd"/>` + Array.from({ length: 5 }, (_, i) => `<path d="M${flN(x - 16 + i * 8)} ${yB + 26}l-6 7" class="fl-gnd"/>`).join(""); } }
+  // reaksjonskrefter (o.react = { A: "A_y", B: "B_y", Ax: "A_x", MA: "M_A" }) – grønne piler ved oppleggene
+  if(o.react){ const R = o.react;
+    sup.forEach(([k, f], i) => { const x = X(f), lab = i ? R.B : R.A; if(!lab) return;
+      const dx = k === "fixed" ? (f < 0.5 ? 22 : -22) : 22;
+      s += flArrow(x + dx, yB + 56, x + dx, yB + 9, "fl-react", 9) + flT(x + dx + 6, yB + 50, lab, "fl-sym fl-rt", "start");
+      if(k === "fixed" && R.MA){ const cx = f < 0.5 ? X0 : X1, sg = f < 0.5 ? 1 : -1;
+        s += `<path d="M${flN(cx + sg * 30)} ${yB - 20}A30 30 0 0 ${f < 0.5 ? 0 : 1} ${flN(cx + sg * 30)} ${yB + 20}" class="fl-react"/>` + flArrow(cx + sg * 31, yB + 14, cx + sg * 30, yB + 21, "fl-react", 7) + flT(cx + sg * 38, yB - 22, R.MA, "fl-sym fl-rt", f < 0.5 ? "start" : "end"); } });
+    if(R.Ax){ const x = X(sup[0][1]); s += flArrow(x - 42, yB, x - 3, yB, "fl-react", 8) + flT(x - 26, yB - 9, R.Ax, "fl-sym fl-rt"); } }
   // punktlaster
   for(const p of loads){ const x = X(p.x); s += flArrow(x, yB - 58, x, yB - 7, "fl-load", 11) + flT(x + 8, yB - 46, p.label || "P", "fl-sym fl-lt", "start"); }
   // nedbøyd form (stiplet) – utkraget med last i enden, eller fritt opplagt
@@ -57,7 +65,7 @@ FL.beam = (o = {}) => {
     s += `<path d="${d}" class="fl-sig2" style="stroke-dasharray:6 4"/>`; const fe = cant ? 1 : 0.5, ye = yB + A;
     s += flArrow(X(fe) + (cant ? 14 : 0), yB + 8, X(fe) + (cant ? 14 : 0), ye + 2, "fl-react", 7) + flT(X(fe) + (cant ? 20 : 8), yB + 26, "δ", "fl-sym fl-rt", "start"); }
   // mål
-  const yD = yB + (o.deflect ? 62 : 50); s += flDim(X0, X1, yD, o.L || "L");
+  const yD = yB + (o.react ? 72 : o.deflect ? 62 : 50); s += flDim(X0, X1, yD, o.L || "L");
   (o.dims || []).forEach(([a, b, lab], i) => { s += flDim(X(a), X(b), yD + 22 + i * 0, lab); });
   let H = yD + ((o.dims || []).length ? 34 : 14);
   // skjær- og momentdiagram
@@ -160,7 +168,7 @@ FL.rc = (o = {}) => {
   if(type === "charge"){
     const P = FL.plot([[t => 1 - Math.exp(-t), "fl-sig2"]], [0, 5.6], [0, 1.15], [50, 22, 270, 140], { xl: "t", yl: "u_C" });
     let s = P.s + `<path d="M${P.X(0)} ${flN(P.Y(1))}H${flN(P.X(5.6))}" class="fl-dim" style="stroke-dasharray:5 4"/>` + flT(P.X(0) - 6, P.Y(1) + 4, "U", "fl-sym", "end");
-    [[1, "63 %"], [2, "86 %"], [3, "95 %"], [5, "99 %"]].forEach(([k, l]) => { const y = 1 - Math.exp(-k); s += `<path d="M${flN(P.X(k))} ${flN(P.Y(0))}V${flN(P.Y(y))}" class="fl-dim" style="stroke-dasharray:3 3"/><circle cx="${flN(P.X(k))}" cy="${flN(P.Y(y))}" r="3.5" class="fl-loadf"/>` + flT(P.X(k), P.Y(0) + 16, k === 1 ? "τ" : k + "τ", "fl-sym") + flT(P.X(k) + (k === 5 ? -4 : 6), P.Y(y) + (k === 1 ? 16 : -6), l, "fl-sm fl-lt", k === 5 ? "end" : "start"); });
+    [[1, "63 %"], [2, "86 %"], [3, "95 %"], [5, "99 %"]].forEach(([k, l]) => { const y = 1 - Math.exp(-k); s += `<path d="M${flN(P.X(k))} ${flN(P.Y(0))}V${flN(P.Y(y))}" class="fl-dim" style="stroke-dasharray:3 3"/><circle cx="${flN(P.X(k))}" cy="${flN(P.Y(y))}" r="3.5" class="fl-loadf"/>` + flT(P.X(k), P.Y(0) + 16, k === 1 ? "τ" : k + "τ", "fl-sym") + flT(P.X(k) + (k === 5 ? -6 : 6), P.Y(y) + 16, l, "fl-sm fl-lt", k === 5 ? "end" : "start"); });
     s += flT(200, 196, "τ = R·C", "fl-sym");
     return `<svg class="fl" viewBox="0 0 360 205" role="img">${s}</svg>`;
   }
@@ -246,9 +254,9 @@ FL.stressStrain = () => {
   let d = `M${flN(P.X(0))} ${flN(P.Y(0))}L${flN(P.X(0.12))} ${flN(P.Y(0.62))}`; d += `C${flN(P.X(0.13))} ${flN(P.Y(0.66))} ${flN(P.X(0.16))} ${flN(P.Y(0.6))} ${flN(P.X(0.3))} ${flN(P.Y(0.66))}`;
   d += `C${flN(P.X(0.45))} ${flN(P.Y(0.75))} ${flN(P.X(0.6))} ${flN(P.Y(1.02))} ${flN(P.X(0.75))} ${flN(P.Y(1))}C${flN(P.X(0.85))} ${flN(P.Y(0.98))} ${flN(P.X(0.9))} ${flN(P.Y(0.9))} ${flN(P.X(0.92))} ${flN(P.Y(0.82))}`;
   let s = P.s + `<path d="${d}" class="fl-sig2"/>` + `<path d="M${flN(P.X(0.04))} ${flN(P.Y(0.207))}h18v-${flN(0.31 * 150 * 0.65)}" class="fl-dim"/>` + flT(P.X(0.04) + 22, P.Y(0.12), "E", "fl-sym fl-vt", "start");
-  s += `<circle cx="${flN(P.X(0.12))}" cy="${flN(P.Y(0.62))}" r="4" class="fl-loadf"/>` + flT(P.X(0.12) - 6, P.Y(0.62) - 8, T("flytegrense", "yield"), "fl-sm fl-lt", "end");
+  s += `<circle cx="${flN(P.X(0.12))}" cy="${flN(P.Y(0.62))}" r="4" class="fl-loadf"/>` + flT(P.X(0.12) + 8, P.Y(0.62) + 16, T("flytegrense", "yield"), "fl-sm fl-lt", "start");
   s += `<circle cx="${flN(P.X(0.75))}" cy="${flN(P.Y(1))}" r="4" class="fl-loadf"/>` + flT(P.X(0.75), P.Y(1) - 10, T("strekkfasthet", "tensile strength"), "fl-sm fl-lt") + `<path d="M${flN(P.X(0.92))} ${flN(P.Y(0.82))}l6 6m0 -6l-6 6" class="fl-load"/>` + flT(P.X(0.92), P.Y(0.82) + 20, T("brudd", "fracture"), "fl-sm");
-  s += flT(P.X(0.06), P.Y(0) - 8, T("elastisk", "elastic"), "fl-sm", "start") + flT(P.X(0.45), P.Y(0) - 8, T("plastisk", "plastic"), "fl-sm");
+  s += flT(P.X(0.06), P.Y(0) + 15, T("elastisk", "elastic"), "fl-sm", "start") + flT(P.X(0.45), P.Y(0) + 15, T("plastisk", "plastic"), "fl-sm"); // under aksen, så de ikke treffer E-trekanten
   return `<svg class="fl" viewBox="0 0 360 200" role="img">${s}</svg>`;
 };
 
@@ -284,5 +292,79 @@ FL.loop = (o = {}) => {
   s += `<path d="M292 70H340" class="fl-w"/>` + flArrow(330, 70, 350, 70, "fl-dim", 8) + flT(344, 62, "y", "fl-sym", "end") + `<path d="M320 70V140H70V83" class="fl-w"/>` + flArrow(70, 100, 70, 84, "fl-dim", 8);
   s += flT(130, 26, T("regulator", "controller"), "fl-sm") + flT(257, 26, T("prosess", "process"), "fl-sm") + flT(195, 158, T("måling tilbake", "measurement fed back"), "fl-sm");
   s += flT(180, 190, "y/r = C·G / (1 + C·G)", "fl-sym");
+  return `<svg class="fl" viewBox="0 0 360 200" role="img">${s}</svg>`;
+};
+
+
+// ---------- OPPLAGRE: tre typer med reaksjonene de gir (2D) ----------
+FL.supports = () => {
+  const cols = [[60, "pin", T("Fastlager", "Pin support"), ["A_x", "A_y"]], [180, "roller", T("Glidelager", "Roller"), ["B_y"]], [300, "fixed", T("Innspenning", "Fixed support"), ["A_x", "A_y", "M_A"]]];
+  let s = "";
+  for(const [x, k, name, rs] of cols){ const y = 70;
+    if(k === "fixed"){ s += `<rect x="${x - 40}" y="${y - 28}" width="10" height="56" class="fl-sup"/><rect x="${x - 30}" y="${y - 5}" width="62" height="10" rx="2" class="fl-beam"/>`;
+      s += flArrow(x - 14, y + 46, x - 14, y + 8, "fl-react", 8) + flArrow(x - 66, y + 14, x - 42, y + 14, "fl-react", 8);
+      s += `<path d="M${x - 10} ${y - 26}A26 26 0 0 1 ${x + 14} ${y - 10}" class="fl-react"/>` + flArrow(x + 8, y - 17, x + 15, y - 9, "fl-react", 7); }
+    else { s += `<rect x="${x - 32}" y="${y - 5}" width="64" height="10" rx="2" class="fl-beam"/><path d="M${x} ${y + 5}l-12 20h24z" class="fl-sup"/>`;
+      if(k === "roller") s += `<circle cx="${x - 7}" cy="${y + 29}" r="3.6" class="fl-sup"/><circle cx="${x + 7}" cy="${y + 29}" r="3.6" class="fl-sup"/><path d="M${x - 18} ${y + 33}h36" class="fl-gnd"/>`;
+      else s += `<path d="M${x - 18} ${y + 25}h36" class="fl-gnd"/>`;
+      s += flArrow(x + 24, y + 46, x + 24, y + 8, "fl-react", 8);
+      if(k === "pin") s += flArrow(x - 52, y + 14, x - 15, y + 14, "fl-react", 8); }
+    s += flT(x, 22, name, "fl-sm") + flT(x, 140, T(`${rs.length} ukjent${rs.length > 1 ? "e" : ""}`, `${rs.length} unknown${rs.length > 1 ? "s" : ""}`), "fl-sm fl-rt") + flT(x, 158, rs.join(", "), "fl-sym fl-rt"); }
+  return `<svg class="fl" viewBox="0 0 360 170" role="img">${s}</svg>`;
+};
+
+// ---------- FAGVERK: o = { cut: true } (snittmetoden) eller { joint: 1 } (knutepunktmetoden, markerer et knutepunkt) ----------
+FL.truss = (o = {}) => {
+  const B = [[40, 150], [110, 150], [180, 150], [250, 150], [320, 150]], Tp = [[110, 80], [180, 80], [250, 80]], P = [...B, ...Tp];
+  const bars = [[0, 1], [1, 2], [2, 3], [3, 4], [5, 6], [6, 7], [0, 5], [5, 1], [6, 2], [7, 3], [7, 4], [5, 2], [7, 2]];
+  let s = bars.map(([i, j]) => `<path d="M${P[i][0]} ${P[i][1]}L${P[j][0]} ${P[j][1]}" class="fl-w" style="stroke-width:4;opacity:.75"/>`).join("");
+  s += P.map(([x, y]) => `<circle cx="${x}" cy="${y}" r="4.5" class="fl-node"/>`).join("");
+  "ABCDEFGH".split("").forEach((c, i) => { const [x, y] = P[i]; s += i === 0 ? flT(x - 12, y - 6, c, "fl-sym", "end") : i === 4 ? flT(x + 12, y - 6, c, "fl-sym", "start") : i === 6 ? flT(x - 8, y - 10, c, "fl-sym", "end") : flT(x, y + (i < 5 ? 22 : -12), c, "fl-sym"); });
+  // opplegg og last
+  s += `<path d="M40 154l-11 18h22z" class="fl-sup"/><path d="M24 172h32" class="fl-gnd"/><path d="M320 154l-11 16h22z" class="fl-sup"/><circle cx="314" cy="174" r="3.4" class="fl-sup"/><circle cx="326" cy="174" r="3.4" class="fl-sup"/>`;
+  s += flArrow(180, 38, 180, 74, "fl-load", 10) + flT(190, 56, "P", "fl-sym fl-lt", "start");
+  if(o.cut){ s += `<path d="M150 58L136 182" class="fl-load" style="stroke-dasharray:7 5;stroke-width:2"/>` + flT(150, 50, T("snitt", "section"), "fl-sm fl-lt");
+    s += flT(350, 22, T("tre staver kuttes", "three bars are cut"), "fl-sm", "end"); }
+  if(o.joint != null){ const [x, y] = P[o.joint]; s += `<circle cx="${x}" cy="${y}" r="20" class="fl-load" style="stroke-dasharray:4 3;stroke-width:1.6"/>` + flT(16, 22, T("Frilegg ett knutepunkt om gangen", "Isolate one joint at a time"), "fl-sm fl-lt", "start"); }
+  return `<svg class="fl" viewBox="0 0 360 200" role="img">${s}</svg>`;
+};
+
+// ---------- THÉVENIN: en lineær krets erstattes av U_th i serie med R_th ----------
+FL.thevenin = () => {
+  let s = `<rect x="16" y="40" width="110" height="90" rx="10" class="fl-cap"/>` + flT(71, 80, T("lineær", "linear"), "fl-sm") + flT(71, 96, T("krets", "circuit"), "fl-sm");
+  s += `<path d="M126 60H150M126 110H150" class="fl-w"/><circle cx="150" cy="60" r="4" class="fl-node"/><circle cx="150" cy="110" r="4" class="fl-node"/>` + flT(150, 50, "a", "fl-sym") + flT(150, 132, "b", "fl-sym");
+  s += flT(178, 92, "=", "") ;
+  // ekvivalent: kilde, R_th, klemmer
+  s += `<circle cx="214" cy="85" r="17" class="fl-w"/>` + flT(214, 81, "+", "fl-sm") + flT(214, 97, "−", "fl-sm") + flT(236, 92, "U_th", "fl-sym", "start");
+  s += `<path d="M214 68V44H240M290 44H320M214 102V130H320" class="fl-w"/><rect x="240" y="35" width="50" height="18" rx="3" class="fl-res"/>` + flT(265, 28, "R_th", "fl-sym");
+  s += `<circle cx="320" cy="44" r="4" class="fl-node"/><circle cx="320" cy="130" r="4" class="fl-node"/>` + flT(334, 48, "a", "fl-sym", "start") + flT(334, 134, "b", "fl-sym", "start");
+  s += `<path d="M320 48V70M320 106V126" class="fl-w" style="stroke-dasharray:4 3"/><rect x="311" y="70" width="18" height="36" rx="3" class="fl-res" style="stroke-dasharray:4 3"/>` + flT(296, 92, "R_L", "fl-sym", "end");
+  s += flT(180, 160, T("Samme spenning og strøm i lasten R_L", "Same voltage and current in the load R_L"), "fl-sm");
+  return `<svg class="fl" viewBox="0 0 360 172" role="img">${s}</svg>`;
+};
+
+// ---------- WHEATSTONE-BRO: R_1/R_3 = R_2/R_4 gir U_ut = 0 ----------
+FL.bridge = () => {
+  const Tn = [200, 30], L = [130, 100], Rn = [270, 100], Bn = [200, 170];
+  const res = (a, b, lab, side) => { const mx = (a[0] + b[0]) / 2, my = (a[1] + b[1]) / 2, ang = Math.atan2(b[1] - a[1], b[0] - a[0]) * 180 / Math.PI;
+    return `<path d="M${a[0]} ${a[1]}L${b[0]} ${b[1]}" class="fl-w"/><g transform="translate(${flN(mx)} ${flN(my)}) rotate(${flN(ang)})"><rect x="-20" y="-8" width="40" height="16" rx="3" class="fl-res"/></g>` + flT(mx + side * 26, my + 5, lab, "fl-sym", side < 0 ? "end" : "start"); };
+  let s = res(Tn, L, "R_1", -1) + res(Tn, Rn, "R_2", 1) + res(L, Bn, "R_3", -1) + res(Rn, Bn, "R_4", 1);
+  [Tn, L, Rn, Bn].forEach(([x, y]) => { s += `<circle cx="${x}" cy="${y}" r="4" class="fl-node"/>`; });
+  s += `<path d="M130 100H183M217 100H270" class="fl-w"/><circle cx="200" cy="100" r="17" class="fl-oa"/>` + flT(200, 105, "V", "fl-sym") + flT(200, 72, "U_ut", "fl-sym fl-mt");
+  // forsyning
+  s += `<path d="M200 30H40V86M40 114V190H200V170" class="fl-w"/><path d="M26 86H54" class="fl-w" style="stroke-width:3"/><path d="M32 114H48" class="fl-w" style="stroke-width:3"/>` + flT(22, 104, "U_s", "fl-sym", "end");
+  s += flT(345, 196, T("Balanse: R_1/R_3 = R_2/R_4", "Balance: R_1/R_3 = R_2/R_4"), "fl-sm", "end");
+  return `<svg class="fl" viewBox="0 0 360 206" role="img">${s}</svg>`;
+};
+
+// ---------- TRANSFORMATOR: to spoler på en felles jernkjerne ----------
+FL.trafo = (o = {}) => {
+  const n1 = o.n1 || 6, n2 = o.n2 || 3, coil = (x, y0, n, side) => { const h = 90 / n; let d = `M${x} ${y0}`; for(let i = 0; i < n; i++) d += `a${flN(h / 2)} ${flN(h / 2)} 0 0 ${side > 0 ? 1 : 0} 0 ${flN(h)}`; return d; };
+  let s = `<path d="M130 30H230V150H130Z M150 50H210V130H150Z" class="fl-sup" fill-rule="evenodd"/>`;
+  s += `<path d="${coil(130, 45, n1, -1)}" class="fl-sig1"/><path d="${coil(230, 45 + (90 - 90 * n2 / n1) / 2, n2, 1)}" class="fl-sig2"/>`;
+  s += `<path d="M130 45H70M130 135H70M230 ${flN(45 + (90 - 90 * n2 / n1) / 2)}H290M230 ${flN(135 - (90 - 90 * n2 / n1) / 2)}H290" class="fl-w"/>`;
+  s += `<path d="M70 45V135" class="fl-dim" style="stroke-dasharray:4 3"/><path d="M290 ${flN(45 + (90 - 90 * n2 / n1) / 2)}V${flN(135 - (90 - 90 * n2 / n1) / 2)}" class="fl-dim" style="stroke-dasharray:4 3"/>`;
+  s += flT(58, 94, "U_1", "fl-sym fl-vt", "end") + flT(302, 94, "U_2", "fl-sym fl-mt", "start") + flT(104, 28, "N_1", "fl-sym fl-vt") + flT(256, 28, "N_2", "fl-sym fl-mt");
+  s += flT(180, 174, "U_1 / U_2 = N_1 / N_2", "fl-sym") + flT(180, 192, T("jernkjerne leder magnetfeltet", "the iron core guides the magnetic field"), "fl-sm");
   return `<svg class="fl" viewBox="0 0 360 200" role="img">${s}</svg>`;
 };

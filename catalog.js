@@ -57,7 +57,7 @@ function catRowHTML(c, id){
     ${ans}
     ${sol ? `<div class="cat-sol"><div class="cat-sol-h">✅ ${esc(T("Svar", "Answer"))}: <b>${rich(correctText(it))}</b></div><div class="cat-sol-h2">${esc(T("Fremgangsmåte", "Method"))}</div>${String(it.expl || "").split(/\n+/).map(p => `<p>${rich(p)}</p>`).join("")}</div>`
       : `<button class="exlink cat-show" data-a="catshow">${esc(T("Vis fremgangsmåten", "Show the method"))}</button>`}
-    <div class="cat-acts">${gen ? `<button class="qs-go" data-a="catnew">🔁 ${esc(T("Ny variant med andre tall", "New variant with other numbers"))}</button>` : ""}<button class="qs-go ghost" data-a="bkunit" data-c="${c.code}" data-u="${id.split(".")[0]}">📖 ${esc(T("Les teorien", "Read the theory"))}</button><button class="qs-go ghost" data-a="catclose">${esc(T("Lukk", "Close"))}</button></div></div>`;
+    <div class="cat-acts">${gen ? `<button class="qs-go" data-a="catnew">🔁 ${esc(T("Ny variant med andre tall", "New variant with other numbers"))}</button>` : ""}<button class="qs-go ghost" data-a="bkunit" data-c="${c.code}" data-u="${id.split(".")[0]}">📖 ${esc(T("Les teorien", "Read the theory"))}</button><button class="qs-go ghost" data-a="catclose">${esc(T("Lukk", "Close"))}</button>${!gen && typeof edBtnHTML === "function" ? edBtnHTML("q", c.code, id) : ""}</div></div>`;
 }
 function renderCatalog(){
   const c = COURSE(CAT.code); if(!c){ goHome(); return; }

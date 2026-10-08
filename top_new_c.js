@@ -7,6 +7,7 @@ const O = (t, intro, f, legend, ex, tip) => ({ t, intro, f, legend, ex, tip });
 // ---------- ELKR 0: Transformatoren ----------
 TOPICS("ELKR", 0, [
 { id: "omsetningsforhold",
+  art: () => FL.trafo({ n1: 6, n2: 3 }),
   fig: `<svg viewBox="0 0 240 140"><rect x="95" y="20" width="50" height="100" class="d"/><path d="M60 40c-12 0-12 10 0 10s12 10 0 10-12 10 0 10 12 10 0 10-12 10 0 10" class="a"/><path d="M180 50c12 0 12 10 0 10s-12 10 0 10 12 10 0 10" class="g"/><text x="31" y="74">U<tspan dy="4" font-size="10">1</tspan></text><text x="196" y="75">U<tspan dy="4" font-size="10">2</tspan></text><text x="55" y="33">N<tspan dy="4" font-size="10">1</tspan></text><text x="176" y="43">N<tspan dy="4" font-size="10">2</tspan></text></svg>`,
   nb: O("Omsetningsforhold", "En transformator har to spoler rundt en felles jernkjerne. Vekselstrømmen i primærspolen lager et magnetfelt som gir spenning i sekundærspolen. Spenningen omsettes i samme forhold som antall vindinger.",
     [[R`\frac{U_1}{U_2} = \frac{N_1}{N_2}`, "spenning følger vindingstallet"], [R`\frac{I_1}{I_2} = \frac{N_2}{N_1}`, "strømmen omsettes motsatt"]],
@@ -19,6 +20,7 @@ $U_2 = 230\cdot 50/1000 = 11{,}5$ V.`, "Transformatoren virker bare med vekselst
     R`$N_1 = 1000$, $N_2 = 50$ and $U_1 = 230$ V:
 $U_2 = 230\cdot 50/1000 = 11{,}5$ V.`, "A transformer only works with AC. DC gives no changing magnetic field.") },
 { id: "ideell-transformator",
+  art: () => FL.trafo({ n1: 8, n2: 4 }),
   nb: O("Ideell transformator", "I en ideell transformator går ingen energi tapt. Da er effekten inn lik effekten ut. Transformerer du spenningen opp, går strømmen ned tilsvarende, og omvendt.",
     [[R`U_1 I_1 = U_2 I_2`, "effekt inn er lik effekt ut"], [R`S = U\,I`, "tilsynelatende effekt"]],
     [["S", "tilsynelatende effekt", "VA"], ["U", "spenning", "V"], ["I", "strøm", "A"]],

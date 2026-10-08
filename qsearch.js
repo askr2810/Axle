@@ -22,8 +22,10 @@ function qsResultsHTML(place){
         <small>${esc(it.id ? T("Emne", "Topic") + " · " : "")}${esc(it.course)}</small><b>${esc(it.title)}</b><span>${bkMark(snip, q)}</span></button>
       <div class="qs-acts">${place === "practice" ? prac + readBtn : readBtn + prac}</div></div>`; }).join("");
 }
+// Eksempel i søkefeltet som passer studiet
+const QS_EX = () => ({ barn: ["brøk", "fractions"], ungdom: ["Pytagoras", "Pythagoras"], syk: ["blodtrykk", "blood pressure"], forer: ["vikeplikt", "right of way"], jus: ["avtaler", "contracts"], oko: ["budsjett", "budget"], vgs: ["derivasjon", "derivatives"] })[typeof curStudy === "function" ? curStudy() : "ing"] || ["derivasjon", "derivatives"];
 function qsHTML(place){
-  return `<div class="qs" data-place="${place}"><label class="bk-search qs-box">${I.search}<input type="search" class="qs-in" placeholder="${esc(place === "practice" ? T("Hva vil du øve på? F.eks. «brøk» eller «vikeplikt»", "What do you want to practise? E.g. \"fractions\"") : T("Søk etter et emne, f.eks. «derivasjon»", "Search for a topic, e.g. \"derivatives\""))}" aria-label="${esc(T("Søk etter emne", "Search for a topic"))}" value="${esc(QS.q)}" autocomplete="off" enterkeyhint="search"></label>
+  return `<div class="qs" data-place="${place}"><label class="bk-search qs-box">${I.search}<input type="search" class="qs-in" placeholder="${esc(place === "practice" ? T("Hva vil du øve på? F.eks. «brøk» eller «vikeplikt»", "What do you want to practise? E.g. \"fractions\"") : T(`Søk etter et emne, f.eks. «${QS_EX()[0]}»`, `Search for a topic, e.g. "${QS_EX()[1]}"`))}" aria-label="${esc(T("Søk etter emne", "Search for a topic"))}" value="${esc(QS.q)}" autocomplete="off" enterkeyhint="search"></label>
     <div class="qs-res" aria-live="polite">${qsResultsHTML(place)}</div></div>`;
 }
 document.addEventListener("input", e => {

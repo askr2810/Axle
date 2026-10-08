@@ -113,7 +113,8 @@ function admUsersHTML(){
       ${open ? `<p class="adm-meta">${esc(t("admJoined", fmtDate(u.created_at)))} · ${esc(t("admLast", admAgo(u.last_active)))} · ${esc(String(u.xp || 0))} XP</p>${admAcctHTML(u)}${admActHTML(u.user_id)}
         <div class="adm-acts">${u.display_name ? `<button class="fr-act" data-a="admperson" data-id="${esc(u.user_id)}">${esc(t("admSeeProfile"))}</button>` : ""}
           ${!me && (u.app_role !== "admin" || isAdmin()) ? btn("reset_name", "admResetName", 1) + (u.photo ? btn("remove_photo", "admRemovePhoto", 1) : "") : ""}
-          ${isAdmin() && !me && u.app_role !== "admin" ? (u.app_role === "mod" ? btn("remove_role", "admRemoveMod", 1) : btn("set_mod", "admMakeMod")) : ""}</div>` : ""}</div>`;
+          ${isAdmin() && !me && u.app_role !== "admin" ? (u.app_role === "mod" ? btn("remove_role", "admRemoveMod", 1) : btn("set_mod", "admMakeMod")) : ""}
+          ${isAdmin() && !me ? `<button class="fr-act" data-a="edrole" data-id="${esc(u.user_id)}" data-on="1">✏️ ${esc(T("Gi fagperson-tilgang", "Make subject expert"))}</button><button class="fr-act" data-a="edrole" data-id="${esc(u.user_id)}" data-on="0">${esc(T("Fjern fagperson", "Remove subject expert"))}</button>` : ""}</div>` : ""}</div>`;
   }).join("")}</div>`;
 }
 function admNoticeHTML(){

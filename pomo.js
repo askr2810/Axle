@@ -14,6 +14,7 @@ const PO_BG = { natt: ["Natt", "Night", "linear-gradient(160deg,#0E1424,#1B2340 
 const po = () => { const p = (S.pomo ||= { phase: "work", running: false, work: 25, brk: 5, done: 0 });
   p.long ??= 15; p.every ??= 4; p.auto ??= false; p.sound ??= true; p.hide ??= false; p.bg ??= "natt"; return p; };
 const PO_EYEOFF = `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M2 12s3.6-7 10-7c2 0 3.7.7 5.1 1.6M22 12s-3.6 7-10 7c-2 0-3.7-.7-5.1-1.6"/><path d="M4 20 20 4"/></svg>`;
+const PO_SQ = `<svg width="30" height="30" viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="3" fill="currentColor"/></svg>`; // stopp: én hel firkant
 let PO_TICK = 0, PO_OPEN = false, PO_SET = false, PO_PEEK = false, PO_WAKE = null, PO_FROM = "practice";
 const poLen = p => (p.phase === "work" ? p.work : p.phase === "long" ? p.long : p.brk) * 60000;
 const poLeft = p => p.running ? Math.max(0, p.end - Date.now()) : (p.left ?? poLen(p));
@@ -69,13 +70,13 @@ function poRun(){
 function poDraw(){
   const el = document.getElementById("po-island"), p = po();
   if(el){
-    el.hidden = screen === "pomo" || !!p.hide;
+    el.hidden = screen === "pomo"; // «skjul tiden» skjuler bare tallene – øya blir, så timeren ikke forsvinner
     const left = poLeft(p), frac = 1 - left / poLen(p), work = p.phase === "work";
     const ring = `<svg class="po-ring" viewBox="0 0 36 36" aria-hidden="true"><circle cx="18" cy="18" r="15" class="po-rb"/><circle cx="18" cy="18" r="15" class="po-rf" style="stroke-dasharray:${(94.25 * frac).toFixed(1)} 94.25"/></svg>`;
     el.className = (work ? "work" : "brk") + (PO_OPEN ? " open" : "") + (p.running ? "" : " paused");
-    el.innerHTML = `<span class="po-main">${ring}<span class="po-ic">${work ? "🍅" : "🌿"}</span><b>${poFmt(left)}</b>${PO_OPEN ? `<small>${esc(poPhaseName(p.phase))} · ${esc(T(`${p.done || 0} økter i dag`, `${p.done || 0} sessions today`))}</small>` : ""}</span>
+    el.innerHTML = `<span class="po-main">${ring}<span class="po-ic">${work ? "🍅" : "🌿"}</span><b>${p.hide && p.running ? esc(poPhaseName(p.phase)) : poFmt(left)}</b>${PO_OPEN ? `<small>${esc(poPhaseName(p.phase))} · ${esc(T(`${p.done || 0} økter i dag`, `${p.done || 0} sessions today`))}</small>` : ""}</span>
       ${PO_OPEN ? `<span class="po-btns">${p.running ? `<button data-po="pause" aria-label="${esc(T("Pause", "Pause"))}">⏸</button>` : `<button data-po="play" aria-label="${esc(T("Fortsett", "Resume"))}">▶</button>`}<button data-po="skip" aria-label="${esc(T("Hopp til neste", "Skip to next"))}">⏭</button><button data-po="stop" aria-label="${esc(T("Stopp", "Stop"))}">⏹</button><button data-po="full" aria-label="${esc(T("Åpne fokusskjermen", "Open the focus screen"))}">⛶</button></span>` : ""}`;
-    el.setAttribute("aria-label", poPhaseName(p.phase) + " " + poFmt(left));
+    el.setAttribute("aria-label", poPhaseName(p.phase) + (p.hide && p.running ? "" : " " + poFmt(left)));
   }
   poScreenTick();
 }
@@ -115,8 +116,8 @@ function renderPomo(){
     <main class="pos-main">
       <input class="pos-task" id="postask" maxlength="60" value="${esc(p.task || "")}" placeholder="${esc(T("Hva jobber du med? (valgfritt)", "What are you working on? (optional)"))}" aria-label="${esc(T("Hva jobber du med?", "What are you working on?"))}">
       ${center}
-      <div class="pos-ctl">${on ? `<button class="pos-sm" data-a="posreset" aria-label="${esc(T("Stopp", "Stop"))}" title="${esc(T("Stopp", "Stop"))}">⏹</button>` : `<span class="pos-sm-sp"></span>`}
-        <button class="pos-play" data-a="${p.running ? "pospause" : "posgo"}" aria-label="${esc(p.running ? T("Pause", "Pause") : T("Start", "Start"))}">${p.running ? "❚❚" : "▶"}</button>
+      <div class="pos-ctl">${on ? `<button class="pos-sm" data-a="posreset" aria-label="${esc(T("Nullstill timeren", "Reset the timer"))}" title="${esc(T("Nullstill timeren", "Reset the timer"))}">↺</button>` : `<span class="pos-sm-sp"></span>`}
+        <button class="pos-play" data-a="${p.running ? "pospause" : "posgo"}" aria-label="${esc(p.running ? T("Stopp (fortsett når du vil)", "Stop (resume whenever you like)") : T("Start", "Start"))}">${p.running ? PO_SQ : "▶"}</button>
         <button class="pos-sm" data-a="posskip" aria-label="${esc(T("Hopp til neste fase", "Skip to the next phase"))}" title="${esc(T("Hopp til neste fase", "Skip to the next phase"))}">⏭</button></div>
       <p class="pos-sub">${esc(T(`${p.work} min fokus · ${p.brk} min pause · ${p.done || 0} ${(p.done || 0) === 1 ? "økt" : "økter"} i dag`, `${p.work} min focus · ${p.brk} min break · ${p.done || 0} ${(p.done || 0) === 1 ? "session" : "sessions"} today`))}</p>
       ${settings}
@@ -132,7 +133,13 @@ function poScreenTick(){
   document.title = (p.running && !p.hide ? poFmt(poLeft(p)) + " · " : "") + T("Fokusrom", "Focus room") + " – Axle";
 }
 // ---------- kort i Øv (Hjelpemidler) ----------
+// Kompakt flis i Øv: status og start/stopp. Lengder og bakgrunn velges i fokusrommet.
 function poCardHTML(){
+  const p = po(), on = p.running || p.left != null;
+  return `<section class="po-card po-tile"><button class="po-mt" data-a="posopen"><span aria-hidden="true">🍅</span><span><b>${esc(T("Pomodoro", "Pomodoro"))}</b><small>${esc(on ? `${poPhaseName(p.phase)} · ${poFmt(poLeft(p))}` : T(`${p.work}/${p.brk} min · fokusrom`, `${p.work}/${p.brk} min · focus room`))}</small></span></button>
+    <button class="po-mgo ${on ? "on" : ""}" data-a="${on ? "postop" : "postart"}" aria-label="${esc(on ? T("Stopp timeren", "Stop the timer") : T(`Start ${p.work} min fokus`, `Start ${p.work} min focus`))}">${on ? PO_SQ : "▶"}</button></section>`;
+}
+function poCardHTMLBig(){
   const p = po(), on = p.running || p.left != null;
   return `<section class="po-card"><div class="po-h"><span aria-hidden="true">🍅</span><div><b>${esc(T("Pomodoro", "Pomodoro"))}</b><small>${esc(T("Jobb konsentrert, ta en kort pause, gjenta. Tiden vises i en liten øy øverst – eller åpne fokusrommet med bare klokken på skjermen.", "Work focused, take a short break, repeat. The time shows in a small island at the top – or open the focus room with just the clock on screen."))}</small></div></div>
     <div class="seg po-sets">${PO_SETS.map(([w, b]) => `<button class="${p.work === w ? "on" : ""}" data-a="posset" data-w="${w}" data-b="${b}">${w}/${b} min</button>`).join("")}</div>
