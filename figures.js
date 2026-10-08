@@ -314,7 +314,8 @@ function withFigs(code, u, src){
   const name = FIG_MAP[code + ":" + u]; if(!name || src.includes("![fig:")) return src;
   const lines = src.split("\n"); let i = lines.findIndex(l => /^##\s+(Begreper og formler|Concepts and formulas|Begreper og regler|Concepts and rules|Kort oppsummert|In short|Begreper|Concepts)$/.test(l.trim()));
   if(i < 0) i = lines.findIndex((l, k) => k > 0 && /^##\s/.test(l.trim())) - 1;
-  if(i < 0) return src + "\n\n![fig:" + name + "]";
-  lines.splice(i + 1, 0, "", "![fig:" + name + "]", "");
+  const figs = [].concat(name).map(n => "![fig:" + n + "]");   // én figur eller en liste
+  if(i < 0) return src + "\n\n" + figs.join("\n\n");
+  lines.splice(i + 1, 0, "", ...figs.flatMap(f => [f, ""]));
   return lines.join("\n");
 }
