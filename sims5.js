@@ -86,24 +86,36 @@ const FK_MU = [7, 5, 2.5, 1]; // retardasjon (m/s²): tørr asfalt, våt asfalt,
 const fkFore = k => [T("tørr asfalt", "dry tarmac"), T("våt asfalt", "wet tarmac"), T("snø", "snow"), T("is", "ice")][k - 1];
 // Bil sett ovenfra, front mot høyre, sentrert i (x, y)
 const smCar = (x, y, col = "#2B59C3") => `<g transform="translate(${x.toFixed(1)} ${y})"><rect x="-13" y="-7" width="26" height="14" rx="4" style="fill:${col}"/><rect x="3" y="-5" width="6" height="10" rx="1.5" style="fill:rgba(220,240,255,.9)"/><rect x="11" y="-6" width="2.4" height="3.4" rx=".8" style="fill:#FFF3B0"/><rect x="11" y="2.6" width="2.4" height="3.4" rx=".8" style="fill:#FFF3B0"/><rect x="-13" y="-6" width="2" height="3" style="fill:#E0201B"/><rect x="-13" y="3" width="2" height="3" style="fill:#E0201B"/></g>`;
-const smRoad = (y0 = 70, h = 46) => `<rect x="0" y="${y0}" width="320" height="${h}" style="fill:#5E656D"/><line x1="0" y1="${y0 + h / 2}" x2="320" y2="${y0 + h / 2}" style="stroke:#F4F4F4;stroke-width:1.6;stroke-dasharray:10 8"/>`;
+// Føre som glidebryter: 1 is → 4 tørr asfalt (vises som ikon, navn og farge, ikke som tall).
+const FK_STEPS = [["is", "ice", "🧊", "#8FD3F4"], ["snø", "snow", "❄️", "#DCE6EF"], ["våt asfalt", "wet tarmac", "💧", "#3D6A9E"], ["tørr asfalt", "dry tarmac", "☀️", "#8A9097"]];
+const fkA = f => FK_MU[4 - f]; // glidebryterverdi → retardasjon
+const FK_ROAD = ["#BFDCEB", "#E9EEF2", "#3F464E", "#5E656D"]; // veifarge for is, snø, vått, tørt
+// Vei med føre: is er blank og blålig med glansstriper, snø er hvit med spor og fnugg, vått er mørkt med speilinger.
+function smRoad(y0 = 70, h = 46, f = 4){
+  let s = `<rect x="0" y="${y0}" width="320" height="${h}" style="fill:${FK_ROAD[f - 1]}"/>`;
+  if(f === 1) for(let i = 0; i < 9; i++) s += `<path d="M${18 + i * 36} ${y0 + 6 + (i % 3) * 11}l22 -5" style="stroke:#fff;stroke-width:2;opacity:.75;stroke-linecap:round"/>`;
+  if(f === 2){ s += `<rect x="0" y="${y0 + h * 0.18}" width="320" height="${h * 0.16}" style="fill:#AEB7C0;opacity:.55"/><rect x="0" y="${y0 + h * 0.66}" width="320" height="${h * 0.16}" style="fill:#AEB7C0;opacity:.55"/>`;
+    for(let i = 0; i < 16; i++) s += `<circle cx="${(i * 41) % 320 + 6}" cy="${y0 - 26 + (i * 17) % 22}" r="${1.6 + (i % 3) * 0.6}" style="fill:#fff;stroke:#9FB0BF;stroke-width:.5"/>`; }
+  if(f === 3) for(let i = 0; i < 7; i++) s += `<ellipse cx="${30 + i * 44}" cy="${y0 + 8 + (i % 2) * (h - 16)}" rx="${12 + (i % 3) * 4}" ry="3" style="fill:#7FA7D1;opacity:.55"/>`;
+  return s + `<line x1="0" y1="${y0 + h / 2}" x2="320" y2="${y0 + h / 2}" style="stroke:${f === 2 ? "#B8C2CC" : "#F4F4F4"};stroke-width:1.6;stroke-dasharray:10 8"/>`;
+}
 const smKid = (x, y) => `<g transform="translate(${x.toFixed(1)} ${y})"><circle cy="-15" r="3.6" style="fill:#F1C7A1"/><path d="M0 -11L-1 -3M0 -9L-5 -5M0 -9L5 -6M-1 -3L-4 4M-1 -3L3 4" style="stroke:#E07A1F;stroke-width:3;stroke-linecap:round;fill:none"/></g>`;
 Object.assign(SIMS, {
   dvstopp: { t: ["Stopplengde: fart, reaksjon og føre", "Stopping distance: speed, reaction and road surface"],
     a: ["Antatt: bremsing med 7 m/s² på tørr asfalt, 5 på våt, 2,5 på snø og 1 på is. Barnet står 40 m foran.", "Assumed: braking at 7 m/s² on dry tarmac, 5 wet, 2.5 snow and 1 ice. The child is 40 m ahead."],
-    p: [["v", ["fart", "speed"], 20, 120, 5, 50, "km/t", 1], ["tr", ["reaksjonstid", "reaction time"], 0.5, 2.5, 0.1, 1, "s", 2], ["f", ["føre (1 tørt – 4 is)", "surface (1 dry – 4 ice)"], 1, 4, 1, 1, "", 3]],
+    p: [["v", ["fart", "speed"], 20, 120, 5, 50, "km/t", 1], ["tr", ["reaksjonstid", "reaction time"], 0.5, 2.5, 0.1, 1, "s", 2], ["f", ["føre", "road surface"], 1, 4, 1, 4, "", 3, FK_STEPS]],
     q: ["Et barn løper ut 40 meter foran deg. Stopper du i tide?", "A child runs out 40 metres ahead. Do you stop in time?"],
-    g: [["Tørr asfalt og 1 s reaksjonstid: finn den høyeste farten der du stopper før barnet (40 m).", "Dry tarmac and 1 s reaction time: find the highest speed where you stop before the child (40 m).", v => v.f === 1 && Math.abs(v.tr - 1) < 1e-9 && v.v === 60],
-        ["Is og 1 s reaksjonstid: still inn den høyeste farten der du fortsatt stopper før barnet.", "Ice and 1 s reaction time: set the highest speed where you still stop before the child.", v => v.f === 4 && Math.abs(v.tr - 1) < 1e-9 && v.v === 25],
-        ["Du er trøtt (2 s reaksjonstid) og kjører 50 km/t på tørr asfalt. Rekker du å stoppe?", "You are tired (2 s reaction time) and drive at 50 km/h on dry tarmac. Can you stop in time?", v => v.f === 1 && Math.abs(v.tr - 2) < 1e-9 && v.v === 50]],
-    f: v => { const ms = v.v / 3.6, a = FK_MU[v.f - 1], sr = ms * v.tr, sb = ms * ms / (2 * a), st = sr + sb, ok = st <= 40, k = 2.4, x0 = 16;
-      let s = smRoad(70, 46) + `<rect x="${x0}" y="128" width="${(sr * k).toFixed(1)}" height="9" rx="2" style="fill:#2B6FD6"/><rect x="${(x0 + sr * k).toFixed(1)}" y="128" width="${(sb * k).toFixed(1)}" height="9" rx="2" style="fill:#D1453B"/>`;
+    g: [["Tørr asfalt og 1 s reaksjonstid: finn den høyeste farten der du stopper før barnet (40 m).", "Dry tarmac and 1 s reaction time: find the highest speed where you stop before the child (40 m).", v => v.f === 4 && Math.abs(v.tr - 1) < 1e-9 && v.v === 60],
+        ["Is og 1 s reaksjonstid: still inn den høyeste farten der du fortsatt stopper før barnet.", "Ice and 1 s reaction time: set the highest speed where you still stop before the child.", v => v.f === 1 && Math.abs(v.tr - 1) < 1e-9 && v.v === 25],
+        ["Du er trøtt (2 s reaksjonstid) og kjører 50 km/t på tørr asfalt. Rekker du å stoppe?", "You are tired (2 s reaction time) and drive at 50 km/h on dry tarmac. Can you stop in time?", v => v.f === 4 && Math.abs(v.tr - 2) < 1e-9 && v.v === 50]],
+    f: v => { const ms = v.v / 3.6, a = fkA(v.f), sr = ms * v.tr, sb = ms * ms / (2 * a), st = sr + sb, ok = st <= 40, k = 2.4, x0 = 16;
+      let s = smRoad(70, 46, v.f) + `<rect x="${x0}" y="128" width="${(sr * k).toFixed(1)}" height="9" rx="2" style="fill:#2B6FD6"/><rect x="${(x0 + sr * k).toFixed(1)}" y="128" width="${(sb * k).toFixed(1)}" height="9" rx="2" style="fill:#D1453B"/>`;
       s += `<line x1="${x0 + 40 * k}" y1="62" x2="${x0 + 40 * k}" y2="142" style="stroke:#E9A100;stroke-width:1.5;stroke-dasharray:3 3"/>` + smKid(x0 + 40 * k + 4, 88) + fgT(x0 + 40 * k, 56, "40 m", "fg-s");
       s += smCar(Math.min(316, x0 + st * k) - 13, 104, ok ? "#2B59C3" : "#D23F3A") + smCar(x0 + 13, 82, "rgba(43,89,195,.35)");
       s += fgT(x0, 160, T("reaksjon", "reaction") + " " + smN(sr, 0) + " m", "fg-s", "start") + fgT(x0 + sr * k + 4, 172, T("bremsing", "braking") + " " + smN(sb, 0) + " m", "fg-s fg-redt", "start");
       s += fgT(306, 30, ok ? T("Stopper før barnet", "Stops before the child") : T("Treffer barnet!", "Hits the child!"), ok ? "fg-t fg-okt" : "fg-t fg-redt", "end");
       return { m: { st }, eq: [qt`s = ${qc(1, qn(ms, 1))}\cdot ${qc(2, qn(v.tr, 1))} + \frac{${qc(1, qn(ms, 1))}^2}{2\cdot ${qc(3, qn(a, 1))}} = ${qr(st, 0)}\,\mathrm{m}`],
-        out: [[T("fart", "speed"), smN(ms, 1) + " m/s"], [T("føre", "surface"), fkFore(v.f)], [T("stopplengde", "stopping distance"), smN(st, 0) + " m"]], svg: s }; } },
+        out: [[T("fart", "speed"), smN(ms, 1) + " m/s"], [T("føre", "surface"), fkFore(5 - v.f)], [T("stopplengde", "stopping distance"), smN(st, 0) + " m"]], svg: s }; } },
   dvavstand: { t: ["Avstand til bilen foran", "Distance to the car in front"],
     a: ["Antatt: bilen foran bremser like hardt som deg, så det er reaksjonstiden som må dekkes av luka.", "Assumed: the car ahead brakes as hard as you, so the gap must cover your reaction time."],
     p: [["v", ["fart", "speed"], 30, 110, 10, 80, "km/t", 1], ["s", ["avstand i sekunder", "gap in seconds"], 0.5, 5, 0.5, 1, "s", 2], ["tr", ["reaksjonstid", "reaction time"], 0.5, 2, 0.5, 1, "s", 3]],
@@ -152,17 +164,17 @@ Object.assign(SIMS, {
         out: [[T("uten å se på vegen", "without looking at the road"), smN(d, 0) + " m"], [T("busslengder", "bus lengths"), smR(nb)], ...(pitch ? [[T("fotballbaner", "football pitches"), smR(nf, 1)]] : [])], svg: s }; } },
   dvsving: { t: ["Fart i sving og veggrep", "Speed in a bend and grip"],
     a: ["Antatt: flat sving og veggrep som gir 7, 5, 2,5 og 1 m/s² sideveis (tørt, vått, snø, is). Dårlige dekk gir mindre.", "Assumed: a flat bend and grip giving 7, 5, 2.5 and 1 m/s² sideways (dry, wet, snow, ice). Worn tyres give less."],
-    p: [["r", ["svingradius", "bend radius"], 20, 200, 10, 60, "m", 1], ["f", ["føre (1 tørt – 4 is)", "surface (1 dry – 4 ice)"], 1, 4, 1, 1, "", 2], ["v", ["din fart", "your speed"], 20, 120, 5, 60, "km/t", 3]],
+    p: [["r", ["svingradius", "bend radius"], 20, 200, 10, 60, "m", 1], ["f", ["føre", "road surface"], 1, 4, 1, 4, "", 2, FK_STEPS], ["v", ["din fart", "your speed"], 20, 120, 5, 60, "km/t", 3]],
     q: ["Hvorfor må du senke farten mye mer i en krapp sving på glatt føre?", "Why must you slow down much more in a tight bend on a slippery road?"],
-    g: [["Radius 60 m på tørr asfalt: finn den høyeste farten (i trinn på 5) som holder.", "Radius 60 m on dry tarmac: find the highest speed (in steps of 5) that holds.", v => v.r === 60 && v.f === 1 && v.v === 70],
-        ["Samme sving på snø: still inn den høyeste farten som holder.", "The same bend on snow: set the highest speed that holds.", v => v.r === 60 && v.f === 3 && v.v === 40]],
-    f: v => { const a = FK_MU[v.f - 1], vmax = Math.sqrt(a * v.r) * 3.6, ok = v.v <= vmax + 1e-9, R = 40 + v.r * 0.55, cx = 30, cy = 170 + 0;
-      let s = `<path d="M${cx} ${cy - R}A${R} ${R} 0 0 1 ${cx + R} ${cy}" style="fill:none;stroke:#5E656D;stroke-width:34"/><path d="M${cx} ${cy - R}A${R} ${R} 0 0 1 ${cx + R} ${cy}" style="fill:none;stroke:#F4F4F4;stroke-width:1.4;stroke-dasharray:8 7"/>`;
+    g: [["Radius 60 m på tørr asfalt: finn den høyeste farten (i trinn på 5) som holder.", "Radius 60 m on dry tarmac: find the highest speed (in steps of 5) that holds.", v => v.r === 60 && v.f === 4 && v.v === 70],
+        ["Samme sving på snø: still inn den høyeste farten som holder.", "The same bend on snow: set the highest speed that holds.", v => v.r === 60 && v.f === 2 && v.v === 40]],
+    f: v => { const a = fkA(v.f), vmax = Math.sqrt(a * v.r) * 3.6, ok = v.v <= vmax + 1e-9, R = 40 + v.r * 0.55, cx = 30, cy = 170 + 0;
+      let s = `<path d="M${cx} ${cy - R}A${R} ${R} 0 0 1 ${cx + R} ${cy}" style="fill:none;stroke:${FK_ROAD[v.f - 1]};stroke-width:34"/>${v.f === 1 ? `<path d="M${cx} ${cy - R + 9}A${R - 9} ${R - 9} 0 0 1 ${cx + R - 9} ${cy}" style="fill:none;stroke:#fff;stroke-width:2.5;opacity:.7;stroke-dasharray:14 22"/>` : v.f === 2 ? Array.from({ length: 14 }, (_, i) => `<circle cx="${(i * 47) % 300 + 12}" cy="${(i * 29) % 150 + 12}" r="${1.8 + (i % 3) * 0.7}" style="fill:#fff;stroke:#9FB0BF;stroke-width:.5"/>`).join("") : v.f === 3 ? `<path d="M${cx} ${cy - R - 8}A${R + 8} ${R + 8} 0 0 1 ${cx + R + 8} ${cy}" style="fill:none;stroke:#7FA7D1;stroke-width:4;opacity:.5;stroke-dasharray:18 26"/>` : ""}<path d="M${cx} ${cy - R}A${R} ${R} 0 0 1 ${cx + R} ${cy}" style="fill:none;stroke:#F4F4F4;stroke-width:1.4;stroke-dasharray:8 7"/>`;
       const ang = 0.55 * Math.PI / 2, px = cx + R * Math.sin(ang), py = cy - R * Math.cos(ang);
       s += ok ? `<g transform="translate(${px.toFixed(1)} ${py.toFixed(1)}) rotate(${(ang * 180 / Math.PI).toFixed(1)})">${smCar(0, 0)}</g>` : `<path d="M${px.toFixed(1)} ${py.toFixed(1)}l${(40 * Math.cos(ang)).toFixed(1)} ${(40 * Math.sin(ang) * -0.2).toFixed(1)}" style="stroke:#D23F3A;stroke-width:2;stroke-dasharray:4 3"/><g transform="translate(${(px + 40 * Math.cos(ang)).toFixed(1)} ${(py - 8).toFixed(1)}) rotate(${(ang * 180 / Math.PI - 30).toFixed(1)})">${smCar(0, 0, "#D23F3A")}</g>`;
       s += fgT(306, 40, ok ? T("Bilen holder vegen", "The car holds the road") : T("Bilen sklir ut!", "The car slides off!"), ok ? "fg-t fg-okt" : "fg-t fg-redt", "end") + fgT(306, 60, T("maks", "max") + " " + smN(vmax, 0) + " km/t", "fg-s", "end");
       return { m: { vmax }, eq: [qt`v_{\max} = \sqrt{${qc(2, qn(a, 1))}\cdot ${qc(1, v.r)}} = ${qr(vmax / 3.6, 1)}\,\mathrm{m/s} = ${qr(vmax, 0)}\,\mathrm{km/t}`],
-        out: [[T("høyeste fart", "max speed"), smN(vmax, 0) + " km/t"], [T("din fart", "your speed"), v.v + " km/t"], [T("føre", "surface"), fkFore(v.f)]], svg: s }; } },
+        out: [[T("høyeste fart", "max speed"), smN(vmax, 0) + " km/t"], [T("din fart", "your speed"), v.v + " km/t"], [T("føre", "surface"), fkFore(5 - v.f)]], svg: s }; } },
   dvkrasj: { t: ["Hvor tung blir du i et krasj?", "How heavy do you get in a crash?"],
     a: ["Antatt: med belte bremses kroppen over ca. 40 cm (beltet og knusesonen), uten belte ca. 10 cm mot ratt eller rute. Tallene er gjennomsnitt, toppene er høyere. Ku 600 kg, bil 1 500 kg, elefant 5 000 kg.", "Assumed: with a belt the body stops over about 40 cm (belt and crumple zone), without one about 10 cm against wheel or windscreen. Numbers are averages, peaks are higher. Cow 600 kg, car 1,500 kg, elephant 5,000 kg."],
     p: [["v", ["fart", "speed"], 10, 110, 10, 30, "km/t", 1], ["m", ["kroppsvekt", "body weight"], 10, 120, 5, 75, "kg", 2], ["b", ["1 med belte, 2 uten belte", "1 with belt, 2 without belt"], 1, 2, 1, 1, "", 3]],

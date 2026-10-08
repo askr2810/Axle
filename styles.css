@@ -2449,3 +2449,12 @@ details.bk-sheet>summary::-webkit-details-marker{display:none}
 .lab-csims{display:flex;gap:8px;overflow-x:auto;padding:4px 0 2px}
 .lab-csim{flex:none;display:flex;gap:6px;align-items:center;padding:8px 12px;border-radius:99px;border:1.5px solid var(--line);background:var(--card);color:inherit;font:700 13px inherit;cursor:pointer;white-space:nowrap}
 .lab-csim svg{width:14px;height:14px;color:var(--accent)}
+/* Glidebryter med navngitte trinn (føre: is → tørr asfalt) */
+.sim-ctl label.sim-stepl{grid-template-columns:minmax(44px,auto) 1fr auto;row-gap:4px}
+.sim-stepl input{accent-color:var(--sc)}
+.sim-stepl output{white-space:nowrap;padding:3px 10px;border-radius:99px;background:color-mix(in srgb,var(--sc) 35%,var(--card));color:var(--ink)}
+.sim-steps{grid-column:1/-1;display:grid;grid-template-columns:repeat(auto-fit,minmax(0,1fr));gap:4px}
+.sim-step{display:grid;justify-items:center;gap:1px;padding:5px 2px;border-radius:10px;font-size:11px;font-weight:700;color:var(--muted);background:color-mix(in srgb,var(--c) 18%,var(--card));border:2px solid transparent;text-align:center;line-height:1.15}
+.sim-step i{font-style:normal;font-size:17px}
+.sim-step.on{border-color:var(--c);color:var(--ink);background:color-mix(in srgb,var(--c) 45%,var(--card))}
+.sim-step{cursor:pointer}
