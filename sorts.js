@@ -108,6 +108,26 @@ const WG_UNITS = [["FKB", "Vikeplikt og forkjørsrett", "sort:fk_vik"], ["FKMC",
   ["VGHIS", "Historiefaget og kildekritikk", "sort:his_kilder"], ["OREG", "Resultat og balanse", "sort:ok_konto"], ["OREG", "Merverdiavgift", "seq:ok_mva"], ["OSAM", "Makroøkonomi: BNP, inflasjon og rente", "sort:ok_politikk"],
   ["VG1T", "Funksjoner", "sort:mat_modell"], ["VG1P", "Lineære modeller og grafer", "sort:mat_modell"],
   ["VGNOR", "Sjangre og virkemidler", "sort:nor_sjanger"], ["VGNOR", "Sjangre og virkemidler", "sort:nor_virke"], ["VGNOR", "Retorikk og argumentasjon", "sort:nor_appell"], ["VGNOR", "Retorikk og argumentasjon", "sort:nor_feil"], ["VGNOR", "Retorikk og argumentasjon", "seq:nor_drofting"]];
+// Arkitektur
+Object.assign(SORTS, {
+  ark_stil: { t: ["Hvilken stil?", "Which style?"], k: [["Romansk", "Romanesque"], ["Gotikk", "Gothic"], ["Renessanse", "Renaissance"], ["Barokk", "Baroque"]],
+    it: [["Rundbuer og tykke murer", "Round arches and thick walls", 0], ["Små vinduer og tunge, lukkede rom", "Small windows and heavy, closed spaces", 0],
+      ["Spissbuer og ribbehvelv", "Pointed arches and rib vaults", 1], ["Strebebuer utenfor veggene", "Flying buttresses outside the walls", 1, "De tar skyvet fra hvelvene, så veggene kan bli glass.", "They take the thrust of the vaults so the walls can become glass."],
+      ["Store glassmalerier og rosevinduer", "Large stained glass and rose windows", 1], ["Symmetri og proporsjoner etter antikke forbilder", "Symmetry and proportion after antique models", 2],
+      ["Brunelleschis kuppel i Firenze", "Brunelleschi's dome in Florence", 2], ["Svungne former og dramatisk lys", "Curved forms and dramatic light", 3],
+      ["Lange akser gjennom slott og hage", "Long axes through palace and garden", 3, "Versailles er det klassiske eksempelet.", "Versailles is the classic example."]] },
+  ark_last: { t: ["Trykk eller strekk?", "Compression or tension?"], k: [["Trykk", "Compression"], ["Strekk", "Tension"]],
+    it: [["En søyle som bærer et tak", "A column carrying a roof", 0], ["En steinbue", "A stone arch", 0, "Buen fører lasten ned som trykk.", "The arch carries the load down as compression."],
+      ["Kablene i en hengebro", "The cables of a suspension bridge", 1], ["Underkanten av en bjelke som bøyes nedover", "The underside of a beam bending downwards", 1, "Bjelken krummes, og underkanten forlenges.", "The beam curves and the underside stretches."],
+      ["Overkanten av den samme bjelken", "The top of the same beam", 0], ["En teltduk som er spent opp", "A tensioned tent fabric", 1], ["En kuppel av mur", "A masonry dome", 0],
+      ["Stagene som holder oppe en hengende trapp", "The rods holding up a suspended stair", 1]] }
+});
+Object.assign(SEQS, {
+  ark_epoker: { t: ["Stilperiodene i rekkefølge", "The style periods in order"], s: [["Antikken", "Antiquity"], ["Romansk", "Romanesque"], ["Gotikk", "Gothic"], ["Renessanse", "Renaissance"], ["Barokk", "Baroque"], ["Klassisisme", "Classicism"], ["Jugend", "Art Nouveau"], ["Funksjonalisme", "Functionalism"], ["Postmodernisme", "Postmodernism"]] },
+  ark_prosess: { t: ["Fra idé til ferdig bygg", "From idea to finished building"], s: [["Program og mulighetsstudie", "Brief and feasibility study"], ["Skisseprosjekt", "Sketch design"], ["Forprosjekt", "Preliminary design"], ["Byggesøknad (rammesøknad)", "Building application (outline permission)"], ["Detaljprosjekt", "Detailed design"], ["Igangsettingstillatelse", "Commencement permit"], ["Bygging", "Construction"], ["Ferdigattest", "Completion certificate"]] }
+});
+WG_UNITS.push(["ARKH", "Middelalderen", "sort:ark_stil"], ["ARKH", "Renessanse og barokk", "sort:ark_stil"], ["ARKH", "Norsk arkitektur og samtid", "seq:ark_epoker"],
+  ["ARKT", "Bæresystemer", "sort:ark_last"], ["ARKT", "Universell utforming og regelverk", "seq:ark_prosess"], ["GUNAT", "Kjemi: atomer og reaksjoner", "sort:kj_ph"]);
 const WG_MAP = {};
 for(const [code, title, w] of WG_UNITS){ const c = typeof COURSES !== "undefined" && COURSES.find(x => x.code === code), u = c ? c.units.findIndex(x => x.title === title) : -1; if(u >= 0) (WG_MAP[code + ":" + u] ||= []).push(w); }
 // Oppgavene settes inn foran første eksempel (etter begrepene), ellers til slutt.

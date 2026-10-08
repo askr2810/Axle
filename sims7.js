@@ -126,4 +126,7 @@ const add = (k, n) => { SIM_MAP[k] = [].concat(SIM_MAP[k] || [], n).filter((x, i
   // felles enheter i andre fag arver labbene
   if(typeof COURSES !== "undefined") for(const c of COURSES) c.units.forEach((u, i) => { if(u.shared && u.shared + ":" + u.sharedU === k) SIM_MAP[c.code + ":" + i] = [].concat(SIM_MAP[c.code + ":" + i] || [], n).filter((x, j, a) => a.indexOf(x) === j); }); };
 add("FLUID:1", "bernpipe"); add("GMAT:8", "meanmed"); add("MEK2200:1", "meanmed"); add("MEK1400:2", ["torque", "spin"]);
+// grunnskolen og arkitektur
+add("GS57:5", "meanmed"); add("GU810:4", "line"); add("GU810:5", ["pyth", "circlearea"]); add("GUNAT:2", ["incline", "energy"]); add("GUNAT:3", "ohm"); add("GUNAT:6", "orbit");
+add("ARKT:0", ["beam", "buckle"]); add("ARKT:2", "wall");
 })();

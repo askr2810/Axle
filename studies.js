@@ -20,7 +20,9 @@ const STUDIES = [
   { id: "forer", nb: "Førerkort", en: "Driving licence", ic: "🚗", home: "FKB", tab: ["Førerkort", "Licence"], slug: ["forerkort", "driving-licence"],
     sub: ["Teoriprøven for bil (B) og motorsykkel (A1, A2, A)", "The theory test for car (B) and motorcycle (A1, A2, A)"] },
   { id: "jus", nb: "Rettsvitenskap", en: "Law", ic: "⚖️", home: "JMET", tab: ["Jus", "Law"], slug: ["jus", "law"],
-    sub: ["Juridisk metode, statsrett, avtaler, erstatning, forvaltning og strafferett", "Legal method, constitutional, contract, tort, administrative and criminal law"] }
+    sub: ["Juridisk metode, statsrett, avtaler, erstatning, forvaltning og strafferett", "Legal method, constitutional, contract, tort, administrative and criminal law"] },
+  { id: "ark", nb: "Arkitektur", en: "Architecture", ic: "🏛️", home: "ARKH", tab: ["Arkitektur", "Architecture"], slug: ["arkitektur", "architecture"],
+    sub: ["Arkitekturhistorie, form og rom, tegning, bæresystemer og regelverk", "History of architecture, form and space, drawing, structures and regulations"] }
 ];
 // Fag som passer i flere studier (grunnkursene brukes både av ingeniører og på videregående).
 for(const code of ["GMAT", "GFYS"]){ const c = COURSES.find(x => x.code === code); if(c) c.study = ["ing", "vgs"]; }
@@ -44,7 +46,7 @@ function toggleStudy(id){
   S.studySet = 1; save(); return true;
 }
 // Verktøy som bare vises for studiene de hører til (med mindre «Vis alt» er slått på i Innstillinger).
-const FEATURES = { trig: ["ing", "vgs", "oko"], forces: ["ing", "vgs", "ungdom"], lab: ["ing", "vgs", "oko", "ungdom"], proofs: ["ing", "vgs", "oko", "ungdom"], code: ["ing", "vgs", "ungdom"], maps: ["vgs", "ungdom"], motion: ["ing", "vgs", "ungdom"], ctl: ["ing"] };
+const FEATURES = { trig: ["ing", "vgs", "oko"], forces: ["ing", "vgs", "ungdom", "ark"], lab: ["ing", "vgs", "oko", "ungdom", "ark"], proofs: ["ing", "vgs", "oko", "ungdom"], code: ["ing", "vgs", "ungdom"], maps: ["vgs", "ungdom"], motion: ["ing", "vgs", "ungdom"], ctl: ["ing"] };
 const hasFeature = f => !!S.showAll || myStudies().some(s => (FEATURES[f] || []).includes(s));
 // Bytt favorittstudie: husk siste fag i det gamle studiet og hopp til siste (eller første) fag i det nye.
 function setStudy(id){
