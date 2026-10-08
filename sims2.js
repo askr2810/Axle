@@ -69,7 +69,7 @@ Object.assign(SIMS, {
       const g = smPlot([[t => 1, "fg-mut", 1.2], [t => smSeries(ys, dt)(t / 1000 * w0), "fg-acc", 2.6]], [0, tm], [0, 2], "t (ms)", "u_C/U");
       return { eq: [qt`\zeta = \frac{R}{2}\sqrt{\frac{C}{L}} = \frac{${qc(1, v.R)}}{2}\sqrt{\frac{${qc(3, v.C)}\cdot 10^{-6}}{${qc(2, qn(v.L / 1000, 3))}}} = ${qr(z, 3)} \;${qrel(z, 1, "n", 0.01)}\; 1`, qt`f_0 = \frac{1}{2\pi\sqrt{LC}} = ${qr(m.f0, 1, "Hz")}`], m, out: [["ζ = (R/2)√(C/L)", smN(z, 3)], ["f₀ = 1/(2π√(LC))", smN(m.f0, 1) + " Hz"], [T("oversving", "overshoot"), smPct(m.os)]], svg: g.svg }; } },
   // ---------- signaler ----------
-  fourier: { t: ["Fourierrekke", "Fourier series"], p: [["w", ["bølge (0 firkant, 1 sag, 2 trekant)", "wave (0 square, 1 saw, 2 triangle)"], 0, 2, 1, 0, ""], ["N", ["antall ledd", "number of terms"], 1, 25, 1, 3, "", 2]],
+  fourier: { t: ["Fourierrekke", "Fourier series"], p: [["w", ["bølgeform", "waveform"], 0, 2, 1, 0, "", 1, [["firkant", "square", "▭", "#2B6FD6"], ["sagtann", "sawtooth", "◿", "#7B4FD6"], ["trekant", "triangle", "△", "#1E9A5E"]]], ["N", ["antall ledd", "number of terms"], 1, 25, 1, 3, "", 2]],
     q: ["Legg til ledd for firkantbølgen. Forsvinner «hornene» ved hoppene noen gang? (Gibbs-fenomenet)", "Add terms to the square wave. Do the «horns» at the jumps ever disappear? (The Gibbs phenomenon)"],
     g: [["Firkantbølge: få RMS-feilen under 15 %.", "Square wave: get the RMS error below 15 %.", (v, m) => v.w === 0 && m.err < 15],
         ["Trekantbølge: feil under 3 % med høyst 3 ledd. (Hvorfor går det så mye fortere enn for firkanten?)", "Triangle wave: error below 3 % with at most 3 terms. (Why is it so much faster than the square wave?)", (v, m) => v.w === 2 && v.N <= 3 && m.err < 3],
@@ -115,7 +115,7 @@ Object.assign(SIMS, {
       let dev = 0; for(let i = 0; i <= 200; i++){ const x = 2 * Math.PI * i / 200; dev = Math.max(dev, Math.abs(fn(x) - tf(x))); }
       const g = smPlot([[tf, "fg-red", 3], [fn, "fg-acc", 2.4]], [0, 2 * Math.PI], [-4.5, 4.5], "x", "y", (X, Y) => fgT(X(2 * Math.PI) - 2, Y(4.2), dev < 0.02 ? T("Treff! ✓", "Match! ✓") : "", "fg-b fg-okt", "end"));
       return { eq: [qt`y = ${qc(1, qn(v.A, 1))}\sin(${qc(2, qn(v.b, 1))}x ${v.c < 0 ? "-" : "+"} ${qc(3, Math.abs(v.c) + "^\\circ")}) ${v.d < 0 ? "-" : "+"} ${qc(4, qn(Math.abs(v.d), 1))}`, qt`T = \frac{2\pi}{b} = \frac{2\pi}{${qc(2, qn(v.b, 1))}} = ${qr(2 / v.b, 2)}\pi`], m: { hit: dev < 0.02, dev }, out: [[T("periode 2π/b", "period 2π/b"), smN(2 / v.b, 2) + "π"], [T("avstand til målet", "distance to target"), smN(dev)]], svg: g.svg.replace('class="fg-red" d', 'class="fg-red" stroke-dasharray="6 4" d') }; } },
-  taylor: { t: ["Taylorpolynom", "Taylor polynomial"], p: [["fn", ["funksjon (0 sin, 1 cos, 2 eˣ)", "function (0 sin, 1 cos, 2 eˣ)"], 0, 2, 1, 0, ""], ["n", ["grad n", "degree n"], 0, 15, 1, 1, "", 2]],
+  taylor: { t: ["Taylorpolynom", "Taylor polynomial"], p: [["fn", ["funksjon", "function"], 0, 2, 1, 0, "", 1, [["sin x", "sin x", "∿", "#2B6FD6"], ["cos x", "cos x", "∿", "#7B4FD6"], ["eˣ", "eˣ", "⤴", "#E07B00"]]], ["n", ["grad n", "degree n"], 0, 15, 1, 1, "", 2]],
     q: ["Øk graden. Hvor langt ut fra x = 0 blir tilnærmingen god?", "Increase the degree. How far from x = 0 does the approximation stay good?"],
     g: [["sin x: få feilen i x = 3 under 0,01.", "sin x: get the error at x = 3 below 0.01.", (v, m) => v.fn === 0 && m.err < 0.01],
         ["eˣ: relativ feil under 1 % i x = 3.", "eˣ: relative error below 1 % at x = 3.", (v, m) => v.fn === 2 && m.rel < 0.01],
@@ -139,7 +139,7 @@ Object.assign(SIMS, {
         <polygon class="fg-fill2" points="${pts(P, sq)}" stroke="var(--accent)" stroke-width="2"/><polyline points="${pts(P, F)}" fill="none" stroke="var(--bad)" stroke-width="2.6" stroke-linejoin="round"/>
         ${fgAr(...O, ...P(1, 0), "fg-c4", 2.8)}${fgAr(...O, ...P(0, 1), "fg-c3", 2.8)}${(() => { const l1 = P(1.2, -0.3), l2 = P(-0.3, 1.25); if(Math.abs(l1[1] - l2[1]) < 14 && Math.abs(l1[0] - l2[0]) < 80) l2[1] = l1[1] - 16; return fgT(...l1, "Ae₁ = (a, c)", "fg-s fg-c4t") + fgT(...l2, "Ae₂ = (b, d)", "fg-s fg-c3t"); })()}` }; } },
   // ---------- numerikk og maskinlæring ----------
-  euler: { t: ["Eulers metode: steglengde og stabilitet", "Euler's method: step size and stability"], p: [["h", ["steglengde h", "step size h"], 0.02, 1.2, 0.02, 0.4, "", 1], ["meth", ["metode (0 Euler, 1 Heun)", "method (0 Euler, 1 Heun)"], 0, 1, 1, 0, "", 2]],
+  euler: { t: ["Eulers metode: steglengde og stabilitet", "Euler's method: step size and stability"], p: [["h", ["steglengde h", "step size h"], 0.02, 1.2, 0.02, 0.4, "", 1], ["meth", ["metode", "method"], 0, 1, 1, 0, "", 2, [["Euler", "Euler", "📏", "#E07B00"], ["Heun", "Heun", "🎯", "#1E9A5E"]]]],
     q: ["Løser y′ = −2y. Øk h forbi 1. Hvorfor begynner løsningen å hoppe og vokse?", "Solves y′ = −2y. Increase h beyond 1. Why does the solution start to jump and grow?"],
     g: [["Gjør Euler ustabil: løsningen skal vokse i stedet for å dø ut.", "Make Euler unstable: the solution should grow instead of dying out.", (v, m) => v.meth === 0 && m.grow],
         ["Euler: få maksfeilen under 0,01.", "Euler: get the maximum error below 0.01.", (v, m) => v.meth === 0 && m.err < 0.01],
@@ -185,7 +185,7 @@ Object.assign(SIMS, {
         <circle cx="${X(C).toFixed(1)}" cy="90" r="${Math.max(0.5, R * k).toFixed(1)}" class="fg-fill2" stroke="var(--accent)" stroke-width="2"/>
         ${smLine(X(v.sx), Y(v.tau), X(v.sy), Y(-v.tau), "fg-red")}${v.tau ? smDim(X(v.sx), 90, X(v.sx), Y(v.tau), v.sx >= C ? -8 : 8, "fg-c2", "") : ""}<circle cx="${X(v.sx).toFixed(1)}" cy="${Y(v.tau).toFixed(1)}" r="5" fill="var(--c1)"/><circle cx="${X(v.sy).toFixed(1)}" cy="${Y(-v.tau).toFixed(1)}" r="5" fill="var(--c3)"/>
         ${smDot(X(s1), 90, "fg-dot2", 4)}${smDot(X(s2), 90, "fg-dot2", 4)}${fgT(X(s1) + 5, 84, "σ₁", "fg-s", "start")}${fgT(X(s2) - 5, 84, "σ₂", "fg-s", "end")}${lab(v.sx, v.tau, "(σ_x, τ)", "fg-c1t")}${lab(v.sy, -v.tau, "(σ_y, −τ)", "fg-c3t")}` }; } },
-  buckle: { t: ["Knekking av søyle (Euler)", "Column buckling (Euler)"], p: [["d", ["diameter d", "diameter d"], 20, 80, 5, 40, "mm", 3], ["L", "L", 1, 6, 0.5, 3, "m", 2], ["k", ["opplagring (0–3)", "supports (0–3)"], 0, 3, 1, 1, "", 1]],
+  buckle: { t: ["Knekking av søyle (Euler)", "Column buckling (Euler)"], p: [["d", ["diameter d", "diameter d"], 20, 80, 5, 40, "mm", 3], ["L", "L", 1, 6, 0.5, 3, "m", 2], ["k", ["opplagring", "supports"], 0, 3, 1, 1, "", 1, [["fast–fri", "fixed–free", "🚩", "#D9483B"], ["ledd–ledd", "pinned–pinned", "⚬", "#E07B00"], ["fast–ledd", "fixed–pinned", "◐", "#2B6FD6"], ["fast–fast", "fixed–fixed", "■", "#1E9A5E"]]]],
     q: ["Doble lengden. Hvor mye mindre last tåler søylen nå?", "Double the length. How much less load can the column carry now?"],
     g: [["Tål over 500 kN med en 5 m lang stålsøyle.", "Carry more than 500 kN with a 5 m long steel column.", (v, m) => v.L === 5 && m.P > 500],
         ["Bær 100 kN med L = 4 m og tynnest mulig søyle.", "Carry 100 kN with L = 4 m and the thinnest possible column.", (v, m) => v.L === 4 && m.P >= 100 && m.Pthin < 100]],
