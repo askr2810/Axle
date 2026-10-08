@@ -2706,9 +2706,11 @@ details.cat-mc{margin:6px 0}details.cat-mc>summary{cursor:pointer;font-size:12px
 /* Velkomstsiden */
 .wel{max-width:640px;margin:0 auto;padding:calc(env(safe-area-inset-top,0px) + 14px) 16px 40px}
 .wel-top{display:flex;align-items:center;justify-content:space-between;gap:10px}
-.wel-logo{font:800 26px var(--display);color:var(--accent);letter-spacing:-.02em}
+.wel-logo{font:800 26px var(--display);color:var(--accent);letter-spacing:-.02em;display:flex;align-items:center;gap:10px}.wel-logo img{display:block;border-radius:10px}
+.wel-pts span svg{width:24px;height:24px;display:block}
+.wel-ic{display:grid;place-items:center;width:44px;height:44px;border-radius:14px;background:var(--accent-soft);color:var(--accent)}.wel-ic svg{width:26px;height:26px}
 .wel-lang{margin:0}
-.wel-hero{margin:18px 0 10px;padding:24px 20px;border-radius:24px;background:linear-gradient(150deg,#1C3F91,#2B59C3 55%,#0F8A83);color:#fff}
+.wel-hero{margin:18px 0 10px;padding:24px 20px;border-radius:24px;background:var(--accent-deep);color:#fff}
 .wel-hero h1{margin:0 0 8px;font:800 clamp(30px,8vw,40px)/1.08 var(--display)}
 .wel-hero>p{margin:0 0 16px;opacity:.9;font-size:16px;line-height:1.45}
 .wel-pts{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}

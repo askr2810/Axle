@@ -87,7 +87,7 @@ function studyClick(a, b){
     else if(!toggleStudy(id)) toast(T("Du må ha minst ett studie", "You need at least one field"));
     renderOverlay(); }
   else if(a === "studydone"){ const first = overlay && overlay.first; S.studySet = 1; S.studyPicked = 1; if(!inMyStudies(COURSE(S.current))) S.current = STUDY(S.study).home; save(); overlay = null; renderOverlay(); goHome();
-    if(first && !isDrive(COURSE(S.current)) && !S.placed){ overlay = { levelpick: 1 }; renderOverlay(); } else if(first) setTimeout(bootPrompts, 400); }
+    if(first) setTimeout(bootPrompts, 400); }
   else if(a === "studyadd"){ toggleStudy(b.dataset.s); S.pickStudy = null; stBrowse = false; toast(T(`${studyName(STUDY(b.dataset.s))} er lagt til`, `${studyName(STUDY(b.dataset.s))} was added`)); render(); }
   else if(a === "studyshowall"){ S.showAll = !S.showAll; save(); render(); }
   else if(a === "studyview"){ S.pickStudy = b.dataset.s === curStudy() ? null : b.dataset.s; if(myStudies().includes(b.dataset.s)) stBrowse = false; saveLocal(); render(); }

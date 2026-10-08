@@ -53,6 +53,7 @@ let DC_NEXT = false;
 function bootPrompts(){
   if(screen !== "home" || overlay) return;
   if(studyNeedsAsk()){ screen = "welcome"; render(); return; } // helt ny: velkomstsiden (med språk og studievalg)
+  if(!S.lvAsked && !S.placed && !(S.xp > 0) && !isDrive(COURSE(S.current))){ S.lvAsked = 1; saveLocal(); overlay = { levelpick: 1 }; renderOverlay(); return; } // så: hvor vil du starte? (én gang)
   if(!S.langSet && !LANG_BROWSER_NB){ overlay = "langpick"; renderOverlay(); return; } // språk (bare når nettleseren ikke er norsk)
   if(AUTH && !S.acEver){ S.acEver = 1; saveLocal(); } // denne enheten har vært innlogget: aldri vis innloggings-popupen
   // innlogging tilbys først når man har prøvd appen litt (ellers lager mange en konto og forsvinner før de har sett noe)

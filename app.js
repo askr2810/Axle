@@ -150,6 +150,7 @@ const EMO = {
   "🗺️": svg('<path d="M9 4 3 6v14l6-2 6 2 6-2V4l-6 2zM9 4v14M15 6v14"/>'),
   "🪢": svg('<circle cx="12" cy="6" r="3"/><path d="M9.2 7 6 20M14.8 7 18 20M4 20h4M16 20h4"/>'),
   "🎛️": svg('<path d="M4 6h10M18 6h2M4 12h4M12 12h8M4 18h12"/><circle cx="16" cy="6" r="2"/><circle cx="10" cy="12" r="2"/><circle cx="18" cy="18" r="2"/>'),
+  "📖": I.book, "🔁": I.redo,
   "🧮": svg('<rect x="5" y="2.5" width="14" height="19" rx="2.5"/><path d="M8.5 6.5h7M9 11h.01M12 11h.01M15 11h.01M9 14.5h.01M12 14.5h.01M15 14.5h.01M9 18h.01M12 18h3"/>')
 };
 const ico = e => EMO[e] || e;
@@ -1309,7 +1310,7 @@ document.addEventListener("click", async e=>{
   else if(a==="retry"){ const m=L.meta, k=L.kind, code=L.code; if(k==="jump") startJump(code,m.u); else startUnitLesson(code,m.u,m.k); }
   else if(a==="review"){ startReview(S.current); }
   else if(a==="quick"){ startQuick(S.current); }
-  else if(a==="lvpick"){ const v = b.dataset.v; overlay = null; renderOverlay();
+  else if(a==="lvpick"){ const v = b.dataset.v; S.lvAsked = 1; overlay = null; renderOverlay();
     if(v==="test") startPlace(S.current); else if(v==="pick"){ screen="pick"; render(); window.scrollTo(0,0); } else { goHome(); setTimeout(bootPrompts, 400); } }
   else if(a==="flipshow"){ if(L && !L.flipShown){ L.flipShown = true; render(); sfx("flip"); } }
   else if(a==="flipyes" || a==="flipno"){ if(L && L.flipShown) flipGrade(a==="flipyes"); }
