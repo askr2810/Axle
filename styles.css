@@ -1370,12 +1370,12 @@ a.srow{text-decoration:none;color:inherit}
 .egg-rays{position:absolute;left:50%;top:84px;width:420px;height:420px;margin:-210px 0 0 -210px;z-index:-1;background:repeating-conic-gradient(rgba(179,110,255,.16) 0 10deg,transparent 10deg 20deg);animation:holoSpin 18s linear infinite;border-radius:50%;pointer-events:none}
 @keyframes eggPop{0%{transform:scale(.2) rotate(-25deg);opacity:0}100%{transform:none;opacity:1}}
 @media (prefers-reduced-motion:reduce){.bdg.holo::before,.bdg.holo::after,.egg-rays,.egg-pop .bdg{animation:none}}
-.staff-tag{display:inline-flex;align-items:center;gap:4px;margin-top:4px;padding:3px 10px;border-radius:99px;font-size:12.5px;font-weight:800;color:#fff;background:#7B4FD6;box-shadow:0 2px 0 #4A2E9A}
+.staff-tag{display:inline-flex;align-items:center;gap:4px;margin-top:4px;padding:3px 10px;border-radius:99px;font-size:12.5px;font-weight:800;color:#fff;background:var(--accent-deep)}
 /* ---- adminpanel (admin.js) ---- */
 .adm{display:grid;gap:14px;padding-top:12px;padding-bottom:40px}
-.adm-hero{position:relative;overflow:hidden;isolation:isolate;display:flex;align-items:center;gap:14px;padding:16px;border-radius:18px;color:#fff;background:#1A1050}
-.adm-hero::before{content:"";position:absolute;inset:-60%;z-index:-1;background:conic-gradient(from 0deg,#4B23A8,#2B59C3,#0F8A83,#7B4FD6,#4B23A8);animation:holoSpin 14s linear infinite;opacity:.9}
-.adm-hero::after{content:"";position:absolute;inset:0;z-index:-1;background:radial-gradient(circle at 20% 30%,rgba(255,255,255,.18),transparent 60%)}
+.adm-hero{position:relative;overflow:hidden;isolation:isolate;display:flex;align-items:center;gap:14px;padding:16px;border-radius:16px;color:#fff;background:var(--accent-deep)}
+.adm-hero::before{display:none}
+.adm-hero::after{display:none}
 .adm-hero b{display:block;font-family:var(--display);font-weight:800;font-size:20px}.adm-hero span{font-size:13.5px;opacity:.9}
 .adm-av{flex:none;border-radius:50%;box-shadow:0 0 0 3px rgba(255,255,255,.6),0 0 18px rgba(179,110,255,.8)}
 .adm-tabs{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none}.adm-tabs button{flex:none}
@@ -1402,11 +1402,11 @@ a.srow{text-decoration:none;color:inherit}
 .adm-log{list-style:none;margin:0;padding:0;display:grid;gap:6px}
 .adm-log li{background:var(--card);border:2px solid var(--line);border-radius:12px;padding:8px 12px;font-size:14px}
 .adm-log small{display:block;color:var(--muted);font-size:12px}.adm-log li span{display:block;color:var(--muted);font-size:12.5px;margin-top:2px}
-.adm-entry{display:flex;align-items:center;gap:12px;width:100%;text-align:left;padding:14px 16px;border:0;border-radius:16px;color:#fff;position:relative;overflow:hidden;isolation:isolate;background:#1A1050;box-shadow:0 4px 0 #120B38}
-.adm-entry::before{content:"";position:absolute;inset:-80%;z-index:-1;background:conic-gradient(#4B23A8,#2B59C3,#7B4FD6,#FF6EC7,#4B23A8);animation:holoSpin 10s linear infinite}
-.adm-entry b{display:block;font-family:var(--display);font-weight:800;font-size:17px}.adm-entry small{display:block;font-size:12.5px;opacity:.9}
+.adm-entry{display:flex;align-items:center;gap:12px;width:100%;text-align:left;padding:14px 16px;border:2px solid var(--line);border-bottom-width:4px;border-radius:16px;color:var(--ink);background:var(--card)}
+.adm-entry::before{display:none}
+.adm-entry b{display:block;font-family:var(--display);font-weight:800;font-size:17px}.adm-entry small{display:block;font-size:12.5px;color:var(--muted)}
 .adm-entry>span:nth-child(2){flex:1}.adm-entry svg{width:20px;height:20px}
-.adm-entry-ic{font-size:26px;filter:drop-shadow(0 0 6px rgba(255,255,255,.6))}
+.adm-entry-ic{flex:none;width:44px;height:44px;border-radius:14px;display:grid;place-items:center;background:var(--accent-soft);color:var(--accent);font-size:24px}.adm-entry>svg:last-child{color:var(--muted)}
 /* kunngjøring på forsiden */
 .ntc-banner{display:flex;align-items:flex-start;gap:10px;padding:12px 14px;margin-bottom:12px;border-radius:14px;background:rgba(179,110,255,.18);border:2px solid #B36EFF;font-size:14.5px;line-height:1.4}
 .ntc-banner span{flex:1}.ntc-banner.static{margin:0}
@@ -1974,6 +1974,9 @@ textarea.fbtext{width:100%;font:13px/1.4 var(--mono,monospace);border-radius:12p
 .th-row{flex-wrap:wrap;gap:10px}.th-row .lbl{flex:1 1 100%}
 .th-sws{display:flex;flex-wrap:wrap;gap:9px}
 .th-iconrow{flex-wrap:wrap}
+/* emoji byttet med linjeikoner (emoIcons i app.js): ikonet følger tekstfargen og størrelsen der det står */
+.emo-ic{display:inline-grid;place-items:center;line-height:1;vertical-align:middle}.emo-ic>svg{width:1em;height:1em;min-width:18px;min-height:18px}
+.emo-pre{margin-right:.35em;vertical-align:-.15em}.emo-pre>svg{min-width:0;min-height:0;width:1.1em;height:1.1em}
 .th-ics{display:flex;gap:10px}
 .th-ic{display:grid;justify-items:center;gap:4px;border:0;background:none;padding:4px;border-radius:14px;color:var(--muted);font-weight:600}
 .th-ic small{font-size:11.5px;max-width:76px;text-align:center;line-height:1.2}

@@ -157,6 +157,83 @@ const EMO = {
   "🧮": svg('<rect x="5" y="2.5" width="14" height="19" rx="2.5"/><path d="M8.5 6.5h7M9 11h.01M12 11h.01M15 11h.01M9 14.5h.01M12 14.5h.01M15 14.5h.01M9 18h.01M12 18h3"/>')
 };
 const ico = e => EMO[e] || e;
+// Flere emoji som brukes som ikoner rundt i appen (paneler, verktøy, menyer) – samme strek og stil som resten.
+Object.assign(EMO, {
+  "📘": I.book, "📚": I.book, "📖": I.book, "📕": I.book, "📗": I.book, "🏆": I.trophyS, "❤️": I.heart, "🗑": I.trash, "🗑️": I.trash, "✏️": I.pencil,
+  "🔥": I.fire, "🏁": I.flag, "🚩": I.flag, "💬": I.chat, "✉️": I.mail, "🏠": I.book2, "👀": I.eye, "🙈": I.eyeOff, "👥": I.users, "🤝": I.users, "🫂": I.users, "🔍": I.search, "🔎": I.search,
+  "📝": svg('<path d="M6 3h9l4 4v14H6z"/><path d="M14 3v5h5M9 13h7M9 17h5"/>'),
+  "📜": svg('<path d="M6 3h9l4 4v14H6z"/><path d="M14 3v5h5M9 13h7M9 17h5"/>'),
+  "🍅": svg('<circle cx="12" cy="13" r="8"/><path d="M12 9v4l3 2M9 2.5h6"/>'),
+  "⏱️": svg('<circle cx="12" cy="13" r="8"/><path d="M12 9v4l3 2M9 2.5h6"/>'),
+  "💡": svg('<path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-4 10.5c.8.8 1 1.5 1 2.5h6c0-1 .2-1.7 1-2.5A6 6 0 0 0 12 3z"/>'),
+  "🧠": svg('<path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-4 10.5c.8.8 1 1.5 1 2.5h6c0-1 .2-1.7 1-2.5A6 6 0 0 0 12 3z"/>'),
+  "🌍": svg('<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/>'),
+  "🎓": svg('<path d="M2 9l10-5 10 5-10 5z"/><path d="M6 11v5c3 2 9 2 12 0v-5M21.5 9v6"/>'),
+  "💻": svg('<rect x="4" y="5" width="16" height="11" rx="1.5"/><path d="M2 19.5h20"/>'),
+  "🎮": svg('<rect x="2.5" y="7" width="19" height="11" rx="5"/><path d="M7 11v3M5.5 12.5h3M15 12h.01M18 13.5h.01"/>'),
+  "🚦": svg('<rect x="8" y="2.5" width="8" height="19" rx="3"/><circle cx="12" cy="7" r="1.4"/><circle cx="12" cy="12" r="1.4"/><circle cx="12" cy="17" r="1.4"/>'),
+  "🌿": svg('<path d="M5 19c0-8 5-14 15-14 0 10-6 15-14 15M5 19l7-7"/>'),
+  "🌱": svg('<path d="M5 19c0-8 5-14 15-14 0 10-6 15-14 15M5 19l7-7"/>'),
+  "🧊": svg('<path d="M12 3l8 4.5v9L12 21l-8-4.5v-9z"/><path d="M4 7.5l8 4.5 8-4.5M12 12v9"/>'),
+  "💧": svg('<path d="M12 3s6 7 6 11a6 6 0 0 1-12 0c0-4 6-11 6-11z"/>'),
+  "☀️": svg('<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>'),
+  "❄️": svg('<path d="M12 2v20M3.3 7l17.4 10M3.3 17 20.7 7M9 4l3 2 3-2M9 20l3-2 3 2"/>'),
+  "📣": svg('<path d="M3 10v4h3l8 5V5L6 10z"/><path d="M18 9a4 4 0 0 1 0 6"/>'),
+  "🏛️": svg('<path d="M3 21h18M4 10h16M12 3l9 5H3zM6 10v8M10 10v8M14 10v8M18 10v8"/>'),
+  "🏫": svg('<path d="M3 21h18M5 21V10l7-5 7 5v11M10 21v-5h4v5"/>'),
+  "🎈": svg('<path d="M12 3a6 6 0 0 1 6 6c0 4-3 7-6 7s-6-3-6-7a6 6 0 0 1 6-6zM12 16v1.5M12 18c0 2-2 2-2 4"/>'),
+  "🔌": svg('<path d="M9 3v5M15 3v5M6 8h12v3a6 6 0 0 1-12 0zM12 17v4"/>'),
+  "🏗️": svg('<path d="M3 20h18M5 20V8h14v12M5 8l7 6 7-6M9 20v-5h6v5"/>'),
+  "🌊": svg('<path d="M2 9c2 0 2-2 4-2s2 2 4 2 2-2 4-2 2 2 4 2 2-2 4-2M2 15c2 0 2-2 4-2s2 2 4 2 2-2 4-2 2 2 4 2 2-2 4-2"/>'),
+  "🚀": svg('<path d="M12 2c3 2 5 6 5 10v4H7v-4c0-4 2-8 5-10zM7 13l-3 3v3l3-1M17 13l3 3v3l-3-1M10 20h4"/><circle cx="12" cy="9" r="1.6"/>'),
+  "⭐": I.star16, "🌟": I.star16,
+  "📏": svg('<path d="M3 17 17 3l4 4L7 21z"/><path d="M7 13l2 2M10 10l2 2M13 7l2 2"/>'),
+  "📐": svg('<path d="M4 20V4l16 16z"/><path d="M8 16h3v-3"/>'),
+  "🔧": svg('<path d="M15 4a5 5 0 0 0-4.6 6.9L3 18.3 5.7 21l7.4-7.4A5 5 0 0 0 20 9l-3 1-2-2 1-3z"/>'),
+  "🛠️": svg('<path d="M15 4a5 5 0 0 0-4.6 6.9L3 18.3 5.7 21l7.4-7.4A5 5 0 0 0 20 9l-3 1-2-2 1-3z"/>'),
+  "🤖": svg('<rect x="5" y="8" width="14" height="11" rx="3"/><path d="M12 4v4M9 13h.01M15 13h.01M9.5 16h5"/>'),
+  "🧲": svg('<path d="M6 3v8a6 6 0 0 0 12 0V3h-4v8a2 2 0 0 1-4 0V3zM6 7h4M14 7h4"/>'),
+  "🔗": svg('<path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/>'),
+  "📅": svg('<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/>'),
+  "🗓️": svg('<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/>'),
+  "🏷️": svg('<path d="M3 3h8l10 10-8 8L3 11z"/><circle cx="7.5" cy="7.5" r="1.5"/>'),
+  "🛡️": svg('<path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/>'),
+  "🔔": svg('<path d="M6 16v-5a6 6 0 0 1 12 0v5l2 2H4zM10 21h4"/>'),
+  "⚠️": svg('<path d="M12 3l10 18H2z"/><path d="M12 10v5M12 18h.01"/>'),
+  "🧭": svg('<circle cx="12" cy="12" r="9"/><path d="M15.5 8.5l-2 5-5 2 2-5z"/>'),
+  "✨": svg('<path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"/>'),
+  "📍": svg('<path d="M12 21s7-6 7-12a7 7 0 0 0-14 0c0 6 7 12 7 12z"/><circle cx="12" cy="9" r="2.5"/>'),
+  "🖼️": svg('<rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="10" r="2"/><path d="M21 16l-5-5-9 9"/>'),
+  "🎨": svg('<path d="M12 3a9 9 0 0 0 0 18c1.5 0 2-1 2-2s-1-1.5-1-2.5 1-1.5 2-1.5h2a4 4 0 0 0 4-4c0-4.5-4-8-9-8z"/><circle cx="7.5" cy="11" r="1"/><circle cx="10" cy="7" r="1"/><circle cx="15" cy="7" r="1"/>'),
+  "🔒": I.lock, "📲": null,
+  "🧰": svg('<rect x="3" y="8" width="18" height="12" rx="2"/><path d="M9 8V5h6v3M3 13h18M10 13v2h4v-2"/>'), "🎧": svg('<path d="M4 15v-3a8 8 0 0 1 16 0v3"/><rect x="3" y="14" width="4" height="6" rx="1.5"/><rect x="17" y="14" width="4" height="6" rx="1.5"/>'),
+  "🔊": svg('<path d="M4 9v6h4l5 4V5L8 9z"/><path d="M16 9a4 4 0 0 1 0 6M19 6a8 8 0 0 1 0 12"/>'),
+  "📈": svg('<path d="M3 20h18M5 16l5-5 4 3 6-7"/><path d="M15 7h5v5"/>'),
+  "📋": svg('<rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4h6v3H9zM9 12h6M9 16h4"/>'),
+  "🗳️": svg('<path d="M4 14h16v7H4zM8 14V4h8v10M10 8l2 2 3-4"/>'),
+  "🧑‍🏫": svg('<circle cx="8" cy="7" r="3"/><path d="M3 21v-4a5 5 0 0 1 10 0M12 4h9v9h-6M15 13l3 4"/>'),
+});
+EMO["📲"] = EMO["📱"]; EMO["🌏"] = EMO["🌎"] = EMO["🌍"];
+// Etter hver tegning: et element som bare inneholder ett emoji vi har et ikon for, får linjeikonet i stedet.
+function emoIcons(root){
+  if(!root || !root.querySelectorAll) return;
+  for(const el of root.querySelectorAll("span, i, b, div, button, em, strong, small")){
+    if(el.childNodes.length !== 1 || el.firstChild.nodeType !== 3 || el.closest("input, textarea, .emo-keep")) continue;
+    const t = el.firstChild.nodeValue.trim(); if(!t || t.length > 8) continue;
+    const ic = EMO[t] || EMO[t.replace(/️/g, "")] || EMO[t + "️"]; if(!ic) continue;
+    el.innerHTML = ic; el.classList.add("emo-ic");
+  }
+  // «🛡️ Admin», «🍅 Fokusrom»: et emoji først i en tekst blir et ikon foran teksten
+  const re = /^\s*([\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}]\uFE0F?)\s+/u;
+  for(const el of root.querySelectorAll("b, span, button, h1, h2, h3, h4, small, a, p, strong, div, label")){
+    const n = el.firstChild; if(!n || n.nodeType !== 3 || el.closest("input, textarea, .emo-keep")) continue;
+    const m = n.nodeValue.match(re); if(!m) continue;
+    const ic = EMO[m[1]] || EMO[m[1].replace(/\ufe0f/g, "")] || EMO[m[1] + "\ufe0f"]; if(!ic) continue;
+    n.nodeValue = n.nodeValue.slice(m[0].length);
+    const s = document.createElement("span"); s.className = "emo-ic emo-pre"; s.innerHTML = ic; el.insertBefore(s, n);
+  }
+}
+
 
 // ---------- plattform ----------
 const CAP = window.Capacitor;
@@ -1028,7 +1105,8 @@ function calcKey(e){
 }
 
 // ---------- overlays ----------
-function renderOverlay(){
+function renderOverlay(){ renderOverlayNow(); emoIcons(document.body.querySelector(".scrim")); emoIcons(document.body.querySelector(".thsheet")); }
+function renderOverlayNow(){
   document.querySelector(".scrim")?.remove(); document.querySelector(".sc")?.remove(); document.querySelector(".thsheet")?.remove();
   if(SCR){ if(SCR.ro) SCR.ro.disconnect(); cancelAnimationFrame(SCR.raf); } SCR = null;
   if(!overlay){ dcAfterOverlay(); return; }
@@ -1201,7 +1279,7 @@ function termsLoad(){
 function render(){
   const same = render.last === screen, y = window.scrollY, path = el => { const p = []; for(let e = el; e && e.id !== "app"; e = e.parentElement) p.unshift([...e.parentElement.children].indexOf(e)); return p; };
   const keep = same ? [...document.querySelectorAll("#app > *, #app > * > *, #app > * > * > *, #app .sheet")].filter(e => e.scrollTop > 0).map(e => [e.className, path(e), e.scrollTop]) : [];
-  renderNow();
+  renderNow(); emoIcons(document.getElementById("app"));
   if(!same && typeof stScreen === "function") stScreen(screen);
   render.last = screen;
   if(typeof poDraw === "function") poDraw();
