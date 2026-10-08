@@ -232,7 +232,7 @@ FIGS.pow_sq = () => {
   s += fgT(222, 130, "2³ = 2 · 2 · 2 = 8", "fg-b");
   return { cap: T("En potens er gjentatt ganging. 3² er et kvadrat med 9 ruter, og 2³ er en kube med 8 små kuber.", "A power is repeated multiplication. 3² is a square of 9 cells, and 2³ is a cube of 8 small cubes."), svg: s };
 };
-// Gjennomsnitt og median med en uteligger (Grunnleggende matematikk, enhet 9)
+// Gjennomsnitt og median med en uteligger (ikke koblet: GMAT 9 har vippe-labben «meanmed» i sims7.js)
 FIGS.mean_median = () => {
   const x = v => 30 + v * 26, data = [2, 3, 3, 4, 5, 9], seen = {};
   let s = `<line class="fg-line" x1="24" y1="112" x2="296" y2="112"/>`;
@@ -299,7 +299,7 @@ FIGS.atom = () => {
 // Kobling enhet → figur (settes inn etter «Begreper og formler»)
 const FIG_MAP = {
   "MAPE1300:0": "beam_fbd", "MAPE1300:1": "incline", "MAPE1300:3": "beam_moment",
-  "MEK1000:0": "tangent", "MEK1000:1": "area", "GMAT:7": "tangent", "GMAT:5": "triangle", "GMAT:0": "fractions", "GMAT:2": "balance", "GMAT:1": "pow_sq", "GMAT:8": "mean_median",
+  "MEK1000:0": "tangent", "MEK1000:1": "area", "GMAT:7": "tangent", "GMAT:5": "triangle", "GMAT:0": "fractions", "GMAT:2": "balance", "GMAT:1": "pow_sq",
   "GFYS:0": "prefixes", "GFYS:3": "energy", "VG1P:4": "tree", "VG2P:2": "shift", "VG1T:5": "area_factor", "VGS1:0": "balance", "VGKJ1:0": "atom",
   "ELPE1300:0": "circuit_sp", "ELPE1300:1": "rc_curve", "ELPE1300:2": "sine", "ELPE1300:4": "three_phase", "ELFT2400:3": "rc_curve",
   "FLUID:1": "venturi", "FLUID:3": "pump_curves", "MEK2200:3": "regression", "MATS2100:3": "heat_pump",
