@@ -3045,3 +3045,30 @@ details.cat-mc{margin:6px 0}details.cat-mc>summary{cursor:pointer;font-size:12px
   .set-cat.on{background:var(--accent-soft)}
   .set-cat:hover:not(.on){background:var(--paper)}
 }
+
+/* ---------- Illustrasjon på oppgavene (qart.js) ---------- */
+.q-topic{display:flex;align-items:center;gap:12px;min-width:0}
+.q-pic{display:grid;place-items:center;width:56px;height:56px;border-radius:16px;background:var(--accent-soft);flex:none}
+.q-pic .qp{width:44px;height:44px}
+.q-tt{display:grid;gap:3px;min-width:0}
+.q-tt b{font-family:var(--display);font-weight:800;font-size:15px;line-height:1.2;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.krow.has-pic{margin:12px 0 12px}
+.q-fig{margin:4px 0 12px;padding:10px 12px;border-radius:16px;background:var(--card);border:2px solid var(--line);color:var(--ink)}
+.q-fig svg{display:block;width:100%;height:auto;max-height:180px}
+.lbody .q-fig{background:color-mix(in srgb,var(--accent-soft) 45%,var(--card))}
+.qp{fill:none;stroke:var(--ink);stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round;overflow:visible}
+.qp .qp-a{stroke:var(--accent)}
+.qp .qp-g{stroke:var(--gold-deep,#C98A00)}
+.qp .qp-r{stroke:var(--bad)}
+.qp .qp-m{stroke:var(--muted);stroke-width:2}
+.qp .qp-dash{stroke-dasharray:4 4}
+.qp .qp-w{stroke:#fff}
+.qp .qp-f{fill:var(--card);stroke:none}
+.qp .qp-af{fill:var(--accent);stroke:none}
+.qp .qp-gf{fill:var(--gold);stroke:none}
+.qp .qp-gfill{fill:var(--gold);stroke:none;opacity:.9}
+.qp .qp-rf{fill:var(--bad);stroke:none;opacity:.85}
+.qp .qp-wf{fill:#fff;stroke:none}
+.qp .qp-kf{fill:var(--ink);stroke:none}
+.qp .qp-sf{fill:var(--accent);stroke:none;opacity:.35}
+@media (max-height:700px){.q-fig svg{max-height:120px}}

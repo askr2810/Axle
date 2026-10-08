@@ -521,8 +521,8 @@ function rawQ(c, id){
 }
 function itemFromId(c, id, opt={}){
   const q = rawQ(c, id); if(!q) return null;
-  const it = makeItem(q, id);
-  if(it.type==="num" && opt.mc) return toMC(it);
+  const it = makeItem(q, id); it.cc = c.code; it.cu = +id.split(".")[0]; // fag og enhet: til illustrasjonen over oppgaven (qart.js)
+  if(it.type==="num" && opt.mc) return Object.assign(toMC(it), { cc: it.cc, cu: it.cu });
   if(it.type==="num" && opt.strict) it.tol = it.tol/2;
   return it;
 }
@@ -701,7 +701,9 @@ function renderLesson(){
       <div class="lfoot"><div class="wrap">${shown ? `<p class="fc-q">${esc(t("flipAsk"))}</p><div class="fc-btns"><button class="big ghost fc-no" data-a="flipno">${esc(t("flipNo"))}</button><button class="big fc-yes" data-a="flipyes">${esc(t("flipYes"))}</button></div>` : `<button class="big" data-a="flipshow">${esc(t("flipShow"))}</button>`}</div></div></div>`;
     return;
   }
-  let body = `<div class="krow"><p class="kicker">${esc(lvl)}${it.type==="mc"?t("pickAnswer"):t("writeAnswer")}</p><button class="kbtn" data-a="scratch">${I.pencil}${t("scratch")}</button></div><div class="prompt">${richBig(it.prompt)}</div>`;
+  // Illustrasjon på oppgaven (qart.js): temaets piktogram og navn øverst, og en figur over oppgaveteksten når det finnes en.
+  const art = typeof qArt === "function" ? qArt(it) : {}, kick = `<p class="kicker">${esc(lvl)}${it.type==="mc"?t("pickAnswer"):t("writeAnswer")}</p>`;
+  let body = `<div class="krow ${art.pic ? "has-pic" : ""}">${art.pic ? `<div class="q-topic"><span class="q-pic">${art.pic}</span><span class="q-tt"><b>${esc(art.name)}</b>${kick}</span></div>` : kick}<button class="kbtn" data-a="scratch">${I.pencil}${t("scratch")}</button></div>${art.fig || ""}<div class="prompt">${richBig(it.prompt)}</div>`;
   if(it.type==="mc"){
     body += `<div class="opts" role="radiogroup">` + it.opts.map((o,i)=>{
       let cls = L.sel===i ? "sel" : "";
