@@ -1,17 +1,19 @@
-# Skrivebordsappen (Tauri): bygges når en versjons-tag pushes, f.eks. «git tag v1.2.0 && git push origin v1.2.0».
+# Skrivebordsappen (Tauri): bygges når en versjons-tag pushes («git tag v1.2.0 && git push origin v1.2.0»)
+# eller når en release publiseres på GitHub (Releases → Draft a new release → ny tag v1.2.0 → Publish).
 # Lager Axle.dmg (Mac, universal) og Axle-Setup.exe (Windows), legger dem på GitHub Releases
 # (…/releases/latest/download/Axle.dmg) og oppdaterer Homebrew-oppskriften Casks/axle.rb.
 # Bruker bare GitHubs gratis runnere.
 name: Skrivebordsapp
 on:
   push: { tags: ['v*.*.*'] }
+  release: { types: [published] }   # «Draft a new release» på GitHub med en ny tag virker også
   workflow_dispatch:
     inputs:
       tag: { description: 'Eksisterende tag å bygge (f.eks. v1.2.0)', required: true }
 permissions: { contents: write }
 concurrency: { group: 'release-${{ github.ref }}', cancel-in-progress: false }
 env:
-  TAG: ${{ inputs.tag || github.ref_name }}
+  TAG: ${{ inputs.tag || github.event.release.tag_name || github.ref_name }}
 jobs:
   build:
     strategy:
