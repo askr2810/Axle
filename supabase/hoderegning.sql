@@ -84,8 +84,10 @@ declare
   c text;
 begin
   if me is null then raise exception 'not_logged_in'; end if;
-  if jsonb_typeof(p_cfg) <> 'object' or length(p_cfg::text) > 300
-     or (p_cfg ->> 'lvl')::int not between 1 and 4 or (p_cfg ->> 'n')::int not between 5 and 30 or (p_cfg ->> 'secs')::int not between 3 and 30 then raise exception 'bad_cfg'; end if;
+  -- hoderegning: nivå 1–4. Quiz fra lærerverktøyet: nivå 0 og en kilde (src) – et Axle-fag eller et quiz-kurs.
+  if jsonb_typeof(p_cfg) <> 'object' or length(p_cfg::text) > 400
+     or (p_cfg ->> 'lvl')::int not between 0 and 4 or ((p_cfg ->> 'lvl')::int = 0) <> (p_cfg ? 'src')
+     or (p_cfg ->> 'n')::int not between 3 and 30 or (p_cfg ->> 'secs')::int not between 3 and 60 then raise exception 'bad_cfg'; end if;
   if (select count(*) from public.mq_rooms where host = me and created_at > now() - interval '1 hour') >= 30 then raise exception 'rate'; end if;
   delete from public.mq_rooms where created_at < now() - interval '1 day';
   c := public.mq_gen_code();
@@ -150,7 +152,7 @@ begin
 end $$;
 
 -- ---------- topplister ----------
--- Nøkkel: «w2026-10-05» (ukens hoderegning) eller «seed.nivå.antall.sekunder» (utfordringslenke).
+-- Nøkkel: «w2026-10-05» (ukens hoderegning), «seed.nivå.antall.sekunder» (utfordringslenke) eller «q…» (quiz fra lærerverktøyet).
 create or replace function public.mq_submit(p_key text, p_score int, p_ok int, p_name text, p_av text default null)
 returns void language plpgsql volatile security definer set search_path = public as $$
 declare
@@ -158,8 +160,9 @@ declare
   n int;
 begin
   if me is null then raise exception 'not_logged_in'; end if;
-  if p_key !~ '^(w[0-9]{4}-[0-9]{2}-[0-9]{2}|[0-9]{1,10}\.[1-4]\.[0-9]{1,2}\.[0-9]{1,2})$' then raise exception 'bad_key'; end if;
-  n := case when p_key like 'w%' then 15 else split_part(p_key, '.', 3)::int end;
+  -- quiz: «q<seed>.<antall>.<sek>.<kilde>»
+  if p_key !~ '^(w[0-9]{4}-[0-9]{2}-[0-9]{2}|[0-9]{1,10}\.[1-4]\.[0-9]{1,2}\.[0-9]{1,2}|q[0-9]{1,10}\.[0-9]{1,2}\.[0-9]{1,2}\.[A-Za-z0-9:,_-]{3,60})$' then raise exception 'bad_key'; end if;
+  n := case when p_key like 'w%' then 15 when p_key like 'q%' then split_part(p_key, '.', 2)::int else split_part(p_key, '.', 3)::int end;
   if p_ok not between 0 and n or p_score not between 0 and n * 400 then raise exception 'bad_score'; end if;
   insert into public.mq_results (ckey, uid, name, av, score, ok) values (p_key, me, left(coalesce(btrim(p_name), ''), 24), left(p_av, 200), p_score, p_ok)
     on conflict (ckey, uid) do update set score = greatest(mq_results.score, excluded.score),

@@ -123,6 +123,7 @@ function renderPractice(){
       ${qsHTML("practice")}${isDrive(c) ? "" : focCardHTML()}${dvPracticeCardHTML(c)}${isDrive(c) ? "" : labCourseHTML(c) + catCardHTML(c)}${cdPracticeCardHTML(c)}
       ${layoutHTML("practice", { c, today, goal, week, wrongN })}
       <h4 class="grp">🧰 ${esc(T("Hjelpemidler", "Study tools"))}</h4>${poCardHTML()}
+      <button class="tc-entry" data-a="tcopen"><span aria-hidden="true">🎓</span><div><b>${esc(T("Lærerverktøy", "Teacher tools"))}</b><small>${esc(T("Live-quiz på tavla, lekser med toppliste og klassegrupper – gratis.", "Live quiz on the board, homework with a leaderboard and class groups – free."))}</small></div>${I.chevron}</button>
       ${layLinkHTML("practice")}
     </main>`;
 }
