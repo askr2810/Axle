@@ -73,7 +73,18 @@ Spørsmålene i FKB, FKMC, SLMR, SFARM, SKLIN, SSYK, SMIK, SANA, SLOV og J* er g
 
 Sjekk også at skiltnummeret i koden stemmer. Kjør skiltspillet og teoriprøven visuelt etterpå.
 
-## 6. Til slutt
+## 6. Mac- og Windows-appen (v1.0.1)
+
+Versjonen er satt til 1.0.1 i koden. Lag taggen, så bygger GitHub `Axle.dmg` og `Axle-Setup.exe`:
+```
+git tag v1.0.1 && git push origin v1.0.1
+```
+
+1. Følg med på kjøringen «Skrivebordsapp» under Actions (via `gh run watch`, eller se på github.com).
+2. Hvis den feiler: les loggen, rett feilen, og lag en ny tag `v1.0.2` (ikke flytt en tag som allerede er pushet).
+3. Når utgivelsen har både `Axle.dmg` og `Axle-Setup.exe`: sett `desktopReady: true` i `config.js`, bygg, test, commit og push. Da vises nedlastingsknappene i appen og på axle.no/about.
+
+## 7. Til slutt
 
 1. Kjør `python3 build.py`, `npm test` og `node tools/seo.js`. Alt skal være grønt.
 2. Commit med forklarende meldinger.
