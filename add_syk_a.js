@@ -207,13 +207,13 @@ GEN("SLMR", 1,
    return [T(`Forordnet ${nf(dose)} mg. Miksturen har styrke ${nf(str)} mg/ml. Hvor mange ml skal du trekke opp?`, `Prescribed ${nf(dose)} mg. The oral solution has a strength of ${nf(str)} mg/mL. How many mL should you draw up?`),
      { n: ml, tol: 0.05, u: "ml" }, T(`Volum = dose / styrke = ${nf(dose)} / ${nf(str)} = ${nf(ml, 2)} ml.`, `Volume = dose / strength = ${nf(dose)} / ${nf(str)} = ${nf(ml, 2)} mL.`)]; },
  // mg/kg/døgn → ml per dose
- () => { const w = R.i(8, 40), perkg = R.p([10, 15, 20, 30, 40, 50]), n = R.p([2, 3, 4]), str = R.p([20, 25, 40, 50, 100]);
-   const day = perkg * w, one = day / n, ml = one / str;
+ () => { let w, perkg, n, str, day, one, ml; // trekk på nytt til dosen er et realistisk miksturvolum (høyst 20 ml)
+   do { w = R.i(8, 40); perkg = R.p([10, 15, 20, 30, 40, 50]); n = R.p([2, 3, 4]); str = R.p([20, 25, 40, 50, 100]); day = perkg * w; one = day / n; ml = one / str; } while(ml > 20);
    return [T(`Et barn på ${w} kg skal ha ${perkg} mg/kg/døgn fordelt på ${n} doser. Miksturen er ${str} mg/ml. Hvor mange ml per dose?`, `A child weighing ${w} kg is to have ${perkg} mg/kg/day divided into ${n} doses. The oral solution is ${str} mg/mL. How many mL per dose?`),
      { n: ml, tol: 0.05, u: "ml" },
      T(`Døgndose: ${perkg} · ${w} = ${nf(day)} mg. Per dose: ${nf(day)} / ${n} = ${nf(one, 1)} mg. Volum: ${nf(one, 1)} / ${str} = ${nf(ml, 2)} ml.`, `Daily dose: ${perkg} · ${w} = ${nf(day)} mg. Per dose: ${nf(day)} / ${n} = ${nf(one, 1)} mg. Volume: ${nf(one, 1)} / ${str} = ${nf(ml, 2)} mL.`)]; },
  // g forordnet, mg tabletter
- () => { const g = R.p([0.5, 1, 1.5, 2]), str = R.p([250, 500]); const k = g * 1000 / str;
+ () => { const str = R.p([250, 500]), g = R.p([0.5, 1, 1.5, 2].filter(x => x * 1000 / str <= 4)), k = g * 1000 / str; // høyst 4 tabletter i én dose
    return [T(`Forordnet ${nf(g, 1)} g. Tabletter à ${str} mg. Hvor mange tabletter?`, `Prescribed ${nf(g, 1)} g. Tablets of ${str} mg. How many tablets?`), { n: k, tol: 0, u: T("tabletter", "tablets") },
      T(`${nf(g, 1)} g = ${nf(g * 1000)} mg. ${nf(g * 1000)} / ${str} = ${nf(k)} tabletter.`, `${nf(g, 1)} g = ${nf(g * 1000)} mg. ${nf(g * 1000)} / ${str} = ${nf(k)} tablets.`)]; }
 );
@@ -288,10 +288,10 @@ BIQ("SLMR", 2, [
   "What is the formula for drip rate?", ["volume · drop factor / minutes", "volume / (drop factor · hours)", "minutes · drop factor / volume", "volume · hours / drop factor"], "Total drops (volume · drop factor) spread over the number of minutes."]
 ]);
 GEN("SLMR", 2,
- () => { const vol = R.p([100, 250, 500, 1000]), h = R.p([0.5, 1, 2, 3, 4, 6, 8, 12, 24]); const r = vol / h;
+ () => { const vol = R.p([100, 250, 500, 1000]), h = R.p([0.5, 1, 2, 3, 4, 6, 8, 12, 24].filter(x => vol / x <= 500)); const r = vol / h; // en vanlig pumpe går ikke over 999 ml/t
    return [T(`${nf(vol)} ml skal gis over ${nf(h, 1)} timer på infusjonspumpe. Hvor mange ml/t skal pumpen stilles på?`, `${nf(vol)} mL is to be given over ${nf(h, 1)} hours on an infusion pump. How many mL/h should the pump be set to?`),
      { n: r, tol: 0.1, u: T("ml/t", "mL/h") }, T(`ml/t = ${nf(vol)} / ${nf(h, 1)} = ${nf(r, 1)} ml/t.`, `mL/h = ${nf(vol)} / ${nf(h, 1)} = ${nf(r, 1)} mL/h.`)]; },
- () => { const vol = R.p([250, 500, 1000]), h = R.p([2, 3, 4, 6, 8, 10, 12]), df = 20; const min = h * 60, d = vol * df / min;
+ () => { const vol = R.p([250, 500, 1000]), df = 20, h = R.p([2, 3, 4, 6, 8, 10, 12].filter(x => vol * df / (x * 60) <= 100)); const min = h * 60, d = vol * df / min; // høyst 100 dråper/min
    return [T(`${nf(vol)} ml skal gå over ${h} timer. Infusjonssettet gir ${df} dråper/ml. Hvor mange dråper per minutt (rund til hele dråper)?`, `${nf(vol)} mL is to run over ${h} hours. The giving set delivers ${df} drops/mL. How many drops per minute (round to whole drops)?`),
      { n: Math.round(d), tol: 1, u: T("dråper/min", "drops/min") },
      T(`${h} t = ${min} min. Dråper/min = ${nf(vol)} · ${df} / ${min} = ${nf(d, 1)}, altså ${Math.round(d)} dråper/min.`, `${h} h = ${min} min. Drops/min = ${nf(vol)} · ${df} / ${min} = ${nf(d, 1)}, i.e. ${Math.round(d)} drops/min.`)]; },

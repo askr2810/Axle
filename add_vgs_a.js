@@ -378,7 +378,7 @@ GEN("VGR1", 3,
    return [T(`På hvor mange måter kan du velge ${k} av ${n} personer til en komité (rekkefølgen er likegyldig)?`, `In how many ways can you choose ${k} of ${n} people for a committee (order does not matter)?`), { n: c, tol: 0, u: "" },
      T(`$\\binom{${n}}{${k}} = ${c}$.`, `$\\binom{${n}}{${k}} = ${c}$.`)]; },
  () => { const n = R.i(4, 10), k = R.i(0, 4), p = R.p([0.1, 0.2, 0.25, 0.3, 0.5]); const P = C(n, k) * Math.pow(p, k) * Math.pow(1 - p, n - k);
-   return [T(`Sannsynligheten for suksess er ${nf(p, 2)} i hvert av ${n} uavhengige forsøk. Hva er sannsynligheten for nøyaktig ${k} suksesser? (Svar med tre desimaler.)`, `The probability of success is ${nf(p, 2)} in each of ${n} independent trials. What is the probability of exactly ${k} successes? (Answer with three decimals.)`), { n: P, tol: 0.001, u: "" },
+   return [T(`Sannsynligheten for suksess er ${nf(p, 2)} i hvert av ${n} uavhengige forsøk. Hva er sannsynligheten for nøyaktig ${k} ${k === 1 ? "suksess" : "suksesser"}? (Svar med tre desimaler.)`, `The probability of success is ${nf(p, 2)} in each of ${n} independent trials. What is the probability of exactly ${k} successes? (Answer with three decimals.)`), { n: P, tol: 0.001, u: "" },
      T(`$P(X = ${k}) = \\binom{${n}}{${k}} \\cdot ${mf(p, 2)}^{${k}} \\cdot ${mf(1 - p, 2)}^{${n - k}} \\approx ${mf(P, 3)}$.`, `$P(X = ${k}) = \\binom{${n}}{${k}} \\cdot ${mf(p, 2)}^{${k}} \\cdot ${mf(1 - p, 2)}^{${n - k}} \\approx ${mf(P, 3)}$.`)]; }
 );
 })();
