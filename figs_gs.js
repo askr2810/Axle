@@ -310,8 +310,56 @@ Object.assign(FIGS, {
     return { cap: T("De åtte planetene i rekkefølge fra sola (ikke i riktig størrelse eller avstand). De fire nærmeste er av stein, de fire ytterste er store gasskjemper.", "The eight planets in order from the sun (not to scale). The inner four are rocky, the outer four are giant planets of gas and ice."), svg: s }; }
 });
 
+// Figurer til enhetene som kom etter LK20-gjennomgangen (måling, koding, koordinater, sannsynlighet)
+Object.assign(FIGS, {
+  gs_measure: () => { let s = ""; const X = c => 20 + c * 20;
+    s += `<rect x="16" y="34" width="292" height="30" rx="4" style="${soft(2, 28)}"/>`;
+    for(let i = 0; i <= 28; i++){ const x = 20 + i * 10, big = i % 2 === 0; s += `<line x1="${x}" y1="34" x2="${x}" y2="${big ? 46 : 41}" style="stroke:var(--ink);stroke-width:${big ? 1.4 : 0.8}"/>`; }
+    for(let c = 0; c <= 14; c += 2) s += tx(X(c), 59, String(c), "fg-s");
+    s += `<rect x="${X(0)}" y="14" width="${X(9) - X(0) - 14}" height="12" rx="2" style="${soft(4, 55)}"/><polygon points="${X(9) - 14},14 ${X(9)},20 ${X(9) - 14},26" style="${soft(2, 45)}"/>`;
+    s += tx(X(9) + 8, 24, "9 cm", "fg-b", "start");
+    s += `<rect x="40" y="140" width="100" height="14" rx="4" style="${soft(3, 30)}"/><rect x="52" y="128" width="76" height="6" rx="3" style="fill:var(--ink)"/><line x1="90" y1="134" x2="90" y2="140" style="stroke:var(--ink);stroke-width:3"/>`;
+    s += `<rect x="70" y="96" width="40" height="30" rx="6" style="${soft(2, 45)}"/>` + tx(90, 116, "1 kg", "fg-b") + tx(90, 172, "1 kg = 1000 g", "fg-s");
+    s += `<polygon points="206,102 226,88 246,102" style="${soft(3, 40)}"/><rect x="206" y="102" width="40" height="52" style="${soft(3, 22)}"/>` + tx(226, 134, "1 L", "fg-b");
+    for(let i = 0; i < 10; i++){ const x = 258 + (i % 5) * 10, y = i < 5 ? 112 : 134; s += `<rect x="${x}" y="${y}" width="7" height="16" rx="1.5" style="${soft(3, 40)}"/>`; }
+    s += tx(256, 172, "1 L = 10 dL", "fg-s");
+    return { cap: T("Mål fra 0 på linjalen: blyanten er 9 cm. En kilo er 1000 gram, og en liter er 10 desiliter.", "Measure from 0 on the ruler: the pencil is 9 cm. A kilo is 1000 grams, and a litre is 10 decilitres."), svg: s }; },
+
+  gs_robot: () => { let s = ""; const c = 30, x0 = 20, y0 = 20, C = (i, j) => [x0 + i * c + c / 2, y0 + j * c + c / 2];
+    for(let i = 0; i < 6; i++) for(let j = 0; j < 4; j++) s += `<rect x="${x0 + i * c}" y="${y0 + j * c}" width="${c}" height="${c}" style="fill:${(i + j) % 2 ? "var(--card)" : "color-mix(in srgb,var(--c3) 8%,var(--card))"};stroke:var(--line);stroke-width:1"/>`;
+    const [gx, gy] = C(2, 2); s += `<polygon points="${[0, 1, 2, 3, 4].map(k => { const a = -Math.PI / 2 + k * 4 * Math.PI / 5; return `${f1(gx + 11 * Math.cos(a))},${f1(gy + 11 * Math.sin(a))}`; }).join(" ")}" style="fill:var(--gold);stroke:var(--gold-deep);stroke-width:1.2"/>`;
+    const [ax, ay] = C(0, 3), [bx] = C(2, 3);
+    s += car(ax + 12, ay, bx - 4, ay, 4, 2.4) + car(bx, ay - 4, bx, gy + 14, 4, 2.4);
+    s += `<rect x="${ax - 11}" y="${ay - 11}" width="22" height="22" rx="6" style="${soft(5, 60)}"/>` + circ(ax + 3, ay - 4, 2.2, "fill:var(--ink)") + circ(ax + 3, ay + 4, 2.2, "fill:var(--ink)");
+    s += tx(x0, 160, T("start", "start"), "fg-s", "start") + tx(gx, 160, T("mål", "goal"), "fg-s");
+    [["1", T("gå 2 fram", "move 2"), 4], ["2", T("snu venstre", "turn left"), 2], ["3", T("gå 1 fram", "move 1"), 4]].forEach(([n, l, k], i) => { const y = 34 + i * 36; s += box(214, y, 96, 28, k, 8) + tx(222, y + 19, n + ".", "fg-b", "start") + tx(236, y + 19, l, "fg-s", "start"); });
+    s += tx(262, 26, T("Koden", "The code"), "fg-b");
+    return { cap: T("Roboten følger koden steg for steg: 2 ruter fram, snu til venstre, 1 rute fram – og den er på stjerna.", "The robot follows the code step by step: 2 squares forward, turn left, 1 square forward – and it is on the star."), svg: s }; },
+
+  gs_coord: () => { let s = ""; const u = 18, O = [100, 92], P = (x, y) => [O[0] + x * u, O[1] - y * u];
+    for(let i = -4; i <= 4; i++){ const [x] = P(i, 0); s += `<line class="fg-mut" x1="${x}" y1="${P(0, 3)[1]}" x2="${x}" y2="${P(0, -3)[1]}" stroke-width=".5"/>`; }
+    for(let j = -3; j <= 3; j++){ const [, y] = P(0, j); s += `<line class="fg-mut" x1="${P(-4, 0)[0]}" y1="${y}" x2="${P(4, 0)[0]}" y2="${y}" stroke-width=".5"/>`; }
+    s += fgAr(P(-4.4, 0)[0], O[1], P(4.6, 0)[0], O[1], "fg-ax", 1.6) + fgAr(O[0], P(0, -3.4)[1], O[0], P(0, 3.6)[1], "fg-ax", 1.6);
+    s += tx(P(4.6, 0)[0] + 2, O[1] + 16, "x", "fg-i", "end") + tx(O[0] - 8, P(0, 3.5)[1] + 4, "y", "fg-i", "end");
+    const pts = [["A", 3, 2, 4], ["B", -2, -1, 1], ["C", -3, 2, 3], ["D", 2, -2, 5]];
+    pts.forEach(([n, x, y, k]) => { const [px, py] = P(x, y); s += circ(px, py, 5, `fill:var(--c${k})`) + col(px + 6, py - 6, n, k, "fg-b", "start"); });
+    s += circ(O[0], O[1], 3.5, "fill:var(--ink)");
+    pts.forEach(([n, x, y, k], i) => { s += circ(206, 34 + i * 22, 5, `fill:var(--c${k})`) + tx(216, 38 + i * 22, `${n} (${x}, ${y})`.replace(/-/g, "−"), "fg-t", "start"); });
+    s += tx(198, 132, T("x: høyre +, venstre −", "x: right +, left −"), "fg-s", "start") + tx(198, 150, T("y: opp +, ned −", "y: up +, down −"), "fg-s", "start");
+    return { cap: T("Et punkt (x, y): gå først sidelengs (minus = venstre), så opp eller ned (minus = ned). Midten er origo (0, 0).", "A point (x, y): first go sideways (minus = left), then up or down (minus = down). The middle is the origin (0, 0)."), svg: s }; },
+
+  gs_chance: () => { let s = ""; const X = p => 30 + 260 * p, y = 66;
+    s += `<rect x="30" y="${y - 6}" width="260" height="12" rx="6" style="fill:url(#gsch)"/><defs><linearGradient id="gsch"><stop offset="0" stop-color="var(--c1)" stop-opacity=".35"/><stop offset=".5" stop-color="var(--c2)" stop-opacity=".35"/><stop offset="1" stop-color="var(--c4)" stop-opacity=".45"/></linearGradient></defs>`;
+    [[0, "0"], [0.5, "½"], [1, "1"]].forEach(([p, l]) => { s += `<line x1="${X(p)}" y1="${y - 10}" x2="${X(p)}" y2="${y + 10}" style="stroke:var(--ink);stroke-width:2"/>` + tx(X(p), y + 26, l, "fg-b"); });
+    s += tx(X(0), y + 42, T("umulig", "impossible"), "fg-s") + tx(X(0.5), y + 42, T("like stor sjanse", "even chance"), "fg-s") + tx(X(1), y + 42, T("sikkert", "certain"), "fg-s");
+    const ex = [[0, T("terningen viser 7", "die shows 7"), 1, 18], [1 / 6, T("sekser", "a six"), 2, 38], [0.5, T("kron", "heads"), 3, 18], [1, T("sola står opp", "the sun rises"), 4, 38]];
+    ex.forEach(([p, l, k, ly]) => { s += circ(X(p), y, 6, `fill:var(--c${k});stroke:var(--card);stroke-width:2`) + `<line x1="${X(p)}" y1="${y - 8}" x2="${X(p)}" y2="${ly + 4}" style="stroke:var(--c${k});stroke-width:1.2"/>` + col(X(p), ly, l, k, "fg-s", p === 0 ? "start" : p === 1 ? "end" : "middle"); });
+    s += `<rect x="60" y="128" width="34" height="34" rx="7" style="fill:var(--card);stroke:var(--ink);stroke-width:2"/>` + [[68, 136], [68, 145], [68, 154], [86, 136], [86, 145], [86, 154]].map(([x, yy]) => circ(x, yy, 2.6, "fill:var(--ink)")).join("") + tx(102, 150, T("P(sekser) = 1/6", "P(six) = 1/6"), "fg-s", "start");
+    s += circ(210, 145, 17, `fill:color-mix(in srgb,var(--gold) 45%,var(--card));stroke:var(--gold-deep);stroke-width:2`) + tx(210, 149, "kr", "fg-b") + tx(232, 150, T("P(kron) = 1/2", "P(heads) = 1/2"), "fg-s", "start");
+    return { cap: T("Sannsynlighet går fra 0 (umulig) til 1 (sikkert). En rettferdig terning gir sekser 1 av 6 ganger, en rettferdig mynt kron 1 av 2 ganger – i det lange løp.", "Probability goes from 0 (impossible) to 1 (certain). A fair die gives a six 1 in 6 times, a fair coin heads 1 in 2 times – in the long run."), svg: s }; }
+});
 // Kobling til enhetene (finnes med tittel). Flere figurer i én enhet: liste.
-const FG = [["GS14", "Tall og plassverdi", "gs_place"], ["GS14", "Pluss og minus", "gs_numline"], ["GS14", "Gangetabellen", "gs_array"], ["GS14", "Deling", "gs_share"], ["GS14", "Klokka og penger", ["gs_clock", "gs_coins"]], ["GS14", "Former og mønstre", "gs_shapes"],
+const FG = [["GS14", "Måle og veie", "gs_measure"], ["GS14", "Koding: steg for steg", "gs_robot"], ["GS57", "Negative tall og koordinater", "gs_coord"], ["GS57", "Sannsynlighet", "gs_chance"], ["GS14", "Tall og plassverdi", "gs_place"], ["GS14", "Pluss og minus", "gs_numline"], ["GS14", "Gangetabellen", "gs_array"], ["GS14", "Deling", "gs_share"], ["GS14", "Klokka og penger", ["gs_clock", "gs_coins"]], ["GS14", "Former og mønstre", "gs_shapes"],
   ["GS57", "Brøk", "gs_pizza"], ["GS57", "Desimaltall", "gs_decimal"], ["GS57", "Prosent", "gs_percent"], ["GS57", "Areal og omkrets", "gs_area"], ["GS57", "Måling og enheter", "gs_stairs"], ["GS57", "Statistikk", "gs_bars"], ["GS57", "Enkle likninger", "balance"],
   ["GU810", "Tall og regnerekkefølge", "gu_order"], ["GU810", "Brøk, prosent og vekstfaktor", "pct_growth"], ["GU810", "Potenser og kvadratrøtter", "pow_sq"], ["GU810", "Algebra og likninger", "gu_solve"], ["GU810", "Lineære funksjoner", "gu_line"], ["GU810", "Geometri", "gu_pyth"], ["GU810", "Sannsynlighet og statistikk", "gu_bag"], ["GU810", "Privatøkonomi", "gu_budget"],
   ["GSNAT", "Kroppen", "gs_heart"], ["GSNAT", "Planter og dyr", "gs_photo"], ["GSNAT", "Stoffer og tilstander", "gs_states"], ["GSNAT", "Vær og klima", "gs_water"], ["GSNAT", "Jorda og verdensrommet", "gs_daynight"], ["GSNAT", "Elektrisitet og magneter", "gs_circuit"],
