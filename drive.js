@@ -187,7 +187,7 @@ function dvRenderSigns(){
   $app.innerHTML = `${dvTop(T("Skilt, lys og oppmerking", "Signs, lights and markings"), courseName(COURSE(S.current)))}<main class="wrap dv dv-signs">
     ${sgMenuHTML()}
     <button class="big ghost" data-a="dvprac" data-k="signs">🚦 ${esc(T("Skiltquiz med teorispørsmål", "Sign quiz with theory questions"))}</button>
-    ${FK_SIGN_GROUPS.map(([g, nb, en]) => `<h3 class="grp">${esc(T(nb, en))}</h3><div class="dv-sgrid">${FK_SIGN_INFO.filter(s => s[1] === g).map(s => `<button class="dv-sg ${sel === s[0] ? "on" : ""}" data-a="dvsign" data-s="${s[0]}">${sgKnown(s[0]) ? `<em class="dv-known" title="${esc(T("Du kan dette skiltet", "You know this sign"))}">✓</em>` : ""}${fkSign(s[0], 64)}<b>${esc(T(s[2], s[3]))}</b>${sel === s[0] ? `<small>${esc(T(s[4], s[5]))}</small>` : ""}</button>`).join("")}</div>`).join("")}</main>`;
+    ${FK_SIGN_GROUPS.map(([g, nb, en]) => `<h3 class="grp">${esc(T(nb, en))}</h3><div class="dv-sgrid">${FK_SIGN_INFO.filter(s => s[1] === g).map(s => `<button class="dv-sg ${sel === s[0] ? "on" : ""}" data-a="dvsign" data-s="${s[0]}">${sgKnown(s[0]) ? `<em class="dv-known" title="${esc(T("Du kan dette skiltet", "You know this sign"))}">✓</em>` : ""}${fkSign(s[0], 64)}<b>${esc(T(s[2], s[3]))}</b>${sel === s[0] ? `<small>${FK_SIGN_NR[s[0]] ? `<span class="dv-sgnr">${esc(T("Skilt", "Sign"))} ${FK_SIGN_NR[s[0]]}</span> ` : ""}${esc(T(s[4], s[5]))}</small>` : ""}</button>`).join("")}</div>`).join("")}</main>`;
 }
 // ---------- gratis prøve: resultat ----------
 function dvMiniHeroHTML(res){

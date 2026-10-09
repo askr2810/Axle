@@ -7,7 +7,7 @@
 const DP_TXT = "font-family:Figtree,system-ui,sans-serif";
 const dpT = (x, y, s, o = {}) => `<text x="${x}" y="${y}" text-anchor="${o.a || "middle"}" style="${DP_TXT};font-size:${o.size || 13}px;font-weight:${o.w || 700};fill:${o.col || "#1B1F24"}">${String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;")}</text>`;
 const dpSign = (name, x, y, size) => `<g transform="translate(${x} ${y}) scale(${(size / 100).toFixed(3)})">${FK_SIGNS[name]()}</g>`;
-const dpSpeed = (n, x, y, size) => `<g transform="translate(${x} ${y}) scale(${(size / 100).toFixed(3)})">${fkRound(`<text x="50" y="${n >= 100 ? 62 : 64}" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-weight="800" font-size="${n >= 100 ? 32 : 38}" style="fill:${FK_INK}">${n}</text>`)}</g>`;
+const dpSpeed = (n, x, y, size) => `<g transform="translate(${x} ${y}) scale(${(size / 100).toFixed(3)})">${FK_TRACE.sign["fart" + n] ? fkOfficial("fart" + n) : fkRound(`<text x="50" y="${n >= 100 ? 62 : 64}" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-weight="800" font-size="${n >= 100 ? 32 : 38}" style="fill:${FK_INK}">${n}</text>`)}</g>`; // sporet fra skilt 362 når det finnes
 const dpBadge = (x, y, n, col = "#1B1F24") => `<g transform="translate(${x} ${y})"><circle r="13" style="fill:${col};stroke:#fff;stroke-width:2.5"/>${dpT(0, 5, n, { size: 14, w: 800, col: "#fff" })}</g>`;
 // Et kryss fra trafikksituasjonene, med tall som viser rekkefølgen.
 function dpScene(id, x = 0, y = 0, size = 320){

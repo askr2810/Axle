@@ -2,14 +2,17 @@
 //  SKILT, LYS OG OPPMERKING til førerkort (tegnet som SVG, 100×100).
 //  fkSign(navn, størrelse) brukes i spørsmålene (DRIVE_IMG), i skiltoversikten og i teorifigurene (FIGS «fk_…»).
 // ============================================================
-// Farger og fareskilt-trekanten er hentet fra Statens vegvesens skilttegninger (FK_TRACE i drive_signs_ref.js).
-const FK_RED = "#D23E25", FK_BLUE = "#043087", FK_YEL = "#E1D726", FK_INK = "#1B1F24";
+// Fareskilt-trekanten og de fleste skiltene er sporet fra Statens vegvesens skilttegninger (FK_TRACE i drive_signs_ref.js,
+// laget av tools/trace_signs.py). Fargene er de offisielle skiltfargene: rød #c4122f, gul #ffd500 og blå #003d82.
+const FK_RED = "#c4122f", FK_BLUE = "#003d82", FK_YEL = "#ffd500", FK_INK = "#1B1F24";
+// Hele skilt sporet fra de offisielle tegningene (FK_TRACE.sign): lag med [farge, sti], tegnet i rekkefølge.
+const FK_COL = { w: "#fff", r: FK_RED, b: FK_BLUE, y: FK_YEL, k: FK_INK, g: "#9EA1A3", n: "#00843d" };
+const fkOfficial = name => FK_TRACE.sign[name].map(([c, d]) => `<path d="${d}" fill="${FK_COL[c]}" fill-rule="evenodd"/>`).join("");
 const fkTri = (inner, down) => (down ? `<path d="M7 15h86L50 89z" fill="#fff" stroke="${FK_RED}" stroke-width="9" stroke-linejoin="round"/>`
   : `<path d="${FK_TRACE.triBase}" fill="#fff"/><path d="${FK_TRACE.triRedPath}" fill="${FK_RED}" fill-rule="evenodd"/>`) + (inner || "");
-const fkTrace = key => `<path d="${FK_TRACE[key]}" fill="${FK_TRACE.ink}" fill-rule="evenodd"/>`;
+const fkTrace = key => `<path d="${FK_TRACE[key]}" fill="${FK_INK}" fill-rule="evenodd"/>`;
 const fkRound = (inner, fill = "#fff") => `<circle cx="50" cy="50" r="42" fill="${fill}" stroke="${FK_RED}" stroke-width="9"/>${inner || ""}`;
 const fkBlueRound = inner => `<circle cx="50" cy="50" r="44" fill="${FK_BLUE}" stroke="#fff" stroke-width="3"/>${inner || ""}`;
-const fkBlueSq = inner => `<rect x="8" y="8" width="84" height="84" rx="3.5" fill="${FK_BLUE}" stroke="#fff" stroke-width="3"/>${inner || ""}`;
 const fkCar = (x, y, col, s = 1) => `<g transform="translate(${x} ${y}) scale(${s})"><rect x="-7" y="-12" width="14" height="24" rx="4" fill="${col}"/><rect x="-5" y="-7" width="10" height="6" rx="1.5" fill="#fff" opacity=".7"/></g>`;
 // Fotgjenger/barn som fylt silhuett med tykke, runde lemmer (som på ekte skilt). pose: "walk" eller "run".
 const fkPed = (x, y, s = 1, col = FK_INK, pose = "walk") => { const L = (d, w) => `<path d="${d}" fill="none" stroke="${col}" stroke-width="${w}" stroke-linecap="round" stroke-linejoin="round"/>`;
@@ -98,13 +101,9 @@ const fkCarRear = (x, y, col = FK_INK) => `<g transform="translate(${x} ${y})">
   <rect x="-14" y="-12" width="6" height="3" rx="1" style="fill:#fff"/><rect x="8" y="-12" width="6" height="3" rx="1" style="fill:#fff"/>
   <rect x="-15.5" y="-2.5" width="6.5" height="5.5" rx="1.4" style="fill:${col}"/><rect x="9" y="-2.5" width="6.5" height="5.5" rx="1.4" style="fill:${col}"/></g>`;
 const FK_SIGNS = {
-  vikeplikt: () => fkTri("", true),
-  // 202 Stopp: vektorisert fra referansetegningen (FK_TRACE.stopOct/stopText). Hvit kant rundt den røde åttekanten.
-  stopp: () => `<path d="${FK_TRACE.stopOct}" fill="#fff" stroke="#fff" stroke-width="7" stroke-linejoin="round"/><path d="${FK_TRACE.stopOct}" fill="${FK_TRACE.stopRed}"/><path d="${FK_TRACE.stopText}" fill="#fff" fill-rule="evenodd"/>`,
-  forkjorsvei: () => { const d = r => `M49.75 ${(49.75 - r).toFixed(2)}L${(49.75 + r).toFixed(2)} 49.75L49.75 ${(49.75 + r).toFixed(2)}L${(49.75 - r).toFixed(2)} 49.75Z`; // mål fra skilt 308 (FK_TRACE)
-    return `<path d="${d(47.7)}" fill="#fff" stroke="#fff" stroke-width="4" stroke-linejoin="round"/><path d="${d(47.7)}" fill="${FK_INK}"/><path d="${d(43.4)}" fill="#fff"/><path d="${d(25.8)}" fill="${FK_INK}"/><path d="${d(24.6)}" fill="${FK_YEL}"/>`; },
+  // 204 Stopp: vektorisert fra referansetegningen (FK_TRACE.stopOct/stopText). Hvit kant rundt den røde åttekanten.
+  stopp: () => `<path d="${FK_TRACE.stopOct}" fill="#fff" stroke="#fff" stroke-width="7" stroke-linejoin="round"/><path d="${FK_TRACE.stopOct}" fill="${FK_RED}"/><path d="${FK_TRACE.stopText}" fill="#fff" fill-rule="evenodd"/>`,
   slutt_forkjorsvei: () => `<path d="${FK_TRACE.sluttArea}" fill="#fff" stroke="#fff" stroke-width="4" stroke-linejoin="round"/><path d="${FK_TRACE.sluttYel}" fill="${FK_YEL}" fill-rule="evenodd"/>${fkTrace("sluttInk")}`,
-  rundkjoring: () => fkBlueRound(`<g transform="rotate(0 50 50)"><path d="M43.53 74.15A25 25 0 0 0 72.66 60.57" fill="none" stroke="#fff" stroke-width="7.5"/><path d="M76.46 52.41L79.46 63.74L65.86 57.40Z" fill="#fff"/></g><g transform="rotate(120 50 50)"><path d="M43.53 74.15A25 25 0 0 0 72.66 60.57" fill="none" stroke="#fff" stroke-width="7.5"/><path d="M76.46 52.41L79.46 63.74L65.86 57.40Z" fill="#fff"/></g><g transform="rotate(240 50 50)"><path d="M43.53 74.15A25 25 0 0 0 72.66 60.57" fill="none" stroke="#fff" stroke-width="7.5"/><path d="M76.46 52.41L79.46 63.74L65.86 57.40Z" fill="#fff"/></g>`),
   gangfelt: () => `<path d="${FK_TRACE.gangSquare}" fill="#fff" stroke="#fff" stroke-width="2.6" stroke-linejoin="round"/><path d="${FK_TRACE.gangBlue}" fill="${FK_BLUE}" fill-rule="evenodd"/>${fkTrace("gangfelt")}`,
   // Vikepliktlinje sett ovenfra: T-kryss, haitennene ligger tvers over ditt felt der sidevegen møter hovedvegen,
   // med spissene mot deg (den som har vikeplikt). Bilen kommer nedenfra, vikepliktskiltet står til høyre.
@@ -114,16 +113,7 @@ const FK_SIGNS = {
     <g fill="#fff">${[0, 1, 2, 3].map(k => `<path d="M${51.6 + k * 5.4} 41h4.6l-2.3 7.6z"/>`).join("")}</g>
     ${fkCar(62, 80, "#2B59C3", 1.05)}
     <path d="M83 64V50" stroke="#5A6772" stroke-width="1.6"/><g transform="translate(75.5 40) scale(.15)">${fkTri("", true)}</g>`,
-  fare_generell: () => fkTri(`<path d="M50 34v26" stroke="${FK_INK}" stroke-width="8" stroke-linecap="round"/><circle cx="50" cy="72" r="4.6" fill="${FK_INK}"/>`),
   pabud_hoyre: () => fkBlueRound(`<path d="${FK_TRACE.pabudHoyre}" fill="#fff" fill-rule="evenodd"/>`),
-  innkjoring_forbudt: () => `<circle cx="50" cy="50" r="44" fill="${FK_RED}" stroke="#fff" stroke-width="3"/><rect x="18" y="41" width="64" height="18" fill="#fff"/>`,
-  parkering_forbudt: () => fkRound(`<path d="M22 22l56 56" stroke="${FK_RED}" stroke-width="8"/>`, FK_BLUE),
-  stans_forbudt: () => fkRound(`<path d="M22 22l56 56M78 22L22 78" stroke="${FK_RED}" stroke-width="8"/>`, FK_BLUE),
-  forbikjoring_forbudt: () => fkRound(`<g transform="translate(34.8 63) scale(.86)">${fkCarRear(0, 0, FK_RED)}</g><g transform="translate(65.2 63) scale(.86)">${fkCarRear(0, 0, FK_INK)}</g>`),
-  fart60: () => fkRound(`<text x="50" y="63" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-weight="800" font-size="38" style="fill:${FK_INK}">60</text>`),
-  fart50: () => fkRound(`<text x="50" y="63" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-weight="800" font-size="38" style="fill:${FK_INK}">50</text>`),
-  blindveg: () => fkBlueSq(`<path d="M50 84V40" stroke="#fff" stroke-width="12"/><path d="M26 34h48" stroke="${FK_RED}" stroke-width="12"/>`),
-  parkering: () => fkBlueSq(`<text x="50" y="74" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-weight="800" font-size="62" style="fill:#fff">P</text>`),
   sperrelinje: () => `<rect width="100" height="100" fill="#4A4F57"/><path d="M50 0v100" stroke="#F2C230" stroke-width="5"/><path d="M8 0v100M92 0v100" stroke="#fff" stroke-width="2.5"/>${fkCar(30, 62, "#2B59C3", 1.2)}${fkCar(70, 30, "#E9A100", 1.2)}`,
   varsellinje: () => `<rect width="100" height="100" fill="#4A4F57"/><path d="M50 0v100" stroke="#F2C230" stroke-width="5" stroke-dasharray="26 7"/><path d="M8 0v100M92 0v100" stroke="#fff" stroke-width="2.5"/>`,
   ledelinje: () => `<rect width="100" height="100" fill="#4A4F57"/><path d="M50 0v100" stroke="#F2C230" stroke-width="5" stroke-dasharray="9 22"/><path d="M8 0v100M92 0v100" stroke="#fff" stroke-width="2.5"/>`,
@@ -180,6 +170,15 @@ const FK_SIGN_INFO = [
  ["lys_pil", "lys", "Grønn pil", "Green arrow", "Kjør i pilens retning.", "Go in the direction of the arrow."]
 ];
 const FK_SIGN_GROUPS = [["vik", "Vikeplikt og forkjørsrett", "Right of way"], ["fare", "Fareskilt", "Warning signs"], ["forbud", "Forbudsskilt", "Prohibitory signs"], ["pabud", "Påbudsskilt", "Mandatory signs"], ["oppl", "Opplysningsskilt", "Information signs"], ["linje", "Vegoppmerking", "Road markings"], ["lys", "Trafikklys", "Traffic lights"]];
+// Offisielle skiltnumre (skiltforskriften). Brukes i skiltoversikten og sjekkes av tools/test_signs.js.
+const FK_SIGN_NR = { vikeplikt: "202", stopp: "204", forkjorsvei: "206", slutt_forkjorsvei: "208", forkjorskryss: "210",
+  sving_hoyre: "100.1", sving_venstre: "100.2", farlige_svinger: "102.1", smalere_veg: "106.1", ujevn_veg: "108", glatt: "116", tunnel: "122",
+  vegkryss: "124", rundkjoring_fare: "126", trafikklys_fare: "132", barn: "142", elg: "146.1", motende_trafikk: "148", fare_generell: "156",
+  innkjoring_forbudt: "302", forbudt_kjoretoy: "306.0", svinge_hoyre_forbudt: "330.1", svinge_venstre_forbudt: "330.2", vending_forbudt: "332",
+  forbikjoring_forbudt: "334", fart30: "362.30", fart40: "362.40", fart50: "362.50", fart60: "362.60", fart70: "362.70", fart80: "362.80",
+  fart90: "362.90", fart100: "362.100", fart110: "362.110", slutt_fart60: "364.60", stans_forbudt: "370", parkering_forbudt: "372",
+  pabud_rett: "402.3", pabud_hoyre: "402.4", pabud_venstre: "402.5", pabud_kjorefelt: "404.1", rundkjoring: "406",
+  motorveg: "502", motorveg_slutt: "504", gangfelt: "516", moteplass: "524", envegskjoring: "526.1", blindveg: "527.1", parkering: "552" };
 function fkSignName(name){ const s = FK_SIGN_INFO.find(x => x[0] === name); return s ? T(s[2], s[3]) : T("Illustrasjon", "Illustration"); }
 
 // ---------- figurer i teorien (320×180) ----------
