@@ -19,7 +19,8 @@ cask "axle" do
   ]
 
   caveats <<~EOS
-    Axle er ikke signert av Apple ennå. Installer med --no-quarantine,
-    eller høyreklikk på appen og velg «Åpne» første gang.
+    Axle er ikke signert av Apple ennå. Installer med --no-quarantine.
+    Ellers: åpne Axle én gang, gå til Systeminnstillinger → Personvern og sikkerhet
+    og trykk «Åpne likevel» (på eldre macOS: høyreklikk på appen → Åpne).
   EOS
 end

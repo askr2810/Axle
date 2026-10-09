@@ -111,7 +111,7 @@ function mvGoalsHTML(st){
 function mvInner(st){
   return `<div class="mv-h"><span class="sim-tag">${I.bolt}${esc(T("Prøv selv", "Try it"))}</span><b>${esc(T("Posisjon, fart og akselerasjon", "Position, velocity and acceleration"))}</b></div>
     <p class="mv-lead">${esc(T("Dra i de grønne punktene på fartsgrafen og trykk ▶. Se hvordan bilen og de to andre grafene følger med.", "Drag the green points on the velocity graph and press ▶. Watch how the car and the other two graphs follow."))}</p>
-    <div class="mv-ctl"><button class="mv-play" data-mv="play" aria-label="${esc(st.play ? T("Pause", "Pause") : T("Spill av", "Play"))}">${st.play ? "❚❚" : "▶"}</button><input type="range" min="0" max="${MV_T}" step="0.05" value="${st.t}" data-mv="t" aria-label="${esc(T("Tid", "Time"))}"></div>
+    <div class="mv-ctl"><button class="mv-play" data-mv="play" aria-label="${esc(st.play ? T("Pause", "Pause") : T("Spill av", "Play"))}">${st.play ? icPause() : icPlay()}</button><input type="range" min="0" max="${MV_T}" step="0.05" value="${st.t}" data-mv="t" aria-label="${esc(T("Tid", "Time"))}"></div>
     <div class="mv-svgw">${mvSVG(st)}</div>
     <div class="mv-pre">${MV_PRE.map(p => `<button data-mv="pre" data-p="${p[0]}" class="${st.pre === p[0] ? "on" : ""}">${esc(T(p[1], p[2]))}</button>`).join("")}</div>
     <div class="mv-info">${mvInfo(st)}</div>
@@ -134,7 +134,7 @@ function mvUpdate(st, full){
   if(full){ el.innerHTML = mvInner(st); return; }
   el.querySelector(".mv-svgw").innerHTML = mvSVG(st); el.querySelector(".mv-info").innerHTML = mvInfo(st);
   const r = el.querySelector('input[data-mv="t"]'); if(r && document.activeElement !== r) r.value = st.t;
-  const pb = el.querySelector(".mv-play"); if(pb) pb.textContent = st.play ? "❚❚" : "▶";
+  const pb = el.querySelector(".mv-play"); if(pb) pb.innerHTML = st.play ? icPause() : icPlay();
 }
 function mvCheckGoals(st){
   const m = mvModel(st.v), done = (S.mvGoals ||= {}); let fresh = false;

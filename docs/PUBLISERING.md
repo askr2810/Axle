@@ -109,7 +109,7 @@ I Play Console:
 4. **Datasikkerhet** (skal stemme med `web/privacy.html`):
    - *Personlig info → E-postadresse*: valgfri konto (innlogging og synkronisering) og valgfri e-post i tilbakemeldinger. Ikke delt.
    - *Personlig info → Navn/brukernavn, bilder*: valgfritt visningsnavn, brukernavn og profilbilde for venner. Ikke delt.
-   - *Appaktivitet → Appinteraksjoner*: anonym bruksstatistikk, **bare etter samtykke** i appen, til analyse og forbedring. Ikke delt.
+   - *Appaktivitet → Appinteraksjoner*: bruksstatistikk (knyttet til kontoen hvis innlogget), **bare etter samtykke** i appen, til analyse og forbedring. Ikke delt.
    - *Appaktivitet → Annet brukergenerert innhold*: feilrapporter og fellesskapskurs.
    - Data krypteres under overføring (HTTPS). Brukeren kan slette konto og data i appen (Innstillinger → Slett konto).
 5. **Nye personlige utviklerkontoer** må kjøre en **lukket test med minst 12 testere i 14 dager** før de kan søke om produksjon. Last opp `.aab` under *Testing → Lukket testing*, legg inn e-postene til 12+ venner/medstudenter, og be dem installere og bruke appen litt.

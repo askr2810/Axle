@@ -32,7 +32,7 @@ function renderBookTopic(){
   const media = (hit.tp.art ? `<figure class="tpart">${hit.tp.art()}</figure>` : hit.tp.fig ? `<figure class="tpfig" aria-hidden="true">${hit.tp.fig}</figure>` : "") +
     (hit.tp.pic && typeof DRIVE_PICS !== "undefined" && DRIVE_PICS[hit.tp.pic] ? (p => `<figure class="tppic">${p.svg}<figcaption>${esc(p.cap)}</figcaption></figure>`)(DRIVE_PICS[hit.tp.pic](LANG)) : "");
   $app.innerHTML = `${bkTop("bkback", courseName(c) + " · " + unitTitle(c, hit.u), x.t, ttsTopBtn("main.topic"))}
-    <main class="wrap topic ${media ? "has-media" : ""}">
+    <main class="wrap topic ${media ? "has-media" : ""}">${betaNoteHTML(BK.code, true)}
       <h1>${esc(x.t)}</h1>
       ${media ? `<div class="tp-media">${media}</div>` : ""}<div class="tp-body">
       <p class="intro">${rich(x.intro)}</p>
@@ -177,7 +177,7 @@ function renderBookCourse(){
     }).join("");
   }
   $app.innerHTML = `${bkTop("bkback", t("bkTitle"), courseName(c), favStarHTML(c.code))}
-    <main class="wrap bk">
+    <main class="wrap bk">${betaNoteHTML(c.code)}
       <button class="bk-switch" data-a="bkall"><span class="badge" style="background:${col}">${esc(courseShort(c))}</span><span><small>${esc(T("Teori i", "Theory in"))}</small><b>${esc(courseName(c))}</b></span><em>${esc(T("Bytt fag", "Change course"))} ${I.chevron}</em></button>
       <div class="seg bk-tabs" role="tablist"><button role="tab" aria-selected="${BK.tab !== "sheet"}" class="${BK.tab !== "sheet" ? "on" : ""}" data-a="bktab" data-t="topics">${esc(t("bkTopicsTab"))}</button><button role="tab" aria-selected="${BK.tab === "sheet"}" class="${BK.tab === "sheet" ? "on" : ""}" data-a="bktab" data-t="sheet">${esc(t("bkSheet"))}</button></div>
       <div class="bk-units ${BK.tab === "sheet" ? "sheet" : ""}">${body}</div>

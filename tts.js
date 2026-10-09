@@ -96,6 +96,10 @@ function ttsSpeak(){
   };
   next();
 }
+// Ikoner som SVG (tegn som ❚❚ tegnes ulikt, og på iPhone ser de ut som to bokser med en strek mellom)
+function icPlay(){ return `<svg width="14" height="14" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4.5v15a1 1 0 0 0 1.5.86l12-7.5a1 1 0 0 0 0-1.72l-12-7.5A1 1 0 0 0 7 4.5z" fill="currentColor"/></svg>`; }
+function icPause(){ return `<svg width="14" height="14" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="4" width="5" height="16" rx="1.5" fill="currentColor"/><rect x="14" y="4" width="5" height="16" rx="1.5" fill="currentColor"/></svg>`; }
+function icStop(){ return `<svg width="13" height="13" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="3" stroke-linecap="round" fill="none"/></svg>`; }
 // Pause = stopp og husk avsnittet (mer pålitelig enn speechSynthesis.pause() på Android).
 function ttsPause(){ if(!TTS) return; TTS.playing = false; TTS.seq++; speechSynthesis.cancel(); ttsUI(); }
 function ttsResume(){ if(!TTS) return; TTS.playing = true; TTS.seq++; ttsSpeak(); ttsUI(); }
@@ -105,11 +109,11 @@ function ttsUI(){
   if(!TTS){ if(m) m.remove(); document.querySelectorAll(".tts-bar,.tts-top").forEach(b => b.classList.remove("on")); return; }
   if(!m){ m = document.createElement("div"); m.className = "tts-mini"; m.setAttribute("role", "region"); m.setAttribute("aria-label", T("Opplesning", "Read aloud")); document.body.appendChild(m); }
   const n = TTS.items.length, i = Math.min(TTS.i + 1, n);
-  m.innerHTML = `<button data-tts="${TTS.playing ? "pause" : "resume"}" aria-label="${esc(TTS.playing ? T("Pause", "Pause") : T("Fortsett", "Resume"))}">${TTS.playing ? "❚❚" : "▶"}</button>
+  m.innerHTML = `<button data-tts="${TTS.playing ? "pause" : "resume"}" aria-label="${esc(TTS.playing ? T("Pause", "Pause") : T("Fortsett", "Resume"))}">${TTS.playing ? icPause() : icPlay()}</button>
     <button data-tts="prev" aria-label="${esc(T("Forrige avsnitt", "Previous paragraph"))}">⏮</button><button data-tts="next" aria-label="${esc(T("Neste avsnitt", "Next paragraph"))}">⏭</button>
     <span class="tts-p"><span style="width:${Math.round(100 * i / n)}%"></span></span><small>${i}/${n}</small>
     <button data-tts="rate" class="tts-rate" aria-label="${esc(T("Lesehastighet", "Speed"))}">${String(ttsRate()).replace(".", LANG === "en" ? "." : ",")}×</button>
-    <button data-tts="stop" aria-label="${esc(T("Stopp", "Stop"))}">✕</button>`;
+    <button data-tts="stop" aria-label="${esc(T("Stopp", "Stop"))}">${icStop()}</button>`;
   TTS.root.querySelectorAll(".tts-bar").forEach(b => b.classList.add("on")); document.querySelectorAll(".tts-top").forEach(b => b.classList.add("on"));
 }
 if(TTS_OK){

@@ -21,4 +21,4 @@ Bygge lokalt: installer Rust og `npm i -g @tauri-apps/cli@2`, kjør `python3 bui
 lag ikoner med `tauri icon ../release/www/icons/icon-512.png` i `desktop/src-tauri`, og kjør `tauri build` i `desktop/`.
 
 Merk: appen er ikke signert med et Apple-utviklersertifikat (koster 99 USD/år). macOS sier derfor
-«kan ikke verifisere utvikleren» første gang – høyreklikk → Åpne, eller bruk `--no-quarantine` med Homebrew.
+«kan ikke verifisere utvikleren» første gang. macOS 15 og nyere: Systeminnstillinger → Personvern og sikkerhet → «Åpne likevel». Eldre macOS: høyreklikk → Åpne. Med Homebrew: `--no-quarantine`. Står det at appen er «skadet»: `xattr -dr com.apple.quarantine /Applications/Axle.app`.
