@@ -97,7 +97,10 @@ function ekCompute(cfg){
   const L = num(cfg.L); if(!(L > 0) || L > 1e4) throw { m: T("Lengden L må være et positivt tall (i meter).", "The length L must be a positive number (in metres).") };
   let eaA, qA; try{ eaA = ekParse(cfg.ea); }catch(e){ throw { m: T("Forstår ikke EA(x). Skriv for eksempel 20000 eller 20000(1 - x/8).", "Can't read EA(x). Write e.g. 20000 or 20000(1 - x/8).") }; }
   try{ qA = ekParse(String(cfg.q).trim() === "" ? "0" : cfg.q); }catch(e){ throw { m: T("Forstår ikke q(x). Skriv for eksempel 5, 2x eller 0.", "Can't read q(x). Write e.g. 5, 2x or 0.") }; }
-  const EA = x => ekEval(eaA, x, L), q = x => ekEval(qA, x, L);
+  // Alle verdier som faktisk brukes (stikkprøver, Gauss-punkter og rutenettet for eksakt løsning) sjekkes her,
+  // så et uttrykk som er ugyldig bare et sted inne i et element gir en forståelig melding i stedet for NaN.
+  const EA = x => { const v = ekEval(eaA, x, L); if(!(v > 0) || !Number.isFinite(v)) throw { m: T(`EA(x) må være et positivt tall i hele staven, men er ${ekTxt(v)} i x = ${ekTxt(x)}. Sjekk uttrykket for EA(x).`, `EA(x) must be a positive number along the whole bar, but is ${ekTxt(v)} at x = ${ekTxt(x)}. Check the expression for EA(x).`) }; return v; };
+  const q = x => { const v = ekEval(qA, x, L); if(!Number.isFinite(v)) throw { m: T(`q(x) gir ikke et tall i x = ${ekTxt(x)}. Sjekk uttrykket for q(x) (f.eks. deling på null eller rot av et negativt tall).`, `q(x) is not a number at x = ${ekTxt(x)}. Check the expression for q(x) (e.g. division by zero or the root of a negative number).`) }; return v; };
   for(let i = 0; i <= 200; i++){ const x = L * i / 200, e = EA(x), w = q(x);
     if(!(e > 0) || !Number.isFinite(e)) throw { m: T(`EA(x) må være positiv i hele staven, men er ${ekTxt(e)} i x = ${ekTxt(x)}.`, `EA(x) must be positive along the whole bar, but is ${ekTxt(e)} at x = ${ekTxt(x)}.`) };
     if(!Number.isFinite(w)) throw { m: T("q(x) gir ikke et tall overalt i staven.", "q(x) is not a number everywhere along the bar.") }; }
@@ -115,7 +118,9 @@ function ekCompute(cfg){
   for(const [p, x] of P){ const i = X.findIndex(v => Math.abs(v - x) < 1e-9 * L); Fp[i] += p; }
   for(let i = 0; i < nn; i++) F[i] = Fq[i] + Fp[i];
   const bc = ["left", "right", "both"].includes(cfg.bc) ? cfg.bc : "left", fixed = bc === "left" ? [0] : bc === "right" ? [nn - 1] : [0, nn - 1], free = [...Array(nn).keys()].filter(i => !fixed.includes(i));
-  const Kff = free.map(i => free.map(j => K[i][j])), Ff = free.map(i => F[i]), uf = free.length ? ekSolveLin(Kff, Ff) : [];
+  const Kff = free.map(i => free.map(j => K[i][j])), Ff = free.map(i => F[i]);
+  let uf; try{ uf = free.length ? ekSolveLin(Kff, Ff) : []; }catch(e){ throw { m: T("Ligningssystemet kunne ikke løses (stivheten er null eller ugyldig et sted). Sjekk EA(x) og opplagrene.", "The system of equations could not be solved (the stiffness is zero or invalid somewhere). Check EA(x) and the supports.") }; }
+  if(uf.some(v => !Number.isFinite(v))) throw { m: T("Løsningen ble ikke et tall. Sjekk EA(x), q(x) og lastene.", "The solution is not a number. Check EA(x), q(x) and the loads.") };
   const u = Array(nn).fill(0); free.forEach((i, k) => { u[i] = uf[k]; });
   const R = fixed.map(i => K[i].reduce((s, kij, j) => s + kij * u[j], 0) - F[i]);
   els.forEach((el, e) => { el.eps = (u[e + 1] - u[e]) / el.Le; el.N = el.iEA / el.Le * el.eps; });

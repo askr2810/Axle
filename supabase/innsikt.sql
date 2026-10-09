@@ -3,8 +3,10 @@
 -- Krever at oppsett.sql, venner.sql, admin.sql, varsler.sql og tilbakemelding.sql er kjørt først.
 --
 --   Appen sender små hendelser (skjermbytte, ferdig økt, teori åpnet, opplesing …) i bunter via log_events.
---   Ingen fritekst og ingen svar lagres – bare hva slags hendelse, fag/enhet og tall. Brukeren kan slå det av i Innstillinger.
---   Hendelser eldre enn 180 dager slettes automatisk når nye kommer inn.
+--   Ingen fritekst og ingen svar lagres – bare hva slags hendelse, fag/enhet og tall. Sendes bare etter at brukeren har sagt ja,
+--   og kan slås av i Innstillinger.
+--   Hendelser eldre enn 180 dager slettes av en planlagt jobb hver natt (pg_cron, nederst i fila). Sjekk at den finnes med
+--   «select jobname, schedule, active from cron.job;» – den heter axle-app-events-cleanup.
 --   Mod/admin ser tallene i adminpanelet (fanen «Innsikt») og aktiviteten til hver bruker (fanen «Brukere»).
 --   Claude kan hente et sammendrag med samme hemmelige nøkkel som tilbakemeldingene (feedback_export_keys).
 
@@ -150,3 +152,20 @@ begin
 end $$;
 revoke all on function public.insights_export(text, int) from public;
 grant execute on function public.insights_export(text, int) to anon, authenticated;
+
+-- ---------- opprydding hver natt (personvern: hendelser eldre enn 180 dager slettes) ----------
+-- Personvernerklæringen lover sletting etter 6 måneder, uavhengig av om det kommer nye hendelser.
+create or replace function public.app_events_cleanup()
+returns integer language sql volatile security definer set search_path = ''
+as $$ with d as (delete from public.app_events where at < now() - interval '180 days' returning 1) select count(*)::int from d $$;
+revoke all on function public.app_events_cleanup() from public, anon, authenticated;
+
+-- Planlegg jobben med pg_cron (gratis i Supabase). Kjører kl. 03:23 UTC hver natt. Trygg å kjøre flere ganger.
+do $$ begin
+  execute 'create extension if not exists pg_cron';
+  perform cron.unschedule(jobid) from cron.job where jobname = 'axle-app-events-cleanup';
+  perform cron.schedule('axle-app-events-cleanup', '23 3 * * *', 'select public.app_events_cleanup()');
+  raise notice 'Oppryddingsjobben axle-app-events-cleanup er planlagt (hver natt kl. 03:23 UTC).';
+exception when others then
+  raise warning 'Fikk ikke planlagt oppryddingen (%). Slå på «pg_cron» under Database → Extensions i Supabase og kjør fila på nytt.', sqlerrm;
+end $$;
