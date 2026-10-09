@@ -39,6 +39,14 @@ function mergeState(a, b){
   if(!a.dcSrc && ["auto", "favs", "pick"].includes(b.dcSrc)){ m.dcSrc = b.dcSrc; if(strs(b.dcPick)) m.dcPick = strs(b.dcPick); }
   m.simGoals = Object.assign({}, a.simGoals || {}); if(isObj(b.simGoals)) for(const k in b.simGoals) m.simGoals[k] = Math.max(+m.simGoals[k] || 0, +b.simGoals[k] || 0);
   if(!m.name && typeof b.name === "string") m.name = b.name;
+  // Ny enhet (logget inn fra velkomstsiden): arv studiene og faget fra kontoen, ellers blir man stående på velkomstsiden
+  // eller havner i feil studie. En enhet som allerede har valgt, beholder sitt.
+  if(!a.studySet && b.studySet && typeof b.study === "string" && STUDIES.some(s => s.id === b.study)){
+    m.study = b.study; m.studySet = 1; if(b.studyPicked) m.studyPicked = 1;
+    if(Array.isArray(b.studies)) m.studies = b.studies.filter(x => typeof x === "string" && STUDIES.some(s => s.id === x));
+    if(typeof b.current === "string" && COURSES.some(c => c.code === b.current)) m.current = b.current;
+    if(isObj(b.lastCourse)) m.lastCourse = Object.assign({}, b.lastCourse, a.lastCourse || {});
+  }
   m.badges = Object.assign({}, isObj(b.badges) ? b.badges : {}, a.badges || {});
   if(typeof a.badgesPublic !== "boolean" && typeof b.badgesPublic === "boolean") m.badgesPublic = b.badgesPublic; // merker på profilen
   if(typeof a.statsPrivate !== "boolean" && typeof b.statsPrivate === "boolean") m.statsPrivate = b.statsPrivate; // statistikk bare for venner/grupper
