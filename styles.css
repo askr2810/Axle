@@ -82,7 +82,8 @@ math{font-size:1.08em}
 .node.locked{background:var(--locked);box-shadow:0 7px 0 var(--locked-deep);color:var(--muted)}
 .node.cur{background:var(--c);box-shadow:0 7px 0 color-mix(in srgb,var(--c) 62%,#000)}
 .node.cur:active{box-shadow:0 2px 0 color-mix(in srgb,var(--c) 62%,#000)}
-.node.cur::after{content:"";position:absolute;inset:-9px;border-radius:50%;border:4px solid color-mix(in srgb,var(--c) 28%,transparent)}
+.node.cur::after{content:"";position:absolute;inset:-9px -10px -16px;border-radius:50%;pointer-events:none;border:4px solid color-mix(in srgb,var(--c) 28%,transparent)}
+.node.cur:active::after{inset:-14px -10px -11px} /* ringen står stille mens knappen trykkes ned */
 .node.cur .bubble{color:var(--c)}
 .bubble{position:absolute;bottom:calc(100% + 14px);left:50%;transform:translateX(-50%);background:var(--card);border:2px solid var(--line);color:var(--accent);font-weight:800;font-family:var(--display);letter-spacing:.04em;padding:4px 10px;border-radius:10px;white-space:nowrap;font-size:14px;animation:bob 1.6s ease-in-out infinite}
 @keyframes bob{50%{transform:translate(-50%,-4px)}}
@@ -3243,3 +3244,4 @@ details.cat-mc{margin:6px 0}details.cat-mc>summary{cursor:pointer;font-size:12px
 }
 /* Teoribok-oversikten på PC: fagene i et rutenett i stedet for brede rader */
 @media (min-width:1100px){.bk-courses{grid-template-columns:repeat(auto-fill,minmax(300px,1fr))}}
+.nwrap:has(.node.cur) .ncap{margin-top:12px}
