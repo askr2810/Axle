@@ -9,15 +9,18 @@ const katex = require(path.join(ROOT, 'vendor', 'katex.min.js'));
 // ---------- last innholdet slik appen gjør ----------
 const order = ['config.js', 'i18n.js', 'data.js', 'gens.js', 'gens_b.js', 'more.js', 'more2.js', 'more2_b.js', 'subjects2.js', 'subjects2_b.js', 'more3.js'];
 const ls = re => fs.readdirSync(ROOT).filter(f => re.test(f)).sort();
-const files = [...order, ...ls(/^en_static_.*\.js$/), 'learn.js', ...ls(/^add_.*\.js$/), 'figlib.js', 'topics.js', ...ls(/^top_.*\.js$/)].filter(f => fs.existsSync(path.join(ROOT, f)));
+const files = [...order, ...ls(/^en_static_.*\.js$/), 'learn.js', ...ls(/^add_.*\.js$/), 'figlib.js', 'topics.js', ...ls(/^top_.*\.js$/), 'beta.js'].filter(f => fs.existsSync(path.join(ROOT, f)));
 global.navigator = { language: 'nb' }; global.localStorage = { getItem(){ return null; }, setItem(){} };
 const tmp = path.join(os.tmpdir(), 'axle_seo_' + process.pid + '.js');
 // Tegningene til førerkortsidene (skilt, kryss): drive_signs.js, drive_scenes.js og drive_pics.js. FIGS finnes ikke her, så den lages tom.
 const drawFiles = ['drive_signs_ref.js', 'drive_signs.js', 'drive_signs_more.js', 'drive_scenes.js', 'drive_pics.js'].filter(f => fs.existsSync(path.join(ROOT, f)));
 fs.writeFileSync(tmp, files.map(f => fs.readFileSync(path.join(ROOT, f), 'utf8')).join('\n;\n') + '\n;var FIGS = {};\n' + drawFiles.map(f => fs.readFileSync(path.join(ROOT, f), 'utf8')).join('\n;\n') +
-  ';module.exports={COURSES,META,THEORY_DB,TOPIC_DB,GROUP_NAMES,CONFIG,nf,ENQ,UNIT_EN,setLang:l=>{LANG=l},DRIVE_PICS:typeof DRIVE_PICS!=="undefined"?DRIVE_PICS:{},FL_CSS:typeof FL_CSS!=="undefined"?FL_CSS:"",FL:typeof FL!=="undefined"?FL:null};');
+  ';module.exports={BETA_AREAS:typeof BETA_AREAS!=="undefined"?BETA_AREAS:{},COURSES,META,THEORY_DB,TOPIC_DB,GROUP_NAMES,CONFIG,nf,ENQ,UNIT_EN,setLang:l=>{LANG=l},DRIVE_PICS:typeof DRIVE_PICS!=="undefined"?DRIVE_PICS:{},FL_CSS:typeof FL_CSS!=="undefined"?FL_CSS:"",FL:typeof FL!=="undefined"?FL:null};');
 const M = require(tmp); fs.unlinkSync(tmp);
-const { COURSES, META, THEORY_DB, TOPIC_DB, CONFIG, ENQ, UNIT_EN } = M;
+const { COURSES, META, THEORY_DB, TOPIC_DB, CONFIG, ENQ, UNIT_EN, BETA_AREAS } = M;
+// BETA-merket (samme kilder og dato som i appen, se beta.js)
+const betaBox = c => { const a = BETA_AREAS[c.study]; if(!a || a.reviewedBy) return ''; const [y, m, d] = a.checked.split('-'), TT = (x, z) => L === 'nb' ? x : z;
+  return `<p class="beta"><b>BETA</b> ${TT('Innholdet er ikke kontrollert av fagperson ennå og kan inneholde feil. Sjekket mot', 'This content has not yet been reviewed by an expert and may contain mistakes. Checked against')} ${a.src.map(([n, u]) => `<a href="${u}" rel="noopener">${esc(n)}</a>`).join(', ')} · ${TT('sist kontrollert', 'last checked')} ${d}.${m}.${y}.</p>`; };
 
 // «Prøv selv»-simuleringene (titler og hvilke enheter de hører til), lastet slik test_sims.js gjør.
 const SIMDATA = (() => {
@@ -165,7 +168,7 @@ header{display:flex;align-items:center;justify-content:space-between;gap:10px;pa
 .crumbs{font-size:14px;color:var(--muted);margin:14px 0 0}.crumbs a{color:var(--muted)}
 h1{font-size:32px;line-height:1.15;margin:10px 0 12px}h2{font-size:24px;margin:34px 0 8px}h3{font-size:19px;margin:22px 0 6px}h4{font-size:17px;margin:16px 0 4px}
 .cta.ghost{background:transparent;color:var(--acc);box-shadow:inset 0 0 0 2px var(--acc)}.lead{font-size:19px;color:var(--muted)}.cta{display:inline-block;margin:14px 0;padding:14px 22px;border-radius:14px;background:var(--acc);color:#fff;font-weight:800;text-decoration:none;box-shadow:0 4px 0 rgba(0,0,0,.25)}
-.facts{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0}.facts span{background:var(--accs);color:var(--acc);font-weight:700;font-size:14px;padding:4px 12px;border-radius:99px}
+.beta{margin:14px 0 4px;padding:10px 14px;border:2px solid #f59e0b;border-radius:12px;font-size:15px;background:color-mix(in srgb,#f59e0b 10%,transparent)}.beta b{background:#b45309;color:#fff;border-radius:5px;padding:1px 6px;font-size:12px;margin-right:4px}.facts{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0}.facts span{background:var(--accs);color:var(--acc);font-weight:700;font-size:14px;padding:4px 12px;border-radius:99px}
 .unit{background:var(--card);border:2px solid var(--line);border-radius:16px;padding:6px 18px 12px;margin:14px 0}
 .note{background:var(--accs);border-radius:12px;padding:10px 14px;margin:10px 0;font-weight:600}.dm{overflow-x:auto;text-align:center;margin:8px 0}
 .tp{display:grid;gap:10px;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));margin:10px 0}.tp a{display:block;background:var(--card);border:2px solid var(--line);border-radius:14px;padding:10px 12px;text-decoration:none;color:var(--ink)}.tp a b{display:block}.tp a span{font-size:14px;color:var(--muted)}
@@ -314,7 +317,7 @@ ${tps.length ? `<h3>${X().inPart}</h3><div class="tp">${tps.map(tp => topicBlock
 ${unitLabs(c, u)}
 <p><a class="cta" href="${appLink(c)}">${esc(X().practisePart(lc(unitName(c, u))))}</a></p></section>`;
   }).join('\n');
-  const body = (drv ? driveLanding(c, nQ) : `<h1>${esc(X().h1(nm, abbr))}</h1>
+  const body = betaBox(c) + (drv ? driveLanding(c, nQ) : `<h1>${esc(X().h1(nm, abbr))}</h1>
 <p class="lead">${esc(intro)}</p>
 <div class="facts"><span>${X().parts(c.units.length)}</span><span>${X().probs(nQ + nG)}</span>${nT ? `<span>${X().concepts(nT)}</span>` : ''}<span>${X().exam}</span><span>${X().free}</span></div>
 <a class="cta" href="${appLink(c)}">${X().startFree}</a>`) + `
@@ -419,7 +422,7 @@ ${art}
 <p>${TT('Axle er gratis å bruke og har ingen reklame eller sporing fra tredjeparter. Appen fungerer i nettleseren på mobil, nettbrett og PC – og kan legges på hjemskjermen som en vanlig app.', 'Axle is free to use with no ads or third-party tracking. It works in the browser on phones, tablets and computers – and can be added to your home screen like a normal app.')}</p>
 <h2 id="last-ned">${TT('Last ned Axle', 'Download Axle')}</h2>
 ${CONFIG.desktopReady ? `<div class="ab-dl"><a class="cta" href="https://github.com/askr2810/axle/releases/latest/download/Axle.dmg"> ${TT('Last ned for Mac', 'Download for Mac')}</a> <a class="cta ghost" href="https://github.com/askr2810/axle/releases/latest/download/Axle-Setup.exe">${TT('Last ned for Windows', 'Download for Windows')}</a></div>
-<p>${TT('Appen er ikke signert av Apple eller Microsoft ennå, så maskinen viser en advarsel første gang. På Mac: høyreklikk på Axle → Åpne. På Windows: «Mer informasjon» → «Kjør likevel». Filene bygges automatisk av GitHub fra Axles kode, og hver utgivelse har en fil med sjekksummer (SHA256SUMS.txt) du kan bruke til å kontrollere nedlastingen.', 'The app is not signed by Apple or Microsoft yet, so your computer shows a warning the first time. On Mac: right-click Axle → Open. On Windows: "More info" → "Run anyway". The files are built automatically by GitHub from Axle\'s code, and each release has a checksum file (SHA256SUMS.txt) you can use to verify the download.')}</p>
+<p>${TT('Appen er ikke signert av Apple eller Microsoft ennå, så maskinen viser en advarsel første gang. På Mac: åpne Axle én gang, gå så til Systeminnstillinger → Personvern og sikkerhet og trykk «Åpne likevel» (på eldre macOS: høyreklikk på Axle → Åpne). På Windows: «Mer informasjon» → «Kjør likevel». Filene bygges automatisk av GitHub fra Axles kode, og hver utgivelse har en fil med sjekksummer (SHA256SUMS.txt) du kan bruke til å kontrollere nedlastingen.', 'The app is not signed by Apple or Microsoft yet, so your computer shows a warning the first time. On Mac: open Axle once, then go to System Settings → Privacy & Security and click "Open Anyway" (on older macOS: right-click Axle → Open). On Windows: "More info" → "Run anyway". The files are built automatically by GitHub from Axle\'s code, and each release has a checksum file (SHA256SUMS.txt) you can use to verify the download.')}</p>
 <p>${TT('Med Homebrew på Mac:', 'With Homebrew on Mac:')}</p><pre><code>brew tap askr2810/axle https://github.com/askr2810/axle
 brew install --cask --no-quarantine axle</code></pre>` : `<p>${TT('Egne apper for Mac og Windows kommer snart. Til da kan du bruke <a href="/">axle.no</a> i nettleseren, eller installere den som app: i Chrome eller Edge trykker du på installer-ikonet i adressefeltet.', 'Apps for Mac and Windows are coming soon. Until then you can use <a href="/">axle.no</a> in the browser, or install it as an app: in Chrome or Edge, click the install icon in the address bar.')}</p>`}
 <p>${TT('På iPhone og Android: åpne <a href="/">axle.no</a> og velg «Legg til på Hjem-skjerm» (Safari: Del-knappen, Chrome: menyen ⋮). Da får du Axle som app med ett trykk.', 'On iPhone and Android: open <a href="/">axle.no</a> and choose "Add to Home Screen" (Safari: the Share button, Chrome: the ⋮ menu). You then get Axle as an app with one tap.')}</p>

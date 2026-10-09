@@ -88,7 +88,7 @@ jobs:
             **Axle for Mac og Windows.** Last ned `Axle.dmg` (Mac) eller `Axle-Setup.exe` (Windows).
             Mac med Homebrew: `brew tap askr2810/axle https://github.com/askr2810/axle && brew install --cask --no-quarantine axle`
             **Hvorfor får jeg en advarsel?** Appen er ikke signert av Apple/Microsoft ennå (det koster penger hvert år). Den er bygget automatisk av GitHub fra Axles kode.
-            På Mac: høyreklikk på Axle → Åpne første gang. På Windows: «Mer informasjon» → «Kjør likevel».
+            På Mac (macOS 15 og nyere): åpne Axle én gang, gå til Systeminnstillinger → Personvern og sikkerhet, bla ned og trykk «Åpne likevel». På eldre macOS: høyreklikk på Axle → Åpne. Står det at appen er «skadet», kjør `xattr -dr com.apple.quarantine /Applications/Axle.app` i Terminal. På Windows: «Mer informasjon» → «Kjør likevel».
             Vil du kontrollere filen: sammenlign `shasum -a 256 Axle.dmg` (Mac) eller `certutil -hashfile Axle-Setup.exe SHA256` (Windows) med `SHA256SUMS.txt`.
           files: |
             dist/Axle.dmg

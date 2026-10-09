@@ -201,7 +201,7 @@ GEN("SLMR", 1,
  // antall tabletter
  () => { const str = R.p([2.5, 5, 10, 20, 25, 40, 50, 100, 250, 500]), k = R.p([0.5, 1, 1.5, 2, 3]); const dose = str * k;
    return [T(`Forordnet dose er ${nf(dose, 1)} mg. Tablettene er à ${nf(str, 1)} mg (med delestrek). Hvor mange tabletter skal pasienten ha?`, `The prescribed dose is ${nf(dose, 1)} mg. The tablets are ${nf(str, 1)} mg each (scored). How many tablets should the patient have?`),
-     { n: k, tol: 0, u: T("tabletter", "tablets") }, T(`Dose / styrke = ${nf(dose, 1)} / ${nf(str, 1)} = ${nf(k, 1)} tabletter.`, `Dose / strength = ${nf(dose, 1)} / ${nf(str, 1)} = ${nf(k, 1)} tablets.`)]; },
+     { n: k, tol: 0, u: T("tabletter", "tablets") }, T(`Dose / styrke = ${nf(dose, 1)} / ${nf(str, 1)} = ${nf(k, 1)} ${k === 1 ? 'tablett' : 'tabletter'}.`, `Dose / strength = ${nf(dose, 1)} / ${nf(str, 1)} = ${nf(k, 1)} ${k === 1 ? 'tablet' : 'tablets'}.`)]; },
  // ml mikstur
  () => { const str = R.p([10, 20, 24, 25, 40, 50, 100]), dose = R.p([60, 80, 100, 120, 150, 200, 240, 250, 300]); const ml = dose / str;
    return [T(`Forordnet ${nf(dose)} mg. Miksturen har styrke ${nf(str)} mg/ml. Hvor mange ml skal du trekke opp?`, `Prescribed ${nf(dose)} mg. The oral solution has a strength of ${nf(str)} mg/mL. How many mL should you draw up?`),

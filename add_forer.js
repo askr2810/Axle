@@ -884,7 +884,7 @@ Fill in an **accident report** together, and move the cars if they block traffic
   "Sikre først, så ikke flere blir skadet. Varsle og hjelp deretter.",
   "You are the first to arrive at an accident. What do you do first?", ["Secure the scene with hazard lights, vest and warning triangle", "Run straight to the cars", "Take photos", "Move all the injured at once"],
   "Secure first so that no one else gets hurt. Then alert and help."],
- [null, "En skadet person er bevisstløs, men puster normalt. Hva gjør du?", ["Legger personen i stabilt sideleie og holder henne varm", "Starter hjerte-lunge-redning", "Gir personen vann", "Setter personen opp"],
+ [null, "En skadet person er bevisstløs, men puster normalt. Hva gjør du?", ["Legger personen i stabilt sideleie og holder personen varm", "Starter hjerte-lunge-redning", "Gir personen vann", "Setter personen opp"],
   "Stabilt sideleie holder luftveiene åpne.",
   "An injured person is unconscious but breathing normally. What do you do?", ["Place the person in the recovery position and keep her warm", "Start CPR", "Give the person water", "Sit the person up"],
   "The recovery position keeps the airway open."],

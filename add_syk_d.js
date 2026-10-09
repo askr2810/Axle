@@ -68,8 +68,8 @@ GEN("SLMR", SLMR_IE,
    return [T(`En pasient på ${w} kg skal ha ${ieKg} IE/kg. Styrken er ${nf(str)} IE/ml. Hvor mange ml?`, `A patient weighing ${w} kg is to have ${ieKg} IU/kg. The strength is ${nf(str)} IU/mL. How many mL?`), { n: ml, tol: 0.01, u: "ml" },
      T(`Dose: ${ieKg} · ${w} = ${nf(dose)} IE. Volum: ${nf(dose)} / ${nf(str)} = ${nf(ml, 2)} ml.`, `Dose: ${ieKg} · ${w} = ${nf(dose)} IU. Volume: ${nf(dose)} / ${nf(str)} = ${nf(ml, 2)} mL.`)]; },
  // blandet: mikrogram i infusjon
- () => { const ug = R.p([100, 200, 250, 500]), vol = R.p([50, 100]), w = R.i(50, 100), rate = R.p([0.05, 0.1, 0.2]); const conc = ug / vol, mlh = rate * w * 60 / conc;
-   return [T(`${ug} mikrogram er løst i ${vol} ml. Pasienten på ${w} kg skal ha ${nf(rate, 2)} mikrogram/kg/min. Hvor mange ml/t?`, `${ug} micrograms is dissolved in ${vol} mL. The patient weighing ${w} kg is to have ${nf(rate, 2)} micrograms/kg/min. How many mL/h?`), { n: mlh, tol: rel(mlh, 0.01), u: T("ml/t", "mL/h") },
+ () => { const mg = R.p([2, 4, 8]), ug = mg * 1000, vol = 50, w = R.i(50, 100), rate = R.p([0.05, 0.1, 0.2]); const conc = ug / vol, mlh = rate * w * 60 / conc;
+   return [T(`${mg} mg (${ug} mikrogram) er løst i ${vol} ml. Pasienten på ${w} kg skal ha ${nf(rate, 2)} mikrogram/kg/min. Hvor mange ml/t?`, `${mg} mg (${ug} micrograms) is dissolved in ${vol} mL. The patient weighing ${w} kg is to have ${nf(rate, 2)} micrograms/kg/min. How many mL/h?`), { n: mlh, tol: rel(mlh, 0.01), u: T("ml/t", "mL/h") },
      T(`Konsentrasjon: ${ug}/${vol} = ${nf(conc, 2)} µg/ml. Behov: ${nf(rate, 2)} · ${w} · 60 = ${nf(rate * w * 60, 1)} µg/t. ml/t = ${nf(rate * w * 60, 1)} / ${nf(conc, 2)} = ${nf(mlh, 2)} ml/t.`,
        `Concentration: ${ug}/${vol} = ${nf(conc, 2)} µg/mL. Requirement: ${nf(rate, 2)} · ${w} · 60 = ${nf(rate * w * 60, 1)} µg/h. mL/h = ${nf(rate * w * 60, 1)} / ${nf(conc, 2)} = ${nf(mlh, 2)} mL/h.`)]; }
 );
@@ -363,7 +363,7 @@ BIQ("SLOV", 3, [
   "Which question is open?", ["\"How are you today?\"", "\"Are you in pain?\"", "\"Did you sleep last night?\"", "\"Would you like coffee?\""], "Open questions cannot be answered with yes or no."],
  ["Pasienten snakker lite norsk. Datteren på 12 år er til stede. Hva gjør du?", ["Bestiller kvalifisert tolk", "Bruker datteren som tolk", "Snakker høyere og saktere", "Bruker bare tegn"], "Barn skal ikke brukes som tolk. Det er en belastning for barnet og gir fare for feil.",
   "The patient speaks little Norwegian. Their 12-year-old daughter is present. What do you do?", ["Book a qualified interpreter", "Use the daughter as an interpreter", "Speak louder and slower", "Only use gestures"], "Children should not be used as interpreters. It burdens the child and risks errors."],
- ["Hva er god dokumentasjon?", ["Objektive observasjoner og tiltak, skrevet så snart som mulig", "Egne meninger om pasientens personlighet", "Å skrive alt på slutten av uka", "Å slette det som var feil"], "Feil rettes ved å føre en ny, daterte merknad, ikke ved å slette.",
+ ["Hva er god dokumentasjon?", ["Objektive observasjoner og tiltak, skrevet så snart som mulig", "Egne meninger om pasientens personlighet", "Å skrive alt på slutten av uka", "Å slette det som var feil"], "Feil rettes ved å føre en ny, datert merknad, ikke ved å slette.",
   "What is good documentation?", ["Objective observations and actions, written as soon as possible", "Your own opinions about the patient's personality", "Writing everything at the end of the week", "Deleting what was wrong"], "Errors are corrected with a new, dated note, not by deleting."]
 ]);
 })();

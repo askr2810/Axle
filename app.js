@@ -334,7 +334,7 @@ function renderHome(){
   let path = "";
   c.units.forEach((u,ui)=>{
     const col = `var(--u${ui%3})`, dn = sub(c.code).done, crown = dn[ui+"-3"], locked = unitLocked(c,ui);
-    path += `<section><div class="unit" style="background:${col}"><div><small>${t("unit",ui+1)}</small><h2>${esc(unitTitle(c,ui))}</h2></div><div class="uside">${theoryOf(c.code,ui)?`<button class="ubook" data-a="theory" data-u="${ui}" aria-label="${esc(t("theoryFor",unitTitle(c,ui)))}">${I.book}<span>${t("theory")}</span></button>`:""}${crown?`<span class="ucrown" title="${esc(lvName(3))}">${I.crown}</span>`:`<span class="cnt">${unitDone(c.code,ui)}/${REQ}</span>`}${locked&&ui>0?`<button class="jump" data-a="jump" data-u="${ui}">${t("jumpHere")}</button>`:""}</div></div><div class="nodes ${nn&&nn[0]===ui&&nn[1]===0?"hascur":""}">`;
+    path += `<section><div class="unit" style="background:${col}"><div><small>${t("unit",ui+1)}</small><h2>${esc(unitTitle(c,ui))}</h2></div><div class="uside">${theoryOf(c.code,ui)?`<button class="ubook" data-a="theory" data-u="${ui}" aria-label="${esc(t("theoryFor",unitTitle(c,ui)))}">${I.book}<span>${t("theory")}</span></button>`:""}${crown?`<span class="ucrown" title="${esc(lvName(3))}">${I.crown}</span>`:`<span class="cnt" title="${esc(T(`${unitDone(c.code,ui)} av ${REQ} nivåer fullført`, `${unitDone(c.code,ui)} of ${REQ} levels completed`))}"><span aria-hidden="true">${unitDone(c.code,ui)}/${REQ}</span><small aria-hidden="true">${esc(T("nivåer", "levels"))}</small><span class="sr">${esc(T(`${unitDone(c.code,ui)} av ${REQ} nivåer fullført`, `${unitDone(c.code,ui)} of ${REQ} levels completed`))}</span></span>`}${locked&&ui>0?`<button class="jump" data-a="jump" data-u="${ui}">${t("jumpHere")}</button>`:""}</div></div><div class="nodes ${nn&&nn[0]===ui&&nn[1]===0?"hascur":""}">`;
     for(let k=0;k<NODES_PER_UNIT;k++){
       const off = [0,-56,36,-20,50,-44][(ui*NODES_PER_UNIT+k)%6];
       const done = dn[ui+"-"+k], cur = nn && nn[0]===ui && nn[1]===k, master = k===3, open = isUnlocked(c,ui,k);
@@ -355,7 +355,7 @@ function renderHome(){
     <button class="stat xp" data-a="statinfo" data-k="xp" aria-label="${t("xpTitle")}: ${S.xp}">${I.bolt}${S.xp}</button>`}
   </div></div>
   <main class="wrap hm">
-    <div class="hm-side">${noticeHTML()}${qsHTML("home")}
+    <div class="hm-side">${noticeHTML()}${betaNoteHTML(c.code, true)}${qsHTML("home")}
     ${duInviteHTML()}
     ${nextCardHTML(c, nn)}
     ${fresh ? "" : layoutHTML("home")}
@@ -374,7 +374,7 @@ function pickRowHTML(c){
   const eq = courseEq(c), need = knownCodes(preOf(c.code).need);
   return `<div class="fav-row"><button class="subj ${c.code===S.current?"sel":""}" data-a="choose" data-c="${c.code}">
     <span class="badge" style="background:${col}">${esc(courseShort(c))}</span>
-    <span class="t"><b>${esc(courseName(c))}${c.isNew?`<span class="newtag">${t("newTag")}</span>`:""}</b>${eq?`<span>${esc(eq)}</span>`:""}${need.length?`<span class="pre">${esc(t("builtOn"))}: ${esc(need.map(k=>courseName(COURSE(k))).join(", "))}</span>`:""}</span>
+    <span class="t"><b>${esc(courseName(c))}${c.isNew?`<span class="newtag">${t("newTag")}</span>`:""}${betaTagHTML(c.code)}</b>${eq?`<span>${esc(eq)}</span>`:""}${need.length?`<span class="pre">${esc(t("builtOn"))}: ${esc(need.map(k=>courseName(COURSE(k))).join(", "))}</span>`:""}</span>
     <span class="p">${d}/${tot}<div class="mini"><i style="width:${d/tot*100}%"></i></div></span></button>${favStarHTML(c.code)}</div>`;
 }
 
@@ -441,7 +441,7 @@ function renderSettings(){
       <button class="srow" data-a="homecustom"><span class="lbl">${esc(t("layTitle"))}<span class="sub">${esc(t("laySetSub"))}</span></span>${I.chevron}</button>
     </div>`,
     look: `<div class="sgroup">
-      <div class="srow"><span class="lbl">${t("setLang")}</span><div class="seg"><button class="${LANG==="nb"?"on":""}" data-a="setlang" data-l="nb">Norsk</button><button class="${LANG==="en"?"on":""}" data-a="setlang" data-l="en">English</button></div></div>
+      <div class="srow"><span class="lbl">${t("setLang")}</span><div class="seg" role="radiogroup" aria-label="${esc(t("setLang"))}"><button class="${LANG==="nb"?"on":""}" role="radio" aria-checked="${LANG==="nb"}" lang="nb" data-a="setlang" data-l="nb">Norsk</button><button class="${LANG==="en"?"on":""}" role="radio" aria-checked="${LANG==="en"}" lang="en" data-a="setlang" data-l="en">English</button></div></div>
       <div class="srow"><span class="lbl">${t("setTheme")}</span><div class="seg">${["auto","light","dark"].map(k=>`<button class="${(S.theme||"auto")===k?"on":""}" data-a="settheme" data-m="${k}" aria-pressed="${(S.theme||"auto")===k}">${esc(t("theme_"+k))}</button>`).join("")}</div></div>
       ${thSettingsHTML()}
       <div class="srow"><span class="lbl">${esc(t("setUnits"))}<span class="sub">${esc(t("setUnitsSub"))}</span></span><div class="seg">${[["si","SI"],["us","US"]].map(([k,l])=>`<button class="${(S.units||"si")===k?"on":""}" data-a="setunits" data-u="${k}" aria-pressed="${(S.units||"si")===k}">${l}</button>`).join("")}</div></div>
@@ -472,7 +472,7 @@ function renderSettings(){
       <a class="srow" href="mailto:${esc(CONFIG.contactEmail)}?subject=${encodeURIComponent("Axle: rapport om misbruk")}"><span class="lbl">${t("abuseContact")}<span class="sub">${esc(CONFIG.contactEmail)}</span></span>${I.chevron}</a>
       <a class="srow" href="${LANG === "en" ? "/en/about/" : "/about/"}" target="_blank" rel="noopener"><span class="lbl">${esc(T("Om Axle", "About Axle"))}</span>${I.chevron}</a>
       <button class="srow" data-a="privacy"><span class="lbl">${t("setPrivacy")}</span>${I.chevron}</button>
-      ${typeof CLOUD_ON !== "undefined" && CLOUD_ON ? `<div class="srow"><span class="lbl">${esc(T("Del bruksstatistikk", "Share usage statistics"))}<span class="sub">${esc(T("Hva slags sider og øvinger som brukes – hjelper oss å gjøre Axle bedre. Ingen svar eller tekst.", "Which pages and exercises are used – helps us improve Axle. No answers or text."))}</span></span><button class="tog ${S.statsOk === 1 ? "on" : ""}" data-a="stattoggle" role="switch" aria-checked="${S.statsOk === 1}" aria-label="${esc(T("Del bruksstatistikk", "Share usage statistics"))}"></button></div>` : ""}
+      ${typeof CLOUD_ON !== "undefined" && CLOUD_ON ? `<div class="srow"><span class="lbl">${esc(T("Del bruksstatistikk", "Share usage statistics"))}<span class="sub">${esc(T("Hva slags sider og øvinger som brukes, knyttet til kontoen hvis du er logget inn. Ingen svar eller tekst.", "Which pages and exercises are used, linked to your account if you are logged in. No answers or text."))}</span></span><button class="tog ${S.statsOk === 1 ? "on" : ""}" data-a="stattoggle" role="switch" aria-checked="${S.statsOk === 1}" aria-label="${esc(T("Del bruksstatistikk", "Share usage statistics"))}"></button></div>` : ""}
       <button class="srow" data-a="terms"><span class="lbl">${esc(T("Vilkår for bruk", "Terms of use"))}<span class="sub">${esc(T("Gratis øvingsverktøy, kan inneholde feil", "Free practice tool, may contain mistakes"))}</span></span>${I.chevron}</button>
       ${claudeDb&&isOwner?`<button class="srow" data-a="inbox"><span class="lbl">${t("setInbox","…")}</span>${I.chevron}</button>`:""}
     </div>
@@ -1290,14 +1290,14 @@ function renderTheory(){
   const c = COURSE(TH.code);
   $app.innerHTML = `<div class="top"><div class="wrap"><button class="iconbtn" data-a="home" aria-label="${esc(t("back"))}">${I.x}</button>
       <div class="th-t"><small>${esc(courseName(c))} · ${esc(t("unit", TH.u+1))}</small><b>${esc(unitTitle(c, TH.u))}</b></div>${ttsTopBtn("main.theory")}</div></div>
-    <main class="wrap theory">${teacherBubble(TH.code, esc(t("tchTheory", unitTitle(c, TH.u))), 52, "tch-th")}<button class="gd-cta" data-a="thguided">${I.steps}<span><b>${esc(t("gdCta"))}</b><small>${esc(t("gdCtaSub"))}</small></span>${I.chevron}</button>${pfTheoryHTML(TH.code, TH.u)}${labTheoryHTML(TH.code, TH.u)}${theoryBody(TH.code, TH.u, true)}</main>
+    <main class="wrap theory">${betaNoteHTML(TH.code)}${teacherBubble(TH.code, esc(t("tchTheory", unitTitle(c, TH.u))), 52, "tch-th")}<button class="gd-cta" data-a="thguided">${I.steps}<span><b>${esc(t("gdCta"))}</b><small>${esc(t("gdCtaSub"))}</small></span>${I.chevron}</button>${pfTheoryHTML(TH.code, TH.u)}${labTheoryHTML(TH.code, TH.u)}${theoryBody(TH.code, TH.u, true)}</main>
     <div class="lfoot"><div class="wrap"><button class="big" data-a="thstart">${esc(t(TH.go ? "thStartFirst" : "thStart"))}</button></div></div>`;
 }
 function theorySheetHTML(o){
   const c = COURSE(o.code);
   return `<div class="sc thsheet" role="dialog" aria-modal="true" aria-label="${esc(t("theoryFor", unitTitle(c, o.u)))}">
     <div class="wrap sc-top"><div class="th-t"><small>${esc(t("theory"))}</small><b>${esc(unitTitle(c, o.u))}</b></div><button class="iconbtn" data-a="closeov" aria-label="${esc(t("scClose"))}">${I.x}</button></div>
-    <div class="thbody"><div class="wrap theory">${theoryBody(o.code, o.u)}</div></div></div>`;
+    <div class="thbody"><div class="wrap theory">${betaNoteHTML(o.code, true)}${theoryBody(o.code, o.u)}</div></div></div>`;
 }
 function preReady(code){ const c = COURSES.find(x=>x.code===code); if(!c) return true; const {d,tot} = courseProgress(c); return tot>0 && d/tot >= 0.6; }
 const knownCodes = list => (list||[]).filter(k => COURSES.some(x=>x.code===k));

@@ -385,10 +385,23 @@ function tlShow(el, i, scroll){
   const name = el.dataset.tl, D = TIMELINES[name]; i = Math.max(0, Math.min(D.v.length - 1, i));
   const seen = tlSeen(name), first = !seen.includes(i);
   if(first){ seen.push(i); if(seen.length === D.v.length){ const st = awardXP(TL_XP); S.stats ||= {}; S.stats.timelines = (+S.stats.timelines || 0) + 1; sfx("complete"); setTimeout(() => toast(T("Hele tidslinjen er utforsket! +", "Whole timeline explored! +") + TL_XP + " XP"), 200); if(st.goalHit) setTimeout(() => toast(t("goalHitTitle")), 900); } save(); }
-  const sc = el.querySelector(".tl-scroll"), left = sc ? sc.scrollLeft : 0;
-  el.querySelector(".tl-body").innerHTML = tlExploreHTML(name, i);
-  const sc2 = el.querySelector(".tl-scroll"); sc2.scrollLeft = left;
-  if(scroll){ const x = tlLayout(D).xs[i]; sc2.scrollTo({ left: Math.max(0, x - sc2.clientWidth / 2), behavior: "smooth" }); }
+  // Oppdater bare markeringen og kortet (ikke tegn hele tidslinjen på nytt), så det er lett å følge med
+  const svg = el.querySelector(".tl-svg"), card = el.querySelector(".tl-card");
+  if(!svg || !card){ el.querySelector(".tl-body").innerHTML = tlExploreHTML(name, i); }
+  else {
+    svg.querySelectorAll(".tl-ev").forEach(g => { const k = +g.dataset.tli, on = k === i, dot = g.querySelector(".tl-dot"); let ring = g.querySelector(".tl-ring");
+      g.classList.toggle("on", on); g.classList.toggle("seen", seen.includes(k)); dot.setAttribute("r", on ? 7.5 : 5.5);
+      if(on && !ring){ ring = document.createElementNS("http://www.w3.org/2000/svg", "circle"); ring.setAttribute("class", "tl-ring"); ["cx", "cy"].forEach(p => ring.setAttribute(p, dot.getAttribute(p))); ring.setAttribute("r", 11); g.insertBefore(ring, dot); }
+      else if(!on && ring) ring.remove(); });
+    const foc = document.activeElement && document.activeElement.dataset ? document.activeElement.dataset.tlgo : null;
+    const tmp = document.createElement("div"); tmp.innerHTML = tlCardHTML(name, i);
+    card.innerHTML = tmp.firstElementChild.innerHTML; card.dataset.k = i;
+    if(foc){ const nb = card.querySelector(`[data-tlgo="${foc}"]`); (nb && !nb.disabled ? nb : card.querySelector(".tl-nb:not([disabled])"))?.focus({ preventScroll: true }); }
+  }
+  // Tidslinjen følger bare etter når den markerte hendelsen er på vei ut av bildet
+  const sc = el.querySelector(".tl-scroll");
+  if(sc && scroll){ const x = tlLayout(D).xs[i], l = sc.scrollLeft, w = sc.clientWidth, pad = Math.min(70, w / 4);
+    if(x < l + pad || x > l + w - pad) sc.scrollTo({ left: Math.max(0, x < l + pad ? x - pad : x - w + pad), behavior: "smooth" }); }
 }
 // ---------- Sett i rekkefølge ----------
 const TL_N = 5;
