@@ -17,7 +17,9 @@ const LABS = [
     kw: "bevegelse motion fart velocity speed akselerasjon acceleration posisjon position strekning distance derivasjon derivative integral integrasjon areal area stigning slope tangent graf graph", units: [], courses: ["GFYS", "VGFY1", "GMAT", "VGR1", "VGR2", "MEK1000", "MAT1000"], open: () => mvOpen(screen) }
 ,
   { id: "ctl", ic: "🎛️", t: ["Reguleringslaben", "The control lab"], sub: ["Dra poler og nullpunkter, se sprangresponsen – og skru på en PID-regulator", "Drag poles and zeros, see the step response – and tune a PID controller"],
-    kw: "regulering control kybernetikk cybernetics pol pole poler poles nullpunkt zero s-plan s-plane overføringsfunksjon transfer function sprangrespons step response tidskonstant time constant dempning damping oversving overshoot pid regulator controller stabilitet stability laplace", units: [], courses: ["ELFT2400"], open: () => ctOpen(screen) }
+    kw: "regulering control kybernetikk cybernetics pol pole poler poles nullpunkt zero s-plan s-plane overføringsfunksjon transfer function sprangrespons step response tidskonstant time constant dempning damping oversving overshoot pid regulator controller stabilitet stability laplace", units: [], courses: ["ELFT2400"], open: () => ctOpen(screen) },
+  { id: "ekalk", ic: "🧮", t: ["Elementkalkulator: stav", "Element calculator: bar"], sub: ["Velg EA(x), laster og opplager – se hele FEM-utregningen steg for steg, og trykk på et ledd for å se hvorfor", "Choose EA(x), loads and supports – see the whole FEM calculation step by step, and tap a line to see why"],
+    kw: "elementmetoden fem finite element stav bar stivhetsmatrise stiffness matrix svak form weak form formfunksjon shape function lastvektor load vector normalkraft normal force ea aksial axial kalkulator calculator", units: ["FEM:0", "FEM:1"], courses: ["FEM"], open: () => ekOpen("lab") }
 ];
 // Faget (første kobling i SIM_MAP) som en simulering hører til, for gruppering og «Brukes i».
 function labSimUses(name){
