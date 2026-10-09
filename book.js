@@ -144,7 +144,7 @@ function renderBook(){
     <main class="wrap bk">
       <label class="bk-search">${I.search}<input type="search" id="bkq" placeholder="${esc(t("bkSearch"))}" aria-label="${esc(t("bkSearch"))}" value="${esc(BK.q)}" autocomplete="off"></label>
       <div id="bkres">${BK.q.trim() ? bkResultsHTML() : ""}</div>
-      <div id="bklist" ${BK.q.trim() ? "hidden" : ""}>${hasFeature("proofs") ? `<button class="pf-cta" data-a="pflist"><span class="pf-cta-ic" aria-hidden="true">∎</span><span><b>${esc(t("pfTitle"))}</b><small>${esc(t("pfCtaSub", PROOFS.length))}</small></span>${I.chevron}</button>` : ""}${hasFeature("lab") ? labCtaHTML() : ""}${studyTabsHTML()}${list || `<p class="fr-hint">${esc(t("stNoTheory"))}</p>`}${studyMoreHTML()}</div>
+      <div id="bklist" ${BK.q.trim() ? "hidden" : ""}>${hasFeature("proofs") ? `<button class="pf-cta" data-a="pflist"><span class="pf-cta-ic" aria-hidden="true">${svg('<path d="M4 20 20 4M4 20h16V4"/><path d="M8 20a6 6 0 0 0-1.6-4.1" />', 24)}</span><span><b>${esc(t("pfTitle"))}</b><small>${esc(t("pfCtaSub", PROOFS.length))}</small></span>${I.chevron}</button>` : ""}${hasFeature("lab") ? labCtaHTML() : ""}${studyTabsHTML()}${list || `<p class="fr-hint">${esc(t("stNoTheory"))}</p>`}${studyMoreHTML()}</div>
     </main>`;
   const inp = document.getElementById("bkq");
   inp.addEventListener("input", ()=>{ BK.q = inp.value; const has = !!BK.q.trim();
