@@ -3302,3 +3302,6 @@ details.cat-mc{margin:6px 0}details.cat-mc>summary{cursor:pointer;font-size:12px
 .lf-ok{margin-top:10px}
 .lf-alt{margin-top:0}
 .lfoot .wrap.gd-foot:has(.lf-alt){flex-wrap:wrap}.lfoot .gd-foot .lf-alt{flex-basis:100%}
+/* figur som ikke er laget av oppgavens tall: tydelig merket som eksempel (qart.js) */
+.q-fig.q-ex{position:relative;padding-top:30px}
+.q-exb{position:absolute;top:8px;left:10px;font-family:var(--mono);font-size:10.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);background:var(--card);border:1.5px solid var(--line);border-radius:99px;padding:2px 8px}

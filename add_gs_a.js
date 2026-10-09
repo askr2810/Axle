@@ -41,26 +41,26 @@ Which is bigger, 58 or 85? Look at the tens first: 8 tens is more than 5 tens, s
 
 > Always look at the digit furthest to the left first – it is worth the most.`,
 [["Hvor mange tiere er det i tallet 63?", ["6", "3", "63", "9"], "I 63 står 6 på tierplassen og 3 på enerplassen. Det er 6 tiere.",
-  "How many tens are there in 63?", ["6", "3", "63", "9"], "In 63, the 6 is in the tens place and the 3 in the ones place. That is 6 tens."],
+  "How many tens are there in 63?", ["6", "3", "63", "9"], "In 63, the 6 is in the tens place and the 3 in the ones place. That is 6 tens.", { f: "gs_place", p: { n: 63 } }],
  ["Hvilket tegn passer: 72 ☐ 27?", ["$>$", "$<$", "$=$", "$+$"], "72 har 7 tiere og 27 har bare 2 tiere, så 72 er størst: $72 > 27$.",
-  "Which sign fits: 72 ☐ 27?", ["$>$", "$<$", "$=$", "$+$"], "72 has 7 tens and 27 has only 2 tens, so 72 is bigger: $72 > 27$."],
+  "Which sign fits: 72 ☐ 27?", ["$>$", "$<$", "$=$", "$+$"], "72 has 7 tens and 27 has only 2 tens, so 72 is bigger: $72 > 27$.", { f: "lf_croc", p: { a: 72, b: 27 }, only: "after" }],
  ["Hvilket tall er 4 hundrere, 0 tiere og 6 enere?", ["406", "46", "460", "4006"], "$400 + 0 + 6 = 406$. Nullen holder plassen til tierne.",
-  "Which number is 4 hundreds, 0 tens and 6 ones?", ["406", "46", "460", "4006"], "$400 + 0 + 6 = 406$. The zero holds the place of the tens."],
+  "Which number is 4 hundreds, 0 tens and 6 ones?", ["406", "46", "460", "4006"], "$400 + 0 + 6 = 406$. The zero holds the place of the tens.", { f: "gs_place", p: { n: 406 }, only: "after" }],
  ["Hvilket tall kommer rett før 100?", ["99", "101", "90", "10"], "Tallet rett før er én mindre: $100 - 1 = 99$.",
   "Which number comes just before 100?", ["99", "101", "90", "10"], "The number just before is one less: $100 - 1 = 99$."],
  ["Hva er verdien av sifferet 5 i tallet 352?", ["50", "5", "500", "352"], "5 står på tierplassen, så det er verdt 5 tiere, altså 50.",
-  "What is the value of the digit 5 in 352?", ["50", "5", "500", "352"], "The 5 is in the tens place, so it is worth 5 tens, that is 50."],
+  "What is the value of the digit 5 in 352?", ["50", "5", "500", "352"], "The 5 is in the tens place, so it is worth 5 tens, that is 50.", { f: "gs_place", p: { n: 352 } }],
  ["Hvilket tall er et partall?", ["14", "7", "21", "35"], "Partall slutter på 0, 2, 4, 6 eller 8. 14 slutter på 4.",
   "Which number is even?", ["14", "7", "21", "35"], "Even numbers end in 0, 2, 4, 6 or 8. 14 ends in 4."]],
  () => { const h = R.i(1, 9), t = R.i(0, 9), e = R.i(0, 9), n = 100 * h + 10 * t + e;
-   return [T(`Hvilket tall er ${h} hundrere, ${t} tiere og ${e} enere?`, `Which number is ${h} hundreds, ${t} tens and ${e} ones?`), N(n),
-     T(`$${100 * h} + ${10 * t} + ${e} = ${n}$.`, `$${100 * h} + ${10 * t} + ${e} = ${n}$.`)]; },
+   return FIGQ({ f: "gs_place", p: { n } }, [T(`Hvilket tall er ${h} hundrere, ${t} tiere og ${e} enere?`, `Which number is ${h} hundreds, ${t} tens and ${e} ones?`), N(n),
+     T(`$${100 * h} + ${10 * t} + ${e} = ${n}$.`, `$${100 * h} + ${10 * t} + ${e} = ${n}$.`)]); },
  () => { const n = R.i(11, 98), t = Math.floor(n / 10);
-   return [T(`Hvor mange tiere er det i tallet ${n}?`, `How many tens are there in ${n}?`), N(t),
-     T(`I ${n} står ${t} på tierplassen, så det er ${t} tiere.`, `In ${n} the digit ${t} is in the tens place, so there are ${t} tens.`)]; },
+   return FIGQ({ f: "gs_place", p: { n } }, [T(`Hvor mange tiere er det i tallet ${n}?`, `How many tens are there in ${n}?`), N(t),
+     T(`I ${n} står ${t} på tierplassen, så det er ${t} tiere.`, `In ${n} the digit ${t} is in the tens place, so there are ${t} tens.`)]); },
  () => { const n = R.i(10, 998), up = R.p([true, false]), ans = up ? n + 1 : n - 1;
-   return [T(`Hvilket tall kommer rett ${up ? "etter" : "før"} ${n}?`, `Which number comes just ${up ? "after" : "before"} ${n}?`), N(ans),
-     T(`Rett ${up ? "etter" : "før"} betyr én ${up ? "mer" : "mindre"}: $${n} ${up ? "+" : "-"} 1 = ${ans}$.`, `Just ${up ? "after" : "before"} means one ${up ? "more" : "less"}: $${n} ${up ? "+" : "-"} 1 = ${ans}$.`)]; },
+   return FIGQ({ f: "gs_numline", p: { a: n, b: 1, op: up ? "+" : "-" } }, [T(`Hvilket tall kommer rett ${up ? "etter" : "før"} ${n}?`, `Which number comes just ${up ? "after" : "before"} ${n}?`), N(ans),
+     T(`Rett ${up ? "etter" : "før"} betyr én ${up ? "mer" : "mindre"}: $${n} ${up ? "+" : "-"} 1 = ${ans}$.`, `Just ${up ? "after" : "before"} means one ${up ? "more" : "less"}: $${n} ${up ? "+" : "-"} 1 = ${ans}$.`)]); },
  () => { const [a, b, c, d] = R.distinct(4, 12, 99), big = Math.max(a, b, c, d);
    return [T(`Hvilket tall er størst: ${a}, ${b}, ${c} eller ${d}?`, `Which number is biggest: ${a}, ${b}, ${c} or ${d}?`), [String(big), ...[a, b, c, d].filter(x => x !== big).map(String)],
      T(`Sammenlign tierne først. ${big} er størst.`, `Compare the tens first. ${big} is the biggest.`)]; }
@@ -96,7 +96,7 @@ Ola has 15 marbles and gives away 6. $15 - 6 = 9$. He has 9 left.
 [["Hvilket tall er tiervennen til 3?", ["7", "3", "10", "6"], "$3 + 7 = 10$, så 7 er tiervennen til 3.",
   "Which number makes 10 with 3?", ["7", "3", "10", "6"], "$3 + 7 = 10$, so 7 is the number bond of 3."],
  ["Hva er $9 + 6$?", ["15", "14", "16", "3"], "Ta 1 fra 6 for å gjøre 9 til 10. Da er 5 igjen: $10 + 5 = 15$.",
-  "What is $9 + 6$?", ["15", "14", "16", "3"], "Take 1 from 6 to make 9 into 10. Then 5 are left: $10 + 5 = 15$."],
+  "What is $9 + 6$?", ["15", "14", "16", "3"], "Take 1 from 6 to make 9 into 10. Then 5 are left: $10 + 5 = 15$.", { f: "lf_tenframe", p: { a: 9, b: 6, k: 0 }, after: { k: 1 } }],
  ["Hva er $40 + 30$?", ["70", "7", "43", "700"], "4 tiere og 3 tiere er 7 tiere, altså 70.",
   "What is $40 + 30$?", ["70", "7", "43", "700"], "4 tens and 3 tens make 7 tens, that is 70."],
  ["Hvordan kan du sjekke at $14 - 6 = 8$?", ["Regne $8 + 6$ og se at det blir 14", "Regne $14 + 6$", "Regne $8 - 6$", "Det går ikke"], "Minus og pluss henger sammen: hvis $8 + 6 = 14$, er $14 - 6 = 8$.",
@@ -106,15 +106,15 @@ Ola has 15 marbles and gives away 6. $15 - 6 = 9$. He has 9 left.
  ["Emma har 12 kroner og får 5 til. Hvilket regnestykke passer?", ["$12 + 5$", "$12 - 5$", "$5 - 12$", "$12 \\cdot 5$"], "Hun får mer, så vi legger sammen: $12 + 5 = 17$.",
   "Emma has 12 kroner and gets 5 more. Which sum fits?", ["$12 + 5$", "$12 - 5$", "$5 - 12$", "$12 \\cdot 5$"], "She gets more, so we add: $12 + 5 = 17$."]],
  () => { const a = R.i(2, 9), b = R.i(10 - a, 9), s = a + b;
-   return [T(`Hva er $${a} + ${b}$?`, `What is $${a} + ${b}$?`), N(s), T(`Gå via 10: $${a} + ${10 - a} = 10$, og $10 + ${b - (10 - a)} = ${s}$.`, `Bridge through 10: $${a} + ${10 - a} = 10$, and $10 + ${b - (10 - a)} = ${s}$.`)]; },
+   return FIGQ({ f: "lf_tenframe", p: { a, b, k: 0 }, after: { k: 10 - a } }, [T(`Hva er $${a} + ${b}$?`, `What is $${a} + ${b}$?`), N(s), T(`Gå via 10: $${a} + ${10 - a} = 10$, og $10 + ${b - (10 - a)} = ${s}$.`, `Bridge through 10: $${a} + ${10 - a} = 10$, and $10 + ${b - (10 - a)} = ${s}$.`)]); },
  () => { const a = R.i(11, 69), b = R.i(10, 99 - a), s = a + b;
    return [T(`Hva er $${a} + ${b}$?`, `What is $${a} + ${b}$?`), N(s), T(`Tierne: $${a - a % 10} + ${b - b % 10} = ${a - a % 10 + b - b % 10}$. Enerne: $${a % 10} + ${b % 10} = ${a % 10 + b % 10}$. Til sammen ${s}.`, `Tens: $${a - a % 10} + ${b - b % 10} = ${a - a % 10 + b - b % 10}$. Ones: $${a % 10} + ${b % 10} = ${a % 10 + b % 10}$. In total ${s}.`)]; },
  () => { const a = R.i(20, 99), b = R.i(3, a - 5), d = a - b;
-   return [T(`Hva er $${a} - ${b}$?`, `What is $${a} - ${b}$?`), N(d), T(`$${a} - ${b} = ${d}$. Sjekk: $${d} + ${b} = ${a}$.`, `$${a} - ${b} = ${d}$. Check: $${d} + ${b} = ${a}$.`)]; },
+   return FIGQ({ f: "gs_numline", p: { a, b, op: "-" } }, [T(`Hva er $${a} - ${b}$?`, `What is $${a} - ${b}$?`), N(d), T(`$${a} - ${b} = ${d}$. Sjekk: $${d} + ${b} = ${a}$.`, `$${a} - ${b} = ${d}$. Check: $${d} + ${b} = ${a}$.`)]); },
  () => { const t = R.p([10, 20, 50, 100]), a = R.i(1, t - 1), m = t - a;
-   return [T(`Hva mangler? $${a} + \\square = ${t}$`, `What is missing? $${a} + \\square = ${t}$`), N(m), T(`$${t} - ${a} = ${m}$, så det mangler ${m}.`, `$${t} - ${a} = ${m}$, so ${m} is missing.`)]; },
+   return FIGQ(t <= 20 ? { f: "gs_numline", p: { a, b: m, op: "+" }, only: "after" } : null, [T(`Hva mangler? $${a} + \\square = ${t}$`, `What is missing? $${a} + \\square = ${t}$`), N(m), T(`$${t} - ${a} = ${m}$, så det mangler ${m}.`, `$${t} - ${a} = ${m}$, so ${m} is missing.`)]); },
  () => { const n = who(), a = R.i(8, 30), b = R.i(2, a - 1), d = a - b;
-   return [T(`${n} har ${a} klistremerker og gir bort ${b}. Hvor mange er igjen?`, `${n} has ${a} stickers and gives away ${b}. How many are left?`), N(d), T(`$${a} - ${b} = ${d}$.`, `$${a} - ${b} = ${d}$.`)]; }
+   return FIGQ({ f: "gs_numline", p: { a, b, op: "-" } }, [T(`${n} har ${a} klistremerker og gir bort ${b}. Hvor mange er igjen?`, `${n} has ${a} stickers and gives away ${b}. How many are left?`), N(d), T(`$${a} - ${b} = ${d}$.`, `$${a} - ${b} = ${d}$.`)]); }
 );
 
 U("GS14", "Gangetabellen", "Times tables",
@@ -159,11 +159,11 @@ There are 5 bags with 6 apples. $5 \\cdot 6 = 30$ apples.
  ["Et bord har 4 bein. Hvor mange bein har 6 bord?", ["24", "10", "20", "46"], "$6 \\cdot 4 = 24$.",
   "A table has 4 legs. How many legs do 6 tables have?", ["24", "10", "20", "46"], "$6 \\cdot 4 = 24$."]],
  () => { const a = R.i(2, 10), b = R.i(2, 10), p = a * b;
-   return [T(`Hva er $${a} \\cdot ${b}$?`, `What is $${a} \\cdot ${b}$?`), N(p), T(`$${a} \\cdot ${b} = ${p}$.`, `$${a} \\cdot ${b} = ${p}$.`)]; },
+   return FIGQ({ f: "gs_array", p: { r: a, c: b } }, [T(`Hva er $${a} \\cdot ${b}$?`, `What is $${a} \\cdot ${b}$?`), N(p), T(`$${a} \\cdot ${b} = ${p}$.`, `$${a} \\cdot ${b} = ${p}$.`)]); },
  () => { const a = R.i(2, 9), b = R.i(2, 10), p = a * b, thing = R.p([["poser med", "epler", "bags of", "apples"], ["esker med", "blyanter", "boxes of", "pencils"], ["rader med", "stoler", "rows of", "chairs"]]);
-   return [T(`Det er ${a} ${thing[0]} ${b} ${thing[1]}. Hvor mange ${thing[1]} er det til sammen?`, `There are ${a} ${thing[2]} ${b} ${thing[3]}. How many ${thing[3]} are there in total?`), N(p), T(`$${a} \\cdot ${b} = ${p}$.`, `$${a} \\cdot ${b} = ${p}$.`)]; },
+   return FIGQ({ f: "gs_array", p: { r: a, c: b } }, [T(`Det er ${a} ${thing[0]} ${b} ${thing[1]}. Hvor mange ${thing[1]} er det til sammen?`, `There are ${a} ${thing[2]} ${b} ${thing[3]}. How many ${thing[3]} are there in total?`), N(p), T(`$${a} \\cdot ${b} = ${p}$.`, `$${a} \\cdot ${b} = ${p}$.`)]); },
  () => { const a = R.i(2, 10), b = R.i(2, 10), p = a * b;
-   return [T(`Hva mangler? $${a} \\cdot \\square = ${p}$`, `What is missing? $${a} \\cdot \\square = ${p}$`), N(b), T(`$${a} \\cdot ${b} = ${p}$, så det mangler ${b}.`, `$${a} \\cdot ${b} = ${p}$, so ${b} is missing.`)]; }
+   return FIGQ({ f: "gs_array", p: { r: a, c: b }, only: "after" }, [T(`Hva mangler? $${a} \\cdot \\square = ${p}$`, `What is missing? $${a} \\cdot \\square = ${p}$`), N(b), T(`$${a} \\cdot ${b} = ${p}$, så det mangler ${b}.`, `$${a} \\cdot ${b} = ${p}$, so ${b} is missing.`)]); }
 );
 
 U("GS14", "Deling", "Division",
@@ -206,11 +206,11 @@ U("GS14", "Deling", "Division",
  ["Kan du dele 8 på 0?", ["Nei, det går ikke", "Ja, det blir 0", "Ja, det blir 8", "Ja, det blir 1"], "Ingen tall ganget med 0 blir 8, så deling på 0 går ikke.",
   "Can you divide 8 by 0?", ["No, it is not possible", "Yes, it is 0", "Yes, it is 8", "Yes, it is 1"], "No number times 0 makes 8, so dividing by 0 is not possible."]],
  () => { const b = R.i(2, 10), q = R.i(2, 10), a = b * q;
-   return [T(`Hva er $${a} : ${b}$?`, `What is $${a} : ${b}$?`), N(q), T(`$${b} \\cdot ${q} = ${a}$, så $${a} : ${b} = ${q}$.`, `$${b} \\cdot ${q} = ${a}$, so $${a} : ${b} = ${q}$.`)]; },
+   return FIGQ({ f: "gs_share", p: { n: a, k: b } }, [T(`Hva er $${a} : ${b}$?`, `What is $${a} : ${b}$?`), N(q), T(`$${b} \\cdot ${q} = ${a}$, så $${a} : ${b} = ${q}$.`, `$${b} \\cdot ${q} = ${a}$, so $${a} : ${b} = ${q}$.`)]); },
  () => { const b = R.i(2, 9), q = R.i(2, 9), r = R.i(1, b - 1), a = b * q + r;
-   return [T(`Hva blir resten når du deler ${a} på ${b}?`, `What is the remainder when you divide ${a} by ${b}?`), N(r), T(`$${b} \\cdot ${q} = ${b * q}$, og $${a} - ${b * q} = ${r}$. Resten er ${r}.`, `$${b} \\cdot ${q} = ${b * q}$, and $${a} - ${b * q} = ${r}$. The remainder is ${r}.`)]; },
+   return FIGQ({ f: "gs_share", p: { n: a, k: b } }, [T(`Hva blir resten når du deler ${a} på ${b}?`, `What is the remainder when you divide ${a} by ${b}?`), N(r), T(`$${b} \\cdot ${q} = ${b * q}$, og $${a} - ${b * q} = ${r}$. Resten er ${r}.`, `$${b} \\cdot ${q} = ${b * q}$, and $${a} - ${b * q} = ${r}$. The remainder is ${r}.`)]); },
  () => { const kids = R.i(2, 8), each = R.i(2, 9), tot = kids * each;
-   return [T(`${tot} drops deles likt på ${kids} barn. Hvor mange får hvert barn?`, `${tot} sweets are shared equally between ${kids} children. How many does each child get?`), N(each), T(`$${tot} : ${kids} = ${each}$.`, `$${tot} : ${kids} = ${each}$.`)]; }
+   return FIGQ({ f: "gs_share", p: { n: tot, k: kids } }, [T(`${tot} drops deles likt på ${kids} barn. Hvor mange får hvert barn?`, `${tot} sweets are shared equally between ${kids} children. How many does each child get?`), N(each), T(`$${tot} : ${kids} = ${each}$.`, `$${tot} : ${kids} = ${each}$.`)]); }
 );
 
 U("GS14", "Klokka og penger", "Time and money",
@@ -255,10 +255,10 @@ You buy an ice cream for 27 kr and pay with 50 kr. $50 - 27 = 23$ kr back.
  ["Hva er kvart på sju?", ["6:45", "7:15", "7:45", "6:15"], "Kvart på sju er 15 minutter før sju: 6:45.",
   "What is quarter to seven?", ["6:45", "7:15", "7:45", "6:15"], "Quarter to seven is 15 minutes before seven: 6:45."]],
  () => { const pay = R.p([20, 50, 100, 200]), price = R.i(Math.round(pay * 0.3), pay - 1), back = pay - price;
-   return [T(`Noe koster ${price} kr. Du betaler med ${pay} kr. Hvor mye får du igjen?`, `Something costs ${price} kr. You pay with ${pay} kr. How much change do you get?`), N(back, 0, "kr"), T(`$${pay} - ${price} = ${back}$ kr.`, `$${pay} - ${price} = ${back}$ kr.`)]; },
+   return FIGQ({ f: "gs_coins", p: { c: [pay], pay: price } }, [T(`Noe koster ${price} kr. Du betaler med ${pay} kr. Hvor mye får du igjen?`, `Something costs ${price} kr. You pay with ${pay} kr. How much change do you get?`), N(back, 0, "kr"), T(`$${pay} - ${price} = ${back}$ kr.`, `$${pay} - ${price} = ${back}$ kr.`)]); },
  () => { const h = R.i(1, 10), m = R.p([0, 10, 15, 20, 30, 40, 45]), add = R.p([15, 20, 30, 45]), tot = m + add, nh = h + Math.floor(tot / 60), nm = tot % 60;
-   return [T(`Klokka er ${h}:${String(m).padStart(2, "0")}. Hvor mange minutter over er klokka om ${add} minutter?`, `The time is ${h}:${String(m).padStart(2, "0")}. How many minutes past the hour is it in ${add} minutes?`), N(nm),
-     T(`${m} + ${add} = ${tot} minutter${tot >= 60 ? `, som er én time og ${nm} minutter` : ""}. Klokka blir ${nh}:${String(nm).padStart(2, "0")}, altså ${nm} minutter over.`, `${m} + ${add} = ${tot} minutes${tot >= 60 ? `, which is one hour and ${nm} minutes` : ""}. The time will be ${nh}:${String(nm).padStart(2, "0")}, so ${nm} minutes past.`)]; },
+   return FIGQ({ f: "gs_clock", p: { h, m }, after: { h: nh, m: nm } }, [T(`Klokka er ${h}:${String(m).padStart(2, "0")}. Hvor mange minutter over er klokka om ${add} minutter?`, `The time is ${h}:${String(m).padStart(2, "0")}. How many minutes past the hour is it in ${add} minutes?`), N(nm),
+     T(`${m} + ${add} = ${tot} minutter${tot >= 60 ? `, som er én time og ${nm} minutter` : ""}. Klokka blir ${nh}:${String(nm).padStart(2, "0")}, altså ${nm} minutter over.`, `${m} + ${add} = ${tot} minutes${tot >= 60 ? `, which is one hour and ${nm} minutes` : ""}. The time will be ${nh}:${String(nm).padStart(2, "0")}, so ${nm} minutes past.`)]); },
  () => { const a = R.i(2, 9), b = R.i(1, 9), price = a * 10 + b, n = R.i(2, 4), tot = price * n;
    return [T(`En bolle koster ${price} kr. Hva koster ${n} boller?`, `A bun costs ${price} kr. What do ${n} buns cost?`), N(tot, 0, "kr"), T(`$${n} \\cdot ${price} = ${tot}$ kr.`, `$${n} \\cdot ${price} = ${tot}$ kr.`)]; }
 );
@@ -307,7 +307,7 @@ A square has sides of 4 cm. The perimeter is $4 + 4 + 4 + 4 = 16$ cm.
  () => { const a = R.i(1, 20), d = R.i(2, 9), s = [0, 1, 2, 3].map(k => a + k * d), nx = a + 4 * d;
    return [T(`Hva er neste tall: ${s.join(", ")}, …?`, `What is the next number: ${s.join(", ")}, …?`), N(nx), T(`Tallene øker med ${d} hver gang: $${s[3]} + ${d} = ${nx}$.`, `The numbers grow by ${d} each time: $${s[3]} + ${d} = ${nx}$.`)]; },
  () => { const l = R.i(2, 12), b = R.i(2, 12), o = 2 * l + 2 * b;
-   return [T(`Et rektangel er ${l} cm langt og ${b} cm bredt. Hva er omkretsen?`, `A rectangle is ${l} cm long and ${b} cm wide. What is the perimeter?`), N(o, 0, "cm"), T(`$${l} + ${b} + ${l} + ${b} = ${o}$ cm.`, `$${l} + ${b} + ${l} + ${b} = ${o}$ cm.`)]; },
+   return FIGQ({ f: "gs_area", p: { w: Math.max(l, b), h: Math.min(l, b), unit: "cm", mode: "edge" } }, [T(`Et rektangel er ${l} cm langt og ${b} cm bredt. Hva er omkretsen?`, `A rectangle is ${l} cm long and ${b} cm wide. What is the perimeter?`), N(o, 0, "cm"), T(`$${l} + ${b} + ${l} + ${b} = ${o}$ cm.`, `$${l} + ${b} + ${l} + ${b} = ${o}$ cm.`)]); },
  () => { const [nb, en, k] = R.p([["trekanter", "triangles", 3], ["firkanter", "quadrilaterals", 4], ["femkanter", "pentagons", 5], ["sekskanter", "hexagons", 6]]), n = R.i(2, 6), tot = n * k;
    return [T(`Hvor mange hjørner har ${n} ${nb} til sammen?`, `How many corners do ${n} ${en} have in total?`), N(tot), T(`Hver har ${k} hjørner: $${n} \\cdot ${k} = ${tot}$.`, `Each has ${k} corners: $${n} \\cdot ${k} = ${tot}$.`)]; }
 );
@@ -357,12 +357,12 @@ What is $\\frac{2}{3}$ of 12? $12 : 3 = 4$, and $4 \\cdot 2 = 8$.
  ["Hvor mange fjerdedeler er en hel?", ["4", "1", "2", "8"], "$\\frac{4}{4} = 1$.",
   "How many quarters make a whole?", ["4", "1", "2", "8"], "$\\frac{4}{4} = 1$."]],
  () => { const d = R.p([2, 3, 4, 5, 6, 8, 10]), t = R.i(1, d - 1), k = R.i(2, 12), n = d * k, ans = k * t;
-   return [T(`Hva er $\\frac{${t}}{${d}}$ av ${n}?`, `What is $\\frac{${t}}{${d}}$ of ${n}?`), N(ans), T(`$${n} : ${d} = ${k}$, og $${k} \\cdot ${t} = ${ans}$.`, `$${n} : ${d} = ${k}$, and $${k} \\cdot ${t} = ${ans}$.`)]; },
+   return FIGQ({ f: "gs_pizza", p: { n: d, k: t } }, [T(`Hva er $\\frac{${t}}{${d}}$ av ${n}?`, `What is $\\frac{${t}}{${d}}$ of ${n}?`), N(ans), T(`$${n} : ${d} = ${k}$, og $${k} \\cdot ${t} = ${ans}$.`, `$${n} : ${d} = ${k}$, and $${k} \\cdot ${t} = ${ans}$.`)]); },
  () => { const d = R.p([5, 7, 8, 9, 10, 12]), a = R.i(1, d - 2), b = R.i(1, d - 1 - a), s = a + b;
-   return [T(`Hva er telleren i svaret: $\\frac{${a}}{${d}} + \\frac{${b}}{${d}} = \\frac{?}{${d}}$`, `What is the numerator of the answer: $\\frac{${a}}{${d}} + \\frac{${b}}{${d}} = \\frac{?}{${d}}$`), N(s), T(`Lik nevner: $${a} + ${b} = ${s}$, så svaret er $\\frac{${s}}{${d}}$.`, `Same denominator: $${a} + ${b} = ${s}$, so the answer is $\\frac{${s}}{${d}}$.`)]; },
+   return FIGQ({ f: "gs_pizza", p: { n: d, k: s }, only: "after" }, [T(`Hva er telleren i svaret: $\\frac{${a}}{${d}} + \\frac{${b}}{${d}} = \\frac{?}{${d}}$`, `What is the numerator of the answer: $\\frac{${a}}{${d}} + \\frac{${b}}{${d}} = \\frac{?}{${d}}$`), N(s), T(`Lik nevner: $${a} + ${b} = ${s}$, så svaret er $\\frac{${s}}{${d}}$.`, `Same denominator: $${a} + ${b} = ${s}$, so the answer is $\\frac{${s}}{${d}}$.`)]); },
  () => { const [t, d] = R.p([[1, 2], [1, 3], [2, 3], [1, 4], [3, 4], [2, 5], [3, 5]]), k = R.i(2, 6);
-   return [T(`Hvilken brøk er lik $\\frac{${t}}{${d}}$?`, `Which fraction equals $\\frac{${t}}{${d}}$?`), [`$\\frac{${t * k}}{${d * k}}$`, `$\\frac{${t + k}}{${d + k}}$`, `$\\frac{${t * k}}{${d}}$`, `$\\frac{${t}}{${d * k}}$`],
-     T(`Gang teller og nevner med ${k}: $\\frac{${t * k}}{${d * k}}$.`, `Multiply top and bottom by ${k}: $\\frac{${t * k}}{${d * k}}$.`)]; }
+   return FIGQ({ f: "gs_pizza", p: { n: d, k: t } }, [T(`Hvilken brøk er lik $\\frac{${t}}{${d}}$?`, `Which fraction equals $\\frac{${t}}{${d}}$?`), [`$\\frac{${t * k}}{${d * k}}$`, `$\\frac{${t + k}}{${d + k}}$`, `$\\frac{${t * k}}{${d}}$`, `$\\frac{${t}}{${d * k}}$`],
+     T(`Gang teller og nevner med ${k}: $\\frac{${t * k}}{${d * k}}$.`, `Multiply top and bottom by ${k}: $\\frac{${t * k}}{${d * k}}$.`)]); }
 );
 
 U("GS57", "Desimaltall", "Decimals",
@@ -457,11 +457,11 @@ A jumper costs 400 kr. There is a 25 % discount. 25 % of 400 is 100, so it costs
  ["Hvor mye er 100 % av 37?", ["37", "100", "0,37", "3,7"], "100 % er det hele: 37.",
   "How much is 100 % of 37?", ["37", "100", "0.37", "3.7"], "100 % is the whole: 37."]],
  () => { const p = R.p([10, 20, 25, 50, 75, 5, 30]), base = p === 25 || p === 75 ? 4 * R.i(5, 60) : p === 5 ? 20 * R.i(2, 30) : 10 * R.i(2, 60), a = base * p / 100;
-   return [T(`Hva er ${p} % av ${base}?`, `What is ${p} % of ${base}?`), N(a), T(`10 % av ${base} er ${nf(base / 10)}. ${p} % er da $${mf(base / 10)} \\cdot ${mf(p / 10)}$, altså ${nf(a)}.`, `10 % of ${base} is ${nf(base / 10)}. ${p} % is then $${mf(base / 10)} \\cdot ${mf(p / 10)}$, that is ${nf(a)}.`)]; },
+   return FIGQ({ f: "gs_percent", p: { k: p } }, [T(`Hva er ${p} % av ${base}?`, `What is ${p} % of ${base}?`), N(a), T(`10 % av ${base} er ${nf(base / 10)}. ${p} % er da $${mf(base / 10)} \\cdot ${mf(p / 10)}$, altså ${nf(a)}.`, `10 % of ${base} is ${nf(base / 10)}. ${p} % is then $${mf(base / 10)} \\cdot ${mf(p / 10)}$, that is ${nf(a)}.`)]); },
  () => { const p = R.p([10, 20, 25, 50]), price = (p === 25 ? 40 : 10) * R.i(5, 50), d = price * p / 100, np = price - d;
    return [T(`En vare koster ${price} kr. Den er satt ned med ${p} %. Hva er den nye prisen?`, `An item costs ${price} kr. It is reduced by ${p} %. What is the new price?`), N(np, 0, "kr"), T(`Rabatten er ${p} % av ${price} = ${d} kr. Ny pris: $${price} - ${d} = ${np}$ kr.`, `The discount is ${p} % of ${price} = ${d} kr. New price: $${price} - ${d} = ${np}$ kr.`)]; },
  () => { const tot = R.p([10, 20, 25, 50]), got = R.i(1, tot), p = got / tot * 100;
-   return [T(`Du fikk ${got} av ${tot} riktige. Hvor mange prosent er det?`, `You got ${got} out of ${tot} right. What percentage is that?`), N(p, 0.01, "%"), T(`$\\frac{${got}}{${tot}} = ${mf(got / tot)}$, altså ${nf(p)} %.`, `$\\frac{${got}}{${tot}} = ${mf(got / tot)}$, that is ${nf(p)} %.`)]; }
+   return FIGQ(Number.isInteger(p) ? { f: "gs_percent", p: { k: p }, only: "after" } : null, [T(`Du fikk ${got} av ${tot} riktige. Hvor mange prosent er det?`, `You got ${got} out of ${tot} right. What percentage is that?`), N(p, 0.01, "%"), T(`$\\frac{${got}}{${tot}} = ${mf(got / tot)}$, altså ${nf(p)} %.`, `$\\frac{${got}}{${tot}} = ${mf(got / tot)}$, that is ${nf(p)} %.`)]); }
 );
 
 U("GS57", "Areal og omkrets", "Area and perimeter",
@@ -506,11 +506,11 @@ A room is 4 m long and 3 m wide. Area: $4 \\cdot 3 = 12$ m². Perimeter: $4 + 3 
  ["Hva er 1 m² i dm²?", ["100 dm²", "10 dm²", "1000 dm²", "1 dm²"], "1 m = 10 dm, så 1 m² = $10 \\cdot 10 = 100$ dm².",
   "What is 1 m² in dm²?", ["100 dm²", "10 dm²", "1000 dm²", "1 dm²"], "1 m = 10 dm, so 1 m² = $10 \\cdot 10 = 100$ dm²."]],
  () => { const l = R.i(2, 15), b = R.i(2, 12), a = l * b;
-   return [T(`Et rektangel er ${l} cm langt og ${b} cm bredt. Hva er arealet?`, `A rectangle is ${l} cm long and ${b} cm wide. What is its area?`), N(a, 0, "cm²"), T(`$${l} \\cdot ${b} = ${a}$ cm².`, `$${l} \\cdot ${b} = ${a}$ cm².`)]; },
+   return FIGQ({ f: "gs_area", p: { w: Math.max(l, b), h: Math.min(l, b), unit: "cm", mode: "fill" } }, [T(`Et rektangel er ${l} cm langt og ${b} cm bredt. Hva er arealet?`, `A rectangle is ${l} cm long and ${b} cm wide. What is its area?`), N(a, 0, "cm²"), T(`$${l} \\cdot ${b} = ${a}$ cm².`, `$${l} \\cdot ${b} = ${a}$ cm².`)]); },
  () => { const g = 2 * R.i(2, 10), h = R.i(2, 12), a = g * h / 2;
    return [T(`En trekant har grunnlinje ${g} cm og høyde ${h} cm. Hva er arealet?`, `A triangle has base ${g} cm and height ${h} cm. What is its area?`), N(a, 0, "cm²"), T(`$\\frac{${g} \\cdot ${h}}{2} = ${a}$ cm².`, `$\\frac{${g} \\cdot ${h}}{2} = ${a}$ cm².`)]; },
  () => { const s = R.i(2, 15), o = 4 * s;
-   return [T(`Et kvadrat har sider på ${s} m. Hva er omkretsen?`, `A square has sides of ${s} m. What is the perimeter?`), N(o, 0, "m"), T(`Fire like sider: $4 \\cdot ${s} = ${o}$ m.`, `Four equal sides: $4 \\cdot ${s} = ${o}$ m.`)]; }
+   return FIGQ({ f: "gs_area", p: { w: s, h: s, unit: "m", mode: "edge" } }, [T(`Et kvadrat har sider på ${s} m. Hva er omkretsen?`, `A square has sides of ${s} m. What is the perimeter?`), N(o, 0, "m"), T(`Fire like sider: $4 \\cdot ${s} = ${o}$ m.`, `Four equal sides: $4 \\cdot ${s} = ${o}$ m.`)]); }
 );
 
 U("GS57", "Måling og enheter", "Measurement and units",
@@ -555,7 +555,7 @@ We measure length, weight, volume and time. The **unit** tells us what we measur
  ["Hva veier mest?", ["2 kg", "1500 g", "900 g", "1 kg"], "2 kg = 2000 g, som er mest.",
   "Which weighs most?", ["2 kg", "1500 g", "900 g", "1 kg"], "2 kg = 2000 g, which is the most."]],
  () => { const [from, to, k, nb, en] = R.p([["m", "cm", 100, "", ""], ["km", "m", 1000, "", ""], ["kg", "g", 1000, "", ""], ["l", "dl", 10, "", ""], ["cm", "mm", 10, "", ""], ["l", "ml", 1000, "", ""]]), a = R.p([R.i(2, 20), R.f(0.5, 9.5, 0.5)]), r = +(a * k).toFixed(3);
-   return [T(`Hvor mange ${to} er ${nf(a)} ${from}?`, `How many ${to} is ${nf(a)} ${from}?`), N(r, 0.001, to), T(`1 ${from} = ${k} ${to}, så $${mf(a)} \\cdot ${k} = ${mf(r)}$ ${to}.`, `1 ${from} = ${k} ${to}, so $${mf(a)} \\cdot ${k} = ${mf(r)}$ ${to}.`)]; },
+   return FIGQ({ m: 2, km: 3, cm: 1 }[from] && Number.isInteger(a) && (to === "cm" || to === "m" || to === "mm") ? { f: "lf_stairs", p: { v: a, from, k: 0 }, after: { k: { m: 2, km: 3, cm: 1 }[from] } } : null, [T(`Hvor mange ${to} er ${nf(a)} ${from}?`, `How many ${to} is ${nf(a)} ${from}?`), N(r, 0.001, to), T(`1 ${from} = ${k} ${to}, så $${mf(a)} \\cdot ${k} = ${mf(r)}$ ${to}.`, `1 ${from} = ${k} ${to}, so $${mf(a)} \\cdot ${k} = ${mf(r)}$ ${to}.`)]); },
  () => { const m = R.i(2, 12), s = m * 60;
    return [T(`Hvor mange sekunder er ${m} minutter?`, `How many seconds are ${m} minutes?`), N(s, 0, "s"), T(`$${m} \\cdot 60 = ${s}$ s.`, `$${m} \\cdot 60 = ${s}$ s.`)]; },
  () => { const cm = 10 * R.i(15, 900), m = cm / 100;
@@ -655,11 +655,11 @@ $2x + 3 = 11$. Subtract 3: $2x = 8$. Divide by 2: $x = 4$. Check: $2 \\cdot 4 + 
  ["Hvorfor må du gjøre det samme på begge sider?", ["Så likheten fortsatt stemmer", "Fordi det ser pent ut", "Det trenger du ikke", "For å få et større tall"], "Som en vekt: endrer du bare én side, er den ikke lenger i balanse.",
   "Why must you do the same on both sides?", ["So the equality still holds", "Because it looks nice", "You do not need to", "To get a bigger number"], "Like scales: if you change only one side, it is no longer balanced."]],
  () => { const x = R.i(1, 30), a = R.i(2, 30), b = x + a;
-   return [T(`Løs $x + ${a} = ${b}$.`, `Solve $x + ${a} = ${b}$.`), N(x), T(`Trekk fra ${a} på begge sider: $x = ${b} - ${a} = ${x}$.`, `Subtract ${a} on both sides: $x = ${b} - ${a} = ${x}$.`)]; },
+   return FIGQ(b <= 12 ? { f: "lf_balance", p: { x: 1, n: a, r: b }, after: { take: a } } : null, [T(`Løs $x + ${a} = ${b}$.`, `Solve $x + ${a} = ${b}$.`), N(x), T(`Trekk fra ${a} på begge sider: $x = ${b} - ${a} = ${x}$.`, `Subtract ${a} on both sides: $x = ${b} - ${a} = ${x}$.`)]); },
  () => { const x = R.i(2, 12), a = R.i(2, 9), b = a * x;
-   return [T(`Løs $${a}x = ${b}$.`, `Solve $${a}x = ${b}$.`), N(x), T(`Del på ${a} på begge sider: $x = ${b} : ${a} = ${x}$.`, `Divide by ${a} on both sides: $x = ${b} : ${a} = ${x}$.`)]; },
+   return FIGQ(b <= 12 ? { f: "lf_balance", p: { x: a, n: 0, r: b }, after: { div: 1 } } : null, [T(`Løs $${a}x = ${b}$.`, `Solve $${a}x = ${b}$.`), N(x), T(`Del på ${a} på begge sider: $x = ${b} : ${a} = ${x}$.`, `Divide by ${a} on both sides: $x = ${b} : ${a} = ${x}$.`)]); },
  () => { const x = R.i(1, 10), a = R.i(2, 6), c = R.i(1, 15), b = a * x + c;
-   return [T(`Løs $${a}x + ${c} = ${b}$.`, `Solve $${a}x + ${c} = ${b}$.`), N(x), T(`Trekk fra ${c}: $${a}x = ${b - c}$. Del på ${a}: $x = ${x}$.`, `Subtract ${c}: $${a}x = ${b - c}$. Divide by ${a}: $x = ${x}$.`)]; }
+   return FIGQ(b <= 12 && a <= 4 ? { f: "lf_balance", p: { x: a, n: c, r: b }, after: { take: c, div: 1 } } : null, [T(`Løs $${a}x + ${c} = ${b}$.`, `Solve $${a}x + ${c} = ${b}$.`), N(x), T(`Trekk fra ${c}: $${a}x = ${b - c}$. Del på ${a}: $x = ${x}$.`, `Subtract ${c}: $${a}x = ${b - c}$. Divide by ${a}: $x = ${x}$.`)]); }
 );
 // ================= LK20-hull: måling, koding, negative tall/koordinater, sannsynlighet =================
 U("GS14", "Måle og veie", "Measuring and weighing",
@@ -705,7 +705,7 @@ A pencil is 15 cm long. Two pencils end to end make $15 + 15 = 30$ cm.
   "Which unit fits for how much water there is in a bucket?", ["litres", "metres", "kilometres", "minutes"], "How much fits inside is measured in litres."],
  ["En bok er 2 cm tykk. Hvor høy er en stabel med 5 bøker?", ["10 cm", "7 cm", "25 cm", "52 cm"], "$5 \\cdot 2 = 10$ cm.",
   "A book is 2 cm thick. How tall is a pile of 5 books?", ["10 cm", "7 cm", "25 cm", "52 cm"], "$5 \\cdot 2 = 10$ cm."]],
- () => { const a = R.i(1, 9); return [T(`Hvor mange centimeter er ${a} meter?`, `How many centimetres are ${a} metres?`), N(a * 100, 0, "cm"), T(`1 m = 100 cm, så ${a} m = $${a} \\cdot 100 = ${a * 100}$ cm.`, `1 m = 100 cm, so ${a} m = $${a} \\cdot 100 = ${a * 100}$ cm.`)]; },
+ () => { const a = R.i(1, 9); return FIGQ({ f: "lf_stairs", p: { v: a, from: "m", k: 0 }, after: { k: 2 } }, [T(`Hvor mange centimeter er ${a} meter?`, `How many centimetres are ${a} metres?`), N(a * 100, 0, "cm"), T(`1 m = 100 cm, så ${a} m = $${a} \\cdot 100 = ${a * 100}$ cm.`, `1 m = 100 cm, so ${a} m = $${a} \\cdot 100 = ${a * 100}$ cm.`)]); },
  () => { const a = R.i(1, 5), b = R.i(1, 9) * 100; return [T(`En pakke veier ${a} kg og ${b} g. Hvor mange gram er det til sammen?`, `A parcel weighs ${a} kg and ${b} g. How many grams is that in total?`), N(a * 1000 + b, 0, "g"), T(`${a} kg = ${a * 1000} g. $${a * 1000} + ${b} = ${a * 1000 + b}$ g.`, `${a} kg = ${a * 1000} g. $${a * 1000} + ${b} = ${a * 1000 + b}$ g.`)]; },
  () => { const n = who(), a = R.i(60, 140), b = R.i(60, 140); return [T(`${n} hopper ${a} cm i første hopp og ${b} cm i andre. Hvor langt er det til sammen?`, `${n} jumps ${a} cm the first time and ${b} cm the second. How far is that in total?`), N(a + b, 0, "cm"), T(`$${a} + ${b} = ${a + b}$ cm.`, `$${a} + ${b} = ${a + b}$ cm.`)]; }
 );
@@ -809,8 +809,8 @@ It is $-2$ degrees in the morning and $5$ degrees in the afternoon. It has becom
   "How many steps is it from $-6$ to $-1$ on the number line?", ["5", "7", "6", "$-7$"], "Count: $-5, -4, -3, -2, -1$ – 5 steps."],
  ["Hvilket tall er 3 mindre enn 1?", ["$-2$", "$2$", "$4$", "$-3$"], "$1 - 3 = -2$. Gå 3 steg til venstre fra 1.",
   "Which number is 3 less than 1?", ["$-2$", "$2$", "$4$", "$-3$"], "$1 - 3 = -2$. Go 3 steps left from 1."]],
- () => { const a = R.i(1, 9), b = R.i(1, 9); return [T(`Om natta er det $-${a}$ grader. Om dagen er det $${b}$ grader. Hvor mange grader varmere er det om dagen?`, `At night it is $-${a}$ degrees. In the daytime it is $${b}$ degrees. How many degrees warmer is it in the daytime?`), N(a + b, 0, "grader"), T(`Fra $-${a}$ opp til 0 er ${a} grader, og fra 0 opp til ${b} er ${b} grader: $${a} + ${b} = ${a + b}$.`, `From $-${a}$ up to 0 is ${a} degrees, and from 0 up to ${b} is ${b} degrees: $${a} + ${b} = ${a + b}$.`)]; },
- () => { const a = R.i(2, 12), b = R.i(1, 15), e = b - a; return [T(`Regn ut $-${a} + ${b}$.`, `Work out $-${a} + ${b}$.`), N(e), T(`Start på $-${a}$ og gå ${b} steg mot høyre. Du ender på $${e}$.`, `Start at $-${a}$ and move ${b} steps right. You end at $${e}$.`)]; },
+ () => { const a = R.i(1, 9), b = R.i(1, 9); return FIGQ({ f: "lf_therm", p: { v: b, from: -a } }, [T(`Om natta er det $-${a}$ grader. Om dagen er det $${b}$ grader. Hvor mange grader varmere er det om dagen?`, `At night it is $-${a}$ degrees. In the daytime it is $${b}$ degrees. How many degrees warmer is it in the daytime?`), N(a + b, 0, "grader"), T(`Fra $-${a}$ opp til 0 er ${a} grader, og fra 0 opp til ${b} er ${b} grader: $${a} + ${b} = ${a + b}$.`, `From $-${a}$ up to 0 is ${a} degrees, and from 0 up to ${b} is ${b} degrees: $${a} + ${b} = ${a + b}$.`)]); },
+ () => { const a = R.i(2, 12), b = R.i(1, 15), e = b - a; return FIGQ({ f: "gs_numline", p: { a: -a, b, op: "+" } }, [T(`Regn ut $-${a} + ${b}$.`, `Work out $-${a} + ${b}$.`), N(e), T(`Start på $-${a}$ og gå ${b} steg mot høyre. Du ender på $${e}$.`, `Start at $-${a}$ and move ${b} steps right. You end at $${e}$.`)]); },
  () => { const y = R.i(1, 6), x1 = R.i(-5, 1), x2 = R.i(x1 + 2, 7); return [T(`Hvor mange ruter er det bortover fra punktet $(${x1}, ${y})$ til punktet $(${x2}, ${y})$?`, `How many squares across is it from the point $(${x1}, ${y})$ to the point $(${x2}, ${y})$?`), N(x2 - x1), T(`Begge har $y = ${y}$, så vi teller bare bortover: $${x2} - (${x1}) = ${x2 - x1}$.`, `Both have $y = ${y}$, so we only count across: $${x2} - (${x1}) = ${x2 - x1}$.`)]; }
 );
 
@@ -861,7 +861,7 @@ A bag has 3 red balls and 1 blue. The chance of red is $\\frac{3}{4}$, because 3
   "What does probability 0 mean?", ["It can never happen", "It always happens", "It happens half the time", "It almost always happens"], "0 is impossible – it never happens."]],
  () => { const [r, b] = R.p([[1, 3], [3, 1], [1, 4], [2, 3], [3, 2], [1, 9], [3, 7], [7, 3], [1, 19], [5, 15]]), p = r * 100 / (r + b);
    return [T(`En pose har ${r} røde og ${b} blå kuler. Hva er sjansen for å trekke en rød, i prosent?`, `A bag has ${r} red and ${b} blue balls. What is the chance of drawing a red one, in percent?`), N(p, 0, "%"), T(`${r} av ${r + b} kuler er røde: $\\frac{${r}}{${r + b}} = ${mf(p)}\\ \\%$.`, `${r} of ${r + b} balls are red: $\\frac{${r}}{${r + b}} = ${mf(p)}\\ \\%$.`)]; },
- () => { const n = R.i(2, 20) * 6; return [T(`Du kaster en terning ${n} ganger. Omtrent hvor mange seksere kan du vente å få?`, `You roll a die ${n} times. About how many sixes can you expect?`), N(n / 6), T(`Sjansen for sekser er $\\frac{1}{6}$: $${n} : 6 = ${n / 6}$.`, `The chance of a six is $\\frac{1}{6}$: $${n} : 6 = ${n / 6}$.`)]; },
+ () => { const n = R.i(2, 20) * 6; return FIGQ({ f: "lf_die", p: { sel: [6] } }, [T(`Du kaster en terning ${n} ganger. Omtrent hvor mange seksere kan du vente å få?`, `You roll a die ${n} times. About how many sixes can you expect?`), N(n / 6), T(`Sjansen for sekser er $\\frac{1}{6}$: $${n} : 6 = ${n / 6}$.`, `The chance of a six is $\\frac{1}{6}$: $${n} : 6 = ${n / 6}$.`)]); },
  () => { const f = R.p([4, 5, 6, 8, 10]), k = R.i(1, f - 1), w = [`$\\frac{${k}}{${f}}$`, `$\\frac{${f - k}}{${f}}$`, `$\\frac{1}{${f}}$`, `$\\frac{${k}}{${f + k}}$`, `$\\frac{${f}}{${k}}$`];
    const o = w.filter((x, i, a) => a.indexOf(x) === i).slice(0, 4);
    return [T(`Et lykkehjul har ${f} like store felt. ${k} av dem gir premie. Hva er sjansen for premie?`, `A spinner has ${f} equal sections. ${k} of them win a prize. What is the chance of a prize?`), o, T(`${k} felt passer av ${f} mulige: $\\frac{${k}}{${f}}$.`, `${k} sections fit out of ${f} possible: $\\frac{${k}}{${f}}$.`)]; }

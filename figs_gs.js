@@ -37,7 +37,7 @@ const hops = (X, y, a, n, d, c) => { let s = ""; for(let i = 0; i < n; i++){ con
   s += `<path d="M${x0} ${y - 2} Q${m} ${y - 26} ${x1} ${y - 3}" style="fill:none;stroke:var(--c${c});stroke-width:2"/>` + `<polygon points="${x1},${y - 2} ${x1 - 5 * d},${y - 10} ${x1 + 1.5 * d},${y - 10}" style="fill:var(--c${c})"/>`; } return s; };
 const numline = (y, from, to, X, labs, hl) => { let s = `<line class="fg-line" x1="${X(from) - 8}" y1="${y}" x2="${X(to) + 8}" y2="${y}"/>`;
   for(let n = from; n <= to; n++) s += `<line class="fg-line" x1="${X(n)}" y1="${y - (n % 5 ? 4 : 7)}" x2="${X(n)}" y2="${y + (n % 5 ? 4 : 7)}" stroke-width="${n % 5 ? 1.2 : 2}"/>`;
-  labs.forEach(n => { s += hl[n] ? col(X(n), y + 22, String(n), hl[n]) : tx(X(n), y + 22, String(n), "fg-s"); }); return s; };
+  labs.forEach(n => { const l = String(n).replace("-", "−"); s += hl[n] ? col(X(n), y + 22, l, hl[n]) : tx(X(n), y + 22, l, "fg-s fg-tick"); }); return s; };
 // Formeltrekant (s over v og t, U over R og I)
 const tri = (top, bl, br) => `<polygon points="90,22 22,150 158,150" style="${soft(3, 14)}"/><line x1="51" y1="95" x2="129" y2="95" style="stroke:var(--c3);stroke-width:1.6"/><line x1="90" y1="95" x2="90" y2="150" style="stroke:var(--c3);stroke-width:1.6"/>` +
   tx(90, 82, top, "fg-big") + tx(62, 136, bl, "fg-big") + tx(118, 136, br, "fg-big");
@@ -52,11 +52,13 @@ Object.assign(FIGS, {
         s += `<rect x="${x0}" y="${y0}" width="${S}" height="${S}" style="${solid(3, 35)}"/>`;
         for(let i = 1; i < 10; i++) s += `<line x1="${f1(x0 + i * u)}" y1="${y0}" x2="${f1(x0 + i * u)}" y2="${f1(y0 + sz)}" style="stroke:var(--c3);stroke-width:.5"/><line x1="${x0}" y1="${f1(y0 + i * u)}" x2="${f1(x0 + sz)}" y2="${f1(y0 + i * u)}" style="stroke:var(--c3);stroke-width:.5"/>`;
         s += `<rect x="${x0}" y="${y0}" width="${S}" height="${S}" style="fill:none;stroke:var(--c3);stroke-width:1.6"/>`; }
-      s += tx(cH, 28, T("hundrere", "hundreds"), "fg-s") + col(cH, 150, String(h), 3, "fg-big"); }
+      s += tx(cH, 28, T("hundrere", "hundreds"), "fg-s") + (p.hide ? "" : col(cH, 150, String(h), 3, "fg-big")); }
     for(let k = 0; k < t; k++){ const x0 = cT - (t * 8 - 2) / 2 + k * 8; s += `<rect x="${x0}" y="40" width="6" height="60" style="${soft(4, 45)}"/>`;
       for(let i = 1; i < 10; i++) s += `<line x1="${x0}" y1="${40 + i * 6}" x2="${x0 + 6}" y2="${40 + i * 6}" style="stroke:var(--c4);stroke-width:.6"/>`; }
     for(let k = 0; k < e; k++) s += `<rect x="${cE - 11 + (k % 2) * 14}" y="${40 + Math.floor(k / 2) * 12}" width="9" height="9" rx="1" style="${soft(2, 55)}"/>`;
-    s += tx(cT, 28, T("tiere", "tens"), "fg-s") + tx(cE, 28, T("enere", "ones"), "fg-s") + col(cT, 150, String(t), 4, "fg-big") + col(cE, 150, String(e), 2, "fg-big");
+    s += tx(cT, 28, T("tiere", "tens"), "fg-s") + tx(cE, 28, T("enere", "ones"), "fg-s");
+    if(p.hide) return { cap: T("Tallet bygget av hundrerplater, tierstenger og enerklosser.", "The number built from hundred flats, ten sticks and one blocks."), svg: s };
+    s += col(cT, 150, String(t), 4, "fg-big") + col(cE, 150, String(e), 2, "fg-big");
     const terms = n >= 100 ? [100 * h, 10 * t, e] : [10 * t, e];
     s += tx(160, 174, terms.join(" + ") + " = " + n, "fg-b");
     const pl = (k, a, b, c, d) => `${k} ${T(k === 1 ? a : b, k === 1 ? c : d)}`, parts = [pl(t, "tier", "tiere", "ten", "tens"), pl(e, "ener", "enere", "one", "ones")];
@@ -71,12 +73,14 @@ Object.assign(FIGS, {
       const lo = Math.floor(Math.min(a, r) / 5) * 5, hi = Math.max(lo + 20, Math.ceil(Math.max(a, r) / 5) * 5); if(hi - lo > 20 || !Number.isInteger(a) || !Number.isInteger(b)) return null;
       const X = n => 20 + (n - lo) * 14, y = 112, labs = new Set([a, r]), hl = { [a]: d > 0 ? 4 : 1, [r]: d > 0 ? 4 : 1 };
       for(let n = lo; n <= hi; n += 5) labs.add(n);
+      if(p.hide){ labs.delete(r); delete hl[r]; }
       const ten = d > 0 ? Math.ceil(a / 10) * 10 : Math.floor(a / 10) * 10, first = p.via10 && ten !== a && Math.abs(ten - a) < b ? Math.abs(ten - a) : 0;
       if(first){ s += hops(X, y, a, first, d, 4) + hops(X, y, ten, b - first, d, 2); labs.add(ten); hl[ten] = 4;
         s += col((X(a) + X(ten)) / 2, y - 36, (d > 0 ? "+" : "−") + first, 4, "fg-b") + col((X(ten) + X(r)) / 2, y - 36, (d > 0 ? "+" : "−") + (b - first), 2, "fg-b"); }
       else s += hops(X, y, a, b, d, d > 0 ? 4 : 1);
       s += numline(y, lo, hi, X, [...labs].sort((u, v) => u - v), hl);
-      s += col(20, 34, `${a} ${d > 0 ? "+" : "−"} ${b} = ${r}`.replace(/-(\d)/g, "−$1"), d > 0 ? 4 : 1, "fg-b", "start") + tx(300, 34, d > 0 ? T("pluss: hopp mot høyre", "plus: jump right") : T("minus: hopp mot venstre", "minus: jump left"), "fg-s", "end");
+      s += col(20, 34, `${a} ${d > 0 ? "+" : "−"} ${b} = ${p.hide ? "?" : r}`.replace(/-(\d)/g, "−$1"), d > 0 ? 4 : 1, "fg-b", "start") + tx(300, 34, d > 0 ? T("pluss: hopp mot høyre", "plus: jump right") : T("minus: hopp mot venstre", "minus: jump left"), "fg-s", "end");
+      if(p.hide) return { cap: T(`Start på ${a} og hopp ${b} ${d > 0 ? "mot høyre" : "mot venstre"}.`, `Start at ${a} and jump ${b} to the ${d > 0 ? "right" : "left"}.`), svg: s };
       return { cap: d > 0 ? T(`Start på ${a} og hopp ${b} mot høyre. Du lander på ${r}.`, `Start at ${a} and jump ${b} to the right. You land on ${r}.`) : T(`Start på ${a} og hopp ${b} mot venstre. Du lander på ${r}.`, `Start at ${a} and jump ${b} to the left. You land on ${r}.`), svg: s }; }
     const X = n => 20 + n * 14;
     s += col(20, 24, "8 + 5 = 13", 4, "fg-b", "start") + tx(300, 24, T("pluss: hopp mot høyre", "plus: jump right"), "fg-s", "end");
@@ -90,7 +94,8 @@ Object.assign(FIGS, {
     if(p && p.r != null){ const r = p.r, c = p.c; if(!(r >= 1 && c >= 1 && r <= 10 && c <= 10)) return null;
       const sp = Math.min(24, 124 / r, 150 / c), rad = f1(sp * 0.37), x0 = 95 - (c - 1) * sp / 2, y0 = 84 - (r - 1) * sp / 2;
       for(let i = 0; i < r; i++) for(let j = 0; j < c; j++) s += circ(f1(x0 + j * sp), f1(y0 + i * sp), rad, soft(3, 55));
-      s += col(196, 76, `${r} · ${c} = ${r * c}`, 3, "fg-b", "start") + tx(196, 96, T(`${r} ${r === 1 ? "rad" : "rader"} med ${c}`, `${r} ${r === 1 ? "row" : "rows"} of ${c}`), "fg-s", "start");
+      s += col(196, 76, `${r} · ${c} = ${p.hide ? "?" : r * c}`, 3, "fg-b", "start") + tx(196, 96, T(`${r} ${r === 1 ? "rad" : "rader"} med ${c}`, `${r} ${r === 1 ? "row" : "rows"} of ${c}`), "fg-s", "start");
+      if(p.hide) return { cap: T(`${r} rader med ${c} i hver.`, `${r} rows of ${c}.`), svg: s };
       return { cap: T(`${r} · ${c} betyr ${r} ${r === 1 ? "rad" : "rader"} med ${c} i hver. Til sammen ${r * c}.`, `${r} · ${c} means ${r} ${r === 1 ? "row" : "rows"} of ${c}. That is ${r * c} in total.`), svg: s }; }
     for(let r = 0; r < 3; r++) for(let c = 0; c < 4; c++) s += circ(36 + c * 24, 44 + r * 24, 9, soft(3, 55));
     for(let r = 0; r < 4; r++) for(let c = 0; c < 3; c++) s += circ(216 + c * 24, 32 + r * 24, 9, soft(2, 55));
@@ -103,10 +108,11 @@ Object.assign(FIGS, {
   gs_share: (p = {}) => { const n = p.n ?? 12, k = p.k ?? 3; if(!(n >= 1 && n <= 30 && k >= 1 && k <= 6)) return null;
     const q = Math.floor(n / k), rem = n - q * k, per = Math.min(15, n), rx = Math.min(42, 150 / k - 6), m = Math.max(1, Math.floor((2 * rx - 6) / 12)); let s = "";
     if(q > m * 3) return null;
-    for(let i = 0; i < n; i++){ const row = Math.floor(i / per), j = i % per, w = (Math.min(per, n - row * per) - 1) * 18; s += circ(f1(160 - w / 2 + j * 18), 20 + row * 18, 7, soft(i < q * k ? 1 : 2, 45)); }
+    for(let i = 0; i < n; i++){ const row = Math.floor(i / per), j = i % per, w = (Math.min(per, n - row * per) - 1) * 18; s += circ(f1(160 - w / 2 + j * 18), 20 + row * 18, 7, soft(i < q * k || p.hide ? 1 : 2, 45)); }
     for(let i = 0; i < k; i++){ const x = f1(10 + (i + 0.5) * 300 / k); s += car(160, n > per ? 50 : 32, x, 80, 5, 1.6) + `<ellipse cx="${x}" cy="126" rx="${f1(rx)}" ry="11" style="${soft(5, 18)}"/>`;
-      for(let j = 0; j < q; j++){ const row = Math.floor(j / m), inRow = Math.min(m, q - row * m), c = j % m; s += circ(f1(x - (inRow - 1) * 6 + c * 12), 120 - row * 11, 5, soft(1, 45)); }
-      s += tx(x, 154, String(q), "fg-b"); }
+      if(!p.hide) for(let j = 0; j < q; j++){ const row = Math.floor(j / m), inRow = Math.min(m, q - row * m), c = j % m; s += circ(f1(x - (inRow - 1) * 6 + c * 12), 120 - row * 11, 5, soft(1, 45)); }
+      if(!p.hide) s += tx(x, 154, String(q), "fg-b"); }
+    if(p.hide) return { cap: T(`${n} ting skal deles likt på ${k}.`, `${n} things are shared equally between ${k}.`), svg: s + tx(160, 176, `${n} : ${k} = ?`, "fg-b") };
     s += tx(160, 176, `${n} : ${k} = ${q}` + (rem ? T(`, rest ${rem}`, `, remainder ${rem}`) : ""), "fg-b");
     return { cap: rem ? T(`Deling er rettferdig fordeling: ${n} drops på ${k} tallerkener gir ${q} på hver, og ${rem} blir til overs (resten).`, `Division is fair sharing: ${n} sweets on ${k} plates gives ${q} on each, and ${rem} are left over (the remainder).`)
       : T(`Deling er rettferdig fordeling: ${n} drops på ${k} tallerkener gir ${q} på hver.`, `Division is fair sharing: ${n} sweets on ${k} plates gives ${q} on each.`), svg: s }; },
@@ -114,12 +120,13 @@ Object.assign(FIGS, {
   // Klokke med visere. p = { h: 1–12, m: 0–59 } (uten p: halv fire).
   gs_clock: (p = {}) => { const h = ((p.h ?? 3) + 11) % 12 + 1, m = p.m ?? 30, cx = 86, cy = 90; let s = circ(cx, cy, 72, `fill:var(--card);stroke:var(--ink);stroke-width:3`);
     for(let i = 0; i < 60; i++){ const a = i * 6 * Math.PI / 180, r0 = i % 5 ? 67 : 62; s += `<line class="fg-line" x1="${f1(cx + r0 * Math.sin(a))}" y1="${f1(cy - r0 * Math.cos(a))}" x2="${f1(cx + 70 * Math.sin(a))}" y2="${f1(cy - 70 * Math.cos(a))}" stroke-width="${i % 5 ? 0.8 : 2}"/>`; }
-    for(let k = 1; k <= 12; k++){ const a = k * 30 * Math.PI / 180; s += tx(f1(cx + 50 * Math.sin(a)), f1(cy - 50 * Math.cos(a) + 5), String(k), "fg-b"); }
+    for(let k = 1; k <= 12; k++){ const a = k * 30 * Math.PI / 180; s += tx(f1(cx + 50 * Math.sin(a)), f1(cy - 50 * Math.cos(a) + 5), String(k), "fg-b fg-tick"); }
     const hand = (deg, len, n, w) => { const a = deg * Math.PI / 180; return `<line x1="${cx}" y1="${cy}" x2="${f1(cx + len * Math.sin(a))}" y2="${f1(cy - len * Math.cos(a))}" style="stroke:var(--c${n});stroke-width:${w};stroke-linecap:round"/>`; };
     s += hand((h % 12) * 30 + m / 2, 28, 1, 6) + hand(m * 6, 40, 3, 3.5) + circ(cx, cy, 5, "fill:var(--ink)");
     const [wn, we] = clockWords(h, m), hm = `${h}:${String(m).padStart(2, "0")}`;
     s += col(176, 44, T("Kort viser", "Short hand"), 1, "fg-b", "start") + tx(176, 60, T("viser timene", "shows the hours"), "fg-s", "start");
     s += col(176, 88, T("Lang viser", "Long hand"), 3, "fg-b", "start") + tx(176, 104, T("viser minuttene", "shows the minutes"), "fg-s", "start");
+    if(p.hide) return { cap: T("En klokke med kort og lang viser.", "A clock with a short and a long hand."), svg: s };
     s += tx(176, 140, T(`Klokka er ${hm}`, `The time is ${hm}`), "fg-b", "start") + tx(176, 158, T(`= «${wn}»`, `= ${we}`), "fg-s fg-acct", "start");
     return { cap: T(`Den korte viseren viser timene, den lange viser minuttene. Her er klokka ${hm}, «${wn}».`, `The short hand shows the hours, the long hand the minutes. Here the time is ${hm}, ${we}.`), svg: s }; },
 
@@ -133,7 +140,7 @@ Object.assign(FIGS, {
       let x = 160 - tot / 2; c.forEach(v => { const w = W(v); s += money(f1(x + w / 2), v) + tx(f1(x + w / 2), 102, v + " kr", "fg-s"); x += w + gap; });
       const sum = c.reduce((a, v) => a + v, 0), line = c.length > 1 ? c.map(v => v + " kr").join(" + ") + ` = ${sum} kr` : `${sum} kr`;
       s += tx(160, 140, line.length > 44 ? T(`Til sammen ${sum} kr`, `In total ${sum} kr`) : line, "fg-b");
-      if(p.pay) s += tx(160, 162, T(`Pris ${p.pay} kr: du får ${sum - p.pay} kr tilbake.`, `Price ${p.pay} kr: you get ${sum - p.pay} kr back.`), "fg-s");
+      if(p.pay && !p.hide) s += tx(160, 162, T(`Pris ${p.pay} kr: du får ${sum - p.pay} kr tilbake.`, `Price ${p.pay} kr: you get ${sum - p.pay} kr back.`), "fg-s");
       return { cap: T(`Pengene til sammen: ${sum} kr.`, `The money in total: ${sum} kr.`), svg: s }; }
     s += money(36, 1) + money(88, 5) + money(142, 10) + money(198, 20) + money(272, 100);
     [[36, "1 kr"], [88, "5 kr"], [142, "10 kr"], [198, "20 kr"], [272, "100 kr"]].forEach(([x, l]) => { s += tx(x, 102, l, "fg-s"); });
@@ -186,7 +193,7 @@ Object.assign(FIGS, {
   gs_percent: (p = {}) => { const k = p.k ?? 25, u = 11; let s = ""; if(!(Number.isInteger(k) && k >= 0 && k <= 100)) return null;
     for(let r = 0; r < 10; r++) for(let c = 0; c < 10; c++) s += `<rect x="${20 + c * u}" y="${24 + r * u}" width="${u}" height="${u}" style="${r * 10 + c < k ? solid(1, 55) : "fill:var(--card)"};stroke:var(--line);stroke-width:1"/>`;
     const FR = { 10: "1/10", 20: "1/5", 25: "1/4", 50: "1/2", 75: "3/4", 100: "1" }, dec = T(String(k / 100).replace(".", ","), String(k / 100));
-    s += `<rect x="20" y="24" width="${10 * u}" height="${10 * u}" style="fill:none;stroke:var(--ink);stroke-width:1.6"/>` + tx(75, 156, T("100 ruter = 100 %", "100 squares = 100 %"), "fg-s");
+    s += `<rect x="20" y="24" width="${10 * u}" height="${10 * u}" style="fill:none;stroke:var(--ink);stroke-width:1.6"/>` + tx(75, 156, T("100 ruter = 100 %", "100 squares = 100 %"), "fg-s fg-tick");
     s += tx(156, 50, T(`${k} av 100 ruter`, `${k} of 100 squares`), "fg-t", "start") + col(156, 90, `= ${k} %`, 1, "fg-big", "start") + (FR[k] ? tx(156, 118, "= " + FR[k], "fg-b", "start") : "") + tx(156, FR[k] ? 142 : 118, "= " + dec, "fg-b", "start");
     return { cap: k === 25 && !p.k ? T("Prosent betyr «av hundre». 25 % er 25 av 100 ruter – det samme som en firedel.", "Percent means \"out of a hundred\". 25 % is 25 of 100 squares – the same as a quarter.")
       : T(`Prosent betyr «av hundre». ${k} % er ${k} av 100 ruter.`, `Percent means "out of a hundred". ${k} % is ${k} of 100 squares.`), svg: s }; },
@@ -198,6 +205,7 @@ Object.assign(FIGS, {
     if(mode !== "fill") s += `<rect x="${x0}" y="${f1(y0)}" width="${f1(w * u)}" height="${f1(h * u)}" style="fill:none;stroke:var(--c1);stroke-width:4"/>`;
     s += tx(f1(x0 + w * u / 2), f1(y0 - 10), L(w), "fg-b") + tx(x0 - 8, f1(y0 + h * u / 2 + 5), L(h), "fg-b", "end");
     const per = w >= 10 || h >= 10 ? `2 · (${w} + ${h}) = ${L(2 * (w + h))}` : `${w} + ${h} + ${w} + ${h} = ${L(2 * (w + h))}`;
+    if(p.hide) return { cap: T(`Et rektangel på ${L(w)} ganger ${L(h)}.`, `A rectangle of ${L(w)} by ${L(h)}.`), svg: s };
     if(mode !== "edge") s += col(176, mode === "fill" ? 80 : 52, T("Areal", "Area"), 4, "fg-b", "start") + tx(176, mode === "fill" ? 98 : 70, `${h} · ${w} = ${A(w * h)}`, "fg-t", "start") + tx(176, mode === "fill" ? 114 : 86, T("(rutene inni)", "(the squares inside)"), "fg-s", "start");
     if(mode !== "fill") s += col(176, mode === "edge" ? 80 : 118, T("Omkrets", "Perimeter"), 1, "fg-b", "start") + tx(176, mode === "edge" ? 98 : 136, per, "fg-t", "start") + tx(176, mode === "edge" ? 114 : 152, T("(rundt kanten)", "(around the edge)"), "fg-s", "start");
     return { cap: mode === "fill" ? T(`Arealet er hvor mange ruter som får plass inni: ${h} rader med ${w} gir ${A(w * h)}.`, `The area is how many squares fit inside: ${h} rows of ${w} gives ${A(w * h)}.`)

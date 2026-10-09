@@ -148,11 +148,38 @@ function qaTopicArt(code, u, prompt){
   try{ return typeof best.art === "function" ? `<div class="tpart q-fig" aria-hidden="true">${best.art()}</div>` : best.fig ? `<div class="tpfig q-fig" aria-hidden="true">${best.fig}</div>` : ""; }catch(e){ return ""; }
 }
 // Illustrasjonen over oppgaven: { fig } når vi har en figur som passer, ellers { pic } – piktogrammet for temaet.
-function qArt(it){
+// Regler (så figuren aldri forvirrer):
+//  1) Har oppgaven en figur laget av sine egne tall (it.fig, se FIGQ i learn.js), brukes den. Før svaret tegnes den
+//     uten det som avslører svaret (p.hide), etter svaret i sin helhet. only: "after" = bare etter svaret.
+//  2) I barneskolen og ungdomsskolen vises ellers bare piktogrammet – aldri et fast eksempel med andre tall.
+//  3) I andre fag kan en fast figur fra emnet vises, men da med merket «Eksempel», og ikke hvis tallene i den kan
+//     forveksles med oppgaven (svaret, eller to av tallene i oppgaveteksten, står i figuren).
+const QA_KIDS = ["barn", "ungdom"];
+const qaKids = c => [].concat(c.study || []).some(s => QA_KIDS.includes(s));
+const qaNums = s => (String(s).replace(/\\frac\{(\d+)\}\{(\d+)\}/g, " $1 $2 ").replace(/(\d)[ \u00a0](\d{3})\b/g, "$1$2").replace(/(\d),(\d)/g, "$1.$2").replace(/[−–]/g, "-").match(/-?\d+(?:\.\d+)?/g) || []).map(Number);
+const qaSvgNums = html => qaNums(String(html).replace(/<text[^>]*fg-tick[^>]*>[\s\S]*?<\/text>/g, " ").replace(/<(?!\/?(text|tspan)\b)[^>]*>/g, " ").replace(/<text[^>]*>|<tspan[^>]*>|<\/text>|<\/tspan>/g, " ").replace(/&[a-z]+;/g, " "));
+const qaAnswerNums = it => it.type === "num" ? [it.n] : it.ansN != null ? [it.ansN] : (it.opts || []).filter(o => o.ok).flatMap(o => qaNums(o.t));
+// Kan tallene i figuren forveksles med oppgaven? Små tall (0, 1, 2) teller ikke – de står nesten overalt.
+function qaClash(html, it){
+  const inFig = new Set(qaSvgNums(html).map(x => Math.abs(x))), big = x => Math.abs(x) > 2;
+  if(qaAnswerNums(it).filter(big).some(x => inFig.has(Math.abs(x)))) return true;
+  return [...new Set(qaNums(it.prompt).filter(big).map(Math.abs))].filter(x => inFig.has(x)).length >= 2;
+}
+// Figuren laget av oppgavens egne tall: HTML eller "" (ikke tegnet før svaret, eller tallene får ikke plass)
+function qaOwnFig(it, answered){
+  const sp = it.fig; if(!sp || !FIGS[sp.f] || (sp.only === "after" && !answered)) return "";
+  try{ const r = FIGS[sp.f](Object.assign({}, sp.p, answered ? sp.after || {} : { hide: true }));
+    return r ? `<div class="fig q-fig q-own" aria-hidden="true"><svg viewBox="0 0 320 180">${r.svg}</svg></div>` : ""; }catch(e){ return ""; }
+}
+const qaExample = html => html.replace(/^(<div class="[^"]*q-fig)([^"]*")([^>]*>)/, `$1 q-ex$2$3<span class="q-exb">${esc(T("Eksempel", "Example"))}</span>`);
+function qArt(it, answered){
   if(!it || !it.cc || /<svg|!\[fig:|<figure/.test(String(it.prompt))) return {};
   const c = COURSE(it.cc); if(!c || !c.units[it.cu]) return {};
+  const k = qpFor(it.cc, it.cu), pic = k ? QP_SVG(QP[k]) : "", name = unitTitle(c, it.cu);
+  const own = qaOwnFig(it, answered);
+  if(own || it.fig || qaKids(c)) return { fig: own, own: !!own, pic, name };
   let fig = qaTopicArt(it.cc, it.cu, it.prompt);
   if(!fig && typeof FIG_MAP !== "undefined"){ const n = [].concat(FIG_MAP[it.cc + ":" + it.cu] || [])[0]; if(n && FIGS[n]){ try{ fig = `<div class="fig q-fig" aria-hidden="true"><svg viewBox="0 0 320 180">${FIGS[n]().svg}</svg></div>`; }catch(e){} } }
-  const k = qpFor(it.cc, it.cu);
-  return { fig: fig || "", pic: k ? QP_SVG(QP[k]) : "", name: unitTitle(c, it.cu) };
+  if(fig && qaClash(fig, it)) fig = "";
+  return { fig: fig ? qaExample(fig) : "", example: !!fig, pic, name };
 }

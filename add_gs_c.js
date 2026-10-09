@@ -152,9 +152,9 @@ $3^2 \\cdot 3^3 = 3^5 = 243$.
  ["Hva er $(-3)^2$?", ["9", "-9", "6", "-6"], "$(-3) \\cdot (-3) = 9$.",
   "What is $(-3)^2$?", ["9", "-9", "6", "-6"], "$(-3) \\cdot (-3) = 9$."]],
  () => { const b = R.p([2, 3, 4, 5, 10]), e = b === 2 ? R.i(2, 10) : b === 10 ? R.i(2, 6) : R.i(2, 4), v = b ** e;
-   return [T(`Regn ut $${b}^{${e}}$.`, `Calculate $${b}^{${e}}$.`), N(v), T(`$${b}^{${e}}$ er ${b} ganget med seg selv ${e} ganger: ${v}.`, `$${b}^{${e}}$ is ${b} multiplied by itself ${e} times: ${v}.`)]; },
+   return FIGQ({ f: "lf_pow", p: { b, n: e } }, [T(`Regn ut $${b}^{${e}}$.`, `Calculate $${b}^{${e}}$.`), N(v), T(`$${b}^{${e}}$ er ${b} ganget med seg selv ${e} ganger: ${v}.`, `$${b}^{${e}}$ is ${b} multiplied by itself ${e} times: ${v}.`)]); },
  () => { const r = R.i(2, 20), s = r * r;
-   return [T(`Hva er $\\sqrt{${s}}$?`, `What is $\\sqrt{${s}}$?`), N(r), T(`$${r}^2 = ${s}$, så $\\sqrt{${s}} = ${r}$.`, `$${r}^2 = ${s}$, so $\\sqrt{${s}} = ${r}$.`)]; },
+   return FIGQ(r <= 12 ? { f: "lf_sqrt", p: { s: r }, only: "after" } : null, [T(`Hva er $\\sqrt{${s}}$?`, `What is $\\sqrt{${s}}$?`), N(r), T(`$${r}^2 = ${s}$, så $\\sqrt{${s}} = ${r}$.`, `$${r}^2 = ${s}$, so $\\sqrt{${s}} = ${r}$.`)]); },
  () => { const m = R.i(2, 9), n = R.i(2, 9), b = R.p(["a", "x", "2", "3"]), s = m + n;
    return [T(`Skriv $${b}^{${m}} \\cdot ${b}^{${n}}$ som én potens. Hva blir eksponenten?`, `Write $${b}^{${m}} \\cdot ${b}^{${n}}$ as one power. What is the exponent?`), N(s), T(`Like grunntall: $${m} + ${n} = ${s}$, så $${b}^{${s}}$.`, `Same base: $${m} + ${n} = ${s}$, so $${b}^{${s}}$.`)]; },
  () => { const a = R.f(1, 9.9, 0.1), n = R.i(3, 7), v = Math.round(a * 10 ** n);
@@ -211,7 +211,7 @@ $5x - 3 = 2x + 9$. Subtract $2x$: $3x - 3 = 9$. Add 3: $3x = 12$. Divide by 3: $
  () => { const x = R.i(-6, 10), a = R.i(2, 6), b = R.i(1, 9), c = a * (x + b);
    return [T(`Løs $${a}(x + ${b}) = ${c}$.`, `Solve $${a}(x + ${b}) = ${c}$.`), N(x), T(`Del på ${a}: $x + ${b} = ${c / a}$, så $x = ${x}$.`, `Divide by ${a}: $x + ${b} = ${c / a}$, so $x = ${x}$.`)]; },
  () => { const a = R.i(2, 9), b = R.i(2, 9), x = R.i(2, 6), v = a * x + b;
-   return [T(`Hva er verdien av $${a}x + ${b}$ når $x = ${x}$?`, `What is the value of $${a}x + ${b}$ when $x = ${x}$?`), N(v), T(`$${a} \\cdot ${x} + ${b} = ${v}$.`, `$${a} \\cdot ${x} + ${b} = ${v}$.`)]; }
+   return FIGQ({ f: "lf_machine", p: { x, a, b } }, [T(`Hva er verdien av $${a}x + ${b}$ når $x = ${x}$?`, `What is the value of $${a}x + ${b}$ when $x = ${x}$?`), N(v), T(`$${a} \\cdot ${x} + ${b} = ${v}$.`, `$${a} \\cdot ${x} + ${b} = ${v}$.`)]); }
 );
 
 U("Lineære funksjoner", "Linear functions",
@@ -256,7 +256,7 @@ Taxi: 50 kr starting fee and 15 kr per km. $f(x) = 15x + 50$. 8 km costs $15 \\c
  ["Hva betyr $b$ i $f(x) = ax + b$ i en praktisk situasjon?", ["Startverdien når $x = 0$", "Prisen per enhet", "Hvor mange enheter du kjøper", "Det største svaret"], "Konstantleddet er verdien før noe har skjedd – for eksempel startprisen.",
   "What does $b$ in $f(x) = ax + b$ mean in a practical situation?", ["The starting value when $x = 0$", "The price per unit", "How many units you buy", "The largest answer"], "The constant term is the value before anything has happened – for example the starting fee."]],
  () => { const a = R.i(-5, 6) || 2, b = R.i(-10, 10), x = R.i(-5, 8), v = a * x + b;
-   return [T(`$f(x) = ${a}x ${b < 0 ? "-" : "+"} ${Math.abs(b)}$. Hva er $f(${x})$?`, `$f(x) = ${a}x ${b < 0 ? "-" : "+"} ${Math.abs(b)}$. What is $f(${x})$?`), N(v), T(`$${a} \\cdot ${neg(x)} ${b < 0 ? "-" : "+"} ${Math.abs(b)} = ${v}$.`, `$${a} \\cdot ${neg(x)} ${b < 0 ? "-" : "+"} ${Math.abs(b)} = ${v}$.`)]; },
+   return FIGQ({ f: "lf_machine", p: { x, a, b } }, [T(`$f(x) = ${a}x ${b < 0 ? "-" : "+"} ${Math.abs(b)}$. Hva er $f(${x})$?`, `$f(x) = ${a}x ${b < 0 ? "-" : "+"} ${Math.abs(b)}$. What is $f(${x})$?`), N(v), T(`$${a} \\cdot ${neg(x)} ${b < 0 ? "-" : "+"} ${Math.abs(b)} = ${v}$.`, `$${a} \\cdot ${neg(x)} ${b < 0 ? "-" : "+"} ${Math.abs(b)} = ${v}$.`)]); },
  () => { const a = R.i(-4, 5) || 3, x1 = R.i(-4, 3), x2 = x1 + R.i(1, 4), b = R.i(-5, 5), y1 = a * x1 + b, y2 = a * x2 + b;
    return [T(`En linje går gjennom $(${x1}, ${y1})$ og $(${x2}, ${y2})$. Hva er stigningstallet?`, `A line goes through $(${x1}, ${y1})$ and $(${x2}, ${y2})$. What is the slope?`), N(a), T(`$a = \\frac{${y2} - ${neg(y1)}}{${x2} - ${neg(x1)}} = \\frac{${y2 - y1}}{${x2 - x1}} = ${a}$.`, `$a = \\frac{${y2} - ${neg(y1)}}{${x2} - ${neg(x1)}} = \\frac{${y2 - y1}}{${x2 - x1}} = ${a}$.`)]; },
  () => { const start = 10 * R.i(3, 9), per = R.i(8, 20), km = R.i(2, 25), v = start + per * km;
@@ -305,7 +305,7 @@ The legs are 6 cm and 8 cm. $c^2 = 36 + 64 = 100$, so $c = 10$ cm.
  ["Er en trekant med sidene 5, 12 og 13 rettvinklet?", ["Ja", "Nei", "Bare hvis den er likesidet", "Det kan man ikke vite"], "$25 + 144 = 169 = 13^2$ ✓.",
   "Is a triangle with sides 5, 12 and 13 right-angled?", ["Yes", "No", "Only if it is equilateral", "You cannot know"], "$25 + 144 = 169 = 13^2$ ✓."]],
  () => { const [p, q, r] = R.p([[3, 4, 5], [6, 8, 10], [5, 12, 13], [8, 15, 17], [9, 12, 15], [7, 24, 25], [12, 16, 20]]);
-   return [T(`En rettvinklet trekant har kateter på ${p} cm og ${q} cm. Hvor lang er hypotenusen?`, `A right-angled triangle has legs of ${p} cm and ${q} cm. How long is the hypotenuse?`), N(r, 0.01, "cm"), T(`$c^2 = ${p}^2 + ${q}^2 = ${p * p + q * q}$, så $c = \\sqrt{${p * p + q * q}} = ${r}$ cm.`, `$c^2 = ${p}^2 + ${q}^2 = ${p * p + q * q}$, so $c = \\sqrt{${p * p + q * q}} = ${r}$ cm.`)]; },
+   return FIGQ({ f: "lf_pyth", p: { a: p, b: q }, only: "after" }, [T(`En rettvinklet trekant har kateter på ${p} cm og ${q} cm. Hvor lang er hypotenusen?`, `A right-angled triangle has legs of ${p} cm and ${q} cm. How long is the hypotenuse?`), N(r, 0.01, "cm"), T(`$c^2 = ${p}^2 + ${q}^2 = ${p * p + q * q}$, så $c = \\sqrt{${p * p + q * q}} = ${r}$ cm.`, `$c^2 = ${p}^2 + ${q}^2 = ${p * p + q * q}$, so $c = \\sqrt{${p * p + q * q}} = ${r}$ cm.`)]); },
  () => { const a = R.i(20, 100), b = R.i(10, 150 - a), c = 180 - a - b;
    return [T(`To av vinklene i en trekant er ${a}° og ${b}°. Hvor stor er den tredje vinkelen?`, `Two of the angles in a triangle are ${a}° and ${b}°. How big is the third angle?`), N(c, 0, "°"), T(`$180° - ${a}° - ${b}° = ${c}°$.`, `$180° - ${a}° - ${b}° = ${c}°$.`)]; },
  () => { const r = R.i(2, 15), A = Math.PI * r * r;
@@ -359,8 +359,8 @@ The probability of two sixes in a row: $\\frac{1}{6} \\cdot \\frac{1}{6} = \\fra
    return [T(`En pose har ${r} røde, ${b} blå${g ? ` og ${g} grønne` : ""} kuler. Du trekker én. Hva er sannsynligheten for rød? Svar med desimaltall.`, `A bag has ${r} red, ${b} blue${g ? ` and ${g} green` : ""} marbles. You draw one. What is the probability of red? Answer as a decimal.`), N(+p.toFixed(3), 0.005),
      T(`$P(\\text{rød}) = \\frac{${r}}{${tot}} \\approx ${mf(+p.toFixed(3))}$.`, `$P(\\text{red}) = \\frac{${r}}{${tot}} \\approx ${mf(+p.toFixed(3))}$.`)]; },
  () => { const k = R.i(1, 5), p = k / 6;
-   return [T(`Hva er sannsynligheten for å få ${k === 1 ? "en sekser" : `mer enn ${6 - k}`} med én terning? Svar med desimaltall.`, `What is the probability of rolling ${k === 1 ? "a six" : `more than ${6 - k}`} with one die? Answer as a decimal.`), N(+p.toFixed(3), 0.005),
-     T(`${k} gunstige av 6 mulige: $\\frac{${k}}{6} \\approx ${mf(+p.toFixed(3))}$.`, `${k} favourable out of 6 possible: $\\frac{${k}}{6} \\approx ${mf(+p.toFixed(3))}$.`)]; },
+   return FIGQ({ f: "lf_die", p: { sel: [6, 5, 4, 3, 2].slice(0, k) } }, [T(`Hva er sannsynligheten for å få ${k === 1 ? "en sekser" : `mer enn ${6 - k}`} med én terning? Svar med desimaltall.`, `What is the probability of rolling ${k === 1 ? "a six" : `more than ${6 - k}`} with one die? Answer as a decimal.`), N(+p.toFixed(3), 0.005),
+     T(`${k} gunstige av 6 mulige: $\\frac{${k}}{6} \\approx ${mf(+p.toFixed(3))}$.`, `${k} favourable out of 6 possible: $\\frac{${k}}{6} \\approx ${mf(+p.toFixed(3))}$.`)]); },
  () => { const xs = Array.from({ length: R.p([5, 7]) }, () => R.i(1, 20)), s = [...xs].sort((a, b) => a - b), med = s[(s.length - 1) / 2];
    return [T(`Hva er medianen av ${xs.join(", ")}?`, `What is the median of ${xs.join(", ")}?`), N(med), T(`Sortert: ${s.join(", ")}. Tallet i midten er ${med}.`, `Sorted: ${s.join(", ")}. The middle number is ${med}.`)]; }
 );

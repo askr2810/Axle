@@ -36,7 +36,7 @@ Object.assign(FIGS, {
       s += `<rect x="${x}" y="${y}" width="${c}" height="${c}" style="fill:var(--card);stroke:var(--ink);stroke-width:1.6"/>`;
       if(i < a) s += circ(x + c / 2, y + c / 2, 11, soft(1, 70)); else if(i < a + k) s += circ(x + c / 2, y + c / 2, 11, soft(3, 70)); }
     const rest = b - k; for(let i = 0; i < rest; i++) s += circ(238 + (i % 3) * 26, y0 + 17 + Math.floor(i / 3) * 30, 11, soft(3, 70));
-    s += tx(x0 + 2.5 * c, 24, T("tierramme: plass til 10", "ten frame: room for 10"), "fg-s");
+    s += tx(x0 + 2.5 * c, 24, T("tierramme: plass til 10", "ten frame: room for 10"), "fg-s fg-tick");
     const full = a + k === 10;
     s += tx(160, 132, full ? (rest ? `10 + ${rest} = ${10 + rest}` : "10") : `${a} + ${b}`, "fg-b");
     s += tx(160, 152, full ? T("Rammen er full!", "The frame is full!") : T(`Det er plass til ${10 - a - k} til i rammen`, `There is room for ${10 - a - k} more in the frame`), "fg-s" + (full ? " fg-okt" : ""));
@@ -46,10 +46,10 @@ Object.assign(FIGS, {
   lf_therm: (p = {}) => { const v = p.v ?? 3, Y = t => 92 - t * 7, x = 96; let s = "";
     s += `<rect x="${x - 9}" y="${Y(10) - 8}" width="18" height="${Y(-10) - Y(10) + 12}" rx="9" style="fill:var(--card);stroke:var(--ink);stroke-width:2"/>`;
     s += circ(x, Y(-10) + 14, 13, `fill:var(--c1);stroke:var(--ink);stroke-width:2`) + `<rect x="${x - 4}" y="${f1(Y(v))}" width="8" height="${f1(Y(-10) + 8 - Y(v))}" style="fill:var(--c1)"/>`;
-    for(let t = -10; t <= 10; t++){ const big = t % 5 === 0; s += `<line x1="${x + 10}" y1="${Y(t)}" x2="${x + (big ? 22 : 16)}" y2="${Y(t)}" style="stroke:var(--ink);stroke-width:${t === 0 ? 2.4 : big ? 1.6 : 0.8}"/>`; if(big) s += tx(x + 26, Y(t) + 4, minus(t), t === 0 ? "fg-b" : "fg-s", "start"); }
+    for(let t = -10; t <= 10; t++){ const big = t % 5 === 0; s += `<line x1="${x + 10}" y1="${Y(t)}" x2="${x + (big ? 22 : 16)}" y2="${Y(t)}" style="stroke:var(--ink);stroke-width:${t === 0 ? 2.4 : big ? 1.6 : 0.8}"/>`; if(big) s += tx(x + 26, Y(t) + 4, minus(t), t === 0 ? "fg-b fg-tick" : "fg-s fg-tick", "start"); }
     s += `<rect x="${x - 70}" y="${Y(10) - 6}" width="56" height="${Y(0) - Y(10) + 6}" rx="6" style="${soft(2, 14)}"/>` + tx(x - 42, Y(5) + 4, T("varmt", "warm"), "fg-s");
     s += `<rect x="${x - 70}" y="${Y(0)}" width="56" height="${Y(-10) - Y(0) + 6}" rx="6" style="${soft(3, 14)}"/>` + tx(x - 42, Y(-5) + 4, T("kaldt", "cold"), "fg-s");
-    if(p.from != null && p.from !== v) s += car(x + 52, Y(p.from), x + 52, Y(v), v > p.from ? 1 : 3, 2.4) + tx(x + 60, (Y(p.from) + Y(v)) / 2 + 4, (v > p.from ? "+" : "−") + Math.abs(v - p.from), "fg-b", "start");
+    if(p.from != null && p.from !== v) s += car(x + 52, Y(p.from), x + 52, Y(v), v > p.from ? 1 : 3, 2.4) + (p.hide ? "" : tx(x + 60, (Y(p.from) + Y(v)) / 2 + 4, (v > p.from ? "+" : "−") + Math.abs(v - p.from), "fg-b", "start"));
     s += col(250, 82, `${minus(v)} °C`, v > 0 ? 1 : v < 0 ? 3 : 4, "fg-big") + tx(250, 108, v > 0 ? T(`${v} varmegrader`, `${v} degrees above zero`) : v < 0 ? T(`${-v} kuldegrader`, `${-v} degrees below zero`) : T("null grader", "zero degrees"), "fg-s");
     return { cap: T(`Termometeret er en tallinje på høykant. Det viser ${minus(v)} grader. Under null er tallene negative.`, `The thermometer is a number line standing up. It shows ${minus(v)} degrees. Below zero the numbers are negative.`), svg: s }; },
 
@@ -99,9 +99,9 @@ Object.assign(FIGS, {
     s += `<rect x="104" y="48" width="112" height="70" rx="12" style="${soft(5, 26)}"/>` + circ(124, 62, 4, "fill:var(--c5)") + circ(138, 62, 4, "fill:var(--c2)");
     s += tx(160, 84, `· ${a}`, "fg-b") + tx(160, 104, b >= 0 ? `+ ${b}` : `− ${-b}`, "fg-b");
     s += `<rect x="18" y="66" width="52" height="34" rx="8" style="${soft(3, 40)}"/>` + tx(44, 89, minus(x), "fg-b") + car(72, 83, 102, 83, 3, 2.4) + tx(44, 58, T("inn", "in"), "fg-s");
-    s += car(218, 83, 248, 83, 4, 2.4) + `<rect x="250" y="66" width="52" height="34" rx="8" style="${soft(4, 40)}"/>` + tx(276, 89, minus(y), "fg-b") + tx(276, 58, T("ut", "out"), "fg-s");
-    s += tx(160, 150, `f(x) = ${a}x ${b >= 0 ? "+ " + b : "− " + -b}`, "fg-b") + tx(160, 170, `f(${minus(x)}) = ${a} · ${x < 0 ? "(" + minus(x) + ")" : x} ${b >= 0 ? "+ " + b : "− " + -b} = ${minus(y)}`, "fg-s");
-    return { cap: T(`Funksjonsmaskinen ganger med ${a} og legger til ${b}. Inn ${minus(x)}, ut ${minus(y)}.`, `The function machine multiplies by ${a} and adds ${b}. In ${minus(x)}, out ${minus(y)}.`), svg: s }; },
+    s += car(218, 83, 248, 83, 4, 2.4) + `<rect x="250" y="66" width="52" height="34" rx="8" style="${soft(4, 40)}"/>` + tx(276, 89, p.hide ? "?" : minus(y), "fg-b") + tx(276, 58, T("ut", "out"), "fg-s");
+    s += tx(160, 150, `f(x) = ${a}x ${b >= 0 ? "+ " + b : "− " + -b}`, "fg-b") + tx(160, 170, `f(${minus(x)}) = ${a} · ${x < 0 ? "(" + minus(x) + ")" : x} ${b >= 0 ? "+ " + b : "− " + -b} = ${p.hide ? "?" : minus(y)}`, "fg-s");
+    return { cap: p.hide ? T("Funksjonsmaskinen: et tall inn, et nytt tall ut.", "The function machine: a number in, a new number out.") : T(`Funksjonsmaskinen ganger med ${a} og legger til ${b}. Inn ${minus(x)}, ut ${minus(y)}.`, `The function machine multiplies by ${a} and adds ${b}. In ${minus(x)}, out ${minus(y)}.`), svg: s }; },
 
   // Pytagoras med ruter på sidene. p = { a, b } (katetene i ruter)
   lf_pyth: (p = {}) => { const a = p.a ?? 3, b = p.b ?? 4, c2 = a * a + b * b, c = Math.sqrt(c2), u = Math.min(14, 166 / (a + 2 * b), 196 / (2 * a + b)); let s = "";
@@ -125,8 +125,9 @@ Object.assign(FIGS, {
     for(let i = 0; i < v; i++) s += circ(f1(80 - (cols - 1) * sp / 2 + (i % cols) * sp), f1(92 - (rows - 1) * sp / 2 + Math.floor(i / cols) * sp), f1(sp * 0.36), soft(3 + (n % 2), 60));
     const prod = n === 0 ? "1" : Array(n).fill(b).join(" · ");
     s += col(176, 62, `${b}^${n}`.replace(/\^(\d+)/, (_, e) => `<tspan dy="-0.6em" font-size="70%">${e}</tspan><tspan dy="0.6em"> </tspan>`), 3, "fg-big", "start");
-    s += tx(176, 98, n === 0 ? T("(ingen ganging)", "(no multiplying)") : prod, "fg-b", "start") + col(176, 124, `= ${v}`, 4, "fg-b", "start");
+    s += tx(176, 98, n === 0 ? T("(ingen ganging)", "(no multiplying)") : prod, "fg-b", "start") + col(176, 124, `= ${p.hide ? "?" : v}`, 4, "fg-b", "start");
     s += tx(176, 150, T(`eksponenten er ${n}`, `the exponent is ${n}`), "fg-s", "start") + tx(176, 166, n === 0 ? T("Alt opphøyd i 0 er 1.", "Anything to the power 0 is 1.") : T(`${n} ${n === 1 ? "gang" : "ganger"}`, `${n} ${n === 1 ? "time" : "times"}`), "fg-s", "start");
+    if(p.hide) return { cap: T(`${b} opphøyd i ${n}.`, `${b} to the power ${n}.`), svg: s };
     return { cap: T(`${b} opphøyd i ${n}: ${prod} = ${v}. Eksponenten sier hvor mange ganger grunntallet står i gangestykket.`, `${b} to the power ${n}: ${prod} = ${v}. The exponent says how many times the base appears in the product.`), svg: s }; },
 
   // Kvadratrot som kvadrat: et kvadrat med k ruter har side √k. p = { s }
@@ -153,7 +154,8 @@ Object.assign(FIGS, {
       s += `<rect x="${x}" y="${y}" width="42" height="42" rx="8" style="${on ? soft(4, 40) : "fill:var(--card);stroke:var(--ink);stroke-width:2"}"/>`;
       PIPS[k].forEach(([i, j]) => { s += circ(x + 10 + i * 11, y + 10 + j * 11, 3.6, "fill:var(--ink)"); }); }
     const k = sel.length;
-    s += tx(160, 112, T(`${k} av 6 sider`, `${k} of 6 sides`), "fg-b") + col(160, 146, `P = ${k}/6` + (k === 3 ? " = 1/2" : k === 2 ? " = 1/3" : k === 6 ? " = 1" : ""), 4, "fg-b");
+    s += tx(160, 112, T(`${k} av 6 sider`, `${k} of 6 sides`), "fg-b fg-tick") + (p.hide ? "" : col(160, 146, `P = ${k}/6` + (k === 3 ? " = 1/2" : k === 2 ? " = 1/3" : k === 6 ? " = 1" : ""), 4, "fg-b"));
+    if(p.hide) return { cap: T("En terning har 6 like sider.", "A die has 6 equal sides."), svg: s };
     return { cap: T(`En terning har 6 like sider. ${k} av dem passer, så sjansen er ${k}/6.`, `A die has 6 equal sides. ${k} of them fit, so the chance is ${k}/6.`), svg: s }; },
 
   // Fast stoff, væske og gass: vannbiter i en boks ved temperatur t. p = { t }
@@ -246,9 +248,9 @@ Object.assign(FIGS, {
   // Måletrappa med et tall som flyttes k trinn ned fra «from». p = { v, from, k }
   lf_stairs: (p = {}) => { const L = ["km", "hm", "dam", "m", "dm", "cm", "mm"], from = p.from ?? "m", v = p.v ?? 3, k = p.k ?? 0, i0 = L.indexOf(from), i1 = Math.min(L.length - 1, i0 + k); let s = "";
     L.forEach((l, i) => { const x = 14 + i * 34, y = 24 + i * 16, on = i === i1, was = i === i0; s += `<rect x="${x}" y="${y}" width="34" height="${150 - y}" style="${on ? soft(4, 50) : was ? soft(3, 30) : soft(3, 10)}"/>` + tx(x + 17, y + 15, l, on || was ? "fg-b" : "fg-s"); });
-    for(let i = i0; i < i1; i++){ const x = 14 + i * 34 + 17; s += `<path d="M${x + 6} ${24 + i * 16 - 6} Q${x + 24} ${24 + i * 16 - 18} ${x + 34} ${24 + (i + 1) * 16 - 6}" style="fill:none;stroke:var(--c4);stroke-width:1.8"/>` + col(x + 24, 24 + i * 16 - 18, "·10", 4, "fg-s"); }
+    for(let i = i0; i < i1; i++){ const x = 14 + i * 34 + 17; s += `<path d="M${x + 6} ${24 + i * 16 - 6} Q${x + 24} ${24 + i * 16 - 18} ${x + 34} ${24 + (i + 1) * 16 - 6}" style="fill:none;stroke:var(--c4);stroke-width:1.8"/>` + col(x + 24, 24 + i * 16 - 18, "·10", 4, "fg-s fg-tick"); }
     const val = v * 10 ** (i1 - i0); s += col(312, 40, `${v} ${from} = ${val} ${L[i1]}`, 4, "fg-b", "end") + tx(312, 60, T(`${i1 - i0} ${i1 - i0 === 1 ? "trinn" : "trinn"} ned: · ${10 ** (i1 - i0)}`, `${i1 - i0} ${i1 - i0 === 1 ? "step" : "steps"} down: · ${10 ** (i1 - i0)}`), "fg-s", "end");
-    s += tx(14, 172, T("ned ett trinn: · 10   opp ett trinn: : 10", "one step down: · 10   one step up: ÷ 10"), "fg-s", "start");
+    s += tx(14, 172, T("ned ett trinn: · 10   opp ett trinn: : 10", "one step down: · 10   one step up: ÷ 10"), "fg-s fg-tick", "start");
     return { cap: T(`Måletrappa: hvert trinn ned ganger du med 10. ${v} ${from} er ${val} ${L[i1]}.`, `The unit staircase: each step down multiply by 10. ${v} ${from} is ${val} ${L[i1]}.`), svg: s }; },
 
   // Gjennomsnitt som tårn av klosser. p = { vals, med } (med = indeksen som er medianen og skal fremheves)

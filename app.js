@@ -515,9 +515,9 @@ async function scheduleReminder(){
 
 // ---------- leksjon: bygging ----------
 function makeItem(q, id){
-  const [prompt, ans, expl] = q;
-  if(Array.isArray(ans)){ const opts = shuffle(ans.map((x,i)=>({t:x, ok:i===0}))); return { id, type:"mc", prompt, opts, expl }; }
-  return { id, type:"num", prompt, n:ans.n, tol:ans.tol ?? Math.abs(ans.n)*0.01, u:ans.u||"", expl };
+  const [prompt, ans, expl] = q, fig = q.fig || null; // fig: figur laget av oppgavens tall (FIGQ i learn.js)
+  if(Array.isArray(ans)){ const opts = shuffle(ans.map((x,i)=>({t:x, ok:i===0}))); return { id, type:"mc", prompt, opts, expl, fig }; }
+  return { id, type:"num", prompt, n:ans.n, tol:ans.tol ?? Math.abs(ans.n)*0.01, u:ans.u||"", expl, fig };
 }
 // Hint etter et feil svar, hentet fra forklaringen uten å røpe fasiten: helst setningen som forklarer akkurat
 // det feile svaret («Svaret 20 får du hvis …»), ellers metoden (det som står før første kolon i første setning).
@@ -557,13 +557,13 @@ function rawQ(c, id){
     return q; }
   let q = unit.qs[+rest]; if(!q) return null;
   if(LANG==="en"){ const e = ENQ[c.code] && ENQ[c.code][+u] && ENQ[c.code][+u][+rest];
-    if(e) q = [e[0], Array.isArray(q[1]) ? (e[1] || q[1]) : { ...q[1], u: (UNIT_EN[q[1].u] ?? q[1].u) }, e[2]]; }
+    if(e) q = FIGQ(q.fig, [e[0], Array.isArray(q[1]) ? (e[1] || q[1]) : { ...q[1], u: (UNIT_EN[q[1].u] ?? q[1].u) }, e[2]]); }
   return q;
 }
 function itemFromId(c, id, opt={}){
   const q = rawQ(c, id); if(!q) return null;
   const it = makeItem(q, id); it.cc = c.code; it.cu = +id.split(".")[0]; // fag og enhet: til illustrasjonen over oppgaven (qart.js)
-  if(it.type==="num" && opt.mc) return Object.assign(toMC(it), { cc: it.cc, cu: it.cu });
+  if(it.type==="num" && opt.mc) return Object.assign(toMC(it), { cc: it.cc, cu: it.cu, fig: it.fig, ansN: it.n });
   if(it.type==="num" && opt.strict) it.tol = it.tol/2;
   return it;
 }
@@ -744,7 +744,7 @@ function renderLesson(){
     return;
   }
   // Illustrasjon på oppgaven (qart.js): temaets piktogram og navn øverst, og en figur over oppgaveteksten når det finnes en.
-  const art = typeof qArt === "function" ? qArt(it) : {}, kick = `<p class="kicker">${esc(lvl)}${it.type==="mc"?t("pickAnswer"):t("writeAnswer")}</p>`;
+  const art = typeof qArt === "function" ? qArt(it, L.answered) : {}, kick = `<p class="kicker">${esc(lvl)}${it.type==="mc"?t("pickAnswer"):t("writeAnswer")}</p>`;
   let body = `<div class="krow ${art.pic ? "has-pic" : ""}">${art.pic ? `<div class="q-topic"><span class="q-pic">${art.pic}</span><span class="q-tt"><b>${esc(art.name)}</b>${kick}</span></div>` : kick}<button class="kbtn" data-a="scratch">${I.pencil}${t("scratch")}</button></div>${art.fig ? "\u0000QSPLIT\u0000" : ""}<div class="prompt">${richBig(it.prompt)}</div>`;
   if(it.type==="mc"){
     body += `<div class="opts" role="radiogroup">` + it.opts.map((o,i)=>{

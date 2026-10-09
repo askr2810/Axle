@@ -18,6 +18,12 @@ const THEORY_DB = {};
 function THEORY(code, u, doc) { (THEORY_DB[code] ||= [])[u] = doc; }
 const theoryOf = (code, u) => (THEORY_DB[code] && THEORY_DB[code][u]) || null;
 
+// ---------- figur laget av oppgavens egne tall ----------
+// FIGQ({ f: "gs_place", p: { n: 63 }, after: { … }, only: "after" }, [tekst, svar, forklaring]) – legger ved hvilken figur
+// som viser akkurat denne oppgaven (qart.js tegner den). Før svaret tegnes den med p.hide (uten det som avslører svaret),
+// etter svaret med p + after. only: "after" = figuren vises først når svaret er gitt. Uten spec (null) gir den bare q tilbake.
+function FIGQ(spec, q){ if(spec && q) q.fig = spec; return q; }
+
 // ---------- tospråklige tilleggsoppgaver ----------
 // BIQ(kode, enhet, [ [nbTekst, nbSvar, nbForklaring, enTekst, enAlternativer|null, enForklaring], ... ])
 // nbSvar: [RIKTIG, feil, ...] eller {n, tol, u}. enAlternativer: samme rekkefølge (første riktig), null for tallsvar.
@@ -26,7 +32,7 @@ function BIQ(code, u, list) {
   if (!c || !c.units[u]) throw new Error("BIQ: ukjent fag/enhet " + code + " " + u);
   const unit = c.units[u], en = ((ENQ[code] ||= [])[u] ||= []);
   for (const q of list) {
-    unit.qs.push([q[0], q[1], q[2]]);
+    unit.qs.push(FIGQ(q[6] || null, [q[0], q[1], q[2]])); // q[6]: figur med oppgavens tall (se FIGQ)
     en[unit.qs.length - 1] = [q[3], q[4], q[5]];
   }
 }
