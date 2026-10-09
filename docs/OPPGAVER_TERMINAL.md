@@ -6,6 +6,27 @@ Kjør i repo-mappen, for eksempel: `claude "Les docs/OPPGAVER_TERMINAL.md og gj�
 
 Du jobber i Axle-repoet (axle.no). Les `CLAUDE.md` først og følg den. Svar meg på norsk. Kvalitet går foran nye funksjoner. Jobb deg gjennom oppgavene i rekkefølge, og commit etter hver ferdige oppgave. Kjør `python3 build.py` og `npm test` før hver commit. Testene må være grønne. Ikke legg nøkler eller tokens i repoet.
 
+**Hold denne fila oppdatert underveis.** Statuslista rett under er fasiten for hvor langt arbeidet har kommet:
+
+* Når du starter på en oppgave: sett den til `[~] pågår`.
+* Når den er ferdig: sett den til `[x] ferdig`, med dato og en kort linje om hva som ble gjort, og eventuelt hva som gjenstår.
+* Hvis den er blokkert: sett den til `[!] blokkert`, med årsak.
+* Ta med endringen i denne fila i samme commit som oppgaven.
+* Hvis økten blir avbrutt: les statuslista først neste gang, og fortsett der den slapp. Ikke gjør ferdige oppgaver på nytt.
+
+## Status
+
+- [ ] 1. «Lær først»-leksjoner i grunnskolen
+- [ ] 2. Illustrasjonene på oppgavene skal aldri forvirre
+- [ ] 3. Oppgavetekster som ramser opp svaralternativene
+- [ ] 4. Logo på de statiske sidene
+- [ ] 5. Raskere oppstart: last teori og emnesider per fag
+- [ ] 6. Uavhengig kontroll av fasiter
+- [ ] 7. Faglig gjennomgang av teoritekstene i risikofagene
+- [ ] 8. Skilt sporet fra offisielle tegninger
+- [ ] 9. Mac- og Windows-appen (v1.0.1)
+- [ ] 10. Til slutt: bygg, test, push og oppsummering
+
 ## 1. «Lær først»-leksjoner i grunnskolen (viktigst)
 
 I dag møter barna oppgaver før de har lært begrepet. Et eksempel er `>` og `<` i barneskolen: der kommer oppgavene før noen har forklart tegnene. Lærere bruker ofte en krokodillemunn som alltid vil spise det største tallet. Slike knep skal Axle ha.
