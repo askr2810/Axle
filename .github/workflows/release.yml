@@ -15,7 +15,18 @@ concurrency: { group: 'release-${{ github.ref }}', cancel-in-progress: false }
 env:
   TAG: ${{ inputs.tag || github.event.release.tag_name || github.ref_name }}
 jobs:
+  # Testene må være grønne før det lages en skrivebordsutgave av en tag.
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with: { ref: '${{ env.TAG }}' }
+      - uses: actions/setup-node@v4
+        with: { node-version: 22 }
+      - run: npm ci --no-audit --no-fund
+      - run: npm test
   build:
+    needs: test
     strategy:
       fail-fast: false
       matrix:
@@ -41,8 +52,10 @@ jobs:
         with: { targets: '${{ matrix.targets }}' }
       - uses: Swatinem/rust-cache@v2
         with: { workspaces: desktop/src-tauri }
-      - name: Bygg web-appen
-        run: npm install --no-audit --no-fund && python build.py
+      - name: Bygg web-appen (samme steg som «npm run build», med pyodide for kodelaben)
+        run: npm ci --no-audit --no-fund && node tools/vendor.mjs && python build.py && node tools/minify.mjs
+      - name: Sjekk at Python-kodelaben er med
+        run: test -f release/www/vendor/pyodide/pyodide.mjs && test -f release/www/vendor/pyworker.mjs
       - name: Versjon fra taggen
         run: node -e "const f='desktop/src-tauri/tauri.conf.json',j=JSON.parse(require('fs').readFileSync(f));j.version=process.env.TAG.replace(/^v/,'');require('fs').writeFileSync(f,JSON.stringify(j,null,2))"
       - run: npm install -g @tauri-apps/cli@2
@@ -56,6 +69,17 @@ jobs:
         run: |
           f=$(find desktop/src-tauri/target -path '*/bundle/*' \( -name '*.dmg' -o -name '*-setup.exe' \) | head -1)
           echo "Fant: $f"; cp "$f" "${{ matrix.out }}"
+      - uses: actions/upload-artifact@v4
+        with: { name: '${{ matrix.out }}', path: '${{ matrix.out }}', if-no-files-found: error }
+  # Én jobb publiserer begge filene, så Mac- og Windows-jobbene ikke lager releasen samtidig.
+  publish:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with: { path: dist, merge-multiple: true }
+      - name: Sjekksummer (for å kontrollere at filen kommer fra Axle)
+        run: cd dist && sha256sum Axle.dmg Axle-Setup.exe > SHA256SUMS.txt && cat SHA256SUMS.txt
       - uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ env.TAG }}
@@ -63,10 +87,15 @@ jobs:
           body: |
             **Axle for Mac og Windows.** Last ned `Axle.dmg` (Mac) eller `Axle-Setup.exe` (Windows).
             Mac med Homebrew: `brew tap askr2810/axle https://github.com/askr2810/axle && brew install --cask --no-quarantine axle`
-            Appen er ikke signert av Apple/Microsoft ennå: på Mac høyreklikk → Åpne første gang; på Windows velg «Mer informasjon» → «Kjør likevel».
-          files: ${{ matrix.out }}
+            **Hvorfor får jeg en advarsel?** Appen er ikke signert av Apple/Microsoft ennå (det koster penger hvert år). Den er bygget automatisk av GitHub fra Axles kode.
+            På Mac: høyreklikk på Axle → Åpne første gang. På Windows: «Mer informasjon» → «Kjør likevel».
+            Vil du kontrollere filen: sammenlign `shasum -a 256 Axle.dmg` (Mac) eller `certutil -hashfile Axle-Setup.exe SHA256` (Windows) med `SHA256SUMS.txt`.
+          files: |
+            dist/Axle.dmg
+            dist/Axle-Setup.exe
+            dist/SHA256SUMS.txt
   cask:
-    needs: build
+    needs: publish
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4

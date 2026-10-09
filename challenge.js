@@ -62,6 +62,7 @@ function bootPrompts(){
     overlay = { login: 1, step: "email", email: "", intro: true }; renderOverlay(); return;
   }
   if((S.xp || 0) >= 30) dcMaybePrompt(); // helt nye får prøve appen i fred først
+  if((S.xp || 0) > 0 && typeof stAsk === "function") setTimeout(stAsk, 1500); // samtykke til bruksstatistikk, én gang
 }
 // Tospråklig, siden vi ennå ikke vet hvilket språk personen leser.
 function langPickHTML(){

@@ -105,11 +105,13 @@ I Android Studio:
 I Play Console:
 1. **Opprett app**: navn «Axle – læring gjort enkelt», standardspråk norsk, app, gratis.
 2. Fyll ut **Butikkoppføring** med tekstene i `store/listing_nb.md` (og engelsk oversettelse fra `store/listing_en.md`), ikon `store/play-icon-512.png`, funksjonsgrafikk `store/play-feature-graphic-1024x500.png` og minst 2 skjermbilder (ta dem i emulatoren).
-3. **Appinnhold**: personvern-URL, ingen annonser (foreløpig), målgruppe 18+ (eller 13+), innholdsvurdering (utdanning, ingen støtende innhold).
-4. **Datasikkerhet**: Appen samler bare inn data når brukeren selv sender en rapport:
-   - *Personlig info → E-postadresse* (valgfri, til å svare på tilbakemelding) – ikke delt, ikke påkrevd.
-   - *Appaktivitet → Annet brukergenerert innhold* (feilrapporten) – for å forbedre appen.
-   - Data krypteres under overføring (HTTPS). Brukeren kan be om sletting via e-post.
+3. **Appinnhold**: personvern-URL, ingen annonser (foreløpig), målgruppe **alle aldre (blandet målgruppe, også barn under 13)**, innholdsvurdering (utdanning, ingen støtende innhold). Med barn i målgruppen gjelder Googles Families-regler: ingen reklame-SDK-er eller tredjeparts sporing (Axle har ingen), og bruksstatistikken er av til brukeren sier ja. Se også «Målgruppe og alder» nederst.
+4. **Datasikkerhet** (skal stemme med `web/privacy.html`):
+   - *Personlig info → E-postadresse*: valgfri konto (innlogging og synkronisering) og valgfri e-post i tilbakemeldinger. Ikke delt.
+   - *Personlig info → Navn/brukernavn, bilder*: valgfritt visningsnavn, brukernavn og profilbilde for venner. Ikke delt.
+   - *Appaktivitet → Appinteraksjoner*: anonym bruksstatistikk, **bare etter samtykke** i appen, til analyse og forbedring. Ikke delt.
+   - *Appaktivitet → Annet brukergenerert innhold*: feilrapporter og fellesskapskurs.
+   - Data krypteres under overføring (HTTPS). Brukeren kan slette konto og data i appen (Innstillinger → Slett konto).
 5. **Nye personlige utviklerkontoer** må kjøre en **lukket test med minst 12 testere i 14 dager** før de kan søke om produksjon. Last opp `.aab` under *Testing → Lukket testing*, legg inn e-postene til 12+ venner/medstudenter, og be dem installere og bruke appen litt.
 6. Etter 14 dager: søk om produksjonstilgang og send inn.
 
@@ -161,3 +163,11 @@ Legg reklame bare mellom leksjoner, aldri under eksamen eller midt i en oppgave.
 | `web/`, `vendor/` | manifest, service worker, personvernside, ikoner, KaTeX |
 | `tools/` | tester, ikonlager, skrift-kopiering |
 | `store/` | butikktekster og grafikk |
+
+
+## Målgruppe og alder (samme overalt)
+- **Hvem:** alle aldre – fra barneskole til høyskole og førerkort. Appen virker uten konto.
+- **Konto og sosiale funksjoner** (venner, grupper, brukernavn, profilbilde, fellesskapskurs): 13 år og eldre. Under 13 år: en forelder eller foresatt godtar vilkårene (se `web/terms.html` §7).
+- **Google Play:** målgruppe «alle aldre / blandet», innholdsvurdering «Alle». Følg Families-reglene (ingen reklame, ingen sporings-SDK-er).
+- **App Store:** kategori Utdanning, aldersgrense 4+. Ikke meld appen inn i «Kids»-kategorien (der er innlogging og venner ikke tillatt uten foreldrekontroll).
+- **Personvern:** `web/privacy.html`. Bruksstatistikk sendes bare etter et ja fra brukeren.

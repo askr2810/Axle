@@ -1,7 +1,8 @@
 // ============================================================
 //  BRUKSSTATISTIKK (supabase/innsikt.sql): små hendelser om hva som brukes, slik at admin kan se hva folk øver på
 //  og hvor de faller fra. Ingen fritekst, ingen svar – bare hendelse, fag/enhet og tall. Sendes i bunter.
-//  Kan slås av i Innstillinger (S.noStats). En tilfeldig enhets-id skiller nettlesere uten konto.
+//  Sendes BARE når brukeren har sagt ja (S.statsOk === 1). Spørsmålet kommer én gang som en liten boks nederst
+//  (stAsk), og svaret kan endres i Innstillinger. En tilfeldig enhets-id skiller nettlesere uten konto; den lages først etter et ja.
 // ============================================================
 const ST_KEY = "axle.dev";
 let ST_Q = [], ST_T = null, ST_OFF = false;
@@ -11,7 +12,7 @@ function stDevice(){
 }
 // e = hendelse, a/b = tekst (fag, enhet, skjerm …), n/m = tall (riktige, oppgaver …)
 function stEv(e, a, b, n, m){
-  if(ST_OFF || typeof S === "undefined" || S.noStats || typeof CLOUD_ON === "undefined" || !CLOUD_ON) return;
+  if(ST_OFF || typeof S === "undefined" || S.statsOk !== 1 || typeof CLOUD_ON === "undefined" || !CLOUD_ON) return;
   ST_Q.push({ e, a: a == null ? null : String(a).slice(0, 60), b: b == null ? null : String(b).slice(0, 60), n: n == null ? null : Math.round(n), m: m == null ? null : Math.round(m),
     t: new Date().toISOString(), l: typeof LANG !== "undefined" ? LANG : null, p: typeof PLATFORM !== "undefined" ? PLATFORM : null });
   if(ST_Q.length > 200) ST_Q = ST_Q.slice(-200);
@@ -25,7 +26,7 @@ async function stFlush(keep){
     await sbFetch("/rest/v1/rpc/log_events", { method: "POST", body: JSON.stringify({ p: batch }), keepalive: !!keep }, tok || undefined);
   }catch(e){
     if(e && (e.status === 404 || /PGRST202|42883/.test(e.code || ""))) ST_OFF = true; // innsikt.sql er ikke kjørt: slutt å prøve
-    else if(!keep) ST_Q.unshift(...batch.slice(0, 40)); // prøv igjen senere (f.eks. uten nett)
+    else { ST_Q.unshift(...batch); if(ST_Q.length > 200) ST_Q = ST_Q.slice(0, 200); } // hele bunten prøves igjen senere (f.eks. uten nett); taket hindrer at køen vokser uten grense
   }
   if(ST_Q.length) ST_T = setTimeout(stFlush, 5000);
 }
@@ -36,3 +37,14 @@ function stScreen(sc){
 }
 addEventListener("visibilitychange", () => { if(document.visibilityState === "hidden") stFlush(true); });
 addEventListener("pagehide", () => stFlush(true));
+
+// Samtykke: spør én gang, med en liten boks nederst (ikke en popup som stopper deg). Nei er like lett som ja.
+function stAsk(){
+  if(typeof S === "undefined" || S.statsOk != null || typeof CLOUD_ON === "undefined" || !CLOUD_ON || document.getElementById("stask")) return;
+  if(S.noStats){ S.statsOk = 0; saveLocal(); return; } // slo det av før spørsmålet fantes
+  const d = document.createElement("div"); d.id = "stask"; d.className = "stask"; d.setAttribute("role", "region"); d.setAttribute("aria-label", T("Bruksstatistikk", "Usage statistics"));
+  d.innerHTML = `<p><b>${esc(T("Vil du hjelpe oss å gjøre Axle bedre?", "Want to help us improve Axle?"))}</b> ${esc(T("Da sender appen anonym bruksstatistikk: hvilke sider, fag og øvinger som åpnes, og hvor mange oppgaver som løses. Ikke svarene dine, ikke navn eller e-post.", "The app will then send anonymous usage statistics: which pages, courses and exercises are opened, and how many problems are solved. Not your answers, not your name or email."))} <a href="privacy.html" target="_blank" rel="noopener">${esc(T("Les mer", "Read more"))}</a></p>
+    <div><button class="kbtn ghost" data-a="statno">${esc(T("Nei takk", "No thanks"))}</button><button class="kbtn" data-a="statyes">${esc(T("Ja, gjerne", "Yes, sure"))}</button></div>`;
+  document.body.appendChild(d);
+}
+function stAnswer(ok){ S.statsOk = ok ? 1 : 0; if(!ok) ST_Q = []; saveLocal(); const d = document.getElementById("stask"); if(d) d.remove(); if(ok && typeof stScreen === "function") stScreen(screen); }

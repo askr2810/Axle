@@ -38,7 +38,8 @@ self.addEventListener("notificationclick", e => {
   e.notification.close();
   const url = new URL((e.notification.data && e.notification.data.url) || "./", self.registration.scope).href;
   e.waitUntil(self.clients.matchAll({ type: "window", includeUncontrolled: true }).then(list => {
-    for (const c of list) if (c.url.startsWith(self.registration.scope) && "focus" in c) return c.focus();
+    // Er Axle allerede åpen: be fanen gå til siden varselet gjelder, og vis den.
+    for (const c of list) if (c.url.startsWith(self.registration.scope) && "focus" in c){ c.postMessage({ type: "axle-open", url }); return c.focus(); }
     return self.clients.openWindow(url);
   }));
 });

@@ -14,6 +14,11 @@ function pushNote(){ // forklaring under bryteren når push ikke går
 // Service workeren sier fra når en push-melding kom fram. Da vet vi at serveren og nettleseren snakker sammen.
 if("serviceWorker" in navigator) navigator.serviceWorker.addEventListener("message", ev => {
   if(ev.data && ev.data.type === "axle-push" && Date.now() - PUSH_TEST_AT < 60000) toast(t("pushGot", ev.data.title || "Axle"));
+  // Trykk på et varsel mens Axle er åpen: gå til siden varselet handler om (samme side = bare bytt #-adressen)
+  if(ev.data && ev.data.type === "axle-open" && ev.data.url){ try{ const u = new URL(ev.data.url, location.href);
+    if(u.origin !== location.origin) return;
+    if(u.pathname === location.pathname){ if(u.hash && u.hash !== location.hash) location.hash = u.hash; }
+    else location.href = u.href; }catch(e){} }
 });
 function b64uToBytes(s){ const p = "=".repeat((4 - s.length % 4) % 4), b = atob((s + p).replace(/-/g, "+").replace(/_/g, "/")); return Uint8Array.from(b, c => c.charCodeAt(0)); }
 const pushTz = () => { try{ return Intl.DateTimeFormat().resolvedOptions().timeZone || "Europe/Oslo"; }catch(e){ return "Europe/Oslo"; } };
@@ -79,4 +84,11 @@ function reminderPromptHTML(){ // etter en leksjon: spør om påminnelser, slik 
   if(S.reminder.on || S.remPromptOff || (!NATIVE && !pushSupported()) || (S.remPromptAt && Date.now() - S.remPromptAt < 5 * 864e5)) return "";
   return `<div class="rem-ask"><span class="rem-ic">${I.fire}</span><div><b>${esc(t("remAskTitle"))}</b><span>${esc(t("remAskText"))}</span></div>
     <button class="rem-go" data-a="remask">${esc(t("remAskGo"))}</button><button class="rem-x" data-a="remasknot" aria-label="${esc(t("remAskNo"))}">${I.x}</button></div>`;
+}
+
+// Zoom er tillatt (tilgjengelighet). iPhone/iPad zoomer inn når et felt med under 16 px tekst får fokus;
+// gi slike felt 16 px rett før de får fokus, så siden ikke hopper inn.
+if(typeof navigator !== "undefined" && (/iP(hone|ad|od)/.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1))){
+  const fix = e => { const el = e.target && e.target.closest && e.target.closest('input, textarea, select, [contenteditable="true"]'); if(el && parseFloat(getComputedStyle(el).fontSize) < 16) el.style.fontSize = "16px"; };
+  document.addEventListener("touchstart", fix, { capture: true, passive: true }); document.addEventListener("focusin", fix, true);
 }

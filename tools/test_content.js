@@ -38,7 +38,9 @@ for (const lang of ['nb', 'en']) {
   for (const c of M.COURSES) c.units.forEach((u, ui) => {
     u.qs.forEach((q, i) => { const w = `${lang} ${c.code} ${ui}.${i}`; if (lang === 'nb') nStat++;
       let qq = q; if (lang === 'en') { const e = M.ENQ[c.code] && M.ENQ[c.code][ui] && M.ENQ[c.code][ui][i]; if (!e) return E(w, 'mangler engelsk oversettelse');
-        if (Array.isArray(q[1]) !== !!e[1] && e[1] !== null) {} qq = [e[0], Array.isArray(q[1]) ? (e[1] || q[1]) : q[1], e[2]];
+        // Flervalg uten engelske alternativer bruker de norske. Det er bare greit når alternativene ikke inneholder ord (tall, formler, enheter).
+        if (Array.isArray(q[1]) && !e[1] && q[1].some(o => /[A-Za-zÆØÅæøå]{4,}/.test(String(o).replace(/\$[^$]*\$/g, '')))) E(w, 'mangler engelske alternativer: ' + JSON.stringify(q[1]).slice(0, 80));
+        qq = [e[0], Array.isArray(q[1]) ? (e[1] || q[1]) : q[1], e[2]];
         if (Array.isArray(q[1]) && e[1] && e[1].length !== q[1].length) E(w, 'ulikt antall alternativer'); if (!Array.isArray(q[1]) && e[1]) E(w, 'engelsk har alternativer på tallsvar'); }
       checkQ(qq, w, lang, true); });
     (u.gen || []).forEach((g, j) => { if (lang === 'nb') nGen++; const w = `${lang} ${c.code} ${ui}.g${j}`; let bad = 0;

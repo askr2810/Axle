@@ -667,7 +667,7 @@ U("GS14", "Måle og veie", "Measuring and weighing",
 Når vi måler, finner vi ut hvor langt, hvor tungt eller hvor mye noe er. Vi bruker linjal, vekt og litermål.
 
 ## Det viktigste
-- **Lengde** måler vi i centimeter (cm) og meter (m). 1 meter er 100 centimeter.
+- **Lengde** måler vi i millimeter (mm), centimeter (cm) og meter (m). 1 cm er 10 mm, og 1 meter er 100 centimeter.
 - **Vekt** måler vi i gram (g) og kilogram (kg). 1 kilo er 1000 gram.
 - **Hvor mye det er plass til** måler vi i liter (L) og desiliter (dL). 1 liter er 10 desiliter.
 - På linjalen begynner du å måle ved **0** – ikke ved kanten.
@@ -675,12 +675,12 @@ Når vi måler, finner vi ut hvor langt, hvor tungt eller hvor mye noe er. Vi br
 ### Eksempel
 En blyant er 15 cm lang. To blyanter etter hverandre blir $15 + 15 = 30$ cm.
 
-> Velg en enhet som passer: en maur måler vi i cm, en fotballbane i meter.`,
+> Velg en enhet som passer: en maur måler vi i millimeter, en blyant i centimeter og en fotballbane i meter.`,
 `## What is it about?
 When we measure, we find out how long, how heavy or how much something is. We use a ruler, scales and a measuring jug.
 
 ## Key points
-- **Length** is measured in centimetres (cm) and metres (m). 1 metre is 100 centimetres.
+- **Length** is measured in millimetres (mm), centimetres (cm) and metres (m). 1 cm is 10 mm, and 1 metre is 100 centimetres.
 - **Weight** is measured in grams (g) and kilograms (kg). 1 kilo is 1000 grams.
 - **How much fits inside** is measured in litres (L) and decilitres (dL). 1 litre is 10 decilitres.
 - On a ruler you start measuring at **0** – not at the edge.
@@ -688,7 +688,7 @@ When we measure, we find out how long, how heavy or how much something is. We us
 ### Example
 A pencil is 15 cm long. Two pencils end to end make $15 + 15 = 30$ cm.
 
-> Pick a unit that fits: an ant in cm, a football pitch in metres.`,
+> Pick a unit that fits: an ant in millimetres, a pencil in centimetres and a football pitch in metres.`,
 [["Hvor mange centimeter er 1 meter?", ["100", "10", "1000", "60"], "1 meter er 100 centimeter.",
   "How many centimetres are there in 1 metre?", ["100", "10", "1000", "60"], "1 metre is 100 centimetres."],
  ["Hvor mange gram er 1 kilogram?", ["1000", "100", "10", "60"], "1 kilogram er 1000 gram.",
@@ -765,32 +765,40 @@ Termometeret viser minusgrader om vinteren. Tall under null kaller vi **negative
 ## Det viktigste
 - Negative tall står til venstre for 0 på tallinja. $-3$ er mindre enn $-1$.
 - Fra $-4$ grader til $3$ grader har det blitt $7$ grader varmere.
-- Et punkt skrives $(x, y)$: gå først $x$ bortover, så $y$ opp. Punktet $(3, 2)$ er 3 bortover og 2 opp.
+- Et punkt skrives $(x, y)$: gå først $x$ sidelengs, så $y$ opp eller ned. Punktet $(3, 2)$ er 3 til høyre og 2 opp.
+- Negativ $x$ betyr til **venstre**, negativ $y$ betyr **ned**. Punktet $(-2, -1)$ er 2 til venstre og 1 ned.
 - Der aksene krysser hverandre, er **origo**: $(0, 0)$.
 
 ### Eksempel
 Det er $-2$ grader om morgenen og $5$ grader om ettermiddagen. Det har blitt $2 + 5 = 7$ grader varmere.
 
-> Bortover først, så opp – gå inn døra før du går opp trappa.`,
+> Sidelengs først, så opp eller ned – gå inn døra før du går i trappa.`,
 `## What is it about?
 Thermometers show minus degrees in winter. Numbers below zero are called **negative numbers**. With two number lines crossing, we can also show where a point is – that is a **coordinate system**.
 
 ## Key points
 - Negative numbers are to the left of 0 on the number line. $-3$ is less than $-1$.
 - From $-4$ degrees to $3$ degrees it has become $7$ degrees warmer.
-- A point is written $(x, y)$: first go $x$ across, then $y$ up. The point $(3, 2)$ is 3 across and 2 up.
+- A point is written $(x, y)$: first go $x$ sideways, then $y$ up or down. The point $(3, 2)$ is 3 right and 2 up.
+- Negative $x$ means **left**, negative $y$ means **down**. The point $(-2, -1)$ is 2 left and 1 down.
 - Where the axes cross is the **origin**: $(0, 0)$.
 
 ### Example
 It is $-2$ degrees in the morning and $5$ degrees in the afternoon. It has become $2 + 5 = 7$ degrees warmer.
 
-> Across first, then up – walk in the door before you go up the stairs.`,
+> Sideways first, then up or down – walk in the door before you take the stairs.`,
 [["Hvilket tall er minst?", ["$-5$", "$-1$", "$0$", "$2$"], "Jo lenger til venstre på tallinja, jo mindre. $-5$ er lengst til venstre.",
   "Which number is the smallest?", ["$-5$", "$-1$", "$0$", "$2$"], "The further left on the number line, the smaller. $-5$ is furthest left."],
  ["Det er $-3$ grader. Det blir 4 grader varmere. Hva viser termometeret nå?", ["$1$ grad", "$7$ grader", "$-7$ grader", "$-1$ grad"], "Fra $-3$ går du 4 steg opp: $-2, -1, 0, 1$.",
   "It is $-3$ degrees. It gets 4 degrees warmer. What does the thermometer show now?", ["$1$ degree", "$7$ degrees", "$-7$ degrees", "$-1$ degree"], "From $-3$ go 4 steps up: $-2, -1, 0, 1$."],
- ["Hvor ligger punktet $(4, 1)$?", ["4 bortover og 1 opp", "1 bortover og 4 opp", "4 ned og 1 til venstre", "5 bortover"], "Første tall er bortover, andre tall er opp.",
-  "Where is the point $(4, 1)$?", ["4 across and 1 up", "1 across and 4 up", "4 down and 1 left", "5 across"], "The first number is across, the second is up."],
+ ["Hvor ligger punktet $(4, 1)$?", ["4 til høyre og 1 opp", "1 til høyre og 4 opp", "4 til venstre og 1 ned", "5 til høyre"], "Første tall er sidelengs (positiv = høyre), andre tall er opp eller ned (positiv = opp).",
+  "Where is the point $(4, 1)$?", ["4 right and 1 up", "1 right and 4 up", "4 left and 1 down", "5 right"], "The first number is sideways (positive = right), the second is up or down (positive = up)."],
+ ["Hvor ligger punktet $(-3, 2)$?", ["3 til venstre og 2 opp", "3 til høyre og 2 opp", "2 til venstre og 3 opp", "3 til venstre og 2 ned"], "$x = -3$ er negativ, altså 3 til venstre. $y = 2$ er positiv, altså 2 opp.",
+  "Where is the point $(-3, 2)$?", ["3 left and 2 up", "3 right and 2 up", "2 left and 3 up", "3 left and 2 down"], "$x = -3$ is negative, so 3 left. $y = 2$ is positive, so 2 up."],
+ ["Hvor ligger punktet $(2, -4)$?", ["2 til høyre og 4 ned", "2 til venstre og 4 ned", "4 til høyre og 2 ned", "2 til høyre og 4 opp"], "$x = 2$: 2 til høyre. $y = -4$ er negativ: 4 ned.",
+  "Where is the point $(2, -4)$?", ["2 right and 4 down", "2 left and 4 down", "4 right and 2 down", "2 right and 4 up"], "$x = 2$: 2 right. $y = -4$ is negative: 4 down."],
+ ["Hvilket punkt ligger 1 til venstre og 3 ned fra origo?", ["$(-1, -3)$", "$(1, 3)$", "$(-3, -1)$", "$(1, -3)$"], "Venstre gir negativ $x$, ned gir negativ $y$: $(-1, -3)$.",
+  "Which point is 1 left and 3 down from the origin?", ["$(-1, -3)$", "$(1, 3)$", "$(-3, -1)$", "$(1, -3)$"], "Left gives negative $x$, down gives negative $y$: $(-1, -3)$."],
  ["Hva heter punktet $(0, 0)$?", ["Origo", "Diagonalen", "Vinkelen", "Arealet"], "Der aksene krysser, er origo.",
   "What is the point $(0, 0)$ called?", ["The origin", "The diagonal", "The angle", "The area"], "Where the axes cross is the origin."],
  ["Hvilket tall ligger midt mellom $-4$ og $4$?", ["$0$", "$4$", "$-4$", "$8$"], "Begge er 4 steg fra 0.",
@@ -812,10 +820,10 @@ Noe er **sikkert**, noe er **umulig**, og det meste er et sted midt imellom. San
 
 ## Det viktigste
 - Sjansen går fra **0** (umulig) til **1** (sikkert). «Like stor sjanse» er $\\frac{1}{2}$.
-- Sannsynlighet = antall utfall som passer, delt på antall mulige utfall.
-- En terning har 6 sider. Sjansen for å få en sekser er $\\frac{1}{6}$.
-- En mynt har to sider. Sjansen for kron er $\\frac{1}{2}$.
-- Jo flere ganger du prøver, jo nærmere kommer resultatet sannsynligheten.
+- Når alle utfallene er **like sannsynlige**: sannsynlighet = antall utfall som passer, delt på antall mulige utfall.
+- En vanlig (rettferdig) terning har 6 like sider. Sjansen for å få en sekser er $\\frac{1}{6}$.
+- En rettferdig mynt har to sider som er like sannsynlige. Sjansen for kron er $\\frac{1}{2}$.
+- Prøver du mange ganger, blir andelen ganger det skjer (den relative frekvensen) som regel nær sannsynligheten. Det gjelder mange forsøk til sammen, ikke hvert enkelt kast.
 
 ### Eksempel
 I en pose er det 3 røde kuler og 1 blå. Sjansen for rød er $\\frac{3}{4}$, fordi 3 av de 4 kulene er røde.
@@ -826,10 +834,10 @@ Some things are **certain**, some are **impossible**, and most are somewhere in 
 
 ## Key points
 - The chance goes from **0** (impossible) to **1** (certain). "Even chance" is $\\frac{1}{2}$.
-- Probability = number of outcomes that fit, divided by the number of possible outcomes.
-- A die has 6 faces. The chance of a six is $\\frac{1}{6}$.
-- A coin has two sides. The chance of heads is $\\frac{1}{2}$.
-- The more times you try, the closer the result gets to the probability.
+- When all outcomes are **equally likely**: probability = number of outcomes that fit, divided by the number of possible outcomes.
+- An ordinary (fair) die has 6 equal faces. The chance of a six is $\\frac{1}{6}$.
+- A fair coin has two equally likely sides. The chance of heads is $\\frac{1}{2}$.
+- If you try many times, the share of times it happens (the relative frequency) is usually close to the probability. That holds for many tries together, not for each single throw.
 
 ### Example
 A bag has 3 red balls and 1 blue. The chance of red is $\\frac{3}{4}$, because 3 of the 4 balls are red.
@@ -837,8 +845,8 @@ A bag has 3 red balls and 1 blue. The chance of red is $\\frac{3}{4}$, because 3
 > First count all possible outcomes. Then count the ones that fit.`,
 [["Hva er sjansen for å få 7 på en vanlig terning?", ["$0$ – det er umulig", "$\\frac{1}{6}$", "$\\frac{1}{7}$", "$1$"], "En vanlig terning har bare 1–6. Å få 7 er umulig.",
   "What is the chance of getting 7 on an ordinary die?", ["$0$ – it is impossible", "$\\frac{1}{6}$", "$\\frac{1}{7}$", "$1$"], "An ordinary die only has 1–6. Getting 7 is impossible."],
- ["Du kaster en mynt. Hva er sjansen for kron?", ["$\\frac{1}{2}$", "$\\frac{1}{3}$", "$\\frac{1}{4}$", "$1$"], "To like mulige sider, én av dem er kron.",
-  "You toss a coin. What is the chance of heads?", ["$\\frac{1}{2}$", "$\\frac{1}{3}$", "$\\frac{1}{4}$", "$1$"], "Two equally likely sides, one of them is heads."],
+ ["Du kaster en rettferdig mynt. Hva er sjansen for kron?", ["$\\frac{1}{2}$", "$\\frac{1}{3}$", "$\\frac{1}{4}$", "$1$"], "To like mulige sider, én av dem er kron.",
+  "You toss a fair coin. What is the chance of heads?", ["$\\frac{1}{2}$", "$\\frac{1}{3}$", "$\\frac{1}{4}$", "$1$"], "Two equally likely sides, one of them is heads."],
  ["Hva er sjansen for et partall på en terning?", ["$\\frac{1}{2}$", "$\\frac{1}{6}$", "$\\frac{1}{3}$", "$\\frac{2}{3}$"], "Partallene er 2, 4 og 6 – 3 av 6, altså $\\frac{3}{6} = \\frac{1}{2}$.",
   "What is the chance of an even number on a die?", ["$\\frac{1}{2}$", "$\\frac{1}{6}$", "$\\frac{1}{3}$", "$\\frac{2}{3}$"], "The even numbers are 2, 4 and 6 – 3 of 6, so $\\frac{3}{6} = \\frac{1}{2}$."],
  ["Hvilket ord passer når sannsynligheten er 1?", ["Sikkert", "Umulig", "Lite sannsynlig", "Like stor sjanse"], "1 betyr at det skjer hver gang.",
@@ -847,7 +855,7 @@ A bag has 3 red balls and 1 blue. The chance of red is $\\frac{3}{4}$, because 3
   "A bag has 2 red and 8 green balls. Which colour are you most likely to draw?", ["Green", "Red", "Even chance", "Blue"], "There are most green: 8 of 10."],
  ["Et lykkehjul har 4 like store felt. Ett av dem er gull. Hva er sjansen for gull?", ["$\\frac{1}{4}$", "$\\frac{1}{3}$", "$\\frac{3}{4}$", "$4$"], "1 felt passer av 4 mulige.",
   "A spinner has 4 equal sections. One of them is gold. What is the chance of gold?", ["$\\frac{1}{4}$", "$\\frac{1}{3}$", "$\\frac{3}{4}$", "$4$"], "1 section fits out of 4 possible."],
- ["Du kaster en terning 600 ganger. Omtrent hvor mange seksere får du?", ["100", "6", "300", "600"], "Sjansen er $\\frac{1}{6}$, og $600 : 6 = 100$. Det blir sjelden nøyaktig 100, men nær.",
+ ["Du kaster en terning 600 ganger. Omtrent hvor mange seksere får du?", ["100", "6", "300", "600"], "Sjansen er $\\frac{1}{6}$, og $600 : 6 = 100$. Det blir sjelden nøyaktig 100, men som regel i nærheten.",
   "You roll a die 600 times. About how many sixes do you get?", ["100", "6", "300", "600"], "The chance is $\\frac{1}{6}$, and $600 : 6 = 100$. Rarely exactly 100, but close."],
  ["Hva betyr sannsynlighet 0?", ["Det kan aldri skje", "Det skjer alltid", "Det skjer halvparten av gangene", "Det skjer nesten alltid"], "0 er umulig – det skjer aldri.",
   "What does probability 0 mean?", ["It can never happen", "It always happens", "It happens half the time", "It almost always happens"], "0 is impossible – it never happens."]],

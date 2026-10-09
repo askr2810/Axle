@@ -453,7 +453,7 @@ function renderSettings(){
       <a class="srow" href="mailto:${esc(CONFIG.contactEmail)}?subject=${encodeURIComponent("Axle: rapport om misbruk")}"><span class="lbl">${t("abuseContact")}<span class="sub">${esc(CONFIG.contactEmail)}</span></span>${I.chevron}</a>
       <a class="srow" href="${LANG === "en" ? "/en/about/" : "/about/"}" target="_blank" rel="noopener"><span class="lbl">${esc(T("Om Axle", "About Axle"))}</span>${I.chevron}</a>
       <button class="srow" data-a="privacy"><span class="lbl">${t("setPrivacy")}</span>${I.chevron}</button>
-      ${typeof CLOUD_ON !== "undefined" && CLOUD_ON ? `<div class="srow"><span class="lbl">${esc(T("Del bruksstatistikk", "Share usage statistics"))}<span class="sub">${esc(T("Hva slags sider og øvinger som brukes – hjelper oss å gjøre Axle bedre. Ingen svar eller tekst.", "Which pages and exercises are used – helps us improve Axle. No answers or text."))}</span></span><button class="tog ${S.noStats ? "" : "on"}" data-a="stattoggle" role="switch" aria-checked="${!S.noStats}" aria-label="${esc(T("Del bruksstatistikk", "Share usage statistics"))}"></button></div>` : ""}
+      ${typeof CLOUD_ON !== "undefined" && CLOUD_ON ? `<div class="srow"><span class="lbl">${esc(T("Del bruksstatistikk", "Share usage statistics"))}<span class="sub">${esc(T("Hva slags sider og øvinger som brukes – hjelper oss å gjøre Axle bedre. Ingen svar eller tekst.", "Which pages and exercises are used – helps us improve Axle. No answers or text."))}</span></span><button class="tog ${S.statsOk === 1 ? "on" : ""}" data-a="stattoggle" role="switch" aria-checked="${S.statsOk === 1}" aria-label="${esc(T("Del bruksstatistikk", "Share usage statistics"))}"></button></div>` : ""}
       <button class="srow" data-a="terms"><span class="lbl">${esc(T("Vilkår for bruk", "Terms of use"))}<span class="sub">${esc(T("Gratis øvingsverktøy, kan inneholde feil", "Free practice tool, may contain mistakes"))}</span></span>${I.chevron}</button>
       ${claudeDb&&isOwner?`<button class="srow" data-a="inbox"><span class="lbl">${t("setInbox","…")}</span>${I.chevron}</button>`:""}
     </div>
@@ -1498,7 +1498,8 @@ document.addEventListener("click", async e=>{
   else if(a==="langpick"){ LANG = b.dataset.l; S.lang = LANG; S.langSet = 1; save(); overlay = null; renderOverlay(); render(); setTimeout(bootPrompts, 250); }
   else if(a==="setgoal"){ S.goal = +b.dataset.g; save(); render(); }
   else if(a==="sndtoggle"){ S.sound = S.sound === false; save(); render(); if(S.sound) sfx("ok", 3); }
-  else if(a==="stattoggle"){ S.noStats = !S.noStats; if(S.noStats) ST_Q = []; save(); render(); }
+  else if(a==="stattoggle"){ stAnswer(S.statsOk !== 1); render(); }
+  else if(a==="statyes" || a==="statno"){ stAnswer(a === "statyes"); }
   else if(a==="haptoggle"){ S.haptics = !S.haptics; save(); render(); if(S.haptics) buzz(true); }
   else if(a==="remtoggle"){ await reminderToggle(); }
   else if(a==="pushtest"){ pushTest(); }
