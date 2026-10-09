@@ -6,7 +6,7 @@
   "scripts": {
     "build": "node tools/vendor.mjs && python3 build.py && node tools/minify.mjs",
     "build:web": "npm run build && node tools/seo.js",
-    "test": "node tools/test_content.js 300 && node tools/test_katex.js 20 && node tools/test_drill.js && node tools/test_topics_all.js && node tools/test_sims.js && node tools/test_proofs.js && node tools/test_filter.js && node tools/test_code.js && node tools/test_ekalk.js",
+    "test": "node tools/test_content.js 300 && node tools/test_lessons.js && node tools/test_katex.js 20 && node tools/test_drill.js && node tools/test_topics_all.js && node tools/test_sims.js && node tools/test_proofs.js && node tools/test_filter.js && node tools/test_code.js && node tools/test_ekalk.js",
     "icons": "python3 tools/make_logo.py",
     "assets": "npx capacitor-assets generate --iconBackgroundColor \"#196FFF\" --iconBackgroundColorDark \"#196FFF\" --splashBackgroundColor \"#EEF2EC\" --splashBackgroundColorDark \"#0F1720\"",
     "sync": "npm run build && npx cap sync",

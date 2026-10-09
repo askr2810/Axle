@@ -16,7 +16,7 @@ Du jobber i Axle-repoet (axle.no). Les `CLAUDE.md` først og følg den. Svar meg
 
 ## Status
 
-- [ ] 1. «Lær først»-leksjoner i grunnskolen
+- [x] 1. «Lær først»-leksjoner i grunnskolen – ferdig 2026-10-09: 35 leksjoner (lessons.js, figurer i figs_lf.js) for 32 av 38 enheter i barn/ungdom, med krokodillemunn, klosser, tallinje, tierramme, klokke, pizza, termometer, heis, skålvekt, Pytagoras-ruter m.m. Kommer automatisk før første oppgave og ligger som «Lær: …» under enheten (#/laer/<id>). Test: tools/test_lessons.js (i npm test), figurene sjekket med `check_figs.js --lf`. Gjenstår: ingen leksjon for Koding, Kroppen, Vær og klima, Celler, Økologi og Universet (mest faktastoff).
 - [ ] 2. Illustrasjonene på oppgavene skal aldri forvirre
 - [ ] 3. Oppgavetekster som ramser opp svaralternativene
 - [ ] 4. Logo på de statiske sidene

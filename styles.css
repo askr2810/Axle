@@ -3261,3 +3261,44 @@ details.cat-mc{margin:6px 0}details.cat-mc>summary{cursor:pointer;font-size:12px
 /* Teoribok-oversikten på PC: fagene i et rutenett i stedet for brede rader */
 @media (min-width:1100px){.bk-courses{grid-template-columns:repeat(auto-fill,minmax(300px,1fr))}}
 .nwrap:has(.node.cur) .ncap{margin-top:12px}
+
+/* ---------- «Lær først» (lessons.js) ---------- */
+.ulf{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0 0}
+.ulf-b{display:inline-flex;align-items:center;gap:6px;border:2px solid var(--line);background:var(--card);color:var(--ink);font:inherit;font-size:14px;font-weight:700;padding:8px 12px;border-radius:99px;box-shadow:0 2px 0 var(--line)}
+.ulf-b svg{width:16px;height:16px;color:var(--accent);flex:none}
+.ulf-b i{font-style:normal;color:var(--ok);font-weight:800}
+.ulf-b:active{transform:translateY(2px);box-shadow:none}
+.ulf-b.seen{color:var(--muted)}
+.lf-head{margin:0 0 6px}
+.lf-head small{display:block;font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--accent);font-weight:700}
+.lf-head h2{margin:2px 0 0;font-family:var(--display);font-size:24px;line-height:1.2}
+.lf-card .lf-fig{border:0;padding:0;margin:6px 0 8px}
+.lf-card .lf-fig svg{max-height:300px}
+.lf-say{font-size:18px;line-height:1.5}
+.lf-say p{margin:0 0 8px}
+.lf-ask{font-size:17px;font-weight:600;line-height:1.45}
+.lf-ask p{margin:0 0 4px}
+.lf-live{min-height:28px;text-align:center;font-size:17px;color:var(--accent);font-weight:700}
+.lf-live p{margin:0}
+.lf-ctls{display:grid;gap:10px;margin:10px 0 4px}
+.lf-ctl{display:grid;grid-template-columns:1fr 52px minmax(56px,auto) 52px;align-items:center;gap:8px}
+.lf-cl{font-weight:700;font-size:15px}
+.lf-ctl output{text-align:center;font-family:var(--display);font-size:24px;font-weight:800;font-variant-numeric:tabular-nums}
+.lf-step{width:52px;height:52px;border-radius:50%;border:2px solid var(--line);background:var(--card);color:var(--accent);font:inherit;font-size:28px;font-weight:800;line-height:1;box-shadow:0 3px 0 var(--line);touch-action:manipulation}
+.lf-step:active{transform:translateY(3px);box-shadow:none}
+.lf-step:disabled{opacity:.35;box-shadow:none}
+.lf-taps{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin:10px 0 4px}
+.lf-tapb{min-width:64px;min-height:52px;border-radius:14px;border:2px solid var(--line);background:var(--card);color:var(--ink);font:inherit;font-weight:700;font-size:15px;padding:6px 10px;display:grid;justify-items:center;gap:2px;box-shadow:0 3px 0 var(--line);touch-action:manipulation}
+.lf-tapb.pic span{font-size:12px;color:var(--muted)}
+.lf-tapb svg{width:44px;height:44px}
+.lf-tapb.on{border-color:var(--accent);background:var(--accent-soft);box-shadow:0 3px 0 var(--accent)}
+.lf-tapb:active{transform:translateY(3px);box-shadow:none}
+.lf-grid{display:grid;grid-template-columns:repeat(var(--c),1fr);gap:5px;max-width:330px;margin:12px auto 6px;padding:4px}
+.lf-grid.mirror{background:linear-gradient(to right,transparent calc(50% - 1.5px),var(--bad) calc(50% - 1.5px),var(--bad) calc(50% + 1.5px),transparent calc(50% + 1.5px))}
+.lf-cell{aspect-ratio:1;border-radius:7px;border:2px solid var(--line);background:var(--card);padding:0;touch-action:manipulation}
+.lf-cell.on{background:var(--accent);border-color:var(--accent-deep,var(--accent))}
+.lf-cell.fx{background:color-mix(in srgb,var(--c5) 55%,var(--card));border-color:var(--c5);opacity:1}
+.lf-cell:disabled:not(.fx){opacity:.45}
+.lf-ok{margin-top:10px}
+.lf-alt{margin-top:0}
+.lfoot .wrap.gd-foot:has(.lf-alt){flex-wrap:wrap}.lfoot .gd-foot .lf-alt{flex-basis:100%}

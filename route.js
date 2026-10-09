@@ -6,7 +6,7 @@
 //  Ord på norsk eller engelsk etter språket; begge forstås når adressen leses.
 // ============================================================
 const RT = { geo: ["kartspill", "map-game"], motion: ["bevegelse", "motion"], ctl: ["regulering", "control"], ekalk: ["elementkalkulator", "element-calculator"], pomo: ["pomodoro", "pomodoro"], mq: ["hoderegning", "mental-maths"], teach: ["laerer", "teacher"], hw: ["lekse", "homework"], catalog: ["oppgaver", "problems"], practice: ["ov", "practice"], book: ["teori", "theory"], friends: ["venner", "friends"], profile: ["profil", "profile"], badges: ["merker", "badges"],
-  settings: ["innstillinger", "settings"], community: ["fellesskap", "community"], pick: ["fag", "courses"], groups: ["grupper", "groups"], theory: ["les", "read"], guided: ["steg", "steps"], topic: ["emne", "topic"], proofs: ["bevis", "proofs"], snacks: ["snacks", "snacks"], sprint: ["lynrunde", "sprint"], match: ["parjakt", "match"], truefalse: ["santusant", "truefalse"], duel: ["duell", "duel"], mydecks: ["kort", "cards"], local: ["lynduell", "sameduel"], sheet: ["formler", "formulas"], person: ["person", "person"], admin: ["admin", "admin"], trig: ["enhetssirkel", "unitcircle"], forces: ["krefter", "forces"], lab: ["lab", "lab"], messages: ["meldinger", "messages"], code: ["kode", "code"] };
+  settings: ["innstillinger", "settings"], community: ["fellesskap", "community"], pick: ["fag", "courses"], groups: ["grupper", "groups"], theory: ["les", "read"], guided: ["steg", "steps"], topic: ["emne", "topic"], proofs: ["bevis", "proofs"], snacks: ["snacks", "snacks"], sprint: ["lynrunde", "sprint"], match: ["parjakt", "match"], truefalse: ["santusant", "truefalse"], duel: ["duell", "duel"], mydecks: ["kort", "cards"], local: ["lynduell", "sameduel"], sheet: ["formler", "formulas"], person: ["person", "person"], admin: ["admin", "admin"], trig: ["enhetssirkel", "unitcircle"], forces: ["krefter", "forces"], lab: ["lab", "lab"], messages: ["meldinger", "messages"], code: ["kode", "code"], lf: ["laer", "learn"] };
 const rtW = k => RT[k][LANG === "en" ? 1 : 0];
 const rtKey = w => Object.keys(RT).find(k => RT[k].includes(String(w || "").toLowerCase()));
 const rtCourse = code => COURSES.some(c => c.code === code) ? code : null;
@@ -44,6 +44,7 @@ function routeOf(){
     case "lab": return LB.sim ? rtW("lab") + "/" + LB.sim : rtW("lab");
     case "code": return cdRoute();
     case "duel": { const c = DU && DU.view !== "end" && (DU.code || (DU.joinCode && DU.joinCode.length === 5 ? DU.joinCode : "")); return c ? rtW("duel") + "/" + c : rtW("duel"); }
+    case "lf": return LF ? [rtW("lf"), LF.ids[LF.k], LF.i + 1].join("/") : null; // «Lær først», med kortnummer
     case "guided": return GD ? (GD.proof ? [rtW("proofs"), GD.proof, GD.i + 1].join("/") : [rtW("guided"), GD.code, GD.u + 1, GD.i + 1].join("/")) : null; // steg for steg, med kortnummer
     default: return null;
   }
@@ -80,6 +81,12 @@ function routeBoot(){
     if(!(code && Number.isInteger(u) && u >= 0 && u < COURSE(code).units.length && theoryOf(code, u))) return false;
     gdOpen(code, u, null); if(!GD) return false;
     if(Number.isInteger(i) && i > 0 && i < GD.cards.length - 1) GD.i = i;
+    return true;
+  }
+  if(k === "lf"){ // #/laer/croc/2
+    const L = lfById(p[1]), at = L && lfUnits(L)[0]; if(!at) return false;
+    lfOpen([L.id], { code: at[0], u: at[1] }); const i = parseInt(p[2], 10) - 1;
+    if(LF && Number.isInteger(i) && i > 0 && i < L.cards.length && !L.cards.slice(0, i).some(c => c.try || c.q)) LF.i = i; // hopper ikke forbi oppgaver
     return true;
   }
   if(k === "snacks"){ SN = null; screen = "snacks"; return true; }

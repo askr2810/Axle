@@ -334,7 +334,7 @@ function renderHome(){
   let path = "";
   c.units.forEach((u,ui)=>{
     const col = `var(--u${ui%3})`, dn = sub(c.code).done, crown = dn[ui+"-3"], locked = unitLocked(c,ui);
-    path += `<section><div class="unit" style="background:${col}"><div><small>${t("unit",ui+1)}</small><h2>${esc(unitTitle(c,ui))}</h2></div><div class="uside">${theoryOf(c.code,ui)?`<button class="ubook" data-a="theory" data-u="${ui}" aria-label="${esc(t("theoryFor",unitTitle(c,ui)))}">${I.book}<span>${t("theory")}</span></button>`:""}${crown?`<span class="ucrown" title="${esc(lvName(3))}">${I.crown}</span>`:`<span class="cnt" title="${esc(T(`${unitDone(c.code,ui)} av ${REQ} nivåer fullført`, `${unitDone(c.code,ui)} of ${REQ} levels completed`))}"><span aria-hidden="true">${unitDone(c.code,ui)}/${REQ}</span><small aria-hidden="true">${esc(T("nivåer", "levels"))}</small><span class="sr">${esc(T(`${unitDone(c.code,ui)} av ${REQ} nivåer fullført`, `${unitDone(c.code,ui)} of ${REQ} levels completed`))}</span></span>`}${locked&&ui>0?`<button class="jump" data-a="jump" data-u="${ui}">${t("jumpHere")}</button>`:""}</div></div><div class="nodes ${nn&&nn[0]===ui&&nn[1]===0?"hascur":""}">`;
+    path += `<section><div class="unit" style="background:${col}"><div><small>${t("unit",ui+1)}</small><h2>${esc(unitTitle(c,ui))}</h2></div><div class="uside">${theoryOf(c.code,ui)?`<button class="ubook" data-a="theory" data-u="${ui}" aria-label="${esc(t("theoryFor",unitTitle(c,ui)))}">${I.book}<span>${t("theory")}</span></button>`:""}${crown?`<span class="ucrown" title="${esc(lvName(3))}">${I.crown}</span>`:`<span class="cnt" title="${esc(T(`${unitDone(c.code,ui)} av ${REQ} nivåer fullført`, `${unitDone(c.code,ui)} of ${REQ} levels completed`))}"><span aria-hidden="true">${unitDone(c.code,ui)}/${REQ}</span><small aria-hidden="true">${esc(T("nivåer", "levels"))}</small><span class="sr">${esc(T(`${unitDone(c.code,ui)} av ${REQ} nivåer fullført`, `${unitDone(c.code,ui)} of ${REQ} levels completed`))}</span></span>`}${locked&&ui>0?`<button class="jump" data-a="jump" data-u="${ui}">${t("jumpHere")}</button>`:""}</div></div>${lfChipsHTML(c.code,ui)}<div class="nodes ${nn&&nn[0]===ui&&nn[1]===0?"hascur":""}">`;
     for(let k=0;k<NODES_PER_UNIT;k++){
       const off = [0,-56,36,-20,50,-44][(ui*NODES_PER_UNIT+k)%6];
       const done = dn[ui+"-"+k], cur = nn && nn[0]===ui && nn[1]===k, master = k===3, open = isUnlocked(c,ui,k);
@@ -625,7 +625,8 @@ function nextCardHTML(c, nn){
   if(!nn) return alt;
   const [u, k] = nn, started = Object.keys(sub(c.code).done).length > 0;
   const theoryFirst = k === 0 && theoryOf(c.code, u) && !(S.theorySeen || {})[c.code + ":" + u];
-  const what = theoryFirst ? T("Kort teori, så oppgaver", "Short theory, then questions") : lvName(k);
+  const learnFirst = k === 0 && !sub(c.code).done[u + "-0"] && lfUnseen(c.code, u).length;
+  const what = learnFirst ? T("Lær først, så oppgaver", "Learn first, then questions") : theoryFirst ? T("Kort teori, så oppgaver", "Short theory, then questions") : lvName(k);
   return `<button class="next-card" data-a="node" data-u="${u}" data-k="${k}"><span class="nx-t"><small>${esc(started ? T("Neste steg", "Next step") : T("Start her", "Start here"))}</small>
     <b>${esc(unitTitle(c, u))}</b><span class="nx-s">${esc(t("unit", u + 1))} · ${esc(what)}</span></span><em>${esc(started ? T("Fortsett", "Continue") : T("Start", "Start"))}</em></button>${alt}`;
 }
@@ -1364,6 +1365,7 @@ function renderNow(){
   else if(screen==="fail") renderFail();
   else if(screen==="theory") renderTheory();
   else if(screen==="guided") renderGuided();
+  else if(screen==="lf") renderLf();
   else if(screen==="proofs") renderProofs();
   else if(screen==="trig") renderTrig();
   else if(screen==="drive") renderDrive();
@@ -1427,6 +1429,7 @@ document.addEventListener("click", async e=>{
   const a = b.dataset.a;
   if(examClick(a, b)) return; // eksamensmodus (handlinger som starter med "ex")
   if(guidedClick(a, b)) return; // steg for steg
+  if(lfClick(a, b)) return; // «Lær først» (lessons.js)
   if(communityClick(a, b)) return; // fellesskapskurs
   if(a==="community"){ openCommunity(); return; }
   if((a==="home" || a==="quitok") && L && L.kind==="mydeck"){ overlay = null; L = null; mdReturn(); return; }
@@ -1457,6 +1460,7 @@ document.addEventListener("click", async e=>{
   else if(a==="choose"){ S.current=b.dataset.c; PICK_Q = ""; save(); goHome(); }
   else if(a==="node"){ const c = COURSE(S.current), u=+b.dataset.u, k=+b.dataset.k;
     if(!isUnlocked(c,u,k)){ toast(k===3 ? t("lockedMaster") : t("lockedNode")); return; }
+    if(k===0 && !sub(c.code).done[u+"-0"] && lfOpen(lfUnseen(c.code,u), {code:c.code, u, go:{u,k}, auto:true})) return; // «Lær først» før første oppgave
     if(k===0 && !sub(c.code).done[u+"-0"] && theoryOf(c.code,u) && !(S.theorySeen||{})[c.code+":"+u]){ gdOpen(c.code,u,{u,k}); return; }
     startUnitLesson(c.code,u,k); }
   else if(a==="theory"){ gdOpen(S.current, +b.dataset.u, null); }

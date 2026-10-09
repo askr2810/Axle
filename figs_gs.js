@@ -3,6 +3,15 @@
 //  Enkle, fargerike tegninger som viser ideen før formelen: pizza-brøk, plassverdi-klosser, klokke, tallinje …
 //  Samme format som figures.js (viewBox 320 × 180). Kobles til enhetene via tittel i FG nederst.
 // ============================================================
+// Klokkeslett med ord: [norsk, engelsk]. 3:30 = «halv fire» / "half past three". Brukes av klokkefigurene og «Lær først».
+function clockWords(h, m){
+  const NB = ["tolv", "ett", "to", "tre", "fire", "fem", "seks", "sju", "åtte", "ni", "ti", "elleve", "tolv"], EN = ["twelve", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten", "eleven", "twelve"];
+  const MIN = { 5: "five", 10: "ten", 20: "twenty", 25: "twenty-five" }, H = ((h % 12) + 12) % 12, N = (H + 1) % 12, n = NB[H || 12], nn = NB[N || 12], e = EN[H || 12], en = EN[N || 12];
+  const nb = { 0: `klokka ${n}`, 5: `fem over ${n}`, 10: `ti over ${n}`, 15: `kvart over ${n}`, 20: `ti på halv ${nn}`, 25: `fem på halv ${nn}`, 30: `halv ${nn}`,
+    35: `fem over halv ${nn}`, 40: `ti over halv ${nn}`, 45: `kvart på ${nn}`, 50: `ti på ${nn}`, 55: `fem på ${nn}` }[m];
+  const eng = m === 0 ? `${e} o'clock` : m === 15 ? `quarter past ${e}` : m === 30 ? `half past ${e}` : m === 45 ? `quarter to ${en}` : m < 30 ? `${MIN[m]} past ${e}` : `${MIN[60 - m]} to ${en}`;
+  return [nb || `${H || 12}:${String(m).padStart(2, "0")}`, eng];
+}
 (() => {
 const soft = (n, p = 26) => `fill:color-mix(in srgb,var(--c${n}) ${p}%,var(--card));stroke:var(--c${n});stroke-width:1.6`;
 const solid = (n, p = 70) => `fill:color-mix(in srgb,var(--c${n}) ${p}%,var(--card))`;
@@ -35,25 +44,54 @@ const tri = (top, bl, br) => `<polygon points="90,22 22,150 158,150" style="${so
 
 Object.assign(FIGS, {
   // ---------- MATEMATIKK 1.–4. ----------
-  gs_place: () => { const u = 6; let s = "";
-    for(let k = 0; k < 3; k++){ const x0 = 8 + k * 66; s += `<rect x="${x0}" y="42" width="${10 * u}" height="${10 * u}" style="${solid(3, 35)}"/>`;
-      for(let i = 1; i < 10; i++) s += `<line x1="${x0 + i * u}" y1="42" x2="${x0 + i * u}" y2="${42 + 10 * u}" style="stroke:var(--c3);stroke-width:.6"/><line x1="${x0}" y1="${42 + i * u}" x2="${x0 + 10 * u}" y2="${42 + i * u}" style="stroke:var(--c3);stroke-width:.6"/>`;
-      s += `<rect x="${x0}" y="42" width="${10 * u}" height="${10 * u}" style="fill:none;stroke:var(--c3);stroke-width:1.6"/>`; }
-    for(let k = 0; k < 4; k++){ const x0 = 214 + k * 10; s += `<rect x="${x0}" y="42" width="${u}" height="${10 * u}" style="${soft(4, 45)}"/>`; for(let i = 1; i < 10; i++) s += `<line x1="${x0}" y1="${42 + i * u}" x2="${x0 + u}" y2="${42 + i * u}" style="stroke:var(--c4);stroke-width:.6"/>`; }
-    [[270, 42], [270, 52], [270, 62], [270, 72], [284, 42], [284, 52], [284, 62]].forEach(([x, y]) => { s += `<rect x="${x}" y="${y}" width="8" height="8" rx="1" style="${soft(2, 55)}"/>`; });
-    s += tx(104, 30, T("hundrere", "hundreds"), "fg-s") + tx(232, 30, T("tiere", "tens"), "fg-s") + tx(282, 30, T("enere", "ones"), "fg-s");
-    s += col(104, 140, "3", 3, "fg-big") + col(232, 140, "4", 4, "fg-big") + col(282, 140, "7", 2, "fg-big");
-    s += tx(160, 172, "300 + 40 + 7 = 347", "fg-b");
-    return { cap: T("Tallet 347: 3 hundrere, 4 tiere og 7 enere. Plassen sifferet står på, bestemmer hvor mye det er verdt.", "The number 347: 3 hundreds, 4 tens and 7 ones. The place a digit stands in decides how much it is worth."), svg: s }; },
+  // Plassverdi: tallet n (0–999) som hundrerplater, tierstenger og enerklosser. p = { n } (uten p: 347).
+  gs_place: (p = {}) => { const n = Math.max(0, Math.min(999, Math.round(p.n ?? 347))), h = Math.floor(n / 100), t = Math.floor(n / 10) % 10, e = n % 10; let s = "";
+    const [cH, cT, cE] = n >= 100 ? [96, 228, 289] : [0, 112, 222];
+    if(n >= 100){ const rows = Math.ceil(h / 3), sz = Math.min(56, (84 - (rows - 1) * 4) / rows), per = Math.min(3, h), W = per * sz + (per - 1) * 6, u = sz / 10;
+      for(let k = 0; k < h; k++){ const x0 = f1(cH - W / 2 + (k % 3) * (sz + 6)), y0 = f1(40 + Math.floor(k / 3) * (sz + 4)), S = f1(sz);
+        s += `<rect x="${x0}" y="${y0}" width="${S}" height="${S}" style="${solid(3, 35)}"/>`;
+        for(let i = 1; i < 10; i++) s += `<line x1="${f1(x0 + i * u)}" y1="${y0}" x2="${f1(x0 + i * u)}" y2="${f1(y0 + sz)}" style="stroke:var(--c3);stroke-width:.5"/><line x1="${x0}" y1="${f1(y0 + i * u)}" x2="${f1(x0 + sz)}" y2="${f1(y0 + i * u)}" style="stroke:var(--c3);stroke-width:.5"/>`;
+        s += `<rect x="${x0}" y="${y0}" width="${S}" height="${S}" style="fill:none;stroke:var(--c3);stroke-width:1.6"/>`; }
+      s += tx(cH, 28, T("hundrere", "hundreds"), "fg-s") + col(cH, 150, String(h), 3, "fg-big"); }
+    for(let k = 0; k < t; k++){ const x0 = cT - (t * 8 - 2) / 2 + k * 8; s += `<rect x="${x0}" y="40" width="6" height="60" style="${soft(4, 45)}"/>`;
+      for(let i = 1; i < 10; i++) s += `<line x1="${x0}" y1="${40 + i * 6}" x2="${x0 + 6}" y2="${40 + i * 6}" style="stroke:var(--c4);stroke-width:.6"/>`; }
+    for(let k = 0; k < e; k++) s += `<rect x="${cE - 11 + (k % 2) * 14}" y="${40 + Math.floor(k / 2) * 12}" width="9" height="9" rx="1" style="${soft(2, 55)}"/>`;
+    s += tx(cT, 28, T("tiere", "tens"), "fg-s") + tx(cE, 28, T("enere", "ones"), "fg-s") + col(cT, 150, String(t), 4, "fg-big") + col(cE, 150, String(e), 2, "fg-big");
+    const terms = n >= 100 ? [100 * h, 10 * t, e] : [10 * t, e];
+    s += tx(160, 174, terms.join(" + ") + " = " + n, "fg-b");
+    const pl = (k, a, b, c, d) => `${k} ${T(k === 1 ? a : b, k === 1 ? c : d)}`, parts = [pl(t, "tier", "tiere", "ten", "tens"), pl(e, "ener", "enere", "one", "ones")];
+    if(n >= 100) parts.unshift(pl(h, "hundrer", "hundrere", "hundred", "hundreds"));
+    const list = parts.slice(0, -1).join(", ") + T(" og ", " and ") + parts[parts.length - 1];
+    return { cap: T(`Tallet ${n}: ${list}. Plassen sifferet står på, bestemmer hvor mye det er verdt.`, `The number ${n}: ${list}. The place a digit stands in decides how much it is worth.`), svg: s }; },
 
-  gs_numline: () => { const X = n => 20 + n * 14; let s = "";
+  // Tallinje med hopp. Uten p: to eksempler (pluss og minus). p = { a, b, op: "+" | "-", via10 } viser a ± b med b hopp;
+  // via10 deler hoppene i to farger: først til nærmeste tier, så resten. Gir null når tallene ikke får plass (mer enn 20 i bredden).
+  gs_numline: (p) => { let s = "";
+    if(p && p.a != null){ const a = p.a, b = p.b || 0, d = p.op === "-" ? -1 : 1, r = a + d * b;
+      const lo = Math.floor(Math.min(a, r) / 5) * 5, hi = Math.max(lo + 20, Math.ceil(Math.max(a, r) / 5) * 5); if(hi - lo > 20 || !Number.isInteger(a) || !Number.isInteger(b)) return null;
+      const X = n => 20 + (n - lo) * 14, y = 112, labs = new Set([a, r]), hl = { [a]: d > 0 ? 4 : 1, [r]: d > 0 ? 4 : 1 };
+      for(let n = lo; n <= hi; n += 5) labs.add(n);
+      const ten = d > 0 ? Math.ceil(a / 10) * 10 : Math.floor(a / 10) * 10, first = p.via10 && ten !== a && Math.abs(ten - a) < b ? Math.abs(ten - a) : 0;
+      if(first){ s += hops(X, y, a, first, d, 4) + hops(X, y, ten, b - first, d, 2); labs.add(ten); hl[ten] = 4;
+        s += col((X(a) + X(ten)) / 2, y - 36, (d > 0 ? "+" : "−") + first, 4, "fg-b") + col((X(ten) + X(r)) / 2, y - 36, (d > 0 ? "+" : "−") + (b - first), 2, "fg-b"); }
+      else s += hops(X, y, a, b, d, d > 0 ? 4 : 1);
+      s += numline(y, lo, hi, X, [...labs].sort((u, v) => u - v), hl);
+      s += col(20, 34, `${a} ${d > 0 ? "+" : "−"} ${b} = ${r}`.replace(/-(\d)/g, "−$1"), d > 0 ? 4 : 1, "fg-b", "start") + tx(300, 34, d > 0 ? T("pluss: hopp mot høyre", "plus: jump right") : T("minus: hopp mot venstre", "minus: jump left"), "fg-s", "end");
+      return { cap: d > 0 ? T(`Start på ${a} og hopp ${b} mot høyre. Du lander på ${r}.`, `Start at ${a} and jump ${b} to the right. You land on ${r}.`) : T(`Start på ${a} og hopp ${b} mot venstre. Du lander på ${r}.`, `Start at ${a} and jump ${b} to the left. You land on ${r}.`), svg: s }; }
+    const X = n => 20 + n * 14;
     s += col(20, 24, "8 + 5 = 13", 4, "fg-b", "start") + tx(300, 24, T("pluss: hopp mot høyre", "plus: jump right"), "fg-s", "end");
     s += hops(X, 66, 8, 5, 1, 4) + numline(66, 0, 20, X, [0, 5, 8, 13, 15, 20], { 8: 4, 13: 4 });
     s += col(20, 112, "15 − 4 = 11", 1, "fg-b", "start") + tx(300, 112, T("minus: hopp mot venstre", "minus: jump left"), "fg-s", "end");
     s += hops(X, 152, 15, 4, -1, 1) + numline(152, 0, 20, X, [0, 5, 11, 15, 20], { 15: 1, 11: 1 });
     return { cap: T("På tallinja går pluss mot høyre og minus mot venstre. Tell hoppene!", "On the number line, plus goes right and minus goes left. Count the jumps!"), svg: s }; },
 
-  gs_array: () => { let s = "";
+  // Gange som rader. Uten p: 3 · 4 og 4 · 3 side om side. p = { r, c } (inntil 10 · 10).
+  gs_array: (p) => { let s = "";
+    if(p && p.r != null){ const r = p.r, c = p.c; if(!(r >= 1 && c >= 1 && r <= 10 && c <= 10)) return null;
+      const sp = Math.min(24, 124 / r, 150 / c), rad = f1(sp * 0.37), x0 = 95 - (c - 1) * sp / 2, y0 = 84 - (r - 1) * sp / 2;
+      for(let i = 0; i < r; i++) for(let j = 0; j < c; j++) s += circ(f1(x0 + j * sp), f1(y0 + i * sp), rad, soft(3, 55));
+      s += col(196, 76, `${r} · ${c} = ${r * c}`, 3, "fg-b", "start") + tx(196, 96, T(`${r} ${r === 1 ? "rad" : "rader"} med ${c}`, `${r} ${r === 1 ? "row" : "rows"} of ${c}`), "fg-s", "start");
+      return { cap: T(`${r} · ${c} betyr ${r} ${r === 1 ? "rad" : "rader"} med ${c} i hver. Til sammen ${r * c}.`, `${r} · ${c} means ${r} ${r === 1 ? "row" : "rows"} of ${c}. That is ${r * c} in total.`), svg: s }; }
     for(let r = 0; r < 3; r++) for(let c = 0; c < 4; c++) s += circ(36 + c * 24, 44 + r * 24, 9, soft(3, 55));
     for(let r = 0; r < 4; r++) for(let c = 0; c < 3; c++) s += circ(216 + c * 24, 32 + r * 24, 9, soft(2, 55));
     s += tx(72, 136, "3 · 4 = 12", "fg-b") + tx(72, 154, T("3 rader med 4", "3 rows of 4"), "fg-s");
@@ -61,35 +99,47 @@ Object.assign(FIGS, {
     s += tx(160, 76, T("like", "same"), "fg-s fg-acct") + tx(160, 92, T("mange!", "amount!"), "fg-s fg-acct");
     return { cap: T("Gange er rader med like mange. Snu rutenettet, og svaret blir det samme: 3 · 4 = 4 · 3 = 12.", "Multiplying is rows of the same size. Turn the grid and the answer stays the same: 3 · 4 = 4 · 3 = 12."), svg: s }; },
 
-  gs_share: () => { let s = "";
-    for(let i = 0; i < 12; i++) s += circ(50 + i * 20, 26, 7, soft(1, 45));
-    [60, 160, 260].forEach(x => { s += car(160, 42, x, 100, 5, 1.6); s += `<ellipse cx="${x}" cy="124" rx="42" ry="12" style="${soft(5, 18)}"/>`;
-      [-21, -7, 7, 21].forEach(d => { s += circ(x + d, 118, 6, soft(1, 45)); }); s += tx(x, 152, "4", "fg-b"); });
-    s += tx(160, 176, "12 : 3 = 4", "fg-b");
-    return { cap: T("Deling er rettferdig fordeling: 12 drops på 3 tallerkener gir 4 på hver.", "Division is fair sharing: 12 sweets on 3 plates gives 4 on each."), svg: s }; },
+  // Deling som rettferdig fordeling: n ting på k tallerkener, resten blir igjen. p = { n, k } (n ≤ 30, k ≤ 6). Uten p: 12 på 3.
+  gs_share: (p = {}) => { const n = p.n ?? 12, k = p.k ?? 3; if(!(n >= 1 && n <= 30 && k >= 1 && k <= 6)) return null;
+    const q = Math.floor(n / k), rem = n - q * k, per = Math.min(15, n), rx = Math.min(42, 150 / k - 6), m = Math.max(1, Math.floor((2 * rx - 6) / 12)); let s = "";
+    if(q > m * 3) return null;
+    for(let i = 0; i < n; i++){ const row = Math.floor(i / per), j = i % per, w = (Math.min(per, n - row * per) - 1) * 18; s += circ(f1(160 - w / 2 + j * 18), 20 + row * 18, 7, soft(i < q * k ? 1 : 2, 45)); }
+    for(let i = 0; i < k; i++){ const x = f1(10 + (i + 0.5) * 300 / k); s += car(160, n > per ? 50 : 32, x, 80, 5, 1.6) + `<ellipse cx="${x}" cy="126" rx="${f1(rx)}" ry="11" style="${soft(5, 18)}"/>`;
+      for(let j = 0; j < q; j++){ const row = Math.floor(j / m), inRow = Math.min(m, q - row * m), c = j % m; s += circ(f1(x - (inRow - 1) * 6 + c * 12), 120 - row * 11, 5, soft(1, 45)); }
+      s += tx(x, 154, String(q), "fg-b"); }
+    s += tx(160, 176, `${n} : ${k} = ${q}` + (rem ? T(`, rest ${rem}`, `, remainder ${rem}`) : ""), "fg-b");
+    return { cap: rem ? T(`Deling er rettferdig fordeling: ${n} drops på ${k} tallerkener gir ${q} på hver, og ${rem} blir til overs (resten).`, `Division is fair sharing: ${n} sweets on ${k} plates gives ${q} on each, and ${rem} are left over (the remainder).`)
+      : T(`Deling er rettferdig fordeling: ${n} drops på ${k} tallerkener gir ${q} på hver.`, `Division is fair sharing: ${n} sweets on ${k} plates gives ${q} on each.`), svg: s }; },
 
-  gs_clock: () => { const cx = 86, cy = 90; let s = circ(cx, cy, 72, `fill:var(--card);stroke:var(--ink);stroke-width:3`);
+  // Klokke med visere. p = { h: 1–12, m: 0–59 } (uten p: halv fire).
+  gs_clock: (p = {}) => { const h = ((p.h ?? 3) + 11) % 12 + 1, m = p.m ?? 30, cx = 86, cy = 90; let s = circ(cx, cy, 72, `fill:var(--card);stroke:var(--ink);stroke-width:3`);
     for(let i = 0; i < 60; i++){ const a = i * 6 * Math.PI / 180, r0 = i % 5 ? 67 : 62; s += `<line class="fg-line" x1="${f1(cx + r0 * Math.sin(a))}" y1="${f1(cy - r0 * Math.cos(a))}" x2="${f1(cx + 70 * Math.sin(a))}" y2="${f1(cy - 70 * Math.cos(a))}" stroke-width="${i % 5 ? 0.8 : 2}"/>`; }
-    for(let h = 1; h <= 12; h++){ const a = h * 30 * Math.PI / 180; s += tx(f1(cx + 50 * Math.sin(a)), f1(cy - 50 * Math.cos(a) + 5), String(h), "fg-b"); }
+    for(let k = 1; k <= 12; k++){ const a = k * 30 * Math.PI / 180; s += tx(f1(cx + 50 * Math.sin(a)), f1(cy - 50 * Math.cos(a) + 5), String(k), "fg-b"); }
     const hand = (deg, len, n, w) => { const a = deg * Math.PI / 180; return `<line x1="${cx}" y1="${cy}" x2="${f1(cx + len * Math.sin(a))}" y2="${f1(cy - len * Math.cos(a))}" style="stroke:var(--c${n});stroke-width:${w};stroke-linecap:round"/>`; };
-    s += hand(105, 28, 1, 6) + hand(180, 40, 3, 3.5) + circ(cx, cy, 5, "fill:var(--ink)");
+    s += hand((h % 12) * 30 + m / 2, 28, 1, 6) + hand(m * 6, 40, 3, 3.5) + circ(cx, cy, 5, "fill:var(--ink)");
+    const [wn, we] = clockWords(h, m), hm = `${h}:${String(m).padStart(2, "0")}`;
     s += col(176, 44, T("Kort viser", "Short hand"), 1, "fg-b", "start") + tx(176, 60, T("viser timene", "shows the hours"), "fg-s", "start");
     s += col(176, 88, T("Lang viser", "Long hand"), 3, "fg-b", "start") + tx(176, 104, T("viser minuttene", "shows the minutes"), "fg-s", "start");
-    s += tx(176, 140, T("Klokka er 3:30", "The time is 3:30"), "fg-b", "start") + tx(176, 158, T("= «halv fire»", "= half past three"), "fg-s fg-acct", "start");
-    return { cap: T("Den korte viseren viser timene, den lange viser minuttene. Når den lange peker på 6, er det «halv» – en halvtime før neste hele time.", "The short hand shows the hours, the long hand the minutes. When the long hand points at 6, it is half past."), svg: s }; },
+    s += tx(176, 140, T(`Klokka er ${hm}`, `The time is ${hm}`), "fg-b", "start") + tx(176, 158, T(`= «${wn}»`, `= ${we}`), "fg-s fg-acct", "start");
+    return { cap: T(`Den korte viseren viser timene, den lange viser minuttene. Her er klokka ${hm}, «${wn}».`, `The short hand shows the hours, the long hand the minutes. Here the time is ${hm}, ${we}.`), svg: s }; },
 
-  gs_coins: () => { let s = "";
+  // Mynter og sedler. Uten p: alle myntene og en hundrelapp. p = { c: [verdier], pay } viser akkurat de pengene og summen (og vekslepenger når pay er gitt).
+  gs_coins: (p) => { let s = "";
     const silver = `fill:color-mix(in srgb,var(--muted) 22%,var(--card));stroke:var(--muted);stroke-width:2`, gold = `fill:color-mix(in srgb,var(--gold) 45%,var(--card));stroke:var(--gold-deep);stroke-width:2`;
-    s += circ(36, 60, 16, silver) + tx(36, 65, "1", "fg-b");
-    s += circ(88, 60, 21, silver) + circ(88, 60, 5, `fill:var(--card);stroke:var(--muted);stroke-width:1.5`) + tx(88, 51, "5", "fg-b");
-    s += circ(142, 60, 19, gold) + tx(142, 65, "10", "fg-b");
-    s += circ(198, 60, 22, gold) + tx(198, 65, "20", "fg-b");
-    s += `<rect x="236" y="38" width="72" height="44" rx="5" style="${soft(4, 30)}"/>` + tx(272, 65, "100", "fg-b");
+    const NOTE = { 50: 4, 100: 1, 200: 3, 500: 2, 1000: 5 }, W = v => v === 1 ? 32 : v === 5 ? 42 : v === 10 ? 38 : v === 20 ? 44 : 60;
+    const money = (x, v, y = 60) => v === 1 ? circ(x, y, 16, silver) + tx(x, y + 5, "1", "fg-b") : v === 5 ? circ(x, y, 21, silver) + circ(x, y, 5, `fill:var(--card);stroke:var(--muted);stroke-width:1.5`) + tx(x, y - 9, "5", "fg-b")
+      : v === 10 ? circ(x, y, 19, gold) + tx(x, y + 5, "10", "fg-b") : v === 20 ? circ(x, y, 22, gold) + tx(x, y + 5, "20", "fg-b") : `<rect x="${x - 28}" y="${y - 18}" width="56" height="36" rx="5" style="${soft(NOTE[v] || 4, 30)}"/>` + tx(x, y + 5, String(v), "fg-b");
+    if(p && p.c){ const c = p.c, gap = 8, tot = c.reduce((a, v) => a + W(v), 0) + gap * (c.length - 1); if(!c.length || tot > 304 || c.some(v => !W(v) || (v > 20 && !NOTE[v]))) return null;
+      let x = 160 - tot / 2; c.forEach(v => { const w = W(v); s += money(f1(x + w / 2), v) + tx(f1(x + w / 2), 102, v + " kr", "fg-s"); x += w + gap; });
+      const sum = c.reduce((a, v) => a + v, 0), line = c.length > 1 ? c.map(v => v + " kr").join(" + ") + ` = ${sum} kr` : `${sum} kr`;
+      s += tx(160, 140, line.length > 44 ? T(`Til sammen ${sum} kr`, `In total ${sum} kr`) : line, "fg-b");
+      if(p.pay) s += tx(160, 162, T(`Pris ${p.pay} kr: du får ${sum - p.pay} kr tilbake.`, `Price ${p.pay} kr: you get ${sum - p.pay} kr back.`), "fg-s");
+      return { cap: T(`Pengene til sammen: ${sum} kr.`, `The money in total: ${sum} kr.`), svg: s }; }
+    s += money(36, 1) + money(88, 5) + money(142, 10) + money(198, 20) + money(272, 100);
     [[36, "1 kr"], [88, "5 kr"], [142, "10 kr"], [198, "20 kr"], [272, "100 kr"]].forEach(([x, l]) => { s += tx(x, 102, l, "fg-s"); });
     s += tx(160, 140, "20 kr + 10 kr + 5 kr = 35 kr", "fg-b");
     s += tx(160, 162, T("Betaler du med 100 kr, får du 65 kr tilbake.", "Pay with 100 kr and you get 65 kr back."), "fg-s");
     return { cap: T("Norske mynter og en hundrelapp. Legg sammen for å finne prisen, og trekk fra for å finne vekslepengene.", "Norwegian coins and a 100-krone note. Add to find the price, subtract to find the change."), svg: s }; },
-
   gs_shapes: () => { let s = ""; const dot = (x, y) => circ(x, y, 3.5, "fill:var(--c1)");
     s += `<polygon points="40,28 10,86 70,86" style="${soft(3, 30)}"/>` + dot(40, 28) + dot(10, 86) + dot(70, 86);
     s += `<rect x="92" y="28" width="58" height="58" style="${soft(4, 30)}"/>` + dot(92, 28) + dot(150, 28) + dot(92, 86) + dot(150, 86);
@@ -102,34 +152,57 @@ Object.assign(FIGS, {
     return { cap: T("Tell sider og hjørner (de røde prikkene). Et mønster gjentar seg – hva kommer etter firkanten?", "Count sides and corners (the red dots). A pattern repeats – what comes after the square?"), svg: s }; },
 
   // ---------- MATEMATIKK 5.–7. ----------
-  gs_pizza: () => { let s = pizza(55, 62, 38, 2, 1) + pizza(160, 62, 38, 4, 1) + pizza(265, 62, 38, 4, 3);
+  // Brøk som pizza. Uten p: 1/2, 1/4 og 3/4. p = { n: biter, k: farget } viser én stor pizza med brøken ved siden av.
+  gs_pizza: (p) => { let s = "";
+    if(p && p.n != null){ const n = p.n, k = p.k ?? 0; if(!(n >= 1 && n <= 12 && k >= 0 && k <= n)) return null;
+      s += pizza(100, 88, 66, n, k);
+      s += col(236, 76, String(k), 2, "fg-big") + `<line x1="214" y1="88" x2="258" y2="88" style="stroke:var(--c2);stroke-width:3"/>` + col(236, 122, String(n), 2, "fg-big");
+      s += tx(268, 68, T("teller", "numerator"), "fg-s", "start") + tx(268, 116, T("nevner", "denominator"), "fg-s", "start");
+      s += tx(236, 168, T(`${k} av ${n} like biter`, `${k} of ${n} equal slices`), "fg-s");
+      return { cap: T(`Pizzaen er delt i ${n} like biter, og ${k} av dem er farget: ${k}/${n}.`, `The pizza is cut into ${n} equal slices and ${k} of them are coloured: ${k}/${n}.`), svg: s }; }
+    s = pizza(55, 62, 38, 2, 1) + pizza(160, 62, 38, 4, 1) + pizza(265, 62, 38, 4, 3);
     s += frac(55, 126, "1", "2", 2) + frac(160, 126, "1", "4", 2) + frac(265, 126, "3", "4", 2);
     s += tx(55, 172, T("en halv", "one half"), "fg-s") + tx(160, 172, T("en fjerdedel", "one quarter"), "fg-s") + tx(265, 172, T("tre fjerdedeler", "three quarters"), "fg-s");
     return { cap: T("Nevneren (nederst) sier hvor mange like biter pizzaen er delt i. Telleren (øverst) sier hvor mange biter du har.", "The denominator (bottom) says how many equal slices the pizza has. The numerator (top) says how many slices you have."), svg: s }; },
 
-  gs_decimal: () => { let s = ""; const x0 = 30, w = 26;
-    for(let i = 0; i < 10; i++) s += `<rect x="${x0 + i * w}" y="36" width="${w}" height="32" style="${i < 3 ? solid(3, 55) : "fill:var(--card)"};stroke:var(--ink);stroke-width:1.4"/>`;
-    s += tx(160, 26, T("3 av 10 like deler", "3 of 10 equal parts"), "fg-s");
-    s += col(160, 92, T("0,3  =  3/10  =  tre tideler", "0.3  =  3/10  =  three tenths"), 3, "fg-b");
+  // Desimaltall. p = { v } mellom 0 og 1: tideler som en stang med 10 deler, hundredeler som 100 ruter. Uten p: 0,3.
+  gs_decimal: (p = {}) => { const v = p.v ?? 0.3; let s = ""; if(!(v >= 0 && v <= 1)) return null;
+    const d = Math.round(v * 10), hund = Math.abs(v * 10 - d) > 1e-9, dec = x => T(String(+x.toFixed(2)).replace(".", ","), String(+x.toFixed(2)));
+    if(hund){ const k = Math.round(v * 100), u = 11; if(Math.abs(v * 100 - k) > 1e-9) return null;
+      for(let r = 0; r < 10; r++) for(let c = 0; c < 10; c++) s += `<rect x="${20 + c * u}" y="${24 + r * u}" width="${u}" height="${u}" style="${r * 10 + c < k ? solid(3, 55) : "fill:var(--card)"};stroke:var(--line);stroke-width:1"/>`;
+      s += `<rect x="20" y="24" width="${10 * u}" height="${10 * u}" style="fill:none;stroke:var(--ink);stroke-width:1.6"/>` + tx(75, 156, T("1 hel = 100 ruter", "1 whole = 100 squares"), "fg-s");
+      s += tx(156, 56, T(`${k} av 100 ruter`, `${k} of 100 squares`), "fg-t", "start") + col(156, 96, dec(v), 3, "fg-big", "start") + tx(156, 124, `= ${k}/100`, "fg-b", "start");
+      return { cap: T(`${dec(v)} er ${k} hundredeler: ${k} av 100 like ruter.`, `${dec(v)} is ${k} hundredths: ${k} of 100 equal squares.`), svg: s }; }
+    const x0 = 30, w = 26;
+    for(let i = 0; i < 10; i++) s += `<rect x="${x0 + i * w}" y="36" width="${w}" height="32" style="${i < d ? solid(3, 55) : "fill:var(--card)"};stroke:var(--ink);stroke-width:1.4"/>`;
+    s += tx(160, 26, T(`${d} av 10 like deler`, `${d} of 10 equal parts`), "fg-s");
+    s += col(160, 92, T(`${dec(v)}  =  ${d}/10  =  ${d === 1 ? "én tidel" : d + " tideler"}`, `${dec(v)}  =  ${d}/10  =  ${d === 1 ? "one tenth" : d + " tenths"}`), 3, "fg-b");
     const X = n => x0 + n * w; s += `<line class="fg-line" x1="${x0}" y1="128" x2="${x0 + 10 * w}" y2="128"/>`;
     for(let i = 0; i <= 10; i++) s += `<line class="fg-line" x1="${X(i)}" y1="${i % 5 ? 123 : 120}" x2="${X(i)}" y2="${i % 5 ? 133 : 136}" stroke-width="${i % 5 ? 1.2 : 2}"/>`;
-    s += circ(X(3), 128, 6, "fill:var(--c3)") + tx(X(0), 154, "0", "fg-s") + col(X(3), 154, T("0,3", "0.3"), 3) + tx(X(5), 154, T("0,5", "0.5"), "fg-s") + tx(X(10), 154, "1", "fg-s");
-    return { cap: T("Desimaltall er en annen måte å skrive tideler på. 0,3 ligger tre tideler fra 0 på veien mot 1.", "Decimals are another way to write tenths. 0.3 lies three tenths from 0 on the way to 1."), svg: s }; },
+    s += circ(X(d), 128, 6, "fill:var(--c3)") + [0, 5, 10].filter(i => i !== d).map(i => tx(X(i), 154, i === 10 ? "1" : dec(i / 10), "fg-s")).join("") + col(X(d), 154, dec(v), 3);
+    return { cap: T(`Desimaltall er en annen måte å skrive tideler på. ${dec(v)} ligger ${d === 1 ? "én tidel" : d + " tideler"} fra 0 på veien mot 1.`, `Decimals are another way to write tenths. ${dec(v)} lies ${d === 1 ? "one tenth" : d + " tenths"} from 0 on the way to 1.`), svg: s }; },
 
-  gs_percent: () => { let s = ""; const u = 11;
-    for(let r = 0; r < 10; r++) for(let c = 0; c < 10; c++){ const k = r * 10 + c; s += `<rect x="${20 + c * u}" y="${24 + r * u}" width="${u}" height="${u}" style="${k < 25 ? solid(1, 55) : "fill:var(--card)"};stroke:var(--line);stroke-width:1"/>`; }
+  // Prosent som 100 ruter. p = { k } (0–100). Uten p: 25 %.
+  gs_percent: (p = {}) => { const k = p.k ?? 25, u = 11; let s = ""; if(!(Number.isInteger(k) && k >= 0 && k <= 100)) return null;
+    for(let r = 0; r < 10; r++) for(let c = 0; c < 10; c++) s += `<rect x="${20 + c * u}" y="${24 + r * u}" width="${u}" height="${u}" style="${r * 10 + c < k ? solid(1, 55) : "fill:var(--card)"};stroke:var(--line);stroke-width:1"/>`;
+    const FR = { 10: "1/10", 20: "1/5", 25: "1/4", 50: "1/2", 75: "3/4", 100: "1" }, dec = T(String(k / 100).replace(".", ","), String(k / 100));
     s += `<rect x="20" y="24" width="${10 * u}" height="${10 * u}" style="fill:none;stroke:var(--ink);stroke-width:1.6"/>` + tx(75, 156, T("100 ruter = 100 %", "100 squares = 100 %"), "fg-s");
-    s += tx(156, 50, T("25 av 100 ruter", "25 of 100 squares"), "fg-t", "start") + col(156, 90, "= 25 %", 1, "fg-big", "start") + tx(156, 118, "= 1/4", "fg-b", "start") + tx(156, 142, T("= 0,25", "= 0.25"), "fg-b", "start");
-    return { cap: T("Prosent betyr «av hundre». 25 % er 25 av 100 ruter – det samme som en firedel.", "Percent means \"out of a hundred\". 25 % is 25 of 100 squares – the same as a quarter."), svg: s }; },
+    s += tx(156, 50, T(`${k} av 100 ruter`, `${k} of 100 squares`), "fg-t", "start") + col(156, 90, `= ${k} %`, 1, "fg-big", "start") + (FR[k] ? tx(156, 118, "= " + FR[k], "fg-b", "start") : "") + tx(156, FR[k] ? 142 : 118, "= " + dec, "fg-b", "start");
+    return { cap: k === 25 && !p.k ? T("Prosent betyr «av hundre». 25 % er 25 av 100 ruter – det samme som en firedel.", "Percent means \"out of a hundred\". 25 % is 25 of 100 squares – the same as a quarter.")
+      : T(`Prosent betyr «av hundre». ${k} % er ${k} av 100 ruter.`, `Percent means "out of a hundred". ${k} % is ${k} of 100 squares.`), svg: s }; },
 
-  gs_area: () => { let s = ""; const u = 22, x0 = 36, y0 = 48;
-    for(let r = 0; r < 3; r++) for(let c = 0; c < 5; c++) s += `<rect x="${x0 + c * u}" y="${y0 + r * u}" width="${u}" height="${u}" style="${solid(4, 30)};stroke:var(--c4);stroke-width:.8"/>`;
-    s += `<rect x="${x0}" y="${y0}" width="${5 * u}" height="${3 * u}" style="fill:none;stroke:var(--c1);stroke-width:4"/>`;
-    s += tx(x0 + 2.5 * u, y0 - 10, "5 m", "fg-b") + tx(x0 - 8, y0 + 1.5 * u + 5, "3 m", "fg-b", "end");
-    s += col(176, 52, T("Areal", "Area"), 4, "fg-b", "start") + tx(176, 70, "5 · 3 = 15 m²", "fg-t", "start") + tx(176, 86, T("(rutene inni)", "(the squares inside)"), "fg-s", "start");
-    s += col(176, 118, T("Omkrets", "Perimeter"), 1, "fg-b", "start") + tx(176, 136, "5 + 3 + 5 + 3 = 16 m", "fg-t", "start") + tx(176, 152, T("(rundt kanten)", "(around the edge)"), "fg-s", "start");
-    return { cap: T("Areal er hvor mange ruter som får plass inni. Omkrets er hvor langt det er rundt – den røde kanten.", "Area is how many squares fit inside. Perimeter is how far it is around – the red edge."), svg: s }; },
-
+  // Areal og omkrets for et rektangel på w · h ruter. p = { w, h, unit, mode: "fill" | "edge" } (unit "" = bare ruter). Uten p: 5 m · 3 m.
+  gs_area: (p = {}) => { const w = p.w ?? 5, h = p.h ?? 3, un = p.unit ?? "m", mode = p.mode || "both"; let s = ""; if(!(w >= 1 && h >= 1 && w <= 12 && h <= 8)) return null;
+    const u = Math.min(22, 134 / w, 110 / h), x0 = 36, y0 = 48, L = v => un ? `${v} ${un}` : String(v), A = v => un ? `${v} ${un}²` : T(`${v} ruter`, `${v} squares`);
+    for(let r = 0; r < h; r++) for(let c = 0; c < w; c++) s += `<rect x="${f1(x0 + c * u)}" y="${f1(y0 + r * u)}" width="${f1(u)}" height="${f1(u)}" style="${mode === "edge" ? "fill:var(--card)" : solid(4, 30)};stroke:var(--c4);stroke-width:.8"/>`;
+    if(mode !== "fill") s += `<rect x="${x0}" y="${f1(y0)}" width="${f1(w * u)}" height="${f1(h * u)}" style="fill:none;stroke:var(--c1);stroke-width:4"/>`;
+    s += tx(f1(x0 + w * u / 2), f1(y0 - 10), L(w), "fg-b") + tx(x0 - 8, f1(y0 + h * u / 2 + 5), L(h), "fg-b", "end");
+    const per = w >= 10 || h >= 10 ? `2 · (${w} + ${h}) = ${L(2 * (w + h))}` : `${w} + ${h} + ${w} + ${h} = ${L(2 * (w + h))}`;
+    if(mode !== "edge") s += col(176, mode === "fill" ? 80 : 52, T("Areal", "Area"), 4, "fg-b", "start") + tx(176, mode === "fill" ? 98 : 70, `${h} · ${w} = ${A(w * h)}`, "fg-t", "start") + tx(176, mode === "fill" ? 114 : 86, T("(rutene inni)", "(the squares inside)"), "fg-s", "start");
+    if(mode !== "fill") s += col(176, mode === "edge" ? 80 : 118, T("Omkrets", "Perimeter"), 1, "fg-b", "start") + tx(176, mode === "edge" ? 98 : 136, per, "fg-t", "start") + tx(176, mode === "edge" ? 114 : 152, T("(rundt kanten)", "(around the edge)"), "fg-s", "start");
+    return { cap: mode === "fill" ? T(`Arealet er hvor mange ruter som får plass inni: ${h} rader med ${w} gir ${A(w * h)}.`, `The area is how many squares fit inside: ${h} rows of ${w} gives ${A(w * h)}.`)
+      : mode === "edge" ? T(`Omkretsen er hvor langt det er rundt kanten: ${L(2 * (w + h))}.`, `The perimeter is how far it is around the edge: ${L(2 * (w + h))}.`)
+      : T("Areal er hvor mange ruter som får plass inni. Omkrets er hvor langt det er rundt – den røde kanten.", "Area is how many squares fit inside. Perimeter is how far it is around – the red edge."), svg: s }; },
   gs_stairs: () => { let s = ""; const L = ["km", "hm", "dam", "m", "dm", "cm", "mm"], main = { km: 1, m: 1, cm: 1, mm: 1 };
     L.forEach((l, i) => { const x = 20 + i * 40, y = 24 + i * 18; s += `<rect x="${x}" y="${y}" width="40" height="${150 - y}" style="${main[l] ? soft(3, 34) : soft(3, 12)}"/>` + tx(x + 20, y + 15, l, main[l] ? "fg-b" : "fg-s"); });
     s += tx(20, 172, T("↓ ett trinn ned: · 10", "↓ one step down: · 10"), "fg-s", "start") + tx(300, 172, T("↑ ett trinn opp: : 10", "↑ one step up: ÷ 10"), "fg-s", "end");
@@ -296,9 +369,9 @@ Object.assign(FIGS, {
     K.forEach(([g, n], k) => { const x = x0 + (k % 2) * c, y = y0 + Math.floor(k / 2) * c; s += `<rect x="${x}" y="${y}" width="${c}" height="${c}" style="fill:var(--card);stroke:var(--ink);stroke-width:1.6"/>` + circ(x + c / 2, y + 14, 7, soft(n, 75)) + tx(x + c / 2, y + 37, g, "fg-b"); });
     s += tx(x0 + 22, 38, "B", "fg-b") + tx(x0 + 66, 38, "b", "fg-b") + tx(x0 - 10, y0 + 27, "B", "fg-b", "end") + tx(x0 - 10, y0 + 71, "b", "fg-b", "end");
     s += tx(x0 + 44, 18, T("mor: Bb", "mother: Bb"), "fg-s") + tx(x0 - 26, y0 + 49, T("far: Bb", "father: Bb"), "fg-s", "end");
-    s += col(232, 58, T("B = brune øyne", "B = brown"), 2, "fg-b", "start") + tx(232, 74, T("(dominant)", "(dominant)"), "fg-s", "start");
-    s += col(232, 100, T("b = blå øyne", "b = blue"), 3, "fg-b", "start") + tx(232, 116, T("(vikende)", "(recessive)"), "fg-s", "start");
-    s += tx(232, 146, T("3 av 4: brune", "3 in 4: brown"), "fg-s", "start") + tx(232, 162, T("1 av 4: blå", "1 in 4: blue"), "fg-s", "start");
+    s += col(222, 58, T("B = brune øyne", "B = brown"), 2, "fg-b", "start") + tx(222, 74, T("(dominant)", "(dominant)"), "fg-s", "start");
+    s += col(222, 100, T("b = blå øyne", "b = blue"), 3, "fg-b", "start") + tx(222, 116, T("(vikende)", "(recessive)"), "fg-s", "start");
+    s += tx(222, 146, T("3 av 4: brune", "3 in 4: brown"), "fg-s", "start") + tx(222, 162, T("1 av 4: blå", "1 in 4: blue"), "fg-s", "start");
     return { cap: T("Krysningsskjema: hvert barn får ett gen fra mor og ett fra far. Har begge foreldrene Bb, er sjansen 1 av 4 for blå øyne.", "Punnett square: each child gets one gene from the mother and one from the father. With two Bb parents, the chance of blue eyes is 1 in 4."), svg: s }; },
 
   gu_solar: () => { let s = `<path d="M0 26.5 A72 72 0 0 1 0 153.5 Z" style="fill:color-mix(in srgb,var(--gold) 70%,var(--card));stroke:var(--gold-deep);stroke-width:2"/>` + tx(16, 94, T("Sola", "Sun"), "fg-b");
@@ -364,5 +437,6 @@ const FG = [["GS14", "Måle og veie", "gs_measure"], ["GS14", "Koding: steg for 
   ["GU810", "Tall og regnerekkefølge", "gu_order"], ["GU810", "Brøk, prosent og vekstfaktor", "pct_growth"], ["GU810", "Potenser og kvadratrøtter", "pow_sq"], ["GU810", "Algebra og likninger", "gu_solve"], ["GU810", "Lineære funksjoner", "gu_line"], ["GU810", "Geometri", "gu_pyth"], ["GU810", "Sannsynlighet og statistikk", "gu_bag"], ["GU810", "Privatøkonomi", "gu_budget"],
   ["GSNAT", "Kroppen", "gs_heart"], ["GSNAT", "Planter og dyr", "gs_photo"], ["GSNAT", "Stoffer og tilstander", "gs_states"], ["GSNAT", "Vær og klima", "gs_water"], ["GSNAT", "Jorda og verdensrommet", "gs_daynight"], ["GSNAT", "Elektrisitet og magneter", "gs_circuit"],
   ["GUNAT", "Celler og kroppen", "gu_cell"], ["GUNAT", "Kjemi: atomer og reaksjoner", "gu_reaction"], ["GUNAT", "Krefter, fart og energi", "gu_speed"], ["GUNAT", "Elektrisitet", "gu_ohm"], ["GUNAT", "Økologi og klima", "gu_food"], ["GUNAT", "Genetikk og evolusjon", "gu_punnett"], ["GUNAT", "Universet", "gu_solar"]];
+globalThis.GSF = { soft, solid, box, tx, col, ar, car, circ, f1, frac, sector, pizza, hops, numline }; // brukes av figs_lf.js
 for(const [code, title, name] of FG){ const c = typeof COURSES !== "undefined" && COURSES.find(x => x.code === code), u = c ? c.units.findIndex(x => x.title === title) : -1; if(u >= 0) FIG_MAP[code + ":" + u] = name; }
 })();
