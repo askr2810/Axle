@@ -227,7 +227,7 @@ Nyrene renser blodet, regulerer væskemengden, elektrolyttene og syre-base-balan
 - ADH (antidiuretisk hormon) fra hypofysen øker gjenopptaket av vann: mindre og mer konsentrert urin.
 - Aldosteron fra binyrebarken øker gjenopptaket av natrium (og vann) og øker utskillelsen av kalium.
 - Kroppen består av omtrent 60 % vann hos voksne. Omtrent to tredjedeler er inne i cellene.
-- Viktige normalverdier: natrium omtrent 137–145 mmol/l, kalium 3,5–5,0 mmol/l.
+- Viktige normalverdier: natrium omtrent 137–145 mmol/l, kalium omtrent 3,5–4,5 mmol/l (referanseområdene varierer litt mellom laboratorier).
 - For lite urin: under omtrent 0,5 ml/kg/t hos voksne over flere timer bør varsles.
 
 ## Vanlige feil
@@ -243,7 +243,7 @@ The kidneys clean the blood, regulate fluid volume, electrolytes and acid–base
 - ADH (antidiuretic hormone) from the pituitary increases water reabsorption: less and more concentrated urine.
 - Aldosterone from the adrenal cortex increases reabsorption of sodium (and water) and increases excretion of potassium.
 - The adult body is about 60% water. About two thirds is inside the cells.
-- Important normal values: sodium about 137–145 mmol/L, potassium 3.5–5.0 mmol/L.
+- Important normal values: sodium about 137–145 mmol/L, potassium about 3.5–4.5 mmol/L (reference ranges vary a little between laboratories).
 - Too little urine: below about 0.5 mL/kg/h in adults over several hours should be reported.
 
 ## Common mistakes
@@ -257,8 +257,8 @@ BIQ("SANA", 4, [
   "What is the functional unit of the kidney?", ["The nephron", "The alveolus", "The neuron", "The hepatocyte"], "Each kidney has around one million nephrons."],
  ["Hva gjør ADH?", ["Øker gjenopptaket av vann i nyrene", "Øker utskillelsen av natrium", "Senker blodsukkeret", "Øker urinmengden"], "ADH gjør at mer vann tas opp igjen, så urinen blir mindre og mer konsentrert.",
   "What does ADH do?", ["Increases water reabsorption in the kidneys", "Increases sodium excretion", "Lowers blood glucose", "Increases urine volume"], "ADH makes more water be reabsorbed, so the urine becomes smaller in volume and more concentrated."],
- ["Hva er normalområdet for kalium i blodet?", ["3,5–5,0 mmol/l", "137–145 mmol/l", "0,5–1,0 mmol/l", "10–15 mmol/l"], "137–145 er natrium. Kalium ligger på 3,5–5,0 mmol/l.",
-  "What is the normal range for potassium in the blood?", ["3.5–5.0 mmol/L", "137–145 mmol/L", "0.5–1.0 mmol/L", "10–15 mmol/L"], "137–145 is sodium. Potassium is 3.5–5.0 mmol/L."],
+ ["Hva er normalområdet for kalium i blodet?", ["Omtrent 3,5–4,5 mmol/l", "137–145 mmol/l", "0,5–1,0 mmol/l", "10–15 mmol/l"], "137–145 er natrium. Kalium ligger på omtrent 3,5–4,5 mmol/l (referanseområdet varierer litt mellom laboratorier).",
+  "What is the normal range for potassium in the blood?", ["About 3.5–4.5 mmol/L", "137–145 mmol/L", "0.5–1.0 mmol/L", "10–15 mmol/L"], "137–145 is sodium. Potassium is about 3.5–4.5 mmol/L (the reference range varies a little between laboratories)."],
  ["Hvor stor del av kroppsvekten er vann hos en voksen?", ["Omtrent 60 %", "Omtrent 20 %", "Omtrent 90 %", "Omtrent 40 %"], "Omtrent 60 %, noe mindre hos eldre og hos personer med mye fettvev.",
   "How much of an adult's body weight is water?", ["About 60%", "About 20%", "About 90%", "About 40%"], "About 60%, somewhat less in older people and in people with a lot of fat tissue."],
  ["En pasient på 80 kg. Hva er omtrent den laveste urinproduksjonen per time (0,5 ml/kg/t) før du bør varsle?", { n: 40, tol: 0, u: "ml/t" }, "0,5 · 80 = 40 ml per time.",
@@ -278,7 +278,7 @@ Fordøyelsen bryter maten ned til små molekyler som kan tas opp i blodet. Den s
 ## Begreper
 - Munnen: tygging og amylase i spyttet starter nedbrytningen av karbohydrater.
 - Magesekken: saltsyre og pepsin starter nedbrytningen av proteiner, og syren dreper mange mikrober.
-- Tynntarmen: her skjer nesten all opptaket av næringsstoffer. Tarmtottene (villi) gir en enorm overflate.
+- Tynntarmen: her skjer nesten alt opptaket av næringsstoffer. Tarmtottene (villi) gir en enorm overflate.
 - Leveren lager galle, som emulgerer fett så det kan brytes ned. Galle lagres i galleblæren.
 - Bukspyttkjertelen lager fordøyelsesenzymer og hormonene insulin (senker blodsukker) og glukagon (øker blodsukker).
 - Tykktarmen tar opp vann og salter.

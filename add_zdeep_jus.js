@@ -174,7 +174,7 @@ Stortinget kontrollerer regjeringen gjennom **spørretimer** og skriftlige spør
 Grunnloven er vanskeligere å endre enn vanlig lov (§ 121): forslaget må fremmes i et av de tre første årene av en stortingsperiode, og det kan først vedtas av **det neste** Stortinget, etter et valg, med **to tredjedels flertall**. Velgerne får dermed mulighet til å si sin mening.
 
 ## Kongens stilling
-Norge er et **konstitusjonelt monarki**. Kongen er statsoverhode, men «Kongens person er hellig» (§ 5): kongen kan ikke stilles til ansvar, og ansvaret ligger hos regjeringen, som kontrasignerer vedtakene.
+Norge er et **konstitusjonelt monarki**. Kongen er statsoverhode, men «Kongens person kan ikke lastes eller anklages» (§ 5, før 2014: «Kongens person er hellig»): kongen kan ikke stilles til ansvar, og ansvaret ligger hos regjeringen, som kontrasignerer vedtakene.
 
 > Stortinget lager lovene, regjeringen gjennomfører dem, domstolene dømmer etter dem.`,
 `## The Constitution of 1814
@@ -197,7 +197,7 @@ The Storting scrutinises the government through **question time** and written qu
 The Constitution is harder to change than ordinary law (Article 121): a proposal must be submitted in one of the first three years of a parliamentary term, and can only be adopted by **the next** Storting, after an election, with a **two-thirds majority**. Voters thus get a chance to have their say.
 
 ## The King's position
-Norway is a **constitutional monarchy**. The King is head of state, but "the King's person is sacred" (Article 5): the King cannot be held responsible, and responsibility lies with the government, which countersigns decisions.
+Norway is a **constitutional monarchy**. The King is head of state, but "the King's person cannot be censured or accused" (Article 5; before 2014: "the King's person is sacred"): the King cannot be held responsible, and responsibility lies with the government, which countersigns decisions.
 
 > The Storting makes the laws, the government carries them out, the courts judge by them.`);
 
@@ -448,7 +448,7 @@ Erstatning gis som hovedregel bare for **økonomisk tap**, som skal dokumenteres
 Det finnes også ikke-økonomiske poster: **menerstatning** (§ 3-2) for varig og betydelig medisinsk invaliditet, og **oppreisning** (§ 3-5) for krenkelser ved forsettlige eller grovt uaktsomme handlinger, for eksempel vold.
 
 ## 3. Årsakssammenheng og adekvans
-- **Faktisk årsakssammenheng**: etter **betingelseslæren** må handlingen ha vært en **nødvendig betingelse** for skaden – uten handlingen ville skaden ikke ha skjedd. Ved flere samvirkende årsaker krever Høyesterett at handlingen har vært en **vesentlig** medvirkende årsak.
+- **Faktisk årsakssammenheng**: etter **betingelseslæren** må handlingen ha vært en **nødvendig betingelse** for skaden – uten handlingen ville skaden ikke ha skjedd. Ved flere samvirkende årsaker er det nok at handlingen ikke er en så **uvesentlig** årsak at den bør ses bort fra (P-pille II, Rt. 1992 s. 64).
 - **Adekvans** (påregnelighet): tapet må ikke være for **fjernt, avledet eller upåregnelig**. Den som bulker en bil, er ikke ansvarlig for at eieren mister en jobbmulighet ved å komme for sent.
 
 ## Medvirkning og lemping
@@ -483,7 +483,7 @@ Damages are as a rule awarded only for **financial loss**, which must be documen
 There are also non-financial items: **compensation for permanent injury** (section 3-2) for lasting and significant medical disability, and **compensation for non-pecuniary damage** (section 3-5) for violations by intentional or grossly negligent acts, such as violence.
 
 ## 3. Causation and foreseeability
-- **Factual causation**: under the **but-for test** the act must have been a **necessary condition** for the harm – without it, the harm would not have occurred. With several contributing causes, the Supreme Court requires the act to have been a **substantial** contributing cause.
+- **Factual causation**: under the **but-for test** the act must have been a **necessary condition** for the harm – without it, the harm would not have occurred. With several contributing causes, it is enough that the act was not so **insignificant** a cause that it should be disregarded (the P-pill II case, Rt. 1992 p. 64).
 - **Foreseeability** (remoteness): the loss must not be too **remote, indirect or unforeseeable**. Someone who dents a car is not liable for the owner missing a job opportunity by arriving late.
 
 ## Contributory fault and reduction
@@ -773,7 +773,7 @@ Noen handlinger som oppfyller gjerningsbeskrivelsen i et straffebud, er likevel 
 Du kan forsvare deg selv eller andre mot et **ulovlig angrep**. Vilkårene er at handlingen
 1. **avverger** et **ulovlig angrep** som er **pågående** eller **overhengende** (umiddelbart forestående). Hevn etter at angrepet er over, er ikke nødverge.
 2. **ikke går lenger enn nødvendig** – kan du stikke av eller rope om hjelp, kan det tale mot å slå tilbake.
-3. **ikke åpenbart går ut over** hva som er forsvarlig, sett i forhold til **hvor farlig angrepet er**, hva slags **interesse** som angripes, og **angriperens skyld**. Du kan ikke skyte en som stjeler epler.
+3. **ikke klart går ut over** hva som er forsvarlig, sett i forhold til **hvor farlig angrepet er**, hva slags **interesse** som angripes, og **angriperens skyld**. Du kan ikke skyte en som stjeler epler.
 
 Nødverge kan også brukes til å avverge eller gjennomføre en lovlig **pågripelse**. Den som overskrider grensene for nødverge, kan få **lavere straff** eller frifinnes hvis overskridelsen skyldtes en **sterk sinnsbevegelse** eller bestyrtelse fremkalt av angrepet (§ 80).
 
@@ -806,7 +806,7 @@ Some acts that fulfil the description of an offence are nevertheless **lawful**.
 You may defend yourself or others against an **unlawful attack**. The conditions are that the act
 1. **averts** an **unlawful attack** that is **ongoing** or **imminent**. Revenge after the attack is over is not self-defence.
 2. **goes no further than necessary** – if you could run away or call for help, that may count against hitting back.
-3. **does not manifestly exceed** what is justifiable, considering **how dangerous the attack is**, the **interest** attacked and the **attacker's guilt**. You cannot shoot someone stealing apples.
+3. **does not clearly exceed** what is justifiable, considering **how dangerous the attack is**, the **interest** attacked and the **attacker's guilt**. You cannot shoot someone stealing apples.
 
 Self-defence may also be used to prevent or carry out a lawful **arrest**. Someone who exceeds the limits of self-defence may get a **reduced sentence** or be acquitted if the excess was due to **strong emotion** or panic caused by the attack (section 80).
 

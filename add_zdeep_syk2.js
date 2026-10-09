@@ -11,7 +11,7 @@ Vitale tegn er de raskeste og billigste målingene vi har av hvordan kroppen kla
 ## Normalverdier hos voksne (veiledende)
 - **Respirasjonsfrekvens**: 12–20 per minutt.
 - **Oksygenmetning (SpO₂)**: 96–100 % hos lungefriske. Hos noen KOLS-pasienter er målet 88–92 % etter forordning.
-- **Puls**: 50–90 per minutt i hvile; regelmessig og kraftig.
+- **Puls**: 60–100 per minutt i hvile (NEWS2 gir 0 poeng for 51–90); regelmessig og kraftig.
 - **Blodtrykk**: omkring 120/80 mmHg. Systolisk trykk under 90–100 hos en pasient som vanligvis har høyere, er alarmerende.
 - **Temperatur**: omkring 36,1–38,0 °C, med døgnvariasjon. Eldre og immunsvekkede får ikke alltid feber selv ved alvorlig infeksjon – lav temperatur kan også være et faresignal.
 - **Bevissthet**: våken og orientert for tid, sted og person.
@@ -37,7 +37,7 @@ Vital signs are the fastest and cheapest measurements we have of how the body is
 ## Normal adult values (guide)
 - **Respiratory rate**: 12–20 per minute.
 - **Oxygen saturation (SpO₂)**: 96–100 % with healthy lungs. In some COPD patients the target is 88–92 % as prescribed.
-- **Pulse**: 50–90 per minute at rest; regular and strong.
+- **Pulse**: 60–100 per minute at rest (NEWS2 gives 0 points for 51–90); regular and strong.
 - **Blood pressure**: around 120/80 mmHg. A systolic pressure below 90–100 in a patient who usually has higher is alarming.
 - **Temperature**: about 36.1–38.0 °C, varying through the day. Older and immunocompromised patients do not always develop fever even with severe infection – a low temperature can also be a warning sign.
 - **Consciousness**: alert and oriented to time, place and person.
@@ -573,7 +573,7 @@ Helsepersonell skal hindre at andre får adgang til eller kjennskap til opplysni
   - til **barnevernet** når det er grunn til å tro at et barn blir mishandlet, utsatt for alvorlig omsorgssvikt eller har alvorlige atferdsvansker (§ 33)
   - til **politiet** og andre for å **avverge alvorlige straffbare handlinger** (avvergingsplikten i straffeloven § 196)
   - til **politiet** ved dødsfall som kan være unaturlige (§ 36), og varsel om alvorlige hendelser
-- Melding til **Statens vegvesen** eller lege når en pasient med førerkort ikke oppfyller helsekravene (gjelder særlig leger).
+- Melding til **statsforvalteren** når en pasient med førerkort ikke oppfyller helsekravene (§ 34 – gjelder leger, psykologer og optikere).
 
 ## Dokumentasjonsplikt (§§ 39–40)
 Den som yter helsehjelp, skal føre **journal** med relevante og nødvendige opplysninger om pasienten og helsehjelpen. Journalen skal være **nøyaktig, sannferdig og forståelig**, og føres fortløpende.
@@ -616,7 +616,7 @@ Health personnel must prevent others from gaining access to or knowledge of info
   - to **child welfare services** when there is reason to believe a child is being abused, seriously neglected or has serious behavioural problems (section 33)
   - to the **police** and others to **prevent serious crimes** (the duty to avert in section 196 of the Penal Code)
   - to the **police** for deaths that may be unnatural (section 36), and notification of serious incidents
-- Reporting to the **Public Roads Administration** when a patient with a driving licence does not meet the health requirements (mainly a duty for doctors).
+- Reporting to the **county governor (statsforvalteren)** when a patient with a driving licence does not meet the health requirements (section 34 – a duty for doctors, psychologists and opticians).
 
 ## Duty to document (sections 39–40)
 Anyone providing health care must keep a **record** with relevant and necessary information about the patient and the care. The record must be **accurate, truthful and understandable**, and kept up to date.
@@ -651,7 +651,7 @@ DEEP("SLOV", "Pasientrettigheter og samtykke",
 **Myndige pasienter kan nekte helsehjelp** – også livsnødvendig hjelp i noen situasjoner, for eksempel en døende pasient som nekter livsforlengende behandling, eller nektelse av blodoverføring av alvorlig overbevisning (§ 4-9). Helsepersonell skal sørge for at pasienten har fått god informasjon om konsekvensene.
 
 ## Samtykkekompetanse
-- Den **helserettslige myndighetsalderen** er **16 år** (§ 4-3). Barn mellom 12 og 16 år har rett til å bli hørt, og deres mening skal tillegges økende vekt med alder og modenhet. Foreldrene samtykker vanligvis for barn under 16.
+- Den **helserettslige myndighetsalderen** er **16 år** (§ 4-3). Barn som har fylt 7 år, skal få si sin mening, og fra 12 år skal det legges stor vekt på hva barnet mener (§ 4-4). Foreldrene samtykker vanligvis for barn under 16.
 - Samtykkekompetansen kan **bortfalle** helt eller delvis hvis pasienten på grunn av fysiske eller psykiske forstyrrelser, demens eller psykisk utviklingshemming **åpenbart ikke er i stand til å forstå** hva samtykket omfatter. Vurderingen gjelder **den konkrete beslutningen**: en person med demens kan være i stand til å bestemme hva hun vil spise, men ikke om en operasjon.
 - Avgjørelsen om manglende samtykkekompetanse skal **begrunnes og dokumenteres**, og pasienten og nærmeste pårørende skal få beskjed.
 
@@ -688,7 +688,7 @@ The **Patient and User Rights Act** (1999) gives patients and users rights in re
 **Competent patients may refuse health care** – in some situations even life-saving care, for example a dying patient refusing life-prolonging treatment, or refusing a blood transfusion out of serious conviction (section 4-9). Health personnel must ensure the patient is well informed about the consequences.
 
 ## Capacity to consent
-- The **age of consent to health care** is **16** (section 4-3). Children aged 12 to 16 have the right to be heard, and their views must carry increasing weight with age and maturity. Parents usually consent for children under 16.
+- The **age of consent to health care** is **16** (section 4-3). Children aged 7 and over must be allowed to give their views, and from 12 their views must carry great weight (section 4-4). Parents usually consent for children under 16.
 - Capacity to consent may **lapse** wholly or partly if, because of physical or mental disorders, dementia or intellectual disability, the patient is **clearly unable to understand** what the consent involves. The assessment concerns **the specific decision**: a person with dementia may be able to decide what to eat, but not whether to have an operation.
 - A decision that the patient lacks capacity must be **reasoned and documented**, and the patient and next of kin must be informed.
 

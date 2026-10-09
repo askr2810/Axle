@@ -521,7 +521,7 @@ Cars must have their **periodic roadworthiness test** first within **4 years** o
 
 DEEP("FKB", "Vinter, mørke og vanskelige forhold",
 `## Kjøring i mørket
-I mørket ser du **mye mindre** og **senere**. Med nærlys ser du en fotgjenger i mørke klær først på **20–30 meters** avstand – med **refleks** på rundt 140 meters avstand, og med fjernlys enda lenger. Senk farten slik at du kan stanse innenfor det lyset rekker. Bruk **fjernlys** når du kan, og blend ned i tide. Hold frontruta ren innvendig og utvendig – en skitten rute gir mye mer blending.
+I mørket ser du **mye mindre** og **senere**. Med nærlys ser du en fotgjenger i mørke klær først på **25–30 meters** avstand – med **refleks** på rundt 140 meters avstand, og med fjernlys enda lenger. Senk farten slik at du kan stanse innenfor det lyset rekker. Bruk **fjernlys** når du kan, og blend ned i tide. Hold frontruta ren innvendig og utvendig – en skitten rute gir mye mer blending.
 
 ## Vilt
 Faren for viltpåkjørsler er størst i **skumringen** og **mørket**, om høsten og vinteren, og der det er **skiltet** med elg eller rådyr. Ser du ett dyr, er det ofte **flere** – elg og rådyr går ofte i følge. Senk farten og vær klar til å bremse. Kjører du på vilt, skal du sette ut varseltrekant, og du har **plikt til å melde fra** til politiet (ring 02800 eller 112), også om dyret løp videre.
@@ -554,7 +554,7 @@ Kjør **mykt**: myke ratt-, gass- og bremsebevegelser. Øk avstanden kraftig, og
 ## Fjellovergang og kolonne
 Om vinteren kan fjelloverganger være **stengt** eller bare åpne med **kolonnekjøring** bak brøytebil. Sjekk **vegmeldinger** før du drar. Blir du stående fast, bli i bilen, hold **eksosrøret fritt** for snø, og ring etter hjelp.`,
 `## Driving in the dark
-In the dark you see **much less** and **later**. On dipped beam you see a pedestrian in dark clothing only at **20–30 metres** – with a **reflector** at about 140 metres, and further on main beam. Slow down so you can stop within the reach of your lights. Use **main beam** when you can and dip in time. Keep the windscreen clean inside and out – a dirty screen causes much more glare.
+In the dark you see **much less** and **later**. On dipped beam you see a pedestrian in dark clothing only at **25–30 metres** – with a **reflector** at about 140 metres, and further on main beam. Slow down so you can stop within the reach of your lights. Use **main beam** when you can and dip in time. Keep the windscreen clean inside and out – a dirty screen causes much more glare.
 
 ## Wildlife
 The risk of hitting animals is greatest at **dusk** and in **darkness**, in autumn and winter, and where **elk** or deer warning signs stand. If you see one animal there are often **more** – elk and deer often travel together. Slow down and be ready to brake. If you hit an animal you must put out a warning triangle, and you are **obliged to report** it to the police (call 02800 or 112), even if it ran off.
@@ -878,7 +878,7 @@ If something appears ahead, it is often better to **brake first** and then **ste
 
 DEEP("FKMC", "Bremsing og stopplengde",
 `## Forbrems og bakbrems
-Når du bremser, flyttes vekten **framover**. Forhjulet presses ned mot vegen og får mer grep, mens bakhjulet blir lettere. Derfor står **forbremsen** for **det meste** av bremsekraften ved hard bremsing – ofte **70–90 %**. Bakbremsen er viktig for stabilitet og i lav fart, men låser lett ved hard bremsing.
+Når du bremser, flyttes vekten **framover**. Forhjulet presses ned mot vegen og får mer grep, mens bakhjulet blir lettere. Derfor står **forbremsen** for **det meste** av bremsekraften ved hard bremsing – ofte **rundt 70 % eller mer**. Bakbremsen er viktig for stabilitet og i lav fart, men låser lett ved hard bremsing.
 
 ## Slik bremser du hardt
 1. Rett opp sykkelen og se **framover**, ikke ned.
@@ -901,7 +901,7 @@ Stopplengden er **reaksjonslengde + bremselengde**, akkurat som for bil. **Dobbe
 ## Motorbrems
 Når du slipper gassen, bremser motoren sykkelen – men **bremselyset tennes ikke**. Kjøretøy bak deg ser derfor ikke at du senker farten. Gi gjerne et lett trykk på bremsen så bremselyset lyser, særlig når du skal svinge eller stanse.`,
 `## Front and rear brakes
-When you brake, weight shifts **forward**. The front wheel is pressed onto the road and gains grip, while the rear gets lighter. So the **front brake** provides **most** of the braking force in hard braking – often **70–90%**. The rear brake matters for stability and at low speed but locks easily under hard braking.
+When you brake, weight shifts **forward**. The front wheel is pressed onto the road and gains grip, while the rear gets lighter. So the **front brake** provides **most** of the braking force in hard braking – often **around 70 % or more**. The rear brake matters for stability and at low speed but locks easily under hard braking.
 
 ## How to brake hard
 1. Bring the bike upright and look **ahead**, not down.
@@ -1022,7 +1022,7 @@ Be **predictable**: steady speed and clear positioning, signal in good time, and
 
 DEEP("FKMC", "Veggrep, føre og vær",
 `## To små kontaktflater
-En motorsykkel står på to kontaktflater som hver er omtrent på størrelse med en **kredittkort**. Alt du gjør – akselerere, bremse og svinge – skal deles på dette grepet. Derfor er det ekstra viktig å vite **når** og **hvor** grepet er dårlig.
+En motorsykkel står på to kontaktflater som hver er omtrent på størrelse med et **kredittkort**. Alt du gjør – akselerere, bremse og svinge – skal deles på dette grepet. Derfor er det ekstra viktig å vite **når** og **hvor** grepet er dårlig.
 
 ## Når er det glatt?
 - I starten av et **regnvær**, når støv, gummi og olje flyter opp før regnet vasker vegen.

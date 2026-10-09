@@ -513,7 +513,7 @@ DEEP("SFARM", "Viktige legemiddelgrupper",
 - **Avføringsmidler**: laktulose og makrogol (osmotiske), natriumpikosulfat (stimulerende).
 
 ## Nervesystemet og psyke
-- **Benzodiazepiner** (diazepam, oksazepam): angstdempende og sovedyktige; gir **avhengighet**, fallrisiko og forvirring hos eldre. Motgift: flumazenil.
+- **Benzodiazepiner** (diazepam, oksazepam): angstdempende og søvnfremkallende; gir **avhengighet**, fallrisiko og forvirring hos eldre. Motgift: flumazenil.
 - **Antidepressiva** (SSRI som sertralin og escitalopram): effekten kommer etter **2–4 uker**.
 - **Antipsykotika**: mot psykose og uro; kan gi bevegelsesforstyrrelser og vektøkning.
 
@@ -644,7 +644,7 @@ The aim is **learning**, not finding scapegoats. Serious events must also be not
 // ================= MIKROBIOLOGI OG SMITTEVERN =================
 DEEP("SMIK", "Mikroorganismer",
 `## Bakterier
-**Bakterier** er encellede organismer uten cellekjerne (**prokaryote**), omtrent 1–5 mikrometer store. De har egen stoffskifte og formerer seg ved **deling** – under gode forhold kan antallet dobles på 20 minutter. De beskrives etter
+**Bakterier** er encellede organismer uten cellekjerne (**prokaryote**), omtrent 1–5 mikrometer store. De har eget stoffskifte og formerer seg ved **deling** – under gode forhold kan antallet dobles på 20 minutter. De beskrives etter
 - **form**: kuler (**kokker**: stafylokokker i klaser, streptokokker i kjeder), staver og spiraler
 - **Gram-farging**: **Gram-positive** (tykk cellevegg, farges blå/lilla; for eksempel *Staphylococcus aureus*, streptokokker) og **Gram-negative** (tynn cellevegg med en ytre membran, farges røde; for eksempel *E. coli*, *Klebsiella*, *Pseudomonas*). Inndelingen styrer valget av antibiotika.
 - **oksygenbehov**: aerobe, anaerobe eller begge deler
@@ -826,7 +826,7 @@ Flere av disse er **meldepliktige** til **MSIS** (Meldingssystem for smittsomme 
 - Følg **smittevernrutinene** – de hindrer at resistente bakterier spres videre.
 
 ## Én helse
-Resistens er et globalt problem som knytter sammen helse hos **mennesker, dyr og miljø**. Antibiotikabruk i husdyrhold, utslipp fra produksjon og reiser spre resistens over landegrenser. WHO regner antimikrobiell resistens som en av de største truslene mot global helse.
+Resistens er et globalt problem som knytter sammen helse hos **mennesker, dyr og miljø**. Antibiotikabruk i husdyrhold, utslipp fra produksjon og reiser sprer resistens over landegrenser. WHO regner antimikrobiell resistens som en av de største truslene mot global helse.
 
 > Smalt spekter når det er mulig. Prøver før første dose. Riktig bruk + godt smittevern = mindre resistens.`,
 `## How antibiotics work

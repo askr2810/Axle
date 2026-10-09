@@ -429,7 +429,7 @@ nb: `## Hva handler det om?
 Mange pasienter er i fare for å få for lite eller for mye væske og næring. Du følger med gjennom væskeregnskap, vekt og ernæringsscreening.
 
 ## Begreper og formler
-- Væskebalanse = alt som går inn (drikke, mat, intravenøst) minus alt som går ut (urin, oppkast, dren, avføring). I tillegg tapes omtrent 0,5–1 liter i døgnet gjennom hud og pust, som ikke måles.
+- Væskebalanse = alt som går inn (drikke, mat, intravenøst) minus alt som går ut (urin, oppkast, dren, avføring). I tillegg tapes omtrent 0,5–0,8 liter i døgnet gjennom hud og pust, som ikke måles.
 - Omtrentlig væskebehov hos voksne: 30–35 ml per kg per døgn (mer ved feber og varme).
 - BMI (kroppsmasseindeks): $BMI = \\text{vekt (kg)} / \\text{høyde (m)}^2$.
 - Normal BMI for voksne: 18,5–24,9. Hos personer over 70 år regnes BMI under 22 som en risiko for underernæring.
@@ -441,7 +441,7 @@ en: `## What is it about?
 Many patients are at risk of getting too little or too much fluid and nutrition. You follow this with fluid balance charts, weight and nutritional screening.
 
 ## Concepts and formulas
-- Fluid balance = everything that goes in (drinks, food, intravenous) minus everything that goes out (urine, vomit, drains, stool). In addition about 0.5–1 litre a day is lost through the skin and breathing, which is not measured.
+- Fluid balance = everything that goes in (drinks, food, intravenous) minus everything that goes out (urine, vomit, drains, stool). In addition about 0.5–0.8 litre a day is lost through the skin and breathing, which is not measured.
 - Approximate fluid requirement in adults: 30–35 mL per kg per day (more with fever and heat).
 - BMI (body mass index): $BMI = \\text{weight (kg)} / \\text{height (m)}^2$.
 - Normal BMI for adults: 18.5–24.9. In people over 70, a BMI below 22 is considered a risk of undernutrition.

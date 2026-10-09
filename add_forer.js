@@ -684,7 +684,7 @@ U("FKB", "Kjøretøyet, last og tilhenger", "The vehicle, load and trailer",
 - Alle skal bruke **bilbelte**. I et krasj presses kroppen fram med en kraft som tilsvarer flere tonn, og uten belte stopper du mot rattet eller ruta. Føreren har ansvar for at passasjerer **under 15 år** er sikret.
 - Barn **under 135 cm** skal sikres i godkjent barnesikringsutstyr.
 - Et **bakovervendt barnesete** skal aldri stå foran en aktiv kollisjonspute.
-- Bilen skal ha **varseltrekant** og **refleksvest** som kan nås fra førerplassen.
+- Bilen skal ha **varseltrekant** og **refleksvest**. Refleksvesten skal føreren kunne nå fra førerplassen, så du er synlig når du går ut.
 
 ## Last og tilhenger
 - Lasten skal være sikret. Last som stikker mer enn **1 meter** bak bilen, skal merkes.
@@ -703,7 +703,7 @@ U("FKB", "Kjøretøyet, last og tilhenger", "The vehicle, load and trailer",
 - Everyone must wear a **seat belt**. In a crash the body is thrown forward with a force equal to several tonnes, and without a belt you stop against the wheel or windscreen. The driver is responsible for passengers **under 15** being restrained.
 - Children **under 135 cm** must use an approved child restraint.
 - A **rear-facing child seat** must never be placed in front of an active airbag.
-- The car must carry a **warning triangle** and a **high-visibility vest** reachable from the driver's seat.
+- The car must carry a **warning triangle** and a **high-visibility vest**. The driver must be able to reach the vest from the driver's seat, so you are visible when you get out.
 
 ## Load and trailer
 - The load must be secured. A load sticking out more than **1 metre** behind the car must be marked.
@@ -730,9 +730,9 @@ U("FKB", "Kjøretøyet, last og tilhenger", "The vehicle, load and trailer",
   "Kollisjonsputen kan skade barnet alvorlig. Den må kobles ut, eller setet må stå bak.",
   "May a rear-facing child seat be in the front seat in front of an active airbag?", ["No, never", "Yes, if the child is big", "Yes, on short trips", "Yes, if the seat is pushed back"],
   "The airbag can seriously injure the child. It must be switched off, or the seat must be in the back."],
- ["refleksvest", "Hva skal alltid være i bilen?", ["Varseltrekant og refleksvest som kan nås fra førerplassen", "Brannslukker og tau", "Snøkjetting hele året", "Reservehjul og jekk til alle hjul"],
+ ["refleksvest", "Hva skal alltid være i bilen?", ["Varseltrekant, og en refleksvest som kan nås fra førerplassen", "Brannslukker og tau", "Snøkjetting hele året", "Reservehjul og jekk til alle hjul"],
   "Refleksvesten skal kunne nås fra førerplassen, så du er synlig når du går ut.",
-  "What must always be in the car?", ["A warning triangle and a high-visibility vest reachable from the driver's seat", "A fire extinguisher and a rope", "Snow chains all year", "A spare wheel and a jack for all wheels"],
+  "What must always be in the car?", ["A warning triangle, and a high-visibility vest reachable from the driver's seat", "A fire extinguisher and a rope", "Snow chains all year", "A spare wheel and a jack for all wheels"],
   "The vest must be reachable from the driver's seat so you are visible when you get out."],
  [null, "Last stikker langt bak bilen. Når skal den merkes?", ["Når den stikker mer enn 1 meter bak", "Når den stikker mer enn 3 meter bak", "Bare om natten", "Aldri"],
   "Last som stikker mer enn 1 meter bak kjøretøyet, skal merkes så andre ser den.",

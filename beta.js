@@ -2,15 +2,15 @@
 // Innholdet er ikke gjennomgått av fagperson ennå. Vi viser det tydelig, med kildene vi har kontrollert mot og datoen.
 // Når en fagperson har gått gjennom et område: sett reviewedBy (navn/rolle) og oppdater checked, så forsvinner BETA-merket.
 const BETA_AREAS = {
-  forer: { checked: "2026-10-09", reviewedBy: "", who: ["lovteksten, Statens vegvesen og kjørelæreren din", "the law, the Norwegian Public Roads Administration and your driving instructor"],
+  forer: { checked: "2026-10-10", reviewedBy: "", who: ["lovteksten, Statens vegvesen og kjørelæreren din", "the law, the Norwegian Public Roads Administration and your driving instructor"],
     src: [["Vegtrafikkloven og trafikkreglene (Lovdata)", "https://lovdata.no/dokument/SF/forskrift/1986-03-21-747"],
           ["Skiltforskriften (Lovdata)", "https://lovdata.no/dokument/SF/forskrift/2005-10-07-1219"],
           ["Statens vegvesen: førerkort og teoriprøve", "https://www.vegvesen.no/forerkort/"]] },
-  syk: { checked: "2026-10-09", reviewedBy: "", who: ["Felleskatalogen, lokale prosedyrer, lærebok og veileder", "the drug reference, local procedures, your textbook and supervisor"],
+  syk: { checked: "2026-10-10", reviewedBy: "", who: ["Felleskatalogen, lokale prosedyrer, lærebok og veileder", "the drug reference, local procedures, your textbook and supervisor"],
     src: [["Felleskatalogen", "https://www.felleskatalogen.no/"],
           ["Helsedirektoratet", "https://www.helsedirektoratet.no/"],
           ["NEWS2 (Royal College of Physicians)", "https://www.rcp.ac.uk/improving-care/resources/national-early-warning-score-news-2/"]] },
-  jus: { checked: "2026-10-09", reviewedBy: "", who: ["lovteksten, rettspraksis og pensum", "the statute, case law and your syllabus"],
+  jus: { checked: "2026-10-10", reviewedBy: "", who: ["lovteksten, rettspraksis og pensum", "the statute, case law and your syllabus"],
     src: [["Lovdata (gjeldende lover)", "https://lovdata.no/"],
           ["Domstol.no", "https://www.domstol.no/"]] }
 };

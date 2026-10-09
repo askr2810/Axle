@@ -30,7 +30,7 @@ Pasienten skal ha 16 IE insulin, 100 IE/ml. Volum = 16/100 = 0,16 ml.
 - Å skrive «U» eller «E» for hånd. Det kan leses som 0 eller 4, så skriv «enheter» eller «IE».
 - Å bruke vanlig sprøyte til insulin. Bruk insulinsprøyte eller penn.
 
-> IE regnes som mg: dose delt på styrke. Insulin: 100 IE/ml.
+> IE regnes på samme måte som mg (dose delt på styrke), men kan ikke gjøres om til mg. Insulin: 100 IE/ml.
 > Øvingsoppgaver. I praksis gjelder alltid legens forordning, Felleskatalogen og lokale prosedyrer.`,
 `## What is it about?
 Some drugs are dosed in international units (IU) instead of mg, for example insulin and heparin. The calculation is the same: dose divided by strength.
@@ -49,7 +49,7 @@ The patient is to have 16 IU of insulin, 100 IU/mL. Volume = 16/100 = 0.16 mL.
 - Handwriting "U". It can be read as 0 or 4, so write "units" or "IU".
 - Using an ordinary syringe for insulin. Use an insulin syringe or pen.
 
-> IU are calculated like mg: dose divided by strength. Insulin: 100 IU/mL.
+> IU are calculated the same way as mg (dose divided by strength), but cannot be converted to mg. Insulin: 100 IU/mL.
 > Practice problems. In real practice, the prescription, the product information and local procedures always apply.`);
 BIQ("SLMR", SLMR_IE, [
  ["Pasienten skal ha 24 IE insulin (100 IE/ml). Hvor mange ml?", { n: 0.24, tol: 0, u: "ml" }, "24 / 100 = 0,24 ml.", "The patient is to have 24 IU of insulin (100 IU/mL). How many mL?", null, "24 / 100 = 0.24 mL."],

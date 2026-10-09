@@ -368,11 +368,11 @@ Når en vare ikke er som avtalt, har kjøperen krav mot selgeren. **Kjøpsloven*
 - **Reklamasjon**: kjøperen må si fra om mangelen innen **rimelig tid** etter at hen oppdaget den.
 - **Absolutt frist**: **2 år** etter at kjøperen overtok varen, eller **5 år** for ting som skal vare vesentlig lenger (for eksempel en vaskemaskin eller en bil).
 - For forbrukere er det aldri for sent å reklamere innen **2 måneder** etter at mangelen ble oppdaget.
-- **Mangelsbeføyelser**: retting eller omlevering, prisavslag, heving (ved vesentlig mangel), erstatning, og å holde tilbake betalingen.
+- **Mangelsbeføyelser**: retting eller omlevering, prisavslag, heving (ved vesentlig mangel – for forbrukere når mangelen ikke er uvesentlig), erstatning, og å holde tilbake betalingen.
 - «**Som den er**»: varen har likevel mangel hvis den er i vesentlig dårligere stand enn kjøperen kunne regne med.
 
 ### Eksempel
-Du kjøpte en mobil i en butikk for 2,5 år siden, og den slutter å virke. En mobil skal normalt ikke vare vesentlig lenger enn 2 år, så fristen er trolig ute.
+Du kjøpte en mobil i en butikk for 2,5 år siden, og den slutter å virke. I praksis (Forbrukerklageutvalget) regnes en mobil som en ting som skal vare vesentlig lenger enn 2 år, så fristen er 5 år. Du kan fortsatt reklamere – gjør det innen rimelig tid etter at du oppdaget feilen.
 
 > Si fra raskt. Kjenn fristene på 2 og 5 år.`,
 `## What is it about?
@@ -383,11 +383,11 @@ When goods are not as agreed, the buyer has claims against the seller. **The Sal
 - **Notice**: the buyer must notify the seller of the defect within a **reasonable time** after discovering it.
 - **Absolute deadline**: **2 years** after the buyer took over the goods, or **5 years** for things meant to last considerably longer (for example a washing machine or a car).
 - For consumers, notice is never too late within **2 months** after the defect was discovered.
-- **Remedies**: repair or replacement, price reduction, termination (for a material defect), damages, and withholding payment.
+- **Remedies**: repair or replacement, price reduction, termination (for a material defect – for consumers when the defect is not insignificant), damages, and withholding payment.
 - "**As is**": the goods still have a defect if they are in considerably worse condition than the buyer could expect.
 
 ### Example
-You bought a phone in a shop 2.5 years ago, and it stops working. A phone is not normally meant to last considerably longer than 2 years, so the deadline has probably passed.
+You bought a phone in a shop 2.5 years ago, and it stops working. In practice (the Consumer Disputes Commission) a phone counts as an item meant to last considerably longer than 2 years, so the deadline is 5 years. You can still complain – do it within a reasonable time after you discovered the fault.
 
 > Give notice quickly. Know the 2-year and 5-year deadlines.`);
 BIQ("JAVT", A_KJOP, [
@@ -399,7 +399,7 @@ BIQ("JAVT", A_KJOP, [
  ["Kan en butikk avtale dårligere vilkår enn forbrukerkjøpsloven gir?", ["Nei, loven er ufravikelig til skade for forbrukeren", "Ja, hvis det står i vilkårene", "Ja, for billige varer", "Bare ved salg på nett"], "Forbrukerkjøpsloven er preseptorisk.", "Can a shop agree on worse terms than the Consumer Purchases Act gives?", ["No, the Act cannot be departed from to the consumer's detriment", "Yes, if it is in the terms", "Yes, for cheap goods", "Only for online sales"], "The Consumer Purchases Act is mandatory."]
 ]);
 GEN("JAVT", A_KJOP,
- () => { const [ting, lang] = R.p([[["en mobil", "a phone"], false], [["en genser", "a sweater"], false], [["en vaskemaskin", "a washing machine"], true], [["en bil", "a car"], true], [["en sofa", "a sofa"], true], [["en hodetelefon", "a pair of headphones"], false]]), mnd = R.p([10, 18, 26, 30, 40, 54, 66]), frist = lang ? 60 : 24, ok = mnd <= frist;
+ () => { const [ting, lang] = R.p([[["en mobil", "a phone"], true], [["en genser", "a sweater"], false], [["en vaskemaskin", "a washing machine"], true], [["en bil", "a car"], true], [["en sofa", "a sofa"], true], [["en hodetelefon", "a pair of headphones"], false]]), mnd = R.p([10, 18, 26, 30, 40, 54, 66]), frist = lang ? 60 : 24, ok = mnd <= frist;
    return MC([`En forbruker oppdager en mangel ved ${ting[0]} ${mnd} måneder etter kjøpet og sier fra med én gang. Er reklamasjonen i tide?`, `A consumer discovers a defect in ${ting[1]} ${mnd} months after purchase and gives notice at once. Is the notice in time?`],
      ok ? [["Ja", "Yes"], ["Nei, fristen er ute", "No, the deadline has passed"], ["Bare hvis hen har kvittering", "Only with a receipt"], ["Bare hvis butikken samtykker", "Only if the shop agrees"]] : [["Nei, fristen er ute", "No, the deadline has passed"], ["Ja", "Yes"], ["Ja, fordi hen sa fra med én gang", "Yes, because notice was given at once"], ["Ja, alltid innen 10 år", "Yes, always within 10 years"]],
      [`Fristen for ${ting[0]} er ${frist / 12} år (${frist} måneder), og ${mnd} måneder er ${ok ? "innenfor" : "etter"} fristen.`, `The deadline for ${ting[1]} is ${frist / 12} years (${frist} months), and ${mnd} months is ${ok ? "within" : "after"} the deadline.`]); }
