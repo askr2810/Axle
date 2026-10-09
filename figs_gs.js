@@ -35,9 +35,15 @@ const pizza = (cx, cy, r, n, k) => { let s = circ(cx, cy, r, `fill:var(--card);s
 // Tallinje med hopp (pil-buer) fra a, n hopp i retning d
 const hops = (X, y, a, n, d, c) => { let s = ""; for(let i = 0; i < n; i++){ const x0 = X(a + i * d), x1 = X(a + (i + 1) * d), m = (x0 + x1) / 2;
   s += `<path d="M${x0} ${y - 2} Q${m} ${y - 26} ${x1} ${y - 3}" style="fill:none;stroke:var(--c${c});stroke-width:2"/>` + `<polygon points="${x1},${y - 2} ${x1 - 5 * d},${y - 10} ${x1 + 1.5 * d},${y - 10}" style="fill:var(--c${c})"/>`; } return s; };
+// Tallinje med etiketter. Etiketter som ville overlappet naboen (f.eks. 884 og 885), legges på en rad lenger ned med en strek opp til tallet.
 const numline = (y, from, to, X, labs, hl) => { let s = `<line class="fg-line" x1="${X(from) - 8}" y1="${y}" x2="${X(to) + 8}" y2="${y}"/>`;
   for(let n = from; n <= to; n++) s += `<line class="fg-line" x1="${X(n)}" y1="${y - (n % 5 ? 4 : 7)}" x2="${X(n)}" y2="${y + (n % 5 ? 4 : 7)}" stroke-width="${n % 5 ? 1.2 : 2}"/>`;
-  labs.forEach(n => { const l = String(n).replace("-", "−"); s += hl[n] ? col(X(n), y + 22, l, hl[n]) : tx(X(n), y + 22, l, "fg-s fg-tick"); }); return s; };
+  const w = n => String(n).length * 7.4 + 6, end = [-1e9, -1e9]; // høyre kant av forrige etikett på rad 0 og rad 1
+  [...labs].sort((p, q) => p - q).forEach(n => {
+    const x = X(n), l = String(n).replace("-", "−"); let row = x - w(n) / 2 < end[0] + 2 ? 1 : 0; if(row && x - w(n) / 2 < end[1] + 2) return; // får ikke plass: hoppes over (skalatall)
+    end[row] = x + w(n) / 2; const ly = y + 22 + row * 20;
+    if(row) s += `<line x1="${x}" y1="${y + 9}" x2="${x}" y2="${ly - 12}" style="stroke:var(--muted);stroke-width:1"/>`;
+    s += hl[n] ? col(x, ly, l, hl[n]) : tx(x, ly, l, "fg-s fg-tick"); }); return s; };
 // Formeltrekant (s over v og t, U over R og I)
 const tri = (top, bl, br) => `<polygon points="90,22 22,150 158,150" style="${soft(3, 14)}"/><line x1="51" y1="95" x2="129" y2="95" style="stroke:var(--c3);stroke-width:1.6"/><line x1="90" y1="95" x2="90" y2="150" style="stroke:var(--c3);stroke-width:1.6"/>` +
   tx(90, 82, top, "fg-big") + tx(62, 136, bl, "fg-big") + tx(118, 136, br, "fg-big");
@@ -48,14 +54,14 @@ Object.assign(FIGS, {
   gs_place: (p = {}) => { const n = Math.max(0, Math.min(999, Math.round(p.n ?? 347))), h = Math.floor(n / 100), t = Math.floor(n / 10) % 10, e = n % 10; let s = "";
     const [cH, cT, cE] = n >= 100 ? [96, 228, 289] : [0, 112, 222];
     if(n >= 100){ const rows = Math.ceil(h / 3), sz = Math.min(56, (84 - (rows - 1) * 4) / rows), per = Math.min(3, h), W = per * sz + (per - 1) * 6, u = sz / 10;
-      for(let k = 0; k < h; k++){ const x0 = f1(cH - W / 2 + (k % 3) * (sz + 6)), y0 = f1(40 + Math.floor(k / 3) * (sz + 4)), S = f1(sz);
+      for(let k = 0; k < h; k++){ const inRow = Math.min(3, h - Math.floor(k / 3) * 3), Wr = inRow * sz + (inRow - 1) * 6, x0 = f1(cH - Wr / 2 + (k % 3) * (sz + 6)), y0 = f1(40 + Math.floor(k / 3) * (sz + 4)), S = f1(sz); // hver rad sentrert
         s += `<rect x="${x0}" y="${y0}" width="${S}" height="${S}" style="${solid(3, 35)}"/>`;
         for(let i = 1; i < 10; i++) s += `<line x1="${f1(x0 + i * u)}" y1="${y0}" x2="${f1(x0 + i * u)}" y2="${f1(y0 + sz)}" style="stroke:var(--c3);stroke-width:.5"/><line x1="${x0}" y1="${f1(y0 + i * u)}" x2="${f1(x0 + sz)}" y2="${f1(y0 + i * u)}" style="stroke:var(--c3);stroke-width:.5"/>`;
         s += `<rect x="${x0}" y="${y0}" width="${S}" height="${S}" style="fill:none;stroke:var(--c3);stroke-width:1.6"/>`; }
       s += tx(cH, 28, T("hundrere", "hundreds"), "fg-s") + (p.hide ? "" : col(cH, 150, String(h), 3, "fg-big")); }
-    for(let k = 0; k < t; k++){ const x0 = cT - (t * 8 - 2) / 2 + k * 8; s += `<rect x="${x0}" y="40" width="6" height="60" style="${soft(4, 45)}"/>`;
-      for(let i = 1; i < 10; i++) s += `<line x1="${x0}" y1="${40 + i * 6}" x2="${x0 + 6}" y2="${40 + i * 6}" style="stroke:var(--c4);stroke-width:.6"/>`; }
-    for(let k = 0; k < e; k++) s += `<rect x="${cE - 11 + (k % 2) * 14}" y="${40 + Math.floor(k / 2) * 12}" width="9" height="9" rx="1" style="${soft(2, 55)}"/>`;
+    for(let k = 0; k < t; k++){ const x0 = cT - (t * 8 - 2) / 2 + k * 8; s += `<rect x="${x0}" y="64" width="6" height="60" style="${soft(4, 45)}"/>`;
+      for(let i = 1; i < 10; i++) s += `<line x1="${x0}" y1="${64 + i * 6}" x2="${x0 + 6}" y2="${64 + i * 6}" style="stroke:var(--c4);stroke-width:.6"/>`; }
+    for(let k = 0; k < e; k++) s += `<rect x="${cE - 5}" y="${f1(124 - (k + 1) * 9.4)}" width="10" height="8.6" rx="1.5" style="${soft(2, 55)}"/>`; // enerne stablet i én søyle, nedenfra
     s += tx(cT, 28, T("tiere", "tens"), "fg-s") + tx(cE, 28, T("enere", "ones"), "fg-s");
     if(p.hide) return { cap: T("Tallet bygget av hundrerplater, tierstenger og enerklosser.", "The number built from hundred flats, ten sticks and one blocks."), svg: s };
     s += col(cT, 150, String(t), 4, "fg-big") + col(cE, 150, String(e), 2, "fg-big");

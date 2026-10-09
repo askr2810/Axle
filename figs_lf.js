@@ -26,7 +26,7 @@ Object.assign(FIGS, {
       s += `<polygon points="${f1(xt - 4)},${yt} ${f1(xt + 4)},${yt} ${xt},${f1(yt + 8)}" style="fill:#fff;stroke:var(--c4);stroke-width:1"/><polygon points="${f1(xb - 4)},${yb} ${f1(xb + 4)},${yb} ${xb},${f1(yb - 8)}" style="fill:#fff;stroke:var(--c4);stroke-width:1"/>`; }
     const [ex, ey] = J(0.18, 84, 44); s += circ(ex, f1(ey - 12), 8, "fill:#fff;stroke:var(--c4);stroke-width:2.4") + circ(f1(ex + dir * 2), f1(ey - 12), 3.6, "fill:#16202a");
     const big = d > 0 ? a : b, sign = d > 0 ? ">" : "<";
-    s += tx(160, 162, `${minus(a)} ${sign} ${minus(b)}`, "fg-b") + tx(160, 178, T(`krokodillen spiser ${minus(big)}`, `the crocodile eats ${minus(big)}`), "fg-s");
+    s += tx(160, 162, `${minus(a)} ${sign} ${minus(b)}`, "fg-b") + tx(160, 178, T(`krokodillen spiser ${minus(big)} fordi det er størst`, `the crocodile eats ${minus(big)} because it is bigger`), "fg-s");
     return { cap: T(`Munnen åpner seg mot det største tallet: ${minus(a)} ${sign} ${minus(b)}. Vi leser: «${minus(a)} er ${d > 0 ? "større" : "mindre"} enn ${minus(b)}».`,
       `The mouth opens towards the bigger number: ${minus(a)} ${sign} ${minus(b)}. We read: "${minus(a)} is ${d > 0 ? "greater" : "less"} than ${minus(b)}".`), svg: s }; },
 

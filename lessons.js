@@ -32,7 +32,7 @@ LESSON({ id: "croc", at: [["GS14", "Tall og plassverdi"]], t: ["> og <", "> and 
   { fig: ["lf_croc", { a: 3, b: 8 }], say: ["Munnen åpner seg mot det største tallet. Her er 8 størst, så vi skriver $3 < 8$. Vi leser: «3 er **mindre enn** 8».", "The mouth opens towards the bigger number. Here 8 is bigger, so we write $3 < 8$. We read: \"3 is **less than** 8\"."] },
   { try: { ask: ["Trykk på + og −. Få krokodillen til å snu seg mot tallet til venstre.", "Press + and −. Make the crocodile turn towards the number on the left."],
     ctl: [{ k: "a", l: ["Tallet til venstre", "Left number"], min: 0, max: 12, v: 2 }], fig: "lf_croc", p: { b: 6 }, goal: s => s.a > 6,
-    say: s => s.a > 6 ? [`$${s.a} > 6$ – krokodillen spiser ${s.a}`, `$${s.a} > 6$ – the crocodile eats ${s.a}`] : s.a < 6 ? [`$${s.a} < 6$ – krokodillen spiser 6`, `$${s.a} < 6$ – the crocodile eats 6`] : [`$${s.a} = 6$ – like store`, `$${s.a} = 6$ – equal`],
+    say: s => s.a > 6 ? [`$${s.a} > 6$ – krokodillen spiser ${s.a} fordi det er størst`, `$${s.a} > 6$ – the crocodile eats ${s.a} because it is bigger`] : s.a < 6 ? [`$${s.a} < 6$ – krokodillen spiser 6 fordi det er størst`, `$${s.a} < 6$ – the crocodile eats 6 because it is bigger`] : [`$${s.a} = 6$ – like store`, `$${s.a} = 6$ – equal`],
     ok: ["Ja! Nå er tallet til venstre størst, og munnen åpner seg mot det.", "Yes! Now the left number is bigger, and the mouth opens towards it."] } },
   { q: ["Hvilket tegn passer: 7 ☐ 4?", ["$>$", "$<$", "$=$"], "Munnen åpner seg mot 7, det største tallet: $7 > 4$.",
         "Which sign fits: 7 ☐ 4?", ["$>$", "$<$", "$=$"], "The mouth opens towards 7, the bigger number: $7 > 4$."] }
