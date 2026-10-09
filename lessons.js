@@ -44,7 +44,7 @@ LESSON({ id: "place", at: [["GS14", "Tall og plassverdi"]], t: ["Enere, tiere og
   { fig: ["gs_place", { n: 347 }], say: ["Ti stenger blir en plate: en **hundrer**. 347 er 3 hundrere, 4 tiere og 7 enere.", "Ten sticks make a flat: a **hundred**. 347 is 3 hundreds, 4 tens and 7 ones."] },
   { try: { ask: ["Bygg tallet 254 med plater, stenger og klosser.", "Build the number 254 with flats, sticks and blocks."],
     ctl: [{ k: "h", l: ["Hundrere", "Hundreds"], min: 0, max: 9, v: 0 }, { k: "t", l: ["Tiere", "Tens"], min: 0, max: 9, v: 0 }, { k: "e", l: ["Enere", "Ones"], min: 0, max: 9, v: 0 }],
-    fig: "gs_place", map: s => ({ n: 100 * s.h + 10 * s.t + s.e }), goal: s => 100 * s.h + 10 * s.t + s.e === 254,
+    fig: "gs_place", map: s => ({ n: 100 * s.h + 10 * s.t + s.e, hide: 100 * s.h + 10 * s.t + s.e !== 254 }), goal: s => 100 * s.h + 10 * s.t + s.e === 254,
     say: s => [`Du har bygget **${100 * s.h + 10 * s.t + s.e}**.`, `You have built **${100 * s.h + 10 * s.t + s.e}**.`],
     ok: ["Riktig! 254 er 2 hundrere, 5 tiere og 4 enere.", "Right! 254 is 2 hundreds, 5 tens and 4 ones."] } },
   { q: ["Hvor mange tiere er det i tallet 58?", ["5", "8", "58", "13"], "I 58 står 5 på tierplassen. Det er 5 tiere og 8 enere.",
