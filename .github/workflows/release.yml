@@ -70,9 +70,11 @@ jobs:
       - name: Sjekk at Mac-appen er signert
         if: runner.os == 'macOS'
         run: |
-          app=$(find desktop/src-tauri/target -path '*/bundle/macos/*.app' -maxdepth 6 | head -1)
-          codesign --verify --deep --strict --verbose=2 "$app"
-          codesign -dv "$app" 2>&1 | grep -q "Sealed Resources version"
+          dmg=$(find desktop/src-tauri/target -path '*/bundle/dmg/*.dmg' | head -1)
+          hdiutil attach -nobrowse -readonly -mountpoint /tmp/axle-dmg "$dmg"
+          codesign --verify --deep --strict --verbose=2 /tmp/axle-dmg/Axle.app
+          codesign -dv /tmp/axle-dmg/Axle.app 2>&1 | grep -q "Sealed Resources version"
+          hdiutil detach /tmp/axle-dmg
       - name: Gi filen et fast navn
         run: |
           f=$(find desktop/src-tauri/target -path '*/bundle/*' \( -name '*.dmg' -o -name '*-setup.exe' \) | head -1)
