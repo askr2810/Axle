@@ -20,12 +20,12 @@ function betaOf(code){
 }
 const betaDate = iso => { const [y, m, d] = iso.split("-"); return `${d}.${m}.${y}`; };
 function betaTagHTML(code){ return betaOf(code) ? `<span class="betatag" title="${esc(T("Ikke kontrollert av fagperson ennå", "Not yet reviewed by an expert"))}">BETA</span>` : ""; }
-function betaNoteHTML(code, compact){
+function betaNoteHTML(code){
   const a = betaOf(code); if(!a) return "";
   const src = a.src.map(([n, u]) => `<a href="${esc(u)}" target="_blank" rel="noopener">${esc(n)}</a>`).join(", ");
-  return `<aside class="beta-note${compact ? " compact" : ""}" role="note"><span class="betatag">BETA</span><div>
-    <b>${esc(T("Ikke kontrollert av fagperson ennå", "Not yet reviewed by an expert"))}</b>
-    <p>${esc(T(`Vi har sjekket innholdet mot offisielle kilder, men det kan forekomme feil. Ved tvil gjelder alltid ${a.who[0]}.`, `We have checked the content against official sources, but mistakes can occur. When in doubt, ${a.who[1]} always apply.`))}</p>
-    ${compact ? "" : `<p class="beta-src">${esc(T("Kilder", "Sources"))}: ${src}</p>`}
-    <p class="beta-src">${esc(T("Sist kontrollert", "Last checked"))} ${betaDate(a.checked)} · <button class="linkbtn" data-a="feedback">${esc(T("Meld fra om feil", "Report a mistake"))}</button></p></div></aside>`;
+  // Kort linje som standard; «Les mer» folder ut forklaring, kilder og dato
+  return `<details class="beta-note"><summary><span class="betatag">BETA</span><b>${esc(T("Ikke kontrollert av fagperson ennå", "Not yet reviewed by an expert"))}</b><span class="beta-more"><span class="bm-o">${esc(T("Les mer", "Read more"))}</span><span class="bm-c">${esc(T("Skjul", "Hide"))}</span></span></summary>
+    <div class="beta-body"><p>${esc(T(`Vi har sjekket innholdet mot offisielle kilder, men det kan forekomme feil. Ved tvil gjelder alltid ${a.who[0]}.`, `We have checked the content against official sources, but mistakes can occur. When in doubt, ${a.who[1]} always apply.`))}</p>
+    <p class="beta-src">${esc(T("Kilder", "Sources"))}: ${src}</p>
+    <p class="beta-src">${esc(T("Sist kontrollert", "Last checked"))} ${betaDate(a.checked)} · <button class="linkbtn" data-a="feedback">${esc(T("Meld fra om feil", "Report a mistake"))}</button></p></div></details>`;
 }

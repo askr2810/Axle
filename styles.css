@@ -3170,16 +3170,20 @@ details.cat-mc{margin:6px 0}details.cat-mc>summary{cursor:pointer;font-size:12px
 .tc-psub{margin:8px 0 10px;flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none}.tc-psub::-webkit-scrollbar{display:none}.tc-psub button{flex:none}
 .te-share{margin:14px 0 0;padding:12px 14px;border-radius:18px;border:2px solid var(--line);background:var(--card)}.te-share .srow{padding:0;border:0;background:none}
 .pick-search{margin:4px 0 14px}
-/* BETA: fag som ikke er kontrollert av fagperson */
+/* BETA: fag som ikke er kontrollert av fagperson. Kort linje, «Les mer» folder ut detaljene */
 .betatag{display:inline-block;font-family:var(--mono);font-size:10px;font-weight:800;letter-spacing:.06em;background:#b45309;color:#fff;border-radius:5px;padding:1px 6px;margin-left:6px;vertical-align:2px}
-.beta-note{display:flex;gap:10px;align-items:flex-start;border:2px solid #f59e0b;background:color-mix(in srgb,#f59e0b 12%,var(--card,#fff));border-radius:14px;padding:12px 14px;margin:0 0 14px;font-size:14px;line-height:1.45;text-align:left}
-.beta-note .betatag{margin:2px 0 0;flex:none}
-.beta-note b{display:block;margin-bottom:2px}
+.beta-note{border:2px solid #f59e0b;background:color-mix(in srgb,#f59e0b 12%,var(--card,#fff));border-radius:14px;margin:0 0 14px;font-size:14px;line-height:1.45;text-align:left}
+.beta-note summary{display:flex;align-items:center;gap:8px;padding:9px 12px;cursor:pointer;list-style:none}
+.beta-note summary::-webkit-details-marker{display:none}
+.beta-note summary .betatag{margin:0;flex:none}
+.beta-note summary b{flex:1;min-width:0;font-size:13.5px}
+.beta-more{flex:none;font-size:12.5px;font-weight:700;text-decoration:underline;text-underline-offset:3px}
+.beta-note .bm-c,.beta-note[open] .bm-o{display:none}.beta-note[open] .bm-c{display:inline}
+.beta-body{padding:0 12px 10px}
 .beta-note p{margin:2px 0}
 .beta-note .beta-src{font-size:12.5px;opacity:.85}
 .beta-note .beta-src a{color:inherit}
 .beta-note .linkbtn{font-size:12.5px;color:inherit;padding:0;font-weight:700}
-.beta-note.compact p:first-of-type{font-size:13px}
 /* Venner på PC: topplisten til venstre, deg selv, forespørsler og «finn venner» til høyre */
 .fr-cols,.fr-a,.fr-m,.fr-b{display:contents}
 @media (min-width:1100px){
