@@ -53,6 +53,7 @@ function gdBest(pool, text){
   return pool.splice(best, 1)[0];
 }
 function gdOpen(code, u, go){
+  if(!cfReady(code)){ cfThen(code, () => gdOpen(code, u, go)); return; } // teorien ligger i fagfila (cfload.js)
   const doc = theoryOf(code, u); if(!doc){ if(go) startUnitLesson(code, go.u, go.k); return; }
   const src = withSims(code, u, withFigs(code, u, doc[LANG] || doc.nb)), secs = gdSections(src);
   // Lær litt, prøv litt: et spørsmål etter hvert andre kort, valgt blant enhetens oppgaver etter hva kortene handlet om.

@@ -9,7 +9,9 @@ const src = fs.readFileSync(FILE, "utf8");
 const out = await minify(src, {
   ecma: 2020, toplevel: true,
   compress: { passes: 2 },
-  mangle: { toplevel: true },
+  // FL, LANG og CF brukes av fagfilene (c/<KODE>.js, se tools/split.js og cfload.js) og må beholde navnet –
+  // ellers kan et forkortet navn i pakken skygge for dem.
+  mangle: { toplevel: true, reserved: ["FL", "LANG", "CF"] },
   format: { comments: false, preamble: BANNER }
 });
 fs.writeFileSync(FILE, out.code);

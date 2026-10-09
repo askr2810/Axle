@@ -338,6 +338,7 @@ function renderEdit(){
   if(!ED) return edOpen();
   if(!canEdit()){ $app.innerHTML = `${edTop(T("Innhold", "Content"), T("Rett innhold", "Edit content"))}<main class="wrap"><p class="ed-note">${esc(T("Denne siden er for fagfolk og moderatorer. Logg inn med en konto som har rettigheter.", "This page is for subject experts and moderators. Log in with an account that has access."))}</p></main>`; return; }
   const c = COURSE(ED.code) || COURSES[0];
+  if(!cfNeed(c.code)){ $app.innerHTML = `${edTop(T("Innhold", "Content"), courseName(c))}<main class="wrap">${cfWaitHTML(c.code)}</main>`; return; } // teori og emner må være lastet før de kan rettes
   if(ED.view === "log"){
     $app.innerHTML = `${edTop(T("Innhold", "Content"), T("Endringslogg", "Change log"))}<main class="wrap ed">
       <p class="ed-intro">${esc(T("Alle rettinger, nyeste først. Alt kan angres – da gjelder forrige versjon igjen.", "All edits, newest first. Everything can be undone – the previous version then applies again."))}</p>

@@ -8,19 +8,29 @@ import os, shutil, json
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
 JS = ["config.js", "i18n.js", "data.js", "gens.js","gens_b.js", "more.js", "more2.js", "more2_b.js", "subjects2.js", "subjects2_b.js", "more3.js",
-      "en_static_*.js", "learn.js", "add_*.js", "figlib.js", "topics.js", "top_*.js", "exam.js", "backup.js", "cloud.js", "studies.js", "welcome.js", "book.js", "qsearch.js", "catalog.js", "focus.js", "pomo.js", "friends.js", "groups.js", "person.js", "admin.js", "community.js", "avatar.js", "unlocks.js", "badges.js", "challenge.js", "drill.js", "drill_*.js", "favs.js", "push.js", "sfx.js", "figures.js", "figs_vgs.js", "figs_gs.js", "figs_lf.js", "qart.js", "sims.js", "sims2.js", "sims3.js", "sims4.js", "sims5.js", "sims6.js", "sims7.js", "timeline.js", "maps_data.js", "maps.js", "geo_game.js", "motion.js", "control.js", "ekalk.js", "guided.js", "lessons.js", "proofs.js", "trig.js", "forces.js", "lab.js", "avr.js", "code_tasks.js", "code_avr.js", "code.js", "drive_signs_ref.js", "drive_signs.js", "drive_signs_more.js", "drive.js", "drive_game.js", "drive_scenes.js", "drive_pics.js", "sorts.js", "tts.js", "share.js", "inbox.js", "theme.js", "snacks.js", "games.js", "duel.js", "mq.js", "teach.js", "mydecks.js", "units.js", "profile.js", "engage.js", "route.js", "stats.js", "ui_fit.js", "edit.js", "beta.js", "app.js"]
+      "en_static_*.js", "learn.js", "add_*.js", "figlib.js", "topics.js", "top_*.js", "cfload.js", "exam.js", "backup.js", "cloud.js", "studies.js", "welcome.js", "book.js", "qsearch.js", "catalog.js", "focus.js", "pomo.js", "friends.js", "groups.js", "person.js", "admin.js", "community.js", "avatar.js", "unlocks.js", "badges.js", "challenge.js", "drill.js", "drill_*.js", "favs.js", "push.js", "sfx.js", "figures.js", "figs_vgs.js", "figs_gs.js", "figs_lf.js", "qart.js", "sims.js", "sims2.js", "sims3.js", "sims4.js", "sims5.js", "sims6.js", "sims7.js", "timeline.js", "maps_data.js", "maps.js", "geo_game.js", "motion.js", "control.js", "ekalk.js", "guided.js", "lessons.js", "proofs.js", "trig.js", "forces.js", "lab.js", "avr.js", "code_tasks.js", "code_avr.js", "code.js", "drive_signs_ref.js", "drive_signs.js", "drive_signs_more.js", "drive.js", "drive_game.js", "drive_scenes.js", "drive_pics.js", "sorts.js", "tts.js", "share.js", "inbox.js", "theme.js", "snacks.js", "games.js", "duel.js", "mq.js", "teach.js", "mydecks.js", "units.js", "profile.js", "engage.js", "route.js", "stats.js", "ui_fit.js", "edit.js", "beta.js", "app.js"]
 FONTS = '<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Figtree:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap">'
 KATEX_CDN = "https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js"
 
 def read(p): return open(os.path.join(ROOT, p), encoding="utf-8").read()
 
-def bundle():
+def files():
     import glob
-    parts = []
-    for pat in JS:
-        for f in sorted(glob.glob(os.path.join(ROOT, pat))):
-            parts.append(f"// ===== {os.path.basename(f)} =====\n" + open(f, encoding="utf-8").read())
-    return "\n".join(parts)
+    return [os.path.basename(f) for pat in JS for f in sorted(glob.glob(os.path.join(ROOT, pat)))]
+
+def bundle():
+    return "\n".join(f"// ===== {f} =====\n" + read(f) for f in files())
+
+def split(out):
+    """Teori og emnesider til én fil per fag (release/www/c/<KODE>.js), se tools/split.js. Gir versjonene, eller {} uten node."""
+    import subprocess
+    try:
+        subprocess.run(["node", os.path.join(ROOT, "tools", "split.js"), out], input=json.dumps(files()), text=True, check=True)
+    except FileNotFoundError:
+        print("  node finnes ikke – teori og emnesider blir liggende i hovedpakken"); shutil.rmtree(os.path.join(out, "c"), ignore_errors=True); return {}
+    import re
+    m = re.match(r"const CF_V = (\{.*?\}), CF_IDX", open(os.path.join(out, "app.bundle.js"), encoding="utf-8").read(2_000_000))
+    return json.loads(m.group(1)) if m else {}
 
 def build_artifact(js, css):
     os.makedirs(os.path.join(ROOT, "dist"), exist_ok=True)
@@ -95,13 +105,14 @@ img{{max-width:100%}}
         if os.path.exists(os.path.join(out, f)): os.remove(os.path.join(out, f))
     open(os.path.join(out, "index.html"), "w", encoding="utf-8").write(head)
     open(os.path.join(out, "app.bundle.js"), "w", encoding="utf-8").write(js)
+    cfv = split(out)  # teori og emnesider ut av hovedpakken
     # statiske filer
     import hashlib
     if os.path.exists(os.path.join(ROOT, "web", "favicon.ico")): shutil.copy(os.path.join(ROOT, "web", "favicon.ico"), os.path.join(out, "favicon.ico"))  # Google henter logoen herfra
     for f in ["manifest.webmanifest", "sw.js", "privacy.html", "terms.html"]:
         src = os.path.join(ROOT, "web", f)
         if os.path.exists(src):
-            txt = open(src, encoding="utf-8").read().replace("__BUILD__", stamp)
+            txt = open(src, encoding="utf-8").read().replace("__BUILD__", stamp).replace("__CF__", json.dumps(cfv))
             open(os.path.join(out, f), "w", encoding="utf-8").write(txt)
     icons = os.path.join(ROOT, "web", "icons")
     if os.path.isdir(icons): shutil.copytree(icons, os.path.join(out, "icons"), dirs_exist_ok=True)

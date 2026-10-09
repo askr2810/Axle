@@ -23,6 +23,7 @@ function snQuestion(c){
   return null;
 }
 function snFact(c){
+  if(!cfReady(c.code)){ ensureCourse(c.code); return null; } // teorien kommer med fagfila; neste runde kan bruke den
   const us = c.units.map((_, i) => i).filter(i => theoryOf(c.code, i)); if(!us.length) return null;
   const u = snRand(us), doc = theoryOf(c.code, u), src = doc[LANG] || doc.nb, rem = bkRemember(src), pts = bkPoints(src, 6);
   const txt = rem.length && Math.random() < 0.6 ? snRand(rem) : pts.length ? snRand(pts) : rem[0]; if(!txt) return null;
@@ -39,7 +40,8 @@ function snProof(courses){
 }
 // Ett emne som et lite, visuelt kort: tegningen, en kort forklaring og den viktigste formelen.
 function snTopic(courses){
-  const c = snRand(courses), us = c.units.map((_, i) => i).filter(u => topicsOf(c.code, u).length); if(!us.length) return null;
+  const c = snRand(courses); if(!cfReady(c.code)){ ensureCourse(c.code); return null; }
+  const us = c.units.map((_, i) => i).filter(u => topicsOf(c.code, u).length); if(!us.length) return null;
   const u = snRand(us), tp = snRand(topicsOf(c.code, u)); return { kind: "topic", code: c.code, u, id: tp.id };
 }
 // Repetisjon: noe du bommet på tidligere kommer tilbake. Riktig med en gang = ut av repetisjonslista.

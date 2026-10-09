@@ -1284,7 +1284,7 @@ function thLayers(html, mid = ""){
 document.addEventListener("toggle", () => { if(typeof fitSoon === "function") fitSoon(); }, true);
 document.addEventListener("click", e => { const b = e.target.closest && e.target.closest('[data-a="thsall"]'); if(!b) return; e.stopPropagation();
   const all = [...document.querySelectorAll("details.ths")], open = !all.every(d => d.open); all.forEach(d => d.open = open); b.textContent = open ? T("Lukk alle", "Close all") : T("Åpne alle", "Open all"); }, true);
-function theoryBody(code, u, quiz){ const doc = theoryOf(code, u); if(!doc) return `<p>${esc(t("noTheory"))}</p>`; const src = withSims(code, u, withFigs(code, u, doc[LANG] || doc.nb));
+function theoryBody(code, u, quiz){ const doc = theoryOf(code, u); if(!doc) return `<p>${esc(t("noTheory"))}</p>`; if(!cfNeed(code)) return cfWaitHTML(code); /* fagfila lastes (cfload.js) */ const src = withSims(code, u, withFigs(code, u, doc[LANG] || doc.nb));
   return (typeof ttsBarHTML === "function" ? ttsBarHTML() : "") + thLayers(richDoc(src), tyKeyHTML(src)) + (quiz ? cyHTML(code, u) : ""); }
 function renderTheory(){
   if(!TH){ screen = "home"; renderHome(); return; }
@@ -1430,6 +1430,7 @@ document.addEventListener("click", async e=>{
   if(examClick(a, b)) return; // eksamensmodus (handlinger som starter med "ex")
   if(guidedClick(a, b)) return; // steg for steg
   if(lfClick(a, b)) return; // «Lær først» (lessons.js)
+  if(cfClick(a, b)) return; // «Prøv igjen» når en fagfil ikke kunne hentes (cfload.js)
   if(communityClick(a, b)) return; // fellesskapskurs
   if(a==="community"){ openCommunity(); return; }
   if((a==="home" || a==="quitok") && L && L.kind==="mydeck"){ overlay = null; L = null; mdReturn(); return; }

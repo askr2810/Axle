@@ -83,10 +83,10 @@ function bkIndex(){
   if(BK_INDEX && BK_INDEX_LANG === LANG) return BK_INDEX;
   BK_INDEX = []; BK_INDEX_LANG = LANG;
   for(const c of bkCourses()) for(const u of bkUnits(c)){
-    const src = bkDoc(c.code, u);
-    BK_INDEX.push({ code: c.code, u, title: unitTitle(c, u), course: courseName(c), text: plain(src).replace(/\*\*/g, "").replace(/#+ /g, "") });
+    const full = cfReady(c.code), src = full ? bkDoc(c.code, u) : ""; // fag som ikke er lastet: den lille indeksen (ingress og stikkord)
+    BK_INDEX.push({ code: c.code, u, title: unitTitle(c, u), course: courseName(c), text: full ? plain(src).replace(/\*\*/g, "").replace(/#+ /g, "") : cfIdxText(c.code, u) });
     for(const tp of topicsOf(c.code, u)){ const x = tpText(tp); // emnesidene: tittel, ingress og symbolforklaringer
-      BK_INDEX.push({ code: c.code, u, id: tp.id, title: x.t, course: courseName(c) + " · " + unitTitle(c, u), text: plain([x.intro, ...(x.legend || []).map(l => l[1]), ...(x.f || []).map(f => f[1]), x.tip].join(" ")) }); }
+      BK_INDEX.push({ code: c.code, u, id: tp.id, title: x.t, course: courseName(c) + " · " + unitTitle(c, u), text: full ? plain([x.intro, ...(x.legend || []).map(l => l[1]), ...(x.f || []).map(f => f[1]), x.tip].join(" ")) : cfIdxTopic(c.code, u, tp.id) }); }
   }
   return BK_INDEX;
 }
@@ -123,6 +123,7 @@ function bkTop(back, small, title, right){
     <div class="th-t"><small>${esc(small)}</small><b>${esc(title)}</b></div>${right || `<span class="th-ic" aria-hidden="true">${I.book}</span>`}</div></div>`;
 }
 function renderBook(){
+  if(BK.code && BK.v !== "home" && !cfNeed(BK.code)){ const c = COURSE(BK.code); $app.innerHTML = `${bkTop("bkback", t("bkSub"), courseName(c))}<main class="wrap">${cfWaitHTML(BK.code)}</main>`; return; } // fagfila lastes
   if(BK.v === "topic") return renderBookTopic();
   if(BK.v === "unit") return renderBookUnit();
   if(BK.v === "course") return renderBookCourse();

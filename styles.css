@@ -3305,3 +3305,11 @@ details.cat-mc{margin:6px 0}details.cat-mc>summary{cursor:pointer;font-size:12px
 /* figur som ikke er laget av oppgavens tall: tydelig merket som eksempel (qart.js) */
 .q-fig.q-ex{position:relative;padding-top:30px}
 .q-exb{position:absolute;top:8px;left:10px;font-family:var(--mono);font-size:10.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);background:var(--card);border:1.5px solid var(--line);border-radius:99px;padding:2px 8px}
+/* fagfiler som lastes (cfload.js) */
+.cf-load{position:fixed;top:calc(10px + env(safe-area-inset-top,0px));left:50%;transform:translateX(-50%);z-index:60;display:flex;align-items:center;gap:8px;padding:8px 14px;border-radius:99px;background:var(--card);color:var(--ink);border:2px solid var(--line);box-shadow:0 4px 14px var(--shadow);font-weight:700;font-size:14px}
+.cf-wait{display:grid;justify-items:center;gap:10px;padding:48px 16px;color:var(--muted);font-weight:700;text-align:center}
+.cf-wait p{margin:0}
+.cf-spin{width:18px;height:18px;border-radius:50%;border:3px solid var(--line);border-top-color:var(--accent);animation:cfSpin .8s linear infinite;flex:none}
+.cf-wait .cf-spin{width:28px;height:28px}
+@keyframes cfSpin{to{transform:rotate(360deg)}}
+@media (prefers-reduced-motion:reduce){.cf-spin{animation-duration:2.4s}}

@@ -79,6 +79,7 @@ function routeBoot(){
   if(k === "guided"){ // åpnes på nytt fra samme kort (svarene på spørsmålene før telles ikke)
     const code = rtCourse(p[1]), u = parseInt(p[2], 10) - 1, i = parseInt(p[3], 10) - 1;
     if(!(code && Number.isInteger(u) && u >= 0 && u < COURSE(code).units.length && theoryOf(code, u))) return false;
+    if(!cfReady(code)){ cfThen(code, () => { gdOpen(code, u, null); if(GD && Number.isInteger(i) && i > 0 && i < GD.cards.length - 1){ GD.i = i; render(); } }); screen = "home"; return true; } // fagfila lastes først
     gdOpen(code, u, null); if(!GD) return false;
     if(Number.isInteger(i) && i > 0 && i < GD.cards.length - 1) GD.i = i;
     return true;
