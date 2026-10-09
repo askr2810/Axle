@@ -52,15 +52,16 @@ Object.assign(FIGS, {
   // ---------- MATEMATIKK 1.–4. ----------
   // Plassverdi: tallet n (0–999) som hundrerplater, tierstenger og enerklosser. p = { n } (uten p: 347).
   gs_place: (p = {}) => { const n = Math.max(0, Math.min(999, Math.round(p.n ?? 347))), h = Math.floor(n / 100), t = Math.floor(n / 10) % 10, e = n % 10; let s = "";
-    const [cH, cT, cE] = n >= 100 ? [96, 228, 289] : [0, 112, 222];
-    if(n >= 100){ const rows = Math.ceil(h / 3), sz = Math.min(56, (84 - (rows - 1) * 4) / rows), per = Math.min(3, h), W = per * sz + (per - 1) * 6, u = sz / 10;
+    const [cH, cT, cE] = n >= 100 ? [80, 222, 298] : [0, 120, 236];
+    if(n >= 100){ const rows = Math.ceil(h / 3), sz = Math.min(44, (84 - (rows - 1) * 4) / rows), per = Math.min(3, h), W = per * sz + (per - 1) * 6, u = sz / 10;
       for(let k = 0; k < h; k++){ const inRow = Math.min(3, h - Math.floor(k / 3) * 3), Wr = inRow * sz + (inRow - 1) * 6, x0 = f1(cH - Wr / 2 + (k % 3) * (sz + 6)), y0 = f1(40 + Math.floor(k / 3) * (sz + 4)), S = f1(sz); // hver rad sentrert
         s += `<rect x="${x0}" y="${y0}" width="${S}" height="${S}" style="${solid(3, 35)}"/>`;
         for(let i = 1; i < 10; i++) s += `<line x1="${f1(x0 + i * u)}" y1="${y0}" x2="${f1(x0 + i * u)}" y2="${f1(y0 + sz)}" style="stroke:var(--c3);stroke-width:.5"/><line x1="${x0}" y1="${f1(y0 + i * u)}" x2="${f1(x0 + sz)}" y2="${f1(y0 + i * u)}" style="stroke:var(--c3);stroke-width:.5"/>`;
         s += `<rect x="${x0}" y="${y0}" width="${S}" height="${S}" style="fill:none;stroke:var(--c3);stroke-width:1.6"/>`; }
       s += tx(cH, 28, T("hundrere", "hundreds"), "fg-s") + (p.hide ? "" : col(cH, 150, String(h), 3, "fg-big")); }
-    for(let k = 0; k < t; k++){ const x0 = cT - (t * 8 - 2) / 2 + k * 8; s += `<rect x="${x0}" y="64" width="6" height="60" style="${soft(4, 45)}"/>`;
-      for(let i = 1; i < 10; i++) s += `<line x1="${x0}" y1="${64 + i * 6}" x2="${x0 + 6}" y2="${64 + i * 6}" style="stroke:var(--c4);stroke-width:.6"/>`; }
+    // tierstengene med like stor luft mellom seg som hundrerplatene (6), så de er lette å telle
+    for(let k = 0; k < t; k++){ const x0 = f1(cT - (t * 13 - 6) / 2 + k * 13); s += `<rect x="${x0}" y="64" width="7" height="60" style="${soft(4, 45)}"/>`;
+      for(let i = 1; i < 10; i++) s += `<line x1="${x0}" y1="${64 + i * 6}" x2="${f1(+x0 + 7)}" y2="${64 + i * 6}" style="stroke:var(--c4);stroke-width:.6"/>`; }
     for(let k = 0; k < e; k++) s += `<rect x="${cE - 5}" y="${f1(124 - (k + 1) * 9.4)}" width="10" height="8.6" rx="1.5" style="${soft(2, 55)}"/>`; // enerne stablet i én søyle, nedenfra
     s += tx(cT, 28, T("tiere", "tens"), "fg-s") + tx(cE, 28, T("enere", "ones"), "fg-s");
     if(p.hide) return { cap: T("Tallet bygget av hundrerplater, tierstenger og enerklosser.", "The number built from hundred flats, ten sticks and one blocks."), svg: s };
