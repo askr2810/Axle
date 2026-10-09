@@ -1161,6 +1161,7 @@ function renderOverlayNow(){
   else if(overlay.levelpick){ d.className = "scrim center"; d.innerHTML = levelPickHTML(); }
   else if(overlay.games) d.innerHTML = gamesMenuHTML(overlay.games);
   else if(overlay.homeGuide) d.innerHTML = homeGuideHTML();
+  else if(overlay.dl) d.innerHTML = dlHTML();
   else if(overlay.focusPick) d.innerHTML = focPickHTML(overlay.focusPick);
   else if(overlay.mdimport){ d.className = "scrim center"; d.innerHTML = mdImportHTML(overlay.mdimport); }
   else if(overlay.drpick) d.innerHTML = drPickHTML();
@@ -1500,6 +1501,7 @@ document.addEventListener("click", async e=>{
   else if(a==="sndtoggle"){ S.sound = S.sound === false; save(); render(); if(S.sound) sfx("ok", 3); }
   else if(a==="stattoggle"){ stAnswer(S.statsOk !== 1); render(); }
   else if(a==="statyes" || a==="statno"){ stAnswer(a === "statyes"); }
+  else if(a==="dlopen"){ overlay = { dl: 1 }; renderOverlay(); }
   else if(a==="haptoggle"){ S.haptics = !S.haptics; save(); render(); if(S.haptics) buzz(true); }
   else if(a==="remtoggle"){ await reminderToggle(); }
   else if(a==="pushtest"){ pushTest(); }

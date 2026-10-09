@@ -3,6 +3,7 @@
 //  Tre moduser: «Finn landet» (trykk på kartet), «Hvilket land?» (et land lyser, velg navnet)
 //  og «Historie» (et land blinker på et historisk kart fra maps.js, velg hvilken side det var på).
 //  15 spørsmål per runde, 3 liv, tiden blir kortere for hvert spørsmål. Rekord per region og modus i S.geoBest.
+//  «Rolig» (S.geoCalm): ingen tid og ingen liv. Svarer du feil, vises riktig svar, og du går videre når du er klar.
 // ============================================================
 Object.assign(UI.nb, { geoTitle: "Kartspillet", geoSub: "Finn land i Europa og verden, og hvem som var på hvilken side" });
 Object.assign(UI.en, { geoTitle: "The map game", geoSub: "Find countries in Europe and the world, and who was on which side" });
@@ -32,7 +33,7 @@ const geHistMaps = () => Object.keys(MAPS).filter(id => MAPS[id].f.length && MAP
 
 // ---------- spørsmål ----------
 function geNextQ(){
-  const prev = GE.recent.slice(-8), dur = Math.max(GE.mode === "name" ? 5000 : 6500, (GE.mode === "name" ? 9000 : 12000) * Math.pow(0.95, GE.n));
+  const prev = GE.recent.slice(-8), dur = GE.calm ? Infinity : Math.max(GE.mode === "name" ? 5000 : 6500, (GE.mode === "name" ? 9000 : 12000) * Math.pow(0.95, GE.n));
   if(GE.mode === "hist"){
     // et historisk kart, et tilfeldig tidssteg, en tilfeldig side – og et land fra den siden
     for(let tries = 0; tries < 40; tries++){
@@ -65,13 +66,13 @@ function geStart(reg, mode, map){
   if(typeof MAP_GEO === "undefined") return;
   mode = mode || (GE && GE.mode) || S.geoMode || "find";
   GE = { view: "game", reg: reg || (GE && GE.reg) || "europe", mode, map: map === undefined ? (GE && GE.map) || null : map, from: (GE && GE.from) || (screen === "geo" ? "home" : screen),
-    score: 0, combo: 0, maxCombo: 0, lives: GE_LIVES, n: 0, ok: 0, missed: [], recent: [], asked: [], over: false, fx: null };
+    score: 0, combo: 0, maxCombo: 0, lives: GE_LIVES, n: 0, ok: 0, missed: [], recent: [], asked: [], over: false, fx: null, calm: !!S.geoCalm };
   geNextQ(); screen = "geo"; overlay = null; render(); window.scrollTo(0, 0); geTick();
 }
 function geTick(){
   cancelAnimationFrame(geTick.raf);
   const step = () => {
-    if(!GE || GE.view !== "game" || !GE.q || GE.q.picked != null || screen !== "geo") return;
+    if(!GE || GE.view !== "game" || !GE.q || GE.q.picked != null || screen !== "geo" || GE.calm) return;
     const left = 1 - (performance.now() - GE.q.t0) / GE.q.dur, bar = document.getElementById("getime");
     if(bar){ bar.style.transform = `scaleX(${Math.max(0, left).toFixed(4)})`; bar.className = "sg-time " + (left < 0.25 ? "r" : left < 0.55 ? "y" : "g"); }
     if(left <= 0){ geAnswer(null); return; }
@@ -87,17 +88,22 @@ function geAnswer(pick, near){
   q.picked = pick == null ? "" : pick; GE.n++;
   if(GE.mode !== "hist"){ const st = geSt()[q.ans] ||= [0, 0, 0]; st[0]++; if(ok) st[1]++; st[2] = ok ? 1 : 0; }
   if(ok){ GE.ok++; GE.combo++; GE.maxCombo = Math.max(GE.maxCombo, GE.combo);
-    const mult = GE.combo >= 10 ? 4 : GE.combo >= 6 ? 3 : GE.combo >= 3 ? 2 : 1, pts = (100 + Math.round(left * 100)) * mult;
+    const mult = GE.combo >= 10 ? 4 : GE.combo >= 6 ? 3 : GE.combo >= 3 ? 2 : 1, pts = (100 + (GE.calm ? 0 : Math.round(left * 100))) * mult;
     GE.score += pts; GE.fx = { pts, mult }; sfx("ok", GE.combo); buzz(true); }
-  else { GE.combo = 0; GE.lives--; GE.fx = { miss: pick == null ? "time" : "wrong" }; GE.missed.push(GE.mode === "hist" ? { id: q.id, k: q.k, c: q.c, g: q.ans } : q.ans); sfx("bad"); buzz(false); }
+  else { GE.combo = 0; if(!GE.calm) GE.lives--; GE.fx = { miss: pick == null ? "time" : "wrong" }; GE.missed.push(GE.mode === "hist" ? { id: q.id, k: q.k, c: q.c, g: q.ans } : q.ans); sfx("bad"); buzz(false); }
   save(); render();
   if(ok){ const el = document.querySelector(".ge-card"); if(el) burst(el, 10); }
   clearTimeout(geAnswer.t);
-  geAnswer.t = setTimeout(() => { if(!GE || GE.view !== "game" || screen !== "geo") return; if(GE.lives <= 0 || GE.n >= GE_MAX) return geOver(); GE.fx = null; geNextQ(); render(); geTick(); }, ok ? 900 : 2200);
+  if(GE.calm && !ok) return; // rolig: vent til brukeren trykker «Neste»
+  geAnswer.t = setTimeout(geNext, ok ? (GE.calm ? 1300 : 900) : 2200);
+}
+function geNext(){
+  clearTimeout(geAnswer.t); if(!GE || GE.view !== "game" || screen !== "geo") return;
+  if(GE.lives <= 0 || GE.n >= GE_MAX) return geOver(); GE.fx = null; geNextQ(); render(); geTick();
 }
 function geOver(){
-  GE.over = true; GE.view = "over"; GE.full = GE.lives > 0 && GE.n >= GE_MAX; if(GE.full){ GE.bonus = GE.lives * 500; GE.score += GE.bonus; }
-  const key = geKey(), best = geBest(); GE.prevBest = best[key] || 0; GE.record = GE.score > GE.prevBest; if(GE.record) best[key] = GE.score;
+  GE.over = true; GE.view = "over"; GE.full = GE.lives > 0 && GE.n >= GE_MAX; if(GE.full && !GE.calm){ GE.bonus = GE.lives * 500; GE.score += GE.bonus; }
+  const key = geKey(), best = geBest(); GE.prevBest = best[key] || 0; GE.record = !GE.calm && GE.score > GE.prevBest; if(GE.record) best[key] = GE.score;
   GE.xp = Math.max(1, Math.round(GE.ok / 2) + (GE.full ? 2 : 0)); awardXP(GE.xp);
   if(typeof stEv === "function") stEv("game", "geo", GE.mode === "hist" ? "hist:" + (GE.map || "all") : GE.reg + ":" + GE.mode, GE.ok, GE.n);
   save(); render(); window.scrollTo(0, 0);
@@ -156,11 +162,12 @@ function renderGeo(){
     }
   }
   $app.innerHTML = `${geTop(GE.mode === "hist" ? T("Historie", "History") : T(GE_REG[GE.reg].t[0], GE_REG[GE.reg].t[1]))}<main class="wrap sg ge">
-    <div class="sg-hud"><span class="sg-lives" aria-label="${esc(T(`${GE.lives} liv igjen`, `${GE.lives} lives left`))}">${hearts}</span><span class="sg-n">${Math.min(GE.n + (rev ? 0 : 1), GE_MAX)}/${GE_MAX}</span>
+    <div class="sg-hud">${GE.calm ? `<span class="sg-lives ge-calm">🧘 ${esc(T("Rolig", "Calm"))}</span>` : `<span class="sg-lives" aria-label="${esc(T(`${GE.lives} liv igjen`, `${GE.lives} lives left`))}">${hearts}</span>`}<span class="sg-n">${Math.min(GE.n + (rev ? 0 : 1), GE_MAX)}/${GE_MAX}</span>
       <span class="sg-combo ${GE.combo >= 3 ? "on" : ""}">${GE.combo >= 3 ? `🔥 ${GE.combo} ${esc(T("på rad", "in a row"))} · ×${mult}` : esc(T(`${GE.ok} riktige`, `${GE.ok} correct`))}</span></div>
-    <div class="sg-timebar"><i id="getime" class="sg-time g" style="transform:scaleX(${rev ? 0 : 1})"></i></div>
+    ${GE.calm ? "" : `<div class="sg-timebar"><i id="getime" class="sg-time g" style="transform:scaleX(${rev ? 0 : 1})"></i></div>`}
     <section class="sg-card ge-card ${rev ? (fx.pts ? "ok" : "bad") : ""}">${prompt}${fx.pts ? `<span class="sg-float">+${fx.pts}${fx.mult > 1 ? ` <em>×${fx.mult}</em>` : ""}</span>` : ""}</section>
     ${opts}${fb}
+    ${GE.calm && rev && !fx.pts ? `<button class="big ge-next" data-a="genext">${esc(GE.n >= GE_MAX ? T("Se resultatet", "See the result") : T("Neste →", "Next →"))}</button>` : ""}
   </main>`;
 }
 function geMenuHTML(){
@@ -175,6 +182,8 @@ function geMenuHTML(){
   return `<section class="sg-menu"><div class="sg-mhead"><span class="sg-mic" aria-hidden="true">🗺️</span><div><b>${esc(t("geoTitle"))}</b><small>${esc(T(`${GE_MAX} spørsmål per runde, 3 liv, raskere og raskere · du kan ${kn} av ${known.length} land`, `${GE_MAX} questions per round, 3 lives, faster and faster · you know ${kn} of ${known.length} countries`))}</small></div></div>
     <div class="sg-mbar"><i style="width:${Math.round(kn / Math.max(1, known.length) * 100)}%"></i></div>
     <div class="seg sg-modes">${GE_MODES.map(([k, nb, en]) => `<button class="${mode === k ? "on" : ""}" data-a="gemode" data-m="${k}">${esc(T(nb, en))}</button>`).join("")}</div>
+    <div class="chips ge-pace" role="group" aria-label="${esc(T("Tempo", "Pace"))}">${[["0", "⏱️ " + T("Med tid og liv", "Timed, with lives")], ["1", "🧘 " + T("Rolig – uten tid", "Calm – no timer")]].map(([v, l]) => `<button class="${(S.geoCalm ? "1" : "0") === v ? "on" : ""}" data-a="gecalm" data-v="${v}" aria-pressed="${(S.geoCalm ? "1" : "0") === v}">${esc(l)}</button>`).join("")}</div>
+    ${S.geoCalm ? `<p class="ge-how">${esc(T("Ingen klokke og ingen liv. Svarer du feil, ser du riktig svar på kartet og går videre når du er klar.", "No clock and no lives. If you answer wrong, you see the right answer on the map and move on when you are ready."))}</p>` : ""}
     <p class="ge-how">${esc(mode === "find" ? T("Et navn dukker opp – trykk på landet på kartet.", "A name appears – tap the country on the map.") : mode === "name" ? T("Et land lyser opp – velg riktig navn. Feilsvarene er nabolandene.", "A country lights up – pick the right name. The wrong answers are its neighbours.") : T("Et land blinker på et historisk kart – hvilken side var det på? Kartene er de samme som i historieteorien.", "A country flashes on a historical map – which side was it on? The maps are the same as in the history theory."))}</p>
     <div class="sg-groups">${rows}</div></section>`;
 }
@@ -184,7 +193,7 @@ function geOverHTML(){
   const mrow = m => { if(typeof m === "string"){ const G = MAP_GEO[GE_REG[GE.reg].v]; return `<div class="sg-mrow"><span class="ge-mic">📍</span><div><b>${esc(mpName(G, m))}</b></div></div>`; }
     const M = MAPS[m.id], G = MAP_GEO[M.v]; return `<div class="sg-mrow"><span class="ge-mic"><i style="background:${M.g[m.g][0]}"></i></span><div><b>${esc(mpName(G, m.c))}</b><small>${esc(T(M.f[m.k].y[0], M.f[m.k].y[1]))}: ${esc(T(M.g[m.g][1], M.g[m.g][2]))}</small></div></div>`; };
   return `<div class="sg-final ${GE.record ? "rec" : ""}">${GE.record ? `<span class="sg-rec">🏆 ${esc(T("Ny rekord!", "New record!"))}</span>` : ""}<div class="sg-big">${GE.score}</div>
-      <p>${esc(GE.full ? T(`Hele runden! +${GE.bonus} for livene du hadde igjen.`, `Full round! +${GE.bonus} for the lives you had left.`) : T("Tom for liv – prøv igjen!", "Out of lives – try again!"))}</p>
+      <p>${esc(GE.calm ? T(`Rolig runde: ${GE.ok} av ${GE.n} riktige.`, `Calm round: ${GE.ok} of ${GE.n} correct.`) : GE.full ? T(`Hele runden! +${GE.bonus} for livene du hadde igjen.`, `Full round! +${GE.bonus} for the lives you had left.`) : T("Tom for liv – prøv igjen!", "Out of lives – try again!"))}</p>
       <div class="sg-stats">${st.map(([n, l]) => `<span><b>${n}</b>${esc(l)}</span>`).join("")}</div></div>
     <button class="big" data-a="geagain">🗺️ ${esc(T("Spill igjen", "Play again"))}</button>
     ${missed.length ? `<h4 class="grp">${esc(T("Disse må du øve mer på", "Practise these more"))}</h4><div class="sg-missed">${missed.map(mrow).join("")}</div>` : ""}
@@ -201,6 +210,8 @@ function geClick(a, b){
   const d = (b && b.dataset) || {};
   if(a === "geoopen"){ GE = { view: "menu", reg: S.geoReg || "europe", mode: S.geoMode || "find", map: null, from: screen === "geo" ? "home" : screen }; overlay = null; screen = "geo"; render(); window.scrollTo(0, 0); return true; }
   if(a === "gemode"){ S.geoMode = GE.mode = d.m; save(); render(); return true; }
+  if(a === "gecalm"){ S.geoCalm = d.v === "1" ? 1 : 0; save(); render(); return true; }
+  if(a === "genext"){ geNext(); return true; }
   if(a === "geplay"){ if(d.r){ S.geoReg = d.r; save(); } geStart(d.r || GE.reg, GE.mode, GE.mode === "hist" ? d.m || null : null); return true; }
   if(a === "geagain"){ geStart(GE.reg, GE.mode, GE.map); return true; }
   if(a === "gemenu"){ GE.view = "menu"; render(); window.scrollTo(0, 0); return true; }

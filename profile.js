@@ -8,7 +8,7 @@ const TABS = [["home", "book2", "tabLearn"], ["practice", "bolt", "tabPractice"]
 function tabOf(){ return screen === "home" ? "home" : (screen === "practice" || screen === "community" || screen === "mydecks") ? "practice" : (screen === "book" && BK.v !== "unit" && BK.v !== "topic") || screen === "proofs" ? "book" : screen === "friends" ? "friends" : (screen === "profile" || screen === "badges") ? "profile" : screen === "person" ? (["badges", "profile", "admin"].includes(PS.from) ? "profile" : "friends") : screen === "admin" ? "profile" : null; }
 function tabbarHTML(active){
   return `<nav class="tabbar" aria-label="${esc(t("tabNav"))}"><div class="wrap"><button class="tab-brand" data-a="tab" data-t="home" tabindex="-1" aria-hidden="true"><img src="${markSrc()}" alt="" width="36" height="36"><b>Axle</b></button>${TABS.map(([k, ic, lab]) =>
-    `<button class="${k === active ? "on" : ""}" data-a="tab" data-t="${k}" aria-current="${k === active ? "page" : "false"}">${(k === "practice" && !dcDoneToday() && S.xp > 0) || (k === "friends" && ((FR.reqs && FR.reqs.length) || (GR.inv && GR.inv.length) || IB.unread)) ? `<i class="tab-dot"></i>` : ""}${k === "profile" && hasMeAv() ? meAvHTML(26, "tab-av") : I[ic]}<span>${esc(t(lab))}</span></button>`).join("")}</div></nav>`;
+    `<button class="${k === active ? "on" : ""}" data-a="tab" data-t="${k}" aria-current="${k === active ? "page" : "false"}">${(k === "practice" && !dcDoneToday() && S.xp > 0) || (k === "friends" && ((FR.reqs && FR.reqs.length) || (GR.inv && GR.inv.length) || IB.unread)) ? `<i class="tab-dot"></i>` : ""}${k === "profile" && hasMeAv() ? meAvHTML(26, "tab-av") : I[ic]}<span>${esc(t(lab))}</span></button>`).join("")}<div class="tab-foot"><button class="exlink" data-a="dlopen">${esc(T("Last ned", "Download"))}</button> · <a href="${LANG === "en" ? "/en/about/" : "/about/"}" target="_blank" rel="noopener">${esc(T("Om Axle", "About"))}</a></div></div></nav>`;
 }
 function renderTabbar(){
   document.querySelector(".tabbar")?.remove();
@@ -83,6 +83,8 @@ function renderProfile(){
       <div class="sgroup pf-links">
         <button class="srow" data-a="settings">${I.gear}<span class="lbl">${esc(t("settings"))}</span>${I.chevron}</button>
         <button class="srow" data-a="feedback">${I.flag}<span class="lbl">${esc(t("setFeedback"))}</span>${I.chevron}</button>
+        <button class="srow" data-a="dlopen"><span class="pf-lic" aria-hidden="true">⬇️</span><span class="lbl">${esc(T("Last ned Axle", "Download Axle"))}</span>${I.chevron}</button>
+        <a class="srow" href="${LANG === "en" ? "/en/about/" : "/about/"}" target="_blank" rel="noopener"><span class="pf-lic" aria-hidden="true">ℹ️</span><span class="lbl">${esc(T("Om Axle", "About Axle"))}</span>${I.chevron}</a>
       </div></div>
     </main>`;
 }

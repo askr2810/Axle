@@ -88,3 +88,21 @@ function nudgeClick(a, b){
   }
   return false;
 }
+
+// «Last ned Axle»: én side som sier hvordan du får Axle som app på enheten du bruker, og på Mac/Windows.
+function dlHTML(){
+  const ua = navigator.userAgent, ios = typeof IS_IOS !== "undefined" && IS_IOS, android = /Android/i.test(ua), desk = !ios && !android, ready = !!CONFIG.desktopReady;
+  const rel = "https://github.com/askr2810/axle/releases/latest/download/";
+  const here = typeof NATIVE !== "undefined" && NATIVE ? `<p class="dl-ok">✓ ${esc(T("Du bruker allerede Axle-appen.", "You are already using the Axle app."))}</p>`
+    : qsStandalone() ? `<p class="dl-ok">✓ ${esc(T("Axle ligger allerede som app på denne enheten.", "Axle is already installed as an app on this device."))}</p>`
+    : `<p>${esc(T("Legg Axle på hjemskjermen – da åpnes den med ett trykk, i fullskjerm, og virker uten nett.", "Add Axle to your home screen – it opens with one tap, full screen, and works offline."))}</p>
+       <button class="big" data-a="nudgehome">${esc(QS_INSTALL ? T("Installer Axle", "Install Axle") : T("Vis meg hvordan", "Show me how"))}</button>`;
+  return `<div class="dialog dl" role="dialog" aria-label="${esc(T("Last ned Axle", "Download Axle"))}"><div class="sheet-h"><h3>⬇️ ${esc(T("Last ned Axle", "Download Axle"))}</h3><button class="iconbtn" data-a="closeov" aria-label="${esc(T("Lukk", "Close"))}">${I.x}</button></div>
+    <section class="dl-sec"><b>${esc(ios ? T("På denne iPhonen/iPaden", "On this iPhone/iPad") : android ? T("På denne Android-telefonen", "On this Android phone") : T("På denne maskinen", "On this computer"))}</b>${here}</section>
+    <section class="dl-sec"><b>${esc(T("Mac og Windows", "Mac and Windows"))}</b>
+      ${ready ? `<div class="dl-btns"><a class="kbtn" href="${rel}Axle.dmg">${esc(T("Last ned for Mac", "Download for Mac"))}</a><a class="kbtn ghost" href="${rel}Axle-Setup.exe">${esc(T("Last ned for Windows", "Download for Windows"))}</a></div>
+        <p class="lp-note">${esc(T("Appen er ikke signert av Apple/Microsoft ennå, så maskinen viser en advarsel første gang. Mac: høyreklikk på Axle → Åpne. Windows: «Mer informasjon» → «Kjør likevel». Filene bygges automatisk av GitHub fra Axles kode.", "The app is not signed by Apple/Microsoft yet, so your computer shows a warning the first time. Mac: right-click Axle → Open. Windows: \"More info\" → \"Run anyway\". The files are built automatically by GitHub from Axle's code."))}</p>`
+        : `<p class="lp-note">${esc(T("Kommer snart. Til da kan du bruke axle.no i nettleseren, eller installere den som app fra nettleseren" + (desk ? " (knappen over)." : "."), "Coming soon. Until then you can use axle.no in the browser, or install it as an app from the browser" + (desk ? " (the button above)." : ".")))}</p>`}</section>
+    <section class="dl-sec"><b>App Store og Google Play</b><p class="lp-note">${esc(T("Kommer. Nettappen over har alt det samme i mellomtiden.", "Coming. The web app above has everything in the meantime."))}</p></section>
+    <a class="exlink dl-about" href="${LANG === "en" ? "/en/about/" : "/about/"}" target="_blank" rel="noopener">${esc(T("Les mer om Axle", "Read more about Axle"))} →</a></div>`;
+}

@@ -2957,7 +2957,7 @@ details.cat-mc{margin:6px 0}details.cat-mc>summary{cursor:pointer;font-size:12px
 .tc-new{margin-top:4px}
 
 /* ---------- PC: sidemeny til venstre og bredere innhold ---------- */
-.tabbar .tab-brand{display:none}
+.tabbar .tab-brand,.tabbar .tab-foot{display:none}
 @media (min-width:1100px){
   body.has-tabs{padding-left:248px}
   body.has-tabs #app{padding-bottom:48px}
@@ -2971,6 +2971,8 @@ details.cat-mc{margin:6px 0}details.cat-mc>summary{cursor:pointer;font-size:12px
   .tabbar button.on{background:var(--accent-soft);color:var(--accent)}
   .tabbar button.on::before{display:none}
   .tabbar .tab-dot{top:9px;left:30px}
+  .tabbar .wrap{height:100%}
+  .tabbar .tab-foot{display:block;margin-top:auto;padding:16px 14px 0;font-size:13px;color:var(--muted)}.tabbar .tab-foot a,.tabbar .tab-foot .exlink{color:var(--muted);font-size:13px;padding:0;display:inline}
   body.has-tabs .toast{left:calc(50% + 124px)}
   body.has-tabs .ib-compose{left:248px}
   body.has-tabs .tts-mini{left:calc(50% + 124px)}
@@ -3156,3 +3158,7 @@ details.cat-mc{margin:6px 0}details.cat-mc>summary{cursor:pointer;font-size:12px
 .te-symk button.fx{background:color-mix(in srgb,var(--accent) 9%,var(--card))}.te-symk button.fx .g{font-size:15px}
 .te-symk button.free .g{color:var(--accent);font-weight:800}
 .te-symtip{margin:0;padding:0 10px 8px;font-size:12px;color:var(--muted);line-height:1.35}
+.ge-pace{justify-content:center;margin:10px 0 4px}.ge-calm{font-weight:800;color:var(--accent)}.ge-next{margin-top:10px}
+.dl .dl-sec{margin:0 0 14px;padding:12px;border-radius:14px;border:2px solid var(--line);background:var(--paper)}.dl .dl-sec>b{display:block;margin:0 0 6px}
+.dl .dl-sec p{margin:0 0 8px;font-size:14px;line-height:1.45}.dl .dl-ok{color:var(--ok);font-weight:700}.dl .dl-btns{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 8px}.dl .dl-btns .kbtn{margin:0;text-decoration:none}
+.dl .dl-about{display:block;text-align:center;margin:4px 0 0}.pf-lic{display:inline-grid;place-items:center;width:22px;font-size:16px}
