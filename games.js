@@ -195,8 +195,8 @@ const layLinkHTML = place => `<button class="exlink lay-link" data-a="layopen" d
 function gamesMenuHTML(place){
   const pins = pinsOf(place);
   return `<div class="dialog gm-menu" role="dialog" aria-label="${esc(t("gmTitle"))}"><div class="sheet-h"><h3>${esc(t("gmTitle"))}</h3><button class="iconbtn" data-a="closeov" aria-label="${esc(t("back"))}">${I.x}</button></div>
-    ${gmList().map(g => { const on = pins.includes(g[0]);
-      return `<div class="gm-item"><button class="gm-open" data-a="${g[1]}"><span class="gm-ic ${g[4]}">${ico(g[2])}</span><span><b>${esc(t(g[3]))}</b><small>${esc(gmSub(g[0]))}</small></span>${I.chevron}</button></div>`; }).join("")}
+    <div class="gm-grid">${gmList().map(g => { const on = pins.includes(g[0]);
+      return `<div class="gm-item"><button class="gm-open" data-a="${g[1]}"><span class="gm-ic ${g[4]}">${ico(g[2])}</span><span><b>${esc(t(g[3]))}</b><small>${esc(gmSub(g[0]))}</small></span>${I.chevron}</button></div>`; }).join("")}</div>
     <button class="gm-teach" data-a="tcopen">🎓 ${esc(T("Lærer? Lag lekser og quiz for klassen →", "Teacher? Make homework and quizzes for your class →"))}</button>
     ${layLinkHTML(place)}</div>`; // spill festes til forsiden under «Tilpass», ikke med egne knapper her
 }

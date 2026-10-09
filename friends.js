@@ -343,7 +343,10 @@ function renderFriends(){
         ${podium}<div class="fr-board">${board}</div>
         ${rows.length < 2 ? `<p class="fr-hint">${esc(t("frEmpty"))}</p>` : ""}`;
       const suggCard = FR.sugg.filter(r => r.status !== "sent").length ? `<div class="fr-card fr-sugg"><h3>${esc(t("frSugg"))}</h3>${frHitsHTML(FR.sugg.slice(0, 8), r => t("frSuggVia", r.mutual, r.via || ""))}</div>` : "";
-      body = meCard + userCard + reqCard + grInvitesHTML() + suggCard + (rows.length >= 2 ? boardHTML + codeCard : codeCard + boardHTML) + `
+      // Mobil: deg, forespørsler, så topplisten og til slutt «finn venner». PC: topplisten til venstre, resten til høyre.
+      const many = rows.length >= 2;
+      body = `<div class="fr-cols"><div class="fr-a">${meCard + userCard + reqCard + grInvitesHTML() + suggCard + (many ? "" : codeCard)}</div>
+        <div class="fr-m">${boardHTML}</div><div class="fr-b">${many ? codeCard : ""}</div></div>
         <button class="exlink fr-refresh" data-a="frreload">${FR.loading ? esc(t("frLoading")) : esc(t("frRefresh"))}</button>`;
     }
   }

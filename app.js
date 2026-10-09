@@ -744,7 +744,7 @@ function renderLesson(){
   }
   // Illustrasjon på oppgaven (qart.js): temaets piktogram og navn øverst, og en figur over oppgaveteksten når det finnes en.
   const art = typeof qArt === "function" ? qArt(it) : {}, kick = `<p class="kicker">${esc(lvl)}${it.type==="mc"?t("pickAnswer"):t("writeAnswer")}</p>`;
-  let body = `<div class="krow ${art.pic ? "has-pic" : ""}">${art.pic ? `<div class="q-topic"><span class="q-pic">${art.pic}</span><span class="q-tt"><b>${esc(art.name)}</b>${kick}</span></div>` : kick}<button class="kbtn" data-a="scratch">${I.pencil}${t("scratch")}</button></div>${art.fig || ""}<div class="prompt">${richBig(it.prompt)}</div>`;
+  let body = `<div class="krow ${art.pic ? "has-pic" : ""}">${art.pic ? `<div class="q-topic"><span class="q-pic">${art.pic}</span><span class="q-tt"><b>${esc(art.name)}</b>${kick}</span></div>` : kick}<button class="kbtn" data-a="scratch">${I.pencil}${t("scratch")}</button></div>${art.fig ? "\u0000QSPLIT\u0000" : ""}<div class="prompt">${richBig(it.prompt)}</div>`;
   if(it.type==="mc"){
     body += `<div class="opts" role="radiogroup">` + it.opts.map((o,i)=>{
       let cls = L.sel===i ? "sel" : "";
@@ -755,10 +755,13 @@ function renderLesson(){
     const cls = L.answered ? (L.ok?"right":"wrong") : "";
     body += `<label class="num ${cls}"><input id="numin" inputmode="decimal" autocomplete="off" placeholder="${t("answerPh")}" value="${esc(L.input)}" ${L.answered?"disabled":""} aria-label="${t("answerPh")}">${it.u?`<span class="u">${esc(it.u)}</span>`:""}</label><p class="hint">${t("numHint")}</p>`;
   }
+  // Med figur: på PC står figuren til venstre og oppgaven med svarene til høyre, så alt synes uten å bla (på mobil som før).
+  if(art.fig) body = body.replace("\u0000QSPLIT\u0000", `<div class="q-split"><div class="q-left">${art.fig}</div><div class="q-right">`) + `</div></div>`;
   let foot;
   if(!L.answered){
     const can = it.type==="mc" ? L.sel!=null : L.input.trim()!=="";
-    foot = `<div class="lfoot"><div class="wrap"><button class="big" data-a="check" ${can?"":"disabled"}>${t("check")}</button></div></div>`;
+    const kbd = it.type==="mc" ? T(`Tast 1–${it.opts.length} for å velge og Enter for å sjekke`, `Press 1–${it.opts.length} to choose and Enter to check`) : T("Trykk Enter for å sjekke", "Press Enter to check");
+    foot = `<div class="lfoot"><div class="wrap"><button class="big" data-a="check" ${can?"":"disabled"}>${t("check")}</button><p class="kbd-hint">${esc(kbd)}</p></div></div>`;
   } else {
     foot = `<div class="lfoot ${L.ok?"ok":"bad"} pop"><div class="wrap">
       <div class="fb-h ${L.ok&&L.combo>=3?"combo":""}">${L.ok?(L.combo>=3?`<span class="combo-fire">${I.fire}</span>`:I.okc):I.badc}${L.ok?(L.combo>=3?t("streakN",L.combo):t("correct")):t("notQuite")}${L.ok&&L.bonusNow?`<span class="combo-xp">+1 XP</span>`:""}</div>
