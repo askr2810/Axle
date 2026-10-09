@@ -177,8 +177,8 @@ Object.assign(FIGS, {
     const d = Math.round(v * 10), hund = Math.abs(v * 10 - d) > 1e-9, dec = x => T(String(+x.toFixed(2)).replace(".", ","), String(+x.toFixed(2)));
     if(hund){ const k = Math.round(v * 100), u = 11; if(Math.abs(v * 100 - k) > 1e-9) return null;
       for(let r = 0; r < 10; r++) for(let c = 0; c < 10; c++) s += `<rect x="${20 + c * u}" y="${24 + r * u}" width="${u}" height="${u}" style="${r * 10 + c < k ? solid(3, 55) : "fill:var(--card)"};stroke:var(--line);stroke-width:1"/>`;
-      s += `<rect x="20" y="24" width="${10 * u}" height="${10 * u}" style="fill:none;stroke:var(--ink);stroke-width:1.6"/>` + tx(75, 156, T("1 hel = 100 ruter", "1 whole = 100 squares"), "fg-s");
-      s += tx(156, 56, T(`${k} av 100 ruter`, `${k} of 100 squares`), "fg-t", "start") + col(156, 96, dec(v), 3, "fg-big", "start") + tx(156, 124, `= ${k}/100`, "fg-b", "start");
+      s += `<rect x="20" y="24" width="${10 * u}" height="${10 * u}" style="fill:none;stroke:var(--ink);stroke-width:1.6"/>` + tx(75, 156, T("1 hel = 100 ruter", "1 whole = 100 squares"), "fg-s fg-tick");
+      s += tx(156, 56, T(`${k} av 100 ruter`, `${k} of 100 squares`), "fg-t fg-tick", "start") + col(156, 96, dec(v), 3, "fg-big", "start") + tx(156, 124, `= ${k}/100`, "fg-b", "start");
       return { cap: T(`${dec(v)} er ${k} hundredeler: ${k} av 100 like ruter.`, `${dec(v)} is ${k} hundredths: ${k} of 100 equal squares.`), svg: s }; }
     const x0 = 30, w = 26;
     for(let i = 0; i < 10; i++) s += `<rect x="${x0 + i * w}" y="36" width="${w}" height="32" style="${i < d ? solid(3, 55) : "fill:var(--card)"};stroke:var(--ink);stroke-width:1.4"/>`;
@@ -194,7 +194,7 @@ Object.assign(FIGS, {
     for(let r = 0; r < 10; r++) for(let c = 0; c < 10; c++) s += `<rect x="${20 + c * u}" y="${24 + r * u}" width="${u}" height="${u}" style="${r * 10 + c < k ? solid(1, 55) : "fill:var(--card)"};stroke:var(--line);stroke-width:1"/>`;
     const FR = { 10: "1/10", 20: "1/5", 25: "1/4", 50: "1/2", 75: "3/4", 100: "1" }, dec = T(String(k / 100).replace(".", ","), String(k / 100));
     s += `<rect x="20" y="24" width="${10 * u}" height="${10 * u}" style="fill:none;stroke:var(--ink);stroke-width:1.6"/>` + tx(75, 156, T("100 ruter = 100 %", "100 squares = 100 %"), "fg-s fg-tick");
-    s += tx(156, 50, T(`${k} av 100 ruter`, `${k} of 100 squares`), "fg-t", "start") + col(156, 90, `= ${k} %`, 1, "fg-big", "start") + (FR[k] ? tx(156, 118, "= " + FR[k], "fg-b", "start") : "") + tx(156, FR[k] ? 142 : 118, "= " + dec, "fg-b", "start");
+    s += tx(156, 50, T(`${k} av 100 ruter`, `${k} of 100 squares`), "fg-t fg-tick", "start") + col(156, 90, `= ${k} %`, 1, "fg-big", "start") + (FR[k] ? tx(156, 118, "= " + FR[k], "fg-b", "start") : "") + tx(156, FR[k] ? 142 : 118, "= " + dec, "fg-b", "start");
     return { cap: k === 25 && !p.k ? T("Prosent betyr «av hundre». 25 % er 25 av 100 ruter – det samme som en firedel.", "Percent means \"out of a hundred\". 25 % is 25 of 100 squares – the same as a quarter.")
       : T(`Prosent betyr «av hundre». ${k} % er ${k} av 100 ruter.`, `Percent means "out of a hundred". ${k} % is ${k} of 100 squares.`), svg: s }; },
 
