@@ -164,7 +164,7 @@ figure.pic{margin:14px 0;padding:12px;background:#fff;border:2px solid #D5DDD3;b
 @media (prefers-color-scheme:dark){:root{--ink:#E8EEF3;--muted:#9AA7B2;--bg:#0F151B;--card:#17212A;--line:#27333E;--acc:#7EA2FF;--accs:#1C2A45;--ok:#3CC47F;--bad:#FF6B66;--gold:#F0B429}}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:17px/1.6 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
 a{color:var(--acc)}header,main,footer{max-width:760px;margin:0 auto;padding:0 18px}
-header{display:flex;align-items:center;justify-content:space-between;gap:10px;padding-top:14px}header nav{font-size:15px}header a.logo{font-weight:900;font-size:22px;text-decoration:none;color:var(--ink)}
+header{display:flex;align-items:center;justify-content:space-between;gap:10px;padding-top:14px}header nav{font-size:15px}header a.logo{display:inline-flex;align-items:center;gap:9px;font-weight:900;font-size:22px;text-decoration:none;color:var(--ink)}header a.logo img{width:30px;height:30px;border-radius:8px;flex:none}
 .crumbs{font-size:14px;color:var(--muted);margin:14px 0 0}.crumbs a{color:var(--muted)}
 h1{font-size:32px;line-height:1.15;margin:10px 0 12px}h2{font-size:24px;margin:34px 0 8px}h3{font-size:19px;margin:22px 0 6px}h4{font-size:17px;margin:16px 0 4px}
 .cta.ghost{background:transparent;color:var(--acc);box-shadow:inset 0 0 0 2px var(--acc)}.lead{font-size:19px;color:var(--muted)}.cta{display:inline-block;margin:14px 0;padding:14px 22px;border-radius:14px;background:var(--acc);color:#fff;font-weight:800;text-decoration:none;box-shadow:0 4px 0 rgba(0,0,0,.25)}
@@ -222,7 +222,7 @@ ${jsonld ? `<script type="application/ld+json">${JSON.stringify(jsonld).replace(
 <style>${CSS}${M.FL_CSS || ''}${ART_CSS}</style>
 </head>
 <body>
-<header><a class="logo" href="${L === 'nb' ? '/' : '/?lang=en'}">Axle</a><nav><a href="${hubUrl()}">${X().all}</a>${alt ? ` · <a href="${alt}" hreflang="${other()}" lang="${other()}">${X().other}</a>` : ''}</nav></header>
+<header><a class="logo" href="${L === 'nb' ? '/' : '/?lang=en'}"><img src="/icons/logo-192.png" alt="" width="30" height="30">Axle</a><nav><a href="${hubUrl()}">${X().all}</a>${alt ? ` · <a href="${alt}" hreflang="${other()}" lang="${other()}">${X().other}</a>` : ''}</nav></header>
 <main>
 ${crumbs ? `<p class="crumbs">${crumbs}</p>` : ''}
 ${body}
