@@ -65,6 +65,14 @@ jobs:
       - name: Bygg appen
         working-directory: desktop
         run: tauri build ${{ matrix.args }}
+      # Uten signatur sier macOS at en nedlastet app er «skadet» og nekter å åpne den. Ad hoc-signaturen («-» i tauri.conf.json)
+      # er gratis og gir den vanlige «kan ikke verifisere utvikleren»-advarselen i stedet, med «Åpne likevel».
+      - name: Sjekk at Mac-appen er signert
+        if: runner.os == 'macOS'
+        run: |
+          app=$(find desktop/src-tauri/target -path '*/bundle/macos/*.app' -maxdepth 6 | head -1)
+          codesign --verify --deep --strict --verbose=2 "$app"
+          codesign -dv "$app" 2>&1 | grep -q "Sealed Resources version"
       - name: Gi filen et fast navn
         run: |
           f=$(find desktop/src-tauri/target -path '*/bundle/*' \( -name '*.dmg' -o -name '*-setup.exe' \) | head -1)

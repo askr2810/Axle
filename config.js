@@ -2,7 +2,7 @@
 //  KONFIGURASJON – det eneste du normalt trenger å endre
 // ============================================================
 const CONFIG = {
-  appVersion: "1.0.1",
+  appVersion: "1.0.2",
   // Sett til true når første skrivebordsutgave (tag vX.Y.Z) er publisert på GitHub Releases.
   // Da viser «Last ned»-siden i appen og axle.no/about lenker til Axle.dmg og Axle-Setup.exe.
   desktopReady: true,
