@@ -5,7 +5,7 @@
 //  Adressen byttes med replaceState, så tilbakeknappen i nettleseren oppfører seg som før.
 //  Ord på norsk eller engelsk etter språket; begge forstås når adressen leses.
 // ============================================================
-const RT = { geo: ["kartspill", "map-game"], motion: ["bevegelse", "motion"], ctl: ["regulering", "control"], ekalk: ["elementkalkulator", "element-calculator"], pomo: ["pomodoro", "pomodoro"], mq: ["hoderegning", "mental-maths"], teach: ["laerer", "teacher"], hw: ["lekse", "homework"], catalog: ["oppgaver", "problems"], practice: ["ov", "practice"], book: ["teori", "theory"], friends: ["venner", "friends"], profile: ["profil", "profile"], badges: ["merker", "badges"],
+const RT = { geo: ["kartspill", "map-game"], motion: ["bevegelse", "motion"], parts: ["delvis-integrasjon", "integration-by-parts"], ctl: ["regulering", "control"], ekalk: ["elementkalkulator", "element-calculator"], pomo: ["pomodoro", "pomodoro"], mq: ["hoderegning", "mental-maths"], teach: ["laerer", "teacher"], hw: ["lekse", "homework"], catalog: ["oppgaver", "problems"], practice: ["ov", "practice"], book: ["teori", "theory"], friends: ["venner", "friends"], profile: ["profil", "profile"], badges: ["merker", "badges"],
   settings: ["innstillinger", "settings"], community: ["fellesskap", "community"], pick: ["fag", "courses"], groups: ["grupper", "groups"], theory: ["les", "read"], guided: ["steg", "steps"], topic: ["emne", "topic"], proofs: ["bevis", "proofs"], snacks: ["snacks", "snacks"], sprint: ["lynrunde", "sprint"], match: ["parjakt", "match"], truefalse: ["santusant", "truefalse"], duel: ["duell", "duel"], mydecks: ["kort", "cards"], local: ["lynduell", "sameduel"], sheet: ["formler", "formulas"], person: ["person", "person"], admin: ["admin", "admin"], trig: ["enhetssirkel", "unitcircle"], forces: ["krefter", "forces"], lab: ["lab", "lab"], messages: ["meldinger", "messages"], code: ["kode", "code"], lf: ["laer", "learn"] };
 const rtW = k => RT[k][LANG === "en" ? 1 : 0];
 const rtKey = w => Object.keys(RT).find(k => RT[k].includes(String(w || "").toLowerCase()));
@@ -34,6 +34,7 @@ function routeOf(){
     case "forces": return rtW("forces") + "/" + fcSlug();
     case "geo": return rtW("geo");
     case "motion": return rtW("motion");
+    case "parts": return rtW("parts");
     case "pomo": return rtW("pomo");
     case "teach": return rtW("teach");
     case "hw": return HW ? rtW("hw") + "/" + hwPath(HW.cfg, HW.title).slice(6) : rtW("hw");
@@ -108,6 +109,7 @@ function routeBoot(){
   if(k === "teach"){ TC = null; screen = "teach"; return true; }
   if(k === "hw"){ HW = null; HW_PENDING = p.slice(1).join("/") || null; screen = "hw"; return true; }
   if(k === "motion"){ MVS = { from: "home", uid: null }; screen = "motion"; return true; }
+  if(k === "parts"){ PI = { from: "home", step: 1, s1: 0, ex: 0, pick: null, lq: 0, lp: null, score: {} }; screen = "parts"; return true; }
   if(k === "local"){ LO = null; screen = "local"; return true; }
   if(k === "mydecks"){ MD = { view: "list" }; MD_PENDING = p[1] === "del" && p[2] ? p[2] : null; screen = "mydecks"; return true; }
   if(k === "proofs"){ // #/bevis eller #/bevis/deriv/2
