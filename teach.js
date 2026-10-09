@@ -235,20 +235,44 @@ async function teOpen(id){
 const teDraft = () => { if(TE && !TE.id){ S.teDraft = { title: TE.title, qs: TE.qs }; saveLocal(); } };
 // Symbolmeny i oppgavebyggeren (som formelverktøyet i Word): tegn settes inn der markøren står.
 // Vanlige tegn settes inn som tekst; brøk, potens og rot åpner formelvinduet med tomme bokser å fylle ut.
+// Hvert tegn: [vises, navn nb, navn en, formelmal?]. Med formelmal åpnes formelvinduet med tomme bokser å fylle ut.
 const TE_SYM = [
-  ["calc", ["Regning", "Arithmetic"], ["+", "−", "·", ":", "×", "÷", "=", "≠", "≈", "±", "<", ">", "≤", "≥", "(", ")", "%"]],
-  ["frac", ["Brøk og potens", "Fractions & powers"], [["\\frac{a}{b}", "\\frac{#?}{#?}", "Brøk", "Fraction"], ["x^2", "#?^{#?}", "Potens", "Power"], ["\\sqrt{x}", "\\sqrt{#?}", "Kvadratrot", "Square root"],
-    ["\\sqrt[n]{x}", "\\sqrt[#?]{#?}", "n-te rot", "n-th root"], ["2\\tfrac{1}{2}", "#?\\frac{#?}{#?}", "Blandet tall", "Mixed number"], ["x_n", "#?_{#?}", "Senket skrift", "Subscript"], ["|x|", "\\left|#?\\right|", "Tallverdi", "Absolute value"],
-    "½", "⅓", "¼", "¾", "²", "³"]],
-  ["geo", ["Geometri", "Geometry"], ["°", "π", "∠", "⊥", "∥", "△", "≅", "∼", "cm²", "m²", "cm³", "m³"]],
-  ["unit", ["Enheter", "Units"], ["mm", "cm", "m", "km", "g", "kg", "L", "dL", "mL", "kr", "s", "min", "h", "°C", "km/h", "m/s"]],
-  ["abc", ["Bokstaver", "Letters"], ["α", "β", "γ", "θ", "λ", "μ", "σ", "Δ", "Ω", "ω", "∞", "→"]]];
+  ["often", ["Vanlige", "Common"], "★", [["+", "pluss", "plus"], ["−", "minus", "minus"], ["·", "gange", "times"], [":", "dele", "divide"], ["=", "er lik", "equals"],
+    ["\\frac{a}{b}", "brøk", "fraction", "\\frac{#?}{#?}"], ["x^2", "potens", "power", "#?^{#?}"], ["\\sqrt{x}", "rot", "root", "\\sqrt{#?}"],
+    ["(", "parentes", "bracket"], [")", "parentes", "bracket"], ["%", "prosent", "percent"], ["≈", "omtrent", "approx."], ["≠", "ikke lik", "not equal"], ["°", "grader", "degrees"], ["π", "pi", "pi"]]],
+  ["calc", ["Regning", "Arithmetic"], "±", [["+", "pluss", "plus"], ["−", "minus", "minus"], ["·", "gange", "times"], ["×", "kryss", "cross"], [":", "dele", "divide"], ["÷", "dele", "divide"],
+    ["=", "er lik", "equals"], ["≠", "ikke lik", "not equal"], ["≈", "omtrent", "approx."], ["±", "pluss/minus", "plus/minus"], ["<", "mindre", "less"], [">", "større", "greater"],
+    ["≤", "mindre/lik", "less/equal"], ["≥", "større/lik", "greater/equal"], ["(", "parentes", "bracket"], [")", "parentes", "bracket"], ["[", "klamme", "bracket"], ["]", "klamme", "bracket"],
+    ["%", "prosent", "percent"], ["‰", "promille", "per mille"], ["…", "osv.", "etc."]]],
+  ["frac", ["Brøk og potens", "Fractions & powers"], "½", [["\\frac{a}{b}", "brøk", "fraction", "\\frac{#?}{#?}"], ["2\\tfrac{1}{2}", "blandet tall", "mixed number", "#?\\frac{#?}{#?}"],
+    ["x^2", "potens", "power", "#?^{#?}"], ["x^{-1}", "minus-potens", "negative power", "#?^{-#?}"], ["\\sqrt{x}", "kvadratrot", "square root", "\\sqrt{#?}"], ["\\sqrt[3]{x}", "n-te rot", "n-th root", "\\sqrt[#?]{#?}"],
+    ["10^{n}", "tierpotens", "power of ten", "#?\\cdot 10^{#?}"], ["x_n", "senket", "subscript", "#?_{#?}"], ["|x|", "tallverdi", "absolute", "\\left|#?\\right|"],
+    ["½", "en halv", "half"], ["⅓", "en tredjedel", "third"], ["¼", "en kvart", "quarter"], ["¾", "tre kvart", "three quarters"], ["²", "i andre", "squared"], ["³", "i tredje", "cubed"]]],
+  ["fun", ["Likninger og funksjoner", "Equations & functions"], "ƒ", [["f(x)", "funksjon", "function"], ["\\Rightarrow", "gir", "implies", "\\Rightarrow"], ["\\Leftrightarrow", "ekvivalent", "equivalent", "\\Leftrightarrow"],
+    ["\\log", "logaritme", "logarithm", "\\log\\left(#?\\right)"], ["\\ln", "ln", "ln", "\\ln\\left(#?\\right)"], ["e^{x}", "e opphøyd", "e to the", "e^{#?}"], ["\\sin", "sinus", "sine", "\\sin\\left(#?\\right)"], ["\\cos", "cosinus", "cosine", "\\cos\\left(#?\\right)"], ["\\tan", "tangens", "tangent", "\\tan\\left(#?\\right)"],
+    ["f'(x)", "derivert", "derivative", "#?'(#?)"], ["\\int", "integral", "integral", "\\int_{#?}^{#?} #? \\, dx"], ["\\sum", "sum", "sum", "\\sum_{#?}^{#?} #?"], ["\\lim", "grense", "limit", "\\lim_{#? \\to #?} #?"],
+    ["\\vec{v}", "vektor", "vector", "\\vec{#?}"], ["\\begin{pmatrix}a\\\\b\\end{pmatrix}", "koordinater", "column", "\\begin{pmatrix}#?\\\\#?\\end{pmatrix}"], ["∞", "uendelig", "infinity"]]],
+  ["geo", ["Geometri", "Geometry"], "△", [["°", "grader", "degrees"], ["π", "pi", "pi"], ["∠", "vinkel", "angle"], ["⊥", "normal på", "perpendicular"], ["∥", "parallell", "parallel"],
+    ["△", "trekant", "triangle"], ["□", "firkant", "square"], ["○", "sirkel", "circle"], ["≅", "kongruent", "congruent"], ["∼", "formlik", "similar"], ["\\overline{AB}", "linjestykke", "segment", "\\overline{#?}"],
+    ["cm²", "kvadrat-cm", "sq. cm"], ["m²", "kvadratmeter", "sq. metre"], ["cm³", "kubikk-cm", "cubic cm"], ["m³", "kubikkmeter", "cubic metre"]]],
+  ["unit", ["Enheter", "Units"], "m", [["mm", "millimeter", "millimetre"], ["cm", "centimeter", "centimetre"], ["dm", "desimeter", "decimetre"], ["m", "meter", "metre"], ["km", "kilometer", "kilometre"],
+    ["g", "gram", "gram"], ["kg", "kilo", "kilogram"], ["L", "liter", "litre"], ["dL", "desiliter", "decilitre"], ["mL", "milliliter", "millilitre"], ["kr", "kroner", "kroner"],
+    ["s", "sekund", "second"], ["min", "minutt", "minute"], ["h", "time", "hour"], ["°C", "celsius", "Celsius"], ["km/h", "km i timen", "km per hour"], ["m/s", "meter/sek", "m per s"], ["m/s²", "akselerasjon", "acceleration"],
+    ["N", "newton", "newton"], ["kN", "kilonewton", "kilonewton"], ["Pa", "pascal", "pascal"], ["J", "joule", "joule"], ["W", "watt", "watt"], ["kWh", "kilowattime", "kWh"], ["V", "volt", "volt"], ["A", "ampere", "ampere"], ["Ω", "ohm", "ohm"]]],
+  ["set", ["Mengder og logikk", "Sets & logic"], "∈", [["∈", "er med i", "in"], ["∉", "ikke med i", "not in"], ["⊂", "delmengde", "subset"], ["∪", "union", "union"], ["∩", "snitt", "intersection"], ["∅", "tom mengde", "empty set"],
+    ["ℕ", "naturlige tall", "naturals"], ["ℤ", "hele tall", "integers"], ["ℚ", "rasjonale", "rationals"], ["ℝ", "reelle tall", "reals"], ["¬", "ikke", "not"], ["∧", "og", "and"], ["∨", "eller", "or"], ["∀", "for alle", "for all"], ["∃", "finnes", "exists"]]],
+  ["chem", ["Kjemi og fysikk", "Chemistry & physics"], "⚗", [["→", "gir", "yields"], ["⇌", "likevekt", "equilibrium"], ["↑", "gass", "gas"], ["↓", "felling", "precipitate"], ["Δ", "endring", "change"],
+    ["₂", "senket 2", "sub 2"], ["₃", "senket 3", "sub 3"], ["₄", "senket 4", "sub 4"], ["⁺", "pluss-ion", "plus ion"], ["⁻", "minus-ion", "minus ion"], ["²⁺", "2+", "2+"], ["²⁻", "2−", "2−"],
+    ["H₂O", "vann", "water"], ["CO₂", "karbondioksid", "CO₂"], ["O₂", "oksygen", "oxygen"], ["·10", "· 10 opphøyd", "· 10 to the", "\\cdot 10^{#?}"]]],
+  ["abc", ["Greske bokstaver", "Greek letters"], "α", [["α", "alfa", "alpha"], ["β", "beta", "beta"], ["γ", "gamma", "gamma"], ["δ", "delta", "delta"], ["ε", "epsilon", "epsilon"], ["θ", "theta", "theta"],
+    ["λ", "lambda", "lambda"], ["μ", "my", "mu"], ["ρ", "rho", "rho"], ["σ", "sigma", "sigma"], ["τ", "tau", "tau"], ["φ", "fi", "phi"], ["ω", "omega", "omega"], ["Δ", "Delta", "Delta"], ["Σ", "Sigma", "Sigma"], ["Ω", "Omega", "Omega"]]]];
 function teSymHTML(){
   const tab = TE_SYM.find(x => x[0] === TE.symTab) || TE_SYM[0];
-  return `<div class="te-symtabs" role="tablist">${TE_SYM.map(([k, l]) => `<button type="button" role="tab" aria-selected="${tab[0] === k}" class="${tab[0] === k ? "on" : ""}" data-a="tesymtab" data-k="${k}">${esc(T(l[0], l[1]))}</button>`).join("")}</div>
-    <div class="te-symk">${tab[2].map((it, j) => typeof it === "string" ? `<button type="button" data-a="tesym" data-j="${j}" aria-label="${esc(it)}">${esc(it)}</button>`
-      : `<button type="button" class="fx" data-a="tesym" data-j="${j}" title="${esc(T(it[2], it[3]))}" aria-label="${esc(T(it[2], it[3]))}">${rich("$" + it[0] + "$")}</button>`).join("")}
-      <button type="button" class="fx free" data-a="tefx" title="${esc(T("Skriv en hel formel", "Write a whole formula"))}">∑ ${esc(T("Formel", "Formula"))}</button></div>`;
+  return `<div class="te-symtabs" role="tablist" aria-label="${esc(T("Tegn og formler", "Symbols and formulas"))}">${TE_SYM.map(([k, l, ic]) => `<button type="button" role="tab" aria-selected="${tab[0] === k}" class="${tab[0] === k ? "on" : ""}" data-a="tesymtab" data-k="${k}"><i aria-hidden="true">${esc(ic)}</i>${esc(T(l[0], l[1]))}</button>`).join("")}</div>
+    <div class="te-symk">${tab[3].map((it, j) => { const nm = T(it[1], it[2]);
+      return `<button type="button" class="${it[3] ? "fx" : ""}" data-a="tesym" data-j="${j}" title="${esc(nm)}" aria-label="${esc(nm)}"><span class="g">${it[3] ? rich("$" + it[0] + "$") : esc(it[0])}</span><small>${esc(nm)}</small></button>`; }).join("")}
+      <button type="button" class="fx free" data-a="tefx" title="${esc(T("Skriv en hel formel", "Write a whole formula"))}"><span class="g">∑</span><small>${esc(T("egen formel", "own formula"))}</small></button></div>
+    <p class="te-symtip">${esc(T("Trykk der du vil ha tegnet, og så på knappen. Knapper med blå bakgrunn åpner et vindu med tomme bokser du fyller ut.", "Tap where you want the symbol, then the button. Buttons with a blue background open a window with empty boxes to fill in."))}</p>`;
 }
 // Siste tekstfelt læreren var i (spørsmål, svaralternativ, forklaring eller enhet)
 // Smart tekstfelt (samme som i fagfolk-redigereren): formler vises tegnet som brikker, ingen $ eller \\frac å se.
@@ -353,9 +377,10 @@ function teClick(a, b){
     case "tetf": if(x){ x.a = +d.v; teDraft(); render(); } return true;
     case "teeshow": if(x){ x.showE = true; render(); setTimeout(() => document.querySelector(`[data-te="e"][data-i="${d.i}"]`)?.focus(), 30); } return true;
     case "tesymtab": TE.symTab = d.k; { const bar = document.getElementById("tesym"); if(bar) bar.innerHTML = teSymHTML(); } return true;
-    case "tesym": { const tab = TE_SYM.find(z => z[0] === TE.symTab) || TE_SYM[0], it = tab[2][+d.j]; if(it == null) return true;
-      if(typeof it === "string"){ teIns(it); return true; }
-      const el = teTarget(); if(typeof edFx === "function") edFx({ tex: "", tpl: it[1], onOk: v => { if(el && document.body.contains(el)) TE.fe = el; teIns("", v); } }); return true; }
+    case "tesym": { const tab = TE_SYM.find(z => z[0] === TE.symTab) || TE_SYM[0], it = tab[3][+d.j]; if(it == null) return true;
+      if(!it[3]){ teIns(it[0]); return true; }
+      if(!/#\?/.test(it[3])){ teIns("", it[3]); return true; } // ferdig formel uten bokser (f.eks. ⇒): rett inn
+      const el = teTarget(); if(typeof edFx === "function") edFx({ tex: "", tpl: it[3], onOk: v => { if(el && document.body.contains(el)) TE.fe = el; teIns("", v); } }); return true; }
     case "tefx": { const el = teTarget(); if(typeof edFx === "function") edFx({ tex: "", onOk: v => { if(el && document.body.contains(el)) TE.fe = el; teIns("", v); } }); return true; }
     case "tesave": teSave(); return true;
     case "tetest": { TE.err = null; const qs = teClean(); if(!qs){ render(); return true; } const items = lsItems(qs); startLesson("homework", S.current, items, { hw: { key: "", title: TE.title || T("Prøv selv", "Try it"), cc: true, test: true }, title: TE.title || T("Prøv selv", "Try it") }); return true; }
