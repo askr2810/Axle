@@ -378,6 +378,21 @@ function pickRowHTML(c){
     <span class="p">${d}/${tot}<div class="mini"><i style="width:${d/tot*100}%"></i></div></span></button>${favStarHTML(c.code)}</div>`;
 }
 
+// Søk i alle fag (på tvers av studiene): navn, kortnavn, fagkoder (f.eks. TKT4116), gruppe og enhetstitler
+let PICK_Q = "";
+function pickSearchHTML(){
+  const q = PICK_Q.trim(); if(!q) return "";
+  const N = s => String(s || "").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, ""), words = N(q).split(/\s+/).filter(Boolean);
+  const hits = COURSES.map(c => { const name = N(courseName(c) + " " + courseShort(c) + " " + c.code), rest = N([courseEq(c), c.group && groupName(c.group), ...c.units.map((_, u) => unitTitle(c, u)),
+        /matemat/i.test(courseName(c)) ? "matte" : "", ...(typeof STUDIES !== "undefined" ? STUDIES.filter(x => inStudy(c, x.id)).map(x => studyName(x) + (x.id === "barn" || x.id === "ungdom" ? " grunnskole" : "")) : [])].join(" "));
+      if(!words.every(w => name.includes(w) || rest.includes(w))) return null;
+      return [c, words.every(w => name.includes(w)) ? 0 : 1]; }).filter(Boolean).sort((x, y) => x[1] - y[1] || courseName(x[0]).localeCompare(courseName(y[0]), "nb"));
+  if(!hits.length) return `<p class="picknote">${esc(T(`Fant ingen fag for «${q}». Prøv et annet ord, for eksempel «fysikk», «R1» eller en emnekode.`, `No courses found for "${q}". Try another word, e.g. "physics", "R1" or a course code.`))}</p>`;
+  const by = new Map(); hits.forEach(([c]) => { const st = (typeof STUDIES !== "undefined" && STUDIES.find(x => inStudy(c, x.id))) || null, k = st ? studyName(st) : T("Andre fag", "Other courses"); if(!by.has(k)) by.set(k, []); by.get(k).push(c); });
+  let h = `<p class="picknote">${esc(T(`${hits.length} fag`, `${hits.length} courses`))}</p>`;
+  by.forEach((list, k) => { h += `<div class="grp">${esc(k)}</div>` + list.map(pickRowHTML).join(""); });
+  return h;
+}
 function renderPick(){
   const order = S.pickMode==="order", groups = new Map(), SC = studyCourses(viewStudy());
   const add = (k,c) => { if(!groups.has(k)) groups.set(k,[]); groups.get(k).push(c); };
@@ -386,6 +401,8 @@ function renderPick(){
   const decks = Object.keys(FAV_DRILL).filter(x => FAV_DRILL[x][4] === viewStudy());
   const favs = COURSES.filter(c=>isFav(c.code)); // favorittene øverst (står også i sin vanlige gruppe)
   let h = `<div class="sheet"><div class="wrap pickw"><div class="sheet-h"><h1>${t("pickTitle")}</h1><button class="iconbtn" data-a="home" aria-label="${t("back")}">${I.x}</button></div>
+    <div class="fr-search pick-search">${I.search}<input type="search" id="pickq" placeholder="${esc(T("Søk etter fag, f.eks. «fysikk», «R1» eller «TKT4116»", "Search courses, e.g. \"physics\", \"R1\" or \"TKT4116\""))}" value="${esc(PICK_Q)}" autocomplete="off" aria-label="${esc(T("Søk etter fag", "Search courses"))}"></div>
+    <div id="pickres">${pickSearchHTML()}</div><div id="pickall" ${PICK_Q.trim() ? "hidden" : ""}>
     ${studyTabsHTML()}
     <div class="seg pickseg" role="radiogroup"><button role="radio" aria-checked="${!order}" class="${order?"":"on"}" data-a="pickmode" data-m="theme">${esc(t("pickTheme"))}</button><button role="radio" aria-checked="${order}" class="${order?"on":""}" data-a="pickmode" data-m="order">${esc(t("pickOrder"))}</button></div>
     ${order?`<p class="picknote">${esc(t("orderNote"))}</p>`:""}
@@ -396,8 +413,10 @@ function renderPick(){
     h += `<div class="grp">${esc(order ? t("stepN", +g.slice(1)) : groupName(g))}</div>`;
     list.forEach(c=>{ h += pickRowHTML(c); });
   });
-  h += `${studyMoreHTML()}</div></div>`;
+  h += `${studyMoreHTML()}</div></div></div>`;
   $app.innerHTML = h;
+  const inp = document.getElementById("pickq");
+  if(inp) inp.addEventListener("input", () => { PICK_Q = inp.value; const r = document.getElementById("pickres"), all = document.getElementById("pickall"); if(r) r.innerHTML = pickSearchHTML(); if(all) all.hidden = !!PICK_Q.trim(); });
 }
 
 // ---------- innstillinger ----------
@@ -1432,7 +1451,7 @@ document.addEventListener("click", async e=>{
   else if(a==="dcpopgo"){ buzz(true); overlay=null; renderOverlay(); if(!dcDoneToday()) startChallenge(); }
   else if(a==="dclater"){ overlay=null; renderOverlay(); toast(t("dcPopLaterToast")); }
   else if(a==="badges"){ screen="badges"; render(); window.scrollTo(0,0); }
-  else if(a==="choose"){ S.current=b.dataset.c; save(); goHome(); }
+  else if(a==="choose"){ S.current=b.dataset.c; PICK_Q = ""; save(); goHome(); }
   else if(a==="node"){ const c = COURSE(S.current), u=+b.dataset.u, k=+b.dataset.k;
     if(!isUnlocked(c,u,k)){ toast(k===3 ? t("lockedMaster") : t("lockedNode")); return; }
     if(k===0 && !sub(c.code).done[u+"-0"] && theoryOf(c.code,u) && !(S.theorySeen||{})[c.code+":"+u]){ gdOpen(c.code,u,{u,k}); return; }
