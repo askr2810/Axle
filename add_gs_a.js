@@ -62,7 +62,7 @@ Which is bigger, 58 or 85? Look at the tens first: 8 tens is more than 5 tens, s
    return FIGQ({ f: "gs_numline", p: { a: n, b: 1, op: up ? "+" : "-" } }, [T(`Hvilket tall kommer rett ${up ? "etter" : "før"} ${n}?`, `Which number comes just ${up ? "after" : "before"} ${n}?`), N(ans),
      T(`Rett ${up ? "etter" : "før"} betyr én ${up ? "mer" : "mindre"}: $${n} ${up ? "+" : "-"} 1 = ${ans}$.`, `Just ${up ? "after" : "before"} means one ${up ? "more" : "less"}: $${n} ${up ? "+" : "-"} 1 = ${ans}$.`)]); },
  () => { const [a, b, c, d] = R.distinct(4, 12, 99), big = Math.max(a, b, c, d);
-   return [T(`Hvilket tall er størst: ${a}, ${b}, ${c} eller ${d}?`, `Which number is biggest: ${a}, ${b}, ${c} or ${d}?`), [String(big), ...[a, b, c, d].filter(x => x !== big).map(String)],
+   return [T("Hvilket tall er størst?", "Which number is biggest?"), [String(big), ...[a, b, c, d].filter(x => x !== big).map(String)],
      T(`Sammenlign tierne først. ${big} er størst.`, `Compare the tens first. ${big} is the biggest.`)]; }
 );
 
