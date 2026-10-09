@@ -22,7 +22,7 @@ async function tcLoad(){
   if(TC && screen === "teach") render();
 }
 const tcSave = () => { S.tc = { tab: TC.tab, code: TC.code, units: TC.units, cid: TC.cid, n: TC.n, secs: TC.secs }; save(); };
-const tcSrc = () => TC.tab === "cc" ? (TC.cid ? TC.cid : null) : `AX:${TC.code}:${TC.units.join(",")}`; // egne: «LS:id» eller «CC:id»
+const tcSrc = () => TC.tab === "cc" || TC.tab === "pub" ? (TC.cid ? TC.cid : null) : `AX:${TC.code}:${TC.units.join(",")}`; // egne: «LS:id» eller «CC:id»
 // Antall spørsmål som finnes i utvalget (for å vise «≈ 24 oppgaver» og for å ikke be om flere enn det finnes)
 function tcAvail(){ const c = COURSE(TC.code); if(TC.tab === "cc"){ const r = (TC.mine || []).find(x => x.id === TC.cid); return r ? (r.n_questions ?? r.qcount ?? null) : null; }
   const P = poolIds(c, TC.units); return P.mc.length + P.num.length + P.gen.length; }
@@ -31,7 +31,9 @@ async function tcCfg(hw){
   const cfg = { seed: 1 + Math.floor(Math.random() * 999999999), lvl: 0, n: /^LS:|^CC:/.test(src) ? (hw ? 50 : 30) : TC.n, secs: TC.secs, src }; // egne oppgaver: alle (live-quiz maks 30)
   if(!(await mqPrep(cfg))){ toast(T("Fant ikke spørsmålene. Sjekk nettet og prøv igjen.", "Could not load the questions. Check your connection and try again.")); return null; }
   const qs = mqQs(cfg); if(qs.length < (hw ? 1 : 3)){ toast(T("For få oppgaver – en quiz trenger minst 3.", "Too few problems – a quiz needs at least 3.")); return null; }
-  cfg.n = qs.length; return cfg;
+  cfg.n = qs.length;
+  if(/^LS:/.test(src) && TC.tab === "pub") frRpc("lekse_use", { p_id: src.slice(3) }).catch(() => {}); // «brukt N ganger» for den som delte
+  return cfg;
 }
 async function tcLive(){
   if(!AUTH){ toast(mqErr({ kind: "auth" })); return; }
@@ -73,11 +75,38 @@ async function qrFill(){
   for(const el of els){ try{ const q = qrcode(0, "M"); q.addData(el.dataset.qr); q.make(); el.innerHTML = q.createSvgTag({ cellSize: 4, margin: 2, scalable: true }); el.dataset.qrDone = 1; }catch(e){} }
 }
 
+// ---------- deling: fag og nivå for oppgavesett i fellesskapet ----------
+const LS_SUBJ = [["matte", "Matte", "Maths"], ["norsk", "Norsk", "Norwegian"], ["engelsk", "Engelsk", "English"], ["naturfag", "Naturfag", "Science"], ["samfunn", "Samfunnsfag", "Social studies"],
+  ["krle", "KRLE", "RE"], ["fysikk", "Fysikk", "Physics"], ["kjemi", "Kjemi", "Chemistry"], ["biologi", "Biologi", "Biology"], ["historie", "Historie", "History"], ["geografi", "Geografi", "Geography"],
+  ["ingenior", "Ingeniørfag", "Engineering"], ["helse", "Helse", "Health"], ["okonomi", "Økonomi", "Economics"], ["forerkort", "Førerkort", "Driving"], ["sprak", "Språk", "Languages"], ["annet", "Annet", "Other"]];
+const LS_LVL = [["1-4", "1.–4. trinn", "Years 1–4"], ["5-7", "5.–7. trinn", "Years 5–7"], ["8-10", "8.–10. trinn", "Years 8–10"], ["vgs", "VGS", "Upper secondary"], ["hoyere", "Høyere utdanning", "Higher education"], ["alle", "Alle nivåer", "All levels"]];
+const lsName = (L2, k) => { const r = L2.find(x => x[0] === k); return r ? T(r[1], r[2]) : (k || ""); };
+const lsRowSub = r => [T(`${r.n} oppgaver`, `${r.n} problems`), lsName(LS_SUBJ, r.subject), lsName(LS_LVL, r.level), r.author ? T(`av ${r.author}`, `by ${r.author}`) : "", r.uses ? T(`brukt ${r.uses} ganger`, `used ${r.uses} times`) : ""].filter(Boolean).join(" · ");
+// Søk i delte oppgavesett (åpent for alle) og publiserte fellesskapsquizer (krever konto)
+async function tcPubLoad(){
+  if(!TC || !CLOUD_ON) return; TC.pubBusy = true; TC.pubErr = false; if(screen === "teach") render();
+  const q = TC.pq || "", sub = TC.psub || "";
+  try{ TC.pub = (await sbFetch("/rest/v1/rpc/lekse_search", { method: "POST", body: JSON.stringify({ p_q: q, p_subject: sub, p_level: TC.plvl || "" }) }, AUTH ? await authToken() : null)) || []; }catch(e){ TC.pub = []; TC.pubErr = true; }
+  try{ TC.pubcc = AUTH && !sub ? (((await frRpc("list_community", { q, sort: "popular", p_kind: "quiz" })) || []).filter(r => !r.mine).slice(0, 20)) : []; }catch(e){ TC.pubcc = []; }
+  TC.pubBusy = false; if(TC && screen === "teach") render();
+}
+function tcPubHTML(){
+  if(TC.pub == null && !TC.pubBusy) setTimeout(tcPubLoad, 0);
+  const rows = TC.pub || [], cc = TC.pubcc || [];
+  return `<p class="tc-note">${esc(T("Oppgavesett som andre har laget og delt. Velg ett og bruk det i en lekse eller quiz, eller kopier det og gjør det til ditt eget.", "Problem sets others have made and shared. Pick one and use it for homework or a quiz, or copy it and make it your own."))}</p>
+    <div class="fr-search">${I.search}<input type="search" id="tcpq" placeholder="${esc(T("Søk, f.eks. «brøk» eller «gloser»", "Search, e.g. \"fractions\""))}" value="${esc(TC.pq || "")}" autocomplete="off"></div>
+    <div class="chips tc-psub"><button class="${!TC.psub ? "on" : ""}" data-a="tcpsub" data-k="">${esc(T("Alle fag", "All subjects"))}</button>${LS_SUBJ.map(([k]) => `<button class="${TC.psub === k ? "on" : ""}" data-a="tcpsub" data-k="${k}">${esc(lsName(LS_SUBJ, k))}</button>`).join("")}</div>
+    ${TC.pubBusy ? `<p class="tc-note">${esc(T("Søker …", "Searching …"))}</p>` : TC.pubErr && !cc.length ? `<p class="tc-note">${esc(T("Deling er ikke slått på ennå (supabase/laerer.sql).", "Sharing is not enabled yet (supabase/laerer.sql)."))}</p>`
+      : !rows.length && !cc.length ? `<p class="tc-note">${esc(T("Ingen treff ennå. Lag et sett selv og del det – da blir du den første!", "No hits yet. Make a set yourself and share it – then you'll be the first!"))}</p>` : ""}
+    <div class="tc-mine">${rows.map(r => { const v = "LS:" + r.id; return `<div class="tc-qrow"><button class="tc-q ${TC.cid === v ? "on" : ""}" data-a="tccid" data-id="${esc(v)}"><span>📝</span><span class="tc-qt"><b>${esc(r.title)}</b><small>${esc(lsRowSub(r))}</small></span><i aria-hidden="true">${TC.cid === v ? "✓" : ""}</i></button>${AUTH ? `<button class="kbtn ghost" data-a="tcpcopy" data-id="${esc(r.id)}" title="${esc(T("Kopier og endre", "Copy and edit"))}">${esc(T("Kopier", "Copy"))}</button>` : ""}</div>`; }).join("")}
+      ${cc.map(r => { const v = "CC:" + r.id; return `<button class="tc-q ${TC.cid === v ? "on" : ""}" data-a="tccid" data-id="${esc(v)}"><span>${esc(r.emoji || "📘")}</span><span class="tc-qt"><b>${esc(r.title)}</b><small>${esc([T(`${r.n_questions} spørsmål`, `${r.n_questions} questions`), r.author ? T(`av ${r.author}`, `by ${r.author}`) : "", `👍 ${r.likes || 0}`].filter(Boolean).join(" · "))}</small></span><i aria-hidden="true">${TC.cid === v ? "✓" : ""}</i></button>`; }).join("")}</div>`;
+}
+
 // ---------- tegning ----------
 function renderTeach(){
   if(!TC) return tcOpen();
   const c = COURSE(TC.code), avail = tcAvail(), links = S.tcLinks || [], groups = (typeof GR !== "undefined" && GR.list) || [];
-  const src = TC.tab === "ax"
+  const src = TC.tab === "pub" ? tcPubHTML() : TC.tab === "ax"
     ? `<label class="tc-f"><span>${esc(T("Fag", "Subject"))}</span><select id="tccourse">${COURSES.map(x => `<option value="${x.code}" ${x.code === c.code ? "selected" : ""}>${esc(courseName(x))}</option>`).join("")}</select></label>
        <p class="tc-l">${esc(T("Enheter (velg én eller flere)", "Units (pick one or more)"))}</p>
        <div class="chips tc-units">${c.units.map((_, u) => `<button class="${TC.units.includes(u) ? "on" : ""}" data-a="tcunit" data-u="${u}" aria-pressed="${TC.units.includes(u)}">${u + 1}. ${esc(unitTitle(c, u))}</button>`).join("")}</div>
@@ -93,7 +122,7 @@ function renderTeach(){
     <section class="tc-hero"><h2>${esc(T("Bruk Axle i klassen", "Use Axle in class"))}</h2><p>${esc(T("Gratis og uten reklame. Velg oppgaver, del en lekse med klassen – eller kjør en quiz på tavla – og se hvordan det gikk.", "Free and without ads. Pick problems, share homework with the class – or run a quiz on the board – and see how it went."))}</p>
       <ol class="tc-steps"><li><b>1</b>${esc(T("Velg oppgaver", "Pick problems"))}</li><li><b>2</b>${esc(T("Del leksen", "Share the homework"))}</li><li><b>3</b>${esc(T("Se resultatene", "See the results"))}</li></ol></section>
     <section class="tc-card"><h3><span>1</span>${esc(T("Oppgaver", "Problems"))}</h3>
-      <div class="seg tc-tab">${[["ax", T("Fra Axle", "From Axle")], ["cc", T("Mine egne", "My own")]].map(([k, l]) => `<button class="${TC.tab === k ? "on" : ""}" data-a="tctab" data-t="${k}">${esc(l)}</button>`).join("")}</div>
+      <div class="seg tc-tab">${[["ax", T("Fra Axle", "From Axle")], ["cc", T("Mine egne", "My own")], ["pub", T("Fellesskapet", "Community")]].map(([k, l]) => `<button class="${TC.tab === k ? "on" : ""}" data-a="tctab" data-t="${k}">${esc(l)}</button>`).join("")}</div>
       ${src}</section>
     <section class="tc-card"><h3><span>2</span>${esc(T("Innstillinger", "Settings"))}</h3>
       <div class="tc-2"><div><p class="tc-l">${esc(T("Antall oppgaver", "Problems"))}</p><div class="seg">${TC_N.map(n => `<button class="${TC.n === n ? "on" : ""}" data-a="tcn" data-n="${n}">${n}</button>`).join("")}</div></div>
@@ -115,6 +144,7 @@ function renderTeach(){
   </main>`;
   const sel = document.getElementById("tccourse"); if(sel) sel.addEventListener("change", () => { TC.code = sel.value; TC.units = [0]; tcSave(); render(); });
   const ti = document.getElementById("tctitle"); if(ti) ti.addEventListener("input", () => { TC.title = ti.value; });
+  const pq = document.getElementById("tcpq"); if(pq) pq.addEventListener("input", () => { TC.pq = pq.value; clearTimeout(TC.pqT); TC.pqT = setTimeout(async () => { const pos = pq.selectionStart; await tcPubLoad(); const n = document.getElementById("tcpq"); if(n){ n.focus(); try{ n.setSelectionRange(pos, pos); }catch(e){} } }, 350); });
   qrFill();
 }
 function tcResHTML(){
@@ -131,6 +161,9 @@ function tcClick(a, b){
   switch(a){
     case "tcback": screen = TC.from && TC.from !== "teach" ? TC.from : "practice"; TC = null; render(); return true;
     case "tctab": TC.tab = d.t; tcSave(); render(); return true;
+    case "tcpsub": TC.psub = d.k || ""; tcPubLoad(); return true;
+    case "tcpcopy": if(!AUTH){ toast(T("Logg inn for å kopiere.", "Log in to copy.")); return true; }
+      frRpc("lekse_copy", { p_id: d.id }).then(id => { toast(T("Kopiert – nå er settet ditt å endre.", "Copied – the set is now yours to edit.")); teOpen(id); }).catch(e => toast(/too_many/.test(String(e && (e.msg || e.message))) ? T("Du har nådd grensen på 200 sett.", "You have reached the limit of 200 sets.") : T("Kunne ikke kopiere.", "Could not copy."))); return true;
     case "tcunit": { const u = +d.u, i = TC.units.indexOf(u); if(i >= 0){ if(TC.units.length > 1) TC.units.splice(i, 1); } else TC.units.push(u); TC.units.sort((x, y) => x - y); tcSave(); render(); return true; }
     case "tccid": TC.cid = d.id; tcSave(); render(); return true;
     case "tcn": TC.n = +d.n; tcSave(); render(); return true;
@@ -224,15 +257,15 @@ function hwClick(a){
 let TE = null;
 const teBlank = t => t === "num" ? { t: "num", q: "", n: "", u: "", tol: 0, e: "" } : t === "tf" ? { t: "tf", q: "", a: 1, e: "" } : { t: "mc", q: "", o: ["", ""], a: 0, e: "" };
 async function teOpen(id){
-  TE = { id: id || null, title: "", qs: [teBlank("mc")], busy: false, err: null, from: screen };
-  if(!id && S.teDraft) Object.assign(TE, { title: S.teDraft.title || "", qs: S.teDraft.qs && S.teDraft.qs.length ? S.teDraft.qs : TE.qs });
+  TE = { id: id || null, title: "", qs: [teBlank("mc")], busy: false, err: null, from: screen, pub: false, wasPub: false, subject: "annet", level: "alle" };
+  if(!id && S.teDraft) Object.assign(TE, { title: S.teDraft.title || "", qs: S.teDraft.qs && S.teDraft.qs.length ? S.teDraft.qs : TE.qs, pub: !!S.teDraft.pub, subject: S.teDraft.subject || "annet", level: S.teDraft.level || "alle" });
   screen = "tcedit"; render(); window.scrollTo(0, 0);
   if(id){ TE.busy = true; render();
-    try{ const r = await frRpc("lekse_get", { p_id: id }); TE.title = r.title; TE.qs = (r.questions || []).map(x => x.t === "num" ? Object.assign({ u: "", tol: 0, e: "" }, x, { n: String(x.n).replace(".", LANG === "en" ? "." : ",") }) : Object.assign({ e: "" }, x)); }
+    try{ const r = await frRpc("lekse_get", { p_id: id }); TE.title = r.title; TE.pub = TE.wasPub = !!r.is_public; TE.subject = r.subject || "annet"; TE.level = r.level || "alle"; TE.qs = (r.questions || []).map(x => x.t === "num" ? Object.assign({ u: "", tol: 0, e: "" }, x, { n: String(x.n).replace(".", LANG === "en" ? "." : ",") }) : Object.assign({ e: "" }, x)); }
     catch(e){ TE.err = T("Kunne ikke hente oppgavene.", "Could not load the problems."); }
     TE.busy = false; if(screen === "tcedit") render(); }
 }
-const teDraft = () => { if(TE && !TE.id){ S.teDraft = { title: TE.title, qs: TE.qs }; saveLocal(); } };
+const teDraft = () => { if(TE && !TE.id){ S.teDraft = { title: TE.title, qs: TE.qs, pub: TE.pub, subject: TE.subject, level: TE.level }; saveLocal(); } };
 // Symbolmeny i oppgavebyggeren (som formelverktøyet i Word): tegn settes inn der markøren står.
 // Vanlige tegn settes inn som tekst; brøk, potens og rot åpner formelvinduet med tomme bokser å fylle ut.
 // Hvert tegn: [vises, navn nb, navn en, formelmal?]. Med formelmal åpnes formelvinduet med tomme bokser å fylle ut.
@@ -321,6 +354,9 @@ function renderTeEdit(){
       ${x.e || x.showE ? teRT("e", i, null, x.e, T("Forklaring som vises etter svaret (valgfritt)", "Explanation shown after the answer (optional)"), true, "te-e") : `<button class="te-more" data-a="teeshow" data-i="${i}">＋ ${esc(T("Forklaring (valgfritt)", "Explanation (optional)"))}</button>`}
     </section>`).join("")}
     ${q.length < 50 ? `<button class="te-add" data-a="teqadd">＋ ${esc(T("Ny oppgave", "New problem"))}</button>` : ""}
+    <section class="te-share"><div class="srow"><span class="lbl">${esc(T("Del med fellesskapet", "Share with the community"))}<span class="sub">${esc(T("Andre kan finne oppgavene, øve på dem, bruke dem i lekser og kopiere dem. Navnet ditt vises.", "Others can find the problems, practise them, use them for homework and copy them. Your name is shown."))}</span></span><button class="tog ${TE.pub ? "on" : ""}" data-a="tepub" role="switch" aria-checked="${!!TE.pub}" aria-label="${esc(T("Del med fellesskapet", "Share with the community"))}"></button></div>
+      ${TE.pub ? `<p class="tc-l">${esc(T("Fag", "Subject"))}</p><div class="chips">${LS_SUBJ.map(([k]) => `<button class="${TE.subject === k ? "on" : ""}" data-a="tesubj" data-k="${k}">${esc(lsName(LS_SUBJ, k))}</button>`).join("")}</div>
+        <p class="tc-l">${esc(T("Nivå", "Level"))}</p><div class="chips">${LS_LVL.map(([k]) => `<button class="${TE.level === k ? "on" : ""}" data-a="telvl" data-k="${k}">${esc(lsName(LS_LVL, k))}</button>`).join("")}</div>` : ""}</section>
     ${TE.err ? `<p class="du-err">${esc(TE.err)}</p>` : ""}
   </main>
   <div class="ed-savebar"><div class="wrap"><span>${esc(T(`${q.length} ${q.length === 1 ? "oppgave" : "oppgaver"}`, `${q.length} problem${q.length === 1 ? "" : "s"}`))}</span><button class="kbtn ghost" data-a="tetest">${esc(T("Prøv selv", "Try it"))}</button><button class="kbtn" data-a="tesave" ${TE.busy ? "disabled" : ""}>${esc(TE.busy ? T("Lagrer …", "Saving …") : T("Lagre", "Save"))}</button></div></div>`;
@@ -359,6 +395,8 @@ async function teSave(){
   if(!AUTH){ TE.err = T("Logg inn for å lagre.", "Log in to save."); render(); return; }
   TE.busy = true; render();
   try{ const id = await frRpc("lekse_save", { p_id: TE.id, p_title: title, p_questions: qs }); MQ_LS[id] = { title, questions: qs }; if(!TE.id){ S.teDraft = null; save(); }
+    if(TE.pub || TE.wasPub){ try{ await frRpc("lekse_publish", { p_id: id, p_public: !!TE.pub, p_subject: TE.subject || "annet", p_level: TE.level || "alle", p_author: S.name || "" }); if(TE.pub) toast(T("Delt med fellesskapet 🎉", "Shared with the community 🎉")); }
+      catch(e){ const m = String((e && (e.msg || e.message)) || ""); setTimeout(() => toast(/bad_word/.test(m) ? T("Lagret, men ikke delt: tittelen eller navnet ditt ble stoppet av ordfilteret.", "Saved, but not shared: the title or your name was stopped by the word filter.") : T("Lagret, men deling er ikke slått på ennå (supabase/laerer.sql).", "Saved, but sharing is not enabled yet (supabase/laerer.sql).")), 1800); } }
     TE = null; if(!TC) tcOpen("practice"); TC.tab = "cc"; TC.cid = "LS:" + id; tcSave(); screen = "teach"; render(); window.scrollTo(0, 0); tcLoad();
     toast(T("Lagret ✓ – nå kan du lage en lekse av dem.", "Saved ✓ – now you can make homework from them.")); }
   catch(e){ TE.busy = false; const m = String((e && (e.msg || e.message)) || ""); TE.err = /function|does not exist|schema cache/i.test(m) || (e && e.status === 404) ? T("Egne oppgavesett er ikke slått på ennå (kjør supabase/laerer.sql).", "Own problem sets are not enabled yet (run supabase/laerer.sql).") : /bad_questions/.test(m) ? T("Noen av oppgavene er for lange eller mangler svar.", "Some problems are too long or missing answers.") : T("Kunne ikke lagre. Prøv igjen.", "Could not save. Try again."); render(); }
@@ -383,7 +421,38 @@ function teClick(a, b){
       const el = teTarget(); if(typeof edFx === "function") edFx({ tex: "", tpl: it[3], onOk: v => { if(el && document.body.contains(el)) TE.fe = el; teIns("", v); } }); return true; }
     case "tefx": { const el = teTarget(); if(typeof edFx === "function") edFx({ tex: "", onOk: v => { if(el && document.body.contains(el)) TE.fe = el; teIns("", v); } }); return true; }
     case "tesave": teSave(); return true;
+    case "tepub": TE.pub = !TE.pub; teDraft(); render(); return true;
+    case "tesubj": TE.subject = d.k; teDraft(); render(); return true;
+    case "telvl": TE.level = d.k; teDraft(); render(); return true;
     case "tetest": { TE.err = null; const qs = teClean(); if(!qs){ render(); return true; } const items = lsItems(qs); startLesson("homework", S.current, items, { hw: { key: "", title: TE.title || T("Prøv selv", "Try it"), cc: true, test: true }, title: TE.title || T("Prøv selv", "Try it") }); return true; }
   }
+  return false;
+}
+
+// ---------- delte oppgavesett på Fellesskap-siden: øv, bruk i lekse, kopier, rapporter ----------
+async function lsCommunityLoad(){
+  try{ CC.ls = (await sbFetch("/rest/v1/rpc/lekse_search", { method: "POST", body: JSON.stringify({ p_q: CC.q || "", p_subject: "", p_level: "" }) }, AUTH ? await authToken() : null)) || []; }catch(e){ CC.ls = []; }
+}
+const lsCardHTML = r => `<button class="cc-card" data-a="lsview" data-id="${esc(r.id)}"><span class="cc-emo">📝</span>
+  <span class="cc-t"><b>${esc(r.title)}</b><span>${esc(r.author || T("Anonym", "Anonymous"))}</span><small><em class="cc-kind qz">${esc(T("Oppgavesett", "Problem set"))}</em> ${esc([lsName(LS_SUBJ, r.subject), lsName(LS_LVL, r.level), T(`${r.n} oppgaver`, `${r.n} problems`)].join(" · "))}</small></span>
+  <span class="cc-stats"><span>▶ ${r.uses || 0}</span></span></button>`;
+function lsDetailHTML(r){
+  return `<div class="dialog pop ls-dlg" role="dialog" aria-label="${esc(r.title)}"><div class="sheet-h"><h3>📝 ${esc(r.title)}</h3><button class="iconbtn" data-a="closeov" aria-label="${esc(T("Lukk", "Close"))}">${I.x}</button></div>
+    <p class="tc-note">${esc(lsRowSub(r))}</p>
+    <button class="big" data-a="lsplay" data-id="${esc(r.id)}">▶ ${esc(T("Øv på oppgavene", "Practise the problems"))}</button>
+    <button class="big ghost" data-a="lsteach" data-id="${esc(r.id)}">🎓 ${esc(T("Bruk i en lekse eller quiz", "Use for homework or a quiz"))}</button>
+    ${AUTH && !r.mine ? `<button class="big ghost" data-a="lscopy" data-id="${esc(r.id)}">📋 ${esc(T("Kopier og endre", "Copy and edit"))}</button>` : ""}
+    ${AUTH && !r.mine ? `<button class="exlink ls-rep" data-a="lsrep" data-id="${esc(r.id)}">${esc(T("Rapporter (feil eller upassende innhold)", "Report (mistakes or inappropriate content)"))}</button>` : ""}</div>`;
+}
+function lsClick(a, b){
+  if(!a.startsWith("ls")) return false; const d = (b && b.dataset) || {}, row = () => (CC.ls || []).find(x => x.id === d.id) || (overlay && overlay.lsview) || { id: d.id, title: "" };
+  if(a === "lsview"){ overlay = { lsview: row() }; renderOverlay(); return true; }
+  if(a === "lsplay"){ const r = row(); overlay = null; renderOverlay();
+    mqPrep({ src: "LS:" + d.id, lvl: 0 }).then(ok => { const qs = ok && MQ_LS[d.id] && MQ_LS[d.id].questions; if(!qs || !qs.length){ toast(T("Fant ikke oppgavene.", "Could not find the problems.")); return; }
+      startLesson("homework", S.current, shuffle(lsItems(qs)), { hw: { key: "", title: r.title || MQ_LS[d.id].title, cc: true, test: true }, title: r.title || MQ_LS[d.id].title }); }); return true; }
+  if(a === "lsteach"){ overlay = null; renderOverlay(); tcOpen(screen); TC.tab = "pub"; TC.cid = "LS:" + d.id; tcSave(); render(); return true; }
+  if(a === "lscopy"){ overlay = null; renderOverlay(); frRpc("lekse_copy", { p_id: d.id }).then(id => { toast(T("Kopiert – nå er settet ditt å endre.", "Copied – the set is now yours to edit.")); teOpen(id); }).catch(() => toast(T("Kunne ikke kopiere.", "Could not copy."))); return true; }
+  if(a === "lsrep"){ if(!confirm(T("Rapportere dette oppgavesettet? Sett som rapporteres av flere, skjules til en moderator har sett på dem.", "Report this problem set? Sets reported by several people are hidden until a moderator has looked at them."))) return true;
+    frRpc("lekse_report", { p_id: d.id, p_reason: "" }).then(() => toast(T("Takk – vi ser på det.", "Thanks – we'll take a look."))).catch(() => toast(T("Kunne ikke sende rapporten.", "Could not send the report."))); overlay = null; renderOverlay(); return true; }
   return false;
 }

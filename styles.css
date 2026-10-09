@@ -3162,3 +3162,7 @@ details.cat-mc{margin:6px 0}details.cat-mc>summary{cursor:pointer;font-size:12px
 .dl .dl-sec{margin:0 0 14px;padding:12px;border-radius:14px;border:2px solid var(--line);background:var(--paper)}.dl .dl-sec>b{display:block;margin:0 0 6px}
 .dl .dl-sec p{margin:0 0 8px;font-size:14px;line-height:1.45}.dl .dl-ok{color:var(--ok);font-weight:700}.dl .dl-btns{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 8px}.dl .dl-btns .kbtn{margin:0;text-decoration:none}
 .dl .dl-about{display:block;text-align:center;margin:4px 0 0}.pf-lic{display:inline-grid;place-items:center;width:22px;font-size:16px}
+/* Deling av oppgavesett */
+.tc-qt{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}.tc-qt b{flex:none}.tc-qt small{color:var(--muted);font-size:12.5px;line-height:1.3}
+.tc-psub{margin:8px 0 10px;flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none}.tc-psub::-webkit-scrollbar{display:none}.tc-psub button{flex:none}
+.te-share{margin:14px 0 0;padding:12px 14px;border-radius:18px;border:2px solid var(--line);background:var(--card)}.te-share .srow{padding:0;border:0;background:none}

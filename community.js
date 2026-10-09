@@ -23,6 +23,7 @@ async function ccLoad(){
   try{
     const [rows, mine] = await Promise.all([ccRpc("list_community", { q: CC.q, sort: CC.sort, p_kind: CC.kind }), ccRpc("list_community", { q: "", sort: "mine", p_kind: "all" })]);
     CC.rows = rows || []; CC.mine = mine || [];
+    if(typeof lsCommunityLoad === "function") await lsCommunityLoad(); // delte oppgavesett (supabase/laerer.sql)
   }catch(e){ CC.err = ccErr(e); CC.rows = CC.rows || []; CC.mine = CC.mine || []; }
   CC.loading = false; ccRender();
 }
@@ -64,7 +65,7 @@ function renderCommunity(){
     body = tabs + `<div class="fr-search">${I.search}<input type="search" id="ccq" placeholder="${esc(t("ccSearch"))}" value="${esc(CC.q)}" autocomplete="off"></div>
       <div class="chips cc-kinds">${[["all", "ccKindAll"], ["cards", "ccKindCards"], ["quiz", "ccKindQuiz"]].map(([k, l]) => `<button class="${CC.kind === k ? "on" : ""}" data-a="cckind" data-k="${k}">${esc(t(l))}</button>`).join("")}</div>
       <div class="chips cc-sort">${[["popular", "ccPopular"], ["new", "ccNewest"], ["friends", "ccFriends"], ["liked", "ccLikedTab"]].map(([k, l]) => `<button class="${CC.sort === k ? "on" : ""}" data-a="ccsort" data-s="${k}">${esc(t(l))}</button>`).join("")}</div>
-      <div class="cc-list">${CC.rows === null || CC.loading ? `<p class="fr-wait">${esc(t("frLoading"))}</p>` : CC.rows.length ? CC.rows.map(ccCardHTML).join("") : `<p class="fr-hint">${esc(t(CC.sort === "friends" ? "ccEmptyFriends" : CC.sort === "liked" ? "ccEmptyLiked" : "ccEmpty"))}</p>`}</div>`;
+      <div class="cc-list">${CC.rows === null || CC.loading ? `<p class="fr-wait">${esc(t("frLoading"))}</p>` : CC.rows.length || (CC.ls || []).length ? CC.rows.map(ccCardHTML).join("") + (CC.kind !== "cards" && CC.sort !== "friends" && CC.sort !== "liked" ? (CC.ls || []).map(lsCardHTML).join("") : "") : `<p class="fr-hint">${esc(t(CC.sort === "friends" ? "ccEmptyFriends" : CC.sort === "liked" ? "ccEmptyLiked" : "ccEmpty"))}</p>`}</div>`;
   }
   if(CC.err && !CC.view) body += `<p class="fr-hint">${esc(CC.err)}</p>`;
   $app.innerHTML = `${head}<main class="wrap fr cc">${body}</main>`;
