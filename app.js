@@ -801,8 +801,8 @@ function renderDone(){
     ${r.newBadges && r.newBadges.length ? `<div class="dx-badges"><small>${esc(t("bdgNewTitle"))}</small><div>${r.newBadges.map(b => `<button class="dx-badge" data-a="badges">${badgeIcon(b, 54)}<b>${esc(bdgName(b))}</b></button>`).join("")}</div></div>` : ""}
     ${doneExtrasHTML(c, u, r)}
     ${nudgeHTML(r)}
-    <button class="big" data-a="home">${t("cont")}</button>
-  </main>`;
+  </main>
+  <div class="lfoot fin-foot"><div class="wrap"><button class="big" data-a="home">${t("cont")}</button></div></div>`; // «Fortsett» alltid synlig nederst
   if(!r.animated && L.kind==="quick") quizAccountAsk(L.total - L.firstWrong.size, L.total);
   if(!r.animated){ r.animated = true; countUp(); if(r.levelUp && !r.goalHit) setTimeout(() => confetti("level"), 300); else if(!r.goalHit) setTimeout(() => sfx("complete"), 150); }
 }

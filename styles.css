@@ -3203,3 +3203,32 @@ details.cat-mc{margin:6px 0}details.cat-mc>summary{cursor:pointer;font-size:12px
   .q-left .q-fig svg{max-height:calc(100dvh - 300px)}
   .q-right .prompt{margin-top:0}
 }
+/* Lærerverktøy: knappegruppene under etikettene står til venstre, fanene fyller bredden; på PC to kolonner */
+.tc .seg{justify-content:flex-start}
+.tc .tc-tab{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));margin-bottom:12px}
+.tc-cols,.tc-c1,.tc-c2{display:contents}
+@media (min-width:1100px){
+  body[data-scr=teach] .wrap{max-width:1060px}
+  .tc-cols{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);column-gap:24px;align-items:start}
+  .tc-c1,.tc-c2{display:block;min-width:0}
+  .tc-c1 .tc-2{grid-template-columns:1fr}
+}
+
+/* Ingen kort med tykk farget venstrekant: hele kanten får en svak farge, og ikonet/merket bærer betydningen */
+.exitem{border-left-width:2px;border-bottom-width:4px}
+.exitem.ok{border-color:color-mix(in srgb,var(--ok) 45%,var(--line))}
+.exitem.bad{border-color:color-mix(in srgb,var(--bad) 45%,var(--line))}
+.exitem.none{border-color:var(--line)}
+.exbox{border:2px solid var(--line);border-radius:14px;padding:12px 14px}
+.ek-why{border:2px solid color-mix(in srgb,var(--accent) 35%,transparent);border-radius:14px}
+.dv-rev{border-left-width:2px;border-color:color-mix(in srgb,var(--bad) 45%,var(--line))}
+/* Prøveeksamen-oppsett på PC: oppgaver og regler til venstre, tid og start til høyre */
+.exs-cols,.exs-a,.exs-b{display:contents}
+@media (min-width:1100px){
+  body[data-scr=examSetup] .wrap{max-width:1000px}
+  .exs-cols{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);column-gap:24px;align-items:start}
+  .exs-a,.exs-b{display:grid;gap:12px;align-content:start;min-width:0}
+  .exs-b{position:sticky;top:16px}
+  .exs-cols .sgroup{margin-top:0}
+}
+.finish{padding-bottom:calc(120px + env(safe-area-inset-bottom,0px))}.fin-foot{background:color-mix(in srgb,var(--paper) 92%,transparent);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
