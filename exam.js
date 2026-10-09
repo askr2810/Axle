@@ -204,7 +204,7 @@ function examSubmit(auto, go) {
     minutes: r.minutes, extra: r.extra || 0, untimed: r.deadline == null, auto: !!auto, xp, added,
     newBest: prevBest != null && pct > prevBest, streakUp: !!(st && st.streakUp), streak: st ? st.streak : 0, unseen: !go };
   S.examRun = null; EX.scr = {}; EX.filter = "all";
-  bdgToast(checkBadges()); if (st && st.goalHit) { setTimeout(confetti, 300); toast(t("goalHitTitle")); }
+  bdgToast(checkBadges()); if (st && st.goalHit) { if (grade !== "F") setTimeout(confetti, 300); toast(t("goalHitTitle")); } // ingen konfetti på en stryk
   save(); examStopTicker();
   if (go) { overlay = null; screen = "examResult"; render(); window.scrollTo(0, 0); }
 }
@@ -343,9 +343,11 @@ function renderExamSetup() {
   $app.innerHTML = `<main class="wrap exsetup">
     <div class="sheet-h"><div class="exttl"><small>${esc(courseName(c))}</small><h1>${esc(t("exName", st.v))}</h1></div><button class="iconbtn" data-a="tab" data-t="practice" aria-label="${esc(t("back"))}">${I.x}</button></div>
     ${running}
+    <div class="exs-cols"><div class="exs-a">
     <div class="sgroup"><ol class="extasks">${tasks}</ol><div class="extot">${esc(t("exTotal", bp.nParts, bp.pts))}</div></div>
     ${h && h.best ? `<p class="exhist">${esc(t("exBestLine", h.best.grade, h.best.pct, h.attempts || 0))}</p>` : ""}
     <div class="sgroup"><div class="stext exrules"><b>${esc(t("exRulesTitle"))}</b><ul>${t("exRules").map(x => `<li>${esc(x)}</li>`).join("")}</ul></div></div>
+    </div><div class="exs-b">
     <div class="sgroup exopt">
       <div class="exopt-h" id="ex-time-h">${esc(t("exTime"))}</div>
       <div class="chips" role="radiogroup" aria-labelledby="ex-time-h">${timeChips}</div>
@@ -357,7 +359,7 @@ function renderExamSetup() {
     </div>
     <button class="big exstartbtn" data-a="exstart">${esc(t("exStart"))}</button>
     <button class="big ghost" data-a="exprint">🖨️ ${esc(T("Skriv ut / lagre som PDF – med løsningsforslag", "Print / save as PDF – with solutions"))}</button>
-    <p class="exsub">${esc(T("Samme oppgavesett på papir. Løsningsforslaget med fremgangsmåte steg for steg står bakerst. Velg «Lagre som PDF» i utskriftsvinduet.", "The same exam on paper. The solutions with step-by-step methods are at the back. Choose \"Save as PDF\" in the print dialog."))}</p>
+    <p class="exsub">${esc(T("Samme oppgavesett på papir. Løsningsforslaget med fremgangsmåte steg for steg står bakerst. Velg «Lagre som PDF» i utskriftsvinduet.", "The same exam on paper. The solutions with step-by-step methods are at the back. Choose \"Save as PDF\" in the print dialog."))}</p></div></div>
   </main>`;
 }
 // ---------- utskrift / PDF ----------

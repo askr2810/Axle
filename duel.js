@@ -282,7 +282,7 @@ function renderLocal(){
   if(!LO){ loOpen(); return; }
   if(LO.view === "intro"){
     $app.innerHTML = `<div class="top"><div class="wrap"><button class="iconbtn" data-a="loclose" aria-label="${esc(t("back"))}">${I.x}</button><div class="th-t"><small>${esc(t("duKicker"))}</small><b>${esc(t("loTitle"))}</b></div></div></div>
-      <main class="wrap sp-intro"><div class="lo-demo"><span>🤜</span><span>🤛</span></div><h2>${esc(t("loHead"))}</h2><p>${esc(t("loText", LO_WIN))}</p>
+      <main class="wrap sp-intro"><div class="lo-demo"><span>⚔️</span></div><h2>${esc(t("loHead"))}</h2><p>${esc(t("loText", LO_WIN))}</p>
         <div class="lo-topic"><h3 class="du-h">${esc(t("duPickScope"))}</h3>${topicBtnHTML(S.loScope || "study", "lo")}</div><button class="big sp-go" data-a="lostart">${esc(t("spGo"))}</button></main>`;
     return;
   }

@@ -13,7 +13,7 @@ function renderWelcome(){
     <div class="wel-top"><span class="wel-logo">${PLATFORM !== "claude" ? `<img src="${markSrc()}" width="40" height="40" alt="">` : ""}Axle</span>
       <div class="seg wel-lang" role="radiogroup" aria-label="Språk / Language">${[["nb", "Norsk"], ["en", "English"]].map(([l, n]) => `<button class="${LANG === l ? "on" : ""}" role="radio" data-a="wellang" data-l="${l}" aria-checked="${LANG === l}" lang="${l}">${n}</button>`).join("")}</div></div>
     <section class="wel-hero"><h1>${esc(T("Læring gjort enkelt", "Learning made simple"))}</h1>
-      <p>${esc(T("Axle gjør vanskelige temaer enkle – fra teoriprøven til ingeniørmatte. Gratis og uten reklame.", "Axle makes hard topics simple – from the driving test to engineering maths. Free and without ads."))}</p>
+      <p>${esc(T("Axle gjør vanskelige temaer enkle – fra gangetabellen og teoriprøven til sykepleie, jus og ingeniørmatte. Gratis og uten reklame.", "Axle makes hard topics simple – from times tables and the driving test to nursing, law and engineering maths. Free and without ads."))}</p>
       <div class="wel-pts">${pts.map(([ic, h, p]) => `<div><span aria-hidden="true">${ico(ic)}</span><b>${esc(h)}</b><small>${esc(p)}</small></div>`).join("")}</div></section>
     <h2 class="wel-h">${esc(T("Hva vil du lære?", "What do you want to learn?"))}</h2>
     <p class="wel-sub">${esc(T("Velg ett eller flere. Det første du velger, ser du først. Du kan endre det når som helst.", "Pick one or more. The first one you pick is shown first. You can change it any time."))}</p>

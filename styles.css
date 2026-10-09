@@ -83,7 +83,8 @@ math{font-size:1.08em}
 .node.locked{background:var(--locked);box-shadow:0 7px 0 var(--locked-deep);color:var(--muted)}
 .node.cur{background:var(--c);box-shadow:0 7px 0 color-mix(in srgb,var(--c) 62%,#000)}
 .node.cur:active{box-shadow:0 2px 0 color-mix(in srgb,var(--c) 62%,#000)}
-.node.cur::after{content:"";position:absolute;inset:-9px;border-radius:50%;border:4px solid color-mix(in srgb,var(--c) 28%,transparent)}
+.node.cur::after{content:"";position:absolute;inset:-9px -10px -16px;border-radius:50%;pointer-events:none;border:4px solid color-mix(in srgb,var(--c) 28%,transparent)}
+.node.cur:active::after{inset:-14px -10px -11px} /* ringen står stille mens knappen trykkes ned */
 .node.cur .bubble{color:var(--c)}
 .bubble{position:absolute;bottom:calc(100% + 14px);left:50%;transform:translateX(-50%);background:var(--card);border:2px solid var(--line);color:var(--accent);font-weight:800;font-family:var(--display);letter-spacing:.04em;padding:4px 10px;border-radius:10px;white-space:nowrap;font-size:14px;animation:bob 1.6s ease-in-out infinite}
 @keyframes bob{50%{transform:translate(-50%,-4px)}}
@@ -3179,3 +3180,80 @@ details.cat-mc{margin:6px 0}details.cat-mc>summary{cursor:pointer;font-size:12px
 .beta-note .beta-src a{color:inherit}
 .beta-note .linkbtn{font-size:12.5px;color:inherit;padding:0;font-weight:700}
 .beta-note.compact p:first-of-type{font-size:13px}
+/* Venner på PC: topplisten til venstre, deg selv, forespørsler og «finn venner» til høyre */
+.fr-cols,.fr-a,.fr-m,.fr-b{display:contents}
+@media (min-width:1100px){
+  body[data-scr=friends] .wrap{max-width:1060px}
+  .fr-cols{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);grid-template-areas:"m a" "m b";grid-template-rows:auto 1fr;column-gap:32px;align-items:start}
+  .fr-a,.fr-m,.fr-b{display:grid;gap:12px;align-content:start;min-width:0}
+  .fr-a{grid-area:a}.fr-m{grid-area:m}.fr-b{grid-area:b;margin-top:12px}
+  .fr-b:empty{display:none}
+}
+.fr-links{display:flex;flex-wrap:wrap;gap:4px 14px;margin-top:4px}.fr-links .exlink{white-space:nowrap;text-align:left;font-size:13.5px}
+/* Spillmenyen på PC: bredere dialog med spillene i to kolonner, så alt synes uten å bla */
+@media (min-width:900px){
+  .dialog.gm-menu{max-width:760px;width:min(760px,94vw)}
+  .gm-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:10px;margin-top:12px}
+  .gm-grid .gm-item{margin-top:0}
+  .gm-grid .gm-open{height:100%}
+}
+/* Leksjonen på PC: litt større tekst og svar, og tastatursnarveiene vises under knappen */
+.kbd-hint{display:none;margin:-4px 0 0;text-align:center;font-size:12.5px;color:var(--muted)}
+@media (hover:hover) and (pointer:fine){.kbd-hint{display:block}}
+@media (min-width:1100px){
+  .lesson .wrap{max-width:720px}
+  .lesson .prompt{font-size:25px}
+  .lesson .opt{font-size:18px;padding:14px 16px}
+}
+@media (min-width:1100px) and (min-height:760px){.lbody .q-fig svg{max-height:240px}}
+/* Oppgaver med figur på PC: figuren til venstre, spørsmål og svar til høyre */
+.q-split,.q-left,.q-right{display:contents}
+@media (min-width:1100px){
+  .lesson:has(.q-split) .wrap{max-width:1100px}
+  .q-split{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);column-gap:32px;align-items:start}
+  .q-left,.q-right{display:block;min-width:0}
+  .q-left .q-fig{margin:0;position:sticky;top:12px}
+  .q-left .q-fig svg{max-height:calc(100dvh - 300px)}
+  .q-right .prompt{margin-top:0}
+}
+/* Lærerverktøy: knappegruppene under etikettene står til venstre, fanene fyller bredden; på PC to kolonner */
+.tc .seg{justify-content:flex-start}
+.tc .tc-tab{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));margin-bottom:12px}
+.tc-cols,.tc-c1,.tc-c2{display:contents}
+@media (min-width:1100px){
+  body[data-scr=teach] .wrap{max-width:1060px}
+  .tc-cols{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);column-gap:24px;align-items:start}
+  .tc-c1,.tc-c2{display:block;min-width:0}
+  .tc-c1 .tc-2{grid-template-columns:1fr}
+}
+
+/* Ingen kort med tykk farget venstrekant: hele kanten får en svak farge, og ikonet/merket bærer betydningen */
+.exitem{border-left-width:2px;border-bottom-width:4px}
+.exitem.ok{border-color:color-mix(in srgb,var(--ok) 45%,var(--line))}
+.exitem.bad{border-color:color-mix(in srgb,var(--bad) 45%,var(--line))}
+.exitem.none{border-color:var(--line)}
+.exbox{border:2px solid var(--line);border-radius:14px;padding:12px 14px}
+.ek-why{border:2px solid color-mix(in srgb,var(--accent) 35%,transparent);border-radius:14px}
+.dv-rev{border-left-width:2px;border-color:color-mix(in srgb,var(--bad) 45%,var(--line))}
+/* Prøveeksamen-oppsett på PC: oppgaver og regler til venstre, tid og start til høyre */
+.exs-cols,.exs-a,.exs-b{display:contents}
+@media (min-width:1100px){
+  body[data-scr=examSetup] .wrap{max-width:1000px}
+  .exs-cols{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);column-gap:24px;align-items:start}
+  .exs-a,.exs-b{display:grid;gap:12px;align-content:start;min-width:0}
+  .exs-b{position:sticky;top:16px}
+  .exs-cols .sgroup{margin-top:0}
+}
+.finish{padding-bottom:calc(120px + env(safe-area-inset-bottom,0px))}.fin-foot{background:color-mix(in srgb,var(--paper) 92%,transparent);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+/* Velkomst på PC: bredere, alle studiene på to rader uten å bla */
+@media (min-width:1000px){
+  .wel{max-width:1140px;display:grid;grid-template-columns:360px minmax(0,1fr);column-gap:32px;align-items:start;
+    grid-template-areas:"top top" "hero h" "hero sub" "hero grid" "hero go" "hero foot";grid-template-rows:auto auto auto auto auto 1fr}
+  .wel-top{grid-area:top}.wel-h{grid-area:h}.wel-sub{grid-area:sub}.wel-grid{grid-area:grid;grid-template-columns:repeat(3,minmax(0,1fr))}.wel-go{grid-area:go}.wel-foot{grid-area:foot}
+  .wel-hero{grid-area:hero;position:sticky;top:16px}
+  .wel-pts{grid-template-columns:1fr}
+  .wel-go>.big{max-width:520px;margin-inline:auto}
+}
+/* Teoribok-oversikten på PC: fagene i et rutenett i stedet for brede rader */
+@media (min-width:1100px){.bk-courses{grid-template-columns:repeat(auto-fill,minmax(300px,1fr))}}
+.nwrap:has(.node.cur) .ncap{margin-top:12px}

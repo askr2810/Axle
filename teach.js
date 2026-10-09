@@ -121,13 +121,13 @@ function renderTeach(){
   <main class="wrap tc">
     <section class="tc-hero"><h2>${esc(T("Bruk Axle i klassen", "Use Axle in class"))}</h2><p>${esc(T("Gratis og uten reklame. Velg oppgaver, del en lekse med klassen – eller kjør en quiz på tavla – og se hvordan det gikk.", "Free and without ads. Pick problems, share homework with the class – or run a quiz on the board – and see how it went."))}</p>
       <ol class="tc-steps"><li><b>1</b>${esc(T("Velg oppgaver", "Pick problems"))}</li><li><b>2</b>${esc(T("Del leksen", "Share the homework"))}</li><li><b>3</b>${esc(T("Se resultatene", "See the results"))}</li></ol></section>
-    <section class="tc-card"><h3><span>1</span>${esc(T("Oppgaver", "Problems"))}</h3>
+    <div class="tc-cols"><div class="tc-c1"><section class="tc-card"><h3><span>1</span>${esc(T("Oppgaver", "Problems"))}</h3>
       <div class="seg tc-tab">${[["ax", T("Fra Axle", "From Axle")], ["cc", T("Mine egne", "My own")], ["pub", T("Fellesskapet", "Community")]].map(([k, l]) => `<button class="${TC.tab === k ? "on" : ""}" data-a="tctab" data-t="${k}">${esc(l)}</button>`).join("")}</div>
       ${src}</section>
     <section class="tc-card"><h3><span>2</span>${esc(T("Innstillinger", "Settings"))}</h3>
       <div class="tc-2"><div><p class="tc-l">${esc(T("Antall oppgaver", "Problems"))}</p><div class="seg">${TC_N.map(n => `<button class="${TC.n === n ? "on" : ""}" data-a="tcn" data-n="${n}">${n}</button>`).join("")}</div></div>
         <div><p class="tc-l">${esc(T("Tid per spørsmål (bare live-quiz)", "Time per question (live quiz only)"))}</p><div class="seg">${TC_SECS.map(n => `<button class="${TC.secs === n ? "on" : ""}" data-a="tcsecs" data-n="${n}">${n} s</button>`).join("")}</div></div></div></section>
-    <section class="tc-card"><h3><span>3</span>${esc(T("Del med klassen", "Share with the class"))}</h3>
+    </div><div class="tc-c2"><section class="tc-card"><h3><span>3</span>${esc(T("Del med klassen", "Share with the class"))}</h3>
       <label class="tc-f"><span>${esc(T("Navn på leksen (valgfritt)", "Name of the homework (optional)"))}</span><input id="tctitle" class="ed-in" maxlength="60" value="${esc(TC.title || "")}" placeholder="${esc(T("F.eks. «Brøk – til fredag»", "E.g. \"Fractions – for Friday\""))}"></label>
       <button class="tc-go live" data-a="tchw" ${TC.busy ? "disabled" : ""}><span>📝</span><div><b>${esc(T("Lag en lekse", "Make homework"))}</b><small>${esc(T("Elevene jobber i eget tempo – uten tidtaking, med forklaring etter hvert svar. Du ser hvem som har gjort den og hvor mange de fikk riktig.", "Students work at their own pace – no timer, with an explanation after each answer. You see who has done it and how many they got right."))}</small></div></button>
       <button class="tc-go" data-a="tclive" ${TC.busy ? "disabled" : ""}><span>⚡</span><div><b>${esc(T("Quiz på tavla (live)", "Quiz on the board (live)"))}</b><small>${esc(T("Alle svarer samtidig på mobilen, med tid og toppliste. Fint som oppstart eller avslutning av timen.", "Everyone answers at the same time on their phones, with a timer and leaderboard. Nice to start or end a lesson."))}</small></div></button>
@@ -140,7 +140,7 @@ function renderTeach(){
         ${TC.res && TC.res.key === l.key ? tcResHTML() : ""}`).join("")}</section>` : ""}
     <section class="tc-card"><h3>👥 ${esc(T("Klassen", "The class"))}</h3><p class="tc-note">${esc(T("Lag en gruppe for klassen: egen toppliste for uka, og elevene blir med via lenke eller QR-kode.", "Make a group for the class: its own weekly leaderboard, and students join via a link or QR code."))}</p>
       ${groups.filter(g => ["owner", "admin"].includes(grRole(g))).map(g => { const L = grInviteLink(g); return `<div class="tc-link"><div><b>${esc(g.emoji + " " + g.name)}</b><small>${esc(T("Kode", "Code"))} ${esc(frFmtCode(g.code))}</small></div><button class="kbtn ghost" data-a="tccopy" data-u="${esc(L.url)}">${esc(T("Kopier", "Copy"))}</button><button class="kbtn ghost" data-a="tcqr" data-u="${esc(L.url)}">QR</button></div>`; }).join("")}
-      <button class="big ghost" data-a="tcgroup">${I.plus} ${esc(T("Lag en gruppe for klassen", "Make a group for the class"))}</button></section>
+      <button class="big ghost" data-a="tcgroup">${I.plus} ${esc(T("Lag en gruppe for klassen", "Make a group for the class"))}</button></section></div></div>
   </main>`;
   const sel = document.getElementById("tccourse"); if(sel) sel.addEventListener("change", () => { TC.code = sel.value; TC.units = [0]; tcSave(); render(); });
   const ti = document.getElementById("tctitle"); if(ti) ti.addEventListener("input", () => { TC.title = ti.value; });
