@@ -3377,3 +3377,8 @@ details.cat-mc{margin:6px 0}details.cat-mc>summary{cursor:pointer;font-size:12px
 .pi-qh{display:flex;justify-content:space-between;color:var(--muted)}
 .pi-q{margin:4px 0 8px;font-size:14px}
 .pi-line.fin .dmath{border:2px solid var(--accent);border-radius:12px;background:var(--accent-soft);padding:4px 6px}
+.dl .dl-help{margin:4px 0 0;border:2px solid var(--line);border-radius:12px;background:var(--card);padding:8px 12px}
+.dl .dl-help summary{cursor:pointer;font-weight:700;color:var(--accent)}
+.dl .dl-help p{margin:10px 0 4px}.dl .dl-steps{margin:0;padding-left:22px;font-size:14px;line-height:1.45}.dl .dl-steps li{margin:4px 0}
+.dl .dl-old,.dl .dl-why{font-size:13px;color:var(--muted)}
+.dl .dl-help a{color:var(--accent);font-weight:600}

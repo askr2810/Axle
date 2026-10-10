@@ -569,3 +569,23 @@ const PRIVACY = {
 <p><b>Code lab and driving licence.</b> Python code you write in the code lab runs locally on your device and is not sent to us. The same applies to your answers in the driving licence practice, which are stored as normal progress.</p>
 <p>You can delete all progress at any time under Settings, or delete the app. Privacy questions can be sent through “Send feedback” or to support@axle.no.</p>`
 };
+
+// «Slik åpner du appen» under nedlastingsknappene (Last ned-vinduet i appen og axle.no/about, se tools/seo.js).
+// Appen er ikke signert av Apple/Microsoft, så første åpning krever ett ekstra steg. tt = (nb, en) => tekst; html = tekst er allerede trygg.
+const DL_PRIV = "x-apple.systempreferences:com.apple.settings.PrivacySecurity.extension";
+function dlStepsHTML(tt){
+  const ol = l => `<ol class="dl-steps">${l.map(s => `<li>${s}</li>`).join("")}</ol>`;
+  return `<details class="dl-help"><summary>${tt("Slik åpner du appen første gang", "How to open the app the first time")}</summary>
+    <p><b>Mac</b></p>${ol([
+      tt("Åpne <b>Axle.dmg</b> og dra Axle over i <b>Programmer</b>.", "Open <b>Axle.dmg</b> and drag Axle into <b>Applications</b>."),
+      tt("Dobbeltklikk på Axle. Det kommer en melding om at Apple ikke kan kontrollere appen – trykk <b>Ferdig</b> (ikke «Flytt til papirkurv»).", "Double-click Axle. A message says Apple cannot check the app – click <b>Done</b> (not \"Move to Bin\")."),
+      tt(`Åpne <b>Systeminnstillinger → Personvern og sikkerhet</b> (<a href="${DL_PRIV}">åpne direkte</a>).`, `Open <b>System Settings → Privacy &amp; Security</b> (<a href="${DL_PRIV}">open directly</a>).`),
+      tt("Bla helt ned til «Axle ble blokkert …» og trykk <b>Åpne likevel</b>.", "Scroll down to \"Axle was blocked …\" and click <b>Open Anyway</b>."),
+      tt("Skriv inn passordet ditt og trykk <b>Åpne likevel</b> en gang til. Ferdig – neste gang åpnes Axle som vanlig.", "Enter your password and click <b>Open Anyway</b> once more. Done – next time Axle opens normally.")])}
+    <p class="dl-old">${tt("macOS 14 eller eldre: høyreklikk på Axle i Programmer → <b>Åpne</b> → <b>Åpne</b>.", "macOS 14 or older: right-click Axle in Applications → <b>Open</b> → <b>Open</b>.")}</p>
+    <p><b>Windows</b></p>${ol([
+      tt("Kjør <b>Axle-Setup.exe</b>.", "Run <b>Axle-Setup.exe</b>."),
+      tt("Står det «Windows beskyttet PC-en din»: trykk <b>Mer informasjon</b> → <b>Kjør likevel</b>.", "If it says \"Windows protected your PC\": click <b>More info</b> → <b>Run anyway</b>."),
+      tt("Følg installasjonen. Axle ligger så i Start-menyen.", "Follow the installer. Axle is then in the Start menu.")])}
+    <p class="dl-why">${tt("Hvorfor? Appen er ikke signert av Apple eller Microsoft ennå (det koster penger hvert år). Den bygges automatisk av GitHub fra Axles kode.", "Why? The app is not signed by Apple or Microsoft yet (it costs money every year). It is built automatically by GitHub from Axle's code.")}</p></details>`;
+}
