@@ -28,6 +28,9 @@
 }
 *{box-sizing:border-box}
 html,body{height:100%}
+/* Fast plass til rullefeltet: i Safari/Mac-appen regnes bredden uten rullefeltet, så uten dette byttet oppsettet
+   mellom PC og mobil (bruddpunkt 1100px) når en side ble lang nok til å få rullefelt (f.eks. Venner som laster inn). */
+html{scrollbar-gutter:stable}
 body{margin:0;background-color:var(--paper);
   background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);
   background-size:24px 24px;color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.5;-webkit-tap-highlight-color:transparent}
