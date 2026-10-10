@@ -2,8 +2,8 @@
 #   brew tap askr2810/axle https://github.com/askr2810/axle
 #   brew install --cask --no-quarantine axle
 cask "axle" do
-  version "1.0.1"
-  sha256 "a20f4a006dbf35a9abd79b3ab27246b383269b28ca0e80c7692c82ee1cb88d49"
+  version "1.0.2"
+  sha256 "48d5b1cebca47368b9f392d9aaee342aa4f7caf77a688e89b84f73b5d28359dc"
 
   url "https://github.com/askr2810/axle/releases/download/v#{version}/Axle.dmg"
   name "Axle"
