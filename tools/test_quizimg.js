@@ -1,0 +1,40 @@
+// Bilder i egne quizer og lekser (quizimg.js, oppgave 35): bare stier i Axles egen bøtte vises (aldri vilkårlige adresser),
+// bildet og bildeteksten følger med spørsmålet gjennom lagring (qimgKeep) og over i oppgavene (lsItems, ccItems, toMC),
+// og CSP-en tillater bilder fra Supabase. Bruk: node tools/test_quizimg.js
+const fs = require('fs'), path = require('path'); const ROOT = path.join(__dirname, '..');
+global.document = { addEventListener(){} }; global.CONFIG = { supabaseUrl: 'https://x.supabase.co' };
+global.T = (a, b) => a; global.esc = s => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+global.t = k => k; global.shuffle = a => a.slice();
+const src = fs.readFileSync(path.join(ROOT, 'quizimg.js'), 'utf8') + '\n' + fs.readFileSync(path.join(ROOT, 'mq.js'), 'utf8').match(/function lsItems[\s\S]*?\}\); \}/)[0] + '\n'
+  + fs.readFileSync(path.join(ROOT, 'community.js'), 'utf8').match(/function ccItems\(qs\)\{[\s\S]*?\n\}/)[0];
+const M = new Function(src + ';return { qimgOk, qimgOf, qimgKeep, qimgHTML, qimgURL, lsItems, ccItems };')();
+const errs = []; const E = m => errs.push(m);
+const U = '3f2b6c1e-8d4a-4f6b-9a1c-2e5d7f8a9b0c', P = `${U}/0a1b2c3d-4e5f-4a6b-8c7d-9e0f1a2b3c4d.webp`;
+if (!M.qimgOk(P) || !M.qimgOk(P.replace('.webp', '.jpg'))) E('gyldig sti avvist');
+for (const bad of ['https://evil.example/x.png', '../x.webp', `${U}/x.webp`, `${U}/0a1b2c3d-4e5f-4a6b-8c7d-9e0f1a2b3c4d.svg`, `javascript:alert(1)`, P + '?x', `/${P}`, 42, null])
+  if (M.qimgOk(bad) || M.qimgHTML({ src: bad, alt: '' })) E('ugyldig sti godtatt: ' + bad);
+if (M.qimgURL(P) !== 'https://x.supabase.co/storage/v1/object/public/quizbilder/' + P) E('feil adresse: ' + M.qimgURL(P));
+const h = M.qimgHTML(M.qimgOf({ img: P, alt: 'Trekant "3-4-5" <b>' }));
+if (!/<img src="https:\/\/x\.supabase\.co\/storage\/v1\/object\/public\/quizbilder\//.test(h) || /<b>/.test(h) || !/alt="Trekant &quot;3-4-5&quot; &lt;b&gt;"/.test(h)) E('bildet eller bildeteksten escapes ikke: ' + h);
+if (!/alt="Bilde til oppgaven"/.test(M.qimgHTML(M.qimgOf({ img: P })))) E('mangler reserve-tekst for skjermleser');
+if (Object.keys(M.qimgKeep({ q: 'x' })).length) E('qimgKeep legger til felt uten bilde');
+if (Object.keys(M.qimgKeep({ img: 'https://evil.example/x.png' })).length) E('qimgKeep beholder ugyldig sti');
+if (M.qimgKeep({ img: P, alt: 'a'.repeat(300) }).alt.length !== 200) E('bildeteksten kortes ikke til 200 tegn');
+const qs = [{ t: 'mc', q: 'Hva?', o: ['a', 'b'], a: 0, img: P, alt: 'A' }, { t: 'num', q: 'Tall?', n: 3, img: P }, { t: 'tf', q: 'Sant?', a: 1 }, { t: 'mc', q: 'Ond', o: ['a', 'b'], a: 0, img: 'https://evil.example/x.png' }];
+for (const [name, f] of [['lsItems', M.lsItems], ['ccItems', M.ccItems]]) {
+  const it = f(qs);
+  if (!it[0].qimg || it[0].qimg.src !== P || it[0].qimg.alt !== 'A') E(name + ': flervalg mister bildet');
+  if (!it[1].qimg || it[1].qimg.src !== P) E(name + ': tallsvar mister bildet');
+  if (it[2].qimg) E(name + ': bilde der det ikke finnes');
+  if (it[3].qimg) E(name + ': ugyldig sti slapp gjennom');
+}
+const app = fs.readFileSync(path.join(ROOT, 'app.js'), 'utf8');
+if (!/expl:it\.expl, qimg:it\.qimg \}/.test(app)) E('toMC tar ikke med bildet');
+if (!/\$\{qimgHTML\(it\.qimg, "lq"\)\}<div class="prompt">/.test(app)) E('oppgavevisningen viser ikke bildet');
+if (!/q\.img \? qimgHTML\(q\.img, "mq"\)/.test(fs.readFileSync(path.join(ROOT, 'mq.js'), 'utf8'))) E('livequizen viser ikke bildet');
+const b = fs.readFileSync(path.join(ROOT, 'build.py'), 'utf8');
+if (!/img-src 'self' data: blob:\{supa\}/.test(b)) E('CSP tillater ikke bilder fra Supabase');
+if (!/"quizimg\.js", "community\.js"/.test(b)) E('quizimg.js er ikke med i bygget');
+if (!/quizbilder/.test(fs.readFileSync(path.join(ROOT, 'supabase', 'laerer.sql'), 'utf8'))) E('SQL for bøtta mangler i supabase/laerer.sql');
+if (errs.length) { console.log(errs.join('\n')); console.log('FEIL: ' + errs.length); process.exit(1); }
+console.log('quizbilder: trygge stier, escaping, lagring og visning i oppgaver, livequiz og CSP – feil: 0');

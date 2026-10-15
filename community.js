@@ -126,9 +126,9 @@ async function ccFetchQuestions(id){
 function ccItems(qs){
   return qs.map((x, i) => {
     const id = "cc." + i;
-    if(x.t === "num") return { id, type: "num", prompt: x.q, n: +x.n, tol: Math.abs(+x.n) * (Math.max(0, +x.tol || 1) / 100) || 1e-9, u: x.u || "", expl: x.e || "" };
+    if(x.t === "num") return { id, type: "num", prompt: x.q, n: +x.n, tol: Math.abs(+x.n) * (Math.max(0, +x.tol || 1) / 100) || 1e-9, u: x.u || "", expl: x.e || "", qimg: qimgOf(x) };
     const opts = x.t === "tf" ? [{ t: t("ccTrue"), ok: +x.a === 1 }, { t: t("ccFalse"), ok: +x.a === 0 }] : shuffle(x.o.map((o, k) => ({ t: o, ok: k === +x.a })));
-    return { id, type: "mc", prompt: x.q, opts, expl: x.e || "" };
+    return { id, type: "mc", prompt: x.q, opts, expl: x.e || "", qimg: qimgOf(x) };
   });
 }
 async function ccPlay(id, local){
@@ -148,9 +148,10 @@ function ccXP(firstTry){
 // ---------- redigering ----------
 function ccBlank(){ return { id: null, title: "", description: "", emoji: "📘", subject: "annet", lang: LANG === "en" ? "en" : "nb", published: false, questions: [] }; }
 async function ccEditOpen(id){
+  qimgReset();
   try{
     CC.edit = id ? await ccFetchQuestions(id) : Object.assign(ccBlank(), (S.ccDraft && !S.ccDraft.id) ? S.ccDraft : {});
-    CC.edit.questions = (CC.edit.questions || []).slice(); CC.qedit = null; CC.dirty = false;
+    CC.edit.questions = (CC.edit.questions || []).slice(); CC.qedit = null; CC.dirty = false; CC.wasPub = !!CC.edit.published;
     screen = "ccedit"; overlay = null; render(); window.scrollTo(0, 0);
   }catch(e){ toast(ccErr(e)); }
 }
@@ -158,7 +159,7 @@ function ccDraftSave(){ const e = CC.edit; if(e && !e.id){ S.ccDraft = e; saveLo
 function ccQPreview(x){
   const tp = { mc: t("ccTypeMc"), tf: t("ccTypeTf"), num: t("ccTypeNum") }[x.t];
   const ans = x.t === "num" ? `${nf(+x.n, 3)}${x.u ? " " + x.u : ""}` : x.t === "tf" ? t(+x.a ? "ccTrue" : "ccFalse") : x.o[+x.a];
-  return `<span class="cc-qtype">${esc(tp)}</span><div class="cc-qtext">${rich(x.q)}</div><div class="cc-qans">✓ ${rich(String(ans))}</div>`;
+  return `<span class="cc-qtype">${esc(tp)}${qimgOk(x.img) ? " · 🖼" : ""}</span><div class="cc-qtext">${rich(x.q)}</div><div class="cc-qans">✓ ${rich(String(ans))}</div>`;
 }
 function renderCCEdit(){
   const e = CC.edit; if(!e){ openCommunity(); return; }
@@ -206,13 +207,14 @@ function renderCCQEdit(){
     <main class="wrap cc-ed">
       <div class="seg cc-types">${["mc", "tf", "num"].map(k => `<button class="${tp === k ? "on" : ""}" data-a="ccqtype" data-t="${k}">${esc(t({ mc: "ccTypeMc", tf: "ccTypeTf", num: "ccTypeNum" }[k]))}</button>`).join("")}</div>
       <label class="cc-lbl">${esc(t("ccPrompt"))}<textarea id="ccqq" maxlength="500" placeholder="${esc(t("ccPromptPh"))}">${esc(x.q)}</textarea><small class="cc-help">${esc(t("ccMathHelp"))}</small></label>
+      ${qimgEditHTML(x, "cc", 0)}
       ${opts}
       <label class="cc-lbl">${esc(t("ccExpl"))}<textarea id="ccqe" maxlength="600" placeholder="${esc(t("ccExplPh"))}">${esc(x.e)}</textarea></label>
       <div class="cc-prev"><div class="cc-prev-h">${esc(t("ccPreview"))}</div><div id="ccprev"></div></div>
       ${CC.qedit.err ? `<p class="lgerr">${esc(CC.qedit.err)}</p>` : ""}
     </main>
     <div class="lfoot"><div class="wrap"><button class="big" data-a="ccqsave">${esc(t("ccSaveQ"))}</button></div></div>`;
-  const upd = () => { const p = document.getElementById("ccprev"); if(p) p.innerHTML = `<div class="prompt">${rich(x.q || "…")}</div>` + (x.t === "mc" ? `<div class="opts">${x.o.map((o, k) => `<div class="opt ${+x.a === k ? "right" : ""}"><span class="k">${k + 1}</span><span>${rich(o || "…")}</span></div>`).join("")}</div>` : x.t === "tf" ? `<div class="opts">${[1, 0].map(v => `<div class="opt ${+x.a === v ? "right" : ""}"><span>${esc(t(v ? "ccTrue" : "ccFalse"))}</span></div>`).join("")}</div>` : `<p class="cc-qans">✓ ${esc(String(x.n))} ${esc(x.u)}</p>`) + (x.e ? `<div class="cy-e ok">${rich(x.e)}</div>` : ""); };
+  const upd = () => { const p = document.getElementById("ccprev"); if(p) p.innerHTML = qimgHTML(qimgOf(x), "sm") + `<div class="prompt">${rich(x.q || "…")}</div>` + (x.t === "mc" ? `<div class="opts">${x.o.map((o, k) => `<div class="opt ${+x.a === k ? "right" : ""}"><span class="k">${k + 1}</span><span>${rich(o || "…")}</span></div>`).join("")}</div>` : x.t === "tf" ? `<div class="opts">${[1, 0].map(v => `<div class="opt ${+x.a === v ? "right" : ""}"><span>${esc(t(v ? "ccTrue" : "ccFalse"))}</span></div>`).join("")}</div>` : `<p class="cc-qans">✓ ${esc(String(x.n))} ${esc(x.u)}</p>`) + (x.e ? `<div class="cy-e ok">${rich(x.e)}</div>` : ""); };
   const bind = (id, fn) => { const el = document.getElementById(id); if(el) el.addEventListener("input", () => { fn(el.value); upd(); }); };
   bind("ccqq", v => x.q = v); bind("ccqe", v => x.e = v); bind("ccqn", v => x.n = v); bind("ccqtol", v => x.tol = v); bind("ccqu", v => x.u = v);
   document.querySelectorAll("[data-o]").forEach(el => el.addEventListener("input", () => { x.o[+el.dataset.o] = el.value; upd(); }));
@@ -228,12 +230,12 @@ function ccQClean(x){
     const o = x.o.map(s => String(s || "").trim()); if(o.some(s => !s)) return [null, t("ccErrOpts")];
     if(new Set(o).size !== o.length) return [null, t("ccErrDup")];
     if(o.some(s => !isClean(s))) return [null, t("frBadWord")];
-    return [{ t: "mc", q, o, a: Math.min(+x.a || 0, o.length - 1), e }, null];
+    return [{ t: "mc", q, o, a: Math.min(+x.a || 0, o.length - 1), e, ...qimgKeep(x) }, null];
   }
-  if(x.t === "tf") return [{ t: "tf", q, a: +x.a ? 1 : 0, e }, null];
+  if(x.t === "tf") return [{ t: "tf", q, a: +x.a ? 1 : 0, e, ...qimgKeep(x) }, null];
   const n = parseFloat(String(x.n).replace(/\s/g, "").replace(",", ".")), tol = parseFloat(String(x.tol).replace(",", "."));
   if(!Number.isFinite(n)) return [null, t("ccErrNum")];
-  return [{ t: "num", q, n, tol: Number.isFinite(tol) && tol >= 0 ? Math.min(tol, 50) : 1, u: String(x.u || "").trim().slice(0, 20), e }, null];
+  return [{ t: "num", q, n, tol: Number.isFinite(tol) && tol >= 0 ? Math.min(tol, 50) : 1, u: String(x.u || "").trim().slice(0, 20), e, ...qimgKeep(x) }, null];
 }
 // Masseimport: én linje per spørsmål. «Spørsmål | riktig | galt | galt» eller «Spørsmål = 42 m» eller «Påstand = sant/usant».
 function ccParseImport(txt){
@@ -259,7 +261,7 @@ async function ccSave(){
     const tok = await authToken(); if(!tok) throw new CloudError("auth", 401);
     if(e.id) await sbFetch("/rest/v1/community_courses?id=eq." + encodeURIComponent(e.id), { method: "PATCH", headers: { Prefer: "return=minimal" }, body: JSON.stringify(body) }, tok);
     else { const r = await sbFetch("/rest/v1/community_courses", { method: "POST", headers: { Prefer: "return=representation" }, body: JSON.stringify(Object.assign({ owner: AUTH.uid }, body)) }, tok); e.id = r && r[0] && r[0].id; S.ccDraft = null; save(); }
-    CC.busy = false; CC.dirty = false; toast(t(e.published ? "ccSavedPub" : "ccSaved")); buzz(true);
+    CC.busy = false; CC.dirty = false; qimgFlush(e.questions, e.published || CC.wasPub); toast(t(e.published ? "ccSavedPub" : "ccSaved")); buzz(true);
     CC.tab = "mine"; CC.edit = null; screen = "community"; CC.view = null; await ccLoad(); window.scrollTo(0, 0);
   }catch(err){ CC.busy = false; render(); toast(ccErr(err)); }
 }

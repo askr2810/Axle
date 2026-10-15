@@ -156,3 +156,45 @@ grant execute on function public.lekse_publish(uuid, boolean, text, text, text),
 grant execute on function public.lekse_search(text, text, text) to anon, authenticated;
 grant execute on function public.lekse_mine() to authenticated;
 grant execute on function public.lekse_get(uuid) to anon, authenticated;
+
+-- =====================================================================
+--  BILDER I SPØRSMÅL (oppgave 35, quizimg.js) – som på Kahoot: et bilde til et spørsmål i egne quizer og lekser.
+--  Bøtta «quizbilder» er offentlig for lesing (elever uten konto må se bildene i live-quiz og lekser), men
+--  filnavnene er tilfeldige id-er, og ingen kan liste innholdet. Bare innloggede som ikke er elever, kan laste opp,
+--  bare i sin egen mappe («<bruker-id>/<bilde-id>.webp|jpg»), høyst 400 kB per bilde og 300 bilder per bruker.
+--  Appen skalerer ned og lagrer bildet på nytt før opplasting, så EXIF-data (GPS m.m.) ikke blir med.
+--  Spørsmålet får feltene img (stien over) og alt (bildetekst). valid_questions sjekker ikke ukjente felt,
+--  og appen viser bare bilder fra denne bøtta, så feltet kan ikke brukes til å hente bilder fra andre steder.
+--  Uten denne delen virker alt som før; knappen «Bilde» sier da at opplasting ikke er slått på.
+-- =====================================================================
+insert into storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
+values ('quizbilder', 'quizbilder', true, 409600, array['image/webp', 'image/jpeg'])
+on conflict (id) do update set public = true, file_size_limit = 409600, allowed_mime_types = array['image/webp', 'image/jpeg'];
+
+create or replace function public.quizbilde_ok(p_name text)
+returns boolean language plpgsql stable security definer set search_path = ''
+as $$
+declare elev boolean := false;
+begin
+  if auth.uid() is null then return false; end if;
+  if p_name !~ '^[0-9a-f-]{36}/[0-9a-f-]{36}\.(webp|jpg)$' or split_part(p_name, '/', 1) <> auth.uid()::text then return false; end if;
+  -- elevkontoer (supabase/elever.sql) kan ikke laste opp; tabellen finnes bare hvis elever.sql er kjørt
+  if to_regclass('public.class_students') is not null then
+    execute 'select exists (select 1 from public.class_students where user_id = $1)' into elev using auth.uid();
+    if elev then return false; end if;
+  end if;
+  if (select count(*) from storage.objects where bucket_id = 'quizbilder' and split_part(name, '/', 1) = auth.uid()::text) >= 300 then return false; end if;
+  return true;
+end $$;
+revoke all on function public.quizbilde_ok(text) from public, anon;
+grant execute on function public.quizbilde_ok(text) to authenticated;
+
+drop policy if exists "quizbilder: last opp egne" on storage.objects;
+create policy "quizbilder: last opp egne" on storage.objects for insert to authenticated
+  with check (bucket_id = 'quizbilder' and public.quizbilde_ok(name));
+drop policy if exists "quizbilder: se egne" on storage.objects;
+create policy "quizbilder: se egne" on storage.objects for select to authenticated
+  using (bucket_id = 'quizbilder' and split_part(name, '/', 1) = auth.uid()::text);
+drop policy if exists "quizbilder: slett egne" on storage.objects;
+create policy "quizbilder: slett egne" on storage.objects for delete to authenticated
+  using (bucket_id = 'quizbilder' and split_part(name, '/', 1) = auth.uid()::text);

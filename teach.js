@@ -259,6 +259,7 @@ function hwClick(a){
 let TE = null;
 const teBlank = t => t === "num" ? { t: "num", q: "", n: "", u: "", tol: 0, e: "" } : t === "tf" ? { t: "tf", q: "", a: 1, e: "" } : { t: "mc", q: "", o: ["", ""], a: 0, e: "" };
 async function teOpen(id){
+  qimgReset();
   TE = { id: id || null, title: "", qs: [teBlank("mc")], busy: false, err: null, from: screen, pub: false, wasPub: false, subject: "annet", level: "alle" };
   if(!id && S.teDraft) Object.assign(TE, { title: S.teDraft.title || "", qs: S.teDraft.qs && S.teDraft.qs.length ? S.teDraft.qs : TE.qs, pub: !!S.teDraft.pub, subject: S.teDraft.subject || "annet", level: S.teDraft.level || "alle" });
   screen = "tcedit"; render(); window.scrollTo(0, 0);
@@ -352,6 +353,7 @@ function renderTeEdit(){
         <button class="te-x" data-a="teqdel" data-i="${i}" aria-label="${esc(T("Slett oppgaven", "Delete the problem"))}" ${q.length < 2 ? "disabled" : ""}>🗑</button></div>
       <div class="te-qq">${teRT("q", i, null, x.q, x.t === "tf" ? T("Skriv en påstand, f.eks. «Et kvadrat har fire like lange sider.»", "Write a statement") : T("Skriv spørsmålet, f.eks. «Hva er 3 · 4?»", "Write the question, e.g. \"What is 3 · 4?\""), true, "lg")}</div>
       ${i === (TE.act || 0) ? `<div class="te-sym" id="tesym">${teSymHTML()}</div>` : ""}
+      ${qimgEditHTML(x, "te", i)}
       ${x.t === "num" ? num(x, i) : x.t === "tf" ? tf(x, i) : mc(x, i)}
       ${x.e || x.showE ? teRT("e", i, null, x.e, T("Forklaring som vises etter svaret (valgfritt)", "Explanation shown after the answer (optional)"), true, "te-e") : `<button class="te-more" data-a="teeshow" data-i="${i}">＋ ${esc(T("Forklaring (valgfritt)", "Explanation (optional)"))}</button>`}
     </section>`).join("")}
@@ -386,9 +388,9 @@ function teClean(){
   for(const [i, x] of TE.qs.entries()){ const q = String(x.q || "").trim(); if(!q) return bad(i); if(q.length > 500) return long(i, "spørsmålet er for langt (maks 500 tegn)", "the question is too long (max 500 characters)");
     const e = String(x.e || "").trim(); if(e.length > 600) return long(i, "forklaringen er for lang (maks 600 tegn)", "the explanation is too long (max 600 characters)");
     if(x.t === "mc" && x.o.some(o => String(o || "").trim().length > 150)) return long(i, "et svaralternativ er for langt (maks 150 tegn)", "an answer option is too long (max 150 characters)");
-    if(x.t === "num"){ const n = +String(x.n).replace(/\s/g, "").replace(",", ".").replace("−", "-"); if(!Number.isFinite(n) || String(x.n).trim() === "") return bad(i); out.push({ t: "num", q, n, u: String(x.u || "").trim().slice(0, 20), tol: +x.tol || 0, e }); }
-    else if(x.t === "tf") out.push({ t: "tf", q, a: +x.a ? 1 : 0, e });
-    else { const o = x.o.map(s => String(s || "").trim()); if(o.some(s => !s)) return bad(i); if(new Set(o).size !== o.length){ TE.err = T(`Oppgave ${i + 1} har like svar.`, `Problem ${i + 1} has identical answers.`); return null; } out.push({ t: "mc", q, o, a: 0, e }); } }
+    if(x.t === "num"){ const n = +String(x.n).replace(/\s/g, "").replace(",", ".").replace("−", "-"); if(!Number.isFinite(n) || String(x.n).trim() === "") return bad(i); out.push({ t: "num", q, n, u: String(x.u || "").trim().slice(0, 20), tol: +x.tol || 0, e, ...qimgKeep(x) }); }
+    else if(x.t === "tf") out.push({ t: "tf", q, a: +x.a ? 1 : 0, e, ...qimgKeep(x) });
+    else { const o = x.o.map(s => String(s || "").trim()); if(o.some(s => !s)) return bad(i); if(new Set(o).size !== o.length){ TE.err = T(`Oppgave ${i + 1} har like svar.`, `Problem ${i + 1} has identical answers.`); return null; } out.push({ t: "mc", q, o, a: 0, e, ...qimgKeep(x) }); } }
   return out;
 }
 async function teSave(){
@@ -396,7 +398,7 @@ async function teSave(){
   const qs = teClean(); if(!qs){ render(); return; }
   if(!AUTH){ TE.err = T("Logg inn for å lagre.", "Log in to save."); render(); return; }
   TE.busy = true; render();
-  try{ const id = await frRpc("lekse_save", { p_id: TE.id, p_title: title, p_questions: qs }); MQ_LS[id] = { title, questions: qs }; if(!TE.id){ S.teDraft = null; save(); }
+  try{ const id = await frRpc("lekse_save", { p_id: TE.id, p_title: title, p_questions: qs }); MQ_LS[id] = { title, questions: qs }; qimgFlush(qs, TE.pub || TE.wasPub); if(!TE.id){ S.teDraft = null; save(); }
     if(TE.pub || TE.wasPub){ try{ await frRpc("lekse_publish", { p_id: id, p_public: !!TE.pub, p_subject: TE.subject || "annet", p_level: TE.level || "alle", p_author: S.name || "" }); if(TE.pub) toast(T("Delt med fellesskapet 🎉", "Shared with the community 🎉")); }
       catch(e){ const m = String((e && (e.msg || e.message)) || ""); setTimeout(() => toast(/bad_word/.test(m) ? T("Lagret, men ikke delt: tittelen eller navnet ditt ble stoppet av ordfilteret.", "Saved, but not shared: the title or your name was stopped by the word filter.") : T("Lagret, men deling er ikke slått på ennå (supabase/laerer.sql).", "Saved, but sharing is not enabled yet (supabase/laerer.sql).")), 1800); } }
     TE = null; if(!TC) tcOpen("practice"); TC.tab = "cc"; TC.cid = "LS:" + id; tcSave(); screen = "teach"; render(); window.scrollTo(0, 0); tcLoad();

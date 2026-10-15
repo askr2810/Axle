@@ -3538,3 +3538,9 @@ details.cat-mc{margin:6px 0}details.cat-mc>summary{cursor:pointer;font-size:12px
 .gm-pin:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
 .gm-pinnote{margin-top:12px}
 .lay-fixed{font-size:12px;font-weight:700;color:var(--muted);padding:0 6px}
+/* bilder i egne quizer og lekser (quizimg.js) */
+.qimg{margin:0 0 12px;display:flex;justify-content:center}
+.qimg img{display:block;max-width:100%;max-height:min(42vh,420px);width:auto;height:auto;border-radius:14px;border:1px solid var(--line);background:#fff;object-fit:contain}
+.qimg.sm img{max-height:180px}
+.qimg.mq{margin:0 0 14px}.qimg.mq img{max-height:min(38vh,460px)}
+.qimg-ed{display:grid;gap:8px;margin:4px 0 10px;justify-items:start}.qimg-ed .qimg{margin:0}.qimg-ed .cc-lbl{width:100%}

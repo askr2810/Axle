@@ -65,9 +65,9 @@ const MQ_CC = {};   // quiz-kurs som er hentet: id → { title, questions }
 // Lærerens egne oppgavesett (supabase/laerer.sql): «LS:<id>». Kan hentes uten konto, så elever slipper å logge inn for å gjøre leksen.
 const MQ_LS = {};
 function lsItems(qs){ return qs.map((x, i) => { const id = "ls." + i;
-  if(x.t === "num"){ const n = +x.n, tp = +x.tol || 0; return { id, type: "num", prompt: x.q, n, tol: tp > 0 ? Math.abs(n) * tp / 100 : 1e-9, u: x.u || "", expl: x.e || "" }; }
+  if(x.t === "num"){ const n = +x.n, tp = +x.tol || 0; return { id, type: "num", prompt: x.q, n, tol: tp > 0 ? Math.abs(n) * tp / 100 : 1e-9, u: x.u || "", expl: x.e || "", qimg: qimgOf(x) }; }
   const opts = x.t === "tf" ? [{ t: t("ccTrue"), ok: +x.a === 1 }, { t: t("ccFalse"), ok: +x.a === 0 }] : shuffle(x.o.map((o, k) => ({ t: o, ok: k === +x.a })));
-  return { id, type: "mc", prompt: x.q, opts, expl: x.e || "" }; }); }
+  return { id, type: "mc", prompt: x.q, opts, expl: x.e || "", qimg: qimgOf(x) }; }); }
 async function mqPrep(cfg){
   if(cfg && cfg.src && /^LS:/.test(cfg.src)){ const id = cfg.src.slice(3); if(MQ_LS[id]) return true;
     try{ const r = await sbFetch("/rest/v1/rpc/lekse_get", { method: "POST", body: JSON.stringify({ p_id: id }) }, AUTH ? await authToken() : null); if(!r || !r.questions) return false; MQ_LS[id] = { title: r.title, questions: r.questions }; return true; }catch(e){ return false; } }
@@ -89,7 +89,7 @@ function mqQuizItems(cfg, max){
     for(const it0 of items){ if(out.length >= want) break; const it = it0.type === "num" ? toMC(it0) : it0;
       if(it.type !== "mc" || !it.opts || it.opts.length < 2 || String(it.prompt).length > 420) continue;
       let o = it.opts; if(o.length > 4){ const ok = o.find(x => x.ok); o = shuffle([ok, ...o.filter(x => !x.ok).slice(0, 3)]); }
-      out.push({ q: it.prompt, o: o.map(x => x.t), k: o.findIndex(x => x.ok), a: (o.find(x => x.ok) || {}).t, rich: true, e: it.expl || "" }); }
+      out.push({ q: it.prompt, o: o.map(x => x.t), k: o.findIndex(x => x.ok), a: (o.find(x => x.ok) || {}).t, rich: true, e: it.expl || "", img: it.qimg || null }); }
     return out;
   });
 }
@@ -340,7 +340,7 @@ function renderMq(){
     const revKey = mqRevKey(), anim = rev && MQ.revAnimKey !== revKey; if(rev) MQ.revAnimKey = revKey;
     const ranked = live && rev ? mqRanked() : null, myPos = ranked ? ranked.findIndex(p => p.me) : -1;
     $app.innerHTML = `${mqTop(`${MQ.i + 1} / ${MQ.qs.length}`, mqTitleOf(MQ.cfg))}<main class="wrap mq-play">
-      <div class="mq-qc ${q.rich ? "quiz" : ""}"><div class="mq-q">${q.rich ? richBig(q.q) : `${esc(q.q)} <i>= ?</i>`}</div>${!rev ? `<div class="mq-timer"><span id="mqsec">${MQ.cfg.secs}</span><div class="mq-bar"><i id="mqbar"></i></div></div>` : mqResultBanner(q, anim)}</div>
+      <div class="mq-qc ${q.rich ? "quiz" : ""}">${q.img ? qimgHTML(q.img, "mq") : ""}<div class="mq-q">${q.rich ? richBig(q.q) : `${esc(q.q)} <i>= ?</i>`}</div>${!rev ? `<div class="mq-timer"><span id="mqsec">${MQ.cfg.secs}</span><div class="mq-bar"><i id="mqbar"></i></div></div>` : mqResultBanner(q, anim)}</div>
       ${mqTiles(q, rev, anim)}
       ${rev && q.rich && q.e ? `<div class="mq-expl">${rich(q.e)}</div>` : ""}
       ${live && !rev ? `<p class="mq-wait" id="mqans">${esc(mqAnsweredTxt())}</p>${MQ.chosen != null && !mqTeach() ? `<p class="mq-sent">${esc(T("Svar sendt! Venter på de andre …", "Answer sent! Waiting for the others …"))}</p>` : ""}` : ""}

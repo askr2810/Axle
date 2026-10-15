@@ -552,7 +552,7 @@ function toMC(it){
   for(const g of groups){ for(const x of shuffle(g)){ const s=f(x); if(Number.isFinite(x) && !seen.has(s)){ seen.add(s); opts.push({t:s, ok:false}); break; } } }
   let k=2; while(opts.length<4 && k<60){ const s=f(n===0?k:n*(1+0.1*k)); if(!seen.has(s)){ seen.add(s); opts.push({t:s, ok:false}); } k++; }
   // «(svar med brøk …)» gir ikke mening når svaret er et valg
-  return { id:it.id, type:"mc", prompt:it.prompt.replace(/\s*\((?:svar|answer)\s(?:med|som|with|as)\b[^()]*\)/gi, ""), opts:shuffle(opts), expl:it.expl };
+  return { id:it.id, type:"mc", prompt:it.prompt.replace(/\s*\((?:svar|answer)\s(?:med|som|with|as)\b[^()]*\)/gi, ""), opts:shuffle(opts), expl:it.expl, qimg:it.qimg };
 }
 // id-er: "u.i" = fast oppgave nr. i, "u.gj" = generator nr. j (nye tall hver gang)
 function rawQ(c, id){
@@ -751,7 +751,7 @@ function renderLesson(){
   }
   // Illustrasjon på oppgaven (qart.js): temaets piktogram og navn øverst, og en figur over oppgaveteksten når det finnes en.
   const art = typeof qArt === "function" ? qArt(it, L.answered) : {}, kick = `<p class="kicker">${esc(lvl)}${it.type==="mc"?t("pickAnswer"):t("writeAnswer")}</p>`;
-  let body = `<div class="krow ${art.pic ? "has-pic" : ""}">${art.pic ? `<div class="q-topic"><span class="q-pic">${art.pic}</span><span class="q-tt"><b>${esc(art.name)}</b>${kick}</span></div>` : kick}<button class="kbtn" data-a="scratch">${I.pencil}${t("scratch")}</button></div>${art.fig ? "\u0000QSPLIT\u0000" : ""}<div class="prompt">${richBig(it.prompt)}</div>`;
+  let body = `<div class="krow ${art.pic ? "has-pic" : ""}">${art.pic ? `<div class="q-topic"><span class="q-pic">${art.pic}</span><span class="q-tt"><b>${esc(art.name)}</b>${kick}</span></div>` : kick}<button class="kbtn" data-a="scratch">${I.pencil}${t("scratch")}</button></div>${art.fig ? "\u0000QSPLIT\u0000" : ""}${qimgHTML(it.qimg, "lq")}<div class="prompt">${richBig(it.prompt)}</div>`;
   if(it.type==="mc"){
     body += `<div class="opts" role="radiogroup">` + it.opts.map((o,i)=>{
       let cls = L.sel===i ? "sel" : "";
@@ -1556,7 +1556,7 @@ document.addEventListener("click", async e=>{
   if(grClick(a, b)) return; // grupper (handlinger som starter med "gr")
   if(studyClick(a, b)) return; // studier (studies.js)
   if(pfClick(a, b)) return; // bevis (proofs.js)
-  if(snEntryClick(a) || snClick(a, b) || spClick(a, b) || gmClick(a, b) || gmMenuClick(a, b) || duClick(a, b) || mdClick(a, b) || unitsClick(a, b) || tgClick(a, b) || fcClick(a, b) || labClick(a, b) || geClick(a, b) || mvClick(a) || anClick(a, b) || elClick(a, b) || piClick(a, b) || ctClick(a, b) || ekClick(a, b) || lsClick(a, b) || catClick(a, b) || focClick(a, b) || poClick(a, b) || welClick(a, b) || edClick(a, b) || mqClick(a, b) || tcClick(a, b) || hwClick(a) || teClick(a, b) || nudgeClick(a, b) || shareClick(a, b) || ibClick(a, b) || dvClick(a, b) || scClick(a, b) || cdClick(a, b) || thClick(a, b)) return; // snacks og lynrunde (snacks.js)
+  if(qimgClick(a, b) || snEntryClick(a) || snClick(a, b) || spClick(a, b) || gmClick(a, b) || gmMenuClick(a, b) || duClick(a, b) || mdClick(a, b) || unitsClick(a, b) || tgClick(a, b) || fcClick(a, b) || labClick(a, b) || geClick(a, b) || mvClick(a) || anClick(a, b) || elClick(a, b) || piClick(a, b) || ctClick(a, b) || ekClick(a, b) || lsClick(a, b) || catClick(a, b) || focClick(a, b) || poClick(a, b) || welClick(a, b) || edClick(a, b) || mqClick(a, b) || tcClick(a, b) || hwClick(a) || teClick(a, b) || nudgeClick(a, b) || shareClick(a, b) || ibClick(a, b) || dvClick(a, b) || scClick(a, b) || cdClick(a, b) || thClick(a, b)) return; // snacks og lynrunde (snacks.js)
   if(adminClick(a, b)) return; // adminpanel og kunngjøringer (admin.js)
   if(psClick(a, b)) return; // profilsiden til andre + hvilke merker du viser (person.js)
   if(friendsClick(a, b)) return; // venner (handlinger som starter med "fr")
