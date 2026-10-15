@@ -159,4 +159,26 @@ Object.assign(FK_SIGN_NR, {
   sykkelfelt: "521.1", gang_sykkelveg: "522", enveg_hoyre: "526.2", enveg_venstre: "526.3", blindveg_kryssende: "527.2", blindveg_sykkel: "527.3",
   valgfritt_felt: "528", gatetun: "540", gatetun_slutt: "542", gagate: "548", gagate_slutt: "550", havarilomme: "555",
   fotoboks: "556.1", videokontroll: "558", feil_retning: "565" });
+
+// Figurer til teorien om de nye skiltene (![fig:fk_…] i add_zdeep_fk.js), samme oppsett som figurene i drive_signs.js.
+const row = (names, labels) => { const n = names.length, w = 320 / n, sz = Math.min(92, w - 14);
+  return names.map((nm, i) => `<g transform="translate(${(i * w + (w - sz) / 2).toFixed(1)} 12) scale(${(sz / 100).toFixed(3)})">${FK_SIGNS[nm]()}</g><text x="${(i * w + w / 2).toFixed(1)}" y="${(sz + 34).toFixed(0)}" text-anchor="middle" class="fg-s" style="font-size:12px">${esc(labels[i])}</text>`).join(""); };
+const F = (names, labels, cap) => () => ({ cap: T(cap[0], cap[1]), svg: row(names, labels.map(l => T(l[0], l[1]))) });
+Object.assign(FIGS, {
+  fk_fare_veg: F(["bratt_ned", "vegarbeid", "rasfare", "fartshump"], [["Bratt bakke", "Steep hill"], ["Vegarbeid", "Roadworks"], ["Rasfare", "Falling rocks"], ["Fartshump", "Speed hump"]],
+    ["Fareskilt om vegen: bratt bakke, vegarbeid (gul bunn), rasfare og fartshump.", "Warning signs about the road: steep hill, roadworks (yellow), falling rocks and speed hump."]),
+  fk_jernbane: F(["avstand_3", "planovergang_bom", "andreaskors", "andreaskors_fler"], [["Avstand", "Marker"], ["Med bom", "Barriers"], ["Ett spor", "One track"], ["Flere spor", "Tracks"]],
+    ["Planovergang: avstandsskilt, varsel om bom, og kryss for ett eller flere spor.", "Level crossing: countdown marker, barriers ahead, and crosses for one or more tracks."]),
+  fk_smal_veg: F(["vik_motende", "motende_vik", "moteplass"], [["Du venter", "You wait"], ["Møtende venter", "They wait"], ["Møteplass", "Passing place"]],
+    ["Smal veg: hvem som skal vente, og møteplass.", "Narrow road: who must wait, and a passing place."]),
+  fk_grenser: F(["forbudt_mc", "hoydegrense", "vektgrense", "forbikjoring_lastebil"], [["MC og moped", "MC, moped"], ["Høyde", "Height"], ["Vekt", "Weight"], ["Lastebil", "Lorries"]],
+    ["Trafikkforbud, høydegrense, vektgrense og forbikjøringsforbud for lastebil.", "Vehicle ban, height limit, weight limit and no overtaking for lorries."]),
+  fk_soner: F(["fartssone", "fartssone_slutt", "parkeringssone", "parkeringssone_slutt"], [["Fartssone", "Speed zone"], ["Slutt", "End"], ["P-forbud", "No parking"], ["Slutt", "End"]],
+    ["Soneskilt gjelder i hele området til skiltet om at sonen slutter.", "Zone signs apply in the whole area until the end-of-zone sign."]),
+  fk_felt: F(["kollektivfelt_buss", "sambruksfelt", "holdeplass_buss", "sykkelfelt"], [["Kollektivfelt", "Bus lane"], ["Sambruk 2+", "HOV 2+"], ["Holdeplass", "Bus stop"], ["Sykkelfelt", "Cycle lane"]],
+    ["Kollektivfelt, sambruksfelt, bussholdeplass og sykkelfelt.", "Bus lane, high-occupancy lane, bus stop and cycle lane."]),
+  fk_gangfart: F(["gatetun", "gagate", "motortrafikkveg"], [["Gatetun", "Home zone"], ["Gågate", "Pedestrian street"], ["Motortrafikkveg", "Expressway"]],
+    ["Gatetun og gågate (gangfart) og motortrafikkveg.", "Home zone and pedestrian street (walking pace) and expressway."]),
+});
+
 })();

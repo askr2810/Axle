@@ -49,8 +49,15 @@ function DEEP(code, title, nb, en, keepHead){
       if(k > 0 && /^>/.test(lines[k].trim())){ while(k > 0 && /^>/.test(lines[k - 1].trim())) k--; lines.splice(k, 0, add, ""); return lines.join("\n"); }
       return src + "\n\n" + add; }
     lines.splice(i, 0, add, ""); return lines.join("\n"); };
+  // Har fordypningen en overskrift som allerede finnes, erstatter den den korte seksjonen (ellers står overskriften to ganger).
+  // En figur fra den korte seksjonen flyttes rett under samme overskrift i fordypningen, hvis den ikke er der fra før.
+  const merge = (src, add) => { const heads = new Set(String(add).split("\n").filter(l => /^## /.test(l)).map(l => l.trim())), figs = {}, keep = []; let cut = null;
+    for(const l of String(src).split("\n")){ if(/^## /.test(l)) cut = heads.has(l.trim()) ? l.trim() : null;
+      if(!cut){ keep.push(l); continue; } if(/^!\[(fig|pic):/.test(l.trim()) && !String(add).includes(l.trim())) (figs[cut] ||= []).push(l.trim()); }
+    const out = []; for(const l of String(add).split("\n")){ out.push(l); if(figs[l.trim()]) out.push("", ...figs[l.trim()], ""); }
+    return put(keep.join("\n").replace(/\n{3,}/g, "\n\n"), out.join("\n")); };
   const ren = (s, a, b) => keepHead ? String(s) : String(s).replace(a, b);
-  THEORY(code, u, { nb: ren(put(doc.nb, nb), /^## (Begreper og formler|Begreper og regler|Begreper)$/m, "## Kort oppsummert"), en: ren(put(doc.en || doc.nb, en), /^## (Concepts and formulas|Key concepts and rules|Concepts)$/m, "## In short") });
+  THEORY(code, u, { nb: ren(merge(doc.nb, nb), /^## (Begreper og formler|Begreper og regler|Begreper)$/m, "## Kort oppsummert"), en: ren(merge(doc.en || doc.nb, en), /^## (Concepts and formulas|Key concepts and rules|Concepts)$/m, "## In short") });
 }
 // Samme fordypning på alle enheter med en av titlene (f.eks. «Algebra og likninger» i både 1T og S1). codes begrenser til bestemte fag.
 function DEEPT(titles, nb, en, keepHead, codes){

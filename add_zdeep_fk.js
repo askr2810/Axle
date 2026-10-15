@@ -104,13 +104,50 @@ Underskilt gir tilleggsinformasjon eller begrenser hovedskiltet: **avstand** («
 - **Feltpiler** viser påbudt kjøreretning for feltet – velg felt i god tid.
 - **Stopplinje** (bred tverrgående linje) og **vikepliktlinje** (haitenner) viser hvor du skal stanse.
 
+## Flere fareskilt
+Fareskiltene varsler om noe du må forberede deg på. Noen gjelder **vegen**: bratt bakke, smalere veg, ujevn veg og **fartshump**, **steinsprut**, **rasfare** (stein eller snø kan ligge i kjørebanen), **farlig vegskulder**, **bevegelig bru** og **kai eller ferjeleie**. Andre gjelder **trafikken**: **kø**, **trafikkulykke**, **syklende**, **skiløpere**, **ridende** og **sporvogn**. Skiltene for **dyr** (elg, hjort, rein, storfe, sau) står der dyr ofte krysser vegen. Skiltet for **vegarbeid** har gul bunn, som andre midlertidige skilt.
+
+![fig:fk_fare_veg]
+
+## Jernbane og planovergang
+**Planovergang med bom** og **uten bom** varsles med fareskilt, og ofte med tre **avstandsskilt**: tre skrå striper er det første og lengst unna, så to og én. Ved selve sporet står **andreaskorset** – ett kors for ett spor, dobbelt kors for flere spor, der et nytt tog kan komme rett etter det første. Du skal ikke stanse nærmere en planovergang enn **5 meter**, og blinker det rødt, skal du stanse.
+
+![fig:fk_jernbane]
+
+## Smal veg: hvem skal vente?
+På smale bruer og vegstrekninger kan skilt avgjøre hvem som skal vente. **Vikeplikt overfor møtende** (rød pil mot deg) betyr at du ikke skal kjøre inn hvis det hindrer møtende. **Møtende har vikeplikt** (blått skilt) betyr at de møtende skal vente på deg. Uten slike skilt skal kjørende som møtes, om nødvendig vike i god tid til høyre og kjøre sakte eller stanse – bruk **møteplassene**. Er en del av vegen sperret, har den vikeplikt som har sperringen på sin side.
+
+![fig:fk_smal_veg]
+
+## Trafikkforbud og grenser
+Et rundt skilt med rød kant og et symbol forbyr bestemte trafikanter, for eksempel **motorsykkel og moped**, **lastebil**, **syklende** eller **gående**. Skilt for **høyde**, **bredde** og **lengde** gjelder kjøretøyet **medregnet lasten** – takboks og sykler på taket teller. **Totalvektgrense** gjelder kjøretøy som veier mer enn tallet, og **aksellastgrense** gjelder belastningen på hver aksel. **Forbikjøringsforbud for lastebil** gjelder bare lastebil over 3 500 kg; i personbil gjelder de vanlige reglene. Skilt med skrå grå striper viser at forbudet **slutter**.
+
+![fig:fk_grenser]
+
+## Sone-skilt
+Et **soneskilt** gjelder i hele området, også etter kryss, til du ser skiltet om at sonen **slutter**. I en **fartsgrensesone** kan det være fartshumper. En **sone med parkeringsforbud** gjelder alle gatene i området, hvis ikke andre skilt sier noe annet for en bestemt strekning.
+
+![fig:fk_soner]
+
+## Felt og holdeplasser
+**Kollektivfelt** er for buss (og drosje når skiltet viser det). Etter trafikkreglene kan også tohjuls motorsykkel uten sidevogn, tohjuls moped, sykkel og el- eller hydrogenbil bruke kollektiv- og sambruksfelt. **Sambruksfelt** («2+») kan brukes av bil med minst så mange personer som tallet viser. **Tungtrafikkfelt** er for tunge kjøretøy. Du skal ikke stanse i kollektiv-, sambruks- eller **sykkelfelt**, og ikke nærmere enn **20 meter** fra skiltet for en holdeplass, unntatt kort av- og påstigning som ikke hindrer bussen. Der fartsgrensen er **60 km/t eller lavere**, har du vikeplikt for buss som gir tegn om å kjøre ut fra holdeplassen.
+
+![fig:fk_felt]
+
+## Gatetun, gågate og motortrafikkveg
+I **gatetun** og **gågate** skal du kjøre i **gangfart** og vike for gående, og når du kjører ut, har du vikeplikt for alle. Gågate er forbudt for motorvogn, så du kjører der bare når underskilt tillater det, for eksempel for varelevering. **Motortrafikkveg** har nesten samme regler som motorveg: bare motorvogn som kan og får kjøre minst 40 km/t, **moped er forbudt**, og det er forbudt å stanse. Ser du skiltet **Feil kjøreretning** (rødt med hånd), kjører du mot trafikken og må stanse og snu på en trygg måte.
+
+![fig:fk_gangfart]
+
 ## Rangordning
 Hvis skilt, lys og regler sier forskjellige ting, gjelder denne rekkefølgen: **politiets tegn → trafikklys → skilt → vegoppmerking → trafikkregler**. Et vikepliktskilt i et lyskryss gjelder derfor bare når lyset er slått av eller blinker gult.
 
 ## Vanlige feller på teoriprøven
 - Gul bunn betyr **midlertidig**, ikke advarsel.
 - En sperrelinje og en ledelinje ved siden av hverandre: det er linja **på din side** som gjelder.
-- Et forbudsskilt gjelder normalt bare **fram til neste kryss**, men en fartsgrense gjelder til et nytt fartsskilt.`,
+- Et forbudsskilt gjelder normalt bare **fram til neste kryss**, men en fartsgrense gjelder til et nytt fartsskilt, og et **soneskilt** gjelder til sonen slutter.
+- Grenser for **høyde** og **bredde** gjelder **med last**.
+- **Forbikjøringsforbud for lastebil** gjelder ikke personbil.`,
 `## Why are signs designed the way they are?
 Signs are designed so you recognise the **type** by shape and colour long before you can read the details:
 - **Triangle pointing up with a red border** = danger. Slow down and be prepared. Warning signs usually stand **150–250 m** before the hazard outside built-up areas, and closer in built-up areas. A plate may give distance or length.
@@ -137,13 +174,50 @@ Plates add information or limit the main sign: **distance** ('150 m'), **time** 
 - **Lane arrows** show the required direction for the lane – choose your lane in good time.
 - **Stop line** (wide line across) and **give-way line** (shark teeth) show where to stop.
 
+## More warning signs
+Warning signs tell you to be ready for something. Some are about the **road**: steep hill, road narrows, uneven road and **speed hump**, **loose chippings**, **falling rocks** (stones or snow may lie on the road), **dangerous verge**, **opening bridge** and **quay or ferry berth**. Others are about **traffic**: **queues**, **accident**, **cyclists**, **skiers**, **horse riders** and **trams**. The signs for **animals** (moose, deer, reindeer, cattle, sheep) stand where animals often cross. The **roadworks** sign has a yellow background, like other temporary signs.
+
+![fig:fk_fare_veg]
+
+## Railways and level crossings
+A **level crossing with barriers** or **without barriers** is announced by a warning sign, and often by three **countdown markers**: three diagonal stripes is the first and furthest away, then two and one. At the track itself stands the **St Andrew's cross** – a single cross for one track, a double cross for several tracks, where another train may come right after the first. You must not stop closer than **5 metres** to a level crossing, and if a red light flashes, you must stop.
+
+![fig:fk_jernbane]
+
+## Narrow road: who waits?
+On narrow bridges and stretches, signs may decide who waits. **Give way to oncoming traffic** (red arrow towards you) means you must not enter if it would hold up oncoming traffic. **Oncoming traffic gives way** (blue sign) means the oncoming traffic must wait for you. Without such signs, drivers meeting each other must if necessary move right in good time and slow down or stop – use the **passing places**. If part of the road is blocked, whoever has the obstruction on their side must give way.
+
+![fig:fk_smal_veg]
+
+## Vehicle bans and limits
+A round sign with a red border and a symbol bans certain road users, for example **motorcycles and mopeds**, **lorries**, **cyclists** or **pedestrians**. **Height**, **width** and **length** limits apply to the vehicle **including its load** – a roof box and bikes on the roof count. **Weight** limits apply to vehicles heavier than the number, and **axle load** limits to the load on each axle. **No overtaking for lorries** only applies to lorries over 3,500 kg; in a car the normal rules apply. Signs with diagonal grey stripes show that the ban **ends**.
+
+![fig:fk_grenser]
+
+## Zone signs
+A **zone sign** applies to the whole area, also after junctions, until you see the sign saying the zone **ends**. A **speed limit zone** may have speed humps. A **no parking zone** applies to all streets in the area, unless other signs say otherwise for a particular stretch.
+
+![fig:fk_soner]
+
+## Lanes and stops
+**Bus lanes** are for buses (and taxis when the sign shows it). Under the traffic rules, two-wheeled motorcycles without a sidecar, two-wheeled mopeds, bicycles and electric or hydrogen cars may also use bus and high-occupancy lanes. A **high-occupancy lane** ('2+') may be used by cars carrying at least the number of people shown. A **heavy vehicle lane** is for heavy vehicles. Do not stop in bus, high-occupancy or **cycle lanes**, nor within **20 metres** of a bus stop sign, except briefly to let people on or off without hindering the bus. Where the limit is **60 km/h or lower**, you must give way to a bus signalling to pull out from a stop.
+
+![fig:fk_felt]
+
+## Home zones, pedestrian streets and expressways
+In **home zones** and **pedestrian streets** drive at **walking pace** and give way to pedestrians, and when you drive out, you must give way to everyone. Pedestrian streets are closed to motor vehicles, so you only drive there when a plate allows it, for example for deliveries. An **expressway** has almost the same rules as a motorway: only motor vehicles that can and may do at least 40 km/h, **no mopeds**, and no stopping. If you see the **Wrong way** sign (red with a hand), you are driving against the traffic and must stop and turn round safely.
+
+![fig:fk_gangfart]
+
 ## Order of precedence
 If signs, lights and rules disagree, this order applies: **police signals → traffic lights → signs → road markings → traffic rules**. A give-way sign at traffic lights therefore only applies when the lights are off or flashing amber.
 
 ## Common traps in the theory test
 - Yellow background means **temporary**, not warning.
 - A solid and a broken line side by side: the line **on your side** applies.
-- A prohibitory sign normally applies only **to the next junction**, but a speed limit applies until a new speed sign.`);
+- A prohibitory sign normally applies only **to the next junction**, but a speed limit applies until a new speed sign, and a **zone sign** until the zone ends.
+- **Height** and **width** limits include the **load**.
+- **No overtaking for lorries** does not apply to cars.`);
 
 DEEP("FKB", "Fart, avstand og stopplengde",
 `## Regn ut reaksjonslengden i hodet
@@ -524,7 +598,7 @@ DEEP("FKB", "Vinter, mørke og vanskelige forhold",
 I mørket ser du **mye mindre** og **senere**. Med nærlys ser du en fotgjenger i mørke klær først på **25–30 meters** avstand – med **refleks** på rundt 140 meters avstand, og med fjernlys enda lenger. Senk farten slik at du kan stanse innenfor det lyset rekker. Bruk **fjernlys** når du kan, og blend ned i tide. Hold frontruta ren innvendig og utvendig – en skitten rute gir mye mer blending.
 
 ## Vilt
-Faren for viltpåkjørsler er størst i **skumringen** og **mørket**, om høsten og vinteren, og der det er **skiltet** med elg eller rådyr. Ser du ett dyr, er det ofte **flere** – elg og rådyr går ofte i følge. Senk farten og vær klar til å bremse. Kjører du på vilt, skal du sette ut varseltrekant, og du har **plikt til å melde fra** til politiet (ring 02800 eller 112), også om dyret løp videre.
+Faren for viltpåkjørsler er størst i **skumringen** og **mørket**, om høsten og vinteren, og der det er **skiltet** med elg eller rådyr. Ser du ett dyr, er det ofte **flere** – elg og rådyr går ofte i følge. Senk farten og vær klar til å bremse. Kjører du på vilt, skal du sette ut varseltrekant. Treffer du **hjortevilt** (elg, hjort, rådyr eller rein), har du **plikt til å melde fra** til politiet (ring 02800 eller 112), også om dyret løp videre.
 
 ## Glatt føre
 Det er ofte glattest
@@ -532,7 +606,7 @@ Det er ofte glattest
 - på **bruer**, i **skyggen** og ved **tunnelåpninger**, der det fryser først,
 - tidlig om morgenen og om kvelden,
 - med **svart is** (tynn, blank is som ser ut som våt asfalt) og **underkjølt regn**.
-Kjør **mykt**: myke ratt-, gass- og bremsebevegelser. Øk avstanden kraftig, og test gjerne friksjonen med en forsiktig bremsing på et trygt sted.
+Rengjør alle ruter, lys og taket for snø og is før du kjører. Kjør **mykt**: myke ratt-, gass- og bremsebevegelser. Øk avstanden kraftig, og test gjerne friksjonen med en forsiktig bremsing på et trygt sted. Må du bremse hardt med **ABS**, trår du bremsen hardt ned og holder den inne – du kan fortsatt styre.
 
 ## Skrens
 - **Understyring** (bilen fortsetter rett fram selv om du svinger, framhjulene har mistet grepet): slipp opp gassen, rett ut rattet litt så hjulene får grep igjen, og styr på nytt.
@@ -557,7 +631,7 @@ Om vinteren kan fjelloverganger være **stengt** eller bare åpne med **kolonnek
 In the dark you see **much less** and **later**. On dipped beam you see a pedestrian in dark clothing only at **25–30 metres** – with a **reflector** at about 140 metres, and further on main beam. Slow down so you can stop within the reach of your lights. Use **main beam** when you can and dip in time. Keep the windscreen clean inside and out – a dirty screen causes much more glare.
 
 ## Wildlife
-The risk of hitting animals is greatest at **dusk** and in **darkness**, in autumn and winter, and where **elk** or deer warning signs stand. If you see one animal there are often **more** – elk and deer often travel together. Slow down and be ready to brake. If you hit an animal you must put out a warning triangle, and you are **obliged to report** it to the police (call 02800 or 112), even if it ran off.
+The risk of hitting animals is greatest at **dusk** and in **darkness**, in autumn and winter, and where **elk** or deer warning signs stand. If you see one animal there are often **more** – elk and deer often travel together. Slow down and be ready to brake. If you hit an animal you must put out a warning triangle. If you hit a **deer-family animal** (moose, red deer, roe deer or reindeer), you are **obliged to report** it to the police (call 02800 or 112), even if it ran off.
 
 ## Slippery roads
 It is often most slippery
@@ -565,7 +639,7 @@ It is often most slippery
 - on **bridges**, in **shade** and at **tunnel mouths**, where it freezes first,
 - early in the morning and in the evening,
 - with **black ice** (thin, clear ice that looks like wet asphalt) and **freezing rain**.
-Drive **smoothly**: gentle steering, throttle and braking. Greatly increase your gap, and test the grip with a gentle brake somewhere safe.
+Clear all windows, lights and the roof of snow and ice before driving. Drive **smoothly**: gentle steering, throttle and braking. Greatly increase your gap, and test the grip with a gentle brake somewhere safe. If you must brake hard with **ABS**, press the brake hard and keep it pressed – you can still steer.
 
 ## Skids
 - **Understeer** (the car keeps going straight though you steer; front wheels have lost grip): ease off the throttle, straighten the wheel a little so the tyres regain grip, and steer again.
