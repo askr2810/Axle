@@ -341,7 +341,7 @@ function renderHome(){
       const cls = done ? (master?"done master":"done") : cur ? "cur" : (master&&open) ? "open master" : "locked";
       const icon = master ? I.crownBig : done ? I.check : cur ? I.star : I.lock;
       const label = `${lvShort(k)}, ${lvName(k)}${done?t("nodeDone"):open?t("nodeOpen"):t("nodeLocked")}`;
-      path += `<div class="nwrap" style="translate:${off}px 0"><button class="node ${cls}" style="--c:${col}" data-a="node" data-u="${ui}" data-k="${k}" aria-label="${esc(label)}">${cur?`<span class="bubble ${off>0?"side-l":"side-r"}">${t("start")}</span>`:""}${icon}</button><span class="ncap">${lvName(k)}</span></div>`;
+      path += `<div class="nwrap" style="translate:${off}px 0"><button class="node ${cls}" style="--c:${col}" data-a="node" data-u="${ui}" data-k="${k}" aria-label="${esc(label)}">${cur?`<span class="bubble ${off>0?"side-l":"side-r"}" aria-hidden="true">${esc(T("Du er her","You are here"))}</span>`:""}${icon}</button><span class="ncap">${lvName(k)}</span></div>`;
     }
     path += `</div></section>`;
   });

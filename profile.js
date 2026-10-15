@@ -115,17 +115,22 @@ function profileClick(a, b){
 }
 
 // ---------- Øv-fanen: dagsmål, dagens utfordring, repetisjon og prøveeksamener ----------
+let PRAC_REC = false; // true mens Øv tegnes og har en «Anbefalt nå»: da er bare den knappen fylt
 function renderPractice(){
   const c = COURSE(S.current), today = S.daily[dayKey()] || 0, goal = S.goal || 10, wrongN = sub(c.code).wrong.length;
   const now = new Date(), dow = (now.getDay() + 6) % 7, monday = addDays(now, -dow);
   const week = t("days").map((d, i) => { const k = dayKey(addDays(monday, i)), on = (S.daily[k] || 0) > 0;
     return `<div><span class="dot ${on ? "on" : ""} ${i === dow && !on ? "today" : ""}">${on ? I.checkS : ""}</span>${d}</div>`; }).join("");
+  // Én anbefalt neste handling øverst («Anbefalt nå»: feil å repetere eller dagens utfordring); de andre kortenes knapper blir da sekundære.
+  const ctx = { c, today, goal, week, wrongN }, recG = T("Anbefalt nå", "Recommended now");
+  PRAC_REC = false; let parts = layoutParts("practice", ctx); const rec = parts[0] && parts[0].g === recG ? parts.shift() : null;
+  if(rec){ PRAC_REC = true; parts = layoutParts("practice", ctx); parts.shift(); }
   $app.innerHTML = `<div class="top"><div class="wrap"><div class="th-t"><small>${esc(courseName(c))}</small><b>${esc(t("tabPractice"))}</b></div>
       <button class="chip mini-chip" data-a="pick" aria-label="${esc(t("switchCourse"))}"><span class="code">${esc(courseShort(c))}</span>${I.down}</button></div></div>
     <main class="wrap prac">
       <p class="tab-intro">${esc(T("Øv fritt i ditt eget tempo: velg et tema, prøv labber og spill, eller se løste oppgaver. Stien steg for steg ligger under Lær, og lesestoffet under Teori.", "Practise freely at your own pace: pick a topic, try labs and games, or see solved problems. The step-by-step path is under Learn, and the reading under Theory."))}</p>
-      ${qsHTML("practice")}${isDrive(c) ? "" : focCardHTML()}${dvPracticeCardHTML(c)}${isDrive(c) ? "" : labCourseHTML(c) + catCardHTML(c)}${cdPracticeCardHTML(c)}
-      ${layoutHTML("practice", { c, today, goal, week, wrongN })}
+      ${qsHTML("practice")}${rec ? `<div class="lay-grp prac-rec">${rec.h}</div>` : ""}${isDrive(c) ? "" : focCardHTML()}${dvPracticeCardHTML(c)}${isDrive(c) ? "" : labCourseHTML(c) + catCardHTML(c)}${cdPracticeCardHTML(c)}
+      ${parts.map(x => `<div class="lay-grp">${x.h}</div>`).join("")}
       <div class="lay-grp"><h4 class="grp">🧰 ${esc(T("Hjelpemidler", "Study tools"))}</h4><div class="tools2">${poCardHTML()}
       <button class="tc-entry" data-a="tcopen"><span aria-hidden="true">🎓</span><div><b>${esc(T("Lærerverktøy", "Teacher tools"))}</b><small>${esc(T("Live-quiz og lekser", "Live quiz and homework"))}</small></div></button></div></div>
       ${layLinkHTML("practice")}

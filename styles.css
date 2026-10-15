@@ -2938,7 +2938,7 @@ details.cat-mc{margin:6px 0}details.cat-mc>summary{cursor:pointer;font-size:12px
 .tools2{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:8px}.tools2>*{min-width:0}.tools2 .tc-entry b{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .po-card.po-tile{display:flex;align-items:center;gap:6px;width:auto;height:auto;padding:8px 8px 8px 10px;margin:0;overflow:visible}
 .po-mt{flex:1;min-width:0;display:flex;align-items:center;gap:8px;border:0;background:none;color:inherit;font:inherit;text-align:left;cursor:pointer;padding:4px 0}.po-mt>span:first-child{font-size:24px}
-.po-mt b{display:block;font-size:15px}.po-mt small{display:block;color:var(--muted);font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.po-mt b{display:block;font-size:15px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.po-mt small{display:block;color:var(--muted);font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .po-mgo{flex:0 0 40px;height:40px;border-radius:50%;border:0;background:#FF6B4A;color:#fff;font-size:15px;display:grid;place-items:center;cursor:pointer}.po-mgo svg{width:16px;height:16px}
 .tools2 .tc-entry{margin:0;padding:10px}.tools2 .tc-entry>span{font-size:24px}.tools2 .tc-entry small{font-size:12px}
 .gm-teach{display:block;width:100%;margin:10px 0 0;padding:12px;border-radius:14px;border:2px dashed var(--line);background:none;color:var(--accent-deep);font:700 14px var(--body);text-align:left;cursor:pointer}.gm-teach:hover{border-color:var(--accent)}
@@ -3410,3 +3410,10 @@ details.cat-mc{margin:6px 0}details.cat-mc>summary{cursor:pointer;font-size:12px
 .next-dock{position:sticky;bottom:0;z-index:6;margin:10px -6px 0;padding:10px 6px calc(10px + env(safe-area-inset-bottom,0px));background:linear-gradient(to bottom,transparent,var(--paper) 12px)}
 .next-dock>.big{margin:0;width:100%}
 .cd-verdict>.big{position:sticky;bottom:calc(10px + env(safe-area-inset-bottom,0px));z-index:6} /* kodeoppgave løst: «Neste oppgave» synlig */
+/* Øv: den anbefalte handlingen er den eneste fylte knappen */
+.prac .prac-rec .dc-go{background:var(--accent-bg);color:#fff;border-color:var(--accent-deep)}
+@media (max-width:420px){.tools2 .po-mt>span:first-child{display:none}} /* Pomodoro-flisen: plass til tittelen ved siden av spill-knappen */
+/* Riktig/feil også uten farge: ✓ og ✗ i tillegg til grønn og rød */
+.opt.right .k,.opt.wrong .k{font-size:0}.opt.right .k::after{content:"✓";font-size:15px;font-weight:900;color:var(--ok-text)}.opt.wrong .k::after{content:"✗";font-size:15px;font-weight:900;color:var(--bad)}
+.sg-opt.ok,.sg-opt.bad{position:relative}.sg-opt.ok::after,.sg-opt.bad::after{position:absolute;right:12px;top:50%;transform:translateY(-50%);font-weight:900;font-size:18px;line-height:1}
+.sg-opt.ok::after{content:"✓";color:var(--ok-text)}.sg-opt.bad::after{content:"✗";color:var(--bad)}

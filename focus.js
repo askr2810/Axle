@@ -56,7 +56,7 @@ function focRecord(){
 function focCardHTML(){
   const f = S.focus, c = f && COURSE(f.code);
   if(!c) return `<section class="fc-card fc-empty"><div class="fc-h"><span class="fc-ic" aria-hidden="true">${ico("🎯")}</span><div><b>${esc(T("Mitt fokus", "My focus"))}</b><small>${esc(T("Velg ett tema du vil bli god på. Du starter enkelt, får det du bommer på igjen til det sitter, og bygger videre når du er klar.", "Pick one topic you want to master. You start easy, get what you miss again until it sticks, and build on when you are ready."))}</small></div></div>
-    <button class="big" data-a="focpick">${esc(T("Velg tema", "Choose a topic"))}</button></section>`;
+    <button class="big ${typeof PRAC_REC !== "undefined" && PRAC_REC && screen === "practice" ? "ghost" : ""}" data-a="focpick">${esc(T("Velg tema", "Choose a topic"))}</button></section>`;
   const ms = focMastery(c, f.cur), due = focDue(c).length;
   return `<section class="fc-card"><div class="fc-h"><span class="fc-ic" aria-hidden="true">${ico("🎯")}</span><div><small>${esc(T("Mitt fokus", "My focus"))} · ${esc(courseName(c))}</small><b>${esc(unitTitle(c, f.cur))}</b></div><button class="exlink" data-a="focpick">${esc(T("Bytt", "Change"))}</button></div>
     <div class="fc-bar"><i style="width:${Math.round(ms.pct * 100)}%"></i><span class="fc-goal" style="left:80%"></span></div>

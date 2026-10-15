@@ -14,7 +14,7 @@ function qsResultsHTML(place){
   const tasks = typeof catSearch === "function" ? catSearch(q).slice(0, 3) : [];
   const taskHTML = tasks.map(e => `<div class="qs-hit qs-task"><button class="qs-main" data-a="catgo" data-c="${e.code}" data-u="${e.u}" data-id="${e.id}"><small>📚 ${esc(T("Løst oppgave", "Solved problem"))} · ${esc(courseName(COURSE(e.code)))}</small><span class="qs-tp">${(() => { const it = catItem(COURSE(e.code), e.id); return it ? rich(it.prompt) : esc(e.title); })()}</span></button></div>`).join("");
   // interaktive figurer og verktøy (Labben) først: de er vanskelige å finne ellers
-  const labs = typeof labHitsHTML === "function" ? labHitsHTML(q) : "", labHTML = labs ? `<div class="qs-sub">🧪 ${esc(T("Labber og verktøy", "Labs and tools"))}</div><div class="qs-labs">${labs}</div>` : "";
+  const labs = (typeof labHitsHTML === "function" ? labHitsHTML(q) : "") + qsGameHits(q), labHTML = labs ? `<div class="qs-sub">🧪 ${esc(T("Labber, spill og verktøy", "Labs, games and tools"))}</div><div class="qs-labs">${labs}</div>` : "";
   if(!hits.length && !tasks.length) return labHTML || `<p class="qs-empty">${esc(T("Fant ingen emner. Prøv et annet ord, eller se alle fag i Teori-fanen.", "No topics found. Try another word, or see all subjects in the Theory tab."))}</p>`;
   return labHTML + (tasks.length ? `<div class="qs-sub">📚 ${esc(T("Løste oppgaver", "Solved problems"))}</div>` + taskHTML + (hits.length ? `<div class="qs-sub">📖 ${esc(T("Teori og emner", "Theory and topics"))}</div>` : "") : labHTML && hits.length ? `<div class="qs-sub">📖 ${esc(T("Teori og emner", "Theory and topics"))}</div>` : "") + hits.map(({ it, snip }) => {
     const c = COURSE(it.code), read = it.id ? `data-a="bktopic" data-c="${esc(it.code)}" data-id="${esc(it.id)}"` : `data-a="bkunit" data-c="${esc(it.code)}" data-u="${it.u}"`;
@@ -23,6 +23,18 @@ function qsResultsHTML(place){
     return `<div class="qs-hit"><button class="qs-main" ${place === "practice" && prac ? `data-a="bktopicpractice" data-c="${esc(it.code)}" data-u="${it.u}"` : read}>
         <small>${esc(it.id ? T("Emne", "Topic") + " · " : "")}${esc(it.course)}</small><b>${esc(it.title)}</b><span>${bkMark(snip, q)}</span></button>
       <div class="qs-acts">${place === "practice" ? prac + readBtn : readBtn + prac}</div></div>`; }).join("");
+}
+// Spill og verktøy i søket (kartspillet, dueller, lærerverktøy …): tittel, undertittel og noen vanlige ord eleven kan skrive
+const QS_GM_KW = { mq: "hoderegning regne raskt gangetabell mental math", du: "duell venn utfordre duel friend challenge", lo: "lynduell to spillere samme skjerm quick duel",
+  sn: "snacks kort sveip swipe cards", sp: "lynrunde sprint tid fort", mt: "parjakt par memory match pairs", tf: "sant usant true false",
+  tg: "enhetssirkel trigonometri unit circle", lab: "lab simulering figur simulation", geo: "kart kartspill land verden europa afrika asia amerika historie geografi map country world geography history" };
+function qsGameHits(q){
+  if(typeof gmList !== "function" || typeof labMatch !== "function") return "";
+  const tools = [["tcopen", "🎓", T("Lærerverktøy", "Teacher tools"), T("Lekser, live-quiz og konkurranse", "Homework, live quiz and contests"), "lærer lekse quiz klasse teacher homework"],
+    ["posopen", "⏱️", "Pomodoro", T("Fokustimer", "Focus timer"), "pomodoro fokus timer konsentrasjon focus"]];
+  const list = [...gmList().map(g => [g[1], g[2], t(g[3]), typeof gmSub === "function" ? gmSub(g[0]) : "", QS_GM_KW[g[0]] || ""]), ...tools];
+  return list.filter(x => labMatch(x.slice(2).join(" "), q)).slice(0, 4)
+    .map(([a, ic, nm, sub]) => `<button class="bk-hit lab-hit" data-a="${a}"><small>${esc(T("Spill og verktøy", "Games and tools"))}</small><b>${ic} ${esc(nm)}</b><span>${esc(sub)}</span></button>`).join("");
 }
 // Eksempel i søkefeltet som passer studiet
 const QS_EX = () => ({ barn: ["brøk", "fractions"], ungdom: ["Pytagoras", "Pythagoras"], syk: ["blodtrykk", "blood pressure"], forer: ["vikeplikt", "right of way"], jus: ["avtaler", "contracts"], oko: ["budsjett", "budget"], vgs: ["derivasjon", "derivatives"] })[typeof curStudy === "function" ? curStudy() : "ing"] || ["derivasjon", "derivatives"];

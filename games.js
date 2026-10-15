@@ -166,7 +166,7 @@ const pinsOf = place => { layMigrate(); return (S.pins[place] || []).filter(id =
 function gamesSectionHTML(place){
   const pins = GAMES.filter(g => pinsOf(place).includes(g[0]));
   return `${pins.length ? `<div class="sn-entry ${place === "practice" ? "sn-sm" : ""}">${pins.map(gmTile).join("")}</div>` : ""}
-    <button class="qt-row gm-row" data-a="gamesmenu" data-p="${place}"><span class="gm-ics" aria-hidden="true">${GAMES.slice(0, 4).map(g => `<i class="${g[4]}">${ico(g[2])}</i>`).join("")}</span><span><b>${esc(t("gmTitle"))}</b><small>${esc(t("gmSub"))}</small></span>${I.chevron}</button>`;
+    <button class="qt-row gm-row" data-a="gamesmenu" data-p="${place}"><span class="gm-ics" aria-hidden="true">${GAMES.slice(0, 4).map(g => `<i class="${g[4]}">${ico(g[2])}</i>`).join("")}</span><span><b>${esc(t("gmTitle"))}</b><small>${esc(gmList().some(g => g[0] === "geo") ? T("Duell, snacks, lynrunde, kartspillet og mer", "Duel, snacks, sprint, the map game and more") : t("gmSub"))}</small></span>${I.chevron}</button>`;
 }
 // Seksjonene per sted: [id, tekstnøkkel, tegnefunksjon(ctx)].
 const LAYOUT = {
@@ -186,7 +186,9 @@ const layHidden = (place, id) => !!((S.hidden || {})[place] || {})[id];
 // Overskrifter mellom gruppene i Øv, så siden er lett å skanne (eksamen har sin egen overskrift).
 const LAY_GROUP = { practice: { review: ["Anbefalt nå", "Recommended now"], dc: ["Anbefalt nå", "Recommended now"], drill: ["Øv mer", "Practise more"],
   community: ["Øv mer", "Practise more"], games: ["Spill", "Games"], today: ["Uka di", "Your week"] } };
-function layoutHTML(place, ctx){
+function layoutHTML(place, ctx){ return layoutParts(place, ctx).map(x => `<div class="lay-grp">${x.h}</div>`).join(""); }
+// Gruppene hver for seg ({ g: overskrift, h: html }), så Øv kan løfte «Anbefalt nå» helt opp.
+function layoutParts(place, ctx){
   // Hver gruppe (overskrift + kortene under) i sin egen boks, så de holder sammen i to kolonner på PC.
   const G = LAY_GROUP[place] || {}, out = [];
   for(const id of layOrder(place).filter(id => !layHidden(place, id))){
@@ -194,7 +196,7 @@ function layoutHTML(place, ctx){
     const g = G[id] ? T(G[id][0], G[id][1]) : null, prev = out[out.length - 1];
     if(g && prev && prev.g === g) prev.h += h; else out.push({ g, h: (g ? `<h2 class="prac-h">${esc(g)}</h2>` : "") + h });
   }
-  return out.map(x => `<div class="lay-grp">${x.h}</div>`).join("");
+  return out;
 }
 const layLinkHTML = place => `<button class="exlink lay-link" data-a="layopen" data-p="${place}">${I.gear}${esc(t(place === "home" ? "layHome" : "layPractice"))}</button>`;
 function gamesMenuHTML(place){
