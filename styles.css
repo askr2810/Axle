@@ -1836,7 +1836,7 @@ textarea.fbtext{width:100%;font:13px/1.4 var(--mono,monospace);border-radius:12p
 .lab-sim{display:flex;align-items:center;gap:10px;width:100%;padding:10px 14px;border:0;border-bottom:1px solid var(--line);background:transparent;font:inherit;color:var(--ink);text-align:left;cursor:pointer}
 .lab-sim:last-child{border-bottom:0}
 .lab > .lab-sim{background:var(--card);border:2px solid var(--line);border-radius:14px;margin-bottom:6px}
-.lab-sim small{display:block;color:var(--muted);font-size:12.5px}.lab-sim svg:last-child,.lab-sim em{margin-left:auto;flex:none}
+.lab-sim small{display:block;color:var(--muted);font-size:12.5px}.lab-sim>svg:last-child,.lab-sim>em{margin-left:auto;flex:none}
 .lab-si{display:grid;place-items:center;width:32px;height:32px;border-radius:10px;background:color-mix(in srgb,var(--gold) 22%,transparent);color:var(--gold-text);flex:none}
 .lab-uses{display:grid;gap:6px}
 .lab-hit small{color:var(--accent)}
@@ -2529,7 +2529,7 @@ details.bk-sheet>summary::-webkit-details-marker{display:none}
 .lab-course-h{display:grid;margin-bottom:8px}.lab-course-h small{color:var(--muted);font-size:13px}
 .lab-cbig{display:flex;gap:12px;align-items:center;width:100%;text-align:left;padding:10px 12px;margin:6px 0;border-radius:14px;border:2px solid color-mix(in srgb,var(--accent) 30%,var(--line));background:color-mix(in srgb,var(--accent) 6%,var(--card));color:inherit;font:inherit;cursor:pointer}
 .lab-cbig>span:first-child{font-size:26px}.lab-cbig b{display:block}.lab-cbig small{color:var(--muted);font-size:12.5px;line-height:1.3}
-.lab-cbig svg:last-child{margin-left:auto;flex:none}
+.lab-cbig>svg:last-child{margin-left:auto;flex:none}
 .lab-csims{display:flex;flex-wrap:wrap;gap:8px;padding:4px 0 2px} /* alle valgene synes: brytes over flere rader, ingen vannrett rulling */
 .lab-csim{flex:0 1 auto;max-width:100%;min-height:44px;display:flex;gap:6px;align-items:center;padding:8px 12px;border-radius:22px;border:1.5px solid var(--line);background:var(--card);color:inherit;font:700 13px inherit;cursor:pointer;text-align:left;overflow-wrap:anywhere}
 .lab-csim svg{flex:none;width:14px;height:14px;color:var(--accent)}
