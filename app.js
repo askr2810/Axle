@@ -980,6 +980,18 @@ function mountScratch(){
   const st = scratchState();
   if(st.tab==="draw") initCanvas(); else if(st.tab==="units") unitsMount(); else { renderCalcLines(); const inp=document.getElementById("calcin"); if(inp){ inp.focus(); inp.addEventListener("keydown", calcKey); } }
 }
+// Hva ett trykk på kladdearket gjør (to fingre håndteres for seg): "palm" (ignoreres), "pan" (flytter arket), "erase" eller "draw".
+// mode: "auto" | "pen" | "touch" (innstillingen), pen: en penn er brukt på arket, penDown: en penn er nede nå. Testes i tools/test_draw.js.
+// Penn: tegner, eller visker med viskeknappen (Surface/Wacom; Apple Pencil har ingen). Finger: tegner til en penn er brukt (auto),
+// deretter flytter den arket; mens pennen er nede, og store kontaktflater etter at pennen er brukt, er håndflaten og ignoreres.
+// Mus: venstre tegner, midtre og høyre flytter arket.
+function scRole(e, mode, pen, penDown, tool){
+  const touch = e.pointerType==="touch", isPen = e.pointerType==="pen";
+  if(mode!=="touch" && touch && (penDown || ((pen || mode==="pen") && (e.width>40 || e.height>40)))) return "palm";
+  if((touch && (mode==="pen" || (mode==="auto" && pen))) || e.button===1 || e.button===2) return "pan";
+  if(tool==="eraser" || (isPen && ((e.buttons & 32) || e.button===5))) return "erase";
+  return "draw";
+}
 function initCanvas(){
   const cv = document.getElementById("sccv"); if(!cv) return;
   const st = scratchState(), ctx = cv.getContext("2d");
@@ -1009,7 +1021,6 @@ function initCanvas(){
     if(hit.length){ const removed = hit.map(i=>({i, s:st.strokes[i]})); for(let k=hit.length-1;k>=0;k--) st.strokes.splice(hit[k],1); st.hist.push({erase:removed}); scDraw(); } };
   // Penn (Apple Pencil o.l.): trykkfølsom strek, og håndflaten ignoreres mens pennen er nede.
   // Finger: tegner til en penn er brukt, deretter flytter én finger arket. To fingre: zoom/flytt, et kort trykk med to fingre angrer.
-  const isPalm = e => scMode()!=="touch" && e.pointerType==="touch" && (SCR.penId!=null || ((SCR.pen || scMode()==="pen") && (e.width>40 || e.height>40)));
   const touchesOf = () => [...SCR.ptrs.values()].filter(p=>p.type!=="pen");
   cv.addEventListener("pointerdown", e=>{
     // pikseltettheten kan ha endret seg uten hendelse (noen nettlesere ved bytte av skjerm): sjekk før streken starter
@@ -1020,7 +1031,8 @@ function initCanvas(){
       for(const [id,p] of SCR.ptrs) if(p.type!=="pen") SCR.ptrs.delete(id); // hånd som landet før pennen
       if(SCR.cur && !SCR.cur.pr && SCR.cur.pts.length < 12 && st.strokes[st.strokes.length-1]===SCR.cur){ st.strokes.pop(); st.hist.pop(); SCR.cur = null; SCR.dirty = true; } // prikk fra hånda
       SCR.pinch = null; SCR.pan = null; SCR.tap2 = null;
-    } else if(isPalm(e)) return;
+    }
+    const role = scRole(e, scMode(), SCR.pen, SCR.penId!=null, st.tool); if(role==="palm") return;
     try{ cv.setPointerCapture(e.pointerId); }catch(err){}
     SCR.ptrs.set(e.pointerId, {...pos(e), type:e.pointerType});
     const touches = touchesOf();
@@ -1032,10 +1044,9 @@ function initCanvas(){
       return;
     }
     if(!isPen && touches.length>2) return;
-    const panOnly = (e.pointerType==="touch" && (scMode()==="pen" || (scMode()==="auto" && SCR.pen))) || e.button===1 || e.button===2;
-    if(panOnly){ SCR.pan = { p0:pos(e), v0:{...st.view} }; return; }
+    if(role==="pan"){ SCR.pan = { p0:pos(e), v0:{...st.view} }; return; }
     const w = toW(pos(e));
-    if(st.tool==="eraser" || (isPen && ((e.buttons & 32) || e.button===5))){ SCR.erasing = true; eraseAt(w); return; } // viskeknapp på penn
+    if(role==="erase"){ SCR.erasing = true; eraseAt(w); return; }
     SCR.cur = { c:st.color, pts:[isPen ? {...w, p:e.pressure||0.5} : w], pr: isPen || undefined }; st.strokes.push(SCR.cur); st.hist.push({add:true}); scDraw(true);
   });
   cv.addEventListener("pointermove", e=>{
@@ -1069,7 +1080,7 @@ function initCanvas(){
     else if(e.shiftKey){ st.view = {...st.view, x: st.view.x - e.deltaY}; scDraw(); }
     else { scZoom(Math.exp(-e.deltaY*0.0015), p); } }, {passive:false});
 }
-// Bytt mellom penn og viskelær: knappene, tasten E og (senere) Apple Pencil-dobbelttrykk via en native bro i iOS-appen.
+// Bytt mellom penn og viskelær: knappene, tasten E og Apple Pencil-dobbelttrykk via den native broen i iOS-appen.
 // Verktøyet leses ved pointerdown, så en strek som er i gang, fullføres med verktøyet den startet med.
 function scSetTool(tool, quiet){
   const st = scratchState(); st.tool = tool === "eraser" ? "eraser" : "pen";
@@ -1079,7 +1090,7 @@ function scSetTool(tool, quiet){
 }
 const scToggleTool = () => { if(overlay && overlay.scratch && scratchState().tab==="draw") scSetTool(scratchState().tool==="eraser" ? "pen" : "eraser"); };
 document.addEventListener("keydown", e=>{ if((e.key==="e"||e.key==="E") && !e.ctrlKey && !e.metaKey && !e.altKey && !(e.target.closest && e.target.closest("input,textarea,[contenteditable]"))) scToggleTool(); });
-// Native bro (ikke laget ennå, se docs/OPPGAVER_TERMINAL.md oppgave 16): iOS-appen kan sende window.dispatchEvent(new Event("axle-pencil-tap")).
+// Native bro: iOS-appen sender «axle-pencil-tap» ved dobbelttrykk/klem på Apple Pencil (native/ios/AxleBridgeViewController.swift, lagt inn av tools/ios_pencil.mjs).
 window.addEventListener("axle-pencil-tap", scToggleTool);
 function scZoom(f, p){
   const st = scratchState(); if(!SCR) return; p = p || {x:SCR.w/2, y:SCR.h/2};
@@ -1095,24 +1106,27 @@ function scFit(){
 }
 // Tegner kladden. Ferdige streker ligger i et mellomlager (SCR.base) som bare tegnes på nytt når noe endrer seg;
 // under en pennestrek (live) tegnes bare lageret + streken som pågår, så det holder følge også med mye kladd.
-function scStroke(ctx, s, v, colors){
+// En strek tegnes som stykker fra midtpunkt til midtpunkt (kvadratiske kurver gjennom punktene). Stykke i går fra slutten av stykke i−1
+// via punkt i til midten mellom i og i+1 (det siste stykket til selve punktet). Stykkene før det siste endres ikke når nye punkter kommer,
+// så streken som tegnes nå, legges inn bit for bit (scDraw) og bare halen tegnes på nytt i hvert bilde. Testes i tools/test_draw.js.
+// Trykkfølsom strek: bredden jevnes ut (bare bredden, ikke posisjonen, så streken henger ikke etter) og endres høyst 12 % per stykke,
+// så ujevnt trykk ikke gir synlige hakk i overgangene.
+function scBegin(s, v){ const P0 = s.pts[0], q = P0.p||0.5, base = Math.max(1, 2.4*v.s); return { i:1, mx:P0.x*v.s+v.x, my:P0.y*v.s+v.y, q, w: base*(0.35 + 1.25*Math.min(1, q)) }; }
+function scPieces(ctx, s, v, colors, k, upto){
   const P = s.pts, n = P.length, base = Math.max(1, 2.4*v.s), X = p => p.x*v.s+v.x, Y = p => p.y*v.s+v.y;
   ctx.strokeStyle = colors[s.c]||colors[0];
-  if(n===1){ ctx.lineWidth = base*(s.pr ? 0.5+P[0].p : 1); ctx.beginPath(); ctx.moveTo(X(P[0]),Y(P[0])); ctx.lineTo(X(P[0])+0.1,Y(P[0])); ctx.stroke(); return; }
-  if(s.pr){ // trykkfølsom: hvert stykke får sin egen tykkelse, med myke overganger via midtpunkter
-    // Bredden jevnes ut (bare bredden, ikke posisjonen, så streken henger ikke etter) og endres høyst 12 % per stykke,
-    // så ujevnt trykk ikke gir synlige hakk i overgangene.
-    let mx = X(P[0]), my = Y(P[0]), q = P[0].p||0.5, w = base*(0.35 + 1.25*Math.min(1, q));
-    for(let i=1;i<n;i++){
-      const b = P[i], nx = i<n-1 ? (X(b)+X(P[i+1]))/2 : X(b), ny = i<n-1 ? (Y(b)+Y(P[i+1]))/2 : Y(b);
-      q += ((b.p||0.5) - q) * 0.35; const want = base*(0.35 + 1.25*Math.min(1, q)); w = Math.min(w*1.12, Math.max(w/1.12, want));
-      ctx.lineWidth = w; ctx.beginPath(); ctx.moveTo(mx,my); ctx.quadraticCurveTo(X(b),Y(b),nx,ny); ctx.stroke(); mx = nx; my = ny;
-    }
-    return;
+  for(; k.i<upto && k.i<n; k.i++){
+    const i = k.i, b = P[i], nx = i<n-1 ? (X(b)+X(P[i+1]))/2 : X(b), ny = i<n-1 ? (Y(b)+Y(P[i+1]))/2 : Y(b);
+    if(s.pr){ k.q += ((b.p||0.5) - k.q) * 0.35; const want = base*(0.35 + 1.25*Math.min(1, k.q)); k.w = Math.min(k.w*1.12, Math.max(k.w/1.12, want)); ctx.lineWidth = k.w; }
+    else ctx.lineWidth = base;
+    ctx.beginPath(); ctx.moveTo(k.mx,k.my); ctx.quadraticCurveTo(X(b),Y(b),nx,ny); ctx.stroke(); k.mx = nx; k.my = ny;
   }
-  ctx.lineWidth = base; ctx.beginPath(); ctx.moveTo(X(P[0]),Y(P[0]));
-  for(let i=1;i<n-1;i++) ctx.quadraticCurveTo(X(P[i]),Y(P[i]),(X(P[i])+X(P[i+1]))/2,(Y(P[i])+Y(P[i+1]))/2);
-  ctx.lineTo(X(P[n-1]),Y(P[n-1])); ctx.stroke();
+  return k;
+}
+function scStroke(ctx, s, v, colors){
+  const P = s.pts, base = Math.max(1, 2.4*v.s), X = p => p.x*v.s+v.x, Y = p => p.y*v.s+v.y;
+  if(P.length===1){ ctx.strokeStyle = colors[s.c]||colors[0]; ctx.lineWidth = base*(s.pr ? 0.5+P[0].p : 1); ctx.beginPath(); ctx.moveTo(X(P[0]),Y(P[0])); ctx.lineTo(X(P[0])+0.1,Y(P[0])); ctx.stroke(); return; }
+  scPieces(ctx, s, v, colors, scBegin(s, v), P.length);
 }
 function scDraw(live){
   if(!SCR) return; if(!live) SCR.dirty = true; cancelAnimationFrame(SCR.raf);
@@ -1129,10 +1143,19 @@ function scDraw(live){
         b.stroke(); }
       b.lineCap="round"; b.lineJoin="round";
       for(const s of st.strokes) if(s!==SCR.cur) scStroke(b, s, v, SCR.colors);
-      SCR.dirty = false;
+      SCR.dirty = false; SCR.live = null;
+    }
+    // Streken som tegnes nå: ferdige stykker legges inn i bakgrunnen én gang; bare det siste stykket (og anslåtte punkter) tegnes i hvert bilde.
+    // Da koster et bilde like lite på slutten av en lang strek som i starten.
+    if(SCR.cur && SCR.cur.pts.length>1){
+      if(!SCR.live || SCR.live.s!==SCR.cur) SCR.live = { s: SCR.cur, k: scBegin(SCR.cur, v) };
+      const b = SCR.base.getContext("2d"); b.setTransform(dpr,0,0,dpr,0,0); b.lineCap="round"; b.lineJoin="round";
+      scPieces(b, SCR.cur, v, SCR.colors, SCR.live.k, SCR.cur.pts.length-1);
     }
     ctx.setTransform(1,0,0,1,0,0); ctx.clearRect(0,0,cv.width,cv.height); ctx.drawImage(SCR.base,0,0);
-    if(SCR.cur){ ctx.setTransform(dpr,0,0,dpr,0,0); ctx.lineCap="round"; ctx.lineJoin="round"; scStroke(ctx, SCR.pred && SCR.pred.length ? {...SCR.cur, pts: SCR.cur.pts.concat(SCR.pred)} : SCR.cur, v, SCR.colors); }
+    if(SCR.cur){ ctx.setTransform(dpr,0,0,dpr,0,0); ctx.lineCap="round"; ctx.lineJoin="round";
+      const s = SCR.pred && SCR.pred.length ? {...SCR.cur, pts: SCR.cur.pts.concat(SCR.pred)} : SCR.cur;
+      if(SCR.live && SCR.live.s===SCR.cur) scPieces(ctx, s, v, SCR.colors, {...SCR.live.k}, s.pts.length); else scStroke(ctx, s, v, SCR.colors); }
   });
 }
 function scUndo(){

@@ -119,14 +119,16 @@ I Play Console:
 
 ```
 npx cap add ios
+node tools/ios_pencil.mjs   # Apple Pencil-dobbelttrykk (gjøres også av npm run sync/ios)
 npm run assets
 npm run ios            # bygger, synkroniserer og åpner Xcode
 ```
 I Xcode:
 1. Velg prosjektet **App** → *Signing & Capabilities* → Team: din Apple Developer-konto. Bundle Identifier: `no.axle.app`.
 2. Kjør i simulatoren (▶) og på egen iPhone. Test påminnelser, haptikk og offline.
-3. Skjermbilder: kjør på den største iPhone-simulatoren og trykk ⌘S (lagres på skrivebordet). Ta 3–6 bilder: forsiden, teori, en oppgave, kladdearket og et eksamensresultat.
-4. **Product → Archive** → *Distribute App* → *App Store Connect* → Upload.
+3. Apple Pencil på en fysisk iPad (simulatoren kan ikke dobbelttrykke): se sjekklista «Apple Pencil på iPad» under.
+4. Skjermbilder: kjør på den største iPhone-simulatoren og trykk ⌘S (lagres på skrivebordet). Ta 3–6 bilder: forsiden, teori, en oppgave, kladdearket og et eksamensresultat.
+5. **Product → Archive** → *Distribute App* → *App Store Connect* → Upload.
 
 I App Store Connect (appstoreconnect.apple.com):
 1. **Mine apper → + Ny app**: navn «Axle – læring gjort enkelt» (eller «Axle: Learning Made Simple»), primærspråk norsk, bundle-ID `no.axle.app`, SKU f.eks. `axle-1`.
@@ -134,6 +136,15 @@ I App Store Connect (appstoreconnect.apple.com):
 3. **App-personvern**: *Data som samles inn*: Kontaktinfo → E-postadresse (valgfri, kundestøtte) og Brukerinnhold → Kundestøtte (feilrapporter). Ikke brukt til sporing.
 4. Alder: 4+. Kategori: Utdanning. Pris: gratis.
 5. Velg bygget du lastet opp → **Send til gjennomgang**. Test gjerne først med **TestFlight**.
+
+### Apple Pencil på iPad
+`tools/ios_pencil.mjs` legger `native/ios/AxleBridgeViewController.swift` inn i `ios/App/App/SceneDelegate.swift` (mellom AXLE-PENCIL-START og -END). Dobbelttrykk på Apple Pencil 2 / Pro (og klem på Pro) veksler mellom penn og viskelær i kladdearket når brukeren har valgt «Bytt mellom gjeldende verktøy og viskelær» eller «… forrige verktøy» i Innstillinger → Apple Pencil. Bygget og startet i iPad-simulatoren (Xcode 27, 2026-10-15), men **ikke testet med ekte Pencil**. Sjekk på en fysisk iPad:
+- [ ] Dobbelttrykk veksler penn ↔ viskelær, og knappene viser riktig verktøy (og VoiceOver sier «Viskelær valgt»).
+- [ ] Med «Av» eller «Vis fargepalett» i innstillingene skjer ingenting.
+- [ ] Dobbelttrykk virker også rett etter at du har skrevet i et tekstfelt (det finnes rapporter om at det ikke når fram når en nettvisning har fokus).
+- [ ] Klem (Pencil Pro) gjør det samme, én gang per klem.
+- [ ] Skriving: rask skrift, langsomme kurver, tett skrift og zoom gir jevn strek uten hakk; håndflaten lager ingen prikker; finger flytter arket etter at pennen er brukt; to fingre zoomer, kort trykk med to fingre angrer.
+- [ ] Lange streker henger ikke etter (streken tegnes bit for bit).
 
 Tips mot avvisning (retningslinje 4.2 «minimumsfunksjonalitet»): Axle har offline-bruk, lokal lagring, påminnelser, haptikk, kladdeark og eksamensmodus – nevn det i «Notes for review», og at ingen innlogging trengs.
 
