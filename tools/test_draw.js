@@ -1,11 +1,11 @@
-// Kladdearket (oppgave 17 og 23): hva penn, finger og mus gjør (scRole), og at streken som tegnes bit for bit (scBegin/scPieces i scDraw)
+// Kladdearket (oppgave 17, 23 og 31): hva penn, finger og mus gjør (scRole), og at streken som tegnes bit for bit (scBegin/scPieces i scDraw)
 // gir nøyaktig de samme tegnekommandoene som når hele streken tegnes på nytt (scStroke). Henter funksjonene fra app.js.
 // Bruk: node tools/test_draw.js
 const fs = require('fs'), path = require('path');
 const src = fs.readFileSync(path.join(__dirname, '..', 'app.js'), 'utf8');
 function grab(name){ const i = src.indexOf('function ' + name + '('); if(i < 0) throw new Error('fant ikke ' + name);
   let d = 0, j = src.indexOf('{', i); for(; j < src.length; j++){ if(src[j] === '{') d++; else if(src[j] === '}' && --d === 0) break; } return src.slice(i, j + 1); }
-const F = new Function(['scRole', 'scBegin', 'scPieces', 'scStroke'].map(grab).join('\n') + '\nreturn { scRole, scBegin, scPieces, scStroke };')();
+const F = new Function(['scRole', 'scBegin', 'scPieces', 'scStroke', 'scPredict', 'scBox'].map(grab).join('\n') + '\nreturn { scRole, scBegin, scPieces, scStroke, scPredict, scBox };')();
 const errs = []; let checks = 0; const ok = (c, m) => { checks++; if(!c) errs.push(m); };
 
 // ---------- penn, finger og mus ----------
@@ -62,6 +62,21 @@ for(const pr of [true, false]) for(const view of [{ s: 1, x: 0, y: 0 }, { s: 2.5
     for(let i = 1; i < ws.length; i++) maxJump = Math.max(maxJump, ws[i] / ws[i - 1], ws[i - 1] / ws[i]);
     ok(maxJump <= 1.12 + 1e-4, `bredden hopper ${maxJump.toFixed(3)}× mellom to stykker`); }
 }
+// ferdig strek (oppgave 31): bare de siste stykkene legges inn i mellomlageret, og resultatet er det samme som å tegne hele streken
+for(let run = 0; run < 40; run++){ const view = { s: run % 2 ? 1.7 : 1, x: 5, y: -3 }, pts = [], s = { c: 0, pts, pr: run % 3 ? true : undefined }, colors = ['#000'];
+  const base = rec(); let live = null; pts.push({ x: rnd() * 300, y: rnd() * 300, p: 0.5 });
+  const frames = 1 + Math.floor(rnd() * 8); for(let f = 0; f < frames; f++){ for(let i = 0, k = 1 + Math.floor(rnd() * 4); i < k; i++) pts.push({ x: rnd() * 300, y: rnd() * 300, p: rnd() }); if(!live) live = F.scBegin(s, view); F.scPieces(base, s, view, colors, live, pts.length - 1); }
+  // område som må kopieres til skjermen når streken avsluttes: alle punktene stykkene bruker
+  const box = F.scBox(pts, live.i - 1, view, null); F.scPieces(base, s, view, colors, live, pts.length);
+  const full = rec(); F.scStroke(full, s, view, colors);
+  ok(JSON.stringify(geo(base.ops)) === JSON.stringify(geo(full.ops)), `avsluttet strek ≠ hele streken (løp ${run})`);
+  const last = pts[pts.length - 1], X = last.x * view.s + view.x, Y = last.y * view.s + view.y;
+  ok(box && X >= box.x0 && X <= box.x1 && Y >= box.y0 && Y <= box.y1 && box.p >= Math.max(1, 2.4 * view.s) * 0.8, `området dekker ikke slutten av streken (løp ${run})`); }
+// anslått punkt (Safari): litt fram langs farten, aldri langt
+{ const tr = [{ x: 0, y: 0, t: 0, p: 0.4 }, { x: 10, y: 0, t: 20, p: 0.6 }], q = F.scPredict(tr, 1);
+  ok(q && q.length === 1 && Math.abs(q[0].x - 16) < 1e-9 && q[0].y === 0 && q[0].p === 0.6, 'anslått punkt: ' + JSON.stringify(q));
+  const fast = F.scPredict([{ x: 0, y: 0, t: 0 }, { x: 400, y: 0, t: 10 }], 2); ok(fast && Math.abs(fast[0].x - 400 - 9) < 1e-9, 'anslått punkt er høyst 18 skjermpunkter fram: ' + JSON.stringify(fast));
+  ok(F.scPredict([{ x: 0, y: 0, t: 0 }], 1) === null && F.scPredict([{ x: 0, y: 0, t: 0 }, { x: 0.1, y: 0, t: 30 }], 1) === null, 'ingen anslag uten fart'); }
 // én prikk og to punkter tegnes som før
 { const a = rec(); F.scStroke(a, { c: 0, pts: [{ x: 1, y: 2, p: 0.5 }], pr: true }, { s: 1, x: 0, y: 0 }, ['#000']); ok(a.ops.join('|') === 'ss #000|lw 2.4|M 1 2|L 1.1 2|S', 'prikk: ' + a.ops.join('|')); }
 { const a = rec(); F.scStroke(a, { c: 0, pts: [{ x: 0, y: 0 }, { x: 10, y: 0 }] }, { s: 1, x: 0, y: 0 }, ['#000']); ok(geo(a.ops).join('|') === 'lw 2.4|M 0 0|Q 10 0 10 0|S', 'to punkter: ' + a.ops.join('|')); }

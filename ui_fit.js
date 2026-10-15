@@ -4,6 +4,20 @@
 //  2) Horisontale rader (fag-chips, faner, merker …) kan blas med musehjul, dra med musa og piler på PC.
 //  Kjøres etter hver endring i siden (MutationObserver), samlet i én animasjonsramme.
 // ============================================================
+// 3) iPhone/iPad (Safari og appen): ingen automatisk zoom når et tekstfelt får fokus. maximum-scale=1 stopper den zoomen.
+//    Safari på iOS lar likevel brukeren klypezoome (Apple overstyrer grensen av hensyn til tilgjengelighet); i appen sperrer
+//    Capacitor klypezoom (zoomEnabled er av), og systemets egen Zoom under Tilgjengelighet virker alltid. Ikke på Android:
+//    der ville grensen også stoppe klypezoom i nettleseren.
+const FIT_IOS = typeof navigator !== "undefined" && (/iP(hone|ad|od)/.test(navigator.userAgent || "") || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1));
+if(FIT_IOS && typeof document !== "undefined"){ const m = document.querySelector('meta[name="viewport"]'); if(m && !/maximum-scale/.test(m.content)) m.content += ", maximum-scale=1"; }
+// Klyping med to fingre over en knapp skal ikke trykke på den. Når zoom er av (iOS-appen), gjorde WebKit et klyp over et fagkort om til
+// et klikk (funnet med UI-testen på iPad). Et klikk rett etter berøring med to eller flere fingre ignoreres derfor. Kladdearket og figurene
+// bruker pekerhendelser for to fingre og påvirkes ikke.
+if(typeof window !== "undefined" && window.addEventListener){
+  let fitMulti = -1e9; const fitTouch = e => { if(e.touches && e.touches.length > 1) fitMulti = Date.now(); };
+  window.addEventListener("touchstart", fitTouch, { capture: true, passive: true }); window.addEventListener("touchmove", fitTouch, { capture: true, passive: true });
+  window.addEventListener("click", e => { if(Date.now() - fitMulti < 600){ e.stopImmediatePropagation(); e.preventDefault(); } }, true);
+}
 const FIT_SEL = ".dmath,.fbox .fm,.sim-eq,.tptile .tfx,.tg-val,.tg-fx,.tg-forms,.tg-solve,.tg-gen,.tg-id,.bk-glance .dmath,.cy-e .katex-display,.gd-p .katex-display,.prompt .katex-display";
 const HS_SEL = ".favbar,.study-tabs,.bk-toc,.adm-tabs,.tg-tabs,.sh-friends,.ib-fresh,.ave-tabs,.cd-keys,.cd-steps,.chips,.hscroll,.sw-row";
 const FIT_MIN = 0.55; // aldri mindre enn 55 % av vanlig størrelse

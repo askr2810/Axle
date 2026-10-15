@@ -125,7 +125,7 @@ npm run ios            # bygger, synkroniserer og åpner Xcode
 ```
 I Xcode:
 1. Velg prosjektet **App** → *Signing & Capabilities* → Team: din Apple Developer-konto. Bundle Identifier: `no.axle.app`.
-2. Kjør i simulatoren (▶) og på egen iPhone. Test påminnelser, haptikk og offline.
+2. Kjør i simulatoren (▶) og på egen iPhone. Test påminnelser, haptikk og offline. Simulator, signering for egen enhet, zoom og UI-testen: `docs/IPHONE.md`.
 3. Apple Pencil på en fysisk iPad (simulatoren kan ikke dobbelttrykke): se sjekklista «Apple Pencil på iPad» under.
 4. Skjermbilder: kjør på den største iPhone-simulatoren og trykk ⌘S (lagres på skrivebordet). Ta 3–6 bilder: forsiden, teori, en oppgave, kladdearket og et eksamensresultat.
 5. **Product → Archive** → *Distribute App* → *App Store Connect* → Upload.
@@ -145,6 +145,7 @@ I App Store Connect (appstoreconnect.apple.com):
 - [ ] Klem (Pencil Pro) gjør det samme, én gang per klem.
 - [ ] Skriving: rask skrift, langsomme kurver, tett skrift og zoom gir jevn strek uten hakk; håndflaten lager ingen prikker; finger flytter arket etter at pennen er brukt; to fingre zoomer, kort trykk med to fingre angrer.
 - [ ] Lange streker henger ikke etter (streken tegnes bit for bit).
+- [ ] Rask skrift (oppgave 31): skriv en lang linje fort med mye kladd på arket – ingen bokstaver mangler starten, ingen strøk forsvinner, og streken holder følge med spissen. Prøv også med Scribble på (Innstillinger → Apple Pencil).
 
 Tips mot avvisning (retningslinje 4.2 «minimumsfunksjonalitet»): Axle har offline-bruk, lokal lagring, påminnelser, haptikk, kladdeark og eksamensmodus – nevn det i «Notes for review», og at ingen innlogging trengs.
 

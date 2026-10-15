@@ -31,6 +31,8 @@
 }
 *{box-sizing:border-box}
 html,body{height:100%}
+/* mobil: ingen dobbelttrykkzoom i Chrome/Android og i iOS-appen; Safari på iOS zoomer likevel, se docs/IPHONE.md (rulling og klyping virker fortsatt; tegneflater og dra-kontroller har egen touch-action), og iOS skal ikke forstørre teksten ved rotasjon */
+html{touch-action:manipulation;-webkit-text-size-adjust:100%;text-size-adjust:100%}
 /* Fast plass til rullefeltet: i Safari/Mac-appen regnes bredden uten rullefeltet, så uten dette byttet oppsettet
    mellom PC og mobil (bruddpunkt 1100px) når en side ble lang nok til å få rullefelt (f.eks. Venner som laster inn). */
 html{scrollbar-gutter:stable}
@@ -3518,3 +3520,8 @@ details.cat-mc{margin:6px 0}details.cat-mc>summary{cursor:pointer;font-size:12px
 .dialog input#lgjcode{font-family:var(--mono);letter-spacing:.15em;text-transform:uppercase}
 .el-links{display:flex;flex-wrap:wrap;gap:6px 18px;margin:6px 0 0}.el-links a{color:var(--accent);font-weight:700;min-height:44px;display:inline-flex;align-items:center}
 .el-priv{border-color:color-mix(in srgb,var(--gold) 45%,var(--line))}
+/* mobil: tekstfelt under 16 px får iPhone til å zoome inn når de får fokus. På berøringsskjerm er alle tekstfelt minst 16 px. */
+@media (pointer:coarse){ #bkcode,.md-name,.md-card textarea,.md-paste,.sh-link input,.ib-gname input{font-size:16px} }
+/* kladdearket på smale telefoner (320–360 px): fanene krymper, lukkeknappen blir alltid synlig */
+.sc-top .sc-tabs{min-width:0;flex:0 1 auto}.sc-top > :last-child{flex:none}
+@media (max-width:360px){ .sc-tabs button{padding:7px 9px;font-size:14px} }

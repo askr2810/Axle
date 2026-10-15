@@ -996,7 +996,7 @@ function scRole(e, mode, pen, penDown, tool){
 function initCanvas(){
   const cv = document.getElementById("sccv"); if(!cv) return;
   const st = scratchState(), ctx = cv.getContext("2d");
-  SCR = { cv, ctx, ptrs:new Map(), cur:null, pinch:null, pan:null, erasing:false, pen:false, penId:null, tap2:null, base:null, dirty:true, raf:0, w:1, h:1, dpr:1 };
+  SCR = { cv, ctx, ptrs:new Map(), cur:null, curId:null, fin:[], tr:[], box:null, rect:null, pinch:null, pan:null, erasing:false, pen:false, penId:null, tap2:null, base:null, dirty:true, raf:0, w:1, h:1, dpr:1 };
   const cs = getComputedStyle(document.documentElement);
   SCR.colors = INKS.map(v=>cs.getPropertyValue(v).trim()||"#222"); SCR.grid = cs.getPropertyValue("--line").trim()||"#ddd";
   // Oppløsning: like mange lerretspiksler som skjermpiksler, også etter rotasjon, vindusendring, bytte av skjerm (annen
@@ -1009,14 +1009,21 @@ function initCanvas(){
     if(devBox && zoom===1 && Math.abs(devBox[0]-w)<=2 && Math.abs(devBox[1]-h)<=2){ w = devBox[0]; h = devBox[1]; } // eksakte piksler, bare som avrundingsretting
     const cap = Math.sqrt(16e6/(w*h)); if(cap<1){ w = Math.floor(w*cap); h = Math.floor(h*cap); }
     if(cv.width!==w || cv.height!==h){ cv.width = Math.max(1,w); cv.height = Math.max(1,h); }
-    SCR.dpr = cv.width/r.width; SCR.raw = dpr; SCR.w=r.width; SCR.h=r.height; SCR.dirty = true; scDraw(); };
+    SCR.dpr = cv.width/r.width; SCR.raw = dpr; SCR.rect = r; SCR.w=r.width; SCR.h=r.height; SCR.dirty = true; scDraw(); };
   if(window.ResizeObserver){ SCR.ro = new ResizeObserver(en => { const b = en[0] && en[0].devicePixelContentBoxSize && en[0].devicePixelContentBoxSize[0]; devBox = b ? [b.inlineSize, b.blockSize] : null; resize(); });
     try{ SCR.ro.observe(cv, { box: "device-pixel-content-box" }); }catch(e){ SCR.ro.observe(cv); } }
   const watchDpr = () => { const mq = matchMedia(`(resolution: ${window.devicePixelRatio||1}dppx)`), f = () => { mq.removeEventListener("change", f); if(SCR && SCR.cv===cv){ devBox = null; resize(); watchDpr(); } }; mq.addEventListener("change", f); };
   try{ watchDpr(); }catch(e){}
   if(window.visualViewport){ if(initCanvas.vv) visualViewport.removeEventListener("resize", initCanvas.vv); initCanvas.vv = resize; visualViewport.addEventListener("resize", resize); }
   resize();
-  const pos = e => { const r = cv.getBoundingClientRect(); return {x:e.clientX-r.left, y:e.clientY-r.top}; };
+  // Lerretets plass leses ved pointerdown (og ved endret størrelse), ikke for hvert punkt: rask skrift gir mange punkter per bilde.
+  const pos = e => { const r = SCR.rect || (SCR.rect = cv.getBoundingClientRect()); return {x:e.clientX-r.left, y:e.clientY-r.top}; };
+  // Safari/iOS: berøring på lerretet skal bare bli pekerhendelser. Ellers kan Scribble (håndskrift til tekst) og iOS' bevegelsesgjenkjenning
+  // holde igjen eller ta korte, raske pennestrøk. touch-action: none står også i CSS.
+  const noTouch = e => { if(e.cancelable) e.preventDefault(); };
+  cv.addEventListener("touchstart", noTouch, {passive:false}); cv.addEventListener("touchmove", noTouch, {passive:false});
+  // Strek som er ferdig: siste stykke legges inn i mellomlageret (scDraw), i stedet for å tegne hele arket på nytt.
+  const finish = () => { if(SCR.cur){ SCR.fin.push(SCR.cur); SCR.cur = null; SCR.curId = null; SCR.pred = null; SCR.tr = []; } };
   const toW = p => ({ x:(p.x-st.view.x)/st.view.s, y:(p.y-st.view.y)/st.view.s });
   const eraseAt = w => { const rad = 12/st.view.s; const hit=[]; st.strokes.forEach((s,i)=>{ if(s.pts.some(p=>Math.hypot(p.x-w.x,p.y-w.y)<rad)) hit.push(i); });
     if(hit.length){ const removed = hit.map(i=>({i, s:st.strokes[i]})); for(let k=hit.length-1;k>=0;k--) st.strokes.splice(hit[k],1); st.hist.push({erase:removed}); scDraw(); } };
@@ -1025,6 +1032,7 @@ function initCanvas(){
   const touchesOf = () => [...SCR.ptrs.values()].filter(p=>p.type!=="pen");
   cv.addEventListener("pointerdown", e=>{
     // pikseltettheten kan ha endret seg uten hendelse (noen nettlesere ved bytte av skjerm): sjekk før streken starter
+    SCR.rect = cv.getBoundingClientRect();
     if((window.devicePixelRatio||1) * Math.max(1, (window.visualViewport && visualViewport.scale) || 1) !== SCR.raw){ devBox = null; resize(); }
     const isPen = e.pointerType==="pen";
     if(isPen && scMode()!=="touch"){
@@ -1048,7 +1056,9 @@ function initCanvas(){
     if(role==="pan"){ SCR.pan = { p0:pos(e), v0:{...st.view} }; return; }
     const w = toW(pos(e));
     if(role==="erase"){ SCR.erasing = true; eraseAt(w); return; }
-    SCR.cur = { c:st.color, pts:[isPen ? {...w, p:e.pressure||0.5} : w], pr: isPen || undefined }; st.strokes.push(SCR.cur); st.hist.push({add:true}); scDraw(true);
+    finish();
+    SCR.cur = { c:st.color, pts:[isPen ? {...w, p:e.pressure||0.5} : w], pr: isPen || undefined }; SCR.curId = e.pointerId; SCR.tr = [{...w, t:e.timeStamp}];
+    st.strokes.push(SCR.cur); st.hist.push({add:true}); scDraw(true);
   });
   cv.addEventListener("pointermove", e=>{
     if(!SCR.ptrs.has(e.pointerId)) return;
@@ -1062,17 +1072,21 @@ function initCanvas(){
     if(SCR.pan){ const p = pos(e); st.view = { ...SCR.pan.v0, x: SCR.pan.v0.x + p.x - SCR.pan.p0.x, y: SCR.pan.v0.y + p.y - SCR.pan.p0.y }; scDraw(); return; }
     if(SCR.erasing){ eraseAt(toW(pos(e))); return; }
     if(SCR.cur){ const evs = e.getCoalescedEvents ? e.getCoalescedEvents() : [e], pt = ev => SCR.cur.pr ? {...toW(pos(ev)), p:ev.pressure||e.pressure||0.5} : toW(pos(ev));
-      (evs.length?evs:[e]).forEach(ev=>SCR.cur.pts.push(pt(ev)));
-      // anslåtte punkter (Chrome/Edge): tegnes bare foreløpig, så streken holder følge med pennen; lagres aldri
-      SCR.pred = e.getPredictedEvents ? e.getPredictedEvents().slice(0, 3).map(pt) : null; scDraw(true); }
+      (evs.length?evs:[e]).forEach(ev=>{ const q = pt(ev); SCR.cur.pts.push(q); SCR.tr.push({...q, t:ev.timeStamp||e.timeStamp}); });
+      while(SCR.tr.length>2 && SCR.tr[SCR.tr.length-1].t - SCR.tr[0].t > 60) SCR.tr.shift();
+      // anslåtte punkter: tegnes bare foreløpig, så streken holder følge med pennen; lagres aldri. Chrome/Edge gir dem selv,
+      // ellers (Safari på iPad) regnes ett punkt litt fram langs farten (scPredict).
+      const pe = e.getPredictedEvents ? e.getPredictedEvents().slice(0, 3).map(pt) : [];
+      SCR.pred = pe.length ? pe : scPredict(SCR.tr, st.view.s); scDraw(true); }
   });
   const end = e => {
     if(!SCR.ptrs.has(e.pointerId)) return;
     SCR.ptrs.delete(e.pointerId);
     if(e.pointerId===SCR.penId) SCR.penId = null;
+    if(e.pointerId===SCR.curId){ finish(); scDraw(true); }
     if(touchesOf().length<2) SCR.pinch=null;
     if(SCR.tap2 && !touchesOf().length){ const tp = SCR.tap2; SCR.tap2 = null; if(!tp.moved && Date.now()-tp.t0 < 350 && e.type==="pointerup"){ scUndo(); buzz(true); } }
-    if(!SCR.ptrs.size){ if(SCR.cur) SCR.dirty = true; SCR.cur=null; SCR.pred=null; SCR.pan=null; SCR.erasing=false; scDraw(); }
+    if(!SCR.ptrs.size){ finish(); SCR.pan=null; SCR.erasing=false; scDraw(true); }
   };
   cv.addEventListener("pointerup", end); cv.addEventListener("pointercancel", end);
   cv.addEventListener("contextmenu", e=>e.preventDefault());
@@ -1129,12 +1143,26 @@ function scStroke(ctx, s, v, colors){
   if(P.length===1){ ctx.strokeStyle = colors[s.c]||colors[0]; ctx.lineWidth = base*(s.pr ? 0.5+P[0].p : 1); ctx.beginPath(); ctx.moveTo(X(P[0]),Y(P[0])); ctx.lineTo(X(P[0])+0.1,Y(P[0])); ctx.stroke(); return; }
   scPieces(ctx, s, v, colors, scBegin(s, v), P.length);
 }
+// Anslått neste punkt når nettleseren ikke gir egne (Safari): farten over de siste ca. 60 ms, 12 ms fram, høyst 18 skjermpunkter.
+function scPredict(tr, zoom){
+  if(!tr || tr.length<2) return null; const a = tr[0], b = tr[tr.length-1], dt = b.t - a.t; if(!(dt>4)) return null;
+  let dx = (b.x-a.x)/dt*12, dy = (b.y-a.y)/dt*12; const d = Math.hypot(dx, dy)*zoom, cap = 18; if(d<0.5) return null;
+  if(d>cap){ dx *= cap/d; dy *= cap/d; } const q = { x:b.x+dx, y:b.y+dy }; if(b.p!=null) q.p = b.p; return [q];
+}
+// Område (skjermpunkter) som stykkene fra punkt i0 og ut dekker, med plass til den tykkeste streken.
+function scBox(pts, i0, v, box){
+  const pad = Math.max(1, 2.4*v.s)*0.9 + 3;
+  for(let i = Math.max(0, i0); i<pts.length; i++){ const x = pts[i].x*v.s+v.x, y = pts[i].y*v.s+v.y;
+    if(!box) box = { x0:x, y0:y, x1:x, y1:y }; else { if(x<box.x0) box.x0 = x; if(y<box.y0) box.y0 = y; if(x>box.x1) box.x1 = x; if(y>box.y1) box.y1 = y; } }
+  if(box) box.p = Math.max(box.p||0, pad); return box;
+}
 function scDraw(live){
   if(!SCR) return; if(!live) SCR.dirty = true; cancelAnimationFrame(SCR.raf);
   SCR.raf = requestAnimationFrame(()=>{
     if(!SCR) return;
     const st = scratchState(), {ctx, dpr, cv} = SCR, v = st.view, W = SCR.w, H = SCR.h;
     if(!SCR.base || SCR.base.width!==cv.width || SCR.base.height!==cv.height){ SCR.base = document.createElement("canvas"); SCR.base.width = cv.width; SCR.base.height = cv.height; SCR.dirty = true; }
+    const full = SCR.dirty; let box = null; const grow = (pts, i0) => { box = scBox(pts, i0, v, box); };
     if(SCR.dirty){
       const b = SCR.base.getContext("2d"); b.setTransform(dpr,0,0,dpr,0,0); b.clearRect(0,0,W,H);
       const g = 24*v.s;
@@ -1144,16 +1172,36 @@ function scDraw(live){
         b.stroke(); }
       b.lineCap="round"; b.lineJoin="round";
       for(const s of st.strokes) if(s!==SCR.cur) scStroke(b, s, v, SCR.colors);
-      SCR.dirty = false; SCR.live = null;
+      SCR.dirty = false; SCR.live = null; SCR.fin.length = 0;
+    }
+    // Ferdige streker: bare stykkene som ikke alt ligger i mellomlageret, legges inn (en prikk eller kort strek tegnes hel).
+    if(SCR.fin.length){
+      const b = SCR.base.getContext("2d"); b.setTransform(dpr,0,0,dpr,0,0); b.lineCap="round"; b.lineJoin="round";
+      for(const s of SCR.fin){ if(SCR.live && SCR.live.s===s){ grow(s.pts, SCR.live.k.i-1); scPieces(b, s, v, SCR.colors, SCR.live.k, s.pts.length); SCR.live = null; }
+        else { grow(s.pts, 0); scStroke(b, s, v, SCR.colors); } }
+      SCR.fin.length = 0;
     }
     // Streken som tegnes nå: ferdige stykker legges inn i bakgrunnen én gang; bare det siste stykket (og anslåtte punkter) tegnes i hvert bilde.
     // Da koster et bilde like lite på slutten av en lang strek som i starten.
-    if(SCR.cur && SCR.cur.pts.length>1){
-      if(!SCR.live || SCR.live.s!==SCR.cur) SCR.live = { s: SCR.cur, k: scBegin(SCR.cur, v) };
-      const b = SCR.base.getContext("2d"); b.setTransform(dpr,0,0,dpr,0,0); b.lineCap="round"; b.lineJoin="round";
-      scPieces(b, SCR.cur, v, SCR.colors, SCR.live.k, SCR.cur.pts.length-1);
+    if(SCR.cur){
+      if(SCR.cur.pts.length>1 && (!SCR.live || SCR.live.s!==SCR.cur)) SCR.live = { s: SCR.cur, k: scBegin(SCR.cur, v) };
+      const lv = SCR.live && SCR.live.s===SCR.cur;
+      grow(SCR.cur.pts, lv ? SCR.live.k.i-1 : 0); if(SCR.pred) grow(SCR.pred, 0);
+      if(lv){ const b = SCR.base.getContext("2d"); b.setTransform(dpr,0,0,dpr,0,0); b.lineCap="round"; b.lineJoin="round";
+        scPieces(b, SCR.cur, v, SCR.colors, SCR.live.k, SCR.cur.pts.length-1); }
     }
-    ctx.setTransform(1,0,0,1,0,0); ctx.clearRect(0,0,cv.width,cv.height); ctx.drawImage(SCR.base,0,0);
+    // Til skjermen: hele arket når alt er tegnet på nytt, ellers bare området rundt pennen (og det som ble tegnet der i forrige bilde).
+    // Et helt lerret på iPad er mange millioner piksler; å kopiere alt for hvert bilde gjorde rask skrift treg.
+    const prev = SCR.box; SCR.box = box;
+    if(full) { ctx.setTransform(1,0,0,1,0,0); ctx.clearRect(0,0,cv.width,cv.height); ctx.drawImage(SCR.base,0,0); }
+    else {
+      if(prev) box = box ? { x0:Math.min(box.x0,prev.x0), y0:Math.min(box.y0,prev.y0), x1:Math.max(box.x1,prev.x1), y1:Math.max(box.y1,prev.y1), p:Math.max(box.p,prev.p) } : prev;
+      if(!box) return;
+      const x0 = Math.max(0, Math.floor((box.x0-box.p)*dpr)), y0 = Math.max(0, Math.floor((box.y0-box.p)*dpr)),
+        x1 = Math.min(cv.width, Math.ceil((box.x1+box.p)*dpr)), y1 = Math.min(cv.height, Math.ceil((box.y1+box.p)*dpr));
+      if(x1<=x0 || y1<=y0) return;
+      ctx.setTransform(1,0,0,1,0,0); ctx.clearRect(x0,y0,x1-x0,y1-y0); ctx.drawImage(SCR.base,x0,y0,x1-x0,y1-y0,x0,y0,x1-x0,y1-y0);
+    }
     if(SCR.cur){ ctx.setTransform(dpr,0,0,dpr,0,0); ctx.lineCap="round"; ctx.lineJoin="round";
       const s = SCR.pred && SCR.pred.length ? {...SCR.cur, pts: SCR.cur.pts.concat(SCR.pred)} : SCR.cur;
       if(SCR.live && SCR.live.s===SCR.cur) scPieces(ctx, s, v, SCR.colors, {...SCR.live.k}, s.pts.length); else scStroke(ctx, s, v, SCR.colors); }
