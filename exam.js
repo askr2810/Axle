@@ -321,7 +321,20 @@ function examHomeSection(c) {
       <span class="t"><b>${esc(t("exName", v))}</b><span>${esc(t("exMeta", bp.nParts, bp.pts, exDur(bp.recMin)))}</span></span>
       <span class="exside" aria-hidden="true">${side}</span></button>`;
   }
-  return `<section class="exsec" id="exams" aria-labelledby="exsec-h"><div class="exsec-h"><h2 id="exsec-h">${esc(t("exSection"))}</h2><p>${esc(t("exIntro"))}</p></div><div class="exlist">${cards}</div></section>`;
+  return `<section class="exsec" id="exams" aria-labelledby="exsec-h"><div class="exsec-h"><h2 id="exsec-h">${esc(t("exSection"))}</h2><p>${esc(t("exIntro"))}</p></div><div class="exlist">${cards}</div>${udirExamsHTML(c)}</section>`;
+}
+
+// ---------- tidligere eksamensoppgaver hos Udir ----------
+// Bare en lenke til Udirs egen søkeside: Axle henter, kopierer eller bygger ikke inn oppgaver, PDF-er eller fasiter
+// (gjenbruksrettighetene er ikke avklart). Udir har ingen dokumenterte lenker per fag eller år, så eleven velger det hos Udir.
+// Passordteksten følger Udirs egen side «Forberede og ta eksamen» (udir.no/eksamen-og-prover/eksamen/forberede-og-ta-eksamen/).
+const UDIR_EXAMS_URL = "https://sokeresultat.udir.no/eksamensoppgaver.html?ExCatalogTypeName=Eksamensoppgaver";
+// Fag med sentralt gitt eksamen fra Udir: videregående og matematikk på ungdomsskolen.
+const udirExamsFor = c => !!c && (/^VGS:/.test(c.group || "") || c.code === "GU810");
+function udirExamsHTML(c) {
+  if (!udirExamsFor(c)) return "";
+  return `<div class="udx"><a class="udx-a" href="${UDIR_EXAMS_URL}" target="_blank" rel="noopener noreferrer" aria-describedby="udx-d">${esc(T("Tidligere eksamensoppgaver fra Udir", "Past exam papers from Udir"))}<span class="udx-sr"> ${esc(T("(åpnes i ny fane)", "(opens in a new tab)"))}</span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/></svg></a>
+    <p id="udx-d">${esc(T("Udirs nettsted: søk på fagnavn eller fagkode og velg år. Udir opplyser at oppgavene er passordbeskyttet, og at skolen kan gi deg passordet.", "Udir's website (in Norwegian): search by subject name or code and choose a year. Udir says the papers are password-protected and that your school can give you the password."))}</p></div>`;
 }
 
 // ---------- oppsett ----------
