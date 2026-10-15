@@ -3395,3 +3395,4 @@ details.cat-mc{margin:6px 0}details.cat-mc>summary{cursor:pointer;font-size:12px
 .dl .dl-help p{margin:10px 0 4px}.dl .dl-steps{margin:0;padding-left:22px;font-size:14px;line-height:1.45}.dl .dl-steps li{margin:4px 0}
 .dl .dl-old,.dl .dl-why{font-size:13px;color:var(--muted)}
 .dl .dl-help a{color:var(--accent);font-weight:600}
+.sc-canvas.erase canvas{cursor:cell} /* viskelær: annen markør enn pennen */

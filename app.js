@@ -951,8 +951,8 @@ const scMode = () => S.scInput === "pen" || S.scInput === "touch" ? S.scInput : 
 function scratchHTML(){
   const host = scHost(), st = scratchState(), it = host.item;
   const draw = `<div class="sc-tools">
-      <button class="tbtn ${st.tool==="pen"?"on":""}" data-a="sctool" data-t="pen" aria-label="${t("scPen")}" title="${t("scPen")}">${I.pen}</button>
-      <button class="tbtn ${st.tool==="eraser"?"on":""}" data-a="sctool" data-t="eraser" aria-label="${t("scEraser")}" title="${t("scEraser")}">${I.eraser}</button>
+      <button class="tbtn ${st.tool==="pen"?"on":""}" data-a="sctool" data-t="pen" aria-pressed="${st.tool==="pen"}" aria-label="${t("scPen")}" title="${esc(t("scPen")+" (E)")}">${I.pen}</button>
+      <button class="tbtn ${st.tool==="eraser"?"on":""}" data-a="sctool" data-t="eraser" aria-pressed="${st.tool==="eraser"}" aria-label="${t("scEraser")}" title="${esc(t("scEraser")+" (E)")}">${I.eraser}</button>
       ${INKS.map((v,i)=>`<button class="swatch ${st.color===i?"on":""}" data-a="sccolor" data-i="${i}" style="background:var(${v})" aria-label="${t("scPen")} ${i+1}"></button>`).join("")}
       <span class="sc-sep"></span>
       <button class="tbtn" data-a="scundo" aria-label="${t("scUndo")}" title="${t("scUndo")}">${I.undo}</button>
@@ -963,7 +963,7 @@ function scratchHTML(){
       <button class="tbtn" data-a="scfit" aria-label="${t("scFit")}" title="${t("scFit")}">${I.fit}</button>
       <span class="sc-sep"></span>
       <div class="sc-mode" role="radiogroup" aria-label="${esc(t("scInput"))}">${["auto","pen","touch"].map(m=>`<button role="radio" aria-checked="${scMode()===m}" class="${scMode()===m?"on":""}" data-a="scinput" data-m="${m}" title="${esc(t("scInTip_"+m))}">${esc(t("scIn_"+m))}</button>`).join("")}</div>
-    </div><div class="sc-canvas"><canvas id="sccv"></canvas></div><p class="sc-tip">${t("scTip_"+scMode())}</p>`;
+    </div><div class="sc-canvas ${st.tool==="eraser"?"erase":""}"><canvas id="sccv"></canvas></div><p class="sr" id="sclive" aria-live="polite"></p><p class="sc-tip">${t("scTip_"+scMode())}</p>`;
   const keys = ["√(","^","π","(",")","sin(","cos(","tan(","ln(","°","e"];
   const calc = `<div class="calc"><div class="calc-lines" id="calclines" aria-live="polite"></div>
       <div class="calc-keys">${keys.map(k=>`<button data-a="calckey" data-k="${esc(k)}">${esc(k.length>1?k.replace("(",""):k)}</button>`).join("")}<button class="mode" data-a="calcmode">${st.calc.mode==="deg"?"DEG":"RAD"}</button></div>
@@ -1049,6 +1049,18 @@ function initCanvas(){
     else if(e.shiftKey){ st.view = {...st.view, x: st.view.x - e.deltaY}; scDraw(); }
     else { scZoom(Math.exp(-e.deltaY*0.0015), p); } }, {passive:false});
 }
+// Bytt mellom penn og viskelær: knappene, tasten E og (senere) Apple Pencil-dobbelttrykk via en native bro i iOS-appen.
+// Verktøyet leses ved pointerdown, så en strek som er i gang, fullføres med verktøyet den startet med.
+function scSetTool(tool, quiet){
+  const st = scratchState(); st.tool = tool === "eraser" ? "eraser" : "pen";
+  document.querySelectorAll('[data-a="sctool"]').forEach(x=>{ const on = x.dataset.t===st.tool; x.classList.toggle("on", on); x.setAttribute("aria-pressed", on); });
+  const box = document.querySelector(".sc-canvas"); if(box) box.classList.toggle("erase", st.tool==="eraser");
+  const live = document.getElementById("sclive"); if(live && !quiet) live.textContent = st.tool==="eraser" ? T("Viskelær valgt", "Eraser selected") : T("Penn valgt", "Pen selected");
+}
+const scToggleTool = () => { if(overlay && overlay.scratch && scratchState().tab==="draw") scSetTool(scratchState().tool==="eraser" ? "pen" : "eraser"); };
+document.addEventListener("keydown", e=>{ if((e.key==="e"||e.key==="E") && !e.ctrlKey && !e.metaKey && !e.altKey && !(e.target.closest && e.target.closest("input,textarea,[contenteditable]"))) scToggleTool(); });
+// Native bro (ikke laget ennå, se docs/OPPGAVER_TERMINAL.md oppgave 16): iOS-appen kan sende window.dispatchEvent(new Event("axle-pencil-tap")).
+window.addEventListener("axle-pencil-tap", scToggleTool);
 function scZoom(f, p){
   const st = scratchState(); if(!SCR) return; p = p || {x:SCR.w/2, y:SCR.h/2};
   const s = Math.min(8, Math.max(0.2, st.view.s*f)); const wx = (p.x-st.view.x)/st.view.s, wy = (p.y-st.view.y)/st.view.s;
@@ -1556,8 +1568,8 @@ document.addEventListener("click", async e=>{
   else if(a==="scclose"){ overlay=null; renderOverlay(); if(screen==="lesson"||screen==="exam") render(); }
   else if(a==="scinput"){ S.scInput = b.dataset.m; save(); renderOverlay(); toast(t("scInTip_"+scMode())); }
   else if(a==="sctab"){ scratchState().tab = b.dataset.t; renderOverlay(); }
-  else if(a==="sctool"){ scratchState().tool = b.dataset.t; document.querySelectorAll('[data-a="sctool"]').forEach(x=>x.classList.toggle("on", x.dataset.t===b.dataset.t)); }
-  else if(a==="sccolor"){ const st=scratchState(); st.color = +b.dataset.i; st.tool="pen"; document.querySelectorAll('[data-a="sccolor"]').forEach(x=>x.classList.toggle("on", +x.dataset.i===st.color)); document.querySelectorAll('[data-a="sctool"]').forEach(x=>x.classList.toggle("on", x.dataset.t==="pen")); }
+  else if(a==="sctool"){ scSetTool(b.dataset.t); }
+  else if(a==="sccolor"){ const st=scratchState(); st.color = +b.dataset.i; document.querySelectorAll('[data-a="sccolor"]').forEach(x=>x.classList.toggle("on", +x.dataset.i===st.color)); scSetTool("pen", st.tool==="pen"); }
   else if(a==="scundo"){ scUndo(); }
   else if(a==="scclear"){ const st=scratchState(); if(st.strokes.length){ st.hist.push({clear:st.strokes}); st.strokes=[]; scDraw(); } }
   else if(a==="sczoom"){ scZoom(+b.dataset.f); }
