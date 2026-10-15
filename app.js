@@ -985,8 +985,23 @@ function initCanvas(){
   SCR = { cv, ctx, ptrs:new Map(), cur:null, pinch:null, pan:null, erasing:false, pen:false, penId:null, tap2:null, base:null, dirty:true, raf:0, w:1, h:1, dpr:1 };
   const cs = getComputedStyle(document.documentElement);
   SCR.colors = INKS.map(v=>cs.getPropertyValue(v).trim()||"#222"); SCR.grid = cs.getPropertyValue("--line").trim()||"#ddd";
-  const resize = () => { const r = cv.getBoundingClientRect(), dpr = window.devicePixelRatio||1; cv.width = Math.max(1,Math.round(r.width*dpr)); cv.height = Math.max(1,Math.round(r.height*dpr)); SCR.dpr=dpr; SCR.w=r.width; SCR.h=r.height; scDraw(); };
-  if(window.ResizeObserver){ SCR.ro = new ResizeObserver(resize); SCR.ro.observe(cv); } resize();
+  // Oppløsning: like mange lerretspiksler som skjermpiksler, også etter rotasjon, vindusendring, bytte av skjerm (annen
+  // pikseltetthet) og zoom av siden på iPad (visualViewport.scale). device-pixel-content-box gir eksakte piksler der det støttes;
+  // ellers regnes de ut. Taket (ca. 16 mill. piksler) er under grensen for lerret i Safari på iOS.
+  let devBox = null;
+  const resize = () => { if(!SCR || SCR.cv!==cv) return; const r = cv.getBoundingClientRect(); if(!r.width || !r.height) return;
+    const zoom = Math.max(1, (window.visualViewport && visualViewport.scale) || 1), dpr = (window.devicePixelRatio||1) * zoom;
+    let w = Math.round(r.width*dpr), h = Math.round(r.height*dpr);
+    if(devBox && zoom===1 && Math.abs(devBox[0]-w)<=2 && Math.abs(devBox[1]-h)<=2){ w = devBox[0]; h = devBox[1]; } // eksakte piksler, bare som avrundingsretting
+    const cap = Math.sqrt(16e6/(w*h)); if(cap<1){ w = Math.floor(w*cap); h = Math.floor(h*cap); }
+    if(cv.width!==w || cv.height!==h){ cv.width = Math.max(1,w); cv.height = Math.max(1,h); }
+    SCR.dpr = cv.width/r.width; SCR.raw = dpr; SCR.w=r.width; SCR.h=r.height; SCR.dirty = true; scDraw(); };
+  if(window.ResizeObserver){ SCR.ro = new ResizeObserver(en => { const b = en[0] && en[0].devicePixelContentBoxSize && en[0].devicePixelContentBoxSize[0]; devBox = b ? [b.inlineSize, b.blockSize] : null; resize(); });
+    try{ SCR.ro.observe(cv, { box: "device-pixel-content-box" }); }catch(e){ SCR.ro.observe(cv); } }
+  const watchDpr = () => { const mq = matchMedia(`(resolution: ${window.devicePixelRatio||1}dppx)`), f = () => { mq.removeEventListener("change", f); if(SCR && SCR.cv===cv){ devBox = null; resize(); watchDpr(); } }; mq.addEventListener("change", f); };
+  try{ watchDpr(); }catch(e){}
+  if(window.visualViewport){ if(initCanvas.vv) visualViewport.removeEventListener("resize", initCanvas.vv); initCanvas.vv = resize; visualViewport.addEventListener("resize", resize); }
+  resize();
   const pos = e => { const r = cv.getBoundingClientRect(); return {x:e.clientX-r.left, y:e.clientY-r.top}; };
   const toW = p => ({ x:(p.x-st.view.x)/st.view.s, y:(p.y-st.view.y)/st.view.s });
   const eraseAt = w => { const rad = 12/st.view.s; const hit=[]; st.strokes.forEach((s,i)=>{ if(s.pts.some(p=>Math.hypot(p.x-w.x,p.y-w.y)<rad)) hit.push(i); });
@@ -996,6 +1011,8 @@ function initCanvas(){
   const isPalm = e => scMode()!=="touch" && e.pointerType==="touch" && (SCR.penId!=null || ((SCR.pen || scMode()==="pen") && (e.width>40 || e.height>40)));
   const touchesOf = () => [...SCR.ptrs.values()].filter(p=>p.type!=="pen");
   cv.addEventListener("pointerdown", e=>{
+    // pikseltettheten kan ha endret seg uten hendelse (noen nettlesere ved bytte av skjerm): sjekk før streken starter
+    if((window.devicePixelRatio||1) * Math.max(1, (window.visualViewport && visualViewport.scale) || 1) !== SCR.raw){ devBox = null; resize(); }
     const isPen = e.pointerType==="pen";
     if(isPen && scMode()!=="touch"){
       SCR.pen = true; SCR.penId = e.pointerId;
@@ -1031,8 +1048,10 @@ function initCanvas(){
     }
     if(SCR.pan){ const p = pos(e); st.view = { ...SCR.pan.v0, x: SCR.pan.v0.x + p.x - SCR.pan.p0.x, y: SCR.pan.v0.y + p.y - SCR.pan.p0.y }; scDraw(); return; }
     if(SCR.erasing){ eraseAt(toW(pos(e))); return; }
-    if(SCR.cur){ const evs = e.getCoalescedEvents ? e.getCoalescedEvents() : [e];
-      (evs.length?evs:[e]).forEach(ev=>SCR.cur.pts.push(SCR.cur.pr ? {...toW(pos(ev)), p:ev.pressure||e.pressure||0.5} : toW(pos(ev)))); scDraw(true); }
+    if(SCR.cur){ const evs = e.getCoalescedEvents ? e.getCoalescedEvents() : [e], pt = ev => SCR.cur.pr ? {...toW(pos(ev)), p:ev.pressure||e.pressure||0.5} : toW(pos(ev));
+      (evs.length?evs:[e]).forEach(ev=>SCR.cur.pts.push(pt(ev)));
+      // anslåtte punkter (Chrome/Edge): tegnes bare foreløpig, så streken holder følge med pennen; lagres aldri
+      SCR.pred = e.getPredictedEvents ? e.getPredictedEvents().slice(0, 3).map(pt) : null; scDraw(true); }
   });
   const end = e => {
     if(!SCR.ptrs.has(e.pointerId)) return;
@@ -1040,7 +1059,7 @@ function initCanvas(){
     if(e.pointerId===SCR.penId) SCR.penId = null;
     if(touchesOf().length<2) SCR.pinch=null;
     if(SCR.tap2 && !touchesOf().length){ const tp = SCR.tap2; SCR.tap2 = null; if(!tp.moved && Date.now()-tp.t0 < 350 && e.type==="pointerup"){ scUndo(); buzz(true); } }
-    if(!SCR.ptrs.size){ if(SCR.cur) SCR.dirty = true; SCR.cur=null; SCR.pan=null; SCR.erasing=false; scDraw(); }
+    if(!SCR.ptrs.size){ if(SCR.cur) SCR.dirty = true; SCR.cur=null; SCR.pred=null; SCR.pan=null; SCR.erasing=false; scDraw(); }
   };
   cv.addEventListener("pointerup", end); cv.addEventListener("pointercancel", end);
   cv.addEventListener("contextmenu", e=>e.preventDefault());
@@ -1080,10 +1099,13 @@ function scStroke(ctx, s, v, colors){
   ctx.strokeStyle = colors[s.c]||colors[0];
   if(n===1){ ctx.lineWidth = base*(s.pr ? 0.5+P[0].p : 1); ctx.beginPath(); ctx.moveTo(X(P[0]),Y(P[0])); ctx.lineTo(X(P[0])+0.1,Y(P[0])); ctx.stroke(); return; }
   if(s.pr){ // trykkfølsom: hvert stykke får sin egen tykkelse, med myke overganger via midtpunkter
-    let mx = X(P[0]), my = Y(P[0]);
+    // Bredden jevnes ut (bare bredden, ikke posisjonen, så streken henger ikke etter) og endres høyst 12 % per stykke,
+    // så ujevnt trykk ikke gir synlige hakk i overgangene.
+    let mx = X(P[0]), my = Y(P[0]), q = P[0].p||0.5, w = base*(0.35 + 1.25*Math.min(1, q));
     for(let i=1;i<n;i++){
-      const a = P[i-1], b = P[i], nx = i<n-1 ? (X(b)+X(P[i+1]))/2 : X(b), ny = i<n-1 ? (Y(b)+Y(P[i+1]))/2 : Y(b);
-      ctx.lineWidth = base*(0.35 + 1.25*Math.min(1, ((a.p||0.5)+(b.p||0.5))/2)); ctx.beginPath(); ctx.moveTo(mx,my); ctx.quadraticCurveTo(X(b),Y(b),nx,ny); ctx.stroke(); mx = nx; my = ny;
+      const b = P[i], nx = i<n-1 ? (X(b)+X(P[i+1]))/2 : X(b), ny = i<n-1 ? (Y(b)+Y(P[i+1]))/2 : Y(b);
+      q += ((b.p||0.5) - q) * 0.35; const want = base*(0.35 + 1.25*Math.min(1, q)); w = Math.min(w*1.12, Math.max(w/1.12, want));
+      ctx.lineWidth = w; ctx.beginPath(); ctx.moveTo(mx,my); ctx.quadraticCurveTo(X(b),Y(b),nx,ny); ctx.stroke(); mx = nx; my = ny;
     }
     return;
   }
@@ -1109,7 +1131,7 @@ function scDraw(live){
       SCR.dirty = false;
     }
     ctx.setTransform(1,0,0,1,0,0); ctx.clearRect(0,0,cv.width,cv.height); ctx.drawImage(SCR.base,0,0);
-    if(SCR.cur){ ctx.setTransform(dpr,0,0,dpr,0,0); ctx.lineCap="round"; ctx.lineJoin="round"; scStroke(ctx, SCR.cur, v, SCR.colors); }
+    if(SCR.cur){ ctx.setTransform(dpr,0,0,dpr,0,0); ctx.lineCap="round"; ctx.lineJoin="round"; scStroke(ctx, SCR.pred && SCR.pred.length ? {...SCR.cur, pts: SCR.cur.pts.concat(SCR.pred)} : SCR.cur, v, SCR.colors); }
   });
 }
 function scUndo(){
