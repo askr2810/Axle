@@ -2379,8 +2379,9 @@ textarea.fbtext{width:100%;font:13px/1.4 var(--mono,monospace);border-radius:12p
 .mp-wrap{position:relative;border-radius:12px;overflow:hidden;border:1.5px solid var(--line)}
 .mp-svg{display:block;width:100%;height:auto;touch-action:manipulation}
 .mp-sea{fill:var(--mp-sea)}.mp-c{fill:var(--mp-land);stroke:var(--mp-stroke);stroke-width:.8;vector-effect:non-scaling-stroke;cursor:pointer;transition:fill .5s}
-.mp-c.sel{stroke:#111;stroke-width:2.2}.mp-c.q{stroke:#111;stroke-width:2.5;animation:mpBlink 1s ease-in-out infinite}
-@keyframes mpBlink{50%{fill:#FFE15A}}
+.mp-c.sel{stroke:#111;stroke-width:1.6}.mp-c.q{fill:#FFC93C;stroke:none;animation:mpBlink 1s ease-in-out infinite}
+@keyframes mpBlink{50%{fill:#FFEBA3}}
+/* Landet som spørres om, har ingen mørk kant: på små land med lang kyst (Norge på verdenskartet) ble kanten hele formen */
 .mp-arw{fill:none;stroke-linecap:round;stroke-linejoin:round;animation:mpDraw 1.2s ease-out both;stroke-dasharray:3000;stroke-dashoffset:3000}
 @keyframes mpDraw{to{stroke-dashoffset:0}}
 .mp-mk circle{fill:#111;stroke:#fff;stroke-width:1.5}.mp-mk text{font-weight:800;fill:#111;paint-order:stroke;stroke:#fff;stroke-width:3px;stroke-linejoin:round}
@@ -2405,11 +2406,12 @@ textarea.fbtext{width:100%;font:13px/1.4 var(--mono,monospace);border-radius:12p
 .ge-svg .ge-c{cursor:default}.ge-live .ge-svg .ge-c{cursor:pointer}
 .ge-svg .ge-c:not(.ge-in){opacity:.55}
 @media (hover:hover){.ge-live .ge-svg .ge-in:hover{fill:color-mix(in srgb,var(--accent) 30%,var(--mp-land))}}
-.ge-svg .ge-q{fill:#FFC93C;stroke:#111;stroke-width:2;animation:mpBlink 1.2s ease-in-out infinite}
-.ge-svg .ge-ok{fill:#2FB36B;stroke:#0d5b32;stroke-width:2}
-.ge-svg .ge-show{fill:#2FB36B;stroke:#0d5b32;stroke-width:2;animation:geShow .6s ease-in-out 3}
+.ge-svg .ge-q{fill:#FFC93C;stroke:none;animation:mpBlink 1.2s ease-in-out infinite}
+.ge-svg .ge-ok{fill:#2FB36B;stroke:none}
+.ge-svg .ge-show{fill:#2FB36B;stroke:none;animation:geShow .6s ease-in-out 3}
 .ge-svg .ge-bad{fill:#E5534B}
-.ge-ring{fill:none;stroke:#E5534B;pointer-events:none}
+.mp-mark{fill:none;stroke:#C2362E;pointer-events:none}.mp-mark-h{fill:none;stroke:#fff;opacity:.95;pointer-events:none}
+.ge-mk{display:flex;align-items:center;gap:8px;margin:6px 2px 0;font-size:13px;line-height:1.35;color:var(--muted);text-align:left}.ge-mk i{flex:none;width:14px;height:14px;border-radius:50%;border:2px dashed #C2362E}
 @keyframes geShow{50%{fill:#FFE15A}}
 .ge-grp{display:flex;align-items:center;gap:10px}.ge-grp i,.ge-mic i{display:inline-block;width:16px;height:16px;border-radius:5px;flex:none}
 .ge-gic{font-size:28px;display:grid;place-items:center;width:44px}

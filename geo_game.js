@@ -20,12 +20,14 @@ const GE_MODES = [["find", "Finn landet", "Find the country"], ["name", "Hvilket
 let GE = null;
 const geBest = () => (S.geoBest ||= {});
 const geKey = () => GE.mode === "hist" ? "hist:" + (GE.map || "all") : GE.reg + ":" + GE.mode;
-const gePool = reg => GE_REG[reg].codes.split(" ").filter(c => MAP_GEO[GE_REG[reg].v].c[c]);
+const geAll = reg => GE_REG[reg].codes.split(" ").filter(c => MAP_GEO[GE_REG[reg].v].c[c]);
+// Landene det kan spørres om: bare de som faktisk synes i utsnittet (mpShown i maps.js), ikke bare har et midtpunkt der
+const gePool = reg => (gePool[reg] ||= geAll(reg).filter(c => mpShown(MAP_GEO[GE_REG[reg].v], c, geVB(reg))));
 function geVB(reg){
   const R = GE_REG[reg], G = MAP_GEO[R.v];
   if(!R.fit) return [0, 0, G.w, G.h];
   let x0 = 1e9, y0 = 1e9, x1 = -1e9, y1 = -1e9;
-  for(const c of gePool(reg)){ const b = G.c[c].b; x0 = Math.min(x0, b[0]); y0 = Math.min(y0, b[1]); x1 = Math.max(x1, b[2]); y1 = Math.max(y1, b[3]); }
+  for(const c of geAll(reg)){ const b = G.c[c].b; x0 = Math.min(x0, b[0]); y0 = Math.min(y0, b[1]); x1 = Math.max(x1, b[2]); y1 = Math.max(y1, b[3]); }
   const m = Math.max(x1 - x0, y1 - y0) * 0.04; return [x0 - m, y0 - m, x1 - x0 + 2 * m, y1 - y0 + 2 * m].map(Math.round);
 }
 const geMid = (G, c) => { const o = G.c[c]; return o.a || [(o.b[0] + o.b[2]) / 2, (o.b[1] + o.b[3]) / 2]; };
@@ -39,7 +41,7 @@ function geNextQ(){
     for(let tries = 0; tries < 40; tries++){
       const ids = GE.map ? [GE.map] : geHistMaps(), id = ids[Math.floor(Math.random() * ids.length)], M = MAPS[id], G = MAP_GEO[M.v];
       const k = Math.floor(Math.random() * M.f.length), fills = mpFrames(M)[k], vb = mpVB(M);
-      const cand = Object.entries(fills).filter(([c, g]) => M.g[g] && G.c[c] && G.c[c].a && G.c[c].a[0] > vb[0] && G.c[c].a[0] < vb[0] + vb[2] && G.c[c].a[1] > vb[1] && G.c[c].a[1] < vb[1] + vb[3]);
+      const cand = Object.entries(fills).filter(([c, g]) => M.g[g] && G.c[c] && mpShown(G, c, vb));
       const groups = [...new Set(cand.map(x => x[1]))]; if(groups.length < 2) continue;
       const g = groups[Math.floor(Math.random() * groups.length)], pool = cand.filter(x => x[1] === g && !prev.includes(id + ":" + x[0])); if(!pool.length) continue;
       const [c] = pool[Math.floor(Math.random() * pool.length)];
@@ -112,7 +114,7 @@ function geOver(){
 
 // ---------- tegning ----------
 function geMapSVG(q, rev){
-  const R = GE_REG[GE.reg], G = MAP_GEO[R.v], vb = geVB(GE.reg), u = vb[2] / 400, pool = new Set(gePool(GE.reg));
+  const R = GE_REG[GE.reg], G = MAP_GEO[R.v], vb = geVB(GE.reg), pool = new Set(geAll(GE.reg));
   let paths = "";
   for(const [c, o] of Object.entries(G.c)){
     let cls = "mp-c ge-c" + (pool.has(c) ? " ge-in" : "");
@@ -120,18 +122,16 @@ function geMapSVG(q, rev){
     if(GE.mode === "find" && rev){ if(c === q.ans) cls += q.picked === q.ans || GE.fx && GE.fx.pts ? " ge-ok" : " ge-show"; else if(c === q.tap) cls += " ge-bad"; }
     paths += `<path class="${cls}" data-gc="${c}" d="${o.d}"/>`;
   }
-  // små land får en ring rundt seg så de synes
-  let ring = "";
-  // (u = kartenheter per skjermpiksel når kartet er ca. 400 px bredt)
-  const ringOf = c => { const b = G.c[c].b, s = Math.max(b[2] - b[0], b[3] - b[1]); if(s / u > 26) return ""; const [x, y] = geMid(G, c);
-    return `<circle class="ge-ring" cx="${x}" cy="${y}" r="${Math.max(s / 2 + 6 * u, 9 * u).toFixed(1)}" style="stroke-width:${(2.4 * u).toFixed(2)}"/>`; };
-  if(GE.mode === "name" || (GE.mode === "find" && rev)) ring = ringOf(q.c);
+  // små land: stiplet ring rundt der landet ligger (en markør, ikke landets form; forklart under kartet)
+  const ring = GE.mode === "name" || (GE.mode === "find" && rev) ? mpMarker(G, q.c, vb, "ge-ring") : "";
   return `<svg class="mp-svg ge-svg" viewBox="${vb.join(" ")}" role="img" aria-label="${esc(T(R.t[0], R.t[1]))}"><rect class="mp-sea" x="${vb[0]}" y="${vb[1]}" width="${vb[2]}" height="${vb[3]}"/>${paths}${ring}</svg>`;
 }
 function geHistSVG(q, rev){
   // gjenbruker kart-tegningen fra maps.js; landet det spørres om blinker uten farge til du har svart
   return mpSVG({ id: q.id, uid: "ge", k: q.k, sel: rev ? q.c : null, quiz: rev ? null : { cur: { c: q.c } } });
 }
+// Forklaring når et land vises med markør i stedet for med formen sin
+const geMarkNote = svg => svg.includes("mp-mark") ? `<p class="ge-mk"><i aria-hidden="true"></i>${esc(T("Den stiplede ringen viser hvor landet ligger. Ringen er ikke landets form – landet er lite på dette kartet.", "The dashed ring shows where the country is. The ring is not the country's shape – the country is small on this map."))}</p>` : "";
 function geTop(sub){
   return `<div class="top"><div class="wrap"><button class="iconbtn" data-a="geback" aria-label="${esc(t("back"))}">${I.left}</button><div class="th-t"><small>${esc(sub)}</small><b>${esc(t("geoTitle"))}</b></div>${GE && GE.view === "game" ? `<span class="sg-score">${GE.score}</span>` : ""}</div></div>`;
 }
@@ -145,17 +145,17 @@ function renderGeo(){
   let prompt, opts = "", fb = "";
   if(GE.mode === "hist"){
     const M = MAPS[q.id], G = MAP_GEO[M.v];
-    prompt = `<p class="sg-ask">${esc(T(M.t[0], M.t[1]))} · ${esc(T(M.f[q.k].y[0], M.f[q.k].y[1]))}</p><p class="sg-name ge-name">${esc(T(`Hvor hørte ${mpName(G, q.c)} til?`, `Where did ${mpName(G, q.c)} belong?`))}</p><div class="mp-wrap ge-wrap">${geHistSVG(q, rev)}</div>`;
+    prompt = `<p class="sg-ask">${esc(T(M.t[0], M.t[1]))} · ${esc(T(M.f[q.k].y[0], M.f[q.k].y[1]))}</p><p class="sg-name ge-name">${esc(T(`Hvor hørte ${mpName(G, q.c)} til?`, `Where did ${mpName(G, q.c)} belong?`))}</p><div class="mp-wrap ge-wrap">${geHistSVG(q, rev)}</div>${geMarkNote(geHistSVG(q, rev))}`;
     opts = `<div class="sg-list">${q.opts.map(g => { const cls = rev ? (g === q.ans ? "ok" : g === q.picked ? "bad" : "dim") : "";
       return `<button class="sg-opt sg-txt ge-grp ${cls}" data-a="geans" data-v="${g}" ${rev ? "disabled" : ""}><i style="background:${M.g[g][0]}"></i>${esc(T(M.g[g][1], M.g[g][2]))}</button>`; }).join("")}</div>`;
     if(rev && !fx.pts) fb = `<div class="dv-fb bad sg-fb"><b>${esc(fx.miss === "time" ? T("Tiden gikk ut", "Time ran out") : T("Feil", "Wrong"))}</b><p><span>${esc(mpName(G, q.c))}: <b>${esc(T(M.g[q.ans][1], M.g[q.ans][2]))}</b></span></p></div>`;
   } else {
     const G = MAP_GEO[GE_REG[GE.reg].v], name = mpName(G, q.c);
     if(GE.mode === "find"){
-      prompt = `<p class="sg-ask">${esc(T("Trykk på", "Tap"))}</p><p class="sg-name ge-name">${esc(name)}</p><div class="mp-wrap ge-wrap ${rev ? "" : "ge-live"}">${geMapSVG(q, rev)}</div>`;
+      prompt = `<p class="sg-ask">${esc(T("Trykk på", "Tap"))}</p><p class="sg-name ge-name">${esc(name)}</p><div class="mp-wrap ge-wrap ${rev ? "" : "ge-live"}">${geMapSVG(q, rev)}</div>${geMarkNote(geMapSVG(q, rev))}`;
       if(rev && !fx.pts) fb = `<div class="dv-fb bad sg-fb"><b>${esc(fx.miss === "time" ? T("Tiden gikk ut", "Time ran out") : T("Ikke der", "Not there"))}</b><p><span>${q.tap && G.c[q.tap] ? esc(T(`Du trykket på ${mpName(G, q.tap)}.`, `You tapped ${mpName(G, q.tap)}.`)) + " " : ""}${esc(T(`${name} er markert med grønt.`, `${name} is marked in green.`))}</span></p></div>`;
     } else {
-      prompt = `<p class="sg-ask">${esc(T("Hvilket land lyser?", "Which country is lit up?"))}</p><div class="mp-wrap ge-wrap">${geMapSVG(q, rev)}</div>`;
+      prompt = `<p class="sg-ask">${esc(T("Hvilket land lyser?", "Which country is lit up?"))}</p><div class="mp-wrap ge-wrap">${geMapSVG(q, rev)}</div>${geMarkNote(geMapSVG(q, rev))}`;
       opts = `<div class="sg-list ge-names">${q.opts.map(c => { const cls = rev ? (c === q.ans ? "ok" : c === q.picked ? "bad" : "dim") : "";
         return `<button class="sg-opt sg-txt ${cls}" data-a="geans" data-v="${c}" ${rev ? "disabled" : ""}>${esc(mpName(G, c))}</button>`; }).join("")}</div>`;
       if(rev && !fx.pts) fb = `<div class="dv-fb bad sg-fb"><b>${esc(fx.miss === "time" ? T("Tiden gikk ut", "Time ran out") : T("Feil", "Wrong"))}</b><p><span>${esc(T("Det var", "It was"))} <b>${esc(name)}</b>.</span></p></div>`;
@@ -223,9 +223,9 @@ function geClick(a, b){
 document.addEventListener("click", e => {
   const svg = e.target.closest && e.target.closest(".ge-live .ge-svg"); if(!svg || !GE || GE.mode !== "find" || !GE.q || GE.q.picked != null) return;
   const G = MAP_GEO[GE_REG[GE.reg].v], q = GE.q, path = e.target.closest("[data-gc]"), tap = path ? path.dataset.gc : null;
+  // samme geometri som tegnes: avstanden fra trykket til landets kant (0 = inne i landet)
   const m = svg.getScreenCTM(); let near = false;
-  if(m){ const p = new DOMPoint(e.clientX, e.clientY).matrixTransform(m.inverse()), b = G.c[q.ans].b, tol = 14 / m.a;
-    const dx = Math.max(b[0] - p.x, 0, p.x - b[2]), dy = Math.max(b[1] - p.y, 0, p.y - b[3]);
-    near = Math.hypot(dx, dy) < tol && (!tap || !gePool(GE.reg).includes(tap) || Math.max(G.c[q.ans].b[2] - G.c[q.ans].b[0], G.c[q.ans].b[3] - G.c[q.ans].b[1]) * m.a < 22); }
+  if(m){ const p = new DOMPoint(e.clientX, e.clientY).matrixTransform(m.inverse()), o = G.c[q.ans], b = o.b, tol = 14 / m.a;
+    near = mpDist(o, p.x, p.y) < tol && (!tap || !geAll(GE.reg).includes(tap) || o.t || Math.max(b[2] - b[0], b[3] - b[1]) * m.a < 22); }
   q.tap = tap; geAnswer(tap || "sea", near);
 });

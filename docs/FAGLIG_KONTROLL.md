@@ -167,3 +167,12 @@ Kilder: straffeloven (2005), straffeprosessloven, Grunnloven §§ 96–97, EMK a
 
 **Usikkert**
 - Nødrett beskrives både som «betydelig større» og «langt større» skade som avverges. Loven sier at skaden ved handlingen må være «langt mindre» enn skaden som avverges (strl. § 17 bokstav c). Meningen er den samme, men ordbruken kunne samordnes.
+
+## Kart (kartspillet og historiekartene)
+Kilde for landgrenser: Natural Earth via world-atlas 2.0.2 (offentlig eiendom).
+
+**Endret (2026-10-15)**
+- Krim var tegnet som en del av Russland. Natural Earth plasserer den der i standardutgaven. Norge og FN (generalforsamlingens resolusjon 68/262, 2014) regner Krim som en del av Ukraina, så halvøya tegnes nå som en del av Ukraina i begge kartene (tools/make_maps.mjs). Testen tools/test_maps.js feiler hvis Simferopol eller Dzjankoj havner i Russland. I historiekartene følger Krim Ukraina sin farge. Det stemmer for Sovjet-tiden, men ikke for tidligere perioder (for eksempel Krimkrigen). Grensene i historiekartene er dagens og bare omtrentlige, som det allerede står i maps.js.
+
+**Usikkert**
+- Omstridte områder følger ellers Natural Earth: Kosovo, Nord-Kypros, Somaliland og Vest-Sahara vises som egne områder, og Kashmir er delt slik det er tegnet der. Det bør vurderes av en fagperson i samfunnsfag eller geografi.

@@ -286,6 +286,52 @@ function mpVB(M){
   const m = Math.max(x1 - x0, y1 - y0) * 0.04; return [x0 - m, y0 - m, x1 - x0 + 2 * m, y1 - y0 + 2 * m].map(Math.round);
 }
 const mpPt = (G, n) => G.p[n] || (G.c[n] && G.c[n].a) || null;
+// ---------- geometri ----------
+// Samme ringer som tegnes (stien d i maps_data.js) brukes til å avgjøre om et land er synlig i utsnittet, hvor markøren
+// for små land skal stå, og om et trykk traff landet. Ingen egne midtpunkter eller bokser som kan avvike fra kartet.
+const mpRings = o => o._r || (o._r = o.d.split("M").filter(Boolean).map(s => s.replace(/Z/g, "").split("L").map(p => p.split(",").map(Number))));
+const mpArea = r => { let a = 0; for(let i = 0, j = r.length - 1; i < r.length; j = i++) a += (r[j][0] + r[i][0]) * (r[j][1] - r[i][1]); return a / 2; };
+// ringen klippet mot et rektangel [x, y, w, h] (Sutherland–Hodgman; utsnittet er konvekst)
+function mpClip(r, vb){
+  const [x0, y0] = vb, x1 = vb[0] + vb[2], y1 = vb[1] + vb[3];
+  const edges = [[p => p[0] >= x0, (a, b) => [x0, a[1] + (b[1] - a[1]) * (x0 - a[0]) / (b[0] - a[0])]], [p => p[0] <= x1, (a, b) => [x1, a[1] + (b[1] - a[1]) * (x1 - a[0]) / (b[0] - a[0])]],
+    [p => p[1] >= y0, (a, b) => [a[0] + (b[0] - a[0]) * (y0 - a[1]) / (b[1] - a[1]), y0]], [p => p[1] <= y1, (a, b) => [a[0] + (b[0] - a[0]) * (y1 - a[1]) / (b[1] - a[1]), y1]]];
+  let out = r;
+  for(const [inn, cut] of edges){ const src = out; out = []; if(!src.length) break;
+    for(let i = 0; i < src.length; i++){ const a = src[(i + src.length - 1) % src.length], b = src[i];
+      if(inn(b)){ if(!inn(a)) out.push(cut(a, b)); out.push(b); } else if(inn(a)) out.push(cut(a, b)); } }
+  return out;
+}
+// Hoveddelen av landet: den største ringen (Fastlands-Norge, ikke Svalbard)
+const mpMain = o => o._m || (o._m = mpRings(o).reduce((m, r) => Math.abs(mpArea(r)) > Math.abs(mpArea(m)) ? r : m));
+// Hvor mye av landet som synes i utsnittet: f = andel av hoveddelen (0–1), px = synlig areal i kartenheter², box = boksen rundt den synlige delen
+function mpVis(G, c, vb){
+  const o = G.c[c]; if(!o) return { f: 0, px: 0, box: null };
+  const m = mpMain(o), cm = mpClip(m, vb), full = Math.abs(mpArea(m));
+  const px = Math.abs(mpRings(o).reduce((s, r) => s + mpArea(mpClip(r, vb)), 0));
+  const f = (o.v ?? 1) * (full ? Math.abs(mpArea(cm)) / full : cm.length ? 1 : 0);
+  const pts = cm.length ? cm : mpRings(o).flatMap(r => mpClip(r, vb));
+  const box = pts.length ? [Math.min(...pts.map(p => p[0])), Math.min(...pts.map(p => p[1])), Math.max(...pts.map(p => p[0])), Math.max(...pts.map(p => p[1]))] : null;
+  return { f, px, box };
+}
+// Kan landet spørres om i dette utsnittet? Det meste av hoveddelen må synes, eller en stor, gjenkjennelig bit (Russland i Europakartet).
+const mpShown = (G, c, vb) => { const v = mpVis(G, c, vb); return v.f >= 0.45 || (v.f >= 0.15 && v.px >= vb[2] * vb[3] * 0.03); };
+// Er punktet inne i landet (partallsregelen over alle ringene), og hvor langt er det til nærmeste kant (kartenheter)?
+function mpInside(o, x, y){ let k = false; for(const r of mpRings(o)) for(let i = 0, j = r.length - 1; i < r.length; j = i++){ const [xi, yi] = r[i], [xj, yj] = r[j]; if((yi > y) !== (yj > y) && x < (xj - xi) * (y - yi) / (yj - yi) + xi) k = !k; } return k; }
+function mpDist(o, x, y){
+  if(mpInside(o, x, y)) return 0; let m = Infinity;
+  for(const r of mpRings(o)) for(let i = 0, j = r.length - 1; i < r.length; j = i++){ const [ax, ay] = r[j], [bx, by] = r[i], dx = bx - ax, dy = by - ay, L = dx * dx + dy * dy, t = L ? Math.max(0, Math.min(1, ((x - ax) * dx + (y - ay) * dy) / L)) : 0; m = Math.min(m, Math.hypot(x - ax - t * dx, y - ay - t * dy)); }
+  return m;
+}
+// Markør for land som er for små til at formen synes tydelig (under ca. 24 px når kartet vises 360 px bredt): en stiplet ring rundt der landet ligger.
+// Ringen er tydelig en markør, ikke landets form. Returnerer "" når landet er stort nok til å sees.
+function mpMarker(G, c, vb, cls){
+  const o = G.c[c], v = o && mpVis(G, c, vb); if(!v || !v.box) return "";
+  const u = vb[2] / 360, s = Math.max(v.box[2] - v.box[0], v.box[3] - v.box[1]); if(!o.t && s / u >= 24) return "";
+  const x = (v.box[0] + v.box[2]) / 2, y = (v.box[1] + v.box[3]) / 2, r = Math.max(Math.hypot(v.box[2] - v.box[0], v.box[3] - v.box[1]) / 2 + 6 * u, 11 * u); // hele den synlige delen er innenfor ringen
+  // hvit kant under den stiplede ringen, så den synes også oppå røde land og piler
+  return `<circle class="mp-mark-h" cx="${x}" cy="${y}" r="${r.toFixed(1)}" style="stroke-width:${(4.4 * u).toFixed(2)}"/><circle class="mp-mark ${cls || ""}" cx="${x}" cy="${y}" r="${r.toFixed(1)}" style="stroke-width:${(2.2 * u).toFixed(2)};stroke-dasharray:${(4 * u).toFixed(2)} ${(3 * u).toFixed(2)}"/>`;
+}
 const mpName = (G, c) => G.c[c] ? T(G.c[c].n[0], G.c[c].n[1]) : c;
 function mpSVG(st){
   const M = MAPS[st.id], G = MAP_GEO[M.v], fills = mpFrames(M)[st.k], fr = M.f[st.k], vb = mpVB(M), sc = vb[2] / 1000 * 2.4; // kartet vises ofte bare ~400 px bredt
@@ -314,7 +360,8 @@ function mpSVG(st){
     for(let tries = 0; tries < 6 && boxes.some(b => { const a = box(); return a[0] < b[2] && a[2] > b[0] && a[1] < b[3] && a[3] > b[1]; }); tries++) y += h;
     if(y > B - 4 * sc) y = B - 4 * sc; boxes.push(box());
     return `<g class="mp-mk"><circle cx="${xy[0]}" cy="${xy[1]}" r="${(3.2 * sc).toFixed(1)}" style="stroke-width:${(1.2 * sc).toFixed(1)}"/><text x="${x.toFixed(1)}" y="${y.toFixed(1)}" text-anchor="${anchor}" style="font-size:${fs.toFixed(1)}px;stroke-width:${(3 * sc).toFixed(1)}px">${esc(label)}</text></g>`; }).join("");
-  return `<svg class="mp-svg" viewBox="${vb.join(" ")}" role="img" aria-label="${esc(T(M.t[0], M.t[1]))}"><defs>${defs}</defs><rect class="mp-sea" x="${vb[0]}" y="${vb[1]}" width="${vb[2]}" height="${vb[3]}"/>${paths}${arrows}${marks}</svg>`;
+  const mark = q ? mpMarker(G, q.c, vb) : st.sel ? mpMarker(G, st.sel, vb) : ""; // små land: stiplet ring rundt landet som blinker eller er valgt
+  return `<svg class="mp-svg" viewBox="${vb.join(" ")}" role="img" aria-label="${esc(T(M.t[0], M.t[1]))}"><defs>${defs}</defs><rect class="mp-sea" x="${vb[0]}" y="${vb[1]}" width="${vb[2]}" height="${vb[3]}"/>${paths}${mark}${arrows}${marks}</svg>`;
 }
 function mpInner(st){
   const M = MAPS[st.id], G = MAP_GEO[M.v], fr = M.f[st.k], fills = mpFrames(M)[st.k], quiz = st.quiz;
@@ -346,7 +393,7 @@ function mpRender(st){ const el = document.querySelector(`.mp[data-mpid="${st.ui
 const MP_QN = 6;
 function mpQuizNext(st){
   const M = MAPS[st.id], G = MAP_GEO[M.v], fills = mpFrames(M)[st.k], vb = mpVB(M), qz = st.quiz;
-  const cand = Object.entries(fills).filter(([c, g]) => M.g[g] && G.c[c] && G.c[c].a && G.c[c].a[0] > vb[0] && G.c[c].a[0] < vb[0] + vb[2] && G.c[c].a[1] > vb[1] && G.c[c].a[1] < vb[1] + vb[3] && !qz.used.includes(c));
+  const cand = Object.entries(fills).filter(([c, g]) => M.g[g] && G.c[c] && !qz.used.includes(c) && mpShown(G, c, vb));
   if(!cand.length || qz.n >= MP_QN){ qz.cur = null; qz.xp = qz.right ? 2 + qz.right : 0; if(qz.xp && typeof awardXP === "function"){ awardXP(qz.xp); save(); } return; }
   // spør like ofte om hver gruppe, ikke bare de store
   const groups = [...new Set(cand.map(x => x[1]))], g = groups[Math.floor(Math.random() * groups.length)], pool = cand.filter(x => x[1] === g), [c] = pool[Math.floor(Math.random() * pool.length)];

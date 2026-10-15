@@ -26,11 +26,14 @@ Du jobber i Axle-repoet (axle.no). Les `CLAUDE.md` først og følg den. Svar meg
 - [x] 8. Skilt sporet fra offisielle tegninger – ferdig 2026-10-10: 42 skilt sporet fra Statens vegvesens skilttegninger (Wikimedia Commons «NO road sign <nr>.svg», offentlig eiendom; kildene i tools/sign_refs/official, PNG via tools/render_sign_refs.js, sporing i tools/trace_signs.py med lag per farge). Offisielle farger (rød #c4122f, gul #ffd500, blå #003d82). Feil skiltnumre rettet: glatt kjørebane 116 (ikke 118), barn 142 (ikke 146), elg 146.1 (ikke 142), stopp 204 (ikke 202), slutt på forkjørsveg 208 (ikke 308), påbudspil 402.4. «Tunnel» var et oppdiktet blått skilt – nå fareskilt 122. Skiltnummer vises i skiltoversikten. Ny test tools/test_signs.js. Sjekket i skiltoversikten, skiltspillet og teoriprøven.
 - [x] 9. Mac- og Windows-appen (v1.0.1) – ferdig 2026-10-10: tag v1.0.1 pushet, kjøringen «Skrivebordsapp» gikk grønt (test, Windows, Mac, publish, cask). Utgivelsen har Axle.dmg (24 MB), Axle-Setup.exe (11 MB) og SHA256SUMS.txt; Homebrew-oppskriften er oppdatert. desktopReady: true i config.js.
 - [x] 10. Til slutt: bygg, test, push og oppsummering – ferdig 2026-10-10: build.py, npm test og seo.js grønne (check_figs: 0 funn), pushet til main og claude/loving-cerf-qzvm7j.
-- [ ] 11. Gjør kartspillet geografisk pålitelig
+- [x] 11. Gjør kartspillet geografisk pålitelig – ferdig 2026-10-15: Gjenskapt: små land med lang kyst (Norge i verdenskartet, særlig i historikkmodus) ble en svart klump fordi den mørke markeringskanten (2–2,5 px) dekket formen. Utvalget av spørsmål brukte et midtpunkt eller en boks, ikke hvor mye av landet som synes. Treffkontrollen brukte boksen rundt hoveddelen. Krim var tegnet som Russland. Rettet: verdenskartet bruker 50m-geometri. `keep` i make_maps.mjs var snudd (0,12 beholdt 88 % av punktene); i tillegg fjernes doble punkter og punkter på rett linje, og d3s etter-sampling er slått av. maps_data.js er nå 183 kB (67 kB gzip), før 194 kB (66,5 kB gzip). Norge i verdenskartet har 268 punkter, før 60. Ytelse (median per spørsmål inkl. tegning, Chrome med CPU 6×): 9–18 ms, før 8–16 ms. Første spørsmål i en region tar 16–36 ms. Felles geometri i maps.js (mpRings, mpVis, mpShown, mpDist, mpMarker) brukes til utvalg, markør og treffkontroll i vanlig modus, historikkmodus og «Test deg». Små land (under ca. 24 px) får en stiplet ring med hvit kant og forklaringen «Ringen er ikke landets form». Bittesmå stater (VA, MC, SM, LI m.fl.) beholdes med t: 1. Det markerte landet har ingen mørk kant, og ankerpunktet ligger inne i landet. Krim tegnes som Ukraina (FN-res. 68/262, se docs/FAGLIG_KONTROLL.md). Ny test tools/test_maps.js (i npm test, 5317 sjekker) for Norge, Grønland, Russland, Krim, øyer, små land og land ved kanten, i vanlig modus og historikkmodus. Den feiler på de gamle dataene. Sjekket visuelt på 375 og 1280 px, lyst og mørkt tema. Gjenstår: omstridte områder ellers (Kashmir, Vest-Sahara m.fl.) følger Natural Earth og bør vurderes av en fagperson.
 - [ ] 12. Gjør hele grensesnittet enklere å forstå
 - [ ] 13. Lag en fast arbeidsmåte for undervisningsanimasjoner
 - [ ] 14. Styrk kontrollen av svar og risikoinnhold uten å gjenta ferdig arbeid
 - [ ] 15. Avslutt med kontroll og oppsummering
+- [ ] 16. Apple Pencil-dobbelttrykk skal veksle mellom penn og viskelær
+- [ ] 17. Gjør pennetegningen renere og mindre pikselert
+- [ ] 18. Kontroller kollisjoner i oppgaver, simuleringer, flashcards og spill
 
 ## 1. «Lær først»-leksjoner i grunnskolen (viktigst)
 
@@ -228,3 +231,46 @@ Oppgave 6 og 7 er utført; ikke gjør dem på nytt. Undersøk bare om testene so
 * Etter hver oppgave: bygg og test før commit, statusendringen i samme commit, push til arbeidsgrenen.
 * Til slutt: kontroller at alle nye oppgaver har riktig status og dato, kjør sluttkontrollene fra oppgave 10 (`python3 build.py`, `npm test`, `node tools/seo.js`), push til `main` og `claude/loving-cerf-qzvm7j`. Ikke lag eller flytt en allerede publisert versjonstag.
 * Oppsummer på norsk: hva som ble endret, hva som ble kontrollert, målt effekt på kartets størrelse/ytelse, og hva som fortsatt trenger en ekte fagperson eller godkjenning.
+
+---
+
+## Runde 3 (lagt inn 2026-10-15)
+
+Samme regler som runde 2: arbeid i rekkefølge, oppdater status, bygg og test, commit og push til `claude/loving-cerf-qzvm7j` etter hvert ferdige trinn. Ikke push delvise oppgaver til `main`. Må arbeidet stoppe: sett `[~]` og noter konkret hva som gjenstår.
+
+## 16. Apple Pencil-dobbelttrykk skal veksle mellom penn og viskelær
+
+Dobbelttrykk på Apple Pencil skal veksle mellom penn og viskelær i kladdeverktøyet (som i OneNote). Undersøk først `initCanvas()`, `pointerdown`/`pointerup`, `scMode()`, `st.tool` og verktøyknappene i `app.js`.
+
+* Finn ut hvilke Pencil-hendelser Axle faktisk mottar i iPad-nettappen, PWA-en og Capacitor-appen. Et vanlig dobbelttrykk på skjermen er ikke det samme som dobbelttrykk på siden av pennen.
+* Undersøk om Capacitor-appen kan bruke iOS' native Pencil-interaksjon (UIPencilInteraction) og sende verktøybyttet trygt til kladdeverktøyet. Vurder om en native bro passer det eksisterende oppsettet.
+* Gir plattformen ikke tilgang: ingen upålitelig løsning som utløser zoom eller tegner prikker. Behold en lett tilgjengelig knapp for penn/viskelær.
+* Aktivt verktøy skal være synlig og forståelig, også for skjermleser. Streken skal ikke gå tapt, og det skal ikke komme utilsiktede trykk.
+* Ikke fjern støtten for viskelærknappen på Apple Pencil hvis den virker.
+* Test penn, viskelær, fingertegning, håndflateavvisning, zoom/flytting og angre hver for seg. Dobbelttrykk skal ikke lage prikker eller korte streker.
+* Virker dobbelttrykk bare i Capacitor-appen: forklar forskjellen tydelig og sørg for en god knappeløsning på nett.
+* Dokumenter hvilke plattformer og iPad-oppsett som faktisk er kontrollert. Ikke skriv at dobbelttrykk virker uten test med en fysisk Apple Pencil.
+
+## 17. Gjør pennetegningen renere og mindre pikselert
+
+Finn årsaken før tegnekoden endres: canvas-oppsett, `devicePixelRatio`, størrelsesendringer, `getCoalescedEvents()`, trykkfølsomhet, `SCR.base` og visning etter zoom.
+
+* Bevar responsen; ingen kraftig utjevning som gjør at streken henger etter.
+* Backing-oppløsningen skal følge CSS-størrelse og pikselratio (Retina/iPad), også etter rotasjon, endret vindusstørrelse, tastatur, zoom og bytte av skjerm.
+* Bruk samplene nettleseren leverer når det forbedrer streken, med fallback.
+* Trykkfølsom bredde: fjern synlige hakk og ujevne overganger uten slør eller tap av presisjon.
+* Kontroller farger og linjebredde mot rutenettet i lyst og mørkt tema.
+* Ingen ny tegneavhengighet uten begrunnelse (filstørrelse, ytelse, offline).
+* Sammenlign visuelt på iPad med Apple Pencil (vanlig tegning, rask skriving, langsomme kurver, tett skrift, zoom), og med finger og mus. Mål forsinkelse og dokumenter enhet, app/nettleser og pikselratio.
+
+## 18. Kontroller kollisjoner i oppgaver, simuleringer, flashcards og spill
+
+Se på `tools/check_figs.js`, `tools/test_sims.js`, `tools/test_qart.js` og komponentene i `app.js`, `sims*.js`, `geo_game.js`, `maps.js` og `styles.css`.
+
+* Utvid den visuelle kontrollen til faktiske oppgavevisninger, figurer, simuleringer og spill (tekst utenfor SVG/canvas, tekst over andre etiketter eller streker, avkuttede animasjoner, innhold under faste knapper eller bunnfelt).
+* Størrelser: 375 px mobil, nettbrett og 1280 px PC; lyst og mørkt tema.
+* Simuleringer ved startverdi, ytterverdier og verdier der etiketter nærmer seg hverandre; glidebrytere og lang resultattekst skal ikke overlappe.
+* Kartspillet: spørsmål og svar, land ved kanten, små land og historiekart, i vanlig og rolig modus.
+* Flashcards med korte og lange spørsmål, svar og forklaringer: ingenting skal stikke ut, klippes eller ligge under faste knapper.
+* Animasjon skal ikke gjøre det vanskeligere å lese eller svare; ta med redusert bevegelse.
+* Automatiske tester hjelper, men erstatter ikke visuell kontroll. Rapporter skjermstørrelse, tema, komponent og eksempel for hver feil. Rett feil som kan gjenskapes; mulige risikoområder dokumenteres som anbefalt videre kontroll.

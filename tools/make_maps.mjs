@@ -1,10 +1,14 @@
 // Lager maps_data.js: forhåndsprojiserte landgrenser (Natural Earth via world-atlas, fritt tilgjengelig) til kartene i maps.js.
 // Bruk: node tools/make_maps.mjs   (kjøres bare når kartutsnitt eller stedspunkter endres; resultatet sjekkes inn)
-// To utsnitt: «europe» (Europa, Nord-Afrika og Midtøsten, Mercator, 50m) og «world» (hele verden uten Antarktis, Equal Earth, 110m).
+// To utsnitt: «europe» (Europa, Nord-Afrika og Midtøsten, Mercator, 50m) og «world» (hele verden uten Antarktis, Equal Earth, 50m).
+// Per land: d (SVG-sti, samme geometri brukes til tegning, markering og treffkontroll), a (et punkt INNE i den største synlige delen),
+// b (boksen rundt den største synlige delen), v (andel av landets areal som er innenfor utsnittet, bare når den er under 1).
+// Krim tegnes som en del av Ukraina (FNs generalforsamling, res. 68/262, og norsk offisiell holdning); Natural Earth legger den under Russland.
+// Miljøvariabler for målinger: WORLD_DATA (f.eks. countries-110m.json), WORLD_KEEP, EUROPE_KEEP, MAPS_OUT (annen utfil).
 import fs from "node:fs"; import { createRequire } from "node:module";
-import { feature } from "topojson-client";
+import { feature, merge } from "topojson-client";
 import { presimplify, simplify, quantile } from "topojson-simplify";
-import { geoMercator, geoEqualEarth, geoPath, geoArea, geoCentroid } from "d3-geo";
+import { geoMercator, geoEqualEarth, geoPath, geoContains, geoArea } from "d3-geo";
 import countries from "i18n-iso-countries";
 const require = createRequire(import.meta.url);
 countries.registerLocale(require("i18n-iso-countries/langs/nb.json")); countries.registerLocale(require("i18n-iso-countries/langs/en.json"));
@@ -33,35 +37,85 @@ const POINTS = { berlin: [13.4, 52.5], paris: [2.35, 48.86], london: [-0.13, 51.
   hedeby: [9.57, 54.49], uppsala: [17.64, 59.86], bergen: [5.32, 60.39], bryssel: [4.35, 50.85], strasbourg: [7.75, 48.58], maastricht: [5.69, 50.85], nicosia: [33.36, 35.17],
   murmansk: [33.08, 68.97], kaukasus: [44.8, 42.5], suez: [32.55, 30.0], gibraltar: [-5.35, 36.14], malta: [14.5, 35.9], tobruk: [23.96, 32.08],
   baskerland: [-2.5, 43.0], sapmi: [23.5, 69.0], wales: [-3.8, 52.4], steppe: [40, 48], skottland: [-4.2, 57.0], bretagne: [-3.0, 48.2],
-  varanasi: [83.0, 25.32], bodhgaya: [84.99, 24.7], kinshasa: [15.3, -4.32], dakar: [-17.44, 14.69], addis: [38.75, 9.0], alger: [3.06, 36.75] };
+  simferopol: [34.1, 44.95], dzjankoj: [34.4, 45.71], varanasi: [83.0, 25.32], bodhgaya: [84.99, 24.7], kinshasa: [15.3, -4.32], dakar: [-17.44, 14.69], addis: [38.75, 9.0], alger: [3.06, 36.75] };
 const VIEWS = {
-  europe: { data: "countries-50m.json", w: 1000, h: 860, proj: () => geoMercator(), box: [[-25, 27], [60, 72]], digits: 0, keep: 0.12 },
-  world: { data: "countries-110m.json", w: 1000, h: 520, proj: () => geoEqualEarth(), box: null, digits: 0, keep: 0.6 }
+  europe: { data: "countries-50m.json", w: 1000, h: 860, proj: () => geoMercator(), box: [[-25, 27], [60, 72]], digits: 0, keep: +(process.env.EUROPE_KEEP || 0.3) },
+  world: { data: process.env.WORLD_DATA || "countries-50m.json", w: 1000, h: 520, proj: () => geoEqualEarth(), box: null, digits: 0, keep: +(process.env.WORLD_KEEP || 0.2) }
 };
+// Ringer fra en SVG-sti med bare M, L og Z (det geoPath skriver): [[x, y], …] per ring
+const ringsOf = d => d.split("M").filter(Boolean).map(s => s.replace(/Z/g, "").split("L").map(p => p.split(",").map(Number)));
+// Fjern punkter som er like eller ligger på linje etter avrunding til hele piksler (gir ofte halvparten så lang sti)
+const tidy = d => d.split("M").filter(Boolean).map(s => { const r = s.replace(/Z/g, "").split("L").map(p => p.split(",").map(Number)), o = [];
+  for(const p of r){ if(o.length && o[o.length - 1][0] === p[0] && o[o.length - 1][1] === p[1]) continue;
+    if(o.length >= 2){ const [a, b] = [o[o.length - 2], o[o.length - 1]]; if((b[0] - a[0]) * (p[1] - a[1]) === (b[1] - a[1]) * (p[0] - a[0]) && (p[0] - b[0]) * (b[0] - a[0]) + (p[1] - b[1]) * (b[1] - a[1]) >= 0){ o[o.length - 1] = p; continue; } }
+    o.push(p); }
+  while(o.length > 1 && o[0][0] === o[o.length - 1][0] && o[0][1] === o[o.length - 1][1]) o.pop();
+  return o.length >= 3 ? "M" + o.map(p => p.join(",")).join("L") + "Z" : ""; }).join("");
+const ringArea = r => { let a = 0; for(let i = 0, j = r.length - 1; i < r.length; j = i++) a += (r[j][0] + r[i][0]) * (r[j][1] - r[i][1]); return a / 2; };
+const inRings = (rings, x, y) => { let k = false; for(const r of rings) for(let i = 0, j = r.length - 1; i < r.length; j = i++){ const [xi, yi] = r[i], [xj, yj] = r[j]; if((yi > y) !== (yj > y) && x < (xj - xi) * (y - yi) / (yj - yi) + xi) k = !k; } return k; };
+const edgeDist = (rings, x, y) => { let m = Infinity; for(const r of rings) for(let i = 0, j = r.length - 1; i < r.length; j = i++){ const [ax, ay] = r[j], [bx, by] = r[i], dx = bx - ax, dy = by - ay, L = dx * dx + dy * dy, t = L ? Math.max(0, Math.min(1, ((x - ax) * dx + (y - ay) * dy) / L)) : 0; m = Math.min(m, Math.hypot(x - ax - t * dx, y - ay - t * dy)); } return m; };
+// Et punkt godt inne i ringen (rutenett-søk etter punktet lengst fra kanten), så markeringer ikke havner i nabolandet (Norge, Chile, Kroatia)
+function inside(ring, all){
+  const xs = ring.map(p => p[0]), ys = ring.map(p => p[1]), x0 = Math.min(...xs), x1 = Math.max(...xs), y0 = Math.min(...ys), y1 = Math.max(...ys);
+  let best = null, bd = -1; const n = 24;
+  for(let i = 0; i <= n; i++) for(let j = 0; j <= n; j++){ const x = x0 + (x1 - x0) * i / n, y = y0 + (y1 - y0) * j / n; if(!inRings(all, x, y)) continue; const dd = edgeDist(all, x, y); if(dd > bd){ bd = dd; best = [x, y]; } }
+  if(!best){ // bitteliten ring: finere søk, ellers et hjørne av ringen (alltid på landet)
+    for(let i = 0; i <= 4 * n && !best; i++) for(let j = 0; j <= 4 * n; j++){ const x = x0 + (x1 - x0) * i / (4 * n), y = y0 + (y1 - y0) * j / (4 * n); if(inRings(all, x, y)){ best = [x, y]; break; } }
+    if(!best) return ring[0]; }
+  const r = best.map(Math.round); return inRings(all, r[0] + 0.01, r[1] + 0.01) ? r : best.map(v => +v.toFixed(1));
+}
 const out = {};
 for(const [vk, V] of Object.entries(VIEWS)){
   const topo = JSON.parse(fs.readFileSync(new URL(`../node_modules/world-atlas/${V.data}`, import.meta.url)));
-  let st = presimplify(topo); st = simplify(st, quantile(st, 1 - V.keep)); // behold de viktigste punktene
+  let st = presimplify(topo); st = simplify(st, quantile(st, V.keep)); // keep = andelen punkter som beholdes (de viktigste)
+  // Krim: flytt Russlands delpolygon som inneholder Simferopol over til Ukraina (merge fjerner grensen mellom dem)
+  const geoms = st.objects.countries.geometries, ru = geoms.find(g => g.id === "643"), ua = geoms.find(g => g.id === "804");
+  const ci = ru.arcs.findIndex(arcs => geoContains(feature(st, { type: "Polygon", arcs }), [34.1, 44.95]));
+  if(ci < 0) throw new Error("Fant ikke Krim i Russlands geometri");
+  const crimea = { type: "Polygon", arcs: ru.arcs[ci] }; ru.arcs = ru.arcs.filter((_, i) => i !== ci);
+  const uaGeo = merge(st, [ua, crimea]);
+  const raw = new Map(feature(topo, topo.objects.countries).features.map(f => [f.properties.name, f])); // uforenklet, for land som blir borte
   let fc = feature(st, st.objects.countries);
   fc.features = fc.features.filter(f => f.properties.name !== "Antarctica");
-  const proj = V.proj();
-  if(V.box){ const [[x0, y0], [x1, y1]] = V.box; proj.fitExtent([[0, 0], [V.w, V.h]], { type: "MultiPoint", coordinates: [[x0, y0], [x1, y0], [x1, y1], [x0, y1], [(x0 + x1) / 2, y0], [(x0 + x1) / 2, y1]] }); proj.clipExtent([[-5, -5], [V.w + 5, V.h + 5]]); }
+  for(const f of fc.features) if(f.id === "804") f.geometry = uaGeo;
+  const proj = V.proj().precision(0); // ingen ekstra punkter langs lange linjer (de forsvinner likevel ved avrunding)
+  if(V.box){ const [[x0, y0], [x1, y1]] = V.box; proj.fitExtent([[0, 0], [V.w, V.h]], { type: "MultiPoint", coordinates: [[x0, y0], [x1, y0], [x1, y1], [x0, y1], [(x0 + x1) / 2, y0], [(x0 + x1) / 2, y1]] }); }
   else proj.fitExtent([[4, 4], [V.w - 4, V.h - 4]], fc);
+  const pathFull = geoPath(V.proj().precision(0).scale(proj.scale()).translate(proj.translate())).digits(V.digits); // uten klipping: for å regne ut hvor stor andel av landet som er synlig
+  if(V.box) proj.clipExtent([[-5, -5], [V.w + 5, V.h + 5]]);
   const path = geoPath(proj).digits(V.digits);
-  const c = {};
+  const c = {}, full = {};
   for(const f of fc.features){
     const name = f.properties.name, k = EXTRA[name] || (f.id && countries.numericToAlpha2(f.id)) || null;
     if(!k){ console.warn("Mangler kode:", name, f.id); continue; }
-    const d = path(f); if(!d || d.length < 8) continue;
-    // ankerpunkt: tyngdepunktet til den største delen (Frankrike uten Guyana, Russland uten Kaliningrad osv.)
-    let main = f.geometry; if(main.type === "MultiPolygon"){ const parts = main.coordinates.map(p => ({ type: "Polygon", coordinates: p })); main = parts.sort((a, b) => geoArea(b) - geoArea(a))[0]; }
-    const pc = proj(geoCentroid(main)); const inView = pc && pc[0] > 0 && pc[0] < V.w && pc[1] > 0 && pc[1] < V.h;
+    let d = tidy(path(f) || ""), tiny = 0;
+    if(!d){ // landet er for lite til å få en form på dette kartet: en liten rute på riktig sted, og t: 1 så spillet viser en markør i stedet
+      const p = path.centroid(raw.get(name)); if(!p.every(Number.isFinite) || p[0] < 0 || p[0] > V.w || p[1] < 0 || p[1] > V.h) continue;
+      const [x, y] = p.map(Math.round); d = `M${x},${y - 1}L${x + 1},${y}L${x},${y + 1}L${x - 1},${y}Z`; tiny = 1; }
     const nm = NAMES[k] || [countries.getName(k, "nb") || name, countries.getName(k, "en") || name];
-    (c[k] ||= { d: "", a: null, n: nm, b: null }).d += d; if(inView && !c[k].a) c[k].a = pc.map(Math.round);
-    const bb = path.bounds(main).flat().map(Math.round); if(bb.every(Number.isFinite)) c[k].b = c[k].b ? [Math.min(c[k].b[0], bb[0]), Math.min(c[k].b[1], bb[1]), Math.max(c[k].b[2], bb[2]), Math.max(c[k].b[3], bb[3])] : bb;
+    if(c[k] && tiny) continue; // et annet stykke av landet har allerede en form
+    if(c[k] && c[k].t){ c[k].d = ""; delete c[k].t; }
+    (c[k] ||= { d: "", n: nm }).d += d; if(tiny) c[k].t = 1;
+    // synlig andel: av landets hoveddel målt på kloden (Svalbard skal ikke telle mer enn Fastlands-Norge fordi Mercator blåser det opp)
+    let main = f.geometry; if(main.type === "MultiPolygon") main = main.coordinates.map(p => ({ type: "Polygon", coordinates: p })).sort((a, b) => geoArea(b) - geoArea(a))[0];
+    const A = g => Math.abs(ringsOf(tidy(g || "")).reduce((s, r) => s + ringArea(r), 0)), fa = A(pathFull(main));
+    if(fa > 0 && !full[k]) full[k] = Math.min(1, A(path(main)) / fa);
+  }
+  for(const [k, o] of Object.entries(c)){
+    // samme ringer som tegnes: den største delen innenfor kartet gir ankerpunkt og boks
+    const rings = ringsOf(o.d), sign = Math.sign(rings.reduce((s, r) => s + ringArea(r), 0)) || 1;
+    const vis = r => { const cl = r.map(([x, y]) => [Math.max(0, Math.min(V.w, x)), Math.max(0, Math.min(V.h, y))]); return ringArea(cl) * sign; };
+    let outer = rings.filter(r => ringArea(r) * sign > 0); if(!outer.length) outer = rings; // bittesmå land kan bli en strek etter avrundingen
+    const main = outer.sort((p, q) => vis(q) - vis(p) || Math.abs(ringArea(q)) - Math.abs(ringArea(p)))[0];
+    const xs = main.map(p => p[0]), ys = main.map(p => p[1]);
+    o.b = [Math.min(...xs), Math.min(...ys), Math.max(...xs), Math.max(...ys)].map(Math.round);
+    o.a = vis(main) > 0 ? inside(main, rings) : null;
+    const v = full[k] ?? 1; if(v < 0.995) o.v = +v.toFixed(2);
   }
   const pts = {}; for(const [p, ll] of Object.entries(POINTS)){ const xy = proj(ll); if(xy && xy[0] >= 0 && xy[0] <= V.w && xy[1] >= 0 && xy[1] <= V.h) pts[p] = xy.map(Math.round); }
   out[vk] = { w: V.w, h: V.h, c, p: pts };
-  console.log(vk, Object.keys(c).length, "land,", JSON.stringify(out[vk]).length, "tegn");
+  const pn = Object.values(c).reduce((s, o) => s + o.d.split(/[ML]/).length - 1, 0);
+  console.log(vk, V.data, "keep", V.keep, Object.keys(c).length, "land,", pn, "punkter,", JSON.stringify(out[vk]).length, "tegn");
 }
-fs.writeFileSync(new URL("../maps_data.js", import.meta.url), "// Laget av tools/make_maps.mjs fra Natural Earth (world-atlas). Ikke rediger for hånd.\nconst MAP_GEO = " + JSON.stringify(out) + ";\n");
+const file = process.env.MAPS_OUT ? new URL(process.env.MAPS_OUT, "file://" + process.cwd() + "/") : new URL("../maps_data.js", import.meta.url);
+fs.writeFileSync(file, "// Laget av tools/make_maps.mjs fra Natural Earth (world-atlas). Ikke rediger for hånd.\nconst MAP_GEO = " + JSON.stringify(out) + ";\n");
