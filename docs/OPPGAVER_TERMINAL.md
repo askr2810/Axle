@@ -26,6 +26,11 @@ Du jobber i Axle-repoet (axle.no). Les `CLAUDE.md` først og følg den. Svar meg
 - [x] 8. Skilt sporet fra offisielle tegninger – ferdig 2026-10-10: 42 skilt sporet fra Statens vegvesens skilttegninger (Wikimedia Commons «NO road sign <nr>.svg», offentlig eiendom; kildene i tools/sign_refs/official, PNG via tools/render_sign_refs.js, sporing i tools/trace_signs.py med lag per farge). Offisielle farger (rød #c4122f, gul #ffd500, blå #003d82). Feil skiltnumre rettet: glatt kjørebane 116 (ikke 118), barn 142 (ikke 146), elg 146.1 (ikke 142), stopp 204 (ikke 202), slutt på forkjørsveg 208 (ikke 308), påbudspil 402.4. «Tunnel» var et oppdiktet blått skilt – nå fareskilt 122. Skiltnummer vises i skiltoversikten. Ny test tools/test_signs.js. Sjekket i skiltoversikten, skiltspillet og teoriprøven.
 - [x] 9. Mac- og Windows-appen (v1.0.1) – ferdig 2026-10-10: tag v1.0.1 pushet, kjøringen «Skrivebordsapp» gikk grønt (test, Windows, Mac, publish, cask). Utgivelsen har Axle.dmg (24 MB), Axle-Setup.exe (11 MB) og SHA256SUMS.txt; Homebrew-oppskriften er oppdatert. desktopReady: true i config.js.
 - [x] 10. Til slutt: bygg, test, push og oppsummering – ferdig 2026-10-10: build.py, npm test og seo.js grønne (check_figs: 0 funn), pushet til main og claude/loving-cerf-qzvm7j.
+- [ ] 11. Gjør kartspillet geografisk pålitelig
+- [ ] 12. Gjør hele grensesnittet enklere å forstå
+- [ ] 13. Lag en fast arbeidsmåte for undervisningsanimasjoner
+- [ ] 14. Styrk kontrollen av svar og risikoinnhold uten å gjenta ferdig arbeid
+- [ ] 15. Avslutt med kontroll og oppsummering
 
 ## 1. «Lær først»-leksjoner i grunnskolen (viktigst)
 
@@ -146,3 +151,80 @@ git tag v1.0.1 && git push origin v1.0.1
    * hva som er gjort
    * tall for størrelse og oppstartstid før og etter
    * hva som gjenstår eller trenger en fagperson
+
+---
+
+## Runde 2 (lagt inn 2026-10-15)
+
+Oppgave 1–10 er ferdige; ikke gjør dem på nytt. Når en oppgave i denne runden er ferdig: oppdater statusen, kjør `python3 build.py` og `npm test`, commit og push commiten til arbeidsgrenen `claude/loving-cerf-qzvm7j`. Ikke push delvise oppgaver til `main` (det publiserer axle.no). Hvis arbeidet må stoppe midt i en oppgave: sett `[~]` og skriv kort hva som er gjort og hva som gjenstår. Ikke sett `reviewedBy`; det som trenger en ekte fagperson, dokumenteres som gjenstående.
+
+## 11. Gjør kartspillet geografisk pålitelig
+
+Land i kartspillet blir noen ganger markert med en liten form som ikke ligner landet, eller landet som skal finnes, ligger utenfor kartutsnittet (Norge er et eksempel). Undersøk og gjenskap feilene før du velger løsning. Se på `geo_game.js`, `maps.js`, `maps_data.js` og `tools/make_maps.mjs`.
+
+* Kartgeneratoren bruker `countries-110m.json` for verdenskartet og `countries-50m.json` for Europakartet. Vurder om verdenskartet bør få mer detaljert geometri. Mål konsekvensen for filstørrelse, ytelse og tregere mobiler før du velger.
+* Finn ut hvordan landgeometri, landmarkering, hit testing, multipolygoner, små land og øyer behandles.
+* Sørg for at landet som spørres om, faktisk er synlig og identifiserbart i kartutsnittet. Ikke velg land bare fordi et omtrentlig midtpunkt er innenfor utsnittet.
+* Bruk samme landgeometri til kart, markering og treffkontroll. Hvis små land trenger en sirkel eller peker for å være synlige, vis tydelig at det er en markør, ikke landets form.
+* Legg til gjentakbare regresjonskontroller for Norge, Grønland, Russland, øyer, små land og land ved kanten av utsnittet. Kontroller både vanlig kartmodus og historikkmodus, inkludert at valgt land ikke er klippet bort.
+* Ikke erklær feilen løst bare fordi en test består. Kontroller kartet visuelt etter endringen.
+
+## 12. Gjør hele grensesnittet enklere å forstå
+
+Gå gjennom hele appen, ikke bare startsiden: førstegangsopplevelse, fagvalg, navigasjon, læring, øving, teori, søk, Labben, kartspill, Fellesskap, lærerverktøy og profil. Se på mobil og PC.
+
+Brukerreiser:
+
+1. En ny elev velger fag og starter fra begynnelsen.
+2. En elev finner raskt et bestemt tema eller en bestemt oppgave.
+3. En student finner og bruker en interaktiv figur eller kalkulator.
+4. En lærer lager, deler eller bruker et oppgavesett.
+5. En bruker kommer tilbake og fortsetter der hen slapp.
+
+Før større endringer: skriv en kort plan her i fila med de største hindringene, anbefalt navigasjon og hvilke eksisterende funksjoner som må bevares. Ikke gjør en totalombygging uten å vise hvor brukerne finner funksjonene etterpå.
+
+Undersøk spesielt:
+
+* Om «Lær», «Øv» og «Teori» er lette å skille fra hverandre.
+* Om startsiden viser en tydelig neste handling, samtidig som søk og direkte innganger er lette å finne.
+* Om mange fag, låste nivåer, fremdrift og belønninger er forklart med ord brukeren forstår.
+* Om faste knapper eller menyer dekker kort og innhold på små skjermer (kontroller på dagens kode).
+* Om språkvalget er semantisk riktig for skjermleser. Norsk og engelsk er gjensidig utelukkende og bør ikke være to uavhengige avkrysningsbokser.
+* Om samtykkeboksen beskriver statistikken riktig («anonym» mot personvernteksten som sier at hendelser kan knyttes til konto). Gjør formuleringene tydelige og konsekvente.
+* Om fremdrift og knapper har forklarende navn, god tastaturstøtte, store nok trykkflater, lesbar kontrast og støtte for redusert bevegelse.
+
+Gjør endringer i små, sammenhengende deler. Bevar Axles visuelle identitet, men prioriter tydelighet fremfor pynt. Norsk og engelsk skal bruke samme begreper; mobil og PC skal begge fungere.
+
+## 13. Lag en fast arbeidsmåte for undervisningsanimasjoner
+
+Lag en gjenbrukbar mal og arbeidsmåte (her eller i en dokumentasjonsfil som lenkes herfra) for kodebaserte animasjoner som forklarer faglige ideer. Før animasjonskode skrives, skal det lages et presist manus og produksjonsbrief ut fra et læringsmål eieren har valgt. Ikke lag en tilfeldig ny animasjon uten valgt tema.
+
+Hvert manus/brief skal inneholde:
+
+* Målgruppe, forkunnskaper og ett konkret læringsmål.
+* Misforståelsen animasjonen skal hjelpe eleven å overvinne.
+* Scener i rekkefølge med varighet og én hovedidé per scene.
+* Fortellertekst synkronisert med nøyaktig bevegelse, illustrasjon, kamera og tekst på skjermen.
+* Alle formler, symboler, enheter og tall som vises.
+* Pauser for tenking og en kort kontroll av forståelsen.
+* Faglig kontroll av påstander, beregninger og eksempler.
+* Teksting/transkript, avspillingskontroll, mobiltilpasning og hensyn til redusert bevegelse.
+* En tydelig, implementeringsklar instruks til Claude om hvordan animasjonen bygges og integreres i Axles kode og Lab.
+
+Fortellerstemmen skal forklare det visuelle, ikke lese opp skjermteksten. Bevegelse skal vise årsak, endring eller sammenheng. Manus og kodeinstruks skal være separate.
+
+Undersøk om en naturlig fortellerstemme fungerer på norsk og engelsk: stemmekvalitet, språk og uttale, pris, lisens, personvern og avspilling uten nett. Ikke legg til betalt tjeneste, API-nøkkel eller ekstern avhengighet uten godkjenning. Passer ingen løsning, lag manus klart for innlesing og med teksting.
+
+## 14. Styrk kontrollen av svar og risikoinnhold uten å gjenta ferdig arbeid
+
+Oppgave 6 og 7 er utført; ikke gjør dem på nytt. Undersøk bare om testene som finnes nå dekker nye risikopunkter.
+
+* `tools/test_content.js` sjekker blant annet at tall som ligner tallsvar, finnes i forklaringen. Det beviser ikke at svaret er riktig. Vurder om `tools/test_answers.js` gir uavhengig kontroll for de viktige fagene, og dokumenter konkrete hull i stedet for å lage en test som kopierer generatorens logikk.
+* Behold kilder og usikkerhet i `docs/FAGLIG_KONTROLL.md`. Ikke merk innhold faglig godkjent uten en faktisk fagperson.
+* Mulig feil fasit eller påstand: oppgi fag, enhet og oppgave-/teori-ID, vis hvorfor den er mistenkelig, og kontroller mot pålitelig kilde før retting.
+
+## 15. Avslutt med kontroll og oppsummering
+
+* Etter hver oppgave: bygg og test før commit, statusendringen i samme commit, push til arbeidsgrenen.
+* Til slutt: kontroller at alle nye oppgaver har riktig status og dato, kjør sluttkontrollene fra oppgave 10 (`python3 build.py`, `npm test`, `node tools/seo.js`), push til `main` og `claude/loving-cerf-qzvm7j`. Ikke lag eller flytt en allerede publisert versjonstag.
+* Oppsummer på norsk: hva som ble endret, hva som ble kontrollert, målt effekt på kartets størrelse/ytelse, og hva som fortsatt trenger en ekte fagperson eller godkjenning.
