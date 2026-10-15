@@ -339,7 +339,8 @@ function renderMq(){
       ${rev && q.rich && q.e ? `<div class="mq-expl">${rich(q.e)}</div>` : ""}
       ${live && !rev ? `<p class="mq-wait" id="mqans">${esc(mqAnsweredTxt())}</p>${MQ.chosen != null && !mqTeach() ? `<p class="mq-sent">${esc(T("Svar sendt! Venter på de andre …", "Answer sent! Waiting for the others …"))}</p>` : ""}` : ""}
       ${ranked ? `<section class="mq-board mq-live-b"><h3>${esc(mqTeach() ? T("Toppliste", "Leaderboard") : T(`Du er nr. ${myPos + 1} av ${ranked.length}`, `You are #${myPos + 1} of ${ranked.length}`))}</h3>${ranked.slice(0, 5).map((p, i) => `<div class="mq-brow ${p.me ? "me" : ""}"><span class="mq-pos">${i + 1}</span>${mqAv(p, i, 30)}<b>${esc(p.me ? T("Deg", "You") : p.name || "?")}${(p.st || {}).r > 1 ? ` <small>🔥${p.st.r}</small>` : ""}</b><span class="mq-bs">${mqF((p.st || {}).s || 0)}</span></div>`).join("")}</section>` : ""}
-      ${!live && rev ? `<button class="big ghost mq-next" data-a="mqnext">${esc(T("Neste", "Next"))} →</button>` : ""}
+      ${!live && rev ? (() => { const ms = Math.max(0, MQ.revUntil - Date.now()); // går videre av seg selv: vis hvor lenge, «Neste» hopper over
+        return `<div class="next-dock" data-k="mq${MQ.i}"><div class="ge-act-row"><span class="ge-auto"><i style="animation-duration:${ms}ms" aria-hidden="true"></i><small>${esc(T(`Går videre om ${nf(ms / 1000, 1)} sekunder`, `Moving on in ${nf(ms / 1000, 1)} seconds`))}</small></span><button class="big mq-next ge-next" data-a="mqnext">${esc(T("Neste nå", "Next now"))} →</button></div></div>`; })() : ""}
     </main>`;
     if(!rev) mqBar(MQ.cfg.secs * 1000 - (Date.now() - MQ.qStart));
     return;

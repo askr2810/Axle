@@ -397,7 +397,7 @@ function tgQuizHTML(){
     <div class="tg-figwrap tg-qfig"><svg id="tgsvg" class="tg-svg" viewBox="-165 -165 330 330" role="img" aria-label="${esc(T("Enhetssirkelen", "The unit circle"))}">${tgQFig(it)}</svg></div>
     ${it.type === "place" && !ans ? `<p class="picknote">${esc(T("Trykk eller dra til riktig punkt på sirkelen.", "Tap or drag to the right point on the circle."))}</p>` : ""}
     <div class="tg-opts ${it.type === "quad" ? "q4" : ""}">${opts}</div>
-    ${ans ? `<div class="tg-fb ${ans.ok ? "ok" : "bad"}"><b>${esc(ans.ok ? tgPick(T(["Riktig!", "Sånn ja!", "Perfekt!"], ["Correct!", "Nice!", "Perfect!"])) : T("Ikke helt", "Not quite"))}</b><p>${tgQExpl(it)}</p></div><button class="big" data-a="tgqnext">${esc(Q.i + 1 < TG_QN ? T("Neste", "Next") : T("Se resultatet", "See the result"))}</button>` : ""}`;
+    ${ans ? `<div class="tg-fb ${ans.ok ? "ok" : "bad"}"><b>${esc(ans.ok ? tgPick(T(["Riktig!", "Sånn ja!", "Perfekt!"], ["Correct!", "Nice!", "Perfect!"])) : T("Ikke helt", "Not quite"))}</b><p>${tgQExpl(it)}</p></div><div class="next-dock" data-k="tg${Q.i}"><button class="big" data-a="tgqnext">${esc(Q.i + 1 < TG_QN ? T("Neste", "Next") : T("Se resultatet", "See the result"))}</button></div>` : ""}`;
 }
 function tgQAnswer(ok, pick){
   const Q = TG.quiz, it = Q.items[Q.i]; if(Q.ans) return;

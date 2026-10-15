@@ -135,7 +135,7 @@ math{font-size:1.08em}
 .bar{flex:1;height:16px;border-radius:99px;background:var(--line);overflow:hidden}
 .bar i{display:block;height:100%;background:var(--ok);border-radius:99px;transition:width .35s ease;box-shadow:inset 0 -4px 0 rgba(0,0,0,.12)}
 .combo{font-weight:800;color:var(--gold);font-variant-numeric:tabular-nums;min-width:28px;text-align:right;font-family:var(--display)}
-.lbody{flex:1;padding-bottom:240px}
+.lbody{flex:1;padding-bottom:max(240px,calc(var(--foot-h,0px) + 24px))} /* --foot-h settes av app.js etter høyden på bunnfeltet */
 .kicker{margin:10px 0 6px;font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
 .prompt{font-family:var(--display);font-weight:600;font-size:22px;line-height:1.35;text-wrap:pretty}
 .prompt math{font-size:1em}
@@ -955,7 +955,7 @@ body.has-tabs .toast{bottom:calc(84px + env(safe-area-inset-bottom,0px))}
 .gd-prog i.on{background:var(--ok)}.gd-prog i.cur{background:var(--accent-bg)}
 .gd-prog i.q:not(.on):not(.cur){background:color-mix(in srgb,var(--gold) 45%,var(--line))}
 .gd-full{border:0;background:none;font:inherit;font-size:13px;font-weight:700;color:var(--accent);white-space:nowrap;padding:6px 2px}
-.gd{padding-top:14px;padding-bottom:calc(220px + env(safe-area-inset-bottom,0px))}
+.gd{padding-top:14px;padding-bottom:max(calc(220px + env(safe-area-inset-bottom,0px)),calc(var(--foot-h,0px) + 24px))}
 .gd-card{background:var(--card);border:2px solid var(--line);border-radius:20px;padding:18px 18px 8px;box-shadow:0 3px 0 var(--line)}
 .gd-in{animation:gdIn .35s cubic-bezier(.2,.9,.3,1.15)}
 @keyframes gdIn{from{opacity:0;transform:translateX(26px) scale(.98)}}
@@ -2018,7 +2018,7 @@ textarea.fbtext{width:100%;font:13px/1.4 var(--mono,monospace);border-radius:12p
 .sc-siren{animation:scsr .4s steps(1) infinite}@keyframes scsr{50%{fill:#E8433A}}
 .sc-how{color:var(--muted);font-size:14px;margin:4px 0 8px;text-align:center}
 .sc-picks{display:flex;flex-wrap:wrap;gap:6px;align-items:center;justify-content:center;margin-bottom:8px}.sc-picks span{background:var(--card);border:2px solid var(--line);border-radius:999px;padding:3px 10px;font-size:13.5px;font-weight:700}
-.sc-btns{display:grid;grid-template-columns:1fr 1.4fr;gap:8px}.sc-btns .big{margin:0}
+.sc-btns{display:grid;grid-template-columns:1fr 1.4fr;gap:8px;position:sticky;bottom:0;z-index:6;padding:10px 0 calc(10px + env(safe-area-inset-bottom,0px));background:linear-gradient(to bottom,transparent,var(--paper) 12px)}.sc-btns .big{margin:0} /* «Neste» dokket nederst */
 .sc-right{margin:4px 0}
 @media (prefers-reduced-motion: reduce){.sc-blink,.sc-siren{animation:none}}
 .sc-svg.playing .sc-badge{opacity:0;transition:opacity .3s}
@@ -3399,3 +3399,14 @@ details.cat-mc{margin:6px 0}details.cat-mc>summary{cursor:pointer;font-size:12px
 /* Flashcards: sidene ligger i samme rutenettcelle (ikke absolutt), så kortet blir like høyt som den lengste siden og teksten aldri renner ut */
 /* Lange formler i tilbakemeldingen (MathML kan ikke brytes): rull sidelengs i stedet for å gå ut av skjermen */
 .lfoot .katex{display:inline-block;max-width:100%;overflow-x:auto;overflow-y:hidden;vertical-align:middle;padding:3px 0;-webkit-overflow-scrolling:touch}
+/* Kartspillet: handlingsrad etter feil svar, klistret til bunnen (med safe area) */
+.ge-act{position:sticky;bottom:0;z-index:6;margin:10px -6px 0;padding:12px 6px calc(10px + env(safe-area-inset-bottom,0px));background:linear-gradient(to bottom,transparent,var(--paper) 14px)}
+.ge-act .sg-fb{margin:0 0 8px}
+.ge-act-row{display:flex;gap:10px;align-items:center}.ge-act-row .ge-next{flex:1;margin:0}
+.ge-auto{flex:1.2;display:grid;gap:4px;min-width:0}.ge-auto i{display:block;height:6px;border-radius:99px;background:var(--accent-bg);transform-origin:left;animation:geAuto linear forwards}.ge-auto small{color:var(--muted);font-size:12.5px;line-height:1.3}
+@keyframes geAuto{from{transform:scaleX(1)}to{transform:scaleX(0)}}
+.tf-after .ge-act{position:static;margin:0;padding:0;background:none}.tf-after{display:block} /* sant/usant: «Neste» der svarknappene var */
+/* «Neste» etter svar: dokket nederst på skjermen (med safe area) mens man leser; tilbakemeldingen ligger i vanlig flyt over */
+.next-dock{position:sticky;bottom:0;z-index:6;margin:10px -6px 0;padding:10px 6px calc(10px + env(safe-area-inset-bottom,0px));background:linear-gradient(to bottom,transparent,var(--paper) 12px)}
+.next-dock>.big{margin:0;width:100%}
+.cd-verdict>.big{position:sticky;bottom:calc(10px + env(safe-area-inset-bottom,0px));z-index:6} /* kodeoppgave løst: «Neste oppgave» synlig */

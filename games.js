@@ -100,16 +100,20 @@ function renderTF(){
       <div class="sp-row"><span class="sp-sec">⏱ <b id="tfsec">${Math.ceil(left / 1000)}</b></span><span class="sp-pts">${TF.score} ${esc(t("spPts"))}</span><span class="sn-combo ${TF.combo >= 3 ? "hot" : ""}">${I.fire}<b>${TF.combo}</b></span></div></div>
     <main class="wrap tf-main">${c ? `<div class="tf-card ${st === true ? "ok" : st === false ? "bad" : ""}" id="tfcard"><div class="tf-q">${rich(c.q)}</div><div class="tf-arrow">↓</div><div class="tf-a">${rich(c.a)}</div>
       ${st === false ? `<div class="tf-fix">${esc(c.truth ? t("tfWasTrue") : t("tfWasFalse"))}${c.truth ? "" : ` ${esc(t("tfRight"))} ${rich(c.right)}`}</div>` : ""}</div>
-      <div class="tf-btns"><button class="tf-b no" data-a="tfans" data-v="0" ${st != null ? "disabled" : ""}>✗ ${esc(t("tfFalse"))}</button><button class="tf-b yes" data-a="tfans" data-v="1" ${st != null ? "disabled" : ""}>✓ ${esc(t("tfTrue"))}</button></div>
+      ${st === false ? `<div class="tf-btns tf-after">${sgActHTML("", TF_WAIT_BAD, "tfnext", T("Neste nå →", "Next now →"))}</div>` /* samme plass som svarknappene: ingenting flytter seg */
+        : `<div class="tf-btns"><button class="tf-b no" data-a="tfans" data-v="0" ${st != null ? "disabled" : ""}>✗ ${esc(t("tfFalse"))}</button><button class="tf-b yes" data-a="tfans" data-v="1" ${st != null ? "disabled" : ""}>✓ ${esc(t("tfTrue"))}</button></div>`}
       <p class="mt-hint">${esc(t("tfSwipe"))}</p>` : `<p>${esc(t("stNoTheory"))}</p>`}</main>`;
   tfSwipe();
 }
+const TF_WAIT_BAD = 1500; // ms etter feil svar; «Neste nå» hopper over
+function tfGo(){ clearTimeout(TF && TF.nextT); if(TF && !TF.done && screen === "truefalse"){ tfNext(); render(); } }
 function tfAnswer(v){
   if(!TF || !TF.cur || TF.answered != null || TF.done) return;
   const ok = v === TF.cur.truth; TF.answered = ok; buzz(ok);
   if(ok){ TF.combo++; TF.maxCombo = Math.max(TF.maxCombo, TF.combo); TF.score += TF.combo >= 5 ? 2 : 1; } else { TF.combo = 0; TF.end -= 3000; }
   render(); sfx(ok ? "ok" : "bad", TF.combo); if(ok) burst(document.getElementById("tfcard"), 10);
-  setTimeout(() => { if(TF && !TF.done && screen === "truefalse"){ tfNext(); render(); } }, ok ? 380 : 1500);
+  if(!ok){ const nb = document.querySelector(".ge-next"); if(nb) nb.focus({ preventScroll: true }); }
+  clearTimeout(TF.nextT); TF.nextT = setTimeout(tfGo, ok ? 380 : TF_WAIT_BAD);
 }
 // Sveip kortet: høyre = sant, venstre = usant.
 function tfSwipe(){
@@ -132,6 +136,7 @@ function gmClick(a, b){
   if(a === "tfstart"){ tfStart(); return true; }
   if(a === "tfagain"){ tfOpen(); tfStart(); return true; }
   if(a === "tfans"){ tfAnswer(b.dataset.v === "1"); return true; }
+  if(a === "tfnext"){ tfGo(); return true; }
   return false;
 }
 

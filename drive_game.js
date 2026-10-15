@@ -6,7 +6,7 @@
 //  Skjermen er DV.view === "game" i drive.js; handlingene heter «dvsg…».
 // ============================================================
 const SG_GROUPS = [["all", "Alle skilt", "All signs"], ["fare", "Fare", "Warning"], ["forbud", "Forbud", "Prohibitory"], ["pabud", "Påbud", "Mandatory"], ["oppl", "Opplysning", "Information"], ["vik", "Vikeplikt", "Right of way"]];
-const SG_LIVES = 3, SG_MAX = 25; // en runde er maks 25 skilt – fullfører du med liv igjen, får du bonus
+const SG_LIVES = 3, SG_MAX = 25, SG_WAIT_BAD = 2500; // ms før neste skilt etter feil svar (nedtelling og «Neste nå» vises) // en runde er maks 25 skilt – fullfører du med liv igjen, får du bonus
 let SG = null;
 const sgPool = g => FK_SIGN_INFO.filter(s => FK_SIGNS[s[0]] && (g === "all" ? !["linje", "lys"].includes(s[1]) : s[1] === g));
 const sgSt = () => S.signSt ||= {};
@@ -56,7 +56,8 @@ function sgAnswer(j){
   save(); render();
   if(ok){ const el = document.querySelector(".sg-opt.ok"); if(el) burst(el, 10); }
   clearTimeout(sgAnswer.t);
-  sgAnswer.t = setTimeout(() => { if(!SG || DV.view !== "game") return; if(SG.lives <= 0 || SG.n >= SG_MAX) return sgOver(); SG.fx = null; sgNextQ(); render(); sgTick(); }, ok ? 650 : 1500);
+  if(!ok){ const nb = document.querySelector(".ge-next"); if(nb) nb.focus({ preventScroll: true }); }
+  sgAnswer.t = setTimeout(sgGoNext, ok ? 650 : SG_WAIT_BAD);
 }
 function sgOver(){
   SG.over = true; SG.full = SG.lives > 0 && SG.n >= SG_MAX; if(SG.full){ SG.bonus = SG.lives * 500; SG.score += SG.bonus; }
@@ -101,7 +102,7 @@ function sgRender(){
     <div class="sg-timebar"><i id="sgtime" class="sg-time g" style="transform:scaleX(${rev ? 0 : 1})"></i></div>
     <section class="sg-card ${rev ? (fx.pts ? "ok" : "bad") : ""}">${prompt}${fx.pts ? `<span class="sg-float">+${fx.pts}${fx.mult > 1 ? ` <em>×${fx.mult}</em>` : ""}</span>` : ""}</section>
     ${opts}
-    ${rev && !fx.pts ? `<div class="dv-fb bad sg-fb"><b>${esc(fx.miss === "time" ? T("Tiden gikk ut", "Time ran out") : T("Feil", "Wrong"))}</b><p>${q.kind === "pick" ? "" : fkSign(q.ans, 44)}<span>${esc(T("Riktig svar:", "Correct answer:"))} <b>${esc(sgName(q.ans))}</b>. ${esc(info ? T(info[4], info[5]) : "")}</span></p></div>` : ""}
+    ${rev && !fx.pts ? sgActHTML(`<div class="dv-fb bad sg-fb"><b>${esc(fx.miss === "time" ? T("Tiden gikk ut", "Time ran out") : T("Feil", "Wrong"))}</b><p>${q.kind === "pick" ? "" : fkSign(q.ans, 44)}<span>${esc(T("Riktig svar:", "Correct answer:"))} <b>${esc(sgName(q.ans))}</b>. ${esc(info ? T(info[4], info[5]) : "")}</span></p></div>`, SG_WAIT_BAD, "dvsgnext", SG.lives <= 0 || SG.n >= SG_MAX ? T("Se resultatet", "See the result") : T("Neste nå →", "Next now →")) : ""}
   </main>`;
 }
 function sgMenuHTML(){
@@ -112,8 +113,10 @@ function sgMenuHTML(){
     <div class="sg-groups">${SG_GROUPS.map(([g, nb, en]) => { const n = sgPool(g).length, b = best[g + ":" + mode] || 0;
       return `<button class="sg-gbtn" data-a="dvsgplay" data-g="${g}"><span class="sg-gic">${fkSign(g === "all" ? "elg" : sgPool(g)[0][0], 40)}</span><span><b>${esc(T(nb, en))}</b><small>${esc(T(`${n} skilt`, `${n} signs`))}${b ? " · 🏆 " + b : ""}</small></span>${I.chevron}</button>`; }).join("")}</div></section>`;
 }
+function sgGoNext(){ clearTimeout(sgAnswer.t); if(!SG || DV.view !== "game") return; if(SG.lives <= 0 || SG.n >= SG_MAX) return sgOver(); SG.fx = null; sgNextQ(); render(); sgTick(); }
 function sgClick(a, dd){
   if(a === "dvsgans"){ sgAnswer(+dd.i); return true; }
+  if(a === "dvsgnext"){ sgGoNext(); return true; }
   if(a === "dvsgplay"){ sgStart(dd.g, (SG && SG.mode) || S.sgMode || "mix"); return true; }
   if(a === "dvsgagain"){ sgStart(); return true; }
   if(a === "dvsgmode"){ S.sgMode = dd.m; if(SG) SG.mode = dd.m; save(); render(); return true; }

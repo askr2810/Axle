@@ -667,6 +667,7 @@ function checkAnswer(){
   if(ok){ L.solved.add(it.id); L.combo++; if(L.combo >= 3 && firstTime){ L.bonus = (L.bonus||0) + 1; L.bonusNow = true; } else L.bonusNow = false; }
   else { L.combo = 0; if(firstTime) L.firstWrong.add(it.id); if(L.maxHearts) L.hearts--; }
   render(); sfx(ok ? "ok" : "bad", L.combo);
+  { const nb = document.querySelector('.lfoot [data-a="next"]'); if(nb) nb.focus({ preventScroll: true }); } // tastatur og skjermleser: rett på «Fortsett»
   if(ok){ burst(document.querySelector(".opt.right, .num.right"), L.combo >= 3 ? 18 : 12); if(L.bonusNow) floatXP(document.querySelector(".combo-xp"), "+1 XP"); }
 }
 function nextQuestion(){
@@ -1608,6 +1609,12 @@ document.addEventListener("input", e=>{
   }
   else if(e.target.id==="exnum" || e.target.id==="excustom") examInput(e.target);
 });
+// Bunnfeltet etter svar (.lfoot) kan bli opptil 72 % av skjermen: innholdet over får like mye luft under seg (--foot-h),
+// så oppgaven og alle svaralternativene kan rulles fram over feltet.
+(function(){ if(typeof ResizeObserver === "undefined" || typeof MutationObserver === "undefined") return; let cur = null;
+  const ro = new ResizeObserver(en => { const h = en[0] ? Math.ceil(en[0].target.getBoundingClientRect().height) : 0; document.documentElement.style.setProperty("--foot-h", h + "px"); });
+  new MutationObserver(() => { const f = document.querySelector(".lfoot"); if(f === cur) return; if(cur) ro.unobserve(cur); cur = f; if(f) ro.observe(f); else document.documentElement.style.removeProperty("--foot-h"); })
+    .observe(document.documentElement, { childList: true, subtree: true }); })();
 // Radiogrupper (språk, modus, svaralternativer …): piltastene flytter fokus mellom valgene, som skjermlesere forventer.
 // Fokus flyttes bare; Mellomrom/Enter velger. Slik sendes ikke et svar inn ved et uhell.
 document.addEventListener("keydown", e=>{

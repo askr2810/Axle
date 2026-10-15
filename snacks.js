@@ -168,10 +168,13 @@ function renderSprint(){
   $app.innerHTML = `<div class="sp-top"><div class="sp-track"><i id="spbar" style="width:${left / (SP_SECS * 10)}%"></i></div>
       <div class="sp-row"><span class="sp-sec">⏱ <b id="spsec">${Math.ceil(left / 1000)}</b></span><span class="sp-pts">${SP.score} ${esc(t("spPts"))}</span><span class="sn-combo ${SP.combo >= 3 ? "hot" : ""}">${I.fire}<b>${SP.combo}</b></span></div></div>
     <main class="wrap sp-q ${SP.answered === false ? "shake" : ""}">${it ? `<div class="krow"><span></span><button class="kbtn" data-a="scratch">${I.pencil}${t("scratch")}</button></div><div class="sn-prompt">${richBig(it.prompt)}</div><div class="opts sn-opts">` +
-      it.opts.map((o, j) => `<button class="opt ${SP.answered != null && o.ok ? "right" : SP.answered === false && SP.pick === j ? "wrong" : ""}" data-a="spans" data-i="${j}" ${SP.answered != null ? "disabled" : ""}><span class="k">${"ABCD"[j] || j + 1}</span><span>${richBig(o.t)}</span></button>`).join("") + `</div>` : `<p>${esc(t("stNoTheory"))}</p>`}</main>`;
+      it.opts.map((o, j) => `<button class="opt ${SP.answered != null && o.ok ? "right" : SP.answered === false && SP.pick === j ? "wrong" : ""}" data-a="spans" data-i="${j}" ${SP.answered != null ? "disabled" : ""}><span class="k">${"ABCD"[j] || j + 1}</span><span>${richBig(o.t)}</span></button>`).join("") + `</div>` + (SP.answered === false ? sgActHTML("", SP_WAIT_BAD, "spnext", T("Neste nå →", "Next now →")) : "") : `<p>${esc(t("stNoTheory"))}</p>`}</main>`;
 }
+const SP_WAIT_BAD = 1100; // ms etter feil svar (rundeklokka går, så «Neste nå» kan hoppe over ventetiden)
+function spGo(){ clearTimeout(SP && SP.nextT); if(SP && !SP.done && screen === "sprint"){ spNext(); render(); } }
 function spClick(a, b){
   if(!a.startsWith("sp") || a === "spx") return false;
+  if(a === "spnext"){ spGo(); return true; }
   if(a === "spclose"){ if(SP) clearInterval(SP.timer); SP = null; goHome(); return true; }
   if(a === "spstart"){ spStart(); return true; }
   if(a === "spagain"){ spOpen(); spStart(); return true; }
@@ -179,7 +182,8 @@ function spClick(a, b){
     const j = +b.dataset.i, ok = SP.it.opts[j].ok; SP.pick = j; SP.answered = ok; buzz(ok);
     if(ok){ SP.combo++; SP.maxCombo = Math.max(SP.maxCombo || 0, SP.combo); SP.score += SP.combo >= 5 ? 2 : 1; } else { SP.combo = 0; SP.end -= 3000; }
     render(); sfx(ok ? "ok" : "bad", SP.combo); if(ok) burst(document.querySelector(".sp-q .opt.right"), 10);
-    setTimeout(() => { if(SP && !SP.done && screen === "sprint"){ spNext(); render(); } }, ok ? 420 : 1100);
+    if(!ok){ actReveal(".sp-q .opt.right"); const nb = document.querySelector(".ge-next"); if(nb) nb.focus({ preventScroll: true }); }
+    clearTimeout(SP.nextT); SP.nextT = setTimeout(spGo, ok ? 420 : SP_WAIT_BAD);
     return true;
   }
   return false;

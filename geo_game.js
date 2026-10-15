@@ -7,7 +7,7 @@
 // ============================================================
 Object.assign(UI.nb, { geoTitle: "Kartspillet", geoSub: "Finn land i Europa og verden, og hvem som var på hvilken side" });
 Object.assign(UI.en, { geoTitle: "The map game", geoSub: "Find countries in Europe and the world, and who was on which side" });
-const GE_MAX = 15, GE_LIVES = 3;
+const GE_MAX = 15, GE_LIVES = 3, GE_WAIT_BAD = 2500; // ms før neste spørsmål etter feil svar (med tid og liv)
 // Regioner: kartvisning (europe/world), landene det spørres om, og om kartet skal zoomes inn på dem.
 const GE_REG = {
   europe: { v: "europe", ic: "🇪🇺", t: ["Europa", "Europe"], codes: "NO SE DK FI IS IE GB FR ES PT BE NL LU DE CH AT IT PL CZ SK HU SI HR BA RS ME XK MK AL GR BG RO MD UA BY LT LV EE RU TR CY" },
@@ -95,9 +95,10 @@ function geAnswer(pick, near){
   else { GE.combo = 0; if(!GE.calm) GE.lives--; GE.fx = { miss: pick == null ? "time" : "wrong" }; GE.missed.push(GE.mode === "hist" ? { id: q.id, k: q.k, c: q.c, g: q.ans } : q.ans); sfx("bad"); buzz(false); }
   save(); render();
   if(ok){ const el = document.querySelector(".ge-card"); if(el) burst(el, 10); }
+  if(!ok){ const nb = document.querySelector(".ge-next"); if(nb) nb.focus({ preventScroll: true }); geReveal(); } // tastatur og skjermleser: rett på «Neste»
   clearTimeout(geAnswer.t);
   if(GE.calm && !ok) return; // rolig: vent til brukeren trykker «Neste»
-  geAnswer.t = setTimeout(geNext, ok ? (GE.calm ? 1300 : 900) : 2200);
+  geAnswer.t = setTimeout(geNext, ok ? (GE.calm ? 1300 : 900) : GE_WAIT_BAD);
 }
 function geNext(){
   clearTimeout(geAnswer.t); if(!GE || GE.view !== "game" || screen !== "geo") return;
@@ -166,9 +167,40 @@ function renderGeo(){
       <span class="sg-combo ${GE.combo >= 3 ? "on" : ""}">${GE.combo >= 3 ? `🔥 ${GE.combo} ${esc(T("på rad", "in a row"))} · ×${mult}` : esc(T(`${GE.ok} riktige`, `${GE.ok} correct`))}</span></div>
     ${GE.calm ? "" : `<div class="sg-timebar"><i id="getime" class="sg-time g" style="transform:scaleX(${rev ? 0 : 1})"></i></div>`}
     <section class="sg-card ge-card ${rev ? (fx.pts ? "ok" : "bad") : ""}">${prompt}${fx.pts ? `<span class="sg-float">+${fx.pts}${fx.mult > 1 ? ` <em>×${fx.mult}</em>` : ""}</span>` : ""}</section>
-    ${opts}${fb}
-    ${GE.calm && rev && !fx.pts ? `<button class="big ge-next" data-a="genext">${esc(GE.n >= GE_MAX ? T("Se resultatet", "See the result") : T("Neste →", "Next →"))}</button>` : ""}
+    ${opts}${geActHTML(rev, fx, fb)}
   </main>`;
+}
+// «Neste» dokket nederst (.next-dock): når en ny dokk dukker opp (ny nøkkel data-k), får knappen fokus, og siden ruller
+// akkurat så mye at starten av tilbakemeldingen rett over synes. Nøkkelen hindrer at skjermer som tegnes på nytt hvert sekund, hopper.
+let NEXT_K = null;
+if(typeof MutationObserver !== "undefined" && typeof document !== "undefined" && document.documentElement) new MutationObserver(() => {
+  const dock = document.querySelector(".next-dock[data-k]"); if(!dock){ NEXT_K = null; return; } if(dock.dataset.k === NEXT_K) return; NEXT_K = dock.dataset.k;
+  const btn = dock.querySelector("button"); if(btn) btn.focus({ preventScroll: true });
+  const fb = dock.previousElementSibling, top = dock.getBoundingClientRect().top; if(!fb) return;
+  const r = fb.getBoundingClientRect(); if(r.top > top - 70) window.scrollBy(0, r.top - (top - 100));
+}).observe(document.documentElement, { childList: true, subtree: true });
+// Generelt: rull så midten av target synes over handlingsraden (.ge-act) nederst
+function actReveal(target){
+  const bar = document.querySelector(".ge-act"), el = typeof target === "string" ? document.querySelector(target) : target; if(!bar || !el) return;
+  const r = el.getBoundingClientRect(), top = bar.getBoundingClientRect().top, mid = Math.min(r.bottom, r.top + Math.max(40, r.height / 2));
+  if(mid > top - 12) window.scrollBy(0, mid - (top - 24));
+}
+// Etter feil svar: rull akkurat så mye at det riktige landet (midten av det) synes over handlingsraden nederst
+function geReveal(){
+  const q = GE && GE.q, bar = document.querySelector(".ge-act"); if(!q || !bar) return;
+  actReveal(document.querySelector(`.ge-svg [data-gc="${q.c}"], .mp-svg [data-mpc="${q.c}"]`));
+}
+// Etter feil svar: tilbakemeldingen og «Neste» i en rad som klistrer seg til bunnen av skjermen, så man aldri må lete under kartet.
+// Med tid og liv går spillet videre av seg selv; da vises hvor lenge det er igjen, og «Neste nå» hopper over ventetiden.
+function geActHTML(rev, fx, fb){
+  if(!rev || fx.pts) return "";
+  const end = GE.n >= GE_MAX || (!GE.calm && GE.lives <= 0);
+  return sgActHTML(fb, GE.calm ? 0 : GE_WAIT_BAD, "genext", end ? T("Se resultatet", "See the result") : GE.calm ? T("Neste →", "Next →") : T("Neste nå →", "Next now →"));
+}
+// Felles for kartspillet og skiltspillet: tilbakemelding + knapp i en rad klistret til bunnen; ms > 0 = går videre av seg selv (nedtelling vises)
+function sgActHTML(fb, ms, action, label){
+  const auto = ms ? `<span class="ge-auto"><i style="animation-duration:${ms}ms" aria-hidden="true"></i><small>${esc(T(`Går videre om ${nf(ms / 1000, 1)} sekunder`, `Moving on in ${nf(ms / 1000, 1)} seconds`))}</small></span>` : "";
+  return `<div class="ge-act" role="status">${fb}<div class="ge-act-row">${auto}<button class="big ge-next" data-a="${action}">${esc(label)}</button></div></div>`;
 }
 function geMenuHTML(){
   const best = geBest(), mode = GE.mode || "find", st = geSt();
