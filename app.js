@@ -48,6 +48,7 @@ function richDoc(src){
     if((m = L.match(/^!\[sim:(\w+)\]$/))){ fAll(); out.push(simHTML(m[1])); continue; }
     if((m = L.match(/^!\[tl:(\w+)\]$/))){ fAll(); if(typeof tlHTML === "function") out.push(tlHTML(m[1])); continue; }
     if((m = L.match(/^!\[map:(\w+)\]$/))){ fAll(); if(typeof mapHTML === "function") out.push(mapHTML(m[1])); continue; }
+    if((m = L.match(/^!\[anim:(\w+)\]$/))){ fAll(); if(typeof anCardHTML === "function") out.push(anCardHTML(m[1])); continue; }
     if((m = L.match(/^!\[mv:(\w+)\]$/))){ fAll(); if(typeof mvHTML === "function") out.push(mvHTML(m[1])); continue; }
     if((m = L.match(/^!\[ctl:(\w+)\]$/))){ fAll(); if(typeof ctHTML === "function") out.push(ctHTML(m[1])); continue; }
     if((m = L.match(/^!\[(sort|seq):(\w+)\]$/))){ fAll(); if(typeof srtHTML === "function") out.push(m[1] === "sort" ? srtHTML(m[2]) : seqHTML(m[2])); continue; }
@@ -1431,6 +1432,7 @@ function renderNow(){
   else if(screen==="lab") renderLab();
   else if(screen==="geo") renderGeo();
   else if(screen==="motion") renderMotion();
+  else if(screen==="anim") renderAnim();
   else if(screen==="parts") renderParts();
   else if(screen==="ctl") renderCtl();
   else if(screen==="ekalk") renderEk();
@@ -1501,7 +1503,7 @@ document.addEventListener("click", async e=>{
   if(grClick(a, b)) return; // grupper (handlinger som starter med "gr")
   if(studyClick(a, b)) return; // studier (studies.js)
   if(pfClick(a, b)) return; // bevis (proofs.js)
-  if(snEntryClick(a) || snClick(a, b) || spClick(a, b) || gmClick(a, b) || gmMenuClick(a, b) || duClick(a, b) || mdClick(a, b) || unitsClick(a, b) || tgClick(a, b) || fcClick(a, b) || labClick(a, b) || geClick(a, b) || mvClick(a) || piClick(a, b) || ctClick(a, b) || ekClick(a, b) || lsClick(a, b) || catClick(a, b) || focClick(a, b) || poClick(a, b) || welClick(a, b) || edClick(a, b) || mqClick(a, b) || tcClick(a, b) || hwClick(a) || teClick(a, b) || nudgeClick(a, b) || shareClick(a, b) || ibClick(a, b) || dvClick(a, b) || scClick(a, b) || cdClick(a, b) || thClick(a, b)) return; // snacks og lynrunde (snacks.js)
+  if(snEntryClick(a) || snClick(a, b) || spClick(a, b) || gmClick(a, b) || gmMenuClick(a, b) || duClick(a, b) || mdClick(a, b) || unitsClick(a, b) || tgClick(a, b) || fcClick(a, b) || labClick(a, b) || geClick(a, b) || mvClick(a) || anClick(a, b) || piClick(a, b) || ctClick(a, b) || ekClick(a, b) || lsClick(a, b) || catClick(a, b) || focClick(a, b) || poClick(a, b) || welClick(a, b) || edClick(a, b) || mqClick(a, b) || tcClick(a, b) || hwClick(a) || teClick(a, b) || nudgeClick(a, b) || shareClick(a, b) || ibClick(a, b) || dvClick(a, b) || scClick(a, b) || cdClick(a, b) || thClick(a, b)) return; // snacks og lynrunde (snacks.js)
   if(adminClick(a, b)) return; // adminpanel og kunngjøringer (admin.js)
   if(psClick(a, b)) return; // profilsiden til andre + hvilke merker du viser (person.js)
   if(friendsClick(a, b)) return; // venner (handlinger som starter med "fr")

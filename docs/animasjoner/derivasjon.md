@@ -1,61 +1,70 @@
 # Animasjon: Fra sekant til tangent – hva den deriverte er (id: derivasjon)
-Status: pilotmanus og prototype (oppgave 21, 2026-10-15). Ikke faglig godkjent av fagperson. Ikke i appen.
-Fag/enhet: VG1T, enhet 3 «Derivasjon og vekstfart»; også VGR1 enhet 2 «Derivasjon og drøfting», GMAT enhet 8 «Innføring i derivasjon» og MEK1000 enhet 1 «Derivasjon».
-Plassering (hvis den tas inn senere): teorien i enhetene over (![anim:derivasjon]) og Labben, ved siden av simuleringen «Fra sekant til tangent» (`secant` i sims4.js).
-Prototype: `prototypes/animasjoner/derivasjon/` (manus, tegning og tider ligger i `anim.js`; tabellen under er laget fra den fila).
+Status: **i appen** (2026-10-15). Ikke faglig godkjent av fagperson. Fast fortellerstemme: ikke publisert ennå (se «Fortellerstemme»).
+Fag/enhet: VG1T «Derivasjon og vekstfart», VGR1 «Derivasjon og drøfting», GMAT «Innføring i derivasjon», MEK1000 «Derivasjon» og VGS1 «Derivasjon og optimering».
+Finnes i Axle: et kort øverst i teorien i enhetene over (settes inn av `withAnim` i anim.js, før den andre overskriften), under «Labber i faget» på Øv og i Labben («Animasjon: fra sekant til tangent»), og på adressen `#/animasjon/derivasjon`.
+Kode: `anim.js` (manus, tidslinje, tegning og avspiller). Tabellen under er laget fra den fila. Prototypen i `prototypes/animasjoner/derivasjon/` (oppgave 21) er erstattet av denne og brukes ikke lenger.
 
 ## Del A – Manus
 
 ### 1. Målgruppe og mål
-- **Målgruppe:** elever i 1T eller R1 som møter den deriverte for første gang (16–17 år), og studenter som repeterer (GMAT, MEK1000).
-- **Forkunnskaper:** stigningstallet til en rett linje som Δy/Δx; å sette inn i et funksjonsuttrykk; å regne ut (3 + h)².
-- **Etter filmen kan eleven** forklare at den deriverte i et punkt er stigningstallet til tangenten, og at den finnes ved å la sekanter gjennom punktet bli kortere og kortere (h → 0). Eleven kan bruke det til å finne f′(3) = 6 for f(x) = x².
-- **Elevspørsmål filmen svarer på:** «Hvordan kan en kurve ha *ett* stigningstall når den hele tiden bøyer seg?»
-- **Misforståelsen vi vil overvinne:** «Stigningen til en kurve finner du ved å ta to punkter på den, som for en rett linje.» Svaret avhenger da av hvilke punkter man velger (8 eller 7), og det er gjennomsnittlig vekstfart, ikke momentan. Orton (1983) fant at mange elever kunne regle derivasjon uten å se den deriverte som grensen for sekantenes stigning.
-- **Hva bevegelse viser bedre enn et stillbilde:** at sekanten *dreier* og nærmer seg én bestemt linje mens Q glir mot P. Grensen blir en bevegelse eleven ser, ikke et symbol (lim).
-- **Lengde:** 111 s (60–120 s). **Visuell stil:** som Axles figurer: rutefritt koordinatsystem, grafen blå (--c3), sekanten oransje (--c2), tangenten grønn (--c4), stigningstrekant og h lilla (--c5). Samme farge for samme størrelse hele veien. Tekst i høyre felt, aldri oppå grafen.
+- **Målgruppe:** elever i 1T, R1 og S1 som møter den deriverte for første gang, og studenter som repeterer (GMAT, MEK1000).
+- **Forkunnskaper:** stigningstallet til en rett linje som «opp delt på bort»; å sette inn i et funksjonsuttrykk; å regne ut (3 + h)².
+- **Etter filmen kan eleven** forklare at den deriverte i et punkt er stigningen til tangenten, og at den finnes ved å la sekanter gjennom punktet bli kortere og kortere (h → 0). Eleven kan bruke det til å finne f′(3) = 6 for f(x) = x², og forklare f′(x) = 2x.
+- **Elevspørsmål:** «Hvordan kan en kurve ha ett stigningstall når den hele tiden bøyer seg?»
+- **Misforståelsen:** «Stigningen til en kurve finner du med to punkter, som for en rett linje.» Filmen viser at svaret da avhenger av punktene (8 er et gjennomsnitt), og lar så det andre punktet gli mot P.
+- **Lengde:** 2:43 (16 replikker i 8 scener). Ingen endring i det faglige målet fra oppgave 21; manuset er skrevet om for den nye regien (punkt for punkt under), og tallene er de samme.
 
-### 2. Scener
-Ca. 2,5 ord/s på norsk; testen (`tools/test_anim_proto.js`) feiler over 2,6 ord/s på norsk og 3,0 på engelsk. Hver scene varer 5–15 s.
-**Stemme:** «TTS-klar» = tallene er skrevet som ord eller vanlige tall og bør leses riktig av en god norsk stemme. «Må testes» = uttalen av symboler (h, x i andre, f derivert) må lyttes gjennom; hvis den er feil, legges en egen `say`-tekst på replikken i `anim.js`. Menneskelig innlesing anbefales hvis filmen skal publiseres (se Fortellerstemme i docs/ANIMASJONER.md).
+### 2. Regi (visuell plan)
+- **Én verden:** et rolig rutenett med akser, kurven i blått. Alt regnes ut fra ett tidspunkt, så bevegelsen er kontinuerlig, og hopp i tidslinjen gir samme bilde som avspilling.
+- **Inngang:** aksene står fra start; kurven tegnes inn fra venstre med myk start og stopp. P dukker opp med en liten overshoot, og stiplede hjelpelinjer viser x = 3 og høyden f(3) = 9. En myk glorie pulserer rundt P når spørsmålet stilles.
+- **Sekanten** vokser ut fra P gjennom Q. En lilla trekant viser «2 bort» og «16 opp». Buen mellom P og Q lyser opp når fortelleren sier at sekanten skjærer kurven.
+- **Mot grensen:** h glir kontinuerlig 2 → 1 → 0,5 → 0,1 → 0,01 og stopper mykt på tallene fortelleren nevner. Sekanten dreier sammenhengende (testet: høyst 1,5° per bilde ved 60 bilder/s). Når h er liten, går kameraet rolig inn mot P, så det lille gapet synes. En stiplet grønn tangent viser hvor sekanten er på vei.
+- **Tangenten:** sekanten og Q tones ut, tangenten blir heltrukken grønn, kameraet går ut igjen. En grønn trekant viser «1 bort, 6 opp».
+- **Regnestykket:** grafen tones helt ut, og utregningen kommer linje for linje, stort og midtstilt, med h i lilla og 6 i grønt som i bildet.
+- **Overalt på kurven:** et grønt punkt glir til x = 1, 2 og 4 og stopper der; tangenten følger med. Tallene står under bildet.
+- **Oppsummering:** tangenten med trekanten og svake sekanter (h = 2, 1, 0,5) som nærmer seg den.
+- **Farger (samme hele veien, forklart med etiketter):** kurve blå (--c3), Q og sekant oransje (--c2, tekst --c2-text), tangent grønn (--c4), «opp/bort» og h lilla (--c5). Ingen overganger eller skygger (docs/DESIGN.md).
+- **Tekst i bildet** bare for det geometriske (P, Q, sekant, tangent, 2 bort/16 opp, h/opp, 1 bort/6 opp, akser). Levende tall og formler står i en stripe under bildet, så de aldri dekker kurven. Etikettene står der geometrien er fri: oppe til venstre for punktene, under «bort», til høyre for «opp» (på smal skjerm inne i trekanten når det ikke er plass).
+- **Mobil og PC:** to oppsett (400 × 400 og 720 × 405). Tekst i bildet er 14–20 px på skjermen.
 
-| # | Scene | Tid (s) | Fortellertekst nb (nøyaktig) | Fortellertekst en | Hva vises (bildet) | Stemme |
-|---|---|---|---|---|---|---|
-| l01 | 1. Hvor bratt er kurven? | 0–8 | En rett linje er like bratt overalt. Men hvor bratt er denne kurven akkurat der x er 3? | A straight line is equally steep everywhere. But how steep is this curve exactly where x is 3? | Grafen til f(x) = x² tegnes fra venstre. Punktet P(3, 9) dukker opp. | TTS-klar |
-| l02 | 2. En sekant | 8–18 | Vi låner en idé fra rette linjer. Vi velger et punkt til, der x er 5, og trekker en linje gjennom begge punktene. | We borrow an idea from straight lines. We pick one more point, where x is 5, and draw a line through both points. | Punktet Q(5, 25) dukker opp. En rett linje (sekanten) trekkes gjennom P og Q. | TTS-klar |
-| l03 | 3. Stigningen til sekanten | 18–25 | Linjen stiger 16 når vi går 2 bortover. Stigningstallet er 16 delt på 2, altså 8. | The line rises 16 when we move 2 across. The slope is 16 divided by 2, which is 8. | En stigningstrekant: 2 bortover og 16 opp. Skjermtekst: stigning = 16 / 2 = 8. | TTS-klar |
-| l04 | 4. Det avhenger av punktet | 25–34 | Hadde vi valgt x lik 4 i stedet, ville linjen fått stigningstallet 7. Svaret avhenger av hvilket punkt vi velger. | If we had picked x equal to 4 instead, the line would have slope 7. The answer depends on which point we pick. | Q glir fra x = 5 til x = 4, og sekanten blir slakere. Tabell: Q ved x = 5 gir 8, Q ved x = 4 gir 7. | TTS-klar |
-| l05 | 4. Det avhenger av punktet | 34–38 | Så ingen av dem er stigningen i selve punktet P. | So neither of them is the slope at the point P itself. | Begge sekantene står igjen. Skjermtekst: «Ingen av dem er stigningen i P.» | TTS-klar |
-| l06 | 5. Tenkepause | 38–47 **(venter)** | Hva tror du skjer med stigningstallet når det andre punktet kommer nærmere og nærmere P? Tenk deg om, og trykk Fortsett. | What do you think happens to the slope as the second point gets closer and closer to P? Think about it, then press Continue. | Tenkepause. Q står igjen ved x = 5. Spørsmålet står på skjermen, og animasjonen venter. | TTS-klar |
-| l07 | 6. Q glir mot P | 47–53 | La det andre punktet gli mot P. Avstanden bortover mellom dem kaller vi h. | Let the second point slide towards P. We call the distance across between them h. | Klammen h vises under grafen mellom x = 3 og x = 5. | Må testes («h») |
-| l08 | 6. Q glir mot P | 53–62 | Når h er 1, er stigningen 7. Når h er en halv, er den 6,5. Når h er en tidel, er den 6,1. | When h is 1, the slope is 7. When h is a half, it is 6.5. When h is a tenth, it is 6.1. | Q glir mot P i tre trinn (h = 1, 0,5 og 0,1). Tabellen fylles: 7, 6,5 og 6,1. | Må testes («6,5», «h») |
-| l09 | 7. Tangenten | 62–70 | Tallene nærmer seg 6. Og linjen slutter å skjære gjennom kurven. Den legger seg inntil. Det er tangenten. | The numbers approach 6. And the line stops cutting through the curve. It just touches it. That is the tangent. | h krymper til 0,01, linjen skifter farge og blir tangenten med stigning 6. | TTS-klar |
-| l10 | 8. Algebraen | 70–77 | Algebraen sier det samme. Vi regner ut stigningen mellom x lik 3 og x lik 3 pluss h. | The algebra agrees. We find the slope between x equals 3 and x equals 3 plus h. | Grafen forsvinner. Regnestykket skrives linje for linje: stigning = (f(3 + h) − f(3)) / h = ((3 + h)² − 9) / h. | Må testes («x lik 3 pluss h») |
-| l11 | 8. Algebraen | 77–85 | Ganger vi ut og forkorter med h, står 6 pluss h igjen. Når h går mot null, blir det 6. | If we expand and cancel h, we are left with 6 plus h. As h goes to zero, that becomes 6. | Tre nye linjer: = (6h + h²) / h, = 6 + h og → 6 når h → 0. | Må testes («6 pluss h») |
-| l12 | 9. Overalt på kurven | 85–93 | Gjør det samme der x er 1 og der x er 2. Da får du stigningene 2 og 4. | Do the same where x is 1 and where x is 2. Then you get the slopes 2 and 4. | Tangenter i x = 1 og x = 2 tegnes. Tabellen x / stigning: 1 → 2, 2 → 4, 3 → 6. | TTS-klar |
-| l13 | 9. Overalt på kurven | 93–100 | Stigningen er hele tiden det dobbelte av x. Derfor er den deriverte av x i andre lik 2x. | The slope is always twice x. That is why the derivative of x squared is 2x. | Skjermtekst: f′(x) = 2x. | Må testes («x i andre», «2x») |
-| l14 | 10. Oppsummering | 100–111 | Den deriverte er stigningen til tangenten. Vi finner den ved å la sekanten krympe til h nesten er null. Her er f derivert av 3 lik 6. | The derivative is the slope of the tangent. We find it by letting the secant shrink until h is almost zero. Here, f prime of 3 is 6. | Oppsummering ved siden av grafen med tangenten i P: den deriverte = stigningen til tangenten; f′(3) = 6. | Må testes («f derivert av 3») |
+### 3. Replikker
+Ca. 2,4 ord/s på norsk (testen feiler over 2,6). Hver replikk har en fast plass i tidslinjen; bevegelsen i replikken er ferdig før den slutter.
 
-Tenkepausen (l06) stopper avspillingen til eleven trykker «Fortsett». Med innlest lyd varer hver replikk så lenge lyden + 0,5 s, så tidene over er planlagte tider.
+| # | Scene | Tid | Fortellertekst nb (nøyaktig) | Fortellertekst en | Hva eleven ser |
+|---|---|---|---|---|---|
+| l00 | 1. Kurven og punktet | 0:00–0:08 | Her er grafen til f av x lik x i andre. Jo lenger mot høyre, jo brattere blir den. | Here is the graph of f of x equals x squared. The further right we go, the steeper it gets. | Koordinatsystemet tones inn, og grafen til f(x) = x² tegnes fra venstre. |
+| l01 | 1. Kurven og punktet | 0:08–0:16 | Vi ser på punktet P der x er 3. Høyden der er 3 i andre, altså 9. | We look at the point P where x is 3. The height there is 3 squared, which is 9. | Punktet P = (3, 9) dukker opp. Stiplede linjer viser x = 3 og høyden f(3) = 9. |
+| l02 | 1. Kurven og punktet | 0:16–0:23 | Men hvor bratt er kurven akkurat i P? En kurve har ingen fast stigning. | But how steep is the curve exactly at P? A curve has no single slope. | En ring pulserer rundt P. |
+| l03 | 2. Sekanten | 0:23–0:34 | Vi velger et punkt Q til, der x er 5, og trekker en rett linje gjennom P og Q. Den kalles en sekant. | We pick another point Q, where x is 5, and draw a straight line through P and Q. It is called a secant. | Punktet Q = (5, 25) dukker opp, og en oransje rett linje (sekanten) tegnes gjennom P og Q. |
+| l04 | 2. Sekanten | 0:34–0:44 | Fra P til Q går linjen 2 bort og 16 opp. Stigningen er 16 delt på 2, altså 8. | From P to Q the line goes 2 across and 16 up. The slope is 16 divided by 2, which is 8. | En lilla trekant viser 2 bort og 16 opp fra P til Q. Under bildet: stigning = 16 / 2 = 8. |
+| l05 | 2. Sekanten | 0:44–0:54 | Men sekanten skjærer gjennom kurven. 8 er et gjennomsnitt mellom x lik 3 og x lik 5, ikke stigningen i P. | But the secant cuts through the curve. 8 is an average between x equals 3 and x equals 5, not the slope at P. | Buen av kurven mellom P og Q lyser opp: sekanten skjærer kurven i to punkter. |
+| l06 | 3. Tenk selv | 0:54–1:03 **(venter)** | Hva skjer med stigningen hvis Q flyttes nærmere P? Tenk deg om, og trykk Fortsett. | What happens to the slope if Q moves closer to P? Think about it, then press Continue. | Tenkepause. Animasjonen venter. |
+| l07 | 4. Mot grensen | 1:03–1:14 | Vi lar Q gli mot P. Avstanden bort kaller vi h. Se hvordan sekanten dreier og blir slakere. | We let Q slide towards P. We call the distance across h. Watch the secant turn and get less steep. | Q glir jevnt mot P, og sekanten dreier og blir slakere. Trekanten heter nå h bort og opp. Under bildet vises h og stigningen 6 + h. |
+| l08 | 4. Mot grensen | 1:14–1:26 | Når h er 1, er stigningen 7. Når h er en halv, er den 6,5. Når h er en tidel, er den 6,1. | When h is 1, the slope is 7. When h is a half, it is 6.5. When h is a tenth, it is 6.1. | Q stopper ved h = 1, 0,5 og 0,1. Stigningen er 7, 6,5 og 6,1. |
+| l09 | 4. Mot grensen | 1:26–1:36 | Tallene nærmer seg 6. Den stiplede grønne linjen viser hvor sekanten er på vei: mot tangenten. | The numbers approach 6. The dashed green line shows where the secant is heading: towards the tangent. | Kameraet går nær P. En stiplet grønn linje (tangenten) vises, og sekanten legger seg nesten oppå den når h = 0,01 (stigning 6,01). |
+| l10 | 5. Tangenten | 1:36–1:45 | Når h nesten er null, faller sekanten sammen med tangenten. Den berører kurven i P uten å skjære gjennom. | When h is almost zero, the secant merges with the tangent. It touches the curve at P without cutting through. | Sekanten og Q forsvinner, og tangenten blir heltrukken grønn. Kameraet går ut igjen. |
+| l11 | 5. Tangenten | 1:45–1:56 | Tangenten går 6 opp for hver 1 bort. Stigningen i P er altså 6. Den kaller vi f derivert av 3. | The tangent goes 6 up for every 1 across. So the slope at P is 6. We call it f prime of 3. | En grønn trekant fra P viser 1 bort og 6 opp. Under bildet: f′(3) = 6. |
+| l12 | 6. Regnestykket | 1:56–2:10 | Algebraen sier det samme. Stigningen til sekanten er f av 3 pluss h minus 9, delt på h. Det forkortes til 6 pluss h, som går mot 6. | The algebra says the same. The slope of the secant is f of 3 plus h minus 9, divided by h. That simplifies to 6 plus h, which tends to 6. | Bildet dempes, og utregningen vises linje for linje: (f(3 + h) − f(3)) / h = ((3 + h)² − 9) / h = (6h + h²) / h = 6 + h → 6. |
+| l13 | 7. Overalt på kurven | 2:10–2:24 | Flytter vi punktet langs kurven, følger tangenten med. Ved x lik 1 er stigningen 2, ved 2 er den 4, og ved 4 er den 8. | If we move the point along the curve, the tangent follows. At x equals 1 the slope is 2, at 2 it is 4, and at 4 it is 8. | Et grønt punkt glir langs kurven til x = 1, 2 og 4, og tangenten følger med. Stigningen er 2, 4 og 8. |
+| l14 | 7. Overalt på kurven | 2:24–2:34 | Stigningen er alltid det dobbelte av x. Derfor er den deriverte av x i andre lik 2x, og f derivert av 3 er 6. | The slope is always twice x. That is why the derivative of x squared is 2x, and f prime of 3 is 6. | Punktet går tilbake til x = 3. Under bildet: f′(x) = 2x og f′(3) = 2 · 3 = 6. |
+| l15 | 8. Oppsummert | 2:34–2:43 | Den deriverte er stigningen til tangenten: grensen for sekantens stigning når h går mot null. | The derivative is the slope of the tangent: the limit of the secant's slope as h goes to zero. | Tangenten i P med trekanten 1 bort og 6 opp, og svake sekanter (h = 2, 1 og 0,5) som nærmer seg den. |
 
-### 3. Alt som vises
-- **Formler (slik de står på skjermen):** f(x) = x²; stigning = 16 / 2 = 8; stigning = (f(3 + h) − f(3)) / h = ((3 + h)² − 9) / h = (9 + 6h + h² − 9) / h = (6h + h²) / h = 6 + h → 6 når h → 0; f′(x) = 2x; f′(3) = 6.
-- **Symboler:** P = (3, 9) punktet vi spør om; Q det andre punktet på kurven; h avstanden bortover fra P til Q; f′ den deriverte.
-- **Kontrollert eksempel:** f(3) = 9, f(5) = 25, Δy = 16, Δx = 2 → 8. f(4) = 16 → (16 − 9)/1 = 7. Generelt (f(3 + h) − f(3))/h = 6 + h: h = 1 → 7; 0,5 → 6,5; 0,1 → 6,1; 0,01 → 6,01. Grensen er 6. Tangenter: f′(1) = 2, f′(2) = 4, f′(3) = 6. Tangenten i P: y = 6x − 9. Alt regnes ut på nytt i `tools/test_anim_proto.js`, som også sjekker at tallene står slik i fortellerteksten.
-- **Farger:** graf --c3, sekant/Q --c2, tangent --c4, trekant og h --c5. Teksten i høyre felt er --ink/--muted.
+### 4. Alt som vises og kontrollert eksempel
+- **Under bildet:** f(x) = x²; P = (3, 9), f(3) = 3² = 9; Q = (5, 25); stigning = 16 / 2 = 8; h og stigning = 6 + h (levende, to desimaler); stigning = 6 / 1 = 6, f′(3) = 6; 6 + h → 6 når h → 0; x og stigning = 2x (levende); f′(x) = 2x, f′(3) = 2 · 3 = 6.
+- **Regnestykket:** stigning = (f(3 + h) − f(3)) / h = ((3 + h)² − 9) / h = (6h + h²) / h = 6 + h → 6 når h → 0.
+- **Kontrollert (tools/test_anim.js):** 16/2 = 8; h = 1, 0,5, 0,1, 0,01 gir 7, 6,5, 6,1, 6,01; grensen 6; f′(1), f′(2), f′(3), f′(4), f′(5) = 2, 4, 6, 8, 10. Testen sjekker også at h står nøyaktig på 1, 0,5 og 0,1 mens fortelleren sier tallene, at stripa viser 7,00, 6,50, 6,10 og 6,01 da, og at tangentpunktet står på x = 1, 2 og 4 med stigning 2, 4 og 8.
 
-### 4. Kontroll av forståelsen (etter siste scene)
-- **Spørsmål:** «Hva er f′(5) når f(x) = x²?» **Riktig:** 10.
-- **Fristende feilsvar:** 25 (funksjonsverdien f(5), ikke stigningen), 8 (sekanten fra x = 3 til x = 5, altså misforståelsen fra scene 3) og 5 (glemmer faktoren 2).
-- **Forklaring etter svar:** «f′(x) = 2x, så f′(5) = 2 · 5 = 10. 25 er funksjonsverdien f(5), ikke stigningen. 8 er stigningen til sekanten fra x = 3 til x = 5. 5 glemmer faktoren 2.» Riktig og feil vises med ✓/✗, ikke bare farge.
-- **Avslutning:** oppsummeringen (l14) og spørsmålet over.
+### 5. Kontroll av forståelsen
+«Hva er f′(5) når f(x) = x²?» Riktig: 10. Fristende feil: 25 (funksjonsverdien), 8 (sekanten fra 3 til 5), 5 (glemmer faktoren 2). Forklaring vises etter svar, og riktig/feil vises med ✓/✗, ikke bare farge.
 
-### 5. Tilgjengelighet
-- **Teksting:** fortellerteksten vises per replikk under figuren (`aria-live="polite"`), kan slås av.
-- **Transkript:** hele manuset med beskrivelse av bildet per replikk, i en utvidbar seksjon under avspilleren (nb og en).
-- **Redusert bevegelse:** med `prefers-reduced-motion` (eller valget «Trinnvis») vises sluttbildet av hver replikk som stillbilde med Forrige/Neste, uten automatisk avspilling.
-- **Mobil (375 px):** figuren skaleres til bredden; minste tekst i figuren er 13 px i viewBox (ca. 11 px på 375 px, tallene på aksene) og 15 px ellers. Alle knapper er minst 44 px høye.
-- **Avspilling:** Spill/Pause/Fortsett/Spill på nytt, Forrige/Neste scene, tidslinje, hastighet (0,75×, 1×, 1,25×), teksting, lyd (bare når innlest lyd finnes), norsk/engelsk. Tastatur: Mellomrom, ←, →. Starter ikke av seg selv.
+### 6. Tilgjengelighet
+Teksting per replikk (kan slås av), hele teksten med beskrivelse av bildet (tekstalternativ), trinnvis visning ved redusert bevegelse (sluttbildet av hver replikk med Forrige/Neste, ingen automatisk avspilling), tastatur (Mellomrom, ←, →), knapper på minst 44 px, Spill synlig uten å rulle på 375 × 667. Animasjonen starter ikke av seg selv og virker helt uten lyd.
+
+## Fortellerstemme
+- **I appen nå:** teksting alltid; valgfri «Les opp (enhetens stemme)» med stemmen på elevens egen enhet (samme som «Lytt»). Ingen tjeneste kontaktes. Bildet venter ved slutten av en replikk til stemmen er ferdig, så ingenting kuttes.
+- **Ferdige lydfiler:** avspilleren spiller `anim/derivasjon/<språk>/<replikk>.mp3` når `assets/anim/derivasjon/manifest.json` finnes (kopieres til bygget av build.py). Varer en fil lenger enn replikken, venter bildet. Testen godtar bare filer laget på en aktiv betalt plan, med samme tekst som manuset.
+- **ElevenLabs (planlagt):** se docs/ANIMASJONER.md, «Fortellerstemme med ElevenLabs». Ingen privat prøve eller endelig lyd er laget ennå (nøkkelen var ikke tilgjengelig for verktøyene i økten).
+- **macOS «Nora»:** brukt bare lokalt til å prøve tempo og synkronisering (local/, i .gitignore). Apples lisens (macOS 27, punkt F) tillater bare personlig, ikke-kommersiell bruk av systemstemmene og forbyr publisering, så disse filene publiseres ikke. Alle 16 Nora-replikkene var kortere enn plassen sin (5,1–10,8 s), så bildet trengte aldri vente.
 
 ## Del B – Faglig kontroll
 | Påstand / utregning / eksempel | Kontrollert mot (kilde) | Resultat | Usikkerhet |
@@ -67,16 +76,9 @@ Tenkepausen (l06) stopper avspillingen til eleven trykker «Fortsett». Med innl
 
 Ingenting er merket faglig godkjent; `reviewedBy` fylles ikke ut av Claude.
 
-## Del C – Implementeringsinstruks
-Prototypen følger standardteksten i docs/ANIMASJONER.md med disse avvikene (fordi den kjøres utenfor appen): egen `player.js`/`player.css` i stedet for `anim.js` i build.py; tiden deles opp i replikker (ikke scener), og `frame(i, p)` tegner replikk i ved fremdrift p; lyd fra ElevenLabs (valgfritt, `voice.mjs`) i stedet for `tts.js`; ingen KaTeX (formlene er ren tekst). Tas den inn i appen, flyttes avspilleren til `anim.js`, og formlene vurderes med KaTeX.
-
-## Del D – Sjekkliste (prototype)
-- [x] `node tools/test_anim_proto.js` grønn (tider, taletempo, nb/en, tenkepause, kontrollspørsmål, tallene)
-- [x] `node tools/check_anim_proto.js`: 0 funn på 375/768/1280 px, lyst og mørkt, nb og en; tastatur, tenkepause, slutt og trinnmodus kontrollert
-- [x] Sett på 375 og 1280 px, lyst og mørkt tema (skjermbilder av alle replikkene)
-- [x] Redusert bevegelse gir stillbilder med Forrige/Neste
-- [x] Teksting og transkript på nb og en
-- [x] Kontrollspørsmålet virker, ✓/✗ og forklaring vises
-- [ ] Lyttet gjennom med ElevenLabs-stemme (ikke gjort: ELEVENLABS_API_KEY var ikke satt i økten)
+## Del D – Sjekkliste (2026-10-15)
+- [x] `node tools/test_anim.js` (i npm test): manus, tidslinje, tegning hvert 0,1 s i begge oppsett og språk, faglige verdier, kontinuerlig bevegelse, kobling til enhetene
+- [x] `node tools/check_anim.js`: 0 funn på 375/768/1280 px i lyst og mørkt tema; tastatur, tenkepause, scenehopp, tidslinje, Spill på nytt, kontrollspørsmål, teksting, redusert bevegelse, venting på stemmen, lydfil-synkronisering (prøvd med lokale Nora-filer), kortet i teorien
+- [x] Hele filmen sett gjennom bilde for bilde (hvert 2. sekund) på PC og mobil, lyst og mørkt; rettet: tom start, Q i kanten, etiketter oppå hverandre, brå overgang til regnestykket, tall som ble røpet for tidlig, etiketter som ble kuttet på smal skjerm
+- [ ] Fast fortellerstemme: privat ElevenLabs-prøve, godkjenning av stemme og manus, endelig lyd på betalt plan, gjennomlytting
 - [ ] Faglig gjennomlest av matematikklærer
-- [ ] Sett av eieren på mobil

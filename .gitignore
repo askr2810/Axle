@@ -9,3 +9,4 @@ android/app/src/main/assets/public/
 vendor/pyodide/
 figcheck.json
 prototypes/animasjoner/*/audio/
+local/

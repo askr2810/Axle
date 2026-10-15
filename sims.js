@@ -296,6 +296,7 @@ function withSims(code, u, src){
   if(typeof withTl === "function") src = withTl(code, u, src);
   if(typeof withMaps === "function") src = withMaps(code, u, src);
   if(typeof withMv === "function") src = withMv(code, u, src);
+  if(typeof withAnim === "function") src = withAnim(code, u, src); // etter withMv, så animasjonen står over bevegelseslaben
   if(typeof withCtl === "function") src = withCtl(code, u, src);
   if(typeof withWidgets === "function") src = withWidgets(code, u, src);
   const m = SIM_MAP[code + ":" + u]; if(!m || src.includes("![sim:")) return src;

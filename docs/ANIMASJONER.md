@@ -153,16 +153,32 @@ Risikofag (legemiddelregning, førerkort, jus) er holdt utenfor kortlista: en an
 - **Prototype (derivasjon):** `prototypes/animasjoner/derivasjon/`, med felles avspiller `prototypes/animasjoner/player.js` og `player.css`. HTML og SVG uten avhengigheter: Spill/Pause/Fortsett/Spill på nytt, Forrige/Neste scene, tidslinje, hastighet, teksting, lyd, norsk/engelsk, tenkepause som venter, trinnmodus ved redusert bevegelse, transkript og kontrollspørsmål med ✓/✗. Se `prototypes/animasjoner/README.md` for hvordan den startes.
 - **Kontroll:** `node tools/test_anim_proto.js` (i `npm test`): tider, taletempo, nb/en, tenkepause, kontrollspørsmål, alle tegninger uten NaN, og tallene i fortellerteksten regnet ut på nytt. `node tools/check_anim_proto.js` (Playwright, lokal server): kollisjoner i figuren på 375/768/1280 px i lyst og mørkt tema, tastatur, tenkepause, slutt og trinnmodus.
 
-### Fortellerstemme med ElevenLabs (valgfritt)
+### Fortellerstemme med ElevenLabs
 
-`node prototypes/animasjoner/voice.mjs derivasjon --dry-run` viser tekstene og antall tegn uten å sende noe. Med `ELEVENLABS_API_KEY` i miljøet lager skriptet én mp3 per replikk i `prototypes/animasjoner/derivasjon/audio/` (i .gitignore) og en `manifest.json` med varighetene. Avspilleren slår da på «Lyd», og hver replikk varer så lenge lyden + 0,5 s, så teksting, bilde og lyd holder seg sammen også med andre stemmer og hastigheter.
+Appen spiller bare av ferdige lydfiler; den lager aldri tale og kontakter ingen tjeneste. Lyden lages én gang med `tools/anim_voice.mjs`, og bare på nytt når manuset eller stemmen endres (manifestet har et fingeravtrykk av teksten i hver replikk).
 
-- Nøkkelen leses bare fra miljøet og skrives aldri ut eller lagres. Bare manustekst sendes til ElevenLabs, ingen brukerdata.
-- `ELEVENLABS_VOICE_ID` velger stemmen. Standarden er en ferdig engelsk stemme; velg en norsk stemme i ElevenLabs’ stemmebibliotek. `ELEVENLABS_MODEL` er `eleven_v4` som standard, en av modellene som ifølge ElevenLabs’ dokumentasjon (lest 2026-10-15) støtter norsk. `eleven_multilingual_v2` støtter ikke norsk. `eleven_flash_v2_5` gjør det og er billigere.
-- Eksisterende lydfiler lages ikke på nytt uten `--force`, og `--only l03,l04` lager bare noen replikker. Det sparer kreditter når én setning endres.
-- Uttale: trenger en replikk annen tekst til stemmen enn i tekstingen (for eksempel «x i andre»), legges `say: [nb, en]` på replikken i `anim.js`.
-- Vilkårene for bruk av lyden (kommersiell bruk, lisens per abonnement) må leses hos ElevenLabs før lyden brukes i appen.
-- **Ikke testet:** ingen lyd er laget eller lyttet til. `ELEVENLABS_API_KEY` var ikke satt i økten.
+1. **Gjør nøkkelen synlig for kommandoen.** `ELEVENLABS_API_KEY` og `ELEVENLABS_VOICE_ID` leses bare fra miljøet. Kjør kommandoene i det terminalvinduet der de er satt. Nøkkelen skrives aldri ut, lagres ikke og skal aldri i repoet.
+2. `node tools/anim_voice.mjs --plan` viser plan og status (aldri nøkkelen). `node tools/anim_voice.mjs --voices` viser stemmene på kontoen.
+3. `node tools/anim_voice.mjs derivasjon --provider elevenlabs --dry-run` viser manus, språk, stemme-ID, modell og antall tegn.
+4. **Privat prøve:** `node tools/anim_voice.mjs derivasjon --provider elevenlabs --sample` (standard replikk l01 og l08; velg andre med `--sample l03,l12`). Filene havner i `local/anim-voice-sample/derivasjon/` (i .gitignore). De publiseres aldri, heller ikke fra gratisplanen.
+5. **Endelig lyd, etter godkjent stemme og manus:** `node tools/anim_voice.mjs derivasjon --provider elevenlabs` (og `--lang en` hvis engelsk skal ha stemme). Skriptet nekter hvis planen ikke er betalt og aktiv. Filene havner i `assets/anim/derivasjon/` (i Git, kopieres til `anim/` i bygget av build.py), og manifestet lagrer plan, status, dato, modell og stemme-ID.
+6. Lytt gjennom alt, kjør `python3 build.py`, `npm test` (feiler hvis lyden er laget av en annen tekst enn manuset, eller ikke på en betalt plan) og `node tools/check_anim.js`.
+
+**Lisens:** ElevenLabs’ gratisplan har ingen kommersiell lisens, og lyd laget der får det ikke ved senere oppgradering. Alle betalte planer har kommersiell lisens for innhold laget mens planen er aktiv, også etter at abonnementet avsluttes, unntatt Beta-tjenester ([ElevenLabs: Can I publish the content I generate on the platform?](https://elevenlabs.io/docs/help-center/legal/can-i-publish-the-content-i-generate-on-the-platform), lest 2026-10-15). Bruk ikke en modell som er merket Beta til lyd som skal publiseres. Les vilkårene på nytt før endelig lyd lages.
+
+**macOS-stemmene (for eksempel «Nora»)** kan bare brukes til å prøve tempo og synkronisering lokalt (`--provider say`, til `local/`). Apples lisens (macOS 27, punkt F «Voices») tillater bare personlig, ikke-kommersiell bruk og forbyr «recording, publishing or redistribution … in a profit, non-profit, public sharing or commercial context».
+
+## Animasjoner i appen (anim.js)
+
+Første animasjon i appen: **derivasjon** (manus og regi i [animasjoner/derivasjon.md](animasjoner/derivasjon.md)). Avvik fra standardteksten for Del C, og hvorfor:
+- **Én tidslinje i replikker, ikke scener.** Hver replikk har en fast plass; alt i bildet regnes ut fra tiden (`state(t)`), så hopp i tidslinjen gir samme bilde, og bevegelsen kan testes uten nettleser.
+- **Egen skjerm** (`#/animasjon/<id>`) med et kort i teorien (`![anim:<id>]`, satt inn av `withAnim`), i «Labber i faget» og i Labben. En hel skjerm gir plass til bilde, levende tall, kontroller og teksting på mobil.
+- **To oppsett** (smal og bred), så teksten i bildet er 14–20 px på skjermen.
+- **Linjer og kurve klippes i geometrien**, ikke med `clip-path`, så kollisjonskontrollen ser det samme som eleven.
+- **Lyd:** ferdige filer (`assets/anim/<id>/`) eller enhetens stemme. Bildet venter ved slutten av en replikk til stemmen er ferdig.
+- **Kontroll:** `tools/test_anim.js` (i npm test) og `tools/check_anim.js` (Playwright, lokal server).
+
+Prototypen i `prototypes/animasjoner/` (oppgave 21) er erstattet og brukes ikke lenger.
 
 ## Kvalitetsliste for manus og animasjon
 

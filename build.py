@@ -8,7 +8,7 @@ import os, shutil, json
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
 JS = ["config.js", "i18n.js", "data.js", "gens.js","gens_b.js", "more.js", "more2.js", "more2_b.js", "subjects2.js", "subjects2_b.js", "more3.js",
-      "en_static_*.js", "learn.js", "add_*.js", "figlib.js", "topics.js", "top_*.js", "cfload.js", "exam.js", "backup.js", "cloud.js", "studies.js", "welcome.js", "book.js", "qsearch.js", "catalog.js", "focus.js", "pomo.js", "friends.js", "groups.js", "person.js", "admin.js", "community.js", "avatar.js", "unlocks.js", "badges.js", "challenge.js", "drill.js", "drill_*.js", "favs.js", "push.js", "sfx.js", "figures.js", "figs_vgs.js", "figs_gs.js", "figs_lf.js", "qart.js", "sims.js", "sims2.js", "sims3.js", "sims4.js", "sims5.js", "sims6.js", "sims7.js", "timeline.js", "maps_data.js", "maps.js", "geo_game.js", "motion.js", "control.js", "ekalk.js", "guided.js", "lessons.js", "proofs.js", "trig.js", "forces.js", "lab.js", "parts.js", "avr.js", "code_tasks.js", "code_avr.js", "code.js", "drive_signs_ref.js", "drive_signs.js", "drive_signs_more.js", "drive.js", "drive_game.js", "drive_scenes.js", "drive_pics.js", "sorts.js", "tts.js", "share.js", "inbox.js", "theme.js", "snacks.js", "games.js", "duel.js", "mq.js", "teach.js", "mydecks.js", "units.js", "profile.js", "engage.js", "route.js", "stats.js", "ui_fit.js", "edit.js", "beta.js", "app.js"]
+      "en_static_*.js", "learn.js", "add_*.js", "figlib.js", "topics.js", "top_*.js", "cfload.js", "exam.js", "backup.js", "cloud.js", "studies.js", "welcome.js", "book.js", "qsearch.js", "catalog.js", "focus.js", "pomo.js", "friends.js", "groups.js", "person.js", "admin.js", "community.js", "avatar.js", "unlocks.js", "badges.js", "challenge.js", "drill.js", "drill_*.js", "favs.js", "push.js", "sfx.js", "figures.js", "figs_vgs.js", "figs_gs.js", "figs_lf.js", "qart.js", "sims.js", "sims2.js", "sims3.js", "sims4.js", "sims5.js", "sims6.js", "sims7.js", "anim.js", "timeline.js", "maps_data.js", "maps.js", "geo_game.js", "motion.js", "control.js", "ekalk.js", "guided.js", "lessons.js", "proofs.js", "trig.js", "forces.js", "lab.js", "parts.js", "avr.js", "code_tasks.js", "code_avr.js", "code.js", "drive_signs_ref.js", "drive_signs.js", "drive_signs_more.js", "drive.js", "drive_game.js", "drive_scenes.js", "drive_pics.js", "sorts.js", "tts.js", "share.js", "inbox.js", "theme.js", "snacks.js", "games.js", "duel.js", "mq.js", "teach.js", "mydecks.js", "units.js", "profile.js", "engage.js", "route.js", "stats.js", "ui_fit.js", "edit.js", "beta.js", "app.js"]
 FONTS = '<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Figtree:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap">'
 KATEX_CDN = "https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js"
 
@@ -114,6 +114,10 @@ img{{max-width:100%}}
         if os.path.exists(src):
             txt = open(src, encoding="utf-8").read().replace("__BUILD__", stamp).replace("__CF__", json.dumps(cfv))
             open(os.path.join(out, f), "w", encoding="utf-8").write(txt)
+    # ferdige fortellerstemmer for animasjonene (lages én gang med tools/anim_voice.mjs, se docs/ANIMASJONER.md)
+    asrc = os.path.join(ROOT, "assets", "anim")
+    if os.path.isdir(os.path.join(out, "anim")): shutil.rmtree(os.path.join(out, "anim"))  # bare det som ligger i assets/anim (ingen lokale prøver)
+    if os.path.isdir(asrc): shutil.copytree(asrc, os.path.join(out, "anim"), dirs_exist_ok=True)
     icons = os.path.join(ROOT, "web", "icons")
     if os.path.isdir(icons): shutil.copytree(icons, os.path.join(out, "icons"), dirs_exist_ok=True)
     # vendor/: KaTeX (ligger i prosjektet) + skrifter (npm run vendor legger dem i vendor/fonts)
