@@ -455,11 +455,11 @@ function renderSettings(){
       <div class="srow"><span class="lbl">${t("setHaptics")}</span><button class="tog ${S.haptics?"on":""}" data-a="haptoggle" role="switch" aria-checked="${!!S.haptics}" aria-label="${t("setHaptics")}"></button></div>
     </div>`,
     account: `${CLOUD_ON ? (AUTH ? `<div class="sgroup">
-      <div class="srow"><span class="lbl">${esc(AUTH.email||"")}<span class="sub">${esc(cloudStatusText())}</span></span></div>
-      <button class="srow" data-a="acemail"><span class="lbl">${t("acEmailChange")}${AUTH.newEmail ? `<span class="sub">${esc(t("acEmailPending", AUTH.newEmail))}</span>` : ""}</span>${I.chevron}</button>
+      <div class="srow"><span class="lbl">${esc(isElev() ? elevLogin() : AUTH.email||"")}<span class="sub">${esc(isElev() ? T("Elevprofil – læreren din administrerer den", "Student profile – managed by your teacher") : cloudStatusText())}</span></span></div>
+      ${isElev() ? "" : `<button class="srow" data-a="acemail"><span class="lbl">${t("acEmailChange")}${AUTH.newEmail ? `<span class="sub">${esc(t("acEmailPending", AUTH.newEmail))}</span>` : ""}</span>${I.chevron}</button>`}
       <button class="srow" data-a="acsync"><span class="lbl">${t("acSyncNow")}</span>${I.chevron}</button>
       <button class="srow" data-a="aclogout"><span class="lbl">${t("acLogout")}</span></button>
-      <button class="srow danger" data-a="acdelete"><span class="lbl">${t("acDelete")}</span></button>
+      ${isElev() ? "" : `<button class="srow danger" data-a="acdelete"><span class="lbl">${t("acDelete")}</span></button>`}
     </div>` : `<div class="sgroup">
       <button class="srow" data-a="aclogin"><span class="lbl">${t("acLogin")}<span class="sub">${t("acLoginSub")}</span></span>${I.chevron}</button>
     </div>`) : ""}
@@ -1260,7 +1260,7 @@ function renderOverlayNow(){
   else if(overlay==="quit") d.innerHTML = `<div class="dialog pop" role="dialog" aria-label="${t("quitTitle")}"><h3>${t("quitTitle")}</h3><p>${t("quitText")}</p><button class="big" data-a="stay">${t("keepGoing")}</button><button class="big ghost" data-a="quitok" style="color:var(--bad)">${t("quit")}</button></div>`;
   else if(overlay==="reset") d.innerHTML = `<div class="dialog pop" role="dialog" aria-label="${t("resetTitle")}"><h3>${t("resetTitle")}</h3><p>${t("resetText")}</p><button class="big" data-a="closeov">${t("cancel")}</button><button class="big ghost" data-a="resetok" style="color:var(--bad)">${t("reset")}</button></div>`;
   else if(overlay.login){ const o = overlay;
-    d.innerHTML = o.step==="code"
+    d.innerHTML = o.step==="elev" || o.step==="join" ? elLoginHTML(o) : o.step==="code"
       ? `<div class="dialog pop" role="dialog" aria-label="${t("acLogin")}"><h3>${t("acCodeTitle")}</h3><p>${esc(t("acCodeText", o.email))}</p>
         <input type="text" id="lgcode" inputmode="numeric" autocomplete="one-time-code" maxlength="10" placeholder="123456" aria-label="${esc(t("acCodeTitle"))}">
         ${o.err?`<p class="lgerr">${esc(o.err)}</p>`:""}
@@ -1274,7 +1274,7 @@ function renderOverlayNow(){
       : `<div class="dialog pop" role="dialog" aria-label="${t("acLogin")}"><h3>${t("acLogin")}</h3><p>${t("acLoginText")}</p>
         <input type="email" id="lgmail" autocomplete="email" placeholder="${esc(t("acEmail"))}" aria-label="${esc(t("acEmail"))}" value="${esc(o.email||"")}">
         ${o.err?`<p class="lgerr">${esc(o.err)}</p>`:""}
-        <button class="big" data-a="lgsend" ${o.busy?"disabled":""}>${t("acSend")}</button><button class="big ghost" data-a="closeov">${t("cancel")}</button>
+        <button class="big" data-a="lgsend" ${o.busy?"disabled":""}>${t("acSend")}</button><button class="big ghost" data-a="lgelev">${esc(T("Elev? Logg inn med brukernavn", "Student? Log in with a username"))}</button><button class="big ghost" data-a="closeov">${t("cancel")}</button>
         <p class="lgnote">${t("acPrivacyNote")}</p></div>`; }
   else if(overlay.frfof) d.innerHTML = frFofHTML();
   else if(overlay.acemail){ const o = overlay.acemail; d.innerHTML = o.step === "sent"
@@ -1433,6 +1433,7 @@ function renderNow(){
   else if(screen==="geo") renderGeo();
   else if(screen==="motion") renderMotion();
   else if(screen==="anim") renderAnim();
+  else if(screen==="elever") renderElever();
   else if(screen==="parts") renderParts();
   else if(screen==="ctl") renderCtl();
   else if(screen==="ekalk") renderEk();
@@ -1503,7 +1504,7 @@ document.addEventListener("click", async e=>{
   if(grClick(a, b)) return; // grupper (handlinger som starter med "gr")
   if(studyClick(a, b)) return; // studier (studies.js)
   if(pfClick(a, b)) return; // bevis (proofs.js)
-  if(snEntryClick(a) || snClick(a, b) || spClick(a, b) || gmClick(a, b) || gmMenuClick(a, b) || duClick(a, b) || mdClick(a, b) || unitsClick(a, b) || tgClick(a, b) || fcClick(a, b) || labClick(a, b) || geClick(a, b) || mvClick(a) || anClick(a, b) || piClick(a, b) || ctClick(a, b) || ekClick(a, b) || lsClick(a, b) || catClick(a, b) || focClick(a, b) || poClick(a, b) || welClick(a, b) || edClick(a, b) || mqClick(a, b) || tcClick(a, b) || hwClick(a) || teClick(a, b) || nudgeClick(a, b) || shareClick(a, b) || ibClick(a, b) || dvClick(a, b) || scClick(a, b) || cdClick(a, b) || thClick(a, b)) return; // snacks og lynrunde (snacks.js)
+  if(snEntryClick(a) || snClick(a, b) || spClick(a, b) || gmClick(a, b) || gmMenuClick(a, b) || duClick(a, b) || mdClick(a, b) || unitsClick(a, b) || tgClick(a, b) || fcClick(a, b) || labClick(a, b) || geClick(a, b) || mvClick(a) || anClick(a, b) || elClick(a, b) || piClick(a, b) || ctClick(a, b) || ekClick(a, b) || lsClick(a, b) || catClick(a, b) || focClick(a, b) || poClick(a, b) || welClick(a, b) || edClick(a, b) || mqClick(a, b) || tcClick(a, b) || hwClick(a) || teClick(a, b) || nudgeClick(a, b) || shareClick(a, b) || ibClick(a, b) || dvClick(a, b) || scClick(a, b) || cdClick(a, b) || thClick(a, b)) return; // snacks og lynrunde (snacks.js)
   if(adminClick(a, b)) return; // adminpanel og kunngjøringer (admin.js)
   if(psClick(a, b)) return; // profilsiden til andre + hvilke merker du viser (person.js)
   if(friendsClick(a, b)) return; // venner (handlinger som starter med "fr")

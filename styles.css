@@ -233,7 +233,7 @@ input[type="time"]{font:inherit;font-weight:700;border:2px solid var(--line);bor
 .chips{display:flex;flex-wrap:wrap;gap:8px}
 .chips button{border:2px solid var(--line);background:var(--paper);border-radius:99px;padding:7px 12px;font-weight:600;font-size:14px}
 .chips button.on{border-color:var(--accent);background:var(--accent-soft);color:var(--accent)}
-.dialog textarea,.dialog input[type="email"]{width:100%;font:inherit;border:2px solid var(--line);border-radius:12px;padding:10px 12px;background:var(--paper);color:var(--ink);resize:vertical}
+.dialog textarea,.dialog input[type="email"],.dialog input#lglogin,.dialog input#lgpw,.dialog input[id^="lgj"]{width:100%;font:inherit;border:2px solid var(--line);border-radius:12px;padding:10px 12px;background:var(--paper);color:var(--ink);resize:vertical}
 .dialog textarea{min-height:84px}
 #bkcode{font-family:"JetBrains Mono",ui-monospace,monospace;font-size:12px;word-break:break-all;max-height:140px}
 .dialog input#lgcode{width:100%;font:inherit;font-family:"JetBrains Mono",ui-monospace,monospace;font-size:24px;letter-spacing:.3em;text-align:center;border:2px solid var(--line);border-radius:12px;padding:10px 12px;background:var(--paper);color:var(--ink);box-sizing:border-box}
@@ -3482,3 +3482,37 @@ details.cat-mc{margin:6px 0}details.cat-mc>summary{cursor:pointer;font-size:12px
 .an-pbadge{position:absolute;left:12px;bottom:12px;display:flex;align-items:center;gap:8px;padding:10px 14px;border-radius:14px;color:#fff;background:var(--accent-bg);box-shadow:0 4px 0 var(--accent-deep);font-weight:800}
 .an-pbadge small{font-weight:600;opacity:.9;font-variant-numeric:tabular-nums}
 @media (max-width:420px){ .an-player{padding:8px;border-radius:16px} .an-hud b{font-size:18px} }
+/* ---------- elevprofiler (elever.js) ---------- */
+.el .tc-card{margin-top:12px}
+.el-hero .el-count{margin:8px 0 0;font-size:15px}.el-hero .el-count b{font-family:var(--display);font-size:22px}
+.el-classes{margin-top:12px;flex-wrap:wrap}.el-classes button small{color:var(--muted);font-weight:600;margin-left:4px}
+.el-classes button.on small{color:inherit}
+.el-table{display:grid;gap:6px;margin:10px 0}
+.el-table [role=row]{display:grid;grid-template-columns:1fr 1fr 1.2fr;gap:8px;align-items:center;padding:8px 10px;border:2px solid var(--line);border-radius:12px;background:var(--card)}
+.el-table code{font-size:15px;word-break:break-all}
+.el-table .el-bad{grid-template-columns:1fr 2fr;color:var(--bad-deep)}
+@media (max-width:560px){ .el-table [role=row]{grid-template-columns:1fr} }
+.el-new{border-color:color-mix(in srgb,var(--accent) 50%,var(--line))}
+.el-btns{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}.el-btns .big{width:auto;flex:1 1 140px}
+.el-cls{margin-top:14px}
+.el-code b{font-family:var(--mono);font-size:26px;letter-spacing:.15em}
+.el-q{width:100%;margin:4px 0 10px;min-height:44px}
+.el-list{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+.el-row{display:grid;gap:6px;padding:10px 12px;border:2px solid var(--line);border-radius:14px;background:var(--card)}
+.el-who b{display:block;font-size:16px}.el-who small{color:var(--muted)}.el-who code{font-size:13px}
+.el-stat{display:flex;flex-wrap:wrap;gap:4px 14px;font-size:14px;color:var(--muted)}.el-stat b{color:var(--ink)}
+.el-acts{display:flex;flex-wrap:wrap;gap:6px}.el-acts .kbtn{min-height:40px}
+.el-danger{color:var(--bad-deep)!important}
+.el-res{font-size:14px;color:var(--muted)}.el-res ul{margin:4px 0 0;padding-left:18px}
+.el-off p{margin:6px 0 10px}
+@media (min-width:900px){ .el-row{grid-template-columns:1.3fr 1.2fr auto;align-items:center} .el-row .el-res{grid-column:1/-1} }
+#elprint{display:none}
+@media print{
+  body.el-printing *{visibility:hidden!important}
+  body.el-printing #elprint,body.el-printing #elprint *{visibility:visible!important}
+  body.el-printing #elprint{display:grid!important;grid-template-columns:1fr 1fr;gap:10px;position:absolute;left:0;top:0;width:100%}
+  .el-slip{border:1.5px dashed #555;border-radius:8px;padding:10px 12px;break-inside:avoid;font:14px/1.4 system-ui,sans-serif;color:#000}
+  .el-slip b{font-size:17px}.el-slip p{margin:4px 0}.el-slip code{font-size:16px;font-weight:700}
+}
+.dialog input#lglogin,.dialog input#lgpw,.dialog input[id^="lgj"]{min-height:46px;margin:0 0 8px}
+.dialog input#lgjcode{font-family:var(--mono);letter-spacing:.15em;text-transform:uppercase}

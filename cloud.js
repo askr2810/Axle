@@ -60,6 +60,34 @@ async function cloudVerify(email, code){
   AUTH = Object.assign(a, { email: a.email || email }); authStore();
   await cloudSync();
 }
+// ---------- elevprofiler (lærerens elever uten e-post, supabase/elever.sql og functions/elever) ----------
+// Eleven logger inn med innloggingsnavnet (brukernavn.klasse, f.eks. «ola.k7mq») og passordet fra læreren. Den interne adressen
+// <innlogging>@elev.axle.no får aldri e-post; den er bare nøkkelen i Supabase Auth.
+const ELEV_DOMAIN = "elev.axle.no";
+const isElev = () => !!(AUTH && String(AUTH.email || "").endsWith("@" + ELEV_DOMAIN));
+const elevLogin = () => isElev() ? String(AUTH.email).slice(0, -(ELEV_DOMAIN.length + 1)) : "";
+const elevLoginOk = l => /^[a-z0-9][a-z0-9_-]{1,19}\.[a-z0-9]{4,6}$/.test(l);
+async function cloudElevLogin(login, password){
+  login = String(login || "").trim().toLowerCase().replace(/@.*$/, "");
+  if(!elevLoginOk(login)) throw new CloudError("badlogin", 0);
+  let s; try{ s = await sbFetch("/auth/v1/token?grant_type=password", { method: "POST", body: JSON.stringify({ email: login + "@" + ELEV_DOMAIN, password: String(password || "") }) }); }
+  catch(e){ if(e.status === 400) throw new CloudError("badlogin", 400); throw e; }
+  const a = authFromSession(s); if(!a) throw new CloudError("badlogin", 0);
+  AUTH = a; authStore(); await cloudSync();
+}
+// Kall til Edge Function «elever» (lærer: create/reset; elev med klassekode: join). Feil: CloudError med code fra funksjonen,
+// «not_deployed» når funksjonen ikke er satt opp, «not_installed» når supabase/elever.sql mangler.
+async function elevFn(action, body){
+  const tok = action === "join" ? null : await authToken();
+  if(action !== "join" && !tok) throw new CloudError(AUTH ? "offline" : "auth", 0);
+  let r; try{ r = await fetch(CONFIG.supabaseUrl + "/functions/v1/elever", { method: "POST", headers: { apikey: CONFIG.supabaseKey, Authorization: "Bearer " + (tok || CONFIG.supabaseKey), "Content-Type": "application/json" }, body: JSON.stringify(Object.assign({ action }, body)) }); }
+  catch(e){ throw new CloudError("offline", 0); }
+  let j = null; try{ j = await r.json(); }catch(e){}
+  if(r.status === 404 && !(j && j.error)) throw new CloudError("server", 404, "not_deployed");
+  if(!r.ok) throw new CloudError(r.status === 401 ? "auth" : "server", r.status, String((j && j.error) || "server"));
+  return j;
+}
+
 async function cloudSignOut(){
   const tok = AUTH && AUTH.at;
   AUTH = null; authStore(); CLOUD.status = "idle"; FR.rows = null;

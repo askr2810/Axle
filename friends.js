@@ -306,6 +306,7 @@ function renderFriends(){
     <div class="th-t"><small>${esc(t("frSub"))}</small><b>${esc(t("frTitle"))}</b></div><span class="th-ic" aria-hidden="true">${I.users}</span></div></div>`;
   let body = "";
   if(!CLOUD_ON){ body = `<div class="fr-card"><p>${esc(t("frNoCloud"))}</p></div>`; }
+  else if(typeof isElev === "function" && isElev()){ body = `<div class="fr-card"><p>${esc(T("Venner, grupper og brukernavn er ikke slått på for elevprofiler. Du kan fortsatt øve, gjøre lekser og være med på quiz fra læreren.", "Friends, groups and usernames are not enabled for student profiles. You can still practise, do homework and join quizzes from your teacher."))}</p></div>`; }
   else if(!AUTH){
     body = `<div class="fr-card fr-intro"><span class="fr-big">${I.trophy}</span><h2>${esc(t("frIntroTitle"))}</h2><p>${esc(t("frIntroText"))}</p>
       <button class="big" data-a="aclogin">${esc(t("acLogin"))}</button></div>`;

@@ -5,7 +5,7 @@
 //  Adressen byttes med replaceState, så tilbakeknappen i nettleseren oppfører seg som før.
 //  Ord på norsk eller engelsk etter språket; begge forstås når adressen leses.
 // ============================================================
-const RT = { anim: ["animasjon", "animation"], geo: ["kartspill", "map-game"], motion: ["bevegelse", "motion"], parts: ["delvis-integrasjon", "integration-by-parts"], ctl: ["regulering", "control"], ekalk: ["elementkalkulator", "element-calculator"], pomo: ["pomodoro", "pomodoro"], mq: ["hoderegning", "mental-maths"], teach: ["laerer", "teacher"], hw: ["lekse", "homework"], catalog: ["oppgaver", "problems"], practice: ["ov", "practice"], book: ["teori", "theory"], friends: ["venner", "friends"], profile: ["profil", "profile"], badges: ["merker", "badges"],
+const RT = { anim: ["animasjon", "animation"], elever: ["elever", "students"], klasse: ["klasse", "class"], geo: ["kartspill", "map-game"], motion: ["bevegelse", "motion"], parts: ["delvis-integrasjon", "integration-by-parts"], ctl: ["regulering", "control"], ekalk: ["elementkalkulator", "element-calculator"], pomo: ["pomodoro", "pomodoro"], mq: ["hoderegning", "mental-maths"], teach: ["laerer", "teacher"], hw: ["lekse", "homework"], catalog: ["oppgaver", "problems"], practice: ["ov", "practice"], book: ["teori", "theory"], friends: ["venner", "friends"], profile: ["profil", "profile"], badges: ["merker", "badges"],
   settings: ["innstillinger", "settings"], community: ["fellesskap", "community"], pick: ["fag", "courses"], groups: ["grupper", "groups"], theory: ["les", "read"], guided: ["steg", "steps"], topic: ["emne", "topic"], proofs: ["bevis", "proofs"], snacks: ["snacks", "snacks"], sprint: ["lynrunde", "sprint"], match: ["parjakt", "match"], truefalse: ["santusant", "truefalse"], duel: ["duell", "duel"], mydecks: ["kort", "cards"], local: ["lynduell", "sameduel"], sheet: ["formler", "formulas"], person: ["person", "person"], admin: ["admin", "admin"], trig: ["enhetssirkel", "unitcircle"], forces: ["krefter", "forces"], lab: ["lab", "lab"], messages: ["meldinger", "messages"], code: ["kode", "code"], lf: ["laer", "learn"] };
 const rtW = k => RT[k][LANG === "en" ? 1 : 0];
 const rtKey = w => Object.keys(RT).find(k => RT[k].includes(String(w || "").toLowerCase()));
@@ -35,6 +35,7 @@ function routeOf(){
     case "geo": return rtW("geo");
     case "motion": return rtW("motion");
     case "anim": return AN ? rtW("anim") + "/" + AN.id : "";
+    case "elever": return rtW("elever");
     case "parts": return rtW("parts");
     case "pomo": return rtW("pomo");
     case "teach": return rtW("teach");
@@ -110,6 +111,8 @@ function routeBoot(){
   if(k === "teach"){ TC = null; screen = "teach"; return true; }
   if(k === "hw"){ HW = null; HW_PENDING = p.slice(1).join("/") || null; screen = "hw"; return true; }
   if(k === "motion"){ MVS = { from: "home", uid: null }; screen = "motion"; return true; }
+  if(k === "elever"){ if(typeof elOpen !== "function") return false; EL = { from: "home", classes: null, count: 0, cls: null, q: "", busy: false, err: null, created: null, reset: null, res: {} }; screen = "elever"; setTimeout(elLoad, 0); return true; }
+  if(k === "klasse"){ const code = String(p[1] || "").toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 6); screen = "home"; setTimeout(() => { overlay = { login: 1, step: "join", code }; renderOverlay(); }, 300); return true; }
   if(k === "anim"){ if(typeof anOpen !== "function") return false; anOpen(ANIMS[p[1]] ? p[1] : "derivasjon", "home", true); return true; }
   if(k === "parts"){ PI = { from: "home", step: 1, s1: 0, ex: 0, pick: null, lq: 0, lp: null, score: {} }; screen = "parts"; return true; }
   if(k === "local"){ LO = null; screen = "local"; return true; }
