@@ -323,6 +323,9 @@ function buzz(ok){
 }
 
 // ---------- hjem ----------
+const HOME_WIDE_MQ = "(min-width:1100px)"; // samme bruddpunkt som .hm i styles.css
+const homeWide = () => !!(window.matchMedia && matchMedia(HOME_WIDE_MQ).matches);
+try{ matchMedia(HOME_WIDE_MQ).addEventListener("change", () => { if(screen === "home" && !overlay) render(); }); }catch(e){}
 function renderHome(){
   if(isDrive(COURSE(S.current))) return renderDriveHome(); // førerkort har sitt eget oppsett (drive.js)
   duCheckInvites();
@@ -347,6 +350,8 @@ function renderHome(){
     path += `</div></section>`;
   });
   const {d,tot} = courseProgress(c);
+  // På smal skjerm er stien en seksjon i «Tilpass» (rett etter «Start her»); på PC står den i en egen kolonne.
+  const wide = homeWide();
   const nQ = c.units.reduce((n,u)=>n+u.qs.length,0), nG = c.units.reduce((n,u)=>n+(u.gen||[]).length,0);
   $app.innerHTML = `
   <div class="top"><div class="wrap">
@@ -358,11 +363,10 @@ function renderHome(){
   <main class="wrap hm">
     <div class="hm-side">${noticeHTML()}${betaNoteHTML(c.code, true)}${qsHTML("home")}
     ${duInviteHTML()}
-    ${nextCardHTML(c, nn)}
-    ${fresh ? "" : layoutHTML("home")}
+    ${fresh ? nextCardHTML(c, nn) + (wide ? "" : `<div class="hm-path">${path}</div>`) : layoutHTML("home", { next: nextCardHTML(c, nn), path: `<div class="hm-path">${path}</div>`, wide })}
     ${examHomeActions(c) ? `<div class="actions">${examHomeActions(c)}</div>` : ""}
     ${preBarHTML(c)}</div>
-    <div class="hm-path">${path}</div>
+    ${wide ? `<div class="hm-path">${path}</div>` : ""}
     <div class="hm-more">${layLinkHTML("home")}
     <p class="foot-note">${esc(t("foot1",courseName(c),nQ,nG))}<br>${d===tot?(crowns(c)===c.units.length?t("allCrowns"):t("allLevels")):esc(t("foot2",d,tot,crowns(c),c.units.length))}</p></div>
   </main>`;

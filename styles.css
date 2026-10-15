@@ -3532,3 +3532,9 @@ details.cat-mc{margin:6px 0}details.cat-mc>summary{cursor:pointer;font-size:12px
 .udx-a:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
 .udx p{margin:2px 0 0;color:var(--muted);font-size:13px;line-height:1.45}
 .udx-sr{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
+/* spillmenyen: nål som viser spillet som stor flis på Lær eller Øv */
+.gm-pin{flex:none;width:44px;height:44px;display:grid;place-items:center;border-radius:12px;border:2px solid var(--line);background:var(--card);color:var(--muted);cursor:pointer}
+.gm-pin.on{border-color:var(--accent);background:var(--accent-soft);color:var(--accent)}.gm-pin.on svg path:first-child{fill:currentColor}
+.gm-pin:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.gm-pinnote{margin-top:12px}
+.lay-fixed{font-size:12px;font-weight:700;color:var(--muted);padding:0 6px}

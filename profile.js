@@ -5,10 +5,19 @@
 //  - Profilside med avatar, navn, statistikk, merker og fag.
 // ============================================================
 const TABS = [["home", "book2", "tabLearn"], ["practice", "bolt", "tabPractice"], ["book", "book", "tabTheory"], ["friends", "users", "tabFriends"], ["profile", "person", "tabProfile"]];
+// Faneikoner: hule når fanen ikke er valgt, fylte når den er valgt. [form som fylles, strek som alltid tegnes]
+const TAB_IC = {
+  home: ['<path d="M4 20V10l8-6 8 6v10h-5v-6H9v6z"/>', ""],
+  practice: ['<path d="M13.5 2 4 14h6.5L9.5 22 20 9.5h-6.6z"/>', ""],
+  book: ['<path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v15H6.5A2.5 2.5 0 0 0 4 20.5z"/>', '<path d="M4 20.5A2.5 2.5 0 0 0 6.5 23H20v-5"/>'],
+  friends: ['<circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0z"/>', '<path d="M16 4.5a3.5 3.5 0 0 1 0 7M18 14.2a6.5 6.5 0 0 1 3.5 5.8"/>'],
+  profile: ['<circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0z"/>', ""]
+};
+const tabIc = (k, on) => `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><g${on ? ' fill="currentColor"' : ""}>${TAB_IC[k][0]}</g>${TAB_IC[k][1]}</svg>`;
 function tabOf(){ return screen === "home" ? "home" : (screen === "practice" || screen === "community" || screen === "mydecks") ? "practice" : (screen === "book" && BK.v !== "unit" && BK.v !== "topic") || screen === "proofs" ? "book" : screen === "friends" ? "friends" : (screen === "profile" || screen === "badges") ? "profile" : screen === "person" ? (["badges", "profile", "admin"].includes(PS.from) ? "profile" : "friends") : screen === "admin" ? "profile" : null; }
 function tabbarHTML(active){
   return `<nav class="tabbar" aria-label="${esc(t("tabNav"))}"><div class="wrap"><button class="tab-brand" data-a="tab" data-t="home" tabindex="-1" aria-hidden="true"><img src="${markSrc()}" alt="" width="36" height="36"><b>Axle</b></button>${TABS.map(([k, ic, lab]) =>
-    `<button class="${k === active ? "on" : ""}" data-a="tab" data-t="${k}" aria-current="${k === active ? "page" : "false"}">${(k === "practice" && !dcDoneToday() && S.xp > 0) || (k === "friends" && ((FR.reqs && FR.reqs.length) || (GR.inv && GR.inv.length) || IB.unread)) ? `<i class="tab-dot"></i>` : ""}${k === "profile" && hasMeAv() ? meAvHTML(26, "tab-av") : I[ic]}<span>${esc(t(lab))}</span></button>`).join("")}<div class="tab-foot"><button class="exlink" data-a="dlopen">${esc(T("Last ned", "Download"))}</button> · <a href="${LANG === "en" ? "/en/about/" : "/about/"}" target="_blank" rel="noopener">${esc(T("Om Axle", "About"))}</a></div></div></nav>`;
+    `<button class="${k === active ? "on" : ""}" data-a="tab" data-t="${k}" aria-current="${k === active ? "page" : "false"}">${(k === "practice" && !dcDoneToday() && S.xp > 0) || (k === "friends" && ((FR.reqs && FR.reqs.length) || (GR.inv && GR.inv.length) || IB.unread)) ? `<i class="tab-dot"></i>` : ""}${k === "profile" && hasMeAv() ? meAvHTML(26, "tab-av") : tabIc(k, k === active)}<span>${esc(t(lab))}</span></button>`).join("")}<div class="tab-foot"><button class="exlink" data-a="dlopen">${esc(T("Last ned", "Download"))}</button> · <a href="${LANG === "en" ? "/en/about/" : "/about/"}" target="_blank" rel="noopener">${esc(T("Om Axle", "About"))}</a></div></div></nav>`;
 }
 function renderTabbar(){
   document.querySelector(".tabbar")?.remove();
@@ -129,10 +138,8 @@ function renderPractice(){
       <button class="chip mini-chip" data-a="pick" aria-label="${esc(t("switchCourse"))}"><span class="code">${esc(courseShort(c))}</span>${I.down}</button></div></div>
     <main class="wrap prac">
       <p class="tab-intro">${esc(T("Øv fritt i ditt eget tempo: velg et tema, prøv labber og spill, eller se løste oppgaver. Stien steg for steg ligger under Lær, og lesestoffet under Teori.", "Practise freely at your own pace: pick a topic, try labs and games, or see solved problems. The step-by-step path is under Learn, and the reading under Theory."))}</p>
-      ${qsHTML("practice")}${rec ? `<div class="lay-grp prac-rec">${rec.h}</div>` : ""}${isDrive(c) ? "" : focCardHTML()}${dvPracticeCardHTML(c)}${isDrive(c) ? "" : labCourseHTML(c) + catCardHTML(c)}${cdPracticeCardHTML(c)}
+      ${qsHTML("practice")}${rec ? `<div class="lay-grp prac-rec">${rec.h}</div>` : ""}
       ${parts.map(x => `<div class="lay-grp">${x.h}</div>`).join("")}
-      <div class="lay-grp"><h4 class="grp">🧰 ${esc(T("Hjelpemidler", "Study tools"))}</h4><div class="tools2">${poCardHTML()}
-      <button class="tc-entry" data-a="tcopen"><span aria-hidden="true">🎓</span><div><b>${esc(T("Lærerverktøy", "Teacher tools"))}</b><small>${esc(T("Live-quiz og lekser", "Live quiz and homework"))}</small></div></button></div></div>
       ${layLinkHTML("practice")}
     </main>`;
 }

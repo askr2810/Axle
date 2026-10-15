@@ -168,24 +168,34 @@ function gamesSectionHTML(place){
   return `${pins.length ? `<div class="sn-entry ${place === "practice" ? "sn-sm" : ""}">${pins.map(gmTile).join("")}</div>` : ""}
     <button class="qt-row gm-row" data-a="gamesmenu" data-p="${place}"><span class="gm-ics" aria-hidden="true">${GAMES.slice(0, 4).map(g => `<i class="${g[4]}">${ico(g[2])}</i>`).join("")}</span><span><b>${esc(t("gmTitle"))}</b><small>${esc(gmList().some(g => g[0] === "geo") ? T("Duell, snacks, lynrunde, kartspillet og mer", "Duel, snacks, sprint, the map game and more") : t("gmSub"))}</small></span>${I.chevron}</button>`;
 }
-// Seksjonene per sted: [id, tekstnøkkel, tegnefunksjon(ctx)].
+// Seksjonene per sted: [id, tekstnøkkel, tegnefunksjon(ctx)]. Rekkefølgen her er standardrekkefølgen.
 const LAYOUT = {
-  home: [["fav", "laySec_fav", () => favBarHTML()], ["dc", "laySec_dc", () => dcDoneToday() ? "" : dcCardHTML()], ["games", "laySec_games", () => gamesSectionHTML("home")]],
-  // Øv: det som er personlig og viktigst først (feil å repetere, dagens utfordring), så mer øving, spill, eksamen og uka.
+  // Lær: favorittene rett under søket, så «Start her» og enhetene (stien). På PC står stien i en egen kolonne (x.wide).
+  home: [["fav", "laySec_fav", () => favBarHTML()], ["start", "laySec_start", x => x.next || ""], ["path", "laySec_path", x => x.wide ? "" : x.path || ""],
+    ["dc", "laySec_dc", () => dcDoneToday() ? "" : dcCardHTML()], ["games", "laySec_games", () => gamesSectionHTML("home")]],
+  // Øv: det som er personlig og viktigst først (feil å repetere, dagens utfordring), så labber og spill, mer øving, eksamen, uka og hjelpemidler.
   practice: [["review", "laySec_review", x => x.wrongN ? `<button class="qt-row rev" data-a="review"><span class="qt-ic">${I.redo}</span><span><b>${esc(t("reviewBtn", x.wrongN))}</b><small>${esc(t("prRevSub"))}</small></span>${I.chevron}</button>` : ""],
-    ["dc", "laySec_dc", () => dcCardHTML()], ["drill", "laySec_drill", () => drCardHTML()], ["community", "laySec_community", () => ccCardPracticeHTML()],
-    ["games", "laySec_games", () => gamesSectionHTML("practice")],
+    ["dc", "laySec_dc", () => dcCardHTML()], ["drive", "laySec_drive", x => dvPracticeCardHTML(x.c)], ["labs", "laySec_labs", x => isDrive(x.c) ? "" : labCourseHTML(x.c)],
+    ["games", "laySec_games", () => gamesSectionHTML("practice")], ["focus", "laySec_focus", x => isDrive(x.c) ? "" : focCardHTML()],
+    ["solved", "laySec_solved", x => (isDrive(x.c) ? "" : catCardHTML(x.c)) + cdPracticeCardHTML(x.c)],
+    ["drill", "laySec_drill", () => drCardHTML()], ["community", "laySec_community", () => ccCardPracticeHTML()],
     ["exams", "laySec_exams", x => isDrive(x.c) ? "" : (examHomeActions(x.c) ? `<div class="actions">${examHomeActions(x.c)}</div>` : "") + examHomeSection(x.c)],
-    ["today", "laySec_today", x => todayCardHTML(x.c, x.today, x.goal, x.week)]]
+    ["today", "laySec_today", x => todayCardHTML(x.c, x.today, x.goal, x.week)],
+    ["tools", "laySec_tools", () => `<h4 class="grp">🧰 ${esc(T("Hjelpemidler", "Study tools"))}</h4><div class="tools2">${poCardHTML()}
+      <button class="tc-entry" data-a="tcopen"><span aria-hidden="true">🎓</span><div><b>${esc(T("Lærerverktøy", "Teacher tools"))}</b><small>${esc(T("Live-quiz og lekser", "Live quiz and homework"))}</small></div></button></div>`]]
 };
+// Seksjoner som kan flyttes, men ikke skjules (ellers forsvinner veien videre i faget).
+const LAY_FIXED = { home: ["start", "path"] };
+// Lagret rekkefølge, med nye seksjoner satt inn på standardplassen (etter den nærmeste seksjonen foran dem i standarden).
 function layOrder(place){
-  layMigrate(); const ids = LAYOUT[place].map(s => s[0]), saved = ((S.layout || {})[place] || []).filter(id => ids.includes(id));
-  return [...saved, ...ids.filter(id => !saved.includes(id))];
+  layMigrate(); const ids = LAYOUT[place].map(s => s[0]), o = ((S.layout || {})[place] || []).filter(id => ids.includes(id));
+  ids.forEach((id, i) => { if(o.includes(id)) return; let k = i - 1; while(k >= 0 && !o.includes(ids[k])) k--; o.splice(k < 0 ? 0 : o.indexOf(ids[k]) + 1, 0, id); });
+  return o;
 }
-const layHidden = (place, id) => !!((S.hidden || {})[place] || {})[id];
+const layHidden = (place, id) => !(LAY_FIXED[place] || []).includes(id) && !!((S.hidden || {})[place] || {})[id];
 // Overskrifter mellom gruppene i Øv, så siden er lett å skanne (eksamen har sin egen overskrift).
 const LAY_GROUP = { practice: { review: ["Anbefalt nå", "Recommended now"], dc: ["Anbefalt nå", "Recommended now"], drill: ["Øv mer", "Practise more"],
-  community: ["Øv mer", "Practise more"], games: ["Spill", "Games"], today: ["Uka di", "Your week"] } };
+  community: ["Øv mer", "Practise more"], focus: ["Øv mer", "Practise more"], solved: ["Øv mer", "Practise more"], games: ["Spill", "Games"], today: ["Uka di", "Your week"] } };
 function layoutHTML(place, ctx){ return layoutParts(place, ctx).map(x => `<div class="lay-grp">${x.h}</div>`).join(""); }
 // Gruppene hver for seg ({ g: overskrift, h: html }), så Øv kan løfte «Anbefalt nå» helt opp.
 function layoutParts(place, ctx){
@@ -199,13 +209,17 @@ function layoutParts(place, ctx){
   return out;
 }
 const layLinkHTML = place => `<button class="exlink lay-link" data-a="layopen" data-p="${place}">${I.gear}${esc(t(place === "home" ? "layHome" : "layPractice"))}</button>`;
+// Nål for «vis som stor flis» i spillmenyen (fylles når spillet er festet).
+const GM_PIN = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 3h6l-1 6 3 3v2H7v-2l3-3z"/><path d="M12 14v7"/></svg>`;
 function gamesMenuHTML(place){
   const pins = pinsOf(place);
   return `<div class="dialog gm-menu" role="dialog" aria-label="${esc(t("gmTitle"))}"><div class="sheet-h"><h3>${esc(t("gmTitle"))}</h3><button class="iconbtn" data-a="closeov" aria-label="${esc(t("back"))}">${I.x}</button></div>
     <div class="gm-grid">${gmList().map(g => { const on = pins.includes(g[0]);
-      return `<div class="gm-item"><button class="gm-open" data-a="${g[1]}"><span class="gm-ic ${g[4]}">${ico(g[2])}</span><span><b>${esc(t(g[3]))}</b><small>${esc(gmSub(g[0]))}</small></span>${I.chevron}</button></div>`; }).join("")}</div>
+      return `<div class="gm-item"><button class="gm-open" data-a="${g[1]}"><span class="gm-ic ${g[4]}">${ico(g[2])}</span><span><b>${esc(t(g[3]))}</b><small>${esc(gmSub(g[0]))}</small></span>${I.chevron}</button>
+        <button class="gm-pin ${on ? "on" : ""}" data-a="gmpin" data-g="${g[0]}" data-p="${place}" aria-pressed="${on}" aria-label="${esc(T(`Vis ${t(g[3])} som stor flis`, `Show ${t(g[3])} as a large tile`))}" title="${esc(T("Stor flis", "Large tile"))}">${GM_PIN}</button></div>`; }).join("")}</div>
+    <p class="lp-note gm-pinnote">${esc(T(`Trykk på nålen for å vise et spill som stor flis på ${place === "home" ? "Lær" : "Øv"}.`, `Tap the pin to show a game as a large tile on ${place === "home" ? "Learn" : "Practice"}.`))}</p>
     <button class="gm-teach" data-a="tcopen">🎓 ${esc(T("Lærer? Lag lekser og quiz for klassen →", "Teacher? Make homework and quizzes for your class →"))}</button>
-    ${layLinkHTML(place)}</div>`; // spill festes til forsiden under «Tilpass», ikke med egne knapper her
+    ${layLinkHTML(place)}</div>`;
 }
 // «Tilpass menyer»: skjul og flytt seksjoner, og velg hvilke spill som vises som store fliser.
 function layoutEditHTML(place){
@@ -216,7 +230,8 @@ function layoutEditHTML(place){
     <div class="lay-list">${order.map((id, i) => { const sec = LAYOUT[place].find(s => s[0] === id), on = !layHidden(place, id);
       return `<div class="lay-row ${on ? "" : "off"}"><span class="lbl">${esc(t(sec[1]))}</span>
         <button class="iconbtn lay-mv" data-a="laymove" data-p="${place}" data-id="${id}" data-d="-1" ${i === 0 ? "disabled" : ""} aria-label="${esc(t("layUp"))}">↑</button><button class="iconbtn lay-mv" data-a="laymove" data-p="${place}" data-id="${id}" data-d="1" ${i === order.length - 1 ? "disabled" : ""} aria-label="${esc(t("layDown"))}">↓</button>
-        <button class="tog ${on ? "on" : ""}" data-a="laytog" data-p="${place}" data-id="${id}" role="switch" aria-checked="${on}" aria-label="${esc(t(sec[1]))}"></button></div>`; }).join("")}</div>
+        ${(LAY_FIXED[place] || []).includes(id) ? `<span class="lay-fixed" title="${esc(t("layFixed"))}">${esc(T("Fast", "Fixed"))}</span>` : `<button class="tog ${on ? "on" : ""}" data-a="laytog" data-p="${place}" data-id="${id}" role="switch" aria-checked="${on}" aria-label="${esc(t(sec[1]))}"></button>`}</div>`; }).join("")}</div>
+    ${place === "home" ? `<p class="lp-note lay-wide">${esc(t("layWideNote"))}</p>` : ""}
     <h4 class="lay-h">${esc(t("layPinned"))}</h4>
     <div class="lay-games">${gmList().map(g => { const on = pins.includes(g[0]); return `<button class="lay-g ${on ? "on" : ""}" data-a="gmpin" data-g="${g[0]}" data-p="${place}" aria-pressed="${on}"><span class="gm-ic ${g[4]}">${ico(g[2])}</span><small>${esc(t(g[3]))}</small></button>`; }).join("")}</div>
     <button class="exlink lay-reset" data-a="layreset" data-p="${place}">${esc(t("layReset"))}</button></div>`;
@@ -226,7 +241,7 @@ function gmMenuClick(a, b){
   if(a === "gamesmenu"){ overlay = { games: place }; renderOverlay(); return true; }
   if(a === "layopen" || a === "homecustom"){ overlay = { layout: a === "homecustom" ? "home" : place }; renderOverlay(); return true; }
   if(a === "gmpin"){ const id = b.dataset.g, cur = pinsOf(place), on = !cur.includes(id), p = on ? [...cur, id] : cur.filter(x => x !== id);
-    S.pins[place] = GAMES.map(g => g[0]).filter(x => p.includes(x)); save(); render(); toast(t(on ? "gmPinnedAt" : "gmUnpinnedAt", t("layPlace_" + place))); return true; }
+    S.pins[place] = GAMES.map(g => g[0]).filter(x => p.includes(x)); save(); render(); if(overlay){ renderOverlay(); const f = document.querySelector(`.scrim [data-a="gmpin"][data-g="${id}"]`); if(f) f.focus(); } toast(t(on ? "gmPinnedAt" : "gmUnpinnedAt", t("layPlace_" + place))); return true; }
   if(a === "laytog"){ layMigrate(); (S.hidden ||= {})[place] ||= {}; S.hidden[place][b.dataset.id] = !S.hidden[place][b.dataset.id]; save(); render(); return true; }
   if(a === "laymove"){ const o = layOrder(place), i = o.indexOf(b.dataset.id), j = i + +b.dataset.d; if(j < 0 || j >= o.length) return true;
     [o[i], o[j]] = [o[j], o[i]]; (S.layout ||= {})[place] = o; save(); render(); return true; }
