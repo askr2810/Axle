@@ -429,7 +429,7 @@ brew install --cask --no-quarantine axle</code></pre>` : `<p>${TT('Egne apper fo
 <h2>${TT('Spørsmål og svar', 'Questions and answers')}</h2>
 ${faq.map(([q, a]) => `<details><summary>${q}</summary><p>${a}</p></details>`).join('')}
 <h2>${TT('Kontakt', 'Contact')}</h2>
-<p>${TT('Har du forslag, funnet en feil eller vil samarbeide? Skriv til', 'Have a suggestion, found a mistake or want to work together? Write to')} <a href="mailto:ask@axle.no">ask@axle.no</a>. ${TT('Trenger du hjelp med kontoen eller appen:', 'Need help with your account or the app:')} <a href="mailto:${esc(CONFIG.contactEmail)}">${esc(CONFIG.contactEmail)}</a>.</p>`;
+<p>${TT('Har du forslag, funnet en feil, vil samarbeide eller trenger hjelp med kontoen eller appen? Skriv til', 'Have a suggestion, found a mistake, want to work together or need help with your account or the app? Write to')} <a href="mailto:${esc(CONFIG.contactEmail)}">${esc(CONFIG.contactEmail)}</a>.</p>`;
   const url = nb ? '/about/' : '/en/about/';
   return page({ url, alt: nb ? '/en/about/' : '/about/', title: TT('Om Axle – læring gjort enkelt', 'About Axle – learning made simple'), desc: TT('Axle er en gratis læringsapp for barneskole, ungdomsskole, videregående, førerkort, ingeniørfag, sykepleie, økonomi, jus og arkitektur. Enkel teori steg for steg, figurer du kan dra i og oppgaver med løsning.', 'Axle is a free learning app for the driving test, upper secondary, engineering, nursing, business and law. Simple step-by-step theory, figures you can drag and worked problems.'), body,
     jsonld: [{ '@context': 'https://schema.org', '@type': 'Organization', name: 'Axle', url: SITE, logo: SITE + '/icons/icon-512.png', slogan: TT('Læring gjort enkelt', 'Learning made simple'), email: CONFIG.contactEmail },
