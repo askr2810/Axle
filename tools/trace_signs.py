@@ -1,4 +1,5 @@
 # Vektoriserer skiltreferanser (Statens vegvesens skilttegninger) til SVG-stier i skiltets 100 × 100-rute.
+# Krever numpy, scipy, scikit-image og pillow.
 # Bruk: python3 tools/trace_signs.py [mappe]  → skriver drive_signs_ref.js (standard: tools/sign_refs, kjøres fra rotmappen)
 # Hvert bilde deles i fargelag (svart, rød, blå, gul). Konturene finnes med marching squares, forenkles (Douglas–Peucker)
 # og skrives som én sti per lag med fill-rule evenodd, så hull (f.eks. vinduet i bilen) blir riktige.
@@ -93,7 +94,7 @@ out["stopText"] = trace(octa & ~red, S, S, OX, OY, 0.5, 0.7, 20, 2)
 
 # ---------- offisielle skilttegninger (tools/sign_refs/official/png, laget av tools/render_sign_refs.js) ----------
 # Hvert skilt deles i fargelag etter nærmeste farge i paletten og skrives som en liste [farge, sti]: først hele skiltets
-# silhuett i hvitt, så gult, blått, grønt, rødt, grått og svart oppå. Fareskilt (trekanter) fyller hele bredden 0–100 som fkTri;
+# silhuett i hvitt, så gult, oransje (farlig gods), blått, grønt, rødt, grått og svart oppå. Fareskilt (trekanter) fyller hele bredden 0–100 som fkTri;
 # de andre skiltene fyller 3–97. Fargene settes i drive_signs.js (FK_RED, FK_BLUE …), så de følger de offisielle verdiene.
 OFFICIAL = {
   "vikeplikt": "202", "forkjorsvei": "206", "forkjorskryss": "210",
@@ -105,8 +106,29 @@ OFFICIAL = {
   "fart90": "362.90", "fart100": "362.100", "fart110": "362.110", "slutt_fart60": "364.60",
   "pabud_rett": "402.3", "pabud_venstre": "402.5", "pabud_kjorefelt": "404.1", "rundkjoring": "406",
   "motorveg": "502", "motorveg_slutt": "504", "moteplass": "524", "envegskjoring": "526.1", "blindveg": "527.1", "parkering": "552",
+  # oppgave 33: flere skilt (navn og numre fra skiltforskriften)
+  "farlige_svinger_v": "102.2", "bratt_ned": "104.2", "bratt_opp": "104.1", "smalere_veg_h": "106.2", "smalere_veg_v": "106.3",
+  "fartshump": "109", "vegarbeid": "110", "steinsprut": "112", "rasfare": "114.1", "rasfare_v": "114.2",
+  "farlig_vegskulder": "117", "bevegelig_bru": "118", "kai": "120", "planovergang_bom": "134", "planovergang_uten": "135",
+  "avstand_1": "136.1", "avstand_2": "136.2", "avstand_3": "136.3", "andreaskors": "138.1", "andreaskors_fler": "138.2",
+  "sporvogn": "139", "avstand_gangfelt": "140", "syklende": "144", "rein": "146.2", "hjort": "146.3",
+  "ku": "146.4", "sau": "146.5", "ko": "149", "fly": "150", "militaer": "151",
+  "sidevind": "152", "trafikkulykke": "153", "skiloper": "154", "ridende": "155", "vik_motende": "212",
+  "motende_vik": "214", "forbudt_motorvogn": "306.1", "forbudt_traktor": "306.3", "forbudt_mc": "306.4", "forbudt_lastebil": "306.5",
+  "forbudt_sykkel": "306.6", "forbudt_gaende": "306.7", "forbudt_gaende_sykkel": "306.8", "forbudt_ridende": "306.9", "forbudt_farlig_gods": "308",
+  "forbudt_tyngre": "310", "breddegrense": "312", "hoydegrense": "314", "lengdegrense": "316", "vektgrense": "318.1",
+  "vektgrense_vogntog": "318.2", "aksellast": "320", "boggilast": "322", "forbikjoring_lastebil": "335", "slutt_forbikjoring": "336",
+  "slutt_forbikjoring_lastebil": "337", "slutt_fart50": "364.50", "slutt_fart70": "364.70", "slutt_fart80": "364.80", "fartssone": "366",
+  "fartssone_slutt": "368", "parkeringssone": "376.2", "parkeringssone_slutt": "378.1", "pabud_hoyre_bare": "402.1", "pabud_venstre_bare": "402.2",
+  "pabud_rett_hoyre": "402.6", "pabud_rett_venstre": "402.7", "pabud_hoyre_venstre": "402.8", "pabud_kjorefelt_v": "404.2", "rundkjoring_retning": "408",
+  "motortrafikkveg": "503", "motortrafikkveg_slutt": "505", "tungtrafikkfelt": "506", "tungtrafikkfelt_slutt": "507", "kollektivfelt_buss": "508.1",
+  "kollektivfelt_taxi": "508.2", "sambruksfelt": "509", "kollektivfelt_slutt": "510.1", "sambruksfelt_slutt": "511", "holdeplass_buss": "512",
+  "holdeplass_trikk": "513", "holdeplass_taxi": "514", "gangveg": "518", "sykkelveg": "520", "sykkelfelt": "521.1",
+  "gang_sykkelveg": "522", "enveg_hoyre": "526.2", "enveg_venstre": "526.3", "blindveg_kryssende": "527.2", "blindveg_sykkel": "527.3",
+  "valgfritt_felt": "528", "gatetun": "540", "gatetun_slutt": "542", "gagate": "548", "gagate_slutt": "550",
+  "havarilomme": "555", "fotoboks": "556.1", "videokontroll": "558", "feil_retning": "565",
 }
-PAL = [("w", (250, 250, 250)), ("r", (225, 50, 35)), ("r", (195, 20, 5)), ("b", (5, 70, 165)), ("k", (10, 10, 10)), ("y", (245, 180, 0)), ("g", (165, 165, 150)), ("n", (30, 150, 60))]
+PAL = [("w", (250, 250, 250)), ("r", (225, 50, 35)), ("r", (195, 20, 5)), ("b", (5, 70, 165)), ("k", (10, 10, 10)), ("y", (245, 180, 0)), ("g", (165, 165, 150)), ("n", (30, 150, 60)), ("o", (240, 120, 0))]
 out["sign"] = {}
 for name, nr in OFFICIAL.items():
     a = np.asarray(Image.open(f"{SRC}/official/png/{nr}.png").convert("RGBA")).astype(float)
@@ -121,7 +143,7 @@ for name, nr in OFFICIAL.items():
     OX = (100 - w * S) / 2 - xs.min() * S; OY = (100 - h * S) / 2 - ys.min() * S
     tol, sig = 0.35 / S / 100 * 100, 1.0
     layers = [["w", trace(ndimage.binary_fill_holes(alpha), S, S, OX, OY, 0.5 / S / 4, sig, 400, 1)]]
-    for k in "ybnrgk":
+    for k in "yobnrgk":
         m = alpha & (cls == k)
         if m.sum() < 30: continue
         m = ndimage.binary_opening(m, iterations=1)   # bort med enkeltpiksler i kantene (kantutjevning)

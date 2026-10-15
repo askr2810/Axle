@@ -182,12 +182,14 @@ function dvRenderResult(){
     ${res.mini ? "" : `<button class="big" data-a="dvtest">${esc(T("Ta en ny prøve", "Take a new test"))}</button>${wrong ? `<button class="big ghost" data-a="dvprac" data-k="wrong">${esc(T("Øv på feilene", "Practise your mistakes"))}</button>` : ""}`}
     <button class="big ghost" data-a="dvclose">${esc(T("Til oversikten", "To the overview"))}</button></main>`;
 }
+// Myk bindestrek foran vanlige sisteledd i lange skiltnavn («Totalvekt­grense»), så ordet bare deles der når kortet er smalt.
+const sgShy = s => s.replace(/(\p{L}{4,}?)(grense|forbud|felt|plass|tilhenger)(?=\s|$)/gu, "$1\u00AD$2").replace(/(forbikjørings|motortrafikk|fartsgrense|parkerings)(?=\p{L}{3,})/giu, "$1\u00AD");
 function dvRenderSigns(){
   const sel = DV.sel;
   $app.innerHTML = `${dvTop(T("Skilt, lys og oppmerking", "Signs, lights and markings"), courseName(COURSE(S.current)))}<main class="wrap dv dv-signs">
     ${sgMenuHTML()}
     <button class="big ghost" data-a="dvprac" data-k="signs">🚦 ${esc(T("Skiltquiz med teorispørsmål", "Sign quiz with theory questions"))}</button>
-    ${FK_SIGN_GROUPS.map(([g, nb, en]) => `<h3 class="grp">${esc(T(nb, en))}</h3><div class="dv-sgrid">${FK_SIGN_INFO.filter(s => s[1] === g).map(s => `<button class="dv-sg ${sel === s[0] ? "on" : ""}" data-a="dvsign" data-s="${s[0]}">${sgKnown(s[0]) ? `<em class="dv-known" title="${esc(T("Du kan dette skiltet", "You know this sign"))}">✓</em>` : ""}${fkSign(s[0], 64)}<b>${esc(T(s[2], s[3]))}</b>${sel === s[0] ? `<small>${FK_SIGN_NR[s[0]] ? `<span class="dv-sgnr">${esc(T("Skilt", "Sign"))} ${FK_SIGN_NR[s[0]]}</span> ` : ""}${esc(T(s[4], s[5]))}</small>` : ""}</button>`).join("")}</div>`).join("")}</main>`;
+    ${FK_SIGN_GROUPS.map(([g, nb, en]) => `<h3 class="grp">${esc(T(nb, en))}</h3><div class="dv-sgrid">${FK_SIGN_INFO.filter(s => s[1] === g).map(s => `<button class="dv-sg ${sel === s[0] ? "on" : ""}" data-a="dvsign" data-s="${s[0]}">${sgKnown(s[0]) ? `<em class="dv-known" title="${esc(T("Du kan dette skiltet", "You know this sign"))}">✓</em>` : ""}${fkSign(s[0], 64)}<b>${esc(sgShy(T(s[2], s[3])))}</b>${sel === s[0] ? `<small>${FK_SIGN_NR[s[0]] ? `<span class="dv-sgnr">${esc(T("Skilt", "Sign"))} ${FK_SIGN_NR[s[0]]}</span> ` : ""}${esc(T(s[4], s[5]))}</small>` : ""}</button>`).join("")}</div>`).join("")}</main>`;
 }
 // ---------- gratis prøve: resultat ----------
 function dvMiniHeroHTML(res){

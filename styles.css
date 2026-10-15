@@ -1980,7 +1980,7 @@ textarea.fbtext{width:100%;font:13px/1.4 var(--mono,monospace);border-radius:12p
 .dv-ra{color:var(--bad-deep)}.dv-rev.ok .dv-ra{color:var(--ok-deep)}.dv-rc b{color:var(--ok-deep)}.dv-re{color:var(--muted);font-size:14.5px}
 .dv-sgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:8px}
 .dv-sg{display:grid;justify-items:center;gap:4px;padding:10px 6px;border-radius:14px;border:2px solid var(--line);background:var(--card);font:inherit;color:var(--ink);cursor:pointer;text-align:center}
-.dv-sg b{font-size:12.5px;line-height:1.2}.dv-sg small{font-size:12px;color:var(--muted)}.dv-sg.on{border-color:var(--accent);grid-column:span 2}
+.dv-sg{min-width:0}.dv-sg b{font-size:12.5px;line-height:1.2;max-width:100%;hyphens:manual;-webkit-hyphens:manual;overflow-wrap:break-word}.dv-sg small{font-size:12px;color:var(--muted)}.dv-sg.on{border-color:var(--accent);grid-column:span 2}
 .fk-sign{display:block;flex:none}
 .st-row{display:flex;align-items:stretch;gap:8px;margin-bottom:8px}.st-row .st-btn{flex:1;margin:0}
 .st-check{font-style:normal;width:26px;height:26px;border-radius:50%;border:2px solid var(--line);display:grid;place-items:center;font-weight:800;font-size:14px;color:#fff;flex:none}

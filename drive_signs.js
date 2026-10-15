@@ -6,7 +6,7 @@
 // laget av tools/trace_signs.py). Fargene er de offisielle skiltfargene: rød #c4122f, gul #ffd500 og blå #003d82.
 const FK_RED = "#c4122f", FK_BLUE = "#003d82", FK_YEL = "#ffd500", FK_INK = "#1B1F24";
 // Hele skilt sporet fra de offisielle tegningene (FK_TRACE.sign): lag med [farge, sti], tegnet i rekkefølge.
-const FK_COL = { w: "#fff", r: FK_RED, b: FK_BLUE, y: FK_YEL, k: FK_INK, g: "#9EA1A3", n: "#00843d" };
+const FK_COL = { w: "#fff", r: FK_RED, b: FK_BLUE, y: FK_YEL, k: FK_INK, g: "#9EA1A3", n: "#00843d", o: "#f07d00" };
 const fkOfficial = name => FK_TRACE.sign[name].map(([c, d]) => `<path d="${d}" fill="${FK_COL[c]}" fill-rule="evenodd"/>`).join("");
 const fkTri = (inner, down) => (down ? `<path d="M7 15h86L50 89z" fill="#fff" stroke="${FK_RED}" stroke-width="9" stroke-linejoin="round"/>`
   : `<path d="${FK_TRACE.triBase}" fill="#fff"/><path d="${FK_TRACE.triRedPath}" fill="${FK_RED}" fill-rule="evenodd"/>`) + (inner || "");
