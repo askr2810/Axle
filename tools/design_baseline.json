@@ -1,0 +1,123 @@
+{
+ "emoji": {
+  "ℹ": [
+   "profile.js"
+  ],
+  "↩": [
+   "control.js"
+  ],
+  "⌨": [
+   "edit.js"
+  ],
+  "☑": [
+   "motion.js"
+  ],
+  "⬆": [
+   "qsearch.js"
+  ],
+  "⬇": [
+   "profile.js",
+   "qsearch.js"
+  ],
+  "〰": [
+   "control.js",
+   "trig.js"
+  ],
+  "🇧": [
+   "challenge.js"
+  ],
+  "🇪": [
+   "geo_game.js"
+  ],
+  "🇬": [
+   "challenge.js"
+  ],
+  "🇳": [
+   "challenge.js"
+  ],
+  "🇴": [
+   "challenge.js"
+  ],
+  "🇺": [
+   "geo_game.js"
+  ],
+  "🌎": [
+   "app.js",
+   "geo_game.js"
+  ],
+  "🌏": [
+   "app.js",
+   "geo_game.js"
+  ],
+  "🍕": [
+   "proofs.js"
+  ],
+  "🎉": [
+   "drive.js",
+   "focus.js",
+   "forces.js",
+   "i18n.js",
+   "mq.js",
+   "teach.js",
+   "trig.js",
+   "welcome.js"
+  ],
+  "🐢": [
+   "control.js"
+  ],
+  "🐸": [
+   "groups.js"
+  ],
+  "👉": [
+   "control.js"
+  ],
+  "🔠": [
+   "edit.js"
+  ],
+  "🔵": [
+   "control.js"
+  ],
+  "🔺": [
+   "proofs.js"
+  ],
+  "🕘": [
+   "edit.js"
+  ],
+  "🛝": [
+   "code.js"
+  ],
+  "🟢": [
+   "unlocks.js"
+  ],
+  "🟦": [
+   "motion.js",
+   "proofs.js"
+  ],
+  "🤫": [
+   "avatar.js"
+  ],
+  "🥇": [
+   "mq.js"
+  ],
+  "🥈": [
+   "mq.js"
+  ],
+  "🥉": [
+   "mq.js"
+  ],
+  "🦊": [
+   "groups.js"
+  ],
+  "🧑": [
+   "app.js"
+  ],
+  "🧘": [
+   "geo_game.js"
+  ],
+  "🪞": [
+   "trig.js"
+  ]
+ },
+ "gradients": 37,
+ "leftStripes": 6
+}
