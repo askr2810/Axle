@@ -82,8 +82,8 @@ const SIMS = {
     q: ["Hvor mange prosent er ladet etter én tidskonstant τ? Etter 5τ?", "What percentage is charged after one time constant τ? After 5τ?"],
     f: v => { const tau = v.R * v.C / 1000, tmax = 5;
       const g = smPlot([[t => 1 - Math.exp(-t / tau)], [t => 1, "fg-mut", 1.2]], [0, tmax], [0, 1.15], "t (s)", "u/U", (X, Y) =>
-        (tau <= tmax ? smLine(X(tau), Y(0), X(tau), Y(0.632), "fg-red", "4 3") + smDot(X(tau), Y(0.632), "fg-dot") + fgT(X(tau) + 6, Y(0.632) - 6, "63 %", "fg-s", "start") + fgT(X(tau), Y(0) + 14, "τ", "fg-i fg-redt") : "") +
-        (5 * tau <= tmax ? smLine(X(5 * tau), Y(0), X(5 * tau), Y(0.993), "fg-mut", "3 3") + (X(5 * tau) - X(tau) > 18 ? fgT(X(5 * tau), Y(0) + 14, "5τ", "fg-i") : "") : ""));
+        (tau <= tmax ? smLine(X(tau), Y(0), X(tau), Y(0.632), "fg-red", "4 3") + smDot(X(tau), Y(0.632), "fg-dot") + fgT((X(5 * tau) - X(tau) < 45 && 5 * tau <= tmax ? X(5 * tau) : X(tau)) + 6, Y(0.632) + 14, "63 %", "fg-s", "start") + fgT(X(tau), Y(0) + 14, "τ", "fg-i fg-redt") : "") +
+        (5 * tau <= tmax ? smLine(X(5 * tau), Y(0), X(5 * tau), Y(0.993), "fg-mut", "3 3") + (X(5 * tau) - X(tau) > 18 ? (X(5 * tau) > 270 ? fgT(X(5 * tau) - 4, Y(0.993) + 14, "5τ", "fg-i", "end") : fgT(X(5 * tau), Y(0) + 14, "5τ", "fg-i")) : "") : ""));
       return { eq: [qt`\tau = RC = ${qv(1, v.R, 0, "k\\Omega")}\cdot ${qv(2, v.C, 0, "\\mu F")} = ${qr(tau, 2, "s")}`, qt`u(\tau) = U\,(1 - e^{-1}) \approx 0{,}63\,U, \quad 5\tau = ${qr(5 * tau, 2, "s")}`], out: [["τ = RC", smN(tau) + " s"], ["5τ", smN(5 * tau) + " s"]], svg: g.svg }; } },
   sine: { t: ["Vekselspenning", "AC voltage"], p: [["A", "Û", 1, 10, 0.5, 6, "V", 1], ["f", "f", 1, 5, 0.5, 2, "Hz", 2], ["ph", "φ", -180, 180, 15, 0, "°", 3]],
     q: ["Still φ til 90°. Hvor ligger toppen nå i forhold til før?", "Set φ to 90°. Where is the peak now compared with before?"],
@@ -138,7 +138,7 @@ const SIMS = {
         <rect class="${slides ? "fg-hot" : "fg-box"}" x="${bx - 16}" y="${by - 12}" width="32" height="24" rx="3" transform="rotate(${-v.a} ${bx.toFixed(1)} ${by.toFixed(1)})"/>
         ${fgAr(bx, by, bx, by + 50, "fg-red")}${fgT(bx + 6, by + 50, "G", "fg-i fg-redt", "start")}
         ${fgAr(bx, by, bx + nx * 48 * Math.cos(r), by + ny * 48 * Math.cos(r))}${fgT(bx + nx * 52, by + ny * 52, "N", "fg-i fg-acct")}
-        ${v.mu > 0 ? fgAr(bx, by, bx + Math.cos(r) * 40 * Math.min(1, fric / Math.max(drive, 0.01)), by - Math.sin(r) * 40 * Math.min(1, fric / Math.max(drive, 0.01)), "fg-c4", 2.6) + fgT(bx + Math.cos(r) * 44, by - Math.sin(r) * 44 - 6, "R = μN", "fg-s fg-c4t") : ""}${v.a > 0 ? smArc(x0, y0, 44, 0, v.a, "fg-c2", "θ") : ""}` }; } },
+        ${v.mu > 0 ? fgAr(bx, by, bx + Math.cos(r) * 40 * Math.min(1, fric / Math.max(drive, 0.01)), by - Math.sin(r) * 40 * Math.min(1, fric / Math.max(drive, 0.01)), "fg-c4", 2.6) + (v.a > 40 ? fgT(bx + Math.cos(r) * 40 + 10, by - Math.sin(r) * 40 + 6, "R = μN", "fg-s fg-c4t", "start") : fgT(bx + Math.cos(r) * 44, by - Math.sin(r) * 44 - 6, "R = μN", "fg-s fg-c4t")) : ""}${v.a > 0 ? smArc(x0, y0, 44, 0, v.a, "fg-c2", "θ") : ""}` }; } },
   lever: { t: ["Moment og vippe", "Moment and a see-saw"], p: [["F1", "F₁", 10, 100, 5, 60, "N", 1], ["a1", "a₁", 0.2, 2, 0.1, 1, "m", 2], ["F2", "F₂", 10, 100, 5, 40, "N", 3], ["a2", "a₂", 0.2, 2, 0.1, 1.5, "m", 4]],
     q: ["Få vippa i balanse. Hva må være likt på begge sider?", "Balance the see-saw. What must be equal on both sides?"],
     f: v => { const M1 = v.F1 * v.a1, M2 = v.F2 * v.a2, tilt = Math.max(-12, Math.min(12, (M1 - M2) / 4)), r = tilt * Math.PI / 180, c = [160, 92], sc = 60;
@@ -156,7 +156,7 @@ const SIMS = {
       return { eq: [qt`b = L - a = 6 - ${qc(2, qn(v.a, 1))} = ${qn(b, 1)}${qu("m")}`, qt`M_{\max} = \frac{P\,a\,b}{L} = \frac{${qc(1, v.P)}\cdot ${qc(2, qn(v.a, 1))}\cdot ${qn(b, 1)}}{6} = ${qr(M, 2, "kNm")}`], out: [["A = Pb/L", smN(RA) + " kN"], ["B = Pa/L", smN(RB) + " kN"], ["M_maks = Pab/L", smN(M) + " kNm"]], svg: `
         <rect class="fg-fill" x="40" y="40" width="240" height="10" rx="2"/><rect class="fg-line" x="40" y="40" width="240" height="10" rx="2" fill="none"/>
         <polygon class="fg-line" points="40,50 31,64 49,64" fill="none"/><circle class="fg-line" cx="280" cy="57" r="6" fill="none"/>
-        ${fgAr(X(v.a), 36 - Math.min(30, 6 + v.P * 0.5), X(v.a), 38, "fg-c1", 2.6)}${fgT(X(v.a) + 8, 18, "P = " + smN(v.P, 0) + " kN", "fg-s fg-c1t", "start")}${smDim(40, 50, X(v.a), 50, 22, "fg-c2", "a = " + smN(v.a, 1) + " m")}
+        ${fgAr(X(v.a), 36 - Math.min(30, 6 + v.P * 0.5), X(v.a), 38, "fg-c1", 2.6)}${fgT(X(v.a) + 8, 18, "P = " + smN(v.P, 0) + " kN", "fg-s fg-c1t", "start")}${X(v.a) - 40 < 70 ? smDim(40, 50, X(v.a), 50, 22, "fg-c2", "") + fgT(X(v.a) + 8, 76, "a = " + smN(v.a, 1) + " m", "fg-s fg-c2t", "start") : smDim(40, 50, X(v.a), 50, 22, "fg-c2", "a = " + smN(v.a, 1) + " m")}
         ${fgAr(40, 72 + RA, 40, 66)}${fgAr(280, 72 + RB, 280, 66)}
         <line class="fg-mut" x1="40" y1="122" x2="280" y2="122"/><polygon class="fg-mfill" points="40,122 ${X(v.a).toFixed(1)},${(122 + M * sc).toFixed(1)} 280,122"/>
         <polyline class="fg-acc" points="40,122 ${X(v.a).toFixed(1)},${(122 + M * sc).toFixed(1)} 280,122" fill="none" stroke-width="2.2"/>${fgT(30, 126, "M", "fg-i", "end")}` }; } },

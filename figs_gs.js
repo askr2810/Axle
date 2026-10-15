@@ -207,7 +207,7 @@ Object.assign(FIGS, {
 
   // Areal og omkrets for et rektangel på w · h ruter. p = { w, h, unit, mode: "fill" | "edge" } (unit "" = bare ruter). Uten p: 5 m · 3 m.
   gs_area: (p = {}) => { const w = p.w ?? 5, h = p.h ?? 3, un = p.unit ?? "m", mode = p.mode || "both"; let s = ""; if(!(w >= 1 && h >= 1 && w <= 12 && h <= 8)) return null;
-    const u = Math.min(22, 134 / w, 110 / h), x0 = 36, y0 = 48, L = v => un ? `${v} ${un}` : String(v), A = v => un ? `${v} ${un}²` : T(`${v} ruter`, `${v} squares`);
+    const u = Math.min(22, 126 / w, 110 / h), x0 = 44, y0 = 48, /* plass til «6 cm» til venstre, og rektangelet slutter før tekstene ved x = 176 */ L = v => un ? `${v} ${un}` : String(v), A = v => un ? `${v} ${un}²` : T(`${v} ruter`, `${v} squares`);
     for(let r = 0; r < h; r++) for(let c = 0; c < w; c++) s += `<rect x="${f1(x0 + c * u)}" y="${f1(y0 + r * u)}" width="${f1(u)}" height="${f1(u)}" style="${mode === "edge" ? "fill:var(--card)" : solid(4, 30)};stroke:var(--c4);stroke-width:.8"/>`;
     if(mode !== "fill") s += `<rect x="${x0}" y="${f1(y0)}" width="${f1(w * u)}" height="${f1(h * u)}" style="fill:none;stroke:var(--c1);stroke-width:4"/>`;
     s += tx(f1(x0 + w * u / 2), f1(y0 - 10), L(w), "fg-b") + tx(x0 - 8, f1(y0 + h * u / 2 + 5), L(h), "fg-b", "end");

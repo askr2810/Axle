@@ -48,7 +48,7 @@ Object.assign(SIMS, {
         ["Ødelegg det: få systemet til å svinge uten å roe seg innen 10 s.", "Break it: make the system oscillate without settling within 10 s.", (v, m) => !Number.isFinite(m.ts) && m.os > 10]],
     f: v => { const r = smPidRun(v.Kp, v.Ki, v.Kd), m = smStepInfo(r.ys, r.dt, 1, v.Ki > 0 ? 1 : v.Kp / (1 + v.Kp)), Y = smSeries(r.ys, r.dt), U = smSeries(r.us, r.dt);
       const g = smPlot([[t => 1, "fg-mut", 1.2], [t => U(t) / 10, "fg-c2", 1.4], [Y, "fg-acc", 2.6]], [0, 10], [-0.3, 1.8], "t (s)", "y", (X, Yp) =>
-        (Number.isFinite(m.ts) && m.ts <= 10 ? smLine(X(m.ts), Yp(-0.3), X(m.ts), Yp(1.8), "fg-ok", "4 3") + fgT(X(m.ts) + 4, Yp(1.62), "t_s", "fg-s fg-okt", "start") : "") +
+        (Number.isFinite(m.ts) && m.ts <= 10 ? smLine(X(m.ts), Yp(-0.3), X(m.ts), Yp(1.8), "fg-ok", "4 3") + fgT(X(m.ts) + 4, X(m.ts) > X(9.8) - 95 ? Yp(1.4) : Yp(1.62), "t_s", "fg-s fg-okt", "start") : "") +
         fgT(X(9.8), Yp(1.62), T("pådrag u/10", "input u/10"), "fg-s fg-c2t", "end") + fgT(X(9.8), Yp(1) - 5, T("mål", "setpoint"), "fg-s", "end"));
       return { eq: [qt`u = ${qc(1, qn(v.Kp, 1))}\,e + ${qc(2, qn(v.Ki, 2))}\!\int e\,dt + ${qc(3, qn(v.Kd, 1))}\,\frac{de}{dt}`, v.Ki > 0 ? qt`K_i > 0 \;\Rightarrow\; e_\infty = ${qr(0, 0)}` : qt`e_\infty = \frac{1}{1 + K_p} = \frac{1}{1 + ${qc(1, qn(v.Kp, 1))}} = ${qr(1 / (1 + v.Kp), 3)} \;${qrel(1 / (1 + v.Kp), 0.1, "le", 0)}\; 0{,}1`], m, out: [[T("oversving", "overshoot"), smPct(m.os)], [T("innsvingning", "settling"), smSec(m.ts)], [T("avvik", "error"), smN(m.ess * 100, 1) + " %"]], svg: g.svg }; } },
   second: { t: ["Andreordens stegrespons", "Second-order step response"], p: [["z", "ζ", 0.05, 2, 0.05, 0.2, "", 1], ["wn", "ω_n", 1, 10, 0.5, 3, "rad/s", 2]],

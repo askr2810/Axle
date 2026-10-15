@@ -123,7 +123,7 @@ Object.assign(SIMS, {
       const minx = Math.min(0, Cx), maxx = Math.max(c, Cx), k = Math.min(270 / (maxx - minx), 130 / Cy), ox = 25 - minx * k + (270 - (maxx - minx) * k) / 2, oy = 152, P = (x, y) => [ox + x * k, oy - y * k];
       const [ax, ay] = P(0, 0), [bx, by] = P(c, 0), [cx, cy] = P(Cx, Cy), [fx, fy] = P(Cx, 0);
       const svg = `<polygon points="${ax},${ay} ${bx},${by} ${cx.toFixed(1)},${cy.toFixed(1)}" style="fill:var(--accent-soft);stroke:var(--ink);stroke-width:1.8"/>` +
-        (Cx < 0 || Cx > c ? smLine(Cx < 0 ? fx : bx, fy, Cx < 0 ? ax : fx, fy, "fg-mut", "3 3") : "") + smLine(cx, cy, fx, fy, "fg-c3", "5 3") + fgT(fx + 5, (cy + fy) / 2, "h", "fg-i fg-c3t", "start") +
+        (Cx < 0 || Cx > c ? smLine(Cx < 0 ? fx : bx, fy, Cx < 0 ? ax : fx, fy, "fg-mut", "3 3") : "") + smLine(cx, cy, fx, fy, "fg-c3", "5 3") + fgT(fx + 5, Math.abs(fx + 5 - ((ax + cx) / 2 - 8)) < 26 && Math.abs((cy + fy) / 2 - (ay + cy) / 2) < 18 ? fy - 12 : (cy + fy) / 2, "h", "fg-i fg-c3t", "start") +
         smArc(ax, ay, 22, 0, v.A, "fg-c1", "") + smArc(bx, by, 22, 180 - v.B, 180, "fg-c2", "") + fgT(ax - 6, ay + 4, "A", "fg-b fg-c1t", "end") + fgT(bx + 6, by + 4, "B", "fg-b fg-c2t", "start") + fgT(cx, cy - 7, "C", "fg-b") +
         fgT((ax + cx) / 2 - 8, (ay + cy) / 2, "b", "fg-i", "end") + fgT((bx + cx) / 2 + 8, (by + cy) / 2, "a", "fg-i", "start");
       return { eq: [qt`h = b\sin A = ${qn(b)}\cdot\sin ${qc(1, v.A + "^\\circ")} = ${qn(h)}`, qt`h = a\sin B = ${qn(a)}\cdot\sin ${qc(2, v.B + "^\\circ")} = ${qn(h)}`,

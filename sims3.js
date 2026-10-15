@@ -68,7 +68,7 @@ Object.assign(SIMS, {
     f: v => { const k = Math.pow(0.5, 1 / v.T), A = t => { let s = 0; for(let n = 0; n * v.tau <= t + 1e-9; n++) s += v.D * Math.pow(k, t - n * v.tau); return s; };
       const mx = v.D / (1 - Math.pow(k, v.tau)), mn = mx * Math.pow(k, v.tau);
       const g = smPlot([[A, "fg-acc", 2.2]], [0, 72], [0, mx * 1.15], "t (h)", "mg", (X, Y) => smLine(X(0), Y(mx), X(72), Y(mx), "fg-c1", "4 3") + smLine(X(0), Y(mn), X(72), Y(mn), "fg-c3", "4 3") +
-        fgT(X(72), Y(mx) - 5, T("topp", "peak"), "fg-s fg-c1t", "end") + fgT(X(72), Y(mn) + 13, T("bunn", "trough"), "fg-s fg-c3t", "end"));
+        fgT(X(72), Y(mx) - 5, T("topp", "peak"), "fg-s fg-c1t", "end") + fgT(X(72), Y(mn) + 13 > Y(0) - 6 ? Y(mn) - 5 : Y(mn) + 13, T("bunn", "trough"), "fg-s fg-c3t", "end"));
       return { eq: [qt`k = \left(\tfrac12\right)^{\tau/T_{1/2}} = \left(\tfrac12\right)^{${qc(3, v.tau)}/${qc(2, v.T)}} = ${qn(Math.pow(k, v.tau), 3)}`, qt`C_{\max} = \frac{D}{1 - k} = \frac{${qc(1, v.D)}}{1 - ${qn(Math.pow(k, v.tau), 3)}} = ${qr(mx, 0, "mg")}`, qt`C_{\min} = C_{\max}\cdot k = ${qr(mn, 0, "mg")}`], out: [[T("topp (steady state)", "peak (steady state)"), smN(mx, 0) + " mg"], [T("bunn", "trough"), smN(mn, 0) + " mg"]], svg: g.svg }; } },
 
   // ---------- Kjemi 1: pH-skalaen ----------

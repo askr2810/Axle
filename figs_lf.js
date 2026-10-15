@@ -134,7 +134,7 @@ Object.assign(FIGS, {
   lf_sqrt: (p = {}) => { const n = p.s ?? 7, u = Math.min(16, 140 / n); let s = "";
     for(let i = 0; i < n; i++) for(let j = 0; j < n; j++) s += `<rect x="${f1(30 + i * u)}" y="${f1(24 + j * u)}" width="${f1(u)}" height="${f1(u)}" style="${solid(4, (i + j) % 2 ? 20 : 36)};stroke:var(--c4);stroke-width:.6"/>`;
     s += tx(f1(30 + n * u / 2), 18, String(n), "fg-b") + tx(22, f1(24 + n * u / 2 + 4), String(n), "fg-b", "end");
-    s += tx(196, 70, T(`${n * n} ruter`, `${n * n} squares`), "fg-b", "start") + col(196, 100, `√${n * n} = ${n}`, 4, "fg-big", "start") + tx(196, 126, T("fordi", "because"), "fg-s", "start") + tx(196, 144, `${n} · ${n} = ${n * n}`, "fg-t", "start");
+    s += tx(196, 70, T(`${n * n} ruter`, `${n * n} squares`), "fg-b", "start") + col(196, 100, `√${n * n} = ${n}`, 4, "fg-big", "start").replace("style=\"fill:var(--c4)\"", `style="fill:var(--c4);font-size:${Math.min(30, 118 / (String(`√${n * n} = ${n}`).length * 0.56)).toFixed(1)}px"`) + tx(196, 126, T("fordi", "because"), "fg-s", "start") + tx(196, 144, `${n} · ${n} = ${n * n}`, "fg-t", "start");
     return { cap: T(`Et kvadrat med ${n * n} ruter har sider på ${n}. Derfor er kvadratroten av ${n * n} lik ${n}.`, `A square of ${n * n} squares has sides of ${n}. So the square root of ${n * n} is ${n}.`), svg: s }; },
 
   // Linjalen: en blyant som starter på «start» og er «len» cm lang. p = { start, len }

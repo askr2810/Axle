@@ -14,9 +14,9 @@ Object.assign(FIGS, {
   // ---------- 1P / 2P ----------
   pct_growth: () => ({ cap: T("Vekstfaktor: 800 kr med 30 % rabatt blir 800 · 0,70 = 560 kr. Med 30 % økning blir det 800 · 1,30 = 1040 kr.", "Growth factor: 800 NOK with a 30 % discount becomes 800 · 0.70 = 560 NOK. With a 30 % increase it becomes 800 · 1.30 = 1040 NOK."), svg:
     `${box(20, 90, 60, 70, 2, 4)}${tx(50, 130, "800", "fg-b")}${tx(50, 176, T("før", "before"), "fg-s")}
-     ${box(130, 111, 60, 49, 5, 4)}${tx(160, 140, "560", "fg-b")}${tx(160, 176, "· 0,70", "fg-s")}
-     ${box(240, 69, 60, 91, 3, 4)}${tx(270, 118, "1040", "fg-b")}${tx(270, 176, "· 1,30", "fg-s")}
-     ${ar(84, 110, 126, 128, "fg-red")}${tx(105, 104, "−30 %", "fg-s fg-redt")}${ar(84, 100, 236, 84, "fg-ok")}${tx(160, 70, "+30 %", "fg-s fg-okt")}
+     ${box(130, 111, 60, 49, 5, 4)}${tx(160, 140, "560", "fg-b")}${tx(160, 176, T("· 0,70", "· 0.70"), "fg-s")}
+     ${box(240, 69, 60, 91, 3, 4)}${tx(270, 118, "1040", "fg-b")}${tx(270, 176, T("· 1,30", "· 1.30"), "fg-s")}
+     ${ar(84, 110, 126, 128, "fg-red")}${tx(105, 150, "−30 %", "fg-s fg-redt")}${ar(84, 100, 236, 84, "fg-ok")}${tx(160, 70, "+30 %", "fg-s fg-okt")}
      <line class="fg-mut" x1="10" y1="160" x2="310" y2="160"/>` }),
   map_scale: () => ({ cap: T("Målestokk 1 : 50 000: 1 cm på kartet er 500 m i terrenget. Tette høydekurver betyr bratt.", "Scale 1 : 50,000: 1 cm on the map is 500 m on the ground. Close contour lines mean steep terrain."), svg:
     `<rect x="10" y="10" width="300" height="130" rx="10" class="fg-fill"/>

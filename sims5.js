@@ -147,8 +147,8 @@ Object.assign(SIMS, {
         ["Du bytter sang i 4 sekunder i 80 km/t. Hvor stor del av en fotballbane kjører du uten å se på vegen?", "You change songs for 4 seconds at 80 km/h. How much of a football pitch do you travel without looking at the road?", v => v.v === 80 && v.t === 4]],
     f: v => { const ms = v.v / 3.6, d = ms * v.t, xs = 30, pitch = d >= 0.8 * 105, k = (312 - xs) / (pitch ? 125 : d < 40 ? 45 : 95), x1 = xs + d * k, nb = d / 12, nf = d / 105;
       const big = (x, y, txt, col, an) => `<text x="${x}" y="${y}" class="fg-big" text-anchor="${an}" style="font-size:22px;fill:var(${col})">${txt}</text>`;
-      let s = fgT(8, 14, T("Du ser på mobilen i", "You look at your phone for") + " " + smN(v.t, 1) + " s", "fg-s", "start") + big(8, 38, smN(d, 0) + " m", "--bad", "start");
-      s += fgT(312, 14, T("uten å se på vegen, like langt som", "without looking at the road, as far as"), "fg-s", "end") + big(312, 38, "≈ " + smR(nb) + " " + (Math.round(nb * 10) === 10 ? T("buss", "bus") : T("busser", "buses")), "--accent", "end");
+      let s = fgT(8, 14, T("Uten blikk på vegen i", "Eyes off the road for") + " " + smN(v.t, 1) + " s", "fg-s", "start") + big(8, 38, smN(d, 0) + " m", "--bad", "start");
+      s += fgT(312, 14, T("like langt som", "as far as"), "fg-s", "end") /* korte overskrifter, så de ikke kolliderer */ + big(312, 38, "≈ " + smR(nb) + " " + (Math.round(nb * 10) === 10 ? T("buss", "bus") : T("busser", "buses")), "--accent", "end");
       s += `<rect x="0" y="46" width="320" height="26" style="fill:#5E656D"/><line x1="0" y1="59" x2="320" y2="59" style="stroke:#F4F4F4;stroke-width:1.4;stroke-dasharray:9 7"/>`;
       s += smCar(xs - 13, 65) + `<rect x="${xs - 18}" y="47.5" width="6" height="9" rx="1.2" style="fill:#1B1F24"/><rect x="${xs - 17.2}" y="48.6" width="4.4" height="6.6" rx=".6" style="fill:#7FB2FF"/>`;
       s += smCar(Math.min(306, x1 - 13), 65, "rgba(43,89,195,.45)") + `<rect x="${xs}" y="75" width="${(d * k).toFixed(1)}" height="5" rx="2" style="fill:#D1453B"/>`;
@@ -193,8 +193,11 @@ Object.assign(SIMS, {
         if(fr >= 0.999 || n > 12) s += one(cx, 1, by);
         else { const id = "dvk" + (++dvkUid); s += `<g style="opacity:.18">${one(cx, 1, by)}</g><clipPath id="${id}"><rect x="${(x0 - 4).toFixed(1)}" y="${by - 120}" width="${(B.w * sc * fr + 4).toFixed(1)}" height="124"/></clipPath><g clip-path="url(#${id})">${one(cx, 1, by)}</g>`; } }
       const big = (x, y, txt, col, an) => `<text x="${x}" y="${y}" class="fg-big" text-anchor="${an}" style="font-size:22px;fill:var(${col})">${txt}</text>`;
-      s += fgT(10, 16, T("Du veier", "You weigh") + " " + v.m + " kg, " + T("i krasjet", "in the crash"), "fg-s", "start") + big(10, 42, (W >= 10000 ? smN(W / 1000, 1) + " " + T("tonn", "t") : smN(W, 0) + " kg"), "--bad", "start");
-      s += fgT(310, 16, T("like tungt som", "as heavy as"), "fg-s", "end") + big(310, 42, "≈ " + smN(nr, 1) + " " + nm, "--accent", "end");
+      // to store tekster på én linje: krymp skriften når de til sammen blir for brede (ca. 0,6 em per tegn), så de ikke kolliderer
+      const L1 = W >= 10000 ? smN(W / 1000, 1) + " " + T("tonn", "t") : smN(W, 0) + " kg", R1 = "≈ " + smN(nr, 1) + " " + nm, fs = Math.max(15, Math.min(22, 280 / ((L1.length + R1.length) * 0.6)));
+      const bigf = (x, y, txt, col, an) => big(x, y, txt, col, an).replace("font-size:22px", `font-size:${fs.toFixed(1)}px`);
+      s += fgT(10, 16, T("Du veier", "You weigh") + " " + v.m + " kg, " + T("i krasjet", "in the crash"), "fg-s", "start") + bigf(10, 42, L1, "--bad", "start");
+      s += fgT(310, 16, T("like tungt som", "as heavy as"), "fg-s", "end") + bigf(310, 42, R1, "--accent", "end");
       return { m: { W, gf }, eq: [qt`W = \frac{${qc(2, v.m)}\cdot ${qc(1, qn(ms, 1))}^2}{2\cdot ${qc(3, qn(d, 1))}\cdot 9{,}81} = ${qr(W, 0)}\,\mathrm{kg}`],
         out: [[T("ganger tyngre", "times heavier"), smN(gf, gf < 10 ? 1 : 0) + " ×"], [T("tilsvarer", "equals"), smN(W, 0) + " kg"], [T("belte", "belt"), v.b === 1 ? T("ja", "yes") : T("nei", "no")]], svg: s }; } },
   dvfall: { t: ["Krasj eller fall fra høyden?", "Crash or fall from a height?"],

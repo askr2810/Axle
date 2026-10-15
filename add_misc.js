@@ -247,8 +247,8 @@ GEN("OKON", 1,
    return [T(`En maskin koster ${nf(I0)} kr og gir en årlig innsparing på ${nf(A)} kr i ${yrs} år. Ved slutten av levetiden har maskinen en restverdi på ${nf(S)} kr. Kalkulasjonsrenten er ${nf(r * 100)} %. Hva er netto nåverdi av investeringen?`,
              `A machine costs ${nf(I0)} NOK and gives an annual saving of ${nf(A)} NOK for ${yrs} years. At the end of its life the machine has a salvage value of ${nf(S)} NOK. The discount rate is ${nf(r * 100)}%. What is the net present value of the investment?`),
      { n: npv, tol: Math.max(Math.abs(npv) * 0.01, 50), u: "kr" },
-     T(`Annuitetsfaktor: $\\dfrac{1-(1+r)^{-n}}{r} = ${mf(af, 4)}$. $NPV = -${nf(I0)} + ${nf(A)}\\cdot ${mf(af, 4)} + ${nf(S)}/${mf(1 + r)}^{${yrs}} \\approx ${mf(npv, 0)}$ kr.`,
-       `Annuity factor: $\\dfrac{1-(1+r)^{-n}}{r} = ${mf(af, 4)}$. $NPV = -${nf(I0)} + ${nf(A)}\\cdot ${mf(af, 4)} + ${nf(S)}/${mf(1 + r)}^{${yrs}} \\approx ${mf(npv, 0)}$ NOK.`)]; }
+     T(`Annuitetsfaktor: $\\dfrac{1-(1+r)^{-n}}{r} = ${mf(af, 4)}$. $NPV = -${nf(I0)} + ${nf(A)}\\cdot ${mf(af, 4)} + ${nf(S)}/${mf(1 + r)}^{${yrs}}$ $\\approx ${mf(npv, 0)}$ kr.`, // to formler, så svaret kan bryte til ny linje på mobil
+       `Annuity factor: $\\dfrac{1-(1+r)^{-n}}{r} = ${mf(af, 4)}$. $NPV = -${nf(I0)} + ${nf(A)}\\cdot ${mf(af, 4)} + ${nf(S)}/${mf(1 + r)}^{${yrs}}$ $\\approx ${mf(npv, 0)}$ NOK.`)]; }
 );
 
 // ================= OKON – enhet 2: Kostnader og lønnsomhet =================
