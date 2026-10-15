@@ -354,7 +354,7 @@ document.addEventListener("wheel", e => { if(!CROP || !(e.target.closest && e.ta
 document.addEventListener("input", e => { if(CROP && e.target.classList && e.target.classList.contains("crop-zoom")){ CROP.z = +e.target.value; cropApply(); } });
 function avPhotoSaved(){ save(); if(typeof frPushSoon === "function") frPushSoon(); render(); }
 document.addEventListener("change", e => {
-  if(e.target && e.target.id === "avfile"){
+  if(e.target && e.target.id === "avfile" && !(typeof isElev === "function" && isElev())){
     const f = e.target.files && e.target.files[0]; e.target.value = "";
     if(!f || !/^image\//.test(f.type)){ toast(t("avPhotoBad")); return; }
     const url = URL.createObjectURL(f); cropOpen(url, url);
@@ -411,7 +411,7 @@ function renderAvatarEditor(){
   $app.innerHTML = `<div class="top"><div class="wrap"><button class="iconbtn" data-a="avcancel" aria-label="${esc(t("back"))}">${I.x}</button>
       <div class="th-t"><small>${esc(t("avSub"))}</small><b>${esc(t("avTitle"))}</b></div><button class="iconbtn" data-a="avrandom" aria-label="${esc(t("avRandom"))}" title="${esc(t("avRandom"))}">${I.dice}</button></div></div>
     <main class="wrap ave">
-      ${photoCard}
+      ${typeof isElev === "function" && isElev() ? "" : photoCard /* elevprofiler: ingen profilbilde (bare tegnet avatar) */}
       <div class="ave-prev" data-a="avpreview">${avatarSVG(AVE.code, 150)}</div>
       <div class="ave-tabs">${AVE_TABS.map(([kk, lab]) => `<button class="${kk === k ? "on" : ""}" data-a="avtab" data-t="${kk}">${esc(t(lab))}${kk === "p" ? ` <em class="ave-cnt">${unlockedPets().size - 1}/${petTotal()}</em>` : ""}</button>`).join("")}</div>
       <div class="ave-grid ${colorTab ? "colors" : ""}">${opts}</div>

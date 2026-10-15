@@ -109,7 +109,7 @@ img{{max-width:100%}}
     # statiske filer
     import hashlib
     if os.path.exists(os.path.join(ROOT, "web", "favicon.ico")): shutil.copy(os.path.join(ROOT, "web", "favicon.ico"), os.path.join(out, "favicon.ico"))  # Google henter logoen herfra
-    for f in ["manifest.webmanifest", "sw.js", "privacy.html", "terms.html"]:
+    for f in ["manifest.webmanifest", "sw.js", "privacy.html", "terms.html", "skole.html"]:
         src = os.path.join(ROOT, "web", f)
         if os.path.exists(src):
             txt = open(src, encoding="utf-8").read().replace("__BUILD__", stamp).replace("__CF__", json.dumps(cfv))

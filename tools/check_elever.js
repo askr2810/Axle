@@ -63,6 +63,8 @@ function mockSupabase(page, opts = {}){
     if(!(await p.locator('[data-a=elopen]').count())) fail(tag, 'fant ikke «Administrer elever» i lærerverktøyet');
     await p.click('[data-a=elopen]'); await p.waitForTimeout(500);
     if(!/elever|students/.test(await p.evaluate(() => location.hash))) fail(tag, 'adressen er ikke #/elever');
+    const links = await p.evaluate(() => [...document.querySelectorAll('.el-links a')].map(a => a.getAttribute('href')));
+    if(!links.includes('skole.html') || !links.some(h => /privacy\.html#(elevprofiler|student-profiles)/.test(h))) fail(tag, `lærerens skjerm mangler lenker til vurderingsgrunnlag og personvern (${links})`);
     await p.click('button[data-a=elnewcls] >> nth=0'); await p.waitForTimeout(500);
     if(!(await p.locator('.el-classes button.on').count())) fail(tag, 'klassen ble ikke valgt etter oppretting');
     await p.fill('#elnames', 'Ola\nKari\nAhmed\nSofie\nJonas\nMaja\nNils'); await p.click('[data-a=eladd]'); await p.waitForTimeout(600);
@@ -101,23 +103,42 @@ function mockSupabase(page, opts = {}){
     { const { c, p, errs } = await open(w, h, theme, null);
       await p.evaluate(() => { overlay = { login: 1, step: 'email', email: '' }; renderOverlay(); }); await p.waitForTimeout(200);
       if(!(await p.locator('[data-a=lgelev]').isVisible())) fail(tag, 'innloggingen har ikke «Elev? Logg inn med brukernavn»');
-      await p.click('[data-a=lgelev]'); await p.fill('#lglogin', 'ola.k7mq'); await p.fill('#lgpw', 'feil'); await p.click('[data-a=lgelevgo]'); await p.waitForTimeout(400);
+      // delt enhet: en annen elevs (eller anonym) fremgang ligger lokalt fra før
+      await p.evaluate(() => { S.xp = 999; S.name = 'Forrige elev'; S.daily = { '2026-10-01': 50 }; saveLocal(); });
+      await p.click('[data-a=lgelev]');
+      if(!(await p.locator('.dialog a[href*="privacy.html#"]').count())) fail(tag, 'elevinnloggingen mangler lenke til personvern');
+      await p.fill('#lglogin', 'ola.k7mq'); await p.fill('#lgpw', 'feil'); await p.click('[data-a=lgelevgo]'); await p.waitForTimeout(400);
       if(!/Feil innloggingsnavn|Wrong login/.test(await p.locator('.lgerr').innerText().catch(() => ''))) fail(tag, 'feil passord gir ikke tydelig melding');
       await p.fill('#lgpw', 'sol-elg-hav-12'); await p.click('[data-a=lgelevgo]'); await p.waitForTimeout(800);
       const me = await p.evaluate(() => ({ elev: isElev(), login: elevLogin() })); if(!me.elev || me.login !== 'ola.k7mq') fail(tag, `eleven ble ikke logget inn (${JSON.stringify(me)})`);
+      const loc = await p.evaluate(() => ({ xp: S.xp, name: S.name, daily: Object.keys(S.daily || {}).length, statsOk: S.statsOk }));
+      if(loc.xp !== 0 || loc.daily !== 0) fail(tag, `fremgang som lå på enheten, ble flettet inn i elevprofilen (${JSON.stringify(loc)})`);
+      if(loc.name !== 'Ola') fail(tag, `elevens navn i lekser/quiz skal være visningsnavnet fra klassen (${loc.name})`);
+      const st = await p.evaluate(() => { S.statsOk = null; stAsk(); const asked = !!document.getElementById('stask'); S.statsOk = 1; ST_Q.length = 0; stEv('screen', 'x'); const sent = ST_Q.length; S.statsOk = 0; return { asked, sent }; });
+      if(st.asked || st.sent) fail(tag, `elevprofilen blir spurt om eller sender bruksstatistikk (${JSON.stringify(st)})`);
+      const photo = await p.evaluate(() => { openAvatarEditor(); const shown = !!document.querySelector('.ave-tabs, .ave-opts, main'); return { file: !!document.getElementById('avfile'), shown }; });
+      if(!photo.shown) fail(tag, 'avatarredigeringen åpnet seg ikke (kan ikke sjekke profilbilde)');
+      if(photo.file) fail(tag, 'elevprofilen kan laste opp profilbilde');
       await p.evaluate(() => { screen = 'settings'; SET_SEC = 'account'; render(); }); await p.waitForTimeout(300);
       const acc = await p.evaluate(() => ({ shown: !!document.querySelector('[data-a=aclogout]'), email: !!document.querySelector('[data-a=acemail]'), del: !!document.querySelector('[data-a=acdelete]'), txt: document.body.innerText }));
       if(!acc.shown) fail(tag, 'kontodelen i innstillingene vises ikke');
       if(acc.email || acc.del) fail(tag, 'elevprofilen kan bytte e-post eller slette seg selv');
       if(!/ola\.k7mq/.test(acc.txt)) fail(tag, 'innstillingene viser ikke innloggingsnavnet');
+      if(!(await p.locator('a.srow[href*="privacy.html#"]').count())) fail(tag, 'kontoinnstillingene mangler lenke til personvern for elevprofiler');
       await p.evaluate(() => { screen = 'friends'; render(); }); await p.waitForTimeout(300);
       if(!/ikke slått på for elevprofiler|not enabled for student profiles/.test(await p.evaluate(() => document.body.innerText))) fail(tag, 'venner er ikke slått av for elevprofilen');
+      await p.evaluate(() => { screen = 'settings'; SET_SEC = 'account'; render(); }); await p.waitForTimeout(200);
+      // utlogging: fremgangen lagres og fjernes fra enheten
+      await p.evaluate(() => { S.xp = 42; saveLocal(); }); await p.evaluate(() => document.querySelector('[data-a=aclogout]').click()); await p.waitForTimeout(800);
+      const out = await p.evaluate(() => ({ auth: !!AUTH, xp: S.xp, name: S.name, stored: JSON.parse(localStorage.getItem('axle.v1') || localStorage.getItem(LS_KEY) || '{}').xp }));
+      if(out.auth || out.xp !== 0 || out.name) fail(tag, `etter utlogging ligger elevens fremgang igjen på enheten (${JSON.stringify(out)})`);
       if(errs.length) fail(tag, 'elev JS-feil ' + errs.join(' | '));
       await c.close(); }
     // eleven: bli med via lenke med klassekode
     { const { c, p, errs } = await open(w, h, theme, null);
       await p.goto(URL0 + '#/klasse/ABC123'); await p.waitForTimeout(1200);
       if(await p.locator('#lgjcode').inputValue().catch(() => '') !== 'ABC123') fail(tag, 'lenken fyller ikke inn klassekoden');
+      if(!(await p.locator('.dialog a[href*="privacy.html#"]').count())) fail(tag, '«Bli med i klassen» mangler lenke til personvern');
       if(shots) await p.screenshot({ path: path.join(shots, `elever_${w}_${theme}_bli-med.png`) });
       await p.fill('#lgjname', 'Per'); await p.fill('#lgjuser', 'per'); await p.fill('#lgjpw', 'hemmelig-passord'); await p.fill('#lgjpw2', 'annet-passord'); await p.click('[data-a=lgjoingo]'); await p.waitForTimeout(300);
       if(!/ikke like|do not match/.test(await p.locator('.lgerr').innerText().catch(() => ''))) fail(tag, 'ulike passord gir ikke melding');
@@ -127,6 +148,16 @@ function mockSupabase(page, opts = {}){
       if(errs.length) fail(tag, 'bli med JS-feil ' + errs.join(' | '));
       await c.close(); }
   }
+  // personvern og vurderingsgrunnlag: sidene finnes i bygget, har ankrene appen lenker til, og lenker til hverandre
+  { const c = await b.newContext(), p = await c.newPage();
+    for(const [url, need] of [['privacy.html', ['#elevprofiler', '#student-profiles', 'skole.html']], ['skole.html', ['privacy.html#elevprofiler', 'datatilsynet.no']], ['terms.html', ['privacy.html#elevprofiler']]]){
+      const r = await p.goto(URL0 + url); if(!r || r.status() !== 200){ fail('personvern', `${url} finnes ikke (${r && r.status()})`); continue; }
+      const html = await p.content();
+      for(const n of need) if(n.startsWith('#') ? !(await p.locator(n).count()) : !html.includes(n)) fail('personvern', `${url} mangler ${n}`);
+      if(/GDPR-godkjent|godkjent for bruk i skolen|juridisk vurdert/i.test(html)) fail('personvern', `${url} påstår godkjenning eller juridisk vurdering`);
+      const hs = await p.evaluate(() => document.documentElement.scrollWidth > innerWidth + 1); if(hs) fail('personvern', `${url} ruller vannrett`);
+    }
+    await c.close(); }
   // databasen eller funksjonen mangler: tydelig melding, ingen krasj
   for(const [opts, re] of [[{ notInstalled: true }, /supabase\/elever\.sql/], [{ noFunction: true }, /funksjonen «elever»|the «elever» function/]]){
     const { c, p, errs } = await open(375, 760, 'light', teacher, opts);

@@ -59,6 +59,18 @@ end $$;
 drop trigger if exists class_students_limit on public.class_students;
 create trigger class_students_limit before insert on public.class_students for each row execute function public.class_students_limit();
 
+-- ---------- sletting: når en klasse slettes (også når læreren sletter sin egen konto), slettes elevprofilene i den ----------
+-- Uten dette ville elevbrukerne i Auth, med fremgang og leksesvar, blitt liggende igjen uten lærer.
+create or replace function public.teacher_classes_delete_students()
+returns trigger language plpgsql security definer set search_path = ''
+as $$
+begin
+  delete from auth.users where id in (select user_id from public.class_students where class_id = old.id and user_id is not null);
+  return old;
+end $$;
+drop trigger if exists teacher_classes_delete_students on public.teacher_classes;
+create trigger teacher_classes_delete_students before delete on public.teacher_classes for each row execute function public.teacher_classes_delete_students();
+
 -- hjelpere
 create or replace function public.is_student(uid uuid)
 returns boolean language sql stable security definer set search_path = ''
@@ -108,9 +120,8 @@ as $$
 declare n int;
 begin
   if not exists (select 1 from public.teacher_classes where id = p_class and owner = auth.uid()) then raise exception 'not_found'; end if;
-  delete from auth.users where id in (select user_id from public.class_students where class_id = p_class and user_id is not null);
-  get diagnostics n = row_count;
-  delete from public.teacher_classes where id = p_class;
+  select count(*) into n from public.class_students where class_id = p_class and user_id is not null;
+  delete from public.teacher_classes where id = p_class; -- triggeren sletter elevprofilene
   return n;
 end $$;
 
@@ -228,11 +239,23 @@ create or replace function public.elev_owned(p_teacher uuid, p_user uuid)
 returns boolean language sql stable security definer set search_path = ''
 as $$ select exists (select 1 from public.class_students where user_id = p_user and teacher = p_teacher) $$;
 
+-- ---------- elevprofiler har ikke venner, søk, grupper eller offentlig profil (sperret i databasen, ikke bare i appen) ----------
+-- profiles lages av venner.sql; finnes ikke tabellen ennå, hoppes dette over (kjør elever.sql på nytt etter venner.sql).
+create or replace function public.profiles_no_students()
+returns trigger language plpgsql security definer set search_path = ''
+as $$ begin if public.is_student(new.user_id) then raise exception 'student_account'; end if; return new; end $$;
+do $$ begin
+  if to_regclass('public.profiles') is not null then
+    drop trigger if exists profiles_no_students on public.profiles;
+    create trigger profiles_no_students before insert on public.profiles for each row execute function public.profiles_no_students();
+  end if;
+end $$;
+
 -- rettigheter: lærerens funksjoner for innloggede, Edge-funksjonene bare for service_role
 revoke all on function public.klasse_create(text), public.klasse_rename(uuid, text), public.klasse_delete(uuid), public.klasse_code(uuid, boolean),
   public.klasse_list(), public.elev_results(uuid), public.elev_remove(uuid), public.elev_me(), public.is_student(uuid), public.elev_rand(int, text), public.elev_slug(text),
   public.elev_reserve(uuid, uuid, text, text), public.elev_reserve_code(text, text, text), public.elev_bind(uuid, uuid), public.elev_unreserve(uuid), public.elev_owned(uuid, uuid),
-  public.class_students_limit() from public, anon, authenticated;
+  public.class_students_limit(), public.teacher_classes_delete_students(), public.profiles_no_students() from public, anon, authenticated;
 grant execute on function public.klasse_create(text), public.klasse_rename(uuid, text), public.klasse_delete(uuid), public.klasse_code(uuid, boolean),
   public.klasse_list(), public.elev_results(uuid), public.elev_remove(uuid), public.elev_me() to authenticated;
 grant execute on function public.elev_reserve(uuid, uuid, text, text), public.elev_reserve_code(text, text, text), public.elev_bind(uuid, uuid),

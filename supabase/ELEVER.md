@@ -48,18 +48,29 @@ Uten steg 1 eller 2 viser «Administrer elever» hva som mangler; resten av appe
 
 ## Personvern
 
-Lagres per elevprofil: brukernavn, visningsnavn (læreren oppfordres til bare fornavn), klasse, lærer, og – som for alle kontoer –
-fremgangen i appen og leksesvar. Ingen e-post, fødselsdato eller telefonnummer. Læreren ser bare XP siste 7 dager, faget eleven jobber
-med, sist aktiv og leksesvar – ikke resten av elevens data.
+Informasjon for lærere, elever og foresatte: `web/privacy.html#elevprofiler` (engelsk: `#student-profiles`). Vurderingsgrunnlag for
+skoler: `web/skole.html` (axle.no/skole.html). Appen lenker dit fra «Elevprofiler», elevinnloggingen, «Bli med i klassen» og elevens
+kontoinnstillinger. Det som står der, er kontrollert mot koden og testet i `tools/check_elever.js` og `tools/test_elever_db.mjs`.
 
-**Må avklares av eieren før bruk i skoler (ikke avgjort av Claude):**
-- Når en skole bruker elevprofiler, er skolen/kommunen trolig behandlingsansvarlig og Axle databehandler. Det krever normalt en
-  **databehandleravtale** med skolen. En mal bør utarbeides før lansering.
-- **Alder:** vilkårene sier at konto er for 13 år og eldre (yngre med foresatt). For elevprofiler laget av læreren bør vilkårene si at
-  skolen er ansvarlig for at bruken har grunnlag (f.eks. skolens oppgaver etter opplæringsloven). Klassekoden er merket «for 13 år eller eldre».
-- **Lagringstid:** profiler slettes når læreren fjerner dem. Det finnes ingen automatisk sletting av gamle klasser ennå; vurder f.eks. sletting
-  etter ett år uten aktivitet.
-- Supabase-prosjektets region (EU anbefales) og Supabase som underleverandør bør stå i databehandleravtalen.
+Dataminimering i koden: ingen e-post, profilbilde, venner, grupper, meldinger eller bruksstatistikk for elevprofiler (venner/offentlig
+profil er sperret i databasen med trigger på `profiles` hvis venner.sql er kjørt før elever.sql – kjør elever.sql på nytt etter venner.sql).
+Delte enheter: ved innlogging flettes ikke lokal fremgang inn, ved utlogging tømmes den lokale fremgangen. Navnet i lekser og quiz er
+visningsnavnet fra klassen hvis eleven ikke har valgt et selv. Når en klasse slettes – også når læreren sletter kontoen sin – slettes
+elevprofilene i den (trigger på `teacher_classes`).
+
+**Uavklart (eieren må undersøke, ikke avgjort av Claude):**
+- Rollene når en skole bruker elevprofiler (behandlingsansvarlig/databehandler), og om Axle skal tilby **databehandleravtale**. Ingen mal finnes.
+- Behandlingsgrunnlag og alder for lærerlagde profiler (vilkårene sier konto fra 13 år; klassekoden er merket 13+, men alderen kontrolleres ikke).
+- **Region:** personvernerklæringen sier Supabase i EU (Frankfurt). Bekreft i Supabase → *Project Settings → General*. Edge Functions kan kjøre i
+  en annen region enn databasen (se Supabases dokumentasjon om regioner for Edge Functions).
+- **Innloggingslogger:** Supabase lagrer Auth Audit Logs i `auth.audit_log_entries` og i ekstern logglagring. Sjekk felt (f.eks. IP-adresse) med
+  `select column_name from information_schema.columns where table_schema = 'auth' and table_name in ('audit_log_entries', 'sessions');` og
+  lagringstid hos Supabase. Databasekopien kan slås av under *Authentication → Audit Logs*.
+- **Sikkerhetskopier:** lagringstid etter Supabase-plan.
+- **Passordhash:** Supabase Auth lagrer hash; algoritmen (bcrypt ifølge tredjepartskilder) er ikke bekreftet fra Supabase selv.
+- **Lagringstid:** ingen automatisk sletting av gamle klasser og profiler (forslag: slette klasser uten aktivitet etter ett år). Leksesvar eldre enn
+  90 dager slettes bare når nye resultater sendes inn.
+- Vilkårene til Supabase og GitHub (GitHub Pages) for skolebruk er ikke gjennomgått.
 
 ## Tester
 

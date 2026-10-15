@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="nb">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Axle i skolen – vurderingsgrunnlag</title>
+<meta name="description" content="Grunnlag for skoler som vurderer å bruke elevprofiler i Axle: hva løsningen gjør, hva som ikke er avklart, og en sjekkliste for skolens egen vurdering.">
+<style>
+body{margin:0;background:#EEF2EC;color:#16202A;font:16px/1.6 system-ui,-apple-system,"Segoe UI",sans-serif}
+main{max-width:760px;margin:0 auto;padding:32px 20px 60px}
+h1{font-size:28px;margin:0 0 4px} h2{font-size:22px;margin:0 0 8px} h3{font-size:18px;margin:20px 0 6px} .muted{color:#5A6772}
+section{background:#fff;border:2px solid #D5DDD3;border-radius:16px;padding:16px 20px 14px;margin-top:16px}
+a{color:#2B59C3} ul,ol{padding-left:22px;margin:4px 0} li{margin:3px 0}
+.tag{display:inline-block;font-size:13px;font-weight:700;border-radius:8px;padding:1px 8px;margin-right:6px;border:1.5px solid currentColor}
+.fakta{color:#157045}.uavklart{color:#A85800}.skolen{color:#2B59C3}
+h1.brand a{display:inline-flex;align-items:center;gap:10px;color:inherit;text-decoration:none}h1.brand img{width:32px;height:32px;border-radius:8px;flex:none}
+@media (prefers-color-scheme: dark){body{background:#0F1720;color:#E8EDF2} section{background:#17212C;border-color:#2A3847} .muted{color:#9AA7B3} a{color:#8FB0FF} .fakta{color:#3CC47E}.uavklart{color:#F5A142}.skolen{color:#8FB0FF}}
+@media print{body{background:#fff} section{border-color:#999;break-inside:avoid}}
+</style>
+</head>
+<body><main>
+<h1 class="brand"><a href="./"><img src="icons/logo-192.png" alt="" width="32" height="32">Axle</a></h1>
+<p class="muted">Axle i skolen – vurderingsgrunnlag for elevprofiler · Sist oppdatert 2026-10-15 · <a href="privacy.html#elevprofiler">Personvern for elevprofiler</a></p>
+
+<section>
+<h2>Hva dette er</h2>
+<p>Et grunnlag for skoler som vurderer å bruke <b>elevprofiler</b> i Axle: innlogging uten e-post som læreren lager til elevene sine. Siden skiller mellom tre ting:</p>
+<p><span class="tag fakta">Fakta</span>kontrollert i Axles kode og databaseoppsett (oktober 2026).<br>
+<span class="tag uavklart">Uavklart</span>forhold Axle ikke har avklart ennå.<br>
+<span class="tag skolen">Skolen</span>vurderinger skolen selv må gjøre.</p>
+<p>Axle har <b>ikke</b> gjort skolens risikovurdering, vurdering av personvernkonsekvenser eller juridiske vurdering, og Axle er ikke godkjent av noen myndighet. Datatilsynet anbefaler at nye løsninger risikovurderes, at enkeltlærere avklarer med de ansvarlige ved skolen før de bruker nye verktøy, og at skolen spør personvernombudet eller sikkerhetsansvarlig ved tvil (<a href="https://www.datatilsynet.no/personvern-pa-ulike-omrader/skole-barn-unge/bruk-av-digitale-hjelpemidler/">Datatilsynet: Bruk av digitale hjelpemidler i skolen</a>).</p>
+</section>
+
+<section>
+<h2><span class="tag fakta">Fakta</span>Hva Axle gjør</h2>
+<h3>Opprettelse og innlogging</h3>
+<ul>
+<li>Læreren logger inn med en vanlig konto (e-post) og lager klasser og elevprofiler i Lærerverktøy → «Administrer elever». Høyst 200 elevprofiler per lærer; grensen håndheves i databasen.</li>
+<li>Læreren skriver inn navn (Axle oppfordrer til bare fornavn). Hver elev får brukernavn (f.eks. «ola.k7mq») og et engangspassord som vises for læreren én gang og kan skrives ut som lapper.</li>
+<li>Valgfritt: <b>klassekode/lenke</b> der eleven selv velger brukernavn og passord (merket «for elever på 13 år eller eldre» i appen; alderen kontrolleres ikke). Koden gir bare lov til å bli med i klassen. Læreren kan lage ny kode (den gamle slutter å virke) eller slå den av. Den er av som standard.</li>
+<li>Glemt passord: læreren lager et nytt engangspassord. Det gamle slutter å virke. Passord vises aldri igjen og lagres bare som hash i innloggingstjenesten.</li>
+</ul>
+<h3>Opplysninger som lagres</h3>
+<ul>
+<li><b>Lærer:</b> e-post, fremgang i appen, klassenavn, klassekode og hvilke elever som hører til læreren.</li>
+<li><b>Elev:</b> brukernavn, navn som er skrevet inn, klasse og lærer; passord som hash; fremgang (XP per dag, dager på rad, fullførte nivåer, oppgaver besvart feil, egne kort, innstillinger); resultater fra lekser, quiz og konkurranser (navn, poeng, antall riktige, tidspunkt); tidspunkt for siste lagring av fremgang; innloggingstjenestens logg over innlogginger.</li>
+<li>Ikke for elevprofiler: e-post, profilbilde, venner, grupper, meldinger, offentlig profil eller bruksstatistikk (skrudd av i appen; venner og offentlig profil er også sperret i databasen).</li>
+<li>Axle bruker ikke kamera eller mikrofon, og bruker ikke kameradata til å kontrollere deltakelse.</li>
+</ul>
+<h3>Tilgang</h3>
+<ul>
+<li>Eleven ser sin egen fremgang. Læreren ser bare egne elever: navn, brukernavn, XP siste 7 dager, fag, siste lagring og leksesvar – ikke resten av fremgangen og aldri passord. En lærer kan ikke se eller endre en annen lærers elever (testet).</li>
+<li>Elevprofiler kan ikke lage klasser, se klasselister eller andre elevers data (testet).</li>
+<li>Topplister: navn og poeng for topp 30 på en lekse, quiz eller konkurranse kan ses av alle innloggede som har lenken. I live-quiz ser deltakerne hverandres navn og poeng.</li>
+<li>Utvikleren av Axle har teknisk tilgang til databasen.</li>
+<li>Opprettelse og nytt passord går gjennom en serverfunksjon som kontrollerer lærerens innlogging. Tabellene har tilgangskontroll i databasen (radnivåsikkerhet), og all tilgang går gjennom kontrollerte funksjoner.</li>
+</ul>
+<h3>Delte enheter</h3>
+<ul>
+<li>Når en elev logger ut, lagres fremgangen i skyen og slettes fra enheten. Fremgang som lå på enheten før eleven logget inn, flyttes ikke inn i elevprofilen. For lærerkontoer (vanlige kontoer) blir fremgangen liggende på enheten etter utlogging.</li>
+</ul>
+<h3>Sletting</h3>
+<ul>
+<li>Læreren kan fjerne en elev eller slette en klasse: elevprofilen, fremgangen og resultatene slettes. Sletter læreren sin egen konto, slettes klassene og elevprofilene i dem (testet).</li>
+<li>Resultater fra lekser og quiz eldre enn 90 dager slettes fortløpende når nye resultater sendes inn (ikke på et fast tidspunkt). Live-quizrom slettes etter ett døgn når nye rom lages.</li>
+<li>Ellers ingen automatisk sletting: profiler ligger til læreren sletter dem.</li>
+</ul>
+<h3>Leverandører</h3>
+<ul>
+<li>Supabase (database, innlogging, serverfunksjon). Axles personvernerklæring oppgir region EU (Frankfurt).</li>
+<li>GitHub Pages (nettstedet og appen lastes derfra). Resend (e-post med innloggingskode – brukes ikke for elevprofiler). Web3Forms (bare når noen selv sender en tilbakemelding).</li>
+</ul>
+</section>
+
+<section>
+<h2><span class="tag uavklart">Uavklart</span>Dette har Axle ikke avklart ennå</h2>
+<ul>
+<li><b>Roller og avtale:</b> hvem som er behandlingsansvarlig og databehandler når en skole bruker elevprofiler, og om Axle tilbyr databehandleravtale. Ingen avtalemal finnes ennå.</li>
+<li><b>Behandlingsgrunnlag:</b> ikke vurdert av Axle.</li>
+<li><b>Region:</b> oppgitt som EU (Frankfurt) i personvernerklæringen, men ikke kontrollert i denne gjennomgangen. Serverfunksjonen kan kjøre i en annen region enn databasen.</li>
+<li><b>Innloggingslogger:</b> Supabase lagrer en revisjonslogg over innlogginger. Hvilke felt (f.eks. IP-adresse) og hvor lenge, er ikke avklart.</li>
+<li><b>Sikkerhetskopier:</b> lagringstid ikke avklart.</li>
+<li><b>Passordlagring:</b> lagres som hash av Supabase Auth; algoritmen er ikke bekreftet fra Supabases egen dokumentasjon.</li>
+<li><b>Lagringstid:</b> ingen automatisk sletting av gamle profiler eller klasser ennå.</li>
+<li><b>Underleverandører</b> og deres vilkår (Supabase, GitHub) er ikke gjennomgått for skolebruk.</li>
+</ul>
+<p>Spørsmål om dette: <a href="mailto:support@axle.no">support@axle.no</a>.</p>
+</section>
+
+<section>
+<h2><span class="tag skolen">Skolen</span>Sjekkliste for skolens vurdering</h2>
+<ol>
+<li><b>Formål og elevgruppe.</b> Hva skal Axle brukes til (øving, lekser, oppfølging)? Hvilke klassetrinn og elever passer det for? Er elevprofiler nødvendig, eller holder det å bruke Axle uten innlogging (lekser og øving virker uten konto, men læreren ser da ikke resultatene per elev)?</li>
+<li><b>Nødvendige opplysninger.</b> Bruk bare fornavn eller kallenavn. Vurder om klassekode trengs (læreren kan lage alle innlogginger selv). Kan formålet nås med mindre data eller en mindre inngripende løsning?</li>
+<li><b>Risikovurdering.</b> Gjør skolens egen risikovurdering, og vurder om det trengs en vurdering av personvernkonsekvenser. Ta med punktene under «Uavklart» og leverandørene over.</li>
+<li><b>Godkjenning.</b> Læreren avklarer med skoleledelsen før bruk. Ved tvil: kontakt personvernombudet eller sikkerhetsansvarlig i kommunen. Avklar behov for databehandleravtale.</li>
+<li><b>Informasjon.</b> Gi lærere, elever og foresatte forståelig informasjon før oppstart: hva som lagres, hvem som ser det, hvordan passordhjelp og sletting fungerer. Lenke: <a href="privacy.html#elevprofiler">axle.no/privacy.html#elevprofiler</a>.</li>
+<li><b>Rutiner.</b> Hvem lager og sletter profiler? Hvordan deles passordlappene trygt? Når slås klassekoden av? Hvordan hjelpes elever som glemmer passordet? Når slettes klassen (f.eks. ved skoleårets slutt)? Hva gjør dere ved feil eller uønsket tilgang (f.eks. delt passord): lag nytt passord, fjern profilen og meld fra til <a href="mailto:support@axle.no">support@axle.no</a>.</li>
+<li><b>Elevgruppen og alternativer.</b> Ta hensyn til elevenes alder og behov, lytt til elevenes synspunkter, og tilby et alternativ for elever eller foresatte som ikke ønsker elevprofil (f.eks. bruk uten innlogging).</li>
+</ol>
+</section>
+
+<section>
+<h2>Kamera</h2>
+<p><span class="tag fakta">Fakta</span>Axle krever ikke kamera og bruker ikke kameradata. Elevprofiler kan ikke laste opp profilbilde. Eventuell kamerabruk i framtiden må vurderes for seg.</p>
+</section>
+</main></body></html>

@@ -3516,3 +3516,5 @@ details.cat-mc{margin:6px 0}details.cat-mc>summary{cursor:pointer;font-size:12px
 }
 .dialog input#lglogin,.dialog input#lgpw,.dialog input[id^="lgj"]{min-height:46px;margin:0 0 8px}
 .dialog input#lgjcode{font-family:var(--mono);letter-spacing:.15em;text-transform:uppercase}
+.el-links{display:flex;flex-wrap:wrap;gap:6px 18px;margin:6px 0 0}.el-links a{color:var(--accent);font-weight:700;min-height:44px;display:inline-flex;align-items:center}
+.el-priv{border-color:color-mix(in srgb,var(--gold) 45%,var(--line))}

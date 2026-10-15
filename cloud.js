@@ -73,7 +73,17 @@ async function cloudElevLogin(login, password){
   let s; try{ s = await sbFetch("/auth/v1/token?grant_type=password", { method: "POST", body: JSON.stringify({ email: login + "@" + ELEV_DOMAIN, password: String(password || "") }) }); }
   catch(e){ if(e.status === 400) throw new CloudError("badlogin", 400); throw e; }
   const a = authFromSession(s); if(!a) throw new CloudError("badlogin", 0);
+  // Delte enheter på skolen: det som ligger lokalt (en annen elevs fremgang eller øving uten konto) skal ikke flettes inn i denne
+  // elevens profil. Bare språk og tema beholdes; fremgangen hentes fra skyen.
+  elevLocalReset();
   AUTH = a; authStore(); await cloudSync();
+  // navnet i lekser og quiz: visningsnavnet læreren har gitt eleven (hvis eleven ikke har valgt et selv)
+  if(!S.name) try{ const me = await sbFetch("/rest/v1/rpc/elev_me", { method: "POST", body: "{}" }, a.at); if(me && me.name){ S.name = String(me.name).slice(0, 24); saveLocal(); } }catch(e){}
+}
+// Nullstiller fremgangen på denne enheten (elevprofiler på delte enheter). Språk, tema og utseende beholdes.
+function elevLocalReset(){
+  const keep = {}; for(const k of ["lang", "langSet", "theme", "accent", "bg", "appIcon", "sound", "haptics"]) if(S[k] !== undefined) keep[k] = S[k];
+  S = Object.assign(blank(), keep, { statsOk: 0 }); saveLocal();
 }
 // Kall til Edge Function «elever» (lærer: create/reset; elev med klassekode: join). Feil: CloudError med code fra funksjonen,
 // «not_deployed» når funksjonen ikke er satt opp, «not_installed» når supabase/elever.sql mangler.
@@ -89,8 +99,9 @@ async function elevFn(action, body){
 }
 
 async function cloudSignOut(){
-  const tok = AUTH && AUTH.at;
+  const tok = AUTH && AUTH.at, wasElev = isElev();
   AUTH = null; authStore(); CLOUD.status = "idle"; FR.rows = null;
+  if(wasElev) elevLocalReset(); // fremgangen er lagret i skyen; ingenting fra eleven blir liggende på en delt enhet
   if(tok) sbFetch("/auth/v1/logout", { method: "POST" }, tok).catch(()=>{});
 }
 async function cloudDeleteAccount(){

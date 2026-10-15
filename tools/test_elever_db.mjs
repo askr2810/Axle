@@ -31,13 +31,14 @@ await q(`
     if not exists (select 1 from pg_roles where rolname = 'service_role') then create role service_role nologin bypassrls; end if;
   end $$;
   drop schema if exists auth cascade; drop schema if exists extensions cascade;
-  drop table if exists public.class_students, public.teacher_classes, public.progress, public.mq_results cascade;
+  drop table if exists public.class_students, public.teacher_classes, public.progress, public.mq_results, public.profiles cascade;
   create schema auth; create schema extensions; create extension if not exists pgcrypto with schema extensions;
   create table auth.users (id uuid primary key default gen_random_uuid(), email text unique);
   create function auth.uid() returns uuid language sql stable as $$ select nullif(current_setting('request.jwt.claim.sub', true), '')::uuid $$;
   grant usage on schema auth, public, extensions to anon, authenticated, service_role;
   grant execute on function auth.uid() to anon, authenticated, service_role;
   create table public.progress (user_id uuid primary key references auth.users (id) on delete cascade, state jsonb not null, updated_at timestamptz not null default now());
+  create table public.profiles (user_id uuid primary key references auth.users (id) on delete cascade, display_name text);
   create table public.mq_results (ckey text not null, uid uuid not null references auth.users (id) on delete cascade, name text not null default '', av text, score int not null, ok int not null, created_at timestamptz not null default now(), primary key (ckey, uid));
 `);
 await q(fs.readFileSync(path.join(ROOT, 'supabase', 'elever.sql'), 'utf8'));
@@ -127,6 +128,22 @@ ok(await fails(() => svc.query('select public.elev_reserve($1,$2,$3,$4)', [B, kl
 // ---- sletting av klasse fjerner elevprofilene i den ----
 const nDel = (await rpc(ta, 'select public.klasse_delete($1) r', [kl.id])).r;
 ok((await q('select count(*)::int n from public.teacher_classes where id = $1', [kl.id])).rows[0].n === 0 && nDel === 2, `klassen og elevprofilene skal slettes (${nDel})`);
+
+// ---- elevprofiler kan ikke lage profilrad (venner, søk), lærere kan ----
+const C = await user('c@skole.no'), tc = await as('authenticated', C), klC = (await rpc(tc, 'select public.klasse_create($1) r', ['5E'])).r, cElev = await mk(C, klC.id, '', 'Mia');
+ok(await fails(() => q('insert into public.profiles (user_id, display_name) values ($1, $2)', [cElev.uid, 'Mia']), /student_account/), 'en elevprofil skal ikke kunne få profilrad (venner/søk)');
+await tc.end();
+ok(!(await fails(() => q('insert into public.profiles (user_id, display_name) values ($1, $2)', [B, 'Lærer B']))), 'en lærer skal fortsatt kunne lage profilrad');
+
+// ---- læreren sletter sin egen konto: klassene og elevprofilene i dem slettes (ingen elevbrukere blir igjen uten lærer) ----
+const before2 = (await q('select count(*)::int n from public.class_students where teacher = $1 and user_id is not null', [B])).rows[0].n;
+const klB2 = (await rpc(tb, 'select public.klasse_create($1) r', ['10D'])).r;
+const bElev = await mk(B, klB2.id, '', 'Lise');
+await q(`insert into public.progress (user_id, state) values ($1, '{"xp": 5}')`, [bElev.uid]);
+await q('delete from auth.users where id = $1', [B]); // som delete_my_account
+ok((await q('select count(*)::int n from auth.users where id = $1', [bElev.uid])).rows[0].n === 0 && (await q('select count(*)::int n from public.progress where user_id = $1', [bElev.uid])).rows[0].n === 0,
+  'når læreren sletter kontoen, skal elevprofilene og fremgangen slettes');
+ok((await q('select count(*)::int n from public.class_students where teacher = $1', [B])).rows[0].n === 0 && before2 >= 0, 'ingen elevrader skal bli igjen etter at læreren er slettet');
 
 for (const c of [ta, tb, svc, anon, sOla, sAase, ...conns]) await c.end().catch(() => {});
 await main.end(); await stopServer();
