@@ -15,33 +15,33 @@ const MAPS = {
       O: [MP_C.pink, "Okkupert av sentralmaktene", "Occupied by the Central Powers"], X: [MP_C.purple, "Russland: revolusjon og ute av krigen", "Russia: revolution, out of the war"],
       NY: [MP_C.green, "Nye stater", "New states"], T: [MP_C.rose, "Tapte krigen", "Lost the war"], SOV: [MP_C.wine, "Sovjet-Russland", "Soviet Russia"] },
     f: [
-      { y: ["August 1914", "August 1914"], s: { E: "FR GB IE BE RU UA BY PL LT LV EE FI MD RS ME MA DZ TN", S: "DE AT HU CZ SK SI HR BA", N: "NO SE DK IS NL CH ES PT IT RO BG GR AL TR SY IQ LB IL PS JO SA LY EG LU" },
+      { y: ["August 1914", "August 1914"], s: { E: "FR GB IE BE RU UA BY PL LT LV EE FI MD RS ME MA DZ TN", S: "DE AT HU CZ SK SI HR BA", N: "NO SE DK IS NL CH ES PT IT RO BG GR AL TR SY IQ LB IL PS JO SA LY EG", O: "LU" }, nq: "PL UA EG",
         a: [["S", "DE>brusel>marne"], ["S", "wien>beograd"], ["E", "minsk>tannenberg"]],
         m: [["sarajevo", "Skuddene i Sarajevo 28. juni", "Shots in Sarajevo, 28 June"], ["marne", "Marne: tyskerne stanses", "Marne: the Germans are stopped"], ["tannenberg", "Tannenberg: russisk nederlag", "Tannenberg: Russian defeat"]],
         d: ["Etter skuddene i Sarajevo erklærer Østerrike-Ungarn krig mot Serbia. **Alliansesystemet** drar inn stormaktene på få dager: Russland støtter Serbia, Tyskland støtter Østerrike-Ungarn, og Frankrike og Storbritannia går inn på russisk side. Tyskland angriper Frankrike gjennom det nøytrale **Belgia** (Schlieffen-planen), men stanses ved **Marne** i september. I øst slår tyskerne russerne ved **Tannenberg**.",
           "After the shots in Sarajevo, Austria-Hungary declares war on Serbia. The **alliance system** drags in the great powers within days: Russia backs Serbia, Germany backs Austria-Hungary, and France and Britain join on Russia's side. Germany attacks France through neutral **Belgium** (the Schlieffen Plan) but is stopped at the **Marne** in September. In the east the Germans beat the Russians at **Tannenberg**."] },
-      { y: ["Høsten 1914", "Autumn 1914"], s: { S: "TR SY IQ LB IL PS JO", E: "EG", O: "BE LU" },
+      { y: ["Høsten 1914", "Autumn 1914"], s: { S: "TR SY IQ LB IL PS JO", E: "EG", O: "BE" }, nq: "PL UA",
         m: [["ypres", "Vestfronten låser seg i skyttergraver", "The Western Front locks into trenches"]],
         d: ["Det **osmanske riket** går inn på sentralmaktenes side i november. På **vestfronten** graver begge sider seg ned: en linje av skyttergraver strekker seg fra Nordsjøen til Sveits, og fronten flytter seg knapt de neste tre årene. Nesten hele Belgia er okkupert.",
           "The **Ottoman Empire** joins the Central Powers in November. On the **Western Front** both sides dig in: a line of trenches runs from the North Sea to Switzerland, and the front barely moves for the next three years. Almost all of Belgium is occupied."] },
-      { y: ["1915", "1915"], s: { E: "IT LY", S: "BG", O: "RS ME" }, a: [["E", "malta>gallipoli"]],
+      { y: ["1915", "1915"], s: { E: "IT LY", S: "BG", O: "RS ME PL LT" }, nq: "PL UA LV AL", a: [["E", "malta>gallipoli"]],
         m: [["gallipoli", "Gallipoli: de allierte må gi opp", "Gallipoli: the Allies give up"], ["isonzo", "Isonzo-fronten", "The Isonzo front"]],
-        d: ["**Italia** bytter side og går inn på Ententens side, lokket av løfter om land. **Bulgaria** slutter seg til sentralmaktene, og Serbia blir overkjørt. De allierte prøver å nå Russland gjennom Dardanellene, men landgangen ved **Gallipoli** ender i et blodig nederlag.",
-          "**Italy** switches sides and joins the Entente, tempted by promises of territory. **Bulgaria** joins the Central Powers, and Serbia is overrun. The Allies try to reach Russia through the Dardanelles, but the landing at **Gallipoli** ends in a bloody defeat."] },
-      { y: ["1916", "1916"], s: { E: "RO PT" },
+        d: ["**Italia** bytter side og går inn på Ententens side, lokket av løfter om land. **Bulgaria** slutter seg til sentralmaktene, og Serbia blir overkjørt. I øst presser sentralmaktene russerne ut av **Polen og Litauen**. De allierte prøver å nå Russland gjennom Dardanellene, men landgangen ved **Gallipoli** ender i et blodig nederlag.",
+          "**Italy** switches sides and joins the Entente, tempted by promises of territory. **Bulgaria** joins the Central Powers, and Serbia is overrun. In the east the Central Powers drive the Russians out of **Poland and Lithuania**. The Allies try to reach Russia through the Dardanelles, but the landing at **Gallipoli** ends in a bloody defeat."] },
+      { y: ["1916", "1916"], s: { E: "RO PT" }, nq: "PL UA LV AL",
         m: [["verdun", "Verdun: 10 måneder, ca. 700 000 tap", "Verdun: 10 months, c. 700,000 casualties"], ["somme", "Somme: over 1 million drept eller såret", "Somme: over 1 million killed or wounded"]],
         d: ["1916 er utmattelsens år. Ved **Verdun** og **Somme** dør hundretusener for å vinne noen få kilometer. **Romania** går inn på Ententens side, men blir raskt for det meste okkupert.",
           "1916 is the year of attrition. At **Verdun** and the **Somme** hundreds of thousands die to gain a few kilometres. **Romania** joins the Entente but is soon mostly occupied."] },
-      { y: ["1917", "1917"], s: { E: "GR", X: "RU UA BY MD", NY: "FI" }, a: [["E", "atlant>paris"]],
+      { y: ["1917", "1917"], s: { E: "GR", X: "RU UA BY MD EE LV", NY: "FI" }, nq: "PL UA LV AL", a: [["E", "atlant>paris"]],
         m: [["leningrad", "Revolusjonene i Petrograd", "The revolutions in Petrograd"], ["atlant", "USA går inn i krigen (april)", "The USA enters the war (April)"]],
         d: ["To vendepunkter: **USA** går inn i krigen etter tysk ubåtkrig mot handelsskip, og **Russland** får to revolusjoner. Bolsjevikene tar makten i november og vil ut av krigen. **Finland** erklærer seg selvstendig i desember.",
           "Two turning points: the **USA** enters the war after German submarine attacks on merchant ships, and **Russia** has two revolutions. The Bolsheviks seize power in November and want out of the war. **Finland** declares independence in December."] },
-      { y: ["1918", "1918"], s: { O: "UA BY LT LV EE PL" }, a: [["E", "paris>brusel"]],
+      { y: ["1918", "1918"], s: { O: "UA BY LT LV EE PL" }, nq: "PL AL MD", a: [["E", "paris>brusel"]],
         m: [["compiegne", "Våpenhvile 11. november 1918", "Armistice, 11 November 1918"]],
         d: ["Ved **freden i Brest-Litovsk** (mars) gir Russland fra seg store områder i vest. Tysklands siste store offensiv i vest mislykkes, og de allierte, nå med friske amerikanske soldater, presser tyskerne tilbake. Sentralmaktene faller sammen én etter én, og **våpenhvilen** undertegnes 11. november 1918.",
           "In the **Treaty of Brest-Litovsk** (March) Russia gives up large areas in the west. Germany's last great offensive in the west fails, and the Allies, now with fresh American troops, push the Germans back. The Central Powers collapse one by one, and the **armistice** is signed on 11 November 1918."] },
       { y: ["Etter krigen (1919–1923)", "After the war (1919–1923)"],
-        s: { NY: "PL CZ SK FI EE LV LT RS ME SI HR BA MK XK", T: "DE AT HU BG TR", SOV: "RU UA BY", E: "MD RO SY LB IQ JO PS IL", N: "AL" },
+        s: { NY: "PL CZ SK FI EE LV LT RS ME SI HR BA MK XK", T: "DE AT HU BG TR", SOV: "RU UA BY", E: "BE MD RO SY LB IQ JO PS IL", N: "AL LU" }, nq: "UA BY",
         m: [["compiegne", "Versaillestraktaten 1919", "Treaty of Versailles 1919"]],
         d: ["Fredsavtalene endrer kartet: Østerrike-Ungarn, Det osmanske riket og Det russiske riket faller fra hverandre. Nye stater oppstår: **Polen, Tsjekkoslovakia, Jugoslavia, Finland og de baltiske landene**. Tyskland må ta på seg skylden, betale krigserstatning og gi fra seg land – noe som skaper bitterhet. Britene og franskmennene får **mandatområder** i Midtøsten. Rundt 17 millioner mennesker døde i krigen.",
           "The peace treaties redraw the map: Austria-Hungary, the Ottoman Empire and the Russian Empire break apart. New states emerge: **Poland, Czechoslovakia, Yugoslavia, Finland and the Baltic states**. Germany must accept the blame, pay reparations and give up land – which breeds bitterness. Britain and France get **mandates** in the Middle East. Around 17 million people died in the war."] }
@@ -53,35 +53,35 @@ const MAPS = {
       LIB: [MP_C.lblue, "Frigjort av de allierte", "Liberated by the Allies"], ALO: [MP_C.teal, "Okkupert av de allierte", "Occupied by the Allies"] },
     f: [
       { y: ["September 1939", "September 1939"], s: { AX: "DE AT IT SK LY", AXO: "CZ AL", AL: "GB FR PL MA DZ TN SY LB IQ JO PS IL EG", SU: "RU UA BY",
-          N: "NO SE DK IS FI EE LV LT NL BE LU CH ES PT IE RO HU BG GR TR RS ME SI HR BA MK XK SA IR MD CY" },
+          N: "NO SE DK IS FI EE LV LT NL BE LU CH ES PT IE RO HU BG GR TR RS ME SI HR BA MK XK SA IR MD CY" }, nq: "UA BY EG",
         a: [["AX", "DE>warszawa"], ["SU", "minsk>warszawa"]], m: [["warszawa", "Polen deles mellom Tyskland og Sovjet", "Poland is split between Germany and the USSR"]],
         d: ["Hitler har allerede tatt **Østerrike** (1938) og **Tsjekkoslovakia** (1939) uten krig. Etter en ikke-angrepsavtale med Stalin angriper Tyskland **Polen 1. september 1939**. Storbritannia og Frankrike erklærer krig. Sovjetunionen angriper Polen fra øst 17. september.",
           "Hitler has already taken **Austria** (1938) and **Czechoslovakia** (1939) without war. After a non-aggression pact with Stalin, Germany attacks **Poland on 1 September 1939**. Britain and France declare war. The Soviet Union invades Poland from the east on 17 September."] },
-      { y: ["1940", "1940"], s: { AXO: "PL DK NO NL BE LU FR", SU: "EE LV LT MD", V: "MA DZ TN SY LB" },
+      { y: ["1940", "1940"], s: { AXO: "PL DK NO NL BE LU FR", SU: "EE LV LT MD", V: "MA DZ TN SY LB", AL: "GR" }, nq: "FR HU RO EG",
         a: [["AX", "DE>kobenhavn>oslo>narvik"], ["AX", "DE>amsterdam>dunkerque>paris"]],
         m: [["narvik", "Kampene om Narvik", "The battles for Narvik"], ["dunkerque", "Dunkerque: 338 000 evakuert", "Dunkirk: 338,000 evacuated"], ["london", "Slaget om Storbritannia", "The Battle of Britain"]],
-        d: ["**9. april 1940** angriper Tyskland Danmark og Norge. I mai går **lynkrigen** gjennom Nederland og Belgia, og Frankrike faller på seks uker. Nord-Frankrike okkuperes, og sør styres av **Vichy-regimet**, som samarbeider med tyskerne. Storbritannia står alene og vinner **slaget om Storbritannia** i luften. Sovjetunionen tar de baltiske landene.",
-          "On **9 April 1940** Germany attacks Denmark and Norway. In May the **Blitzkrieg** sweeps through the Netherlands and Belgium, and France falls in six weeks. Northern France is occupied and the south is run by the **Vichy regime**, which collaborates with the Germans. Britain stands alone and wins the **Battle of Britain** in the air. The Soviet Union takes the Baltic states."] },
-      { y: ["1941", "1941"], s: { AX: "HU RO BG FI HR", AXO: "RS ME SI BA MK XK GR", AL: "SY LB" },
+        d: ["**9. april 1940** angriper Tyskland Danmark og Norge. I mai går **lynkrigen** gjennom Nederland og Belgia, og Frankrike faller på seks uker. Nord-Frankrike okkuperes, og sør styres av **Vichy-regimet**, som samarbeider med tyskerne. Storbritannia står alene og vinner **slaget om Storbritannia** i luften. Sovjetunionen tar de baltiske landene. I oktober angriper Italia **Hellas**, som slår angrepet tilbake.",
+          "On **9 April 1940** Germany attacks Denmark and Norway. In May the **Blitzkrieg** sweeps through the Netherlands and Belgium, and France falls in six weeks. Northern France is occupied and the south is run by the **Vichy regime**, which collaborates with the Germans. Britain stands alone and wins the **Battle of Britain** in the air. The Soviet Union takes the Baltic states. In October Italy attacks **Greece**, which drives the attack back."] },
+      { y: ["1941", "1941"], s: { AX: "HU RO BG FI HR", AXO: "RS ME SI BA MK XK GR EE LV LT BY UA MD", AL: "SY LB" }, nq: "FR IQ BA EG IR",
         a: [["AX", "warszawa>leningrad"], ["AX", "warszawa>moskva"], ["AX", "bucuresti>kyiv"]],
         m: [["moskva", "Stanset foran Moskva i desember", "Stopped before Moscow in December"], ["leningrad", "Beleiringen av Leningrad", "The siege of Leningrad"]],
         d: ["Tyskland og Italia tar **Jugoslavia og Hellas** i april. **22. juni 1941** angriper Tyskland Sovjetunionen (**operasjon Barbarossa**) med over tre millioner soldater. Ungarn, Romania, Bulgaria og Finland kjemper på tysk side. Angrepet stanses foran Moskva i vinterkulden. I desember angriper Japan Pearl Harbor, og USA går inn i krigen.",
           "Germany and Italy take **Yugoslavia and Greece** in April. On **22 June 1941** Germany invades the Soviet Union (**Operation Barbarossa**) with over three million soldiers. Hungary, Romania, Bulgaria and Finland fight on the German side. The attack stalls before Moscow in the winter cold. In December Japan attacks Pearl Harbor, and the USA enters the war."] },
-      { y: ["1942", "1942"], s: { AXO: "EE LV LT BY UA MD", AL: "MA DZ", AX: "TN" },
+      { y: ["1942", "1942"], s: { AL: "MA DZ", AX: "TN" }, nq: "BA EG IR",
         a: [["AX", "kyiv>stalingrad"], ["AX", "kyiv>kaukasus"], ["AX", "tobruk>elalamein"], ["AL", "gibraltar>alger"]],
         m: [["stalingrad", "Stalingrad", "Stalingrad"], ["elalamein", "El Alamein: vendepunkt i Afrika", "El Alamein: turning point in Africa"]],
         d: ["Aksemaktene er på sitt største. Tyskland når **Stalingrad** og Kaukasus, og i Nord-Afrika står Rommel nær Egypt. Bak fronten gjennomfører nazistene **Holocaust**: rundt seks millioner jøder blir myrdet. Høsten 1942 snur krigen: britene vinner ved **El Alamein**, og amerikanere og briter går i land i Nord-Afrika.",
           "The Axis is at its largest. Germany reaches **Stalingrad** and the Caucasus, and in North Africa Rommel is close to Egypt. Behind the front the Nazis carry out the **Holocaust**: about six million Jews are murdered. In autumn 1942 the war turns: the British win at **El Alamein**, and American and British troops land in North Africa."] },
-      { y: ["1943", "1943"], s: { AL: "TN LY", AXO: "IT" }, a: [["SU", "stalingrad>kyiv"], ["AL", "tunis>sicilia>napoli"]],
+      { y: ["1943", "1943"], s: { AL: "TN LY", AXO: "IT" }, nq: "IT BA EG IR", a: [["SU", "stalingrad>kyiv"], ["AL", "tunis>sicilia>napoli"]],
         m: [["stalingrad", "Tysk overgivelse i februar", "German surrender in February"], ["kursk", "Kursk: verdens største stridsvognslag", "Kursk: the largest tank battle"], ["napoli", "Italia kapitulerer – tyskerne tar nord", "Italy surrenders – the Germans take the north"]],
         d: ["Den tyske 6. armé overgir seg i **Stalingrad**, og etter **Kursk** er det Den røde armé som angriper. De allierte går fra Afrika til **Sicilia** og Italia. Mussolini styrtes, og Italia kapitulerer i september – men tyskerne okkuperer resten av landet.",
           "The German 6th Army surrenders at **Stalingrad**, and after **Kursk** it is the Red Army that attacks. The Allies move from Africa to **Sicily** and Italy. Mussolini is overthrown and Italy surrenders in September – but the Germans occupy the rest of the country."] },
-      { y: ["1944", "1944"], s: { LIB: "FR BE LU GR", SU: "UA BY EE LV LT MD RO BG", N: "FI" },
+      { y: ["1944", "1944"], s: { LIB: "FR BE LU GR", SU: "UA BY EE LV LT MD RO BG", N: "FI" }, nq: "IT PL BA FI RO BG EG IR",
         a: [["AL", "london>normandie>paris>bastogne"], ["SU", "kyiv>warszawa"], ["SU", "minsk>riga"]],
         m: [["normandie", "D-dagen 6. juni 1944", "D-Day, 6 June 1944"], ["warszawa", "Warszawa-oppstanden", "The Warsaw Uprising"]],
         d: ["**6. juni 1944 – D-dagen:** de allierte går i land i **Normandie**, og Paris frigjøres i august. Samtidig knuser Den røde armé tyske styrker i øst og når Polen. Romania og Bulgaria bytter side, og Finland slutter fred med Sovjetunionen.",
           "**6 June 1944 – D-Day:** the Allies land in **Normandy**, and Paris is liberated in August. At the same time the Red Army crushes German forces in the east and reaches Poland. Romania and Bulgaria switch sides, and Finland makes peace with the Soviet Union."] },
-      { y: ["Mai 1945", "May 1945"], s: { ALO: "DE AT", SU: "PL CZ SK HU", LIB: "NO DK NL IT RS ME SI HR BA MK XK AL" },
+      { y: ["Mai 1945", "May 1945"], s: { ALO: "DE AT", SU: "PL CZ SK HU", LIB: "NO DK NL IT RS ME SI HR BA MK XK AL" }, nq: "PL CZ SK HU RO BG FI TR EG IR",
         a: [["SU", "warszawa>berlin"], ["AL", "bastogne>dresden"]],
         m: [["berlin", "Berlin faller – kapitulasjon 8. mai", "Berlin falls – surrender on 8 May"]],
         d: ["Sovjetiske og vestallierte styrker møtes ved Elben i april. Hitler tar sitt eget liv, og Tyskland **kapitulerer 8. mai 1945**. Norge er fritt. Tyskland og Østerrike deles i fire okkupasjonssoner, og Øst-Europa havner under sovjetisk kontroll – starten på den kalde krigen. Krigen i Europa har kostet rundt 40 millioner liv.",
@@ -92,13 +92,13 @@ const MAPS = {
     g: { AX: [MP_C.red, "Aksemaktene og allierte", "The Axis and allies"], AXO: [MP_C.pink, "Okkupert av aksemaktene", "Occupied by the Axis"], AL: [MP_C.blue, "De allierte", "The Allies"],
       SU: [MP_C.wine, "Sovjetunionen", "Soviet Union"], N: [MP_C.grey, "Nøytrale", "Neutral"], LIB: [MP_C.lblue, "Frigjort", "Liberated"], ALO: [MP_C.teal, "Okkupert av de allierte", "Occupied by the Allies"] },
     f: [
-      { y: ["Slutten av 1942", "Late 1942"], s: { AX: "DE IT JP HU RO BG FI TH", AXO: "FR PL NO DK NL BE LU CZ SK GR RS ME SI HR BA MK XK AL EE LV LT BY UA KR KP TW PH ID MY MM VN LA KH TL BN",
+      { y: ["Slutten av 1942", "Late 1942"], s: { AX: "DE IT JP HU RO BG FI TH SK HR", AXO: "FR PL NO DK NL BE LU CZ GR RS ME SI BA MK XK AL EE LV LT BY UA KR KP TW PH ID MY MM VN LA KH TL BN",
           AL: "US GB CA AU NZ ZA IN PK BD LK CN MX BR EG IQ IR", SU: "RU KZ UZ TM TJ KG GE AM AZ MN", N: "SE CH ES PT IE TR AR SA" },
         a: [["AX", "tokyo>pearlharbor"], ["AX", "tokyo>singapore"], ["AX", "DE>stalingrad"]],
         m: [["pearlharbor", "Pearl Harbor 7. des. 1941", "Pearl Harbor, 7 Dec 1941"], ["midway", "Midway: vendepunkt (juni 1942)", "Midway: turning point (June 1942)"], ["stalingrad", "Stalingrad", "Stalingrad"]],
         d: ["Krigen er en **verdenskrig**: Japan har erobret store deler av Kina og Sørøst-Asia og angrepet USA ved **Pearl Harbor**. Ved **Midway** i juni 1942 senker amerikanerne fire japanske hangarskip, og etter det er det USA som rykker fram i Stillehavet.",
           "The war is a **world war**: Japan has conquered large parts of China and South-East Asia and attacked the USA at **Pearl Harbor**. At **Midway** in June 1942 the Americans sink four Japanese aircraft carriers, and from then on the USA advances in the Pacific."] },
-      { y: ["August 1945", "August 1945"], s: { ALO: "DE AT JP", SU: "PL CZ SK HU RO BG", LIB: "FR NO DK NL BE LU GR RS ME SI HR BA MK XK AL IT PH ID MY MM VN LA KH TL BN KR KP TW", N: "FI TH" },
+      { y: ["August 1945", "August 1945"], s: { ALO: "DE AT JP", SU: "PL CZ SK HU RO BG EE LV LT BY UA", LIB: "FR NO DK NL BE LU GR RS ME SI HR BA MK XK AL IT PH ID MY MM VN LA KH TL BN KR KP TW", N: "FI TH" }, nq: "PL CZ SK HU RO BG FI TH TR AR SA",
         a: [["AL", "midway>manila>tokyo"]], m: [["hiroshima", "Atombombene 6. og 9. august", "The atomic bombs, 6 and 9 August"]],
         d: ["Etter at Tyskland har kapitulert, slipper USA **atombomber over Hiroshima og Nagasaki**, og Sovjetunionen angriper japanske styrker i Mandsjuria. Japan kapitulerer **2. september 1945**. Rundt 70–85 millioner mennesker døde i krigen, de fleste sivile. FN opprettes samme år.",
           "After Germany's surrender, the USA drops **atomic bombs on Hiroshima and Nagasaki**, and the Soviet Union attacks Japanese forces in Manchuria. Japan surrenders on **2 September 1945**. Around 70–85 million people died in the war, most of them civilians. The UN is founded the same year."] }
@@ -109,7 +109,7 @@ const MAPS = {
       N: [MP_C.grey, "Nøytrale / alliansefrie", "Neutral / non-aligned"], DEL: [MP_C.lilac, "Delt Tyskland: vest i NATO, øst i Warszawapakten", "Divided Germany: West in NATO, East in the Warsaw Pact"],
       NY: [MP_C.green, "Nye stater fra 1991", "New states from 1991"], RUS: [MP_C.wine, "Russland", "Russia"] },
     f: [
-      { y: ["1949", "1949"], s: { NATO: "NO DK IS GB NL BE LU FR IT PT", SU: "RU UA BY EE LV LT MD GE AM AZ KZ UZ TM", WP: "PL CZ SK HU RO BG AL", DEL: "DE",
+      { y: ["1949", "1949"], nq: "AT", s: { NATO: "NO DK IS GB NL BE LU FR IT PT", SU: "RU UA BY EE LV LT MD GE AM AZ KZ UZ TM", WP: "PL CZ SK HU RO BG AL", DEL: "DE",
           N: "SE FI IE CH AT ES RS ME SI HR BA MK XK TR GR" },
         m: [["berlin", "Berlinblokaden 1948–49", "The Berlin Blockade 1948–49"]],
         d: ["Etter krigen deles Europa av et **«jernteppe»**. Sovjetunionen sørger for kommunistiske regimer i Øst-Europa, og USA hjelper Vest-Europa med **Marshallhjelpen**. Under **Berlinblokaden** forsyner vestmaktene Vest-Berlin med fly i nesten et år. I 1949 grunnlegges **NATO** – Norge er med fra starten.",
@@ -137,7 +137,7 @@ const MAPS = {
     f: [
       { y: ["1914", "1914"], s: { GB: "GB IE IN PK BD MM LK MY EG SD SS UG KE NG GH SL GM ZA LS SZ BW ZW ZM MW SO_S AU NZ CA GY CY KW", FR: "FR DZ TN MA MR SN ML GN CI BF NE BJ TD CF CG GA MG DJ VN LA KH",
           DE: "DE TZ RW BI NA CM TG", PT: "PT AO MZ GW TL", BE: "BE CD", IT: "IT LY ER SO", ES: "ES EH GQ", NL: "NL ID SR", JP: "JP KR KP TW", US: "US PH PR",
-          RU: "RU UA BY FI EE LV LT PL KZ UZ TM TJ KG GE AM AZ MD", OT: "TR SY IQ LB IL PS JO", IND: "ET LR CN TH IR AF NP" },
+          RU: "RU UA BY FI EE LV LT PL KZ UZ TM TJ KG GE AM AZ MD", OT: "TR SY IQ LB IL PS JO", IND: "ET LR CN TH IR AF NP" }, nq: "PL UA",
         d: ["På **Berlinkonferansen 1884–85** delte de europeiske stormaktene Afrika mellom seg uten å spørre afrikanerne. I 1914 var bare **Etiopia og Liberia** selvstendige. **Imperialismen** var drevet av jakt på råvarer og markeder, nasjonal prestisje og rasistiske ideer om «å sivilisere» andre folk. Rivaliseringen om kolonier var også en av årsakene til første verdenskrig.",
           "At the **Berlin Conference of 1884–85** the European powers divided Africa between them without asking Africans. By 1914 only **Ethiopia and Liberia** were independent. **Imperialism** was driven by the hunt for raw materials and markets, national prestige and racist ideas of \"civilising\" other peoples. Rivalry over colonies was also one of the causes of the First World War."] }
     ] },
@@ -226,14 +226,14 @@ const MAPS = {
     [1959, "Nord-Afrika (Libya, Marokko, Tunisia, Sudan) blir selvstendig, og **Ghana** blir i 1957 den første kolonien sør for Sahara som blir fri, ledet av Kwame Nkrumah.", "North Africa (Libya, Morocco, Tunisia, Sudan) becomes independent, and in 1957 **Ghana** becomes the first colony south of the Sahara to gain freedom, led by Kwame Nkrumah."],
     [1960, "**«Afrikas år» 1960:** 17 land blir selvstendige på ett år, de fleste tidligere franske kolonier, men også Nigeria, Somalia og Kongo.", "**\"The Year of Africa\" 1960:** 17 countries become independent in a single year, most of them former French colonies, but also Nigeria, Somalia and Congo."],
     [1968, "Britiske kolonier i Øst- og Sør-Afrika blir fri. **Algerie** vinner selvstendighet i 1962 etter en brutal krig mot Frankrike.", "British colonies in East and Southern Africa gain freedom. **Algeria** wins independence in 1962 after a brutal war against France."],
-    [1980, "**Portugal** holdt lengst på koloniene og førte kolonikriger til diktaturet falt i 1974. Angola og Mosambik blir fri i 1975, Zimbabwe i 1980.", "**Portugal** held on longest and fought colonial wars until its dictatorship fell in 1974. Angola and Mozambique become free in 1975, Zimbabwe in 1980."],
+    [1980, "**Portugal** holdt lengst på koloniene og førte kolonikriger til diktaturet falt i 1974. Angola og Mosambik blir fri i 1975, Zimbabwe i 1980. Spania trekker seg ut av **Vest-Sahara** i 1976, og området blir omstridt.", "**Portugal** held on longest and fought colonial wars until its dictatorship fell in 1974. Angola and Mozambique become free in 1975, Zimbabwe in 1980. Spain leaves **Western Sahara** in 1976, and the territory becomes disputed."],
     [2011, "**Namibia** blir fri fra Sør-Afrika i 1990, **apartheid** avskaffes i 1994, Eritrea løsriver seg i 1993 og **Sør-Sudan** blir verdens nyeste land i 2011. Vest-Sahara er fortsatt omstridt.", "**Namibia** becomes free from South Africa in 1990, **apartheid** ends in 1994, Eritrea breaks away in 1993 and **South Sudan** becomes the world's newest country in 2011. Western Sahara is still disputed."]];
   let prev = 0;
   MAPS.avkol.f = steps.map(([yr, nb, en]) => {
-    const s = { IND: [], NEW: [], COL: [], DIS: ["EH"] };
+    const s = { IND: [], NEW: [], COL: [], DIS: [] }; (yr >= 1976 ? s.DIS : s.COL).push("EH");
     for(const [c, y] of Object.entries(Y)) (y > yr ? s.COL : prev && y > prev ? s.NEW : s.IND).push(c);
     prev = yr;
-    return { y: [yr === 1945 ? "1945" : yr === 1959 ? "1950-årene" : String(yr), yr === 1945 ? "1945" : yr === 1959 ? "The 1950s" : String(yr)], s: Object.fromEntries(Object.entries(s).map(([g, l]) => [g, l.join(" ")])), d: [nb, en] };
+    return { nq: [yr >= 1952 && yr < 1993 ? "ER" : "", yr >= 1956 && yr < 2011 ? "SS" : ""].join(" ").trim(), y: [yr === 1945 ? "1945" : yr === 1959 ? "1950-årene" : String(yr), yr === 1945 ? "1945" : yr === 1959 ? "The 1950s" : String(yr)], s: Object.fromEntries(Object.entries(s).map(([g, l]) => [g, l.join(" ")])), d: [nb, en] };
   });
   // EU: medlemskap per utvidelse
   const EU = [[1958, "BE DE FR IT LU NL", "Seks land starter **Det europeiske økonomiske fellesskapet** (Romatraktaten 1957). Målet er fred gjennom tett økonomisk samarbeid – kull og stål skal ikke lenger brukes til krig.", "Six countries found **the European Economic Community** (Treaty of Rome 1957). The aim is peace through close economic cooperation – coal and steel are no longer to be used for war."],
@@ -315,6 +315,11 @@ function mpVis(G, c, vb){
   return { f, px, box };
 }
 // Kan landet spørres om i dette utsnittet? Det meste av hoveddelen må synes, eller en stor, gjenkjennelig bit (Russland i Europakartet).
+// Historiekart: land som vises, men ikke spørres om i dette tidssteget (nq), fordi dagens grenser ikke passer perioden:
+// området var delt mellom sidene, eller gruppen beskriver ikke landet riktig. Se docs/FAGLIG_KONTROLL.md («Historiekartene»).
+const mpAsk = (M, k, c) => !String(M.f[k].nq || "").split(/\s+/).includes(c);
+// Land det kan spørres om i tidssteg k (kartspillet og «Test deg»): har en side, synes i utsnittet og passer perioden.
+function mpCand(M, k){ const G = MAP_GEO[M.v], vb = mpVB(M); return Object.entries(mpFrames(M)[k]).filter(([c, g]) => M.g[g] && G.c[c] && mpShown(G, c, vb) && mpAsk(M, k, c)); }
 const mpShown = (G, c, vb) => { const v = mpVis(G, c, vb); return v.f >= 0.45 || (v.f >= 0.15 && v.px >= vb[2] * vb[3] * 0.03); };
 // Er punktet inne i landet (partallsregelen over alle ringene), og hvor langt er det til nærmeste kant (kartenheter)?
 function mpInside(o, x, y){ let k = false; for(const r of mpRings(o)) for(let i = 0, j = r.length - 1; i < r.length; j = i++){ const [xi, yi] = r[i], [xj, yj] = r[j]; if((yi > y) !== (yj > y) && x < (xj - xi) * (y - yi) / (yj - yi) + xi) k = !k; } return k; }
@@ -363,6 +368,7 @@ function mpSVG(st){
   const mark = q ? mpMarker(G, q.c, vb) : st.sel ? mpMarker(G, st.sel, vb) : ""; // små land: stiplet ring rundt landet som blinker eller er valgt
   return `<svg class="mp-svg" viewBox="${vb.join(" ")}" role="img" aria-label="${esc(T(M.t[0], M.t[1]))}"><defs>${defs}</defs><rect class="mp-sea" x="${vb[0]}" y="${vb[1]}" width="${vb[2]}" height="${vb[3]}"/>${paths}${mark}${arrows}${marks}</svg>`;
 }
+const mpNote = () => T("Grensene er dagens – historiske riker er satt sammen av dagens land og er omtrentlige.", "Borders are today's – historical empires are built from today's countries and are approximate.");
 function mpInner(st){
   const M = MAPS[st.id], G = MAP_GEO[M.v], fr = M.f[st.k], fills = mpFrames(M)[st.k], quiz = st.quiz;
   const used = [...new Set(Object.values(fills))].filter(g => M.g[g]);
@@ -381,7 +387,7 @@ function mpInner(st){
       ${quiz ? "" : `<button data-mp="quiz" class="mp-test">🎯 ${esc(T("Test deg", "Test yourself"))}</button>`}</div>
     <div class="mp-legend">${legend}</div>${info}
     ${quiz ? "" : `<div class="mp-desc">${rich(T(fr.d[0], fr.d[1])).replace(/\*\*([^*]+?)\*\*/g, "<b>$1</b>").replace(/(^|[\s(])\*([^*\s][^*]*?)\*(?=[\s.,;:)]|$)/g, "$1<i>$2</i>")}</div>`}
-    <p class="mp-note">${esc(T("Grensene er dagens – historiske riker er satt sammen av dagens land og er omtrentlige. Trykk på et land for navnet.", "Borders are today's – historical empires are built from today's countries and are approximate. Tap a country for its name."))}</p>`;
+    <p class="mp-note">${esc(mpNote())} ${esc(T("Trykk på et land for navnet.", "Tap a country for its name."))}</p>`;
 }
 function mapHTML(name){
   if(!MAPS[name] || typeof MAP_GEO === "undefined") return "";
@@ -392,8 +398,8 @@ function mpRender(st){ const el = document.querySelector(`.mp[data-mpid="${st.ui
 // ---------- «Test deg» ----------
 const MP_QN = 6;
 function mpQuizNext(st){
-  const M = MAPS[st.id], G = MAP_GEO[M.v], fills = mpFrames(M)[st.k], vb = mpVB(M), qz = st.quiz;
-  const cand = Object.entries(fills).filter(([c, g]) => M.g[g] && G.c[c] && !qz.used.includes(c) && mpShown(G, c, vb));
+  const M = MAPS[st.id], qz = st.quiz;
+  const cand = mpCand(M, st.k).filter(([c]) => !qz.used.includes(c));
   if(!cand.length || qz.n >= MP_QN){ qz.cur = null; qz.xp = qz.right ? 2 + qz.right : 0; if(qz.xp && typeof awardXP === "function"){ awardXP(qz.xp); save(); } return; }
   // spør like ofte om hver gruppe, ikke bare de store
   const groups = [...new Set(cand.map(x => x[1]))], g = groups[Math.floor(Math.random() * groups.length)], pool = cand.filter(x => x[1] === g), [c] = pool[Math.floor(Math.random() * pool.length)];

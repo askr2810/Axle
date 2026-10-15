@@ -177,6 +177,31 @@ Kilde for landgrenser: Natural Earth via world-atlas 2.0.2 (offentlig eiendom).
 **Usikkert**
 - Omstridte områder følger ellers Natural Earth: Kosovo, Nord-Kypros, Somaliland og Vest-Sahara vises som egne områder, og Kashmir er delt slik det er tegnet der. Det bør vurderes av en fagperson i samfunnsfag eller geografi.
 
+### Historiekartene (oppgave 22, 2026-10-15)
+Historiekartene farger **dagens land** etter hvilken side de hørte til. Det står i kartvisningen, og nå også i kartspillets historiemodus («Grensene er dagens …»). Alle 11 kart og alle tidssteg er gått gjennom (`maps.js`). Kontrollert av Claude, ikke av en historiker.
+
+**Rettet, fordi kartet viste noe som ikke stemte for perioden** (testes i tools/test_maps.js, del 6):
+- Første verdenskrig, august 1914: Luxembourg var okkupert av Tyskland fra 2. august 1914 (stod som nøytralt). Kilde: [Wikipedia, «German occupation of Luxembourg during World War I»](https://en.wikipedia.org/wiki/German_occupation_of_Luxembourg_during_World_War_I); [1914-1918-online, «Occupation of Luxembourg»](https://encyclopedia.1914-1918-online.net/article/occupation-of-luxembourg/).
+- 1915–1917: Polen og Litauen stod som Ententen, men var okkupert av sentralmaktene fra sommeren og høsten 1915 (Warszawa 5. august, Vilnius i september). Kilde: [Wikipedia, «Battle of Vilnius (1915)»](https://en.wikipedia.org/wiki/Battle_of_Vilnius_(1915)). Beskrivelsen for 1915 sier det nå.
+- 1917: Estland og Latvia stod som Ententen; de hørte til det revolusjonære Russland, som Russland, Ukraina og Hviterussland i samme steg.
+- Etter krigen (1919–1923): Belgia og Luxembourg stod fortsatt som «okkupert av sentralmaktene» (arvet fra forrige steg). Nå Ententen og nøytral.
+- Andre verdenskrig, 1940: Hellas stod som nøytralt, men ble angrepet av Italia 28. oktober 1940 og kjempet på de alliertes side. Kilde: [History.com, «Italy invades Greece»](https://www.history.com/this-day-in-history/october-28/italy-invades-greece). Beskrivelsen sier det nå.
+- 1941: Baltikum, Hviterussland, Ukraina og Moldova stod som Sovjetunionen ut 1941, men var okkupert av Tyskland og Romania etter operasjon Barbarossa (som beskrivelsen for 1941 forteller).
+- Verdenskartet, slutten av 1942: Slovakia og Kroatia stod som okkupert; de var aksestater (tremaktspakten: Slovakia 24. november 1940). Kilde: [Wikipedia, «Tripartite Pact»](https://en.wikipedia.org/wiki/Tripartite_Pact). Samme farge som i Europakartet.
+- Verdenskartet, august 1945: Estland, Latvia, Litauen, Hviterussland og Ukraina stod fortsatt som «okkupert av aksemaktene»; de ble gjenerobret av Sovjetunionen i 1944. Kilde: [Wikipedia, «Soviet occupation of the Baltic states (1944)»](https://en.wikipedia.org/wiki/Soviet_occupation_of_the_Baltic_states_(1944)).
+- Afrika blir selvstendig: Vest-Sahara stod som «omstridt» allerede i 1945. Det var spansk koloni til Spania trakk seg ut i februar 1976 (Madrid-avtalen november 1975). Nå koloni til og med 1968, omstridt fra 1980. Kilde: [Wikipedia, «Madrid Accords»](https://en.wikipedia.org/wiki/Madrid_Accords).
+
+**Vises, men spørres ikke om** (`nq` per tidssteg i maps.js; gjelder kartspillet og «Test deg»), fordi dagens grenser eller gruppenavnet ikke passer perioden:
+- Området var delt mellom sidene: Polen 1914–1918 (Russland, Tyskland, Østerrike-Ungarn) og i 1944; Ukraina 1914–1917 og etter 1919 (Galicia var østerriksk, senere polsk); Hviterussland etter 1919 og i 1939; Latvia 1915–1917 (Kurland okkupert, Riga russisk til september 1917); Frankrike 1940–1941 (okkupert nord, Vichy sør); Italia 1943–1944 (alliert sør, tysk nord); Kina i 1942 (delvis japansk); Bosnia-Hercegovina 1941–1944 (del av Den uavhengige staten Kroatia); Polen og Ukraina i kolonikartet 1914.
+- Endret side i løpet av tidssteget: Ungarn og Romania i 1940 (aksen fra november), Irak i 1941 (kuppet og krigen med Storbritannia), Moldova i 1918 (til Romania), Egypt i august 1914 (formelt osmansk, britisk okkupert), Albania 1915–1918 (okkupert av flere hærer).
+- Gruppen er misvisende: Polen, Tsjekkoslovakia, Slovakia, Ungarn, Romania og Bulgaria under «Sovjetunionen» i 1944–1945 (sovjetisk kontroll, ikke en del av Sovjetunionen); Finland som «nøytral» i 1944–1945 (Laplandskrigen mot Tyskland); Tyrkia, Argentina og Saudi-Arabia som nøytrale i 1945 (erklærte krig i februar–mars 1945); Thailand som nøytralt i august 1945; Egypt som alliert (formelt nøytralt til februar 1945); Iran som nøytralt 1941–1945 (okkupert av de allierte fra august 1941); Korea, Nord-Korea og Taiwan som «okkupert» (del av Japan siden 1910/1895); Mongolia under «Sovjetunionen»; Østerrike som alliansefritt i 1949 (okkupert av fire makter til 1955); Eritrea (del av Etiopia 1952–1993) og Sør-Sudan (del av Sudan 1956–2011) som kolonier.
+
+**Usikkert / ikke endret**
+- Grensene er dagens, så store riker (Østerrike-Ungarn, Det osmanske riket, Det russiske riket) er satt sammen av dagens land. Mindre avvik er beholdt uten merking: Sør-Tirol og Trieste (østerrikske til 1918) er med i Italia, Vojvodina (ungarsk til 1918) i Serbia, Transilvania (ungarsk til 1918) i Romania, og Den spanske sonen i Nord-Marokko i Fransk Marokko i 1914. Spørsmålene om disse landene handler om staten, ikke hele dagens område.
+- Hellas og Tyrkia står som alliansefrie i 1949 (NATO fra 1952). Island står som nøytralt i 1940–1945, selv om det var okkupert av de allierte; Island erklærte seg nøytralt og gikk aldri inn i krigen.
+- Tidssteg som dekker et helt år, viser tilstanden ved slutten av året. Det står ikke på kartet.
+- Kildene over er oppslagsverk og nettsider (lest 2026-10-15), ikke lærebøker. Beslutningene om hva som ikke skal spørres om, bør gjennomgås av en historielærer.
+
 ## Dekning av den uavhengige fasitkontrollen (oppgave 14, 2026-10-15)
 
 `tools/test_content.js` sjekker bare at tallsvaret står i forklaringen. Det viser at forklaring og fasit henger sammen, ikke at de er riktige. `tools/test_answers.js` regner svaret ut på nytt med egne formler.

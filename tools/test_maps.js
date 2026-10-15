@@ -4,7 +4,7 @@
 const fs = require('fs'), path = require('path'); const ROOT = path.join(__dirname, '..');
 const stub = 'const UI = { nb: {}, en: {} }, S = {}, T = (a, b) => a, esc = s => String(s), document = { addEventListener(){} };\n';
 const src = ['maps_data.js', 'maps.js', 'geo_game.js'].map(f => fs.readFileSync(path.join(ROOT, f), 'utf8')).join('\n;\n');
-const M = new Function(stub + src + ';return { MAP_GEO, MAPS, GE_REG, gePool, geAll, geVB, mpVB, mpFrames, mpVis, mpShown, mpInside, mpDist, mpMarker, mpRings, mpArea, mpMain };')();
+const M = new Function(stub + src + ';return { MAP_GEO, MAPS, GE_REG, gePool, geAll, geVB, mpVB, mpFrames, mpVis, mpShown, mpInside, mpDist, mpMarker, mpRings, mpArea, mpMain, mpCand, mpAsk };')();
 const { MAP_GEO, MAPS, GE_REG } = M;
 const errs = []; const E = m => errs.push(m); let checks = 0; const ok = (c, m) => { checks++; if(!c) E(m); };
 const full = v => [0, 0, MAP_GEO[v].w, MAP_GEO[v].h];
@@ -38,8 +38,10 @@ for(const r of Object.keys(GE_REG)){
 // 4. Historikkmodus og «Test deg»: alle land som kan blinke, synes i kartutsnittet
 let histQ = 0;
 for(const [id, Mp] of Object.entries(MAPS)){ const G = MAP_GEO[Mp.v]; if(!G || !Mp.f.length) continue; const vb = M.mpVB(Mp);
-  M.mpFrames(Mp).forEach((fills, k) => { for(const [c, g] of Object.entries(fills)) if(Mp.g[g] && G.c[c] && M.mpShown(G, c, vb)){ histQ++;
-    const vis = M.mpVis(G, c, vb); ok(vis.box && vis.f >= 0.15, `kart ${id} steg ${k}: ${c} kan blinke, men synes nesten ikke`); } }); }
+  M.mpFrames(Mp).forEach((fills, k) => { for(const [c] of M.mpCand(Mp, k)){ histQ++;
+    const vis = M.mpVis(G, c, vb); ok(vis.box && vis.f >= 0.15, `kart ${id} steg ${k}: ${c} kan blinke, men synes nesten ikke`); }
+    // nq skal bare inneholde land som finnes i kartet (skrivefeil gjør at et land spørres om likevel)
+    for(const c of String(Mp.f[k].nq || '').split(/\s+/).filter(Boolean)) ok(G.c[c], `kart ${id} steg ${k}: nq har ukjent land ${c}`); }); }
 ok(histQ > 300, `bare ${histQ} mulige historiespørsmål`);
 
 // 5. Konkrete land som har vært feil
@@ -75,6 +77,35 @@ for(const c of 'PK MR EH AF'.split(' ')) ok(!M.mpShown(EU, c, full('europe')), `
 for(const c of 'TR CY IS PT MA EG IL'.split(' ')) ok(M.mpShown(EU, c, full('europe')), `${c} ved kanten av Europakartet kan ikke spørres om`);
 for(const [r, c] of [['americas', 'CL'], ['americas', 'CA'], ['africa', 'ZA'], ['africa', 'EG'], ['asia', 'JP'], ['asia', 'TR'], ['asia', 'ID']])
   ok(M.mpVis(MAP_GEO.world, c, M.geVB(r)).f > 0.99, `region ${r}: ${c} er klippet ved kanten`);
+
+// 6. Historiske grenser og perioder (oppgave 22; kilder i docs/FAGLIG_KONTROLL.md, «Historiekartene»)
+const side = (id, k, c) => M.mpFrames(MAPS[id])[k][c];
+const asked = (id, k, c) => M.mpCand(MAPS[id], k).some(([x]) => x === c);
+const step = (id, y) => MAPS[id].f.findIndex(f => f.y[0] === y);
+// Første verdenskrig: Luxembourg okkupert 2. august 1914; Polen og Litauen okkupert av sentralmaktene fra 1915; Belgia på seierssiden etter krigen
+ok(side('ww1', 0, 'LU') === 'O', 'ww1 august 1914: Luxembourg var okkupert fra 2. august');
+for(const c of ['PL', 'LT']) for(const y of ['1915', '1916', '1917']) ok(side('ww1', step('ww1', y), c) === 'O', `ww1 ${y}: ${c} var okkupert av sentralmaktene`);
+ok(side('ww1', step('ww1', '1917'), 'EE') === 'X', 'ww1 1917: Estland var en del av det revolusjonære Russland');
+{ const k = MAPS.ww1.f.length - 1; ok(side('ww1', k, 'BE') === 'E' && side('ww1', k, 'LU') === 'N', 'ww1 etter krigen: Belgia og Luxembourg er ikke lenger okkupert'); }
+// Polen var delt mellom Russland, Tyskland og Østerrike-Ungarn til 1918, Ukraina (Galicia) mellom Russland og Østerrike-Ungarn: spørres ikke om
+for(let k = 0; k < 6; k++) ok(!asked('ww1', k, 'PL'), `ww1 steg ${k}: Polen var delt, men spørres om`);
+for(const id of ['ww1', 'kolonier']) ok(!asked(id, 0, 'UA') && !asked(id, 0, 'PL'), `${id} 1914: Ukraina/Polen var delt, men spørres om`);
+// Andre verdenskrig: Hellas i krig med Italia fra 28. oktober 1940; Baltikum, Hviterussland og Ukraina okkupert av Tyskland i 1941
+ok(side('ww2', step('ww2', '1940'), 'GR') === 'AL', 'ww2 1940: Hellas var angrepet av Italia og på de alliertes side');
+for(const c of 'EE LV LT BY UA'.split(' ')) ok(side('ww2', step('ww2', '1941'), c) === 'AXO', `ww2 1941: ${c} var okkupert av Tyskland`);
+ok(!asked('ww2', step('ww2', '1940'), 'HU') && !asked('ww2', step('ww2', '1940'), 'RO'), 'ww2 1940: Ungarn/Romania ble med i aksen i november, men spørres om');
+// I verdenskartet: Slovakia og Kroatia var aksestater, Baltikum m.fl. var gjenerobret av Sovjet i 1944
+ok(side('ww2w', 0, 'SK') === 'AX' && side('ww2w', 0, 'HR') === 'AX', 'ww2w 1942: Slovakia/Kroatia var aksestater, ikke okkupert');
+for(const c of 'EE LV LT BY UA'.split(' ')) ok(side('ww2w', 1, c) === 'SU', `ww2w august 1945: ${c} står fortsatt som okkupert av aksen`);
+// «Sovjetunionen» om Polen, Tsjekkoslovakia osv. i 1945 og «nøytral» om Finland 1944–45 er misvisende: spørres ikke om
+for(const c of 'PL CZ SK HU RO BG FI'.split(' ')) ok(!asked('ww2', step('ww2', 'Mai 1945'), c) && !asked('ww2w', 1, c), `ww2 1945: ${c} spørres om med misvisende gruppe`);
+ok(!asked('kald', 0, 'AT'), 'kald 1949: Østerrike var okkupert av fire makter, men spørres om som alliansefritt');
+// Afrika: Vest-Sahara var spansk koloni til 1976; Eritrea og Sør-Sudan var ikke kolonier i 1960–1980
+for(const y of ['1945', '1960', '1968']) ok(side('avkol', step('avkol', y), 'EH') === 'COL', `avkol ${y}: Vest-Sahara var spansk koloni, ikke omstridt`);
+ok(side('avkol', step('avkol', '1980'), 'EH') === 'DIS', 'avkol 1980: Vest-Sahara er omstridt etter 1976');
+for(const y of ['1960', '1968', '1980']) for(const c of ['ER', 'SS']) ok(!asked('avkol', step('avkol', y), c), `avkol ${y}: ${c} spørres om som koloni`);
+// Kartspillet og «Test deg» bruker samme utvalg: ingen land i nq kan bli spurt om
+for(const [id, Mp] of Object.entries(MAPS)) if(MAP_GEO[Mp.v]) Mp.f.forEach((f, k) => { for(const [c] of M.mpCand(Mp, k)) ok(M.mpAsk(Mp, k, c), `kart ${id} steg ${k}: ${c} er i nq, men kan spørres om`); });
 
 console.log(`kart: ${Object.keys(EU.c).length} land i Europa, ${Object.keys(W.c).length} i verden, ${histQ} mulige historiespørsmål, ${checks} sjekker, feil: ${errs.length}`);
 errs.forEach(e => console.log(' - ' + e)); process.exit(errs.length ? 1 : 0);

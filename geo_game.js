@@ -40,8 +40,8 @@ function geNextQ(){
     // et historisk kart, et tilfeldig tidssteg, en tilfeldig side – og et land fra den siden
     for(let tries = 0; tries < 40; tries++){
       const ids = GE.map ? [GE.map] : geHistMaps(), id = ids[Math.floor(Math.random() * ids.length)], M = MAPS[id], G = MAP_GEO[M.v];
-      const k = Math.floor(Math.random() * M.f.length), fills = mpFrames(M)[k], vb = mpVB(M);
-      const cand = Object.entries(fills).filter(([c, g]) => M.g[g] && G.c[c] && mpShown(G, c, vb));
+      const k = Math.floor(Math.random() * M.f.length), fills = mpFrames(M)[k];
+      const cand = mpCand(M, k);
       const groups = [...new Set(cand.map(x => x[1]))]; if(groups.length < 2) continue;
       const g = groups[Math.floor(Math.random() * groups.length)], pool = cand.filter(x => x[1] === g && !prev.includes(id + ":" + x[0])); if(!pool.length) continue;
       const [c] = pool[Math.floor(Math.random() * pool.length)];
@@ -146,7 +146,7 @@ function renderGeo(){
   let prompt, opts = "", fb = "";
   if(GE.mode === "hist"){
     const M = MAPS[q.id], G = MAP_GEO[M.v];
-    prompt = `<p class="sg-ask">${esc(T(M.t[0], M.t[1]))} · ${esc(T(M.f[q.k].y[0], M.f[q.k].y[1]))}</p><p class="sg-name ge-name">${esc(T(`Hvor hørte ${mpName(G, q.c)} til?`, `Where did ${mpName(G, q.c)} belong?`))}</p><div class="mp-wrap ge-wrap">${geHistSVG(q, rev)}</div>${geMarkNote(geHistSVG(q, rev))}`;
+    prompt = `<p class="sg-ask">${esc(T(M.t[0], M.t[1]))} · ${esc(T(M.f[q.k].y[0], M.f[q.k].y[1]))}</p><p class="sg-name ge-name">${esc(T(`Hvor hørte ${mpName(G, q.c)} til?`, `Where did ${mpName(G, q.c)} belong?`))}</p><div class="mp-wrap ge-wrap">${geHistSVG(q, rev)}</div>${geMarkNote(geHistSVG(q, rev))}<p class="mp-note">${esc(mpNote())}</p>`;
     opts = `<div class="sg-list">${q.opts.map(g => { const cls = rev ? (g === q.ans ? "ok" : g === q.picked ? "bad" : "dim") : "";
       return `<button class="sg-opt sg-txt ge-grp ${cls}" data-a="geans" data-v="${g}" ${rev ? "disabled" : ""}><i style="background:${M.g[g][0]}"></i>${esc(T(M.g[g][1], M.g[g][2]))}</button>`; }).join("")}</div>`;
     if(rev && !fx.pts) fb = `<div class="dv-fb bad sg-fb"><b>${esc(fx.miss === "time" ? T("Tiden gikk ut", "Time ran out") : T("Feil", "Wrong"))}</b><p><span>${esc(mpName(G, q.c))}: <b>${esc(T(M.g[q.ans][1], M.g[q.ans][2]))}</b></span></p></div>`;
