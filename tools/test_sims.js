@@ -53,5 +53,27 @@ for(const [name, S0] of Object.entries(SIMS)){
   S0.p.forEach(p => { if(p[5] < p[2] || p[5] > p[3] || Math.abs((p[5] - p[2]) / p[4] - Math.round((p[5] - p[2]) / p[4])) > 1e-9) fail('default off grid', name, p[0]); });
 }
 for(const [k, m] of Object.entries(SIM_MAP)) for(const n of [].concat(m)) if(!SIMS[n]) fail('SIM_MAP', k, n);
+// Kloss på skråplan: undersiden ligger på planet (ingen hjørner inne i planet), rotasjonen følger helningen, alt er innenfor bildet,
+// og pilene er proporsjonale med kreftene (N = G cos θ; R = G sin θ i ro, μ G cos θ når klossen glir).
+for(let a = 0; a <= 60; a++) for(const mu of [0, 0.3, 0.6, 1]){
+  const r = SIMS.incline.f({ a, mu }), svg = r.svg, w = `incline θ=${a} μ=${mu}`;
+  const poly = svg.match(/<polygon class="fg-fill" points="([^"]+)"/)[1].trim().split(/\s+/).map(q => q.split(',').map(Number));
+  const rect = svg.match(/<rect class="fg-(?:hot|box)" x="([-\d.]+)" y="([-\d.]+)" width="([\d.]+)" height="([\d.]+)"[^>]*rotate\(([-\d.]+) ([-\d.]+) ([-\d.]+)\)/).slice(1).map(Number);
+  const [rx, ry, rw, rh, rot, ox, oy] = rect, th = -rot * Math.PI / 180;
+  // rotate(deg) i SVG: x' = cx + (x−cx)cos d − (y−cy)sin d, y' = cy + (x−cx)sin d + (y−cy)cos d, med d = rot (grader)
+  const d = rot * Math.PI / 180, R2 = (x, y) => [ox + (x - ox) * Math.cos(d) - (y - oy) * Math.sin(d), oy + (x - ox) * Math.sin(d) + (y - oy) * Math.cos(d)];
+  const C = [R2(rx, ry), R2(rx + rw, ry), R2(rx + rw, ry + rh), R2(rx, ry + rh)], A = poly[0], B = poly[2], L = Math.hypot(B[0] - A[0], B[1] - A[1]) || 1;
+  const n = L > 1e-6 && Math.abs(B[1] - A[1]) > 1e-6 ? [(B[1] - A[1]) / L, -(B[0] - A[0]) / L] : [0, -1], dist = c => (c[0] - A[0]) * n[0] + (c[1] - A[1]) * n[1];
+  const ds = C.map(dist).sort((x, y) => x - y);
+  if(ds[0] < -0.5 || Math.abs(ds[1]) > 0.5) fail('skråplan: klossen står ikke på planet', w, ds.map(x => x.toFixed(2)).join(' '));
+  if(Math.abs(Math.abs(rot) - a) > 1e-6) fail('skråplan: klossen er ikke rotert med helningen', w, rot);
+  const nums = [...svg.matchAll(/(?:x1?|x2|cx)="([-\d.]+)"|(?:y1?|y2|cy)="([-\d.]+)"/g)];
+  for(const m of nums){ const v = +(m[1] ?? m[2]); if(m[1] != null ? (v < -1 || v > 321) : (v < -1 || v > 181)) { fail('skråplan: noe er utenfor bildet', w, m[0]); break; } }
+  for(const q of [...poly, ...C]) if(q[0] < 0 || q[0] > 320 || q[1] < 0 || q[1] > 180) { fail('skråplan: planet eller klossen er utenfor bildet', w); break; }
+  const arrows = [...svg.matchAll(/<g class="(fg-[a-z0-9]+)"><line x1="([-\d.]+)" y1="([-\d.]+)" x2="([-\d.]+)" y2="([-\d.]+)"/g)].map(m => ({ c: m[1], len: Math.hypot(m[4] - m[2], m[5] - m[3]) + 6.4 })); // + pilspissen (fgAr: 0,8 · 8)
+  const G = arrows.find(x => x.c === 'fg-red'), N = arrows.find(x => x.c === 'fg-acc'), Rr = arrows.find(x => x.c === 'fg-c4'), rad = a * Math.PI / 180;
+  if(G && N && Math.abs(N.len / G.len - Math.cos(rad)) > 0.06) fail('skråplan: N er ikke G cos θ', w, (N.len / G.len).toFixed(3));
+  if(G && Rr && mu > 0 && a > 0){ const slides = Math.tan(rad) > mu + 1e-9, want = slides ? mu * Math.cos(rad) : Math.sin(rad); if(Math.abs(Rr.len / G.len - want) > 0.08) fail('skråplan: R har feil størrelse', w, (Rr.len / G.len).toFixed(3), want.toFixed(3)); }
+}
 console.log(`simuleringer: ${Object.keys(SIMS).length} (${eqN} med levende formel), oppgaver: ${Object.values(SIMS).reduce((a, s) => a + (s.g || []).length, 0)}, kjøringer: ${runs}, feil: ${bad} (${((Date.now() - t0) / 1000).toFixed(1)} s)`);
 if(bad) process.exit(1);

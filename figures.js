@@ -11,6 +11,9 @@ const fgAr = (x1, y1, x2, y2, cls = "fg-acc", w = 2.2) => {           // pil fra
 };
 // «X_abc» blir X med senket abc (også midt i teksten, f.eks. «u_C/U»).
 const fgSub = s => String(s).split(/_([A-Za-z0-9α-ωΑ-Ω]+)/).map((p, i) => i % 2 ? `<tspan dy="0.3em" font-size="72%">${p}</tspan>` : (i > 1 && p ? `<tspan dy="-0.216em">${p}</tspan>` : p)).join("");
+// kraftpil som tydelig ligger oppå figuren: kant i bakgrunnsfarge under pila og en prikk der kraften virker (startpunktet)
+const fgArH = (x1, y1, x2, y2, cls = "fg-acc", w = 2.2) => `<g class="fg-halo">${fgAr(x1, y1, x2, y2, "", w + 3)}</g>${fgAr(x1, y1, x2, y2, cls, w)}`;
+const fgDot = (x, y) => `<circle class="fg-cm" cx="${(+x).toFixed(1)}" cy="${(+y).toFixed(1)}" r="3.2"/>`;
 const fgT = (x, y, s, cls = "fg-t", anchor = "middle") => `<text x="${x}" y="${y}" class="${cls}" text-anchor="${anchor}">${fgSub(s)}</text>`;
 const fgPath = (fn, s0, s1, n = 60) => { let d = ""; for(let i = 0; i <= n; i++){ const s = s0 + (s1 - s0) * i / n, [x, y] = fn(s); d += (i ? "L" : "M") + x.toFixed(1) + " " + y.toFixed(1); } return d; };
 const fgAxes = (x0, y0, x1, y1, lx, ly) => fgAr(x0, y0, x1, y0, "fg-ax", 1.6) + fgAr(x0, y0, x0, y1, "fg-ax", 1.6) + fgT(x1 - 2, y0 + 16, lx, "fg-i", "end") + fgT(x0 - 8, y1 + 4, ly, "fg-i", "end");
@@ -41,10 +44,10 @@ const FIGS = {
       <path class="fg-mut" d="M70 150 A40 40 0 0 0 ${f(arc[0])} ${f(arc[1])}" fill="none"/>${fgT(82, 145, "θ", "fg-i", "start")}
       <rect class="fg-box" data-incline-block="1" x="${f(C[0] - hw)}" y="${f(C[1] - hh)}" width="${2 * hw}" height="${2 * hh}" rx="3" transform="rotate(${ang.toFixed(2)} ${f(C[0])} ${f(C[1])})"/>
       <g class="fg-mut" stroke-dasharray="2 3"><line x1="${f(Gp[0])}" y1="${f(Gp[1])}" x2="${f(G[0])}" y2="${f(G[1])}"/><line x1="${f(Gn[0])}" y1="${f(Gn[1])}" x2="${f(G[0])}" y2="${f(G[1])}"/></g>
-      ${fgAr(C[0], C[1], G[0], G[1], "fg-red")}${fgT(G[0] - 8, G[1] + 2, "G", "fg-i fg-redt", "end")}
-      ${fgAr(C[0], C[1], N[0], N[1])}${fgT(N[0] - 8, N[1], "N", "fg-i fg-acct", "end")}
+      ${fgArH(C[0], C[1], G[0], G[1], "fg-red")}${fgT(G[0] - 8, G[1] + 2, "G", "fg-i fg-redt", "end")}
+      ${fgArH(C[0], C[1], N[0], N[1])}${fgT(N[0] - 8, N[1], "N", "fg-i fg-acct", "end")}
       <g stroke-dasharray="4 3">${fgAr(C[0], C[1], Gp[0], Gp[1], "fg-mutd", 1.8)}${fgAr(C[0], C[1], Gn[0], Gn[1], "fg-mutd", 1.8)}</g>
-      ${fgT(Gp[0] - 6, Gp[1] - 6, "G sin θ", "fg-s", "end")}${fgT(Gn[0] + 10, Gn[1] - 3, "G cos θ", "fg-s", "start")}` };
+      ${fgDot(C[0], C[1])}${fgT(Gp[0] - 6, Gp[1] - 6, "G sin θ", "fg-s", "end")}${fgT(Gn[0] + 10, Gn[1] - 3, "G cos θ", "fg-s", "start")}` };
   },
 
   beam_moment: () => ({ cap: T("Fritt opplagt bjelke med punktlast på midten. Momentet er størst under lasten: M = PL/4.", "Simply supported beam with a point load at mid-span. The moment is largest under the load: M = PL/4."), svg: `

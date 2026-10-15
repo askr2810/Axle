@@ -10,7 +10,7 @@ const FL = {};
 const FL_CSS = `.fl{display:block;width:100%;height:auto;overflow:visible;font-family:system-ui,-apple-system,"Segoe UI",sans-serif}
 .fl text,svg.fl text{fill:currentColor;font-size:13px;font-style:normal}.fl .fl-sym,svg.fl text.fl-sym{font-style:italic;font-family:"Times New Roman",Georgia,serif;font-size:16px}.fl .fl-sm{font-size:11px;opacity:.8}.fl .fl-b{font-weight:700}
 .fl .fl-beam{fill:#7A8796;stroke:#4A5563;stroke-width:1.2}.fl .fl-sup{fill:#C9D1DA;stroke:#4A5563;stroke-width:1.4}.fl .fl-gnd{stroke:#4A5563;stroke-width:1.2}
-.fl .fl-load{stroke:#D9483B;stroke-width:2.6;fill:none}.fl .fl-loadf{fill:#D9483B;stroke:none}.fl .fl-q{fill:#D9483B;opacity:.12}.fl .fl-react{stroke:#1E9A5E;stroke-width:2.4;fill:none}.fl .fl-reactf{fill:#1E9A5E;stroke:none}
+.fl .fl-halo{stroke:var(--card,#fff);stroke-width:6.5;fill:none;stroke-linecap:round}.fl .fl-halof{fill:var(--card,#fff);stroke:var(--card,#fff);stroke-width:3}.fl .fl-cm{fill:var(--ink,#16202A);stroke:var(--card,#fff);stroke-width:1.5}.fl .fl-load{stroke:#D9483B;stroke-width:2.6;fill:none}.fl .fl-loadf{fill:#D9483B;stroke:none}.fl .fl-q{fill:#D9483B;opacity:.12}.fl .fl-react{stroke:#1E9A5E;stroke-width:2.4;fill:none}.fl .fl-reactf{fill:#1E9A5E;stroke:none}
 .fl .fl-dim{stroke:currentColor;stroke-width:1;opacity:.55;fill:none}.fl .fl-ax{stroke:currentColor;stroke-width:1.2;opacity:.6;fill:none}
 .fl .fl-v{fill:#2B6FD6;fill-opacity:.22;stroke:#2B6FD6;stroke-width:2}.fl .fl-m{fill:#E07B00;fill-opacity:.22;stroke:#E07B00;stroke-width:2}
 .fl .fl-vt{fill:#2B6FD6;font-weight:700}.fl .fl-mt{fill:#E07B00;font-weight:700}.fl .fl-lt{fill:#D9483B;font-weight:700}.fl .fl-rt{fill:#1E9A5E;font-weight:700}
@@ -24,6 +24,8 @@ const flN = x => (+x).toFixed(1);
 const flEsc = s => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;");
 // Tekst med senket skrift: «R_f» og «V_inn» gir R med f/inn senket.
 const flT = (x, y, s, cls = "", anchor = "middle") => `<text x="${flN(x)}" y="${flN(y)}" text-anchor="${anchor}" class="${cls}">${flEsc(s).replace(/_([A-Za-z0-9æøåÆØÅ]+)/g, '<tspan dy="4" font-size="72%">$1</tspan><tspan dy="-4">​</tspan>')}</text>`;
+// kraftpil oppå figuren: kant i bakgrunnsfarge under pila, så den ikke ser ut til å gå gjennom klossen eller bakken
+const flArrowH = (x1, y1, x2, y2, cls = "fl-load", head = 9) => flArrow(x1, y1, x2, y2, "fl-halo", head + 2) + flArrow(x1, y1, x2, y2, cls, head);
 const flArrow = (x1, y1, x2, y2, cls = "fl-load", head = 9) => { const a = Math.atan2(y2 - y1, x2 - x1), h = head, w = head * 0.5;
   const bx = x2 - h * Math.cos(a), by = y2 - h * Math.sin(a);
   return `<path d="M${flN(x1)} ${flN(y1)}L${flN(bx)} ${flN(by)}" class="${cls}"/><path d="M${flN(x2)} ${flN(y2)}L${flN(bx - w * Math.sin(a))} ${flN(by + w * Math.cos(a))}L${flN(bx + w * Math.sin(a))} ${flN(by - w * Math.cos(a))}Z" class="${cls}f"/>`; };
@@ -188,18 +190,21 @@ FL.rc = (o = {}) => {
 // ---------- SKRÅPLAN med kraftdekomponering ----------
 FL.incline = (o = {}) => {
   const a = (o.angle || 30) * Math.PI / 180, x0 = 30, y0 = 180, L = 300, xt = x0 + L * Math.cos(a), yt = y0 - L * Math.sin(a);
-  const bx = x0 + 0.55 * L * Math.cos(a), by = y0 - 0.55 * L * Math.sin(a), ux = Math.cos(a), uy = -Math.sin(a), nx = -Math.sin(a), ny = -Math.cos(a), w = 46, h = 30;
-  const cx = bx + nx * h / 2, cy = by + ny * h / 2, G = 70;
+  // klossen står så høyt på planet at G (70) og etiketten under spissen holder seg over bakken (ellers kortes G inn)
+  const w = 46, h = 30, sNeed = Math.sin(a) > 0.02 ? (70 + 18 - h / 2 * Math.cos(a)) / Math.sin(a) : L, sp = Math.min(L - w / 2 - 12, Math.max(0.55 * L, sNeed));
+  const bx = x0 + sp * Math.cos(a), by = y0 - sp * Math.sin(a), ux = Math.cos(a), uy = -Math.sin(a), nx = -Math.sin(a), ny = -Math.cos(a);
+  const cx = bx + nx * h / 2, cy = by + ny * h / 2, G = Math.min(70, y0 - 18 - cy);
   let s = `<path d="M${x0} ${y0}L${flN(xt)} ${y0}L${flN(xt)} ${flN(yt)}Z" class="fl-sup"/>`;
   s += `<path d="M${x0 + 46} ${y0}A46 46 0 0 0 ${flN(x0 + 46 * Math.cos(a))} ${flN(y0 - 46 * Math.sin(a))}" class="fl-dim"/>` + flT(x0 + 56, y0 - 8, "α", "fl-sym", "start");
   s += `<g transform="translate(${flN(bx)} ${flN(by)}) rotate(${flN(-a * 180 / Math.PI)})"><rect x="${-w / 2}" y="${-h}" width="${w}" height="${h}" rx="3" class="fl-beam"/></g>`;
-  s += flArrow(cx, cy, cx, cy + G, "fl-load", 10) + flT(cx - 6, cy + G + 14, "G", "fl-sym fl-lt", "end");
+  s += flArrowH(cx, cy, cx, cy + G, "fl-load", 10) + flT(cx - 6, cy + G + 14, "G", "fl-sym fl-lt", "end");
   const gp = G * Math.cos(a), gs = G * Math.sin(a), ex = cx - nx * gp, ey = cy - ny * gp, sx = cx - ux * gs, sy = cy - uy * gs;
   s += `<path d="M${flN(ex)} ${flN(ey)}L${flN(cx)} ${flN(cy + G)}L${flN(sx)} ${flN(sy)}" class="fl-dim" style="stroke-dasharray:3 3"/>`;
   s += flArrow(cx, cy, ex, ey, "fl-dim", 8) + flT(ex + 10, ey + 6, "G cos α", "fl-sym fl-sm", "start");
   s += flArrow(cx, cy, sx, sy, "fl-dim", 8) + flT(sx - 8, sy - 2, "G sin α", "fl-sym fl-sm", "end");
-  s += flArrow(cx, cy, cx + nx * gp, cy + ny * gp, "fl-react", 10) + flT(cx + nx * gp - 4, cy + ny * gp - 4, "N", "fl-sym fl-rt", "end");
-  if(o.friction !== false) s += flArrow(cx, cy, cx + ux * 46, cy + uy * 46, "fl-react", 9) + flT(cx + ux * 46 + 6, cy + uy * 46, "R", "fl-sym fl-rt", "start");
+  s += flArrowH(cx, cy, cx + nx * gp, cy + ny * gp, "fl-react", 10) + flT(cx + nx * gp - 4, cy + ny * gp - 4, "N", "fl-sym fl-rt", "end");
+  if(o.friction !== false) s += flArrowH(cx, cy, cx + ux * 46, cy + uy * 46, "fl-react", 9) + flT(cx + ux * 46 + 6, cy + uy * 46, "R", "fl-sym fl-rt", "start");
+  s += `<circle cx="${flN(cx)}" cy="${flN(cy)}" r="3.4" class="fl-cm"/>`;
   return `<svg class="fl" viewBox="0 0 360 200" role="img">${s}</svg>`;
 };
 

@@ -688,6 +688,7 @@ input[type="time"]{font:inherit;font-weight:700;border:2px solid var(--line);bor
 .fig .fg-mut,.fig .fg-mut line{stroke:var(--muted);stroke-width:1.4;fill:none}
 .fig .fg-ax line{stroke:var(--muted)}.fig .fg-ax polygon{fill:var(--muted)}
 .fig .fg-acc,.fig .fg-acc line{stroke:var(--accent);fill:none}.fig g.fg-acc polygon{fill:var(--accent);stroke:none}
+.fig .fg-halo line{stroke:var(--card)!important;fill:none}.fig .fg-halo polygon{fill:var(--card)!important;stroke:var(--card)!important;stroke-width:2.5px}.fig .fg-cm{fill:var(--ink);stroke:var(--card);stroke-width:1.5}
 .fig .fg-red,.fig .fg-red line{stroke:var(--bad);fill:none}.fig g.fg-red polygon{fill:var(--bad);stroke:none}
 .fig .fg-ok,.fig .fg-ok line{stroke:var(--ok);fill:none}.fig g.fg-ok polygon{fill:var(--ok);stroke:none}
 .fig g.fg-line line{stroke:var(--ink)}.fig g.fg-line polygon{fill:var(--ink);stroke:none}

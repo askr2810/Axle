@@ -131,14 +131,18 @@ const SIMS = {
   incline: { t: ["Kloss på skråplan", "Block on an incline"], p: [["a", "θ", 0, 60, 1, 25, "°", 2], ["mu", "μ", 0, 1, 0.05, 0.3, "", 4]],
     q: ["Finn vinkelen der klossen akkurat begynner å gli. Sjekk at tan θ = μ.", "Find the angle where the block just starts to slide. Check that tan θ = μ."],
     f: v => { const r = v.a * Math.PI / 180, g = 9.81, drive = g * Math.sin(r), fric = v.mu * g * Math.cos(r), slides = drive > fric + 1e-9, acc = slides ? drive - fric : 0;
-      const x0 = 30, y0 = 150, L = 250, x1 = x0 + L * Math.cos(r), y1 = y0 - L * Math.sin(r), cx = x0 + 0.55 * L * Math.cos(r), cy = y0 - 0.55 * L * Math.sin(r);
-      const nx = -Math.sin(r), ny = -Math.cos(r), bx = cx + nx * 12, by = cy + ny * 12; // klossen (32 × 24) står med undersiden på planet
+      // Planet skaleres så hele figuren (også G og N) får plass i 320 × 180 ved alle vinkler. Klossen (32 × 24) står med undersiden
+      // på planet: sentrum = kontaktpunktet + n · 12, og står midt på planet (lavere ved bratte vinkler, så N og etiketten får plass).
+      const x0 = 26, y0 = 134, hw = 16, hh = 12, Gl = 40, c = Math.cos(r), s = Math.sin(r), L = Math.min(262, 270 / c, s > 0 ? 126 / s : 1e9);
+      const x1 = x0 + L * c, y1 = y0 - L * s, nx = -s, ny = -c, sTop = s > 0.02 ? (y0 - 16 - (Gl * c * c + 14) - hh * c) / s : L;
+      const sp = Math.max(hw + 8, Math.min(L - hw - 8, sTop, L * (0.5 + 0.2 * s))), cx = x0 + sp * c, cy = y0 - sp * s, bx = cx + nx * hh, by = cy + ny * hh;
+      const Rf = slides ? fric : drive, Rl = Gl * Rf / g, Nl = Gl * c; // pilene er proporsjonale med kreftene (G = mg)
       return { eq: [qt`\tan\theta = \tan ${qc(2, v.a + "^\\circ")} = ${qn(Math.tan(r), 3)} \;${qrel(Math.tan(r), v.mu, "le", 0.01)}\; ${qc(4, qn(v.mu))} = \mu`, slides ? qt`a = g(\sin\theta - \mu\cos\theta) = ${qr(acc, 2, "m/s^2")}\ \text{${T("glir", "slides")}}` : qt`g\sin\theta \le \mu g\cos\theta \;\Rightarrow\; a = ${qr(0, 0, "m/s^2")}\ \text{${T("i ro", "at rest")}}`], out: [[T("glir?", "slides?"), slides ? T("ja", "yes") : T("nei, står i ro", "no, stays put")], ["a", smN(acc) + " m/s²"], ["tan θ", smN(Math.tan(r))]], svg: `
         <polygon class="fg-fill" points="${x0},${y0} ${x1.toFixed(1)},${y0} ${x1.toFixed(1)},${y1.toFixed(1)}"/><polyline class="fg-line" points="${x0},${y0} ${x1.toFixed(1)},${y0} ${x1.toFixed(1)},${y1.toFixed(1)} ${x0},${y0}" fill="none"/>
-        <rect class="${slides ? "fg-hot" : "fg-box"}" x="${bx - 16}" y="${by - 12}" width="32" height="24" rx="3" transform="rotate(${-v.a} ${bx.toFixed(1)} ${by.toFixed(1)})"/>
-        ${fgAr(bx, by, bx, by + 50, "fg-red")}${fgT(bx + 6, by + 50, "G", "fg-i fg-redt", "start")}
-        ${fgAr(bx, by, bx + nx * 48 * Math.cos(r), by + ny * 48 * Math.cos(r))}${fgT(bx + nx * 52, by + ny * 52, "N", "fg-i fg-acct")}
-        ${v.mu > 0 ? fgAr(bx, by, bx + Math.cos(r) * 40 * Math.min(1, fric / Math.max(drive, 0.01)), by - Math.sin(r) * 40 * Math.min(1, fric / Math.max(drive, 0.01)), "fg-c4", 2.6) + (v.a > 40 ? fgT(bx + Math.cos(r) * 40 + 10, by - Math.sin(r) * 40 + 6, "R = μN", "fg-s fg-c4t", "start") : fgT(bx + Math.cos(r) * 44, by - Math.sin(r) * 44 - 6, "R = μN", "fg-s fg-c4t")) : ""}${v.a > 0 ? smArc(x0, y0, 44, 0, v.a, "fg-c2", "θ") : ""}` }; } },
+        <rect class="${slides ? "fg-hot" : "fg-box"}" x="${(bx - hw).toFixed(1)}" y="${(by - hh).toFixed(1)}" width="${2 * hw}" height="${2 * hh}" rx="3" transform="rotate(${-v.a} ${bx.toFixed(1)} ${by.toFixed(1)})"/>
+        ${fgArH(bx, by, bx, by + Gl, "fg-red")}${fgT(bx + 7, by + Gl - 2, "G", "fg-i fg-redt", "start")}
+        ${Nl > 6 ? fgArH(bx, by, bx + nx * Nl, by + ny * Nl) + fgT(bx + nx * (Nl + 10) - 4, by + ny * (Nl + 10) + 2, "N", "fg-i fg-acct", "end") : ""}
+        ${v.mu > 0 && v.a > 0 && Rl > 10 ? fgArH(bx, by, bx + c * Rl, by - s * Rl, "fg-c4", 2.6) + (() => { const k = Math.max(Rl, hw + 4) + 18, lx = bx + c * k + nx * 10, ly = by - s * k + ny * 10 + 4; return fgT(lx, ly, slides ? "R = μN" : "R", "fg-s fg-c4t", s > 0.6 ? "end" : "middle"); })() : ""}${fgDot(bx, by)}${v.a > 0 ? smArc(x0, y0, 40, 0, v.a, "fg-c2", "θ") : ""}` }; } },
   lever: { t: ["Moment og vippe", "Moment and a see-saw"], p: [["F1", "F₁", 10, 100, 5, 60, "N", 1], ["a1", "a₁", 0.2, 2, 0.1, 1, "m", 2], ["F2", "F₂", 10, 100, 5, 40, "N", 3], ["a2", "a₂", 0.2, 2, 0.1, 1.5, "m", 4]],
     q: ["Få vippa i balanse. Hva må være likt på begge sider?", "Balance the see-saw. What must be equal on both sides?"],
     f: v => { const M1 = v.F1 * v.a1, M2 = v.F2 * v.a2, tilt = Math.max(-12, Math.min(12, (M1 - M2) / 4)), r = tilt * Math.PI / 180, c = [160, 92], sc = 60;
