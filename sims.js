@@ -132,7 +132,7 @@ const SIMS = {
     q: ["Finn vinkelen der klossen akkurat begynner å gli. Sjekk at tan θ = μ.", "Find the angle where the block just starts to slide. Check that tan θ = μ."],
     f: v => { const r = v.a * Math.PI / 180, g = 9.81, drive = g * Math.sin(r), fric = v.mu * g * Math.cos(r), slides = drive > fric + 1e-9, acc = slides ? drive - fric : 0;
       const x0 = 30, y0 = 150, L = 250, x1 = x0 + L * Math.cos(r), y1 = y0 - L * Math.sin(r), cx = x0 + 0.55 * L * Math.cos(r), cy = y0 - 0.55 * L * Math.sin(r);
-      const nx = -Math.sin(r), ny = -Math.cos(r), bx = cx + nx * 13, by = cy + ny * 13;
+      const nx = -Math.sin(r), ny = -Math.cos(r), bx = cx + nx * 12, by = cy + ny * 12; // klossen (32 × 24) står med undersiden på planet
       return { eq: [qt`\tan\theta = \tan ${qc(2, v.a + "^\\circ")} = ${qn(Math.tan(r), 3)} \;${qrel(Math.tan(r), v.mu, "le", 0.01)}\; ${qc(4, qn(v.mu))} = \mu`, slides ? qt`a = g(\sin\theta - \mu\cos\theta) = ${qr(acc, 2, "m/s^2")}\ \text{${T("glir", "slides")}}` : qt`g\sin\theta \le \mu g\cos\theta \;\Rightarrow\; a = ${qr(0, 0, "m/s^2")}\ \text{${T("i ro", "at rest")}}`], out: [[T("glir?", "slides?"), slides ? T("ja", "yes") : T("nei, står i ro", "no, stays put")], ["a", smN(acc) + " m/s²"], ["tan θ", smN(Math.tan(r))]], svg: `
         <polygon class="fg-fill" points="${x0},${y0} ${x1.toFixed(1)},${y0} ${x1.toFixed(1)},${y1.toFixed(1)}"/><polyline class="fg-line" points="${x0},${y0} ${x1.toFixed(1)},${y0} ${x1.toFixed(1)},${y1.toFixed(1)} ${x0},${y0}" fill="none"/>
         <rect class="${slides ? "fg-hot" : "fg-box"}" x="${bx - 16}" y="${by - 12}" width="32" height="24" rx="3" transform="rotate(${-v.a} ${bx.toFixed(1)} ${by.toFixed(1)})"/>

@@ -28,17 +28,23 @@ const FIGS = {
     <g class="fg-mut"><line x1="40" y1="176" x2="120" y2="176"/><line x1="40" y1="171" x2="40" y2="181"/><line x1="120" y1="171" x2="120" y2="181"/></g>${fgT(80, 171, "2 m", "fg-s")}` }),
 
   incline: () => {
-    const u = [0.945, -0.327], n = [-0.327, -0.945], C = [168.4, 105.3], ang = -19.1;
-    const P = (v, k) => [C[0] + v[0] * k, C[1] + v[1] * k];
-    const G = [C[0], C[1] + 58], N = P(n, 55), Gp = P([-u[0], -u[1]], 50), Gn = P([-n[0], -n[1]], 52);
-    return { cap: T("Kloss på skråplan: tyngden G deles i en komponent langs planet og en inn mot planet. N står vinkelrett på planet.", "Block on an incline: the weight G splits into a component along the plane and one into the plane. N is perpendicular to the plane."), svg: `
+    // Planet går fra A (30, 150) til B (290, 60). u peker oppover langs planet, n ut fra planet (vinkelrett). Klossen (24 × 18) står med
+    // undersiden på flaten: sentrum = kontaktpunktet + n · 9. Komponentene har lengdene G sin θ og G cos θ, så de legges sammen til G.
+    const A = [30, 150], B = [290, 60], len = Math.hypot(B[0] - A[0], B[1] - A[1]), u = [(B[0] - A[0]) / len, (B[1] - A[1]) / len], n = [u[1], -u[0]];
+    const th = Math.atan2(A[1] - B[1], B[0] - A[0]), ang = -th * 180 / Math.PI, hw = 12, hh = 9, Gl = 56;
+    const K = [A[0] + u[0] * 175, A[1] + u[1] * 175], C = [K[0] + n[0] * hh, K[1] + n[1] * hh];
+    const P = (v, k) => [C[0] + v[0] * k, C[1] + v[1] * k], f = x => x.toFixed(1);
+    const G = [C[0], C[1] + Gl], N = P(n, Gl * Math.cos(th)), Gp = P([-u[0], -u[1]], Gl * Math.sin(th)), Gn = P([-n[0], -n[1]], Gl * Math.cos(th));
+    const arc = [A[0] + 40 * Math.cos(th), A[1] - 40 * Math.sin(th)];
+    return { cap: T("Kloss på skråplan: tyngden G deles i en komponent langs planet (G sin θ) og en inn mot planet (G cos θ). N står vinkelrett på planet.", "Block on an incline: the weight G splits into a component along the plane (G sin θ) and one into the plane (G cos θ). N is perpendicular to the plane."), svg: `
       <polygon class="fg-fill" points="30,150 290,150 290,60"/><polyline class="fg-line" points="30,150 290,150 290,60 30,150" fill="none"/>
-      <path class="fg-mut" d="M70 150 A40 40 0 0 0 67.8 137" fill="none"/>${fgT(82, 145, "θ", "fg-i", "start")}
-      <rect class="fg-box" x="${C[0] - 16}" y="${C[1] - 12}" width="32" height="24" rx="3" transform="rotate(${ang} ${C[0]} ${C[1]})"/>
+      <path class="fg-mut" d="M70 150 A40 40 0 0 0 ${f(arc[0])} ${f(arc[1])}" fill="none"/>${fgT(82, 145, "θ", "fg-i", "start")}
+      <rect class="fg-box" data-incline-block="1" x="${f(C[0] - hw)}" y="${f(C[1] - hh)}" width="${2 * hw}" height="${2 * hh}" rx="3" transform="rotate(${ang.toFixed(2)} ${f(C[0])} ${f(C[1])})"/>
+      <g class="fg-mut" stroke-dasharray="2 3"><line x1="${f(Gp[0])}" y1="${f(Gp[1])}" x2="${f(G[0])}" y2="${f(G[1])}"/><line x1="${f(Gn[0])}" y1="${f(Gn[1])}" x2="${f(G[0])}" y2="${f(G[1])}"/></g>
       ${fgAr(C[0], C[1], G[0], G[1], "fg-red")}${fgT(G[0] - 8, G[1] + 2, "G", "fg-i fg-redt", "end")}
       ${fgAr(C[0], C[1], N[0], N[1])}${fgT(N[0] - 8, N[1], "N", "fg-i fg-acct", "end")}
       <g stroke-dasharray="4 3">${fgAr(C[0], C[1], Gp[0], Gp[1], "fg-mutd", 1.8)}${fgAr(C[0], C[1], Gn[0], Gn[1], "fg-mutd", 1.8)}</g>
-      ${fgT(Gp[0] - 4, Gp[1] - 8, "G sin θ", "fg-s", "end")}${fgT(Gn[0] + 8, Gn[1] + 10, "G cos θ", "fg-s", "start")}` };
+      ${fgT(Gp[0] - 6, Gp[1] - 6, "G sin θ", "fg-s", "end")}${fgT(Gn[0] + 10, Gn[1] - 3, "G cos θ", "fg-s", "start")}` };
   },
 
   beam_moment: () => ({ cap: T("Fritt opplagt bjelke med punktlast på midten. Momentet er størst under lasten: M = PL/4.", "Simply supported beam with a point load at mid-span. The moment is largest under the load: M = PL/4."), svg: `
