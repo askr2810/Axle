@@ -20,6 +20,12 @@ const MND = [["januar", "January"], ["februar", "February"], ["mars", "March"], 
 const DAG = [["søndag", "Sunday"], ["mandag", "Monday"], ["tirsdag", "Tuesday"], ["onsdag", "Wednesday"], ["torsdag", "Thursday"], ["fredag", "Friday"], ["lørdag", "Saturday"]];
 const dato = d => [`${DAG[d.getUTCDay()][0]} ${d.getUTCDate()}. ${MND[d.getUTCMonth()][0]}`, `${DAG[d.getUTCDay()][1]} ${d.getUTCDate()} ${MND[d.getUTCMonth()][1]}`];
 const plus = (d, n) => new Date(d.getTime() + n * 864e5);
+// Helligdager i 2025 som faller på hverdager (generatorene bruker 2025). Domstolloven § 149 (jf. fvl. § 30): ender en frist på
+// lørdag, helgedag eller likestilt dag, forlenges den til nærmeste virkedag.
+const HELLIG25 = { "0-1": ["1. nyttårsdag", "New Year's Day"], "3-17": ["skjærtorsdag", "Maundy Thursday"], "3-18": ["langfredag", "Good Friday"], "3-21": ["2. påskedag", "Easter Monday"],
+  "4-1": ["1. mai", "May Day"], "4-29": ["Kristi himmelfartsdag", "Ascension Day"], "5-9": ["2. pinsedag", "Whit Monday"], "11-25": ["1. juledag", "Christmas Day"], "11-26": ["2. juledag", "Boxing Day"] };
+const fridag = d => d.getUTCDay() === 0 || d.getUTCDay() === 6 || !!HELLIG25[d.getUTCMonth() + "-" + d.getUTCDate()];
+const virkedag = d => { while(fridag(d)) d = plus(d, 1); return d; };
 const kr = x => nf(Math.round(x), 0);
 
 // ================= JURIDISK METODE =================
@@ -600,9 +606,12 @@ BIQ("JFORV", F_KLAGE, [
 ]);
 GEN("JFORV", F_KLAGE,
  () => { let d; do { d = new Date(Date.UTC(2025, R.i(0, 10), R.i(1, 28))); } while(d.getUTCDay() === 0 || d.getUTCDay() === 6);
-   const f = plus(d, 21), a = dato(d), b = dato(f), w = [dato(plus(d, 14)), dato(plus(d, 28)), dato(plus(d, 30))];
-   return MC([`Et avslag kom frem til parten ${a[0]}. Når går klagefristen ut?`, `A refusal reached the party on ${a[1]}. When does the appeal deadline expire?`], [b, ...w],
-     [`3 uker = 21 dager etter ${a[0]}, altså ${b[0]}.`, `3 weeks = 21 days after ${a[1]}, i.e. ${b[1]}.`]); },
+   const f0 = plus(d, 21), f = virkedag(f0), a = dato(d), b = dato(f), w = [dato(plus(d, 14)), dato(plus(d, 28)), dato(plus(d, 30))];
+   const h = HELLIG25[f0.getUTCMonth() + "-" + f0.getUTCDate()], b0 = dato(f0);
+   const why = f === f0 ? [`3 uker = 21 dager etter ${a[0]}, altså ${b[0]}.`, `3 weeks = 21 days after ${a[1]}, i.e. ${b[1]}.`]
+     : [`3 uker etter ${a[0]} er ${b0[0]}, men det er ${h[0]}. Fristen forlenges da til nærmeste virkedag, ${b[0]} (fvl. § 30 og domstolloven § 149).`,
+        `3 weeks after ${a[1]} is ${b0[1]}, but that is ${h[1]}, a public holiday. The deadline is then extended to the next working day, ${b[1]} (Public Administration Act section 30 and Courts Act section 149).`];
+   return MC([`Et avslag kom frem til parten ${a[0]}. Når går klagefristen ut?`, `A refusal reached the party on ${a[1]}. When does the appeal deadline expire?`], [b, ...w], why); },
  () => { const n = R.i(1, 6);
    return [T(`En klage kom inn ${n} dag${n > 1 ? "er" : ""} for sent. Hvilken paragraf gjør det mulig å behandle klagen likevel?`, `An appeal arrived ${n} day${n > 1 ? "s" : ""} late. Which section makes it possible to consider it anyway?`), ["§ 31", "§ 2", "§ 6", "§ 24"],
      T("Forvaltningsloven § 31: klagen kan tas under behandling hvis parten ikke kan lastes, eller det av særlige grunner er rimelig.", "Public Administration Act section 31: the appeal can be considered if the party cannot be blamed, or it is reasonable for special reasons.")]; }

@@ -367,6 +367,45 @@ const MP = {
     ['5.g2', 'arealet av en sirkel med radius # cm', ([r]) => Math.round(Math.PI * r * r * 10) / 10]],
 };
 function fact(n){ let f = 1; for(let i = 2; i <= n; i++) f *= i; return f; }
+// ================= 4) Helse og jus: generatorer som regner (lagt til 2026-10-15, oppgave 14) =================
+// Egne lærebokformler, ikke kopiert fra generatorene. Kilder: farmakokinetikk (halveringstid, steady state etter ca. 5 t½),
+// fysiologi (CO = SV·HF, MAP ≈ D + (S − D)/3, VE = VT·RF), diurese i ml/kg/t, qSOFA (Singer m.fl., JAMA 2016),
+// glukose 180,16 g/mol (1 mmol/L = 18,016 mg/dL), skadeserstatningsloven § 5-1, foreldelsesloven §§ 2 og 9, Grunnloven §§ 54 og 121.
+const HJ = {
+  SFARM: [['0.g0', 'halveringstid # timer\\. Pasienten får # mg\\. Hvor mye er igjen i kroppen etter # timer', ([h, m, t]) => m * Math.pow(0.5, t / h)],
+    ['0.g1', 'halveringstid # timer\\. Pasienten får # mg\\. Hvor mye er igjen i kroppen etter # timer', ([h, m, t]) => m * Math.pow(0.5, t / h)],
+    ['0.g2', 'halveringstid # timer og gis jevnlig', ([h]) => 5 * h]],
+  SANA: [['1.g0', 'Slagvolumet er # ml og pulsen er # slag/min', ([sv, hr]) => sv * hr / 1000], ['1.g1', 'Blodtrykket er #/# mmHg\\. Hva er omtrentlig', ([sy, di]) => di + (sy - di) / 3],
+    ['1.g2', 'Hjertefrekvensen er #/min og slagvolumet # mL', ([hr, sv]) => hr * sv / 1000], ['1.g3', 'Blodtrykket er #/# mmHg\\. Hva er middelarterietrykket', ([sy, di]) => di + (sy - di) / 3],
+    ['2.g0', 'Tidalvolumet er # ml og respirasjonsfrekvensen #/min', ([vt, rf]) => vt / 1000 * rf], ['2.g1', 'Respirasjonsfrekvensen er #/min og tidalvolumet # mL', ([rf, vt]) => rf * vt / 1000],
+    ['4.g0', 'veier # kg\\. Hvor mange ml urin per time tilsvarer # ml/kg/t', ([kg, r]) => kg * r], ['4.g1', 'En pasient på # kg har laget # mL urin de siste # timene', ([kg, u, t]) => u / (kg * t)]],
+  SMIK: [['0.g0', 'deler seg hvert #\\. minutt.*etter # timer', ([min, t]) => Math.pow(2, Math.floor(t * 60 / min))]],
+  SSYK: [['2.g0', 'Et blodsukker på # mmol/L', ([x]) => x * 18.016], ['3.g0', 'Respirasjonsfrekvens #/min, GCS #, systolisk blodtrykk # mmHg', ([rf, gcs, sbp]) => (rf >= 22) + (gcs < 15) + (sbp <= 100)]],
+  JERS: [['0.g0', 'Tapet er # kr\\. Retten setter erstatningen ned med # %', ([l, p]) => l * (1 - p / 100)], ['1.g0', 'forfalt .*?(\\d{4})\\. Hvilket år blir den foreldet', ([y]) => y + 3],
+    ['1.g1', 'begått i (\\d{4})', ([y]) => y + 20]],
+  JSTAT: [['0.g0', 'stortingsvalg i #\\. Hvilket år er det #\\. neste', ([y, n]) => y + 4 * n], ['0.g1', 'får # stemmer når alle # er til stede', ([, n]) => Math.ceil(2 * n / 3)]]
+};
+for(const [code, list] of Object.entries(HJ)) for(const [id, pat, f] of list) try{ check(code, id, pat, f); }catch(e){ E(`${code} ${id}`, e.message); }
+
+// Klagefrist (JFORV): 3 uker fra underretningen kom fram (fvl. § 29), regnet etter domstolloven §§ 148–149 (jf. fvl. § 30):
+// ender fristen på lørdag, søndag eller helligdag, forlenges den til nærmeste virkedag. Egen påskeberegning (Meeus/Jones/Butcher).
+function paske(y){ const a = y % 19, b = Math.floor(y / 100), c = y % 100, d = Math.floor(b / 4), e = b % 4, f = Math.floor((b + 8) / 25), g = Math.floor((b - f + 1) / 3),
+  h = (19 * a + b - d - g + 15) % 30, i = Math.floor(c / 4), k = c % 4, l = (32 + 2 * e + 2 * i - h - k) % 7, m = Math.floor((a + 11 * h + 22 * l) / 451), n = h + l - 7 * m + 114;
+  return Date.UTC(y, Math.floor(n / 31) - 1, n % 31 + 1); }
+function helligdag(t){ const dt = new Date(t), y = dt.getUTCFullYear(), E0 = paske(y), dag = 864e5;
+  const fast = [[0, 1], [4, 1], [4, 17], [11, 25], [11, 26]].map(([mo, da]) => Date.UTC(y, mo, da)), bev = [-3, -2, 0, 1, 39, 49, 50].map(x => E0 + x * dag);
+  return [...fast, ...bev].includes(t) || dt.getUTCDay() === 0 || dt.getUTCDay() === 6; }
+{ const MND = ['januar', 'februar', 'mars', 'april', 'mai', 'juni', 'juli', 'august', 'september', 'oktober', 'november', 'desember'];
+  const g = gen('JFORV', '1.g0'); let hit = 0, moved = 0;
+  // 2025: 27. mars + 21 dager = skjærtorsdag 17. april → tirsdag 22. april (sjekker at selve kalenderen stemmer)
+  if(!helligdag(Date.UTC(2025, 3, 17)) || !helligdag(Date.UTC(2025, 4, 29)) || helligdag(Date.UTC(2025, 3, 22))) E('JFORV 1.g0', 'egen helligdagskalender er feil');
+  for(let k = 0; k < RUNS * 3; k++){ const q = g(), m = q[0].match(/parten \S+ (\d+)\. (\S+)\./); if(!m) continue; hit++; nChecked++;
+    let t = Date.UTC(2025, MND.indexOf(m[2]), +m[1]) + 21 * 864e5; const t21 = t; while(helligdag(t)) t += 864e5; if(t !== t21) moved++;
+    const want = new Date(t), a = String(q[1][0]).match(/(\d+)\. (\S+)$/);
+    if(!a || +a[1] !== want.getUTCDate() || MND.indexOf(a[2]) !== want.getUTCMonth()){ E('JFORV 1.g0', `fasit «${q[1][0]}», egen utregning ${want.getUTCDate()}. ${MND[want.getUTCMonth()]} – «${q[0]}»`); break; } }
+  if(hit < 50) E('JFORV 1.g0', `malen ble bare funnet ${hit} ganger`);
+  if(!moved) E('JFORV 1.g0', 'ingen av kjøringene traff en helligdag – testen prøver ikke forlengelsen'); }
+
 for(const [code, list] of Object.entries(MP)){
   const nGen = C(code).units.reduce((a, u) => a + (u.gen || []).length, 0);
   if(list.length < Math.min(5, nGen)) E(code, 'færre enn 5 stikkprøver');

@@ -176,3 +176,24 @@ Kilde for landgrenser: Natural Earth via world-atlas 2.0.2 (offentlig eiendom).
 
 **Usikkert**
 - Omstridte områder følger ellers Natural Earth: Kosovo, Nord-Kypros, Somaliland og Vest-Sahara vises som egne områder, og Kashmir er delt slik det er tegnet der. Det bør vurderes av en fagperson i samfunnsfag eller geografi.
+
+## Dekning av den uavhengige fasitkontrollen (oppgave 14, 2026-10-15)
+
+`tools/test_content.js` sjekker bare at tallsvaret står i forklaringen. Det viser at forklaring og fasit henger sammen, ikke at de er riktige. `tools/test_answers.js` regner svaret ut på nytt med egne formler.
+
+**Rettet etter kontroll**
+- **JFORV, enhet 2 (Klage), generator g0 (`add_x_jus.js`, F_KLAGE):** klagefristen ble satt til 21 dager etter underretningen, også når den dagen var en helligdag. Fvl. § 30 sier at fristen regnes etter domstolloven §§ 148–149: ender fristen på lørdag, helgedag eller likestilt dag, forlenges den til nærmeste virkedag (kontrollert på Lovdata). Eksempel: avslag torsdag 8. mai 2025 ga fasit torsdag 29. mai (Kristi himmelfartsdag), riktig er fredag 30. mai. Rammet ca. 3 % av spørsmålene. Generatoren forlenger nå fristen og forklarer hvorfor. Testen har sin egen påske- og helligdagsberegning.
+- **OBED, enhet 3, g6 (`add_misc.js`):** fasiten var riktig, men forklaringen viste 1,09 i stedet for 1,085 (avrunding). Rettet.
+
+**Nye uavhengige kontroller** (i `tools/test_answers.js`, 400 kjøringer hver): SFARM 3, SANA 8, SMIK 1 og SSYK 2 generatorer (alle helsegeneratorene som regner), JERS 3, JSTAT 2 og JFORV klagefrist.
+
+**Hull som gjenstår** (generatorer som regner, men ikke har uavhengig kontroll; tallet er antall generatorer):
+- Økonomi: OBED 25, OMAT 15, OSTAT 12, OREG 6, OSAM 4. Stikkprøver av alle i OBED, OREG og OSAM ble kontrollert for hånd i dag uten feil i fasit, men det er ingen test.
+- Ingeniør: MAPE1300 39, ELPE1300 36, FEM 32 (elementkalkulatoren har egen test), MEK1300 30, MATS1600 29, MATS2100 26, ELFT2400 25, FLUID 25, ELFT2500 23, MEK3100 23, KJEMI 21, OKON 21, ELVE3610 19, FAST 18, ELEK 17, SVING 16, BYGG 15, ELKR 15, VARME 15, GEO 14, ML 13, PROD 13, DISK 12, MATS1500 12, DBNET 11, STKD6610 9.
+- VGS: VGKJ1 14, VGKJ2 12, VGBI1 9, VGBI2 8, VGHIS 7, VGREL 6, VGNAT 4, VGGEO 2, VGNOR 2 (de fire siste er mest faktaspørsmål med variasjon).
+- Annet: GUNAT 7, ARKT 6, ARKF 3. Jus: JMET, JAVT og JFORV har ellers flervalg med tekst. Disse er dekket av de håndkontrollerte faste spørsmålene, ikke av generatortest.
+- Førerkort har ingen generatorer som regner (bare faste spørsmål, som er dekket).
+
+Anbefalt rekkefølge for neste runde: kjemi (VGKJ1/2, KJEMI: mol, konsentrasjon, pH), økonomi (OMAT, OSTAT), elektro (ELPE1300, ELKR: sikkerhetsrelaterte verdier).
+
+**Ikke faglig godkjent:** alt over er kontrollert av Claude mot lovtekst og lærebokformler. `reviewedBy` er ikke fylt ut.

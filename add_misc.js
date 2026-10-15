@@ -117,8 +117,8 @@ GEN("OKON", 0,
    return [T(`Du ønsker en effektiv årsrente på ${nf(reff * 100)} % med månedlig forrentning. Hvilken nominell årsrente tilsvarer det?`,
              `You want an effective annual rate of ${nf(reff * 100)}% with monthly compounding. What nominal annual rate does that correspond to?`),
      { n: rnom, tol: 0.02, u: "%" },
-     T(`Løs $(1+r_{nom}/12)^{12} = 1+r_{eff}$ for $r_{nom}$: $r_{nom} = 12\\big((1+r_{eff})^{1/12}-1\\big) = 12\\big(${mf(1 + reff)}^{1/12}-1\\big) \\approx ${mf(rnom, 3)}$ %.`,
-       `Solve $(1+r_{nom}/12)^{12} = 1+r_{eff}$ for $r_{nom}$: $r_{nom} = 12\\big((1+r_{eff})^{1/12}-1\\big) = 12\\big(${mf(1 + reff)}^{1/12}-1\\big) \\approx ${mf(rnom, 3)}$ %.`)]; },
+     T(`Løs $(1+r_{nom}/12)^{12} = 1+r_{eff}$ for $r_{nom}$: $r_{nom} = 12\\big((1+r_{eff})^{1/12}-1\\big) = 12\\big(${mf(1 + reff, 4)}^{1/12}-1\\big) \\approx ${mf(rnom, 3)}$ %.`,
+       `Solve $(1+r_{nom}/12)^{12} = 1+r_{eff}$ for $r_{nom}$: $r_{nom} = 12\\big((1+r_{eff})^{1/12}-1\\big) = 12\\big(${mf(1 + reff, 4)}^{1/12}-1\\big) \\approx ${mf(rnom, 3)}$ %.`)]; },
  // eksamen: sparing med nominell rente og månedlig forrentning, deflatert med inflasjon
  () => { const P = R.p([20000, 30000, 50000, 80000, 100000]), rnom = R.p([0.03, 0.04, 0.05, 0.06, 0.07]), yrs = R.i(3, 15), infl = R.p([0.02, 0.025, 0.03, 0.035, 0.04]);
    const Fnom = P * Math.pow(1 + rnom / 12, 12 * yrs), Freal = Fnom / Math.pow(1 + infl, yrs);
