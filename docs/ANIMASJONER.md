@@ -4,6 +4,8 @@ Kodebaserte animasjoner som forklarer én faglig idé, i stil med gode pedagogis
 
 **Regel nr. 1:** Ingen animasjonskode før eieren har valgt tema og læringsmål og godkjent manuset. Claude lager aldri en animasjon på eget initiativ.
 
+Oppgave 21 (2026-10-15): eieren bestilte en kortliste, to pilotmanus og én pilotprototype som kjøres lokalt utenfor appen. Se [Kortliste](#kortliste-over-temaer-2026-10-15), [Pilotene](#pilotene) og [Kvalitetsliste](#kvalitetsliste-for-manus-og-animasjon). Ingenting av dette er i appen.
+
 ---
 
 ## Arbeidsmåten (fire trinn, hvert med godkjenning)
@@ -119,9 +121,72 @@ Krav fra Axle: gratis, ingen API-nøkkel eller betalt tjeneste uten godkjenning,
 |---|---|---|---|---|---|---|---|
 | **Nettleserens talesyntese (Web Speech API)**, brukes allerede i `tts.js` («Lytt») | Varierer med enheten. iPhone/iPad/Mac har gode norske stemmer (for eksempel «Nora», forbedret kvalitet), Android har Googles norske stemme, Windows har Microsofts. Engelsk er god overalt | Formler må skrives om til ord (`ttsTex` gjør det for teorien). Stemmen kan ikke styres i detalj | Gratis | Ingen lisens å forholde seg til | Lokale stemmer: teksten blir på enheten. Noen nettleserstemmer (for eksempel Microsofts «Online (Natural)» i Edge) sender teksten til leverandøren | Ja for lokale stemmer | **Anbefales som standard.** Ingen avhengighet. Synkroniser per scene med `onend`, ikke med tidskoder |
 | **Piper** (åpen kildekode, kjøres på egen maskin) | Norsk stemme «talesyntese» (medium, én mannsstemme, 22 kHz) er forståelig, men tydelig syntetisk. Engelsk har mange stemmer | Kan styres med egen uttaleliste | Gratis | Motoren: GPL-3.0 i den nye utgaven (OHF-Voice/piper1-gpl). Den gamle MIT-utgaven er arkivert. Den norske stemmen: datasettet fra Nasjonalbibliotekets Språkbanken er CC0 (ifølge stemmens MODEL_CARD) | Kjøres lokalt: ingenting sendes ut | Ja | **Mulig for ferdig innlest lyd.** Eieren genererer lydfilene på egen maskin, og bare lydfilene legges i appen. Ikke i nettleseren: modellen er ca. 60 MB. Lisensen bør bekreftes før bruk (se under) |
-| **Skytjenester** (Azure, Google Cloud, OpenAI, ElevenLabs m.fl.) | Svært naturlig, også på norsk | God, med SSML eller uttalelister | Gratiskvoter, deretter betalt per tegn | Vilkårene for bruk av lyden må leses per tjeneste | Manustekst sendes til leverandøren (ingen brukerdata, siden lyden lages på forhånd) | Lyden kan lagres og spilles av offline | **Ikke tatt i bruk.** Krever API-nøkkel og konto, som eieren må godkjenne |
+| **Skytjenester** (Azure, Google Cloud, OpenAI, ElevenLabs m.fl.) | Svært naturlig, også på norsk | God, med SSML eller uttalelister | Gratiskvoter, deretter betalt per tegn | Vilkårene for bruk av lyden må leses per tjeneste | Manustekst sendes til leverandøren (ingen brukerdata, siden lyden lages på forhånd) | Lyden kan lagres og spilles av offline | **Ikke i appen.** ElevenLabs er tatt i bruk for prototypene etter eierens ønske (oppgave 21), med eierens nøkkel fra miljøet; se under |
 | **Egen innlesing** (eieren eller en lærer leser manuset) | Best, med riktig uttale og trykk | Best | Gratis (tid) | Egen | Ingen | Ja | **Beste kvalitet**, særlig for de første animasjonene. Manuset er laget for innlesing |
 
 **Anbefaling:** Lag manus klart for innlesing med full teksting. I appen brukes tekstingen alltid, og opplesing med nettleserens stemme er valgfri (samme mekanisme som «Lytt»). Vil eieren ha fast, naturlig lyd, er egen innlesing best, og Piper er en gratis offline-reserve. Ingen betalt tjeneste, API-nøkkel eller ny avhengighet er lagt til.
 
 **Ikke kontrollert:** hvordan stemmene faktisk høres ut på fysiske enheter (iPad, Android, Windows); ingen lydprøver er tatt. Lisensen for Piper-stemmen er hentet fra stemmens MODEL_CARD på Hugging Face (`rhasspy/piper-voices`, `no/no_NO/talesyntese/medium`), og GPL-overgangen for motoren fra omtaler, ikke fra prosjektets egen kunngjøring. Begge bør leses i originalen før bruk.
+
+---
+
+## Kortliste over temaer (2026-10-15)
+
+Valgt fra enheter som finnes i Axle, der en bevegelse viser noe et stillbilde ikke kan: en grense, en endring over tid eller en årsak. Rekkefølgen er en anbefaling. Derivasjon og integrasjon er pilotene.
+
+| # | Tema | Hvor i Axle | Målgruppe og forkunnskaper | Elevspørsmålet | Misforståelsen | Hva bevegelsen viser bedre |
+|---|---|---|---|---|---|---|
+| 1 | **Fra sekant til tangent** (pilot, manus og prototype) | VG1T 3, VGR1 2, GMAT 8, MEK1000 1 | 1T/R1; stigningstall for rett linje | «Hvordan kan en kurve ha ett stigningstall?» | To vilkårlige punkter gir stigningen | Sekanten dreier og låser seg til tangenten når h → 0 |
+| 2 | **Integralet: smale rektangler og samlet mengde** (pilot, manus) | VGR2 1 og 7, MEK1000 2, NUM 2 | R2; areal av trekant, s = v · t | «Hvorfor er integralet et areal?» | Integral er bare «motsatt av derivasjon», og rektangler gir bare et omtrentlig svar | Trappen klemmes inn mot linjen fra over og under; arealet vokser med øvre grense |
+| 3 | **Lineær og eksponentiell vekst** | VG1P 1, VG2P 2, VG1T 8, GU810 2 | 1P/2P; prosent og vekstfaktor | «Hvorfor går renta på renta så fort?» | 10 % per år = 10 kr mer hvert år | To søyler vokser side om side; den ene får like store tillegg, den andre stadig større |
+| 4 | **Brøk: like store deler** | GS57 1, GU810 2 | 5.–8. trinn; brøk som del av en helhet | «Hvorfor kan jeg ikke bare legge sammen tellerne og nevnerne?» | 1/3 + 1/4 = 2/7 | Pizzastykker deles om til like store biter (tolvdeler) før de legges sammen |
+| 5 | **Likninger som skålvekt** | GS57 7, GU810 4, VG1T 1 | 6.–9. trinn; de fire regneartene | «Hvorfor må jeg gjøre det samme på begge sider?» | Man kan «flytte over» uten å endre fortegn | Vekta tipper når én side endres, og retter seg når begge endres likt (utvider «Lær først»-leksjonen) |
+| 6 | **Kraft og bevegelse (Newtons 1. og 2. lov)** | GFYS 3, VGFY1 2, GUNAT 3 | 9. trinn–Vg1; fart og akselerasjon | «Trenger en ting som beveger seg, en kraft for å fortsette?» | Bevegelse krever kraft i bevegelsesretningen | Kloss på is og på teppe: friksjonen fjernes trinnvis, og farten holder seg |
+| 7 | **Sannsynlighet: store talls lov** | GS57 9, GU810 7, VG1P 5, MEK2200 1 | 6. trinn og opp; brøk og prosent | «Er det mer sannsynlig med krone etter fem kron på rad?» | Spillerens feilslutning | Tusen myntkast der den relative frekvensen roer seg mot 0,5 mens enkeltkastene forblir tilfeldige |
+| 8 | **Fotosyntesen: hvor kommer massen fra?** | VGBI1 5 | Vg2 (biologi 1); atomer og molekyler | «Hvor kommer treets vekt fra?» | Fra jorda | CO₂ fra lufta bygges inn i glukose og cellulose; jordas masse står nesten stille |
+
+Risikofag (legemiddelregning, førerkort, jus) er holdt utenfor kortlista: en animasjon der ville kreve faglig godkjenning før den kan brukes.
+
+## Pilotene
+
+- **Manus:** [animasjoner/derivasjon.md](animasjoner/derivasjon.md) og [animasjoner/integrasjon.md](animasjoner/integrasjon.md). Begge følger malen over, med målgruppe, forkunnskaper, «Etter filmen kan eleven …», scener på 5–15 s, nøyaktig fortellertekst, skjermtekst, hva som vises per replikk, kontrollert eksempel, oppsummering og kontrollspørsmål, tilgjengelighet og faglig kontroll med kilder.
+- **Prototype (derivasjon):** `prototypes/animasjoner/derivasjon/`, med felles avspiller `prototypes/animasjoner/player.js` og `player.css`. HTML og SVG uten avhengigheter: Spill/Pause/Fortsett/Spill på nytt, Forrige/Neste scene, tidslinje, hastighet, teksting, lyd, norsk/engelsk, tenkepause som venter, trinnmodus ved redusert bevegelse, transkript og kontrollspørsmål med ✓/✗. Se `prototypes/animasjoner/README.md` for hvordan den startes.
+- **Kontroll:** `node tools/test_anim_proto.js` (i `npm test`): tider, taletempo, nb/en, tenkepause, kontrollspørsmål, alle tegninger uten NaN, og tallene i fortellerteksten regnet ut på nytt. `node tools/check_anim_proto.js` (Playwright, lokal server): kollisjoner i figuren på 375/768/1280 px i lyst og mørkt tema, tastatur, tenkepause, slutt og trinnmodus.
+
+### Fortellerstemme med ElevenLabs (valgfritt)
+
+`node prototypes/animasjoner/voice.mjs derivasjon --dry-run` viser tekstene og antall tegn uten å sende noe. Med `ELEVENLABS_API_KEY` i miljøet lager skriptet én mp3 per replikk i `prototypes/animasjoner/derivasjon/audio/` (i .gitignore) og en `manifest.json` med varighetene. Avspilleren slår da på «Lyd», og hver replikk varer så lenge lyden + 0,5 s, så teksting, bilde og lyd holder seg sammen også med andre stemmer og hastigheter.
+
+- Nøkkelen leses bare fra miljøet og skrives aldri ut eller lagres. Bare manustekst sendes til ElevenLabs, ingen brukerdata.
+- `ELEVENLABS_VOICE_ID` velger stemmen. Standarden er en ferdig engelsk stemme; velg en norsk stemme i ElevenLabs’ stemmebibliotek. `ELEVENLABS_MODEL` er `eleven_v4` som standard, en av modellene som ifølge ElevenLabs’ dokumentasjon (lest 2026-10-15) støtter norsk. `eleven_multilingual_v2` støtter ikke norsk. `eleven_flash_v2_5` gjør det og er billigere.
+- Eksisterende lydfiler lages ikke på nytt uten `--force`, og `--only l03,l04` lager bare noen replikker. Det sparer kreditter når én setning endres.
+- Uttale: trenger en replikk annen tekst til stemmen enn i tekstingen (for eksempel «x i andre»), legges `say: [nb, en]` på replikken i `anim.js`.
+- Vilkårene for bruk av lyden (kommersiell bruk, lisens per abonnement) må leses hos ElevenLabs før lyden brukes i appen.
+- **Ikke testet:** ingen lyd er laget eller lyttet til. `ELEVENLABS_API_KEY` var ikke satt i økten.
+
+## Kvalitetsliste for manus og animasjon
+
+Brukes i trinn 2 (manus) og trinn 4 (før animasjonen vises for eieren). Punktene med (auto) sjekkes av `tools/test_anim_proto.js` eller `tools/check_anim_proto.js`.
+
+**Manus**
+- [ ] Ett læringsmål, skrevet som «Etter filmen kan eleven …», og ett elevspørsmål som filmen svarer på.
+- [ ] Misforståelsen vises, feiler synlig og blir erstattet, ikke bare nevnt.
+- [ ] Bildet kommer før formelen. Hver scene har én hovedidé.
+- [ ] Fortelleren forklarer bildet og leser ikke opp skjermteksten.
+- [ ] 60–120 s totalt, 5–15 s per scene, høyst ca. 2,5 ord/s (auto).
+- [ ] Minst én tenkepause som venter på eleven (auto).
+- [ ] Alle tall har kontrollert utregning, og tallene i fortellerteksten stemmer med den (auto for pilotene).
+- [ ] Hver replikk er merket TTS-klar, «må testes» eller «menneskelig innlesing».
+- [ ] Faglig kontroll (Del B) med kilde og usikkerhet; ingenting merkes godkjent uten fagperson.
+
+**Animasjon**
+- [ ] Samme farge for samme størrelse hele veien; ingen informasjon bare i farge (✓/✗ og ord i tillegg).
+- [ ] Ingen tekst over streker eller annen tekst, og ingen tekst utenfor figuren, på 375/768/1280 px i lyst og mørkt tema (auto).
+- [ ] Ingen tekst under ca. 11 px på 375 px; knapper minst 44 px.
+- [ ] Teksting følger fortellerteksten; transkript med bildebeskrivelse på nb og en (auto).
+- [ ] Redusert bevegelse gir stillbilder med Forrige/Neste og ingen automatisk avspilling (auto).
+- [ ] Tastatur: Mellomrom, ←, →; tenkepausen stopper og viser «Fortsett» (auto).
+- [ ] Hopp i tidslinjen gir samme bilde som avspilling (tegnes fra tid, ikke fra forrige bilde).
+- [ ] Starter ikke av seg selv; lyd bare når eleven slår den på.
+- [ ] Lyttet gjennom med den valgte stemmen, og uttalen av symboler er rettet med `say`.
+- [ ] Sett av eieren på mobil før den vurderes for appen.

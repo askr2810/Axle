@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="nb">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Fra sekant til tangent – Axle (prototype)</title>
+<meta name="robots" content="noindex">
+<link rel="stylesheet" href="../player.css">
+</head>
+<body>
+<main>
+  <p class="proto">Axle · prototype, ikke en del av appen</p>
+  <h1 id="title">Fra sekant til tangent: hva den deriverte er</h1>
+  <section class="card" aria-labelledby="title">
+    <p id="scene" aria-live="polite"></p>
+    <div id="stage"></div>
+    <p id="cap" aria-live="polite"></p>
+    <p id="wait" hidden></p>
+    <div class="tl">
+      <input id="time" type="range" min="0" max="1000" step="1" value="0">
+      <span id="clock" aria-hidden="true">0:00</span>
+    </div>
+    <div class="bar">
+      <button id="play" type="button" aria-pressed="false">Spill</button>
+      <button id="prev" type="button">‹ Forrige scene</button>
+      <button id="next" type="button">Neste scene ›</button>
+      <select id="speed"><option value="0.75">0,75×</option><option value="1" selected>1×</option><option value="1.25">1,25×</option></select>
+    </div>
+    <div class="opts">
+      <label><input id="cc" type="checkbox" checked> <span id="cc-l">Teksting</span></label>
+      <label id="snd-w"><input id="snd" type="checkbox" disabled> <span id="snd-l">Lyd</span></label>
+      <label><input id="step" type="checkbox"> <span id="step-l">Trinnvis</span></label>
+      <button id="lang" type="button">English</button>
+      <p id="snd-n"></p>
+    </div>
+  </section>
+  <section id="chk" class="card" hidden aria-labelledby="chk-h">
+    <h2 id="chk-h">Sjekk at du skjønte det</h2>
+    <p id="chk-q"></p>
+    <div id="chk-o"></div>
+    <p id="chk-f" tabindex="-1" aria-live="polite"></p>
+  </section>
+  <details>
+    <summary id="tr-s">Transkript med beskrivelse av bildet</summary>
+    <div id="tr"></div>
+  </details>
+</main>
+<script src="anim.js"></script>
+<script src="../player.js"></script>
+</body>
+</html>

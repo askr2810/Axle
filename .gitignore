@@ -8,3 +8,4 @@ android/app/src/main/assets/public/
 .DS_Store
 vendor/pyodide/
 figcheck.json
+prototypes/animasjoner/*/audio/
