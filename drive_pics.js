@@ -268,3 +268,52 @@ Object.assign(DRIVE_PICS, {
       ${dpArrow("M300 125H346", "#fff", 3)}${dpHead(350, 125, 0, "#fff", 8)}</svg>`,
       cap: T2("Blått er det føreren ser i sidespeilene. Rødt er blindsonen: ved siden av og litt bak bilen, mellom speilfeltet og det føreren ser ut av sideruta. Unngå å bli liggende der, eller kjør forbi raskt.", "Blue is what the driver sees in the side mirrors. Red is the blind spot: beside and slightly behind the car, between the mirror view and what the driver sees through the side window. Avoid staying there, or pass quickly.") }; },
 });
+
+// ---------- tegninger til de nye emnesidene (oppgave 33): lys, utrykning, skinner, MC-sjekk og last ----------
+Object.assign(DRIVE_PICS, {
+  lysbruk: L => { const T2 = (a, b) => L === "en" ? b : a;
+    const road = y => `<rect x="0" y="${y - 30}" width="360" height="60" style="fill:#2E343B"/><line x1="0" y1="${y}" x2="360" y2="${y}" style="stroke:#F7C600;stroke-width:2;stroke-dasharray:12 10"/>`;
+    return { svg: `<svg viewBox="0 0 360 190"><rect width="360" height="190" rx="10" style="fill:#151A20"/>${road(52)}${road(140)}
+      <path d="M58 58L340 40L340 82L58 66Z" style="fill:#FFF3A8;opacity:.32"/>${dpCarTop(46, 62, 90, "#2B59C3", 1)}
+      <g transform="translate(300 64)"><ellipse cx="0" cy="0" rx="13" ry="6" style="fill:#6B4A2E"/><path d="M8 -3L14 -12M10 -3L18 -9" style="stroke:#6B4A2E;stroke-width:2.5;stroke-linecap:round"/><path d="M-9 4V12M-4 5V12M4 5V12M9 4V12" style="stroke:#6B4A2E;stroke-width:2"/></g>
+      ${dpT(190, 18, T2("Fjernlys: du ser langt – også dyr og gående", "Main beam: you see far – animals and people too"), { size: 12, col: "#FFF3A8" })}
+      <path d="M58 146L160 136L160 160L58 154Z" style="fill:#FFF3A8;opacity:.32"/>${dpCarTop(46, 150, 90, "#2B59C3", 1)}
+      <path d="M302 126L230 120L230 140L302 134Z" style="fill:#FFF3A8;opacity:.25"/>${dpCarTop(314, 130, -90, "#C8312A", 1)}
+      ${dpT(180, 184, T2("Nærlys når du møter andre, så du ikke blender", "Dipped beam when meeting others, so you do not dazzle"), { size: 12, col: "#FFF3A8" })}</svg>`,
+      cap: T2("Bruk fjernlys når du kan, så du ser gående og vilt tidlig. Blend ned når du møter andre, kjører tett bak andre eller kan blende gående og syklende.", "Use main beam when you can, so you see pedestrians and animals early. Dip when meeting others, following closely or when you could dazzle people walking or cycling.") }; },
+  utrykning: L => { const T2 = (a, b) => L === "en" ? b : a;
+    return { svg: `<svg viewBox="0 0 360 170"><rect width="360" height="170" rx="10" style="fill:#A7CF9A"/><rect x="0" y="30" width="360" height="114" style="fill:#5E656D"/><line x1="0" y1="85" x2="360" y2="85" style="stroke:#F7C600;stroke-width:2;stroke-dasharray:14 10"/><line x1="0" y1="140" x2="360" y2="140" style="stroke:#F4F4F4;stroke-width:2.5"/>
+      ${dpArrow("M150 110Q200 110 228 122", "#157045", 3)}${dpHead(232, 124, 25, "#157045", 8)}${dpCarTop(250, 124, 90, "#E9A100", 1.2)}
+      ${dpCarTop(80, 108, 90, "#F4F6F8", 1.3)}<circle cx="84" cy="101" r="4" style="fill:#2F6BFF"/><circle cx="84" cy="115" r="4" style="fill:#2F6BFF"/>
+      <circle cx="84" cy="101" r="9" style="fill:#2F6BFF;opacity:.25"/><circle cx="84" cy="115" r="9" style="fill:#2F6BFF;opacity:.25"/>
+      ${dpT(80, 72, T2("Blått lys", "Blue lights"), { size: 12.5, w: 800, col: "#fff" })}${dpT(250, 160, T2("Kjør til høyre og senk farten", "Move right and slow down"), { size: 12.5, w: 800 })}</svg>`,
+      cap: T2("Kommer et kjøretøy med blått lys, skal du gi fri veg: kjør til høyre så langt det er trygt, senk farten og stans om nødvendig. Ikke bråbrems eller kjør inn i et kryss på rødt.", "When a vehicle with blue lights comes, give way: move right as far as is safe, slow down and stop if needed. Do not brake sharply or drive into a junction on red.") }; },
+  skinner: L => { const T2 = (a, b) => L === "en" ? b : a;
+    const rails = `<path d="M40 170L220 0M70 170L250 0" style="stroke:#8C949C;stroke-width:5"/>`;
+    return { svg: `<svg viewBox="0 0 360 170"><rect width="360" height="170" rx="10" style="fill:#5E656D"/>${rails}
+      ${dpArrow("M72 24L184 142", "#22A06B", 4)}${dpHead(188, 146, 46.5, "#22A06B", 10)}${dpArrow("M92 170L208 40", "#E8433A", 4)}${dpHead(211, 36, -48, "#E8433A", 10)}
+      <rect x="222" y="138" width="132" height="20" rx="6" style="fill:#fff"/>${dpT(288, 152, T2("så vinkelrett som mulig", "as square as possible"), { size: 11, w: 800, col: "#157045" })}
+      <rect x="222" y="26" width="132" height="20" rx="6" style="fill:#fff"/>${dpT(288, 40, T2("langs skinnene: fare", "along the rails: danger"), { size: 11, w: 800, col: "#D23F3A" })}</svg>`,
+      cap: T2("Kryss skinner så vinkelrett som mulig, med rett sykkel og uten å bremse eller akselerere på dem. Kjører du nesten langs skinnene, kan forhjulet bli fanget og skli ut.", "Cross rails as close to a right angle as possible, with the bike upright and without braking or accelerating on them. Riding almost along the rails can trap the front wheel and make it slide.") }; },
+  mcsjekk: L => { const T2 = (a, b) => L === "en" ? b : a;
+    const tag = (x, y, lx, ly, t) => `<path d="M${x} ${y}L${lx} ${ly}" style="stroke:#2B59C3;stroke-width:2"/><circle cx="${x}" cy="${y}" r="4" style="fill:#2B59C3"/><rect x="${lx - 40}" y="${ly - 12}" width="80" height="20" rx="6" style="fill:#fff;stroke:#2B59C3;stroke-width:1.5"/>${dpT(lx, ly + 3, t, { size: 11.5, w: 800 })}`;
+    return { svg: `<svg viewBox="0 0 360 180">${dpMcSide(180, 110, 2.2)}<ellipse cx="243" cy="68" rx="6" ry="8" style="fill:#FFE27A;stroke:#1B1F24;stroke-width:2"/>
+      ${tag(262, 128, 300, 160, T2("Dekk", "Tyres"))}${tag(123, 110, 60, 160, T2("Kjede", "Chain"))}${tag(247, 64, 312, 28, T2("Lys", "Lights"))}${tag(237, 110, 222, 28, T2("Bremser", "Brakes"))}</svg>`,
+      cap: T2("Før hver tur: dekk (trykk og mønster), lys og blinklys, bremser, kjede (smurt og riktig slakk) og ingen lekkasjer.", "Before every ride: tyres (pressure and tread), lights and indicators, brakes, chain (lubricated and correct slack) and no leaks.") }; },
+  mclast: L => { const T2 = (a, b) => L === "en" ? b : a;
+    return { svg: `<svg viewBox="0 0 360 170">${dpMcSide(95, 110, 1.6)}<rect x="40" y="40" width="40" height="34" rx="4" style="fill:#8A5A2B"/><rect x="34" y="20" width="34" height="22" rx="4" style="fill:#A8743F"/>
+      ${dpMcSide(265, 110, 1.6)}<rect x="214" y="92" width="34" height="28" rx="5" style="fill:#2A2F35"/><rect x="250" y="64" width="24" height="12" rx="4" style="fill:#2A2F35"/>
+      ${dpT(95, 160, T2("Høyt og bak: ustabil", "High at the back: unstable"), { size: 12, w: 800, col: "#D23F3A" })}${dpT(265, 160, T2("Lavt og nær midten", "Low and central"), { size: 12, w: 800, col: "#157045" })}</svg>`,
+      cap: T2("Legg tung last lavt og nær midten, i sidevesker eller tankveske. Tung last høyt og langt bak gjør forhjulet lett og sykkelen ustabil.", "Put heavy loads low and central, in panniers or a tank bag. A heavy load high and far back makes the front light and the bike unstable.") }; },
+  kjede: L => { const T2 = (a, b) => L === "en" ? b : a;
+    const teeth = (cx, cy, r, n) => Array.from({ length: n }, (_, i) => { const a = i / n * 2 * Math.PI; return `<circle cx="${(cx + r * Math.cos(a)).toFixed(1)}" cy="${(cy + r * Math.sin(a)).toFixed(1)}" r="3" style="fill:#5C646C"/>`; }).join("");
+    return { svg: `<svg viewBox="0 0 360 170"><rect width="360" height="170" rx="10" style="fill:#F3F5F7"/>
+      <circle cx="260" cy="80" r="46" style="fill:#9AA3AC"/>${teeth(260, 80, 46, 28)}<circle cx="260" cy="80" r="10" style="fill:#5C646C"/>
+      <circle cx="90" cy="80" r="18" style="fill:#9AA3AC"/>${teeth(90, 80, 18, 12)}<circle cx="90" cy="80" r="6" style="fill:#5C646C"/>
+      <path d="M90 60L260 32" style="stroke:#1B1F24;stroke-width:6"/><path d="M90 100Q175 140 260 128" style="fill:none;stroke:#1B1F24;stroke-width:6"/>
+      <path d="M175 104V128" style="stroke:#2B59C3;stroke-width:3"/>${dpHead(175, 132, 90, "#2B59C3", 8)}${dpHead(175, 100, -90, "#2B59C3", 8)}
+      <rect x="122" y="140" width="106" height="20" rx="6" style="fill:#fff;stroke:#2B59C3;stroke-width:1.5"/>${dpT(175, 155, T2("slakk midt på", "slack midway"), { size: 11.5, w: 800 })}
+      ${dpT(260, 156, T2("bakhjul", "rear wheel"), { size: 11, w: 700, col: "#5A6772" })}${dpT(90, 124, T2("motor", "engine"), { size: 11, w: 700, col: "#5A6772" })}</svg>`,
+      cap: T2("Slakken måles midt mellom tannhjulene, slik instruksjonsboka sier. For slakt kjede kan hoppe av, for stramt kjede slites fort og belaster lagrene.", "The slack is measured midway between the sprockets, as the manual says. A chain too slack can come off; too tight wears fast and strains the bearings.") }; },
+});
+Object.assign(DRIVE_TILE, { kjede: "⛓️", lysbruk: "💡", utrykning: "🚑", skinner: "🛤️", mcsjekk: "🔧", mclast: "🧳", plassering: "pabud_hoyre", forbikjoring: "forbikjoring_forbudt", myke: "syklende", ballbarn: "barn", dekk: "🛞", skrens: "glatt", forbruk: "⛽", lopet: "🪪", mcklasser: "forbudt_mc", motstyring: "🏍️", mcbrems: "🛑", kurvelinje: "sving_hoyre", blindsone: "🪞" });
