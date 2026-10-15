@@ -127,6 +127,7 @@ const DRIVE_TILE = { hoyreregelen: "fare_generell", "hvem-bestemmer": "lys_gronn
   stopplengde: "fart50", krasjkrefter: "🐘", "avstand-tresekunder": "tresek", fartsgrenser: "fart60", promille: "🍺", trotthet: "😴", "mobil-blind": "mobil", "sikre-ulykke": "varseltrekant", hlr: "❤️", "bevisstlos-blodning": "🩹" };
 
 // ---------- flere tegninger til leksjonene (bil 3–11 og MC) ----------
+let DP_SEQ = 0; // unike id-er for klipping når samme bilde vises flere ganger på en side
 const dpCarTop = (x, y, rot = 0, col = "#2B59C3", s = 1) => `<g transform="translate(${x} ${y}) rotate(${rot}) scale(${s})"><rect x="-11" y="-20" width="22" height="40" rx="6" style="fill:${col};stroke:rgba(0,0,0,.35)"/><rect x="-8" y="-14" width="16" height="8" rx="2" style="fill:rgba(220,240,255,.9)"/><rect x="-8" y="9" width="16" height="5" rx="2" style="fill:rgba(220,240,255,.6)"/><rect x="-11" y="-22.5" width="7.5" height="4.2" rx="1.8" style="fill:#FFF6C2;stroke:rgba(0,0,0,.35);stroke-width:.7"/><rect x="3.5" y="-22.5" width="7.5" height="4.2" rx="1.8" style="fill:#FFF6C2;stroke:rgba(0,0,0,.35);stroke-width:.7"/><rect x="-11" y="18.3" width="7" height="4" rx="1.5" style="fill:#E0201B;stroke:rgba(0,0,0,.3);stroke-width:.6"/><rect x="4" y="18.3" width="7" height="4" rx="1.5" style="fill:#E0201B;stroke:rgba(0,0,0,.3);stroke-width:.6"/></g>`;
 const dpMcTop = (x, y, rot = 0, col = "#2B59C3") => fkMcTop(x, y, rot, col, 1.05);
 const dpArrow = (d, col = "#2B59C3", w = 4) => `<path d="${d}" style="fill:none;stroke:${col};stroke-width:${w};stroke-linecap:round;stroke-linejoin:round"/>`;
@@ -189,13 +190,50 @@ Object.assign(DRIVE_PICS, {
     return { svg: `<svg viewBox="0 0 360 256">${tyre(8, false)}${tyre(192, true)}<path d="M90 232H320" style="stroke:#8A97A3;stroke-width:1.5"/>${dpT(14, 196, T2("Mønsterdybde", "Tread depth"), { size: 12, w: 800, a: "start" })}${bsvg}</svg>`,
       cap: T2("Sporene i dekket leder bort vannet. Med slitt mønster blir vannet liggende under dekket, og bilen kan flyte opp (vannplaning). Lovkravet er minst 1,6 mm om sommeren og 3 mm om vinteren – nye dekk har ca. 8 mm.", "The grooves lead the water away. With worn tread the water stays under the tyre and the car can float (aquaplaning). The legal minimum is 1.6 mm in summer and 3 mm in winter – new tyres have about 8 mm.") }; },
   skrens: L => { const T2 = (a, b) => L === "en" ? b : a;
-    // Animert: bilen følger rød bane (dit den faktisk går). Ved overstyring roterer baken ut, ved understyring peker nesen inn i svingen mens bilen glir rett fram.
-    const D = "4s", car = `<g transform="rotate(90)">${dpCarTop(0, 0, 0, "#2B59C3", .85)}</g>`;
-    const panel = (ox, title, sub, want, real, spin) => `<g transform="translate(${ox} 0)"><rect y="20" width="172" height="140" rx="10" style="fill:#DCE8F2"/><path d="M0 150Q86 150 86 20" style="fill:none;stroke:#fff;stroke-width:26;opacity:.75"/>${dpArrow(want, "#1E9A5E", 3)}<path d="${real}" style="fill:none;stroke:#D23F3A;stroke-width:3;stroke-dasharray:6 5"/>
-      <g><animateMotion dur="${D}" repeatCount="indefinite" path="${real}" rotate="auto" keyTimes="0;0.75;1" keyPoints="0;1;1" calcMode="linear"/><g><animateTransform attributeName="transform" type="rotate" dur="${D}" repeatCount="indefinite" values="0;${spin};${spin}" keyTimes="0;0.75;1"/>${car}</g></g>
-      ${dpT(86, 178, title, { size: 13, w: 800 })}${dpT(86, 194, sub, { size: 11, w: 600, col: "#5A6772" })}</g>`;
-    return { svg: `<svg viewBox="0 0 360 200">${panel(0, T2("Overstyring", "Oversteer"), T2("baken sklir ut", "the rear slides out"), "M20 150Q86 150 86 30", "M20 150Q70 150 80 110Q84 98 70 86", 70)}${panel(188, T2("Understyring", "Understeer"), T2("forhjulene sklir", "the front slides"), "M20 150Q86 150 86 30", "M20 150Q100 146 150 120", -35)}${dpT(180, 12, T2("grønt = dit du vil · rødt = dit bilen går", "green = where you want · red = where the car goes"), { size: 11, w: 600, col: "#5A6772" })}</svg>`,
-      cap: T2("Overstyring: baken sklir ut og bilen snurrer mer enn du vil. Understyring: forhjulene mister grepet og bilen fortsetter rett fram. Se og styr dit du vil, og slipp gassen forsiktig.", "Oversteer: the rear slides out and the car spins more than you want. Understeer: the front wheels lose grip and the car carries straight on. Look and steer where you want to go, and ease off gently.") }; },
+    // Understyring og overstyring i samme høyresving, samme fart og samme rattutslag (forhjulene vridd 18° inn i svingen).
+    // Bevegelsen regnes ut, ikke tegnes for hånd: kursen χ (dit bilen beveger seg) har en krumning, og bilens retning ψ (dit den peker)
+    // er χ + β (glidevinkel). Sporet etter hvert hjul følger av posisjon og retning. Vinkler i grader, 0 = rett opp, positivt = mot høyre.
+    // Understyring: forhjulene mister grep først. Kursen svinger mye mindre enn svingen (banen går utover), og bilen peker omtrent dit den går.
+    // Overstyring: bakhjulene mister grep først. Kursen følger omtrent svingen, men bilen roterer stadig mer inn (β vokser) – bakenden går ut.
+    const R = 84, ENTRY = 26, LEN = 168, D = "5s", TOTAL = 150, rad = d => d * Math.PI / 180, f1 = n => n.toFixed(1);
+    const sim = (kArc, beta) => { // kArc: krumning i svingen som andel av vegens (1 = følger vegen), beta(u): glidevinkel som funksjon av andel av banen
+      const out = []; let x = 46, y = 168, chi = 0; const n = 120, ds = TOTAL / n;
+      for(let k = 0; k <= n; k++){ const sl = k * ds, u = k / n; out.push({ x, y, chi, psi: chi + beta(u, sl), u });
+        const kappa = sl < ENTRY ? 0 : sl < ENTRY + Math.PI * R / 2 ? kArc / R : 0; const c = rad(chi);
+        x += Math.sin(c) * ds; y -= Math.cos(c) * ds; chi += kappa * ds * 180 / Math.PI; }
+      return out; };
+    const under = sim(0.36, (u, sl) => sl < ENTRY ? 0 : Math.min(7, (sl - ENTRY) * 0.35));                 // peker litt inn, men svinger lite
+    const over = sim(0.92, (u, sl) => sl < ENTRY + 14 ? 0 : Math.min(58, Math.pow((sl - ENTRY - 14) / 92, 1.4) * 58)); // roterer mer og mer
+    const STEER = 18, HL = 11, HT = 7.5; // forhjulenes vinkel, halv akselavstand, halv sporvidde
+    const wheels = p => { const a = rad(p.psi), fx = Math.sin(a), fy = -Math.cos(a), rx = Math.cos(a), ry = Math.sin(a);
+      return { fl: [p.x + fx * HL - rx * HT, p.y + fy * HL - ry * HT], fr: [p.x + fx * HL + rx * HT, p.y + fy * HL + ry * HT], rl: [p.x - fx * HL - rx * HT, p.y - fy * HL - ry * HT], rr: [p.x - fx * HL + rx * HT, p.y - fy * HL + ry * HT] }; };
+    const line = (pts, st) => `<path d="${pts.map((q, k) => (k ? "L" : "M") + f1(q[0]) + " " + f1(q[1])).join("")}" style="fill:none;${st}"/>`;
+    // bilen sett ovenfra, front opp; forhjulene vridd STEER grader
+    const wheel = (x, y, rot, ghost) => `<rect x="${x - 2.2}" y="${y - 4.2}" width="4.4" height="8.4" rx="1.2" transform="rotate(${rot} ${x} ${y})" style="fill:#1B1F24${ghost ? ";opacity:.35" : ""}"/>`;
+    const carBody = (col, ghost) => `${wheel(-HT, -HL, STEER, ghost)}${wheel(HT, -HL, STEER, ghost)}${wheel(-HT, HL, 0, ghost)}${wheel(HT, HL, 0, ghost)}<rect x="-7.5" y="-15" width="15" height="30" rx="4.5" style="fill:${ghost ? "none" : col};stroke:${ghost ? col : "rgba(0,0,0,.35)"};stroke-width:${ghost ? 1.6 : 1}${ghost ? ";stroke-dasharray:3 2" : ""}"/>${ghost ? "" : `<rect x="-5.5" y="-10.5" width="11" height="5.5" rx="1.5" style="fill:rgba(220,240,255,.95)"/><rect x="-5.5" y="7" width="11" height="3.5" rx="1.2" style="fill:rgba(220,240,255,.8)"/>`}`;
+    const carAt = (p, col, ghost, cls) => `<g class="${cls || ""}" transform="translate(${f1(p.x)} ${f1(p.y)}) rotate(${f1(p.psi)})">${carBody(col, ghost)}</g>`;
+    const anim = (tr, col) => { const fr = tr.filter((_, k) => k % 3 === 0); const kt = fr.map((_, k) => (k / (fr.length - 1) * 0.8).toFixed(3)).concat(["1"]).join(";");
+      const tv = fr.map(p => `${f1(p.x)},${f1(p.y)}`), rv = fr.map(p => f1(p.psi)); tv.push(tv[tv.length - 1]); rv.push(rv[rv.length - 1]);
+      return `<g class="dp-motion"><animateTransform attributeName="transform" type="translate" dur="${D}" repeatCount="indefinite" values="${tv.join(";")}" keyTimes="${kt}"/><g><animateTransform attributeName="transform" type="rotate" dur="${D}" repeatCount="indefinite" values="${rv.join(";")}" keyTimes="${kt}"/>${carBody(col)}</g></g>`; };
+    const road = `<path d="M46 ${168 + 12}V${168 - ENTRY}A${R} ${R} 0 0 1 ${46 + R} ${168 - ENTRY - R}H${LEN + 10}" style="fill:none;stroke:#C5D0DA;stroke-width:34"/><path d="M46 ${168 + 12}V${168 - ENTRY}A${R} ${R} 0 0 1 ${46 + R} ${168 - ENTRY - R}H${LEN + 10}" style="fill:none;stroke:#fff;stroke-width:1.4;stroke-dasharray:7 7"/>`;
+    const want = `<path d="M46 168V${168 - ENTRY}A${R} ${R} 0 0 1 ${46 + R} ${168 - ENTRY - R}H${LEN - 6}" style="fill:none;stroke:#1E9A5E;stroke-width:2.6;stroke-dasharray:6 5"/>${dpHead(LEN - 4, 168 - ENTRY - R, 0, "#1E9A5E", 7)}`;
+    // sporene begynner der grepet slipper (i svingen), ikke på den rette strekningen før
+    const panel = (ox, tr, slideFront, title, sub, slideAt) => {
+      const W = tr.slice(tr.findIndex(p => p.u * TOTAL >= slideAt)).map(wheels), dark = "stroke:#2A2F35;stroke-width:2.4;stroke-linecap:round;opacity:.85", light = "stroke:#7E8A96;stroke-width:1.2;opacity:.75";
+      const marks = ["fl", "fr", "rl", "rr"].map(k => line(W.map(w => w[k]), (k[0] === "f") === slideFront ? dark : light)).join("");
+      const path = line(tr.map(p => [p.x, p.y]), "stroke:#D23F3A;stroke-width:2.6"), end = tr[tr.length - 1], mid = tr[Math.round(tr.length * 0.55)];
+      const head = dpHead(end.x + Math.sin(rad(end.chi)) * 8, end.y - Math.cos(rad(end.chi)) * 8, end.chi - 90, "#D23F3A", 7);
+      // vanlig gruppe med klipping (ikke nestet <svg>: der går ikke animasjonsklokka av seg selv)
+      const cid = "dpsk" + (++DP_SEQ);
+      return `<g transform="translate(${ox} 22)"><clipPath id="${cid}"><rect width="${LEN}" height="182" rx="10"/></clipPath><rect width="${LEN}" height="182" rx="10" style="fill:#EEF2F5"/><g clip-path="url(#${cid})">${road}${marks}${want}${path}${head}
+        ${carAt(tr[0], "#2B59C3", true)}${carAt(mid, "#2B59C3", true)}${carAt(end, "#2B59C3", false, "dp-still")}${anim(tr, "#2B59C3")}</g>
+        ${dpT(LEN / 2, 202, title, { size: 13.5, w: 800 })}${dpT(LEN / 2, 218, sub, { size: 11, w: 600, col: "#5A6772" })}</g>`; };
+    const key = `<g transform="translate(6 10)"><path d="M0 0H18" style="stroke:#1E9A5E;stroke-width:2.6;stroke-dasharray:6 5"/>${dpT(22, 4, T2("ønsket bane", "intended path"), { a: "start", size: 10.5, w: 700 })}
+      <path d="M112 0H130" style="stroke:#D23F3A;stroke-width:2.6"/>${dpT(134, 4, T2("bilens bane", "car's path"), { a: "start", size: 10.5, w: 700 })}
+      <path d="M222 0H240" style="stroke:#2A2F35;stroke-width:2.4"/>${dpT(244, 4, T2("hjul som glir", "sliding wheels"), { a: "start", size: 10.5, w: 700 })}</g>`;
+    return { data: { under, over, R, ENTRY, STEER, centre: [46 + R, 168 - ENTRY], wheels }, svg: `<svg viewBox="0 0 352 248"><style>@media (prefers-reduced-motion: no-preference){.dp-still{display:none}}@media (prefers-reduced-motion: reduce){.dp-motion{display:none}}</style>${key}${panel(4, under, true, T2("Understyring", "Understeer"), T2("svinger for lite – banen går ut", "turns too little – runs wide"), ENTRY + 6)}${panel(180, over, false, T2("Overstyring", "Oversteer"), T2("roterer for mye – baken går ut", "rotates too much – rear swings out"), ENTRY + 14)}</svg>`,
+      cap: T2("Samme sving, samme fart og like mye ratt i begge: forhjulene er vridd inn i svingen. Understyring: forhjulene glir – bilen svinger for lite og går ut av svingen, men peker omtrent dit den går. Overstyring: bakhjulene glir – bakenden går ut, og bilen roterer mer enn føreren vil. Grønt er ønsket bane, rødt er bilens bane, og de mørke sporene er fra hjulene som glir.",
+        "Same bend, same speed and the same steering in both: the front wheels are turned into the bend. Understeer: the front wheels slide – the car turns too little and runs wide, but points roughly where it is going. Oversteer: the rear wheels slide – the rear swings out and the car rotates more than the driver wants. Green is the intended path, red is the car's path, and the dark marks are from the wheels that slide.") }; },
   forbruk: L => { const T2 = (a, b) => L === "en" ? b : a;
     const d = [[60, 85], [80, 100], [100, 125], [110, 140]]; // omtrentlig, høyeste fartsgrense i Norge er 110
     return { svg: `<svg viewBox="0 0 360 150">${d.map(([v, p], i) => `<rect x="${40 + i * 80}" y="${120 - p * .65}" width="46" height="${p * .65}" rx="5" style="fill:${p > 110 ? "#D1453B" : "#1E9A5E"}"/>${dpT(63 + i * 80, 114 - p * .65, p + " %", { size: 12.5, w: 800 })}${dpT(63 + i * 80, 140, v + T2(" km/t", " km/h"), { size: 12, w: 600 })}`).join("")}</svg>`,

@@ -222,3 +222,12 @@ Historiekartene farger **dagens land** etter hvilken side de hørte til. Det st�
 Anbefalt rekkefølge for neste runde: kjemi (VGKJ1/2, KJEMI: mol, konsentrasjon, pH), økonomi (OMAT, OSTAT), elektro (ELPE1300, ELKR: sikkerhetsrelaterte verdier).
 
 **Ikke faglig godkjent:** alt over er kontrollert av Claude mot lovtekst og lærebokformler. `reviewedBy` er ikke fylt ut.
+
+## Førerkort: understyring og overstyring (oppgave 27, 2026-10-15)
+Bildet «skrens» (drive_pics.js, brukt i FKB enhet 8 «Glatt føre») er tegnet på nytt. Det gamle lot bilen peke langs sin egen bane i begge panelene, så understyring og overstyring skilte seg bare i formen på en strek; forhjulene var ikke styrt, og sporene var ikke med.
+
+**Definisjonene som brukes** (samme i bildet, bildeteksten og testen): understyring = forhjulene mister grep først; bilen svinger mindre enn føreren styrer, og banen går utover i svingen. Overstyring = bakhjulene mister grep først; bakenden glir ut, og bilen roterer mer enn føreren vil. Kontrollert mot flere uavhengige framstillinger (bilskoler og teorisider, motorsport- og bilpresse), f.eks. [Carkeys: Understeer and oversteer explained](https://www.carkeys.co.uk/guides/understeer-and-oversteer-explained) og [Racer: What are oversteer and understeer?](https://racer.com/racerpedia/racing-101/what-are-oversteer-and-understeer). Ingen side fra Statens vegvesen eller Trygg Trafikk ble funnet i søket.
+
+**Råd om å rette opp en skrens:** fjernet fra bildeteksten (der stod «Se og styr dit du vil, og slipp gassen forsiktig»). Bildet viser bare hva som skjer.
+
+**Ikke kontrollert mot autoritativ kilde (gjenstår):** de to spørsmålene i add_forer2.js (FKB enhet 8) gir råd: ved overstyring «styrer dit du vil kjøre og slipper forsiktig av gassen», ved understyring «slipper gassen og reduserer rattutslaget litt». Rådene stemmer med kildene som ble funnet (bilskoler, [eteo.no](https://eteo.no/teori/bil/kjoring-i-praksis/kjoring-i-glatt-fore-praktiske-tips/), [teori-test.no](https://teori-test.no/laeringsressurser/glatt-fore/)), men ikke med en side fra Statens vegvesen, Trygg Trafikk eller læreplanen for trafikkopplæring. De er ikke endret. Bør kontrolleres av en trafikklærer eller mot Statens vegvesens læremidler før de regnes som godkjent.
