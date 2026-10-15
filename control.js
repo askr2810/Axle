@@ -144,7 +144,7 @@ function ctRespSVG(y, Tm, yf, m, ref, extra){
 }
 // ---------- forklaring (enkelt først) ----------
 function ctExplain(st, M){
-  const B = (c, x) => `<b style="color:${c}">${x}</b>`;
+  const B = (c, x) => `<b style="color:color-mix(in srgb,${c} 75%,var(--ink))">${x}</b>`;
   if(st.mode === "pid"){
     const k = [];
     if(!M.stable) k.push(`⚠️ ${esc(T("En lukket pol ligger i høyre halvplan – systemet er ustabilt. Skru ned Kp eller Ki, eller øk Kd.", "A closed-loop pole is in the right half-plane – the system is unstable. Lower Kp or Ki, or increase Kd."))}`);

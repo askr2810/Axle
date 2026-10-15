@@ -370,7 +370,7 @@ function renderHome(){
 // ---------- fagvelger ----------
 function pickRowHTML(c){
   const {d,tot} = courseProgress(c);
-  const col = c.group==="Forkurs" ? "var(--ok)" : ["var(--u0)","var(--u1)","var(--u2)","var(--gold-deep)"][COURSES.indexOf(c)%4];
+  const col = c.group==="Forkurs" ? "var(--ok-btn)" : ["var(--u0)","var(--u1)","var(--u2)","#8A5A00"][COURSES.indexOf(c)%4]; // mørke nok for hvit tekst (4,5:1)
   const eq = courseEq(c), need = knownCodes(preOf(c.code).need);
   return `<div class="fav-row"><button class="subj ${c.code===S.current?"sel":""}" data-a="choose" data-c="${c.code}">
     <span class="badge" style="background:${col}">${esc(courseShort(c))}</span>
@@ -472,7 +472,7 @@ function renderSettings(){
       <a class="srow" href="mailto:${esc(CONFIG.contactEmail)}?subject=${encodeURIComponent("Axle: rapport om misbruk")}"><span class="lbl">${t("abuseContact")}<span class="sub">${esc(CONFIG.contactEmail)}</span></span>${I.chevron}</a>
       <a class="srow" href="${LANG === "en" ? "/en/about/" : "/about/"}" target="_blank" rel="noopener"><span class="lbl">${esc(T("Om Axle", "About Axle"))}</span>${I.chevron}</a>
       <button class="srow" data-a="privacy"><span class="lbl">${t("setPrivacy")}</span>${I.chevron}</button>
-      ${typeof CLOUD_ON !== "undefined" && CLOUD_ON ? `<div class="srow"><span class="lbl">${esc(T("Del bruksstatistikk", "Share usage statistics"))}<span class="sub">${esc(T("Hva slags sider og øvinger som brukes, knyttet til kontoen hvis du er logget inn. Ingen svar eller tekst.", "Which pages and exercises are used, linked to your account if you are logged in. No answers or text."))}</span></span><button class="tog ${S.statsOk === 1 ? "on" : ""}" data-a="stattoggle" role="switch" aria-checked="${S.statsOk === 1}" aria-label="${esc(T("Del bruksstatistikk", "Share usage statistics"))}"></button></div>` : ""}
+      ${typeof CLOUD_ON !== "undefined" && CLOUD_ON ? `<div class="srow"><span class="lbl">${esc(T("Del bruksstatistikk", "Share usage statistics"))}<span class="sub">${esc(T("Hvilke sider og øvinger som brukes. Knyttes til kontoen hvis du er logget inn, ellers til en tilfeldig id på enheten. Aldri svar eller tekst du skriver.", "Which pages and exercises are used. Linked to your account if you are logged in, otherwise to a random id on the device. Never answers or text you write."))}</span></span><button class="tog ${S.statsOk === 1 ? "on" : ""}" data-a="stattoggle" role="switch" aria-checked="${S.statsOk === 1}" aria-label="${esc(T("Del bruksstatistikk", "Share usage statistics"))}"></button></div>` : ""}
       <button class="srow" data-a="terms"><span class="lbl">${esc(T("Vilkår for bruk", "Terms of use"))}<span class="sub">${esc(T("Gratis øvingsverktøy, kan inneholde feil", "Free practice tool, may contain mistakes"))}</span></span>${I.chevron}</button>
       ${claudeDb&&isOwner?`<button class="srow" data-a="inbox"><span class="lbl">${t("setInbox","…")}</span>${I.chevron}</button>`:""}
     </div>
@@ -1573,6 +1573,15 @@ document.addEventListener("input", e=>{
     if(had !== (L.input.trim()!=="")){ const btn=document.querySelector('[data-a="check"]'); if(btn) btn.disabled = L.input.trim()===""; }
   }
   else if(e.target.id==="exnum" || e.target.id==="excustom") examInput(e.target);
+});
+// Radiogrupper (språk, modus, svaralternativer …): piltastene flytter fokus mellom valgene, som skjermlesere forventer.
+// Fokus flyttes bare; Mellomrom/Enter velger. Slik sendes ikke et svar inn ved et uhell.
+document.addEventListener("keydown", e=>{
+  const r = e.target && e.target.closest && e.target.closest('[role="radio"]'), g = r && r.closest('[role="radiogroup"]');
+  if(!g || !["ArrowLeft","ArrowRight","ArrowUp","ArrowDown","Home","End"].includes(e.key)) return;
+  const all = [...g.querySelectorAll('[role="radio"]')].filter(x => !x.disabled && x.offsetParent !== null), i = all.indexOf(r); if(i < 0) return;
+  const n = e.key==="Home" ? 0 : e.key==="End" ? all.length-1 : (i + (e.key==="ArrowLeft"||e.key==="ArrowUp" ? -1 : 1) + all.length) % all.length;
+  e.preventDefault(); all[n].focus();
 });
 document.addEventListener("keydown", e=>{
   if(overlay){ if(e.key==="Escape"){ const wasScratch = !!overlay.scratch; overlay=null; renderOverlay(); if(wasScratch && (screen==="lesson"||screen==="exam")) render(); } return; }

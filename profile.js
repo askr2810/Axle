@@ -123,6 +123,7 @@ function renderPractice(){
   $app.innerHTML = `<div class="top"><div class="wrap"><div class="th-t"><small>${esc(courseName(c))}</small><b>${esc(t("tabPractice"))}</b></div>
       <button class="chip mini-chip" data-a="pick" aria-label="${esc(t("switchCourse"))}"><span class="code">${esc(courseShort(c))}</span>${I.down}</button></div></div>
     <main class="wrap prac">
+      <p class="tab-intro">${esc(T("Øv fritt i ditt eget tempo: velg et tema, prøv labber og spill, eller se løste oppgaver. Stien steg for steg ligger under Lær, og lesestoffet under Teori.", "Practise freely at your own pace: pick a topic, try labs and games, or see solved problems. The step-by-step path is under Learn, and the reading under Theory."))}</p>
       ${qsHTML("practice")}${isDrive(c) ? "" : focCardHTML()}${dvPracticeCardHTML(c)}${isDrive(c) ? "" : labCourseHTML(c) + catCardHTML(c)}${cdPracticeCardHTML(c)}
       ${layoutHTML("practice", { c, today, goal, week, wrongN })}
       <div class="lay-grp"><h4 class="grp">🧰 ${esc(T("Hjelpemidler", "Study tools"))}</h4><div class="tools2">${poCardHTML()}

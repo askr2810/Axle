@@ -258,7 +258,7 @@ function ekOutHTML(){
     list.map(([k, t], si) => { const st = S2[k];
       return `<section class="ek-step"><h3><span>${si + 1}</span>${esc(T(t[0], t[1]))}</h3><p class="ek-in">${esc(st.intro)}</p>
         ${st.lines.map((ln, j) => { const id = k + "." + j, on = !!EK.open[id];
-          return `<button class="ek-ln ${on ? "on" : ""}" data-a="ekwhy" data-k="${id}" aria-expanded="${on}"><div class="ek-tex">${ekD(ln.tex)}</div><span class="ek-q" aria-hidden="true">${on ? "−" : "?"}</span></button>${on ? `<div class="ek-why">${rich(ln.why)}</div>` : ""}`; }).join("")}
+          return `<button class="ek-ln ${on ? "on" : ""}" data-a="ekwhy" data-k="${id}" aria-expanded="${on}"><span class="sr">${esc(T(`Forklar linje ${j + 1}`, `Explain line ${j + 1}`))}: </span><div class="ek-tex">${ekD(ln.tex)}</div><span class="ek-q" aria-hidden="true">${on ? "−" : "?"}</span></button>${on ? `<div class="ek-why">${rich(ln.why)}</div>` : ""}`; }).join("")}
         ${st.plot ? ekPlot(r) : ""}</section>`; }).join("") + `<p class="ek-tip">${esc(T("Trykk på et ledd for å se hvordan vi kom dit.", "Tap a line to see how we got there."))}</p>`;
 }
 function ekUpdate(){ const o = document.getElementById("ekout"), sk = document.getElementById("eksk"); if(o) o.innerHTML = ekOutHTML(); if(sk) sk.innerHTML = ekSketch(EK.cfg); }

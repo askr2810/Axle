@@ -9,7 +9,7 @@ let BK = { v: "home", code: null, u: 0, tab: "topics", q: "" };
 const bkDoc = (code, u) => { const d = theoryOf(code, u); return d ? withSims(code, u, withFigs(code, u, String(d[LANG] || d.nb))) : ""; };
 const bkCourses = () => COURSES.filter(c => (THEORY_DB[c.code] || []).some(Boolean) || (TOPIC_DB[c.code] || []).some(l => l && l.length));
 const bkUnits = c => c.units.map((_, u) => u).filter(u => theoryOf(c.code, u) || topicsOf(c.code, u).length);
-const bkCol = c => c.group === "Forkurs" ? "var(--ok)" : ["var(--u0)","var(--u1)","var(--u2)","var(--gold-deep)"][COURSES.indexOf(c) % 4];
+const bkCol = c => c.group === "Forkurs" ? "var(--ok-btn)" : ["var(--u0)","var(--u1)","var(--u2)","#8A5A00"][COURSES.indexOf(c) % 4]; // samme farger som fagvelgeren (hvit tekst ≥ 4,5:1)
 // ---------- emnesider (TOPIC_DB fra topics.js og top_*.js): ett begrep per side ----------
 const tpText = tp => tp[LANG] || tp.nb;
 const tpFx = s => decPoint() ? String(s).replace(/\{,\}/g, ".") : String(s);
@@ -179,6 +179,7 @@ function renderBookCourse(){
   }
   $app.innerHTML = `${bkTop("bkback", t("bkTitle"), courseName(c), favStarHTML(c.code))}
     <main class="wrap bk">${betaNoteHTML(c.code)}
+      <p class="tab-intro">${esc(T("Teori er lesestoffet: forklaringer, eksempler og formelark for hvert emne. Oppgavene finner du under Lær (steg for steg) og Øv (fritt).", "Theory is the reading: explanations, examples and formula sheets for each topic. Problems are under Learn (step by step) and Practise (freely)."))}</p>
       <button class="bk-switch" data-a="bkall"><span class="badge" style="background:${col}">${esc(courseShort(c))}</span><span><small>${esc(T("Teori i", "Theory in"))}</small><b>${esc(courseName(c))}</b></span><em>${esc(T("Bytt fag", "Change course"))} ${I.chevron}</em></button>
       <div class="seg bk-tabs" role="tablist"><button role="tab" aria-selected="${BK.tab !== "sheet"}" class="${BK.tab !== "sheet" ? "on" : ""}" data-a="bktab" data-t="topics">${esc(t("bkTopicsTab"))}</button><button role="tab" aria-selected="${BK.tab === "sheet"}" class="${BK.tab === "sheet" ? "on" : ""}" data-a="bktab" data-t="sheet">${esc(t("bkSheet"))}</button></div>
       <div class="bk-units ${BK.tab === "sheet" ? "sheet" : ""}">${body}</div>

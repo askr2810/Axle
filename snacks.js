@@ -94,6 +94,8 @@ function renderSnacks(){
     <main class="sn-feed" id="snfeed">${SN.cards.map((c, i) => `<section class="sn-card sn-${c.kind}" data-i="${i}"><div class="sn-in">${snCardInner(c, i)}</div></section>`).join("")}</main>
     ${!S.snSeen ? `<div class="sn-hint" aria-hidden="true">↑ ${esc(t("snSwipe"))}</div>` : ""}`;
   const feed = document.getElementById("snfeed");
+  // «Sveip opp»-hintet ligger fast nederst: borte ved første trykk også, så det ikke dekker en glidebryter eller et svar
+  feed.addEventListener("pointerdown", () => { document.querySelector(".sn-hint")?.remove(); }, { once: true });
   feed.addEventListener("scroll", () => { if(!S.snSeen && feed.scrollTop > 40){ S.snSeen = 1; saveLocal(); document.querySelector(".sn-hint")?.remove(); }
     if(feed.scrollTop + feed.clientHeight * 3 > feed.scrollHeight) snAppend(); }, { passive: true });
 }

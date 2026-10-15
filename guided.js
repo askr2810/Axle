@@ -102,7 +102,7 @@ function renderGuided(){
   const canNext = card.kind !== "q" || card.done;
   const segs = GD.cards.map((k, i) => `<i class="${i < GD.i ? "on" : i === GD.i ? "cur" : ""} ${k.kind === "q" ? "q" : ""}"></i>`).join("");
   $app.innerHTML = `<div class="top gd-top"><div class="wrap"><button class="iconbtn" data-a="gdclose" aria-label="${esc(t("back"))}">${I.x}</button>
-      <div class="gd-prog" role="progressbar" aria-valuemin="0" aria-valuemax="${n}" aria-valuenow="${GD.i + 1}">${segs}</div>
+      <div class="gd-prog" role="progressbar" aria-label="${esc(T(`Kort ${GD.i + 1} av ${n}`, `Card ${GD.i + 1} of ${n}`))}" aria-valuemin="0" aria-valuemax="${n}" aria-valuenow="${GD.i + 1}">${segs}</div>
       ${ttsTopBtn(".gd-text")}${GD.proof ? `<span class="gd-full pf-tag">∎ ${esc(t("pfKicker"))}</span>` : `<button class="gd-full" data-a="gdfull">${esc(t("gdFull"))}</button>`}</div></div>
     <main class="wrap gd"><div class="gd-card ${GD.dir === "r" ? "gd-from-l" : GD.dir === "l" ? "gd-from-r" : "gd-in"}">${gdCardHTML(card, c)}</div>
       ${!S.gdSwipeSeen && !isEnd ? `<p class="gd-swipe" aria-hidden="true">${esc(matchMedia("(pointer:fine)").matches ? T("← → Bruk piltastene for å bla", "← → Use the arrow keys to move") : t("gdSwipe"))}</p>` : ""}</main>

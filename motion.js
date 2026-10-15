@@ -95,7 +95,7 @@ function mvInfo(st){
   const m = mvModel(st.v), t0 = st.t, sv = m.sAt(t0), tv = m.vAt(t0), ta = m.aAt(t0), dv = tv - st.v[0];
   const chip = (k, lab, val, u) => `<span class="mv-r" style="--c:${mvCol[k]}"><small>${lab}</small><b>${val}</b> ${u}</span>`;
   const read = `<div class="mv-read">${chip("s", "t", mvN(t0), "s").replace(`--c:${mvCol.s}`, "--c:var(--muted)")}${chip("s", "s", mvN(sv), "m")}${chip("v", "v", mvN(tv), "m/s")}${chip("a", "a", mvN(ta), "m/s²")}</div>`;
-  const B = (k, x) => `<b style="color:${mvCol[k]}">${x}</b>`;
+  const B = (k, x) => `<b style="color:color-mix(in srgb,${mvCol[k]} 75%,var(--ink))">${x}</b>`;
   const rise = (k, x) => Math.abs(x) < 0.05 ? T(`${k}-grafen er flat: den endrer seg`, `The ${k}-graph is flat: it changes by`) : x > 0 ? T(`${k}-grafen stiger`, `The ${k}-graph rises`) : T(`${k}-grafen synker`, `The ${k}-graph falls`);
   const moving = Math.abs(tv) < 0.05 ? T("Bilen står stille akkurat nå.", "The car is standing still right now.") : tv > 0 ? T("Bilen kjører framover.", "The car is moving forward.") : T("Bilen rygger (negativ fart).", "The car is reversing (negative velocity).");
   const links = `<div class="mv-links">

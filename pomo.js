@@ -88,7 +88,7 @@ async function poWake(on){
 // ---------- fokusskjermen ----------
 function poOpen(from){ PO_FROM = from || (screen !== "pomo" ? screen : PO_FROM); PO_SET = false; PO_PEEK = false; screen = "pomo"; render(); window.scrollTo(0, 0); }
 const poDots = p => { const n = p.every, k = (p.done || 0) % n, full = p.phase !== "work" && k === 0 && p.done ? n : k;
-  return `<div class="pos-dots" aria-label="${esc(T(`${full} av ${n} økter før lang pause`, `${full} of ${n} sessions before a long break`))}">${Array.from({ length: n }, (_, i) => `<i class="${i < full ? "on" : ""}"></i>`).join("")}</div>`; };
+  return `<div class="pos-dots" role="img" aria-label="${esc(T(`${full} av ${n} økter før lang pause`, `${full} of ${n} sessions before a long break`))}">${Array.from({ length: n }, (_, i) => `<i class="${i < full ? "on" : ""}"></i>`).join("")}</div>`; };
 function renderPomo(){
   const p = po(), left = poLeft(p), on = p.running || p.left != null, hid = p.hide && !PO_PEEK, R = 120, C = 2 * Math.PI * R;
   const light = p.bg === "papir", bg = (PO_BG[p.bg] || PO_BG.natt)[2];

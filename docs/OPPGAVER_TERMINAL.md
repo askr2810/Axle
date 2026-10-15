@@ -27,7 +27,7 @@ Du jobber i Axle-repoet (axle.no). Les `CLAUDE.md` først og følg den. Svar meg
 - [x] 9. Mac- og Windows-appen (v1.0.1) – ferdig 2026-10-10: tag v1.0.1 pushet, kjøringen «Skrivebordsapp» gikk grønt (test, Windows, Mac, publish, cask). Utgivelsen har Axle.dmg (24 MB), Axle-Setup.exe (11 MB) og SHA256SUMS.txt; Homebrew-oppskriften er oppdatert. desktopReady: true i config.js.
 - [x] 10. Til slutt: bygg, test, push og oppsummering – ferdig 2026-10-10: build.py, npm test og seo.js grønne (check_figs: 0 funn), pushet til main og claude/loving-cerf-qzvm7j.
 - [x] 11. Gjør kartspillet geografisk pålitelig – ferdig 2026-10-15: Gjenskapt: små land med lang kyst (Norge i verdenskartet, særlig i historikkmodus) ble en svart klump fordi den mørke markeringskanten (2–2,5 px) dekket formen. Utvalget av spørsmål brukte et midtpunkt eller en boks, ikke hvor mye av landet som synes. Treffkontrollen brukte boksen rundt hoveddelen. Krim var tegnet som Russland. Rettet: verdenskartet bruker 50m-geometri. `keep` i make_maps.mjs var snudd (0,12 beholdt 88 % av punktene); i tillegg fjernes doble punkter og punkter på rett linje, og d3s etter-sampling er slått av. maps_data.js er nå 183 kB (67 kB gzip), før 194 kB (66,5 kB gzip). Norge i verdenskartet har 268 punkter, før 60. Ytelse (median per spørsmål inkl. tegning, Chrome med CPU 6×): 9–18 ms, før 8–16 ms. Første spørsmål i en region tar 16–36 ms. Felles geometri i maps.js (mpRings, mpVis, mpShown, mpDist, mpMarker) brukes til utvalg, markør og treffkontroll i vanlig modus, historikkmodus og «Test deg». Små land (under ca. 24 px) får en stiplet ring med hvit kant og forklaringen «Ringen er ikke landets form». Bittesmå stater (VA, MC, SM, LI m.fl.) beholdes med t: 1. Det markerte landet har ingen mørk kant, og ankerpunktet ligger inne i landet. Krim tegnes som Ukraina (FN-res. 68/262, se docs/FAGLIG_KONTROLL.md). Ny test tools/test_maps.js (i npm test, 5317 sjekker) for Norge, Grønland, Russland, Krim, øyer, små land og land ved kanten, i vanlig modus og historikkmodus. Den feiler på de gamle dataene. Sjekket visuelt på 375 og 1280 px, lyst og mørkt tema. Gjenstår: omstridte områder ellers (Kashmir, Vest-Sahara m.fl.) følger Natural Earth og bør vurderes av en fagperson.
-- [ ] 12. Gjør hele grensesnittet enklere å forstå
+- [x] 12. Gjør hele grensesnittet enklere å forstå – ferdig 2026-10-15: plan og funn står under «Plan og funn for oppgave 12». 28 skjermer kontrollert på 375 og 1280 px, lyst og mørkt tema, med Playwright og axe-core (WCAG 2.2 AA). Rettet: kontrast (ny --ok-btn/--ok-text/--gold-text/--accent-bg, mørkere --u1, simuleringstekst blandet mot tekstfargen, primærknapper i mørkt tema 3,3 → 5,0:1). Hurtigsøket finner nå Labber og verktøy (brukerreise 3). XP-nivå heter «XP-nivå» så det ikke blandes med nivåene i enhetene. Én forklarende linje øverst i Øv og Teori. Velkomstpunktene er en liste, ikke knappelignende flater. Ingen toast over «Hvor vil du starte?». «Sveip opp» forsvinner ved første trykk. Piltaster i alle radiogrupper. Navn for skjermleser på kalkulatorlinjer, Pomodoro-prikker og fremdrift i steg for steg. Samtykketeksten er samordnet med personvernsiden. Språkvalget var allerede radioknapper, og «anonym» stod ikke i samtykket i dagens kode. Gjenstår (anbefalt videre): kontroll med ekte skjermleser (VoiceOver/TalkBack); elementkalkulatorens rullbare formler inne i knapper (axe: scrollable-region-focusable).
 - [ ] 13. Lag en fast arbeidsmåte for undervisningsanimasjoner
 - [ ] 14. Styrk kontrollen av svar og risikoinnhold uten å gjenta ferdig arbeid
 - [ ] 15. Avslutt med kontroll og oppsummering
@@ -197,6 +197,34 @@ Undersøk spesielt:
 * Om fremdrift og knapper har forklarende navn, god tastaturstøtte, store nok trykkflater, lesbar kontrast og støtte for redusert bevegelse.
 
 Gjør endringer i små, sammenhengende deler. Bevar Axles visuelle identitet, men prioriter tydelighet fremfor pynt. Norsk og engelsk skal bruke samme begreper; mobil og PC skal begge fungere.
+
+### Plan og funn for oppgave 12 (2026-10-15)
+
+Gjennomgått i Chrome (Playwright) på 375 × 667/780 px og 1280 px, i lyst og mørkt tema, som ny bruker (VGS → «Helt fra start»). Skjermene: velkomst, Lær, Øv, Teori, søk, Labben, kartspillet, Venner, Fellesskap, lærerverktøy, profil, merker, innstillinger, fagvelger, snacks, kort, hoderegning, bevis, enhetssirkel, krefter, bevegelse, regulering, elementkalkulator, pomodoro, kode, teori og steg for steg. Automatiske kontroller (ikke i repoet, kjøres med Playwright og axe-core): innhold under faste felt når man har rullet helt ned eller helt opp, knapper uten navn, trykkflater under 24 px og axe (WCAG 2.2 AA).
+
+**Største hindringer som ble funnet**
+1. Kontrast: hvit tekst på grønn (#1E9A5E, 3,6:1) og turkis (#0F8A83, 4,2:1) på enhetsoverskrifter, fagmerker, «Fortsett» etter riktig svar, innleveringsknappen og teori-knappen. Gulltekst (#B77C00, 3,8:1) 27 steder. Simuleringsfargene var for lyse som tekst. I mørkt tema hadde alle primærknapper (hvit på #5E8BF0) bare 3,3:1.
+2. Søket på forsiden og i Øv fant ikke Labben eller verktøyene: «ohms lov» ga oppgaver og teori, men ikke simuleringen, og «kalkulator» fant ikke elementkalkulatoren (brukerreise 3).
+3. «Nivå» betydde to ting: XP-nivået på profilen («Nivå 1») og de tre nivåene i hver enhet («0/3 nivåer», «Fullfør Nivå 3»).
+4. Lær, Øv og Teori var ikke forklart noe sted.
+5. Velkomstsiden: «Enkelt først», «Prøv selv» og «Øv til det sitter» så ut som knapper på mobil, men var ren tekst, og forklaringen var skjult.
+6. Toasten «Velkommen til Axle!» la seg over «Hvor vil du starte?»-arket.
+7. «Sveip opp»-hintet i Snacks ligger fast nederst og kunne dekke en glidebryter til brukeren hadde rullet.
+8. Ingen av de 13 radiogruppene (språk, modus, svaralternativer …) virket med piltastene.
+
+**Allerede i orden (kontrollert i dagens kode; eldre skjermbilder var utdaterte)**
+- Språkvalget er en `radiogroup` med `role="radio"` og `aria-checked`, både på velkomstsiden og i Innstillinger. Det er ikke avkrysningsbokser.
+- Samtykkeboksen bruker ikke ordet «anonym». Den sier at statistikken knyttes til kontoen eller til en tilfeldig id. Den er nå samordnet med personvernsiden (antall riktige, sletting etter 6 måneder, «ikke anonym», hvor den slås av).
+- Ingen faste knapper eller menyer dekker innhold på de 28 skjermene når siden er rullet helt ned (unntak: punkt 7).
+- Låste nivåer har tekst («Fullfør nivået før, eller bruk «Hopp hit»») og skjermleseretikett («Nivå 2, Øving, låst»).
+- Redusert bevegelse: global regel som slår av animasjoner. Kartspillets markering er synlig uten blinking.
+- Startsiden har én tydelig neste handling («Start her / Neste steg – Fortsett») med søk rett under. En bruker som kommer tilbake, får «Fortsett» (brukerreise 5).
+- Lærerverktøyet er delt i tre nummererte steg: velg oppgaver, del, se resultater (brukerreise 4).
+
+**Anbefalt navigasjon (ingen totalombygging)**
+Fanene beholdes: **Lær** = stien steg for steg, **Øv** = fri øving (fokus, labber, spill, prøveeksamener, løste oppgaver, lærerverktøy), **Teori** = lesestoff og formelark, **Venner**, **Profil**. Øv og Teori får én forklarende linje øverst som sier hva fanen er til og hvor de andre tingene ligger. Labben nås fra søket (nytt), Øv («Labber i …»), Teori-søket og #/lab. Lærerverktøy nås fra Øv («Hjelpemidler») og Profil.
+
+**Funksjoner som må bevares**: alle faner og ruter (#/…), «Hopp hit», «Finn nivået mitt», Mitt fokus, Labben og alle simuleringer, kartspillet, snacks og spill, prøveeksamener, lærerverktøy (lekse, live-quiz, konkurranse), Fellesskap, grupper og venner, kladd og kalkulator, språkvalg, statistikksamtykke og eksport/backup.
 
 ## 13. Lag en fast arbeidsmåte for undervisningsanimasjoner
 

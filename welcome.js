@@ -14,7 +14,7 @@ function renderWelcome(){
       <div class="seg wel-lang" role="radiogroup" aria-label="Språk / Language">${[["nb", "Norsk"], ["en", "English"]].map(([l, n]) => `<button class="${LANG === l ? "on" : ""}" role="radio" data-a="wellang" data-l="${l}" aria-checked="${LANG === l}" lang="${l}">${n}</button>`).join("")}</div></div>
     <section class="wel-hero"><h1>${esc(T("Læring gjort enkelt", "Learning made simple"))}</h1>
       <p>${esc(T("Axle gjør vanskelige temaer enkle – fra gangetabellen og teoriprøven til sykepleie, jus og ingeniørmatte. Gratis og uten reklame.", "Axle makes hard topics simple – from times tables and the driving test to nursing, law and engineering maths. Free and without ads."))}</p>
-      <div class="wel-pts">${pts.map(([ic, h, p]) => `<div><span aria-hidden="true">${ico(ic)}</span><b>${esc(h)}</b><small>${esc(p)}</small></div>`).join("")}</div></section>
+      <ul class="wel-pts">${pts.map(([ic, h, p]) => `<li><span aria-hidden="true">${ico(ic)}</span><p><b>${esc(h)}</b> <small>${esc(p)}</small></p></li>`).join("")}</ul></section>
     <h2 class="wel-h">${esc(T("Hva vil du lære?", "What do you want to learn?"))}</h2>
     <p class="wel-sub">${esc(T("Velg ett eller flere. Det første du velger, ser du først. Du kan endre det når som helst.", "Pick one or more. The first one you pick is shown first. You can change it any time."))}</p>
     <div class="wel-grid">${STUDIES.map(s => { const k = sel.indexOf(s.id);
@@ -36,7 +36,9 @@ function welClick(a, b){
     S.studySet = 1; S.current = STUDY(S.study).home; save();
     if(typeof stEv === "function") stEv("welcome", WEL.sel.join(","), LANG);
     screen = "home"; render(); window.scrollTo(0, 0);
-    toast(T("Velkommen til Axle! 🎉", "Welcome to Axle! 🎉")); setTimeout(bootPrompts, 600); return true;
+    // «Hvor vil du starte?» kommer straks etterpå; da skal ikke en velkomst-toast ligge oppå arket
+    if(S.lvAsked || isDrive(COURSE(S.current))) toast(T("Velkommen til Axle! 🎉", "Welcome to Axle! 🎉"));
+    setTimeout(bootPrompts, 600); return true;
   }
   return false;
 }
