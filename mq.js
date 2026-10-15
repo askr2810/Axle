@@ -132,7 +132,7 @@ async function mqStart(mode, cfg){
   clearInterval(MQ.tick);
   if(cfg.src && !(await mqPrep(cfg))){ toast(T("Fant ikke spørsmålene. Sjekk nettet og prøv igjen.", "Could not load the questions. Check your connection and try again.")); return; }
   const qs = mqQs(cfg); if(!qs.length){ toast(T("Fant ingen spørsmål å spille.", "No questions to play.")); return; } cfg = Object.assign({}, cfg, { n: qs.length });
-  Object.assign(MQ, { mode, cfg, qs, i: 0, score: 0, ok: 0, streak: 0, bestStreak: 0, times: [], chosen: null, gained: 0, view: "count", goAt: Date.now() + 3000, board: null, result: null });
+  Object.assign(MQ, { mode, cfg, qs, i: 0, score: 0, ok: 0, streak: 0, bestStreak: 0, times: [], chosen: null, gained: 0, view: "count", goAt: Date.now() + 3000, board: null, result: null, runId: Date.now(), revAnimKey: null }); // ny runde: «riktig svar»-animasjonen kan spilles igjen
   MQ.tick = setInterval(mqTick, 100); render(); if(typeof stEv === "function") stEv("mq", mode, "lv" + cfg.lvl);
 }
 function mqShow(i){ MQ.i = i; MQ.chosen = null; MQ.gained = 0; MQ.qStart = Date.now(); MQ.view = "q"; render(); }
@@ -269,16 +269,19 @@ function mqBoardHTML(b, title){
   if(!b.rows.length) return `<p class="mq-note">${esc(T("Ingen på topplisten ennå – bli den første!", "Nobody on the leaderboard yet – be the first!"))}</p>`;
   return `<section class="mq-board"><h3>🏆 ${esc(title || T("Toppliste", "Leaderboard"))}</h3>${b.rows.map((r, i) => `<div class="mq-brow ${r.me ? "me" : ""}"><span class="mq-pos">${r.pos <= 3 ? ["🥇", "🥈", "🥉"][r.pos - 1] : r.pos}</span>${frAvatar(r.name || "?", i, r.av, 30)}<b>${esc(r.name || T("Anonym", "Anonymous"))}${r.friend ? ` <small>${esc(T("venn", "friend"))}</small>` : ""}${r.me ? ` <small>${esc(T("deg", "you"))}</small>` : ""}</b><span class="mq-bs">${mqF(r.score)}</span></div>`).join("")}</section>`;
 }
-function mqTiles(q, rev){
-  return `<div class="mq-tiles ${q.rich ? "quiz" : ""} ${rev ? "rev" : ""} ${MQ.chosen != null && !rev ? "sent" : ""}">${q.o.map((v, i) => {
+// nøkkel for avsløringen av spørsmål i: samme spill (start/frø) og samme spørsmål gir samme nøkkel
+const mqRevKey = () => `${(MQ.live && MQ.live.startAt) || MQ.runId || 0}:${MQ.cfg && MQ.cfg.seed}:${MQ.i}`;
+function mqTiles(q, rev, anim = true){
+  return `<div class="mq-tiles ${q.rich ? "quiz" : ""} ${rev ? "rev" : ""} ${rev && !anim ? "still" : ""} ${MQ.chosen != null && !rev ? "sent" : ""}">${q.o.map((v, i) => {
     if(mqTeach()) return `<div class="mq-tile ${rev ? (i === q.k ? "ok" : "dim") : ""}" style="--c:${MQ_COL[i]}"><kbd class="mq-key" aria-hidden="true">${i + 1}</kbd><b>${q.rich ? richBig(v) : mqN(v)}</b>${rev && i === q.k ? `<span class="mq-ck" aria-hidden="true">✓</span>` : ""}</div>`;
     const st = rev ? (i === q.k ? "ok" : i === MQ.chosen ? "bad" : "dim") : MQ.chosen != null ? (i === MQ.chosen ? "pick" : "dim") : "";
     return `<button class="mq-tile ${st}" style="--c:${MQ_COL[i]}" data-a="mqans" data-i="${i}" ${rev || MQ.chosen != null ? "disabled" : ""} aria-label="${esc(q.rich ? plain(v) : mqN(v))}"><kbd class="mq-key" aria-hidden="true">${i + 1}</kbd><b>${q.rich ? richBig(v) : mqN(v)}</b>${rev && i === q.k ? `<span class="mq-ck" aria-hidden="true">✓</span>` : ""}</button>`; }).join("")}</div>`;
 }
-function mqResultBanner(q){
-  if(mqTeach()) return `<div class="mq-res ok pop"><b>${esc(T("Riktig svar", "Correct answer"))}</b><span>${richBig(q.a)}</span></div>`;
+function mqResultBanner(q, anim = true){
+  const pop = anim ? " pop" : "";
+  if(mqTeach()) return `<div class="mq-res ok${pop}"><b>${esc(T("Riktig svar", "Correct answer"))}</b><span>${richBig(q.a)}</span></div>`;
   const ok = MQ.chosen === q.k;
-  return `<div class="mq-res ${ok ? "ok" : "bad"} pop"><b>${ok ? T("Riktig!", "Correct!") : MQ.chosen == null || MQ.chosen < 0 ? T("For sent!", "Too late!") : T("Feil", "Wrong")}</b>${ok ? `<span>+${mqF(MQ.gained)}</span>${MQ.streak > 1 ? `<span class="mq-fire">⚡×${String(mqMult(MQ.streak)).replace(".", LANG === "en" ? "." : ",")} · ${MQ.streak} ${esc(T("på rad", "in a row"))}</span>` : ""}` : `<span>${esc(T("Svaret er", "The answer is"))} ${q.rich ? richBig(q.a) : mqN(q.a)}</span>`}</div>`;
+  return `<div class="mq-res ${ok ? "ok" : "bad"}${pop}"><b>${ok ? T("Riktig!", "Correct!") : MQ.chosen == null || MQ.chosen < 0 ? T("For sent!", "Too late!") : T("Feil", "Wrong")}</b>${ok ? `<span>+${mqF(MQ.gained)}</span>${MQ.streak > 1 ? `<span class="mq-fire">⚡×${String(mqMult(MQ.streak)).replace(".", LANG === "en" ? "." : ",")} · ${MQ.streak} ${esc(T("på rad", "in a row"))}</span>` : ""}` : `<span>${esc(T("Svaret er", "The answer is"))} ${q.rich ? richBig(q.a) : mqN(q.a)}</span>`}</div>`;
 }
 function renderMq(){
   if(!MQ){ const a = MQ_PENDING; MQ_PENDING = null; mqOpen(a); return; }
@@ -332,10 +335,13 @@ function renderMq(){
   }
   if(v === "q" || v === "rev"){
     const q = MQ.qs[MQ.i], rev = v === "rev", live = MQ.mode === "live";
+    // «Riktig svar»-animasjonen spilles én gang per spørsmål: første gang visningen går fra spørsmål til avslørt svar.
+    // Skjermen tegnes på nytt flere ganger i avsløringen (polling, toppliste); da er nøkkelen den samme, og animasjonen står stille.
+    const revKey = mqRevKey(), anim = rev && MQ.revAnimKey !== revKey; if(rev) MQ.revAnimKey = revKey;
     const ranked = live && rev ? mqRanked() : null, myPos = ranked ? ranked.findIndex(p => p.me) : -1;
     $app.innerHTML = `${mqTop(`${MQ.i + 1} / ${MQ.qs.length}`, mqTitleOf(MQ.cfg))}<main class="wrap mq-play">
-      <div class="mq-qc ${q.rich ? "quiz" : ""}"><div class="mq-q">${q.rich ? richBig(q.q) : `${esc(q.q)} <i>= ?</i>`}</div>${!rev ? `<div class="mq-timer"><span id="mqsec">${MQ.cfg.secs}</span><div class="mq-bar"><i id="mqbar"></i></div></div>` : mqResultBanner(q)}</div>
-      ${mqTiles(q, rev)}
+      <div class="mq-qc ${q.rich ? "quiz" : ""}"><div class="mq-q">${q.rich ? richBig(q.q) : `${esc(q.q)} <i>= ?</i>`}</div>${!rev ? `<div class="mq-timer"><span id="mqsec">${MQ.cfg.secs}</span><div class="mq-bar"><i id="mqbar"></i></div></div>` : mqResultBanner(q, anim)}</div>
+      ${mqTiles(q, rev, anim)}
       ${rev && q.rich && q.e ? `<div class="mq-expl">${rich(q.e)}</div>` : ""}
       ${live && !rev ? `<p class="mq-wait" id="mqans">${esc(mqAnsweredTxt())}</p>${MQ.chosen != null && !mqTeach() ? `<p class="mq-sent">${esc(T("Svar sendt! Venter på de andre …", "Answer sent! Waiting for the others …"))}</p>` : ""}` : ""}
       ${ranked ? `<section class="mq-board mq-live-b"><h3>${esc(mqTeach() ? T("Toppliste", "Leaderboard") : T(`Du er nr. ${myPos + 1} av ${ranked.length}`, `You are #${myPos + 1} of ${ranked.length}`))}</h3>${ranked.slice(0, 5).map((p, i) => `<div class="mq-brow ${p.me ? "me" : ""}"><span class="mq-pos">${i + 1}</span>${mqAv(p, i, 30)}<b>${esc(p.me ? T("Deg", "You") : p.name || "?")}${(p.st || {}).r > 1 ? ` <small>🔥${p.st.r}</small>` : ""}</b><span class="mq-bs">${mqF((p.st || {}).s || 0)}</span></div>`).join("")}</section>` : ""}

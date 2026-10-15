@@ -43,6 +43,19 @@ const FLOWS = [
       await p.evaluate(() => { try{ clearTimeout(geAnswer.t); clearTimeout(sgAnswer.t); }catch(e){} try{ GE = null; SG = null; }catch(e){}
         try{ if(SP) clearInterval(SP.timer); SP = null; if(TF) clearInterval(TF.timer); TF = null; }catch(e){} L = null; overlay = null; screen = 'home'; render(); });
     }
+    // Live-quiz (tavla og elev): «riktig svar»-animasjonen spilles én gang per spørsmål, også når skjermen tegnes på nytt av pollingen
+    { n++; const r = await p.evaluate(async () => {
+        const started = []; const on = e => { if(/^(pop|mqok)$/.test(e.animationName)) started.push(e.animationName); }; document.addEventListener('animationstart', on);
+        const wait = () => new Promise(r => setTimeout(r, 60)), out = {};
+        for(const role of ['host', 'elev']){
+          mqOpen(null, role === 'host' ? 'teach' : 'home'); screen = 'mq'; const cfg = { secs: 10, n: 3, seed: 7, lvl: 2 };
+          Object.assign(MQ, { mode: 'live', cfg, qs: mqQs(cfg), live: { startAt: 1000, isHost: role === 'host', players: [{ id: 'a', name: 'A', st: { i: 0, s: 100 } }], code: 'X' }, i: 0, chosen: role === 'host' ? null : 0, gained: 0, score: 0, ok: 0, streak: 0, view: 'rev' });
+          started.length = 0; render(); await wait(); const first = started.length;
+          for(let k = 0; k < 4; k++){ mqLiveApply({ code: 'X', is_host: role === 'host', status: 'run', players: MQ.live.players, cfg, start_at: null }); render(); await wait(); }
+          const again = started.length - first; MQ.i = 1; MQ.view = 'q'; render(); await wait(); started.length = 0; MQ.view = 'rev'; render(); await wait();
+          out[role] = { first, again, next: started.length }; }
+        document.removeEventListener('animationstart', on); clearInterval(MQ.tick); clearTimeout(MQ.pollT); MQ = null; screen = 'home'; render(); return out; });
+      for(const [role, v] of Object.entries(r)) if(!(v.first > 0 && v.again === 0 && v.next > 0)) fails.push(`${W}×${H} ${theme}: live-quiz (${role}) «riktig svar» spilles ${v.again} ganger ekstra (første ${v.first}, neste spørsmål ${v.next})`); }
     if(errs.length) fails.push(`${W}×${H} ${theme}: sidefeil ${errs.slice(0, 2).join(' | ')}`);
     await ctx.close();
   }

@@ -2703,7 +2703,7 @@ details.cat-mc{margin:6px 0}details.cat-mc>summary{cursor:pointer;font-size:12px
 .mq-tile b{font:800 clamp(28px,8vw,38px) var(--display,system-ui);font-variant-numeric:tabular-nums}
 .mq-key{position:absolute;left:14px;top:10px;min-width:22px;height:22px;padding:0 5px;border-radius:7px;border:1.5px solid var(--c);border-bottom-width:3px;color:var(--c);font:800 12px var(--mono,monospace);display:grid;place-items:center;background:var(--card)}
 .mq-tile.dim{opacity:.35}.mq-tile.pick{background:var(--c);border-color:var(--c);color:#fff}.mq-tile.pick .mq-key{background:#fff}
-.mq-tile.ok{background:var(--ok-btn);border-color:var(--ok-deep);color:#fff;animation:mqok .5s}.mq-tile.ok::before,.mq-tile.bad::before{display:none}.mq-tile.ok .mq-key{border-color:#fff;color:var(--ok)}
+.mq-tile.ok{background:var(--ok-btn);border-color:var(--ok-deep);color:#fff;animation:mqok .5s}.mq-tiles.still .mq-tile{animation:none}.mq-tile.ok::before,.mq-tile.bad::before{display:none}.mq-tile.ok .mq-key{border-color:#fff;color:var(--ok)}
 .mq-tile.bad{background:var(--bad-soft);border-color:var(--bad);opacity:.8}
 .mq-ck{position:absolute;right:10px;top:8px;width:26px;height:26px;border-radius:50%;background:#fff;color:var(--ok);display:grid;place-items:center;font-weight:900}
 @keyframes mqok{50%{transform:scale(1.06)}}
