@@ -413,7 +413,7 @@ $$(${mcA("a")} + ${mcB("b")})^2 = (${mcA("a")} + ${mcB("b")})(${mcA("a")} + ${mc
 $$= ${mcA("a")}\\cdot ${mcA("a")} + ${mcA("a")}\\cdot ${mcB("b")} + ${mcB("b")}\\cdot ${mcA("a")} + ${mcB("b")}\\cdot ${mcB("b")}$$
 $$= ${mcA("a^2")} + ${mcC("ab")} + ${mcC("ab")} + ${mcB("b^2")}$$
 $$= ${mcA("a^2")} + ${mcC("2ab")} + ${mcB("b^2")}$$
-De to «kryssene» $a\\cdot b$ og $b\\cdot a$ gir hvert sitt $ab$, og sammen blir de $2ab$. I $(a-b)^2$ blir begge kryssene negative ($-ab - ab = {-2ab}$), mens $({-b})\\cdot({-b}) = b^2$ er positivt. I konjugatsetningen blir kryssene $-ab$ og $+ab$, og de nuller hverandre ut. Fargene følger leddene: $a$ er blått, $b$ er oransje, og midtleddet er magenta.
+De to «kryssene» $a\\cdot b$ og $b\\cdot a$ gir hvert sitt $ab$, og sammen blir de $2ab$. I $(a-b)^2$ blir begge kryssene negative ($-ab - ab = {-2ab}$), mens $({-b})\\cdot({-b}) = b^2$ er positivt. I konjugatsetningen blir kryssene $-ab$ og $+ab$, og de nuller hverandre ut.⟦ Fargene følger leddene: $a$ er blått, $b$ er oransje, og midtleddet er magenta.⟧
 
 - Faktorisering: å skrive et uttrykk som et produkt, motsatt av å multiplisere ut. Se etter felles faktor: $6x^2-9x=3x(2x-3)$.
 - Ligning: et utsagn om at to uttrykk er like, sant for bestemte verdier av x. Å løse en ligning betyr å finne disse verdiene.
@@ -470,7 +470,7 @@ $$(${mcA("a")} + ${mcB("b")})^2 = (${mcA("a")} + ${mcB("b")})(${mcA("a")} + ${mc
 $$= ${mcA("a")}\\cdot ${mcA("a")} + ${mcA("a")}\\cdot ${mcB("b")} + ${mcB("b")}\\cdot ${mcA("a")} + ${mcB("b")}\\cdot ${mcB("b")}$$
 $$= ${mcA("a^2")} + ${mcC("ab")} + ${mcC("ab")} + ${mcB("b^2")}$$
 $$= ${mcA("a^2")} + ${mcC("2ab")} + ${mcB("b^2")}$$
-The two 'crosses' $a\\cdot b$ and $b\\cdot a$ each give an $ab$, and together they make $2ab$. In $(a-b)^2$ both crosses are negative ($-ab - ab = {-2ab}$), while $({-b})\\cdot({-b}) = b^2$ is positive. In the difference of two squares the crosses are $-ab$ and $+ab$, and they cancel. The colours follow the terms: $a$ is blue, $b$ is orange, and the middle term is magenta.
+The two 'crosses' $a\\cdot b$ and $b\\cdot a$ each give an $ab$, and together they make $2ab$. In $(a-b)^2$ both crosses are negative ($-ab - ab = {-2ab}$), while $({-b})\\cdot({-b}) = b^2$ is positive. In the difference of two squares the crosses are $-ab$ and $+ab$, and they cancel.⟦ The colours follow the terms: $a$ is blue, $b$ is orange, and the middle term is magenta.⟧
 
 - Factoring: writing an expression as a product, the reverse of expanding. Look for a common factor: $6x^2-9x=3x(2x-3)$.
 - Equation: a statement that two expressions are equal, true for particular values of x. Solving an equation means finding those values.

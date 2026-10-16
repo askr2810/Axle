@@ -9,7 +9,7 @@ function tex(s){
   return '<span class="mono">'+esc(s)+'</span>';
 }
 function inline(s){
-  const txt = p => esc(p).replace(/(\d) (%|‰|°C|°|kr\b|kWh\b|kW\b|kN\b|mm\b|cm\b|m\/s\b|m\b|s\b|N\b|W\b|V\b|A\b|J\b|Hz\b|kg\b|g\b)/g, "$1\u00a0$2"); // tall og enhet på samme linje
+  const txt = p => esc(p).replace(/⟦/g, '<span class="mcw">').replace(/⟧/g, "</span>").replace(/(\d) (%|‰|°C|°|kr\b|kWh\b|kW\b|kN\b|mm\b|cm\b|m\/s\b|m\b|s\b|N\b|W\b|V\b|A\b|J\b|Hz\b|kg\b|g\b)/g, "$1\u00a0$2"); // tall og enhet på samme linje
   const parts = s.split(/(`[^`]+`|\$\$[^$]+\$\$|\$[^$]+\$)/g);
   const out = parts.map(p=>{
     if(p.startsWith("`")&&p.endsWith("`")&&p.length>1) return "<code>"+esc(p.slice(1,-1))+"</code>";
@@ -85,7 +85,7 @@ function texPlain(m){
     .replace(/\^\{?2\}?/g, "²").replace(/\^\{?3\}?/g, "³").replace(/\\([A-Za-z]+)/g, (_, w) => TEXP_G[w] || w).replace(/[{}]/g, "").replace(/\(([A-Za-z0-9.,²³]+)\)\/\(([A-Za-z0-9.,²³]+)\)/g, "$1/$2");
   return t;
 }
-const plain = s => String(s).replace(/```([\s\S]*?)```/g," [kode: $1] ").replace(/\$\$?([^$]+)\$\$?/g, (_, m) => texPlain(m)).replace(/\$/g,"").replace(/`/g,"").replace(/\{,\}/g, decPoint() ? "." : ",").replace(/\s+/g," ").trim();
+const plain = s => String(s).replace(/[⟦⟧]/g, "").replace(/```([\s\S]*?)```/g," [kode: $1] ").replace(/\$\$?([^$]+)\$\$?/g, (_, m) => texPlain(m)).replace(/\$/g,"").replace(/`/g,"").replace(/\{,\}/g, decPoint() ? "." : ",").replace(/\s+/g," ").trim();
 const shuffle = a => { a=a.slice(); for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];} return a; };
 const pad = n => String(n).padStart(2,"0");
 const dayKey = (d=new Date()) => d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate());
@@ -461,6 +461,7 @@ function renderSettings(){
       <div class="srow"><span class="lbl">${t("setLang")}</span><div class="seg" role="radiogroup" aria-label="${esc(t("setLang"))}"><button class="${LANG==="nb"?"on":""}" role="radio" aria-checked="${LANG==="nb"}" lang="nb" data-a="setlang" data-l="nb">Norsk</button><button class="${LANG==="en"?"on":""}" role="radio" aria-checked="${LANG==="en"}" lang="en" data-a="setlang" data-l="en">English</button></div></div>
       <div class="srow"><span class="lbl">${t("setTheme")}</span><div class="seg">${["auto","light","dark"].map(k=>`<button class="${(S.theme||"auto")===k?"on":""}" data-a="settheme" data-m="${k}" aria-pressed="${(S.theme||"auto")===k}">${esc(t("theme_"+k))}</button>`).join("")}</div></div>
       ${thSettingsHTML()}
+      <div class="srow"><span class="lbl">${esc(T("Farger i formler", "Colours in formulas"))}<span class="sub">${esc(T("Viser hvilket ledd som er hvilket. Slå av for å se formelen slik den står på eksamen.", "Shows which term is which. Turn off to see the formula as it appears in the exam."))}</span></span><button class="tog ${mcOn()?"on":""}" data-a="mctoggle" role="switch" aria-checked="${mcOn()}" aria-label="${esc(T("Farger i formler", "Colours in formulas"))}"></button></div>
       <div class="srow"><span class="lbl">${esc(t("setUnits"))}<span class="sub">${esc(t("setUnitsSub"))}</span></span><div class="seg">${[["si","SI"],["us","US"]].map(([k,l])=>`<button class="${(S.units||"si")===k?"on":""}" data-a="setunits" data-u="${k}" aria-pressed="${(S.units||"si")===k}">${l}</button>`).join("")}</div></div>
       <div class="srow"><span class="lbl">${esc(t("setDec"))}<span class="sub">${esc(t("setDecSub"))}</span></span><div class="seg">${[["auto",t("setDecAuto")],["comma","3,14"],["point","3.14"]].map(([k,l])=>`<button class="${(S.dec||"auto")===k?"on":""}" data-a="setdec" data-d="${k}" aria-pressed="${(S.dec||"auto")===k}">${esc(l)}</button>`).join("")}</div></div>
     </div>`,
@@ -501,7 +502,7 @@ function renderSettings(){
   const theme = t("theme_" + (S.theme || "auto")), on = rem.on && (NATIVE || pushSupported());
   const SECS = [
     ["learn", t("sgLearning"), I.target, "var(--accent)", [myStudies().map(id => studyName(STUDY(id))).join(", "), (S.goal || 10) + " XP " + T("om dagen", "a day")].filter(Boolean).join(" · ")],
-    ["look", t("sgLook"), SET_IC.look, "var(--u2)", [LANG === "en" ? "English" : "Norsk", theme].join(" · ")],
+    ["look", t("sgLook"), SET_IC.look, "var(--u2)", [LANG === "en" ? "English" : "Norsk", theme, mcOn() ? "" : T("formelfarger av", "formula colours off")].filter(Boolean).join(" · ")],
     ["sound", t("sgSound"), SET_IC.sound, "var(--gold-deep)", [T("Påminnelse ", "Reminder ") + (on ? T("på", "on") : T("av", "off")), T("lyder ", "sounds ") + (S.sound !== false ? T("på", "on") : T("av", "off"))].join(" · ")],
     ["account", t("sgAccount"), SET_IC.account, "var(--ok)", CLOUD_ON && AUTH ? (AUTH.email || "") : T("Logg inn og sikkerhetskopi", "Log in and backup")],
     ["help", t("sgHelp"), SET_IC.help, "var(--muted)", T("Tilbakemelding, personvern og vilkår", "Feedback, privacy and terms")]
@@ -1455,6 +1456,8 @@ function thLayers(html, mid = ""){
 document.addEventListener("toggle", () => { if(typeof fitSoon === "function") fitSoon(); }, true);
 document.addEventListener("click", e => { const b = e.target.closest && e.target.closest('[data-a="thsall"]'); if(!b) return; e.stopPropagation();
   const all = [...document.querySelectorAll("details.ths")], open = !all.every(d => d.open); all.forEach(d => d.open = open); b.textContent = open ? T("Lukk alle", "Close all") : T("Åpne alle", "Open all"); }, true);
+// Bryteren for farger i formler, rett over innholdet når det har fargede formler
+const mcWrap = html => /class="mc-[abc]"/.test(html) ? `<div class="mc-tog-row">${mcToggleHTML()}</div>${html}` : html;
 function theoryBody(code, u, quiz){ const doc = theoryOf(code, u); if(!doc) return `<p>${esc(t("noTheory"))}</p>`; if(!cfNeed(code)) return cfWaitHTML(code); /* fagfila lastes (cfload.js) */ const src = withSims(code, u, withFigs(code, u, doc[LANG] || doc.nb));
   return (typeof ttsBarHTML === "function" ? ttsBarHTML() : "") + thLayers(richDoc(src), tyKeyHTML(src)) + (quiz ? cyHTML(code, u) : ""); }
 function renderTheory(){
@@ -1462,14 +1465,14 @@ function renderTheory(){
   const c = COURSE(TH.code);
   $app.innerHTML = `<div class="top"><div class="wrap"><button class="iconbtn" data-a="home" aria-label="${esc(t("back"))}">${I.x}</button>
       <div class="th-t"><small>${esc(courseName(c))} · ${esc(t("unit", TH.u+1))}</small><b>${esc(unitTitle(c, TH.u))}</b></div>${ttsTopBtn("main.theory")}</div></div>
-    <main class="wrap theory">${betaNoteHTML(TH.code)}${teacherBubble(TH.code, esc(t("tchTheory", unitTitle(c, TH.u))), 52, "tch-th")}<button class="gd-cta" data-a="thguided">${I.steps}<span><b>${esc(t("gdCta"))}</b><small>${esc(t("gdCtaSub"))}</small></span>${I.chevron}</button>${pfTheoryHTML(TH.code, TH.u)}${labTheoryHTML(TH.code, TH.u)}${theoryBody(TH.code, TH.u, true)}</main>
+    <main class="wrap theory">${betaNoteHTML(TH.code)}${teacherBubble(TH.code, esc(t("tchTheory", unitTitle(c, TH.u))), 52, "tch-th")}<button class="gd-cta" data-a="thguided">${I.steps}<span><b>${esc(t("gdCta"))}</b><small>${esc(t("gdCtaSub"))}</small></span>${I.chevron}</button>${pfTheoryHTML(TH.code, TH.u)}${labTheoryHTML(TH.code, TH.u)}${mcWrap(theoryBody(TH.code, TH.u, true))}</main>
     <div class="lfoot"><div class="wrap"><button class="big" data-a="thstart">${esc(t(TH.go ? "thStartFirst" : "thStart"))}</button></div></div>`;
 }
 function theorySheetHTML(o){
   const c = COURSE(o.code);
   return `<div class="sc thsheet" role="dialog" aria-modal="true" aria-label="${esc(t("theoryFor", unitTitle(c, o.u)))}">
     <div class="wrap sc-top"><div class="th-t"><small>${esc(t("theory"))}</small><b>${esc(unitTitle(c, o.u))}</b></div><button class="iconbtn" data-a="closeov" aria-label="${esc(t("scClose"))}">${I.x}</button></div>
-    <div class="thbody"><div class="wrap theory">${betaNoteHTML(o.code, true)}${theoryBody(o.code, o.u)}</div></div></div>`;
+    <div class="thbody"><div class="wrap theory">${betaNoteHTML(o.code, true)}${mcWrap(theoryBody(o.code, o.u))}</div></div></div>`;
 }
 function preReady(code){ const c = COURSES.find(x=>x.code===code); if(!c) return true; const {d,tot} = courseProgress(c); return tot>0 && d/tot >= 0.6; }
 const knownCodes = list => (list||[]).filter(k => COURSES.some(x=>x.code===k));
@@ -1491,9 +1494,19 @@ function sinceUpdate(extra){
   const v = Math.min(...c); if(v !== S.since){ S.since = v; saveLocal(); }
 }
 // Tema: "auto" følger systemet, ellers tvinges lys eller mørk (data-theme i styles.css). theme-color følger med.
+// Farger i formler (learn.js: MC): på som standard. Knappen står ved formlene på emne- og teorisider, og i Innstillinger.
+// Av: formlene, figurene og labben vises i vanlig tekstfarge (styles.css: .mc-off), og ⟦…⟧-tekst om fargene skjules.
+const mcOn = () => S.mcColors !== false;
+const mcLabel = on => on ? T("Farger i formler: på", "Colours in formulas: on") : T("Farger i formler: av", "Colours in formulas: off");
+function mcToggleHTML(){ const on = mcOn();
+  return `<button class="mc-tog" data-a="mctoggle" aria-pressed="${on}" title="${esc(T("Vis hvilket ledd som er hvilket med farger, eller formelen slik den står på eksamen", "Show which term is which with colours, or the formula as it appears in the exam"))}"><span class="mc-dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="mc-lbl">${esc(mcLabel(on))}</span></button>`; }
+function mcSync(){ const on = mcOn();
+  document.querySelectorAll('[data-a="mctoggle"]').forEach(b => { if(b.classList.contains("tog")){ b.classList.toggle("on", on); b.setAttribute("aria-checked", on); }
+    else { b.setAttribute("aria-pressed", on); const l = b.querySelector(".mc-lbl"); if(l) l.textContent = mcLabel(on); } }); }
 function applyTheme(){
   const th = S.theme === "dark" || S.theme === "light" ? S.theme : null, de = document.documentElement;
   if(th) de.setAttribute("data-theme", th); else de.removeAttribute("data-theme");
+  de.classList.toggle("mc-off", S.mcColors === false); // farger i formler av (se mcToggleHTML)
   thApply();
   const dark = th ? th === "dark" : !!(window.matchMedia && matchMedia("(prefers-color-scheme: dark)").matches);
   document.querySelector('meta[name="theme-color"]')?.setAttribute("content", dark ? (TH_PAPERS.find(p => p[0] === (S.paper || "")) || TH_PAPERS[0])[4] : thAccent()[3][0]);
@@ -1700,6 +1713,9 @@ document.addEventListener("click", async e=>{
   else if(a==="settheme"){ S.theme = b.dataset.m; save(); render(); }
   else if(a==="langpick"){ LANG = b.dataset.l; S.lang = LANG; S.langSet = 1; save(); overlay = null; renderOverlay(); render(); setTimeout(bootPrompts, 250); }
   else if(a==="setgoal"){ S.goal = +b.dataset.g; save(); render(); }
+  else if(a==="mctoggle"){ // uten ny tegning; knappen blir stående samme sted på skjermen selv om tekst om fargene over den skjules
+    const y0 = b.getBoundingClientRect().top; S.mcColors = !mcOn(); save(); applyTheme(); mcSync();
+    const dy = b.getBoundingClientRect().top - y0; if(Math.abs(dy) > 1) window.scrollBy(0, dy); }
   else if(a==="sndtoggle"){ S.sound = S.sound === false; save(); render(); if(S.sound) sfx("ok", 3); }
   else if(a==="stattoggle"){ stAnswer(S.statsOk !== 1); render(); }
   else if(a==="statyes" || a==="statno"){ stAnswer(a === "statyes"); }

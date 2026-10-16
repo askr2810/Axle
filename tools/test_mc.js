@@ -171,6 +171,29 @@ M.setLang('nb');
   const f = path.join(os.tmpdir(), 'axle_mcd_' + process.pid + '.js'); fs.writeFileSync(f, dsrc); const D = require(f); fs.unlinkSync(f);
   for(const lang of ['nb', 'en']){ D.setL(lang); for(const c of D.DRILL){ const t = D.drText; checkQ([t(c[2]), [t(c[3]), ...c[4].map(t)], t(c[5])], `${lang} drill ${c[0]}`); } } }
 
+// ---------- 6: tekst om fargene står i ⟦…⟧ (skjules når «Farger i formler» er av) ----------
+// Ellers ville forklaringen vise til farger eleven ikke ser.
+const COLW = /(^|[^a-zæøå])(blått|blå|blåe|oransje|magenta|lilla|blue|orange|purple)(?![a-zæøå])/i;
+function colourText(str, w){
+  const s0 = String(str || ''); let d = 0;
+  for(const ch of s0){ if(ch === '⟦') d++; if(ch === '⟧') d--; if(d < 0 || d > 1) return E(w, 'ubalanserte ⟦⟧'); }
+  if(d) return E(w, 'ubalanserte ⟦⟧');
+  const outside = s0.replace(/⟦[^⟧]*⟧/g, ' ').replace(/\$[^$]*\$/g, ' ');
+  const m = outside.match(COLW); if(m) E(w, `fargeordet «${m[2]}» står utenfor ⟦…⟧`);
+}
+const marks = s => (String(s).match(/⟦/g) || []).length;
+for(const [code, units] of Object.entries(M.TOPIC_DB)) (units || []).forEach(list => (list || []).forEach(tp => {
+  if(!hasMC(JSON.stringify(tp))) return;
+  for(const lang of ['nb', 'en']){ const x = tp[lang], w = `${code} ${tp.id} ${lang}`;
+    colourText(x.intro, w + ' intro'); colourText(x.ex, w + ' ex'); colourText(x.tip, w + ' tip');
+    (x.f || []).forEach(([, d], k) => colourText(d, `${w} f${k}`)); (x.legend || []).forEach(([, m], k) => colourText(m, `${w} legend${k}`));
+    (x.steps || []).forEach((g, gi) => { colourText(g.h, `${w} steg ${gi + 1}`); g.rows.forEach(([, d], ri) => colourText(d, `${w} steg ${gi + 1}.${ri + 1}`)); }); }
+  if(marks(JSON.stringify(tp.nb)) !== marks(JSON.stringify(tp.en))) E(`${code} ${tp.id}`, 'ulikt antall ⟦…⟧ på norsk og engelsk');
+}));
+for(const [code, units] of Object.entries(M.THEORY_DB)) (units || []).forEach((d, u) => { if(!d) return;
+  for(const lang of ['nb', 'en']) if(hasMC(d[lang])) d[lang].split(/\n\s*\n/).filter(hasMC).forEach(par => colourText(par, `${code} ${u} ${lang} teori`));
+  if(hasMC(d.nb) && marks(d.nb) !== marks(d.en || '')) E(`${code} ${u}`, 'teorien har ulikt antall ⟦…⟧ på norsk og engelsk'); });
+
 // ---------- 4: klassene og kontrasten ----------
 const html = M.mcClass(katex.renderToString(M.mcA('a') + '+b', { output: 'mathml' }));
 if(!/mathcolor="#1D5FC2" class="mc-a"/i.test(html)) E('mcClass', 'klassen mc-a mangler i ' + html.slice(0, 120));

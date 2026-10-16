@@ -66,7 +66,7 @@ for(const code of codes){
 }
 
 // ---------- søkeindeks (liten): ingress og stikkord per enhet, tittel og stikkord per emne ----------
-const clean = s => String(s || '').replace(/```[\s\S]*?```/g, ' ').replace(/\$\$[^$]*\$\$/g, ' ').replace(/\$[^$]*\$/g, ' ').replace(/\*\*|`|\\/g, '').replace(/!\[[^\]]*\]/g, ' ').replace(/\s+/g, ' ').trim();
+const clean = s => String(s || '').replace(/[⟦⟧]/g, '').replace(/```[\s\S]*?```/g, ' ').replace(/\$\$[^$]*\$\$/g, ' ').replace(/\$[^$]*\$/g, ' ').replace(/\*\*|`|\\/g, '').replace(/!\[[^\]]*\]/g, ' ').replace(/\s+/g, ' ').trim();
 const lead = src => { const p = String(src || '').split(/\n\s*\n/).map(x => x.replace(/^##.*\n?/, '').trim()).find(x => x && !/^(#|>|-|!\[|\d+[.)]|\$\$|```)/.test(x)); const s = clean(p); return s.length > 90 ? s.slice(0, 88).replace(/\s+\S*$/, '') + ' …' : s; };
 const kw = (src, extra = [], max = 200) => { const out = [], seen = new Set(), add = w => { w = clean(w).replace(/[:.,;]+$/, ''); const k = w.toLowerCase(); if(w && w.length < 48 && !seen.has(k)){ seen.add(k); out.push(w); } };
   extra.forEach(add); for(const l of String(src || '').split('\n')){ const h = l.match(/^#{2,3}\s+(.+)/); if(h) add(h[1]); } (String(src || '').match(/\*\*([^*]{2,40})\*\*/g) || []).forEach(m => add(m.slice(2, -2)));

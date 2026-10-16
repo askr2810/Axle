@@ -118,13 +118,13 @@ const unitName = (c, u) => (L === 'en' && META[c.code] && META[c.code].units && 
 const codesOf = c => [...((META[c.code] && META[c.code].eq) || []), ...(EXTRA_CODES[c.code] || [])];
 function tex(m, display){ try{ return M.mcClass(katex.renderToString(dec(m), { output: 'mathml', displayMode: !!display, throwOnError: false, strict: 'ignore' })); }catch(e){ return esc(m); } }
 function inline(s){ // tekst med $matte$, **fet** og `kode`
-  return dec(s).split(/(```[\s\S]*?```)/).map((blk, j) => {
+  return dec(s).replace(/[⟦⟧]/g, '').split(/(```[\s\S]*?```)/).map((blk, j) => {
     if(j % 2) return '<pre><code>' + esc(blk.replace(/^```\n?|\n?```$/g, '')) + '</code></pre>';
     return blk.split(/\$\$([^$]+)\$\$/).map((part, k) => k % 2 ? '<span class="dm">' + tex(part, true) + '</span>' : // $$…$$ midt i en linje
       part.split('$').map((p, i) => i % 2 ? tex(p) : esc(p).replace(/\*\*([^*]+?)\*\*/g, '<b>$1</b>').replace(/`([^`]+)`/g, '<code>$1</code>')).join('')).join('');
   }).join('');
 }
-const plain = s => dec(s).replace(/\$[^$]*\$/g, ' ').replace(/\*\*/g, '').replace(/`/g, '').replace(/\s+/g, ' ').trim();
+const plain = s => dec(s).replace(/[⟦⟧]/g, '').replace(/\$[^$]*\$/g, ' ').replace(/\*\*/g, '').replace(/`/g, '').replace(/\s+/g, ' ').trim();
 const curLang = () => L; // språket som skrives nå (L skygges av linjevariabelen under)
 function mdToHtml(src){ // samme markering som teorien i appen (##, ###, lister, >, $$, ```)
   const out = []; let para = [], list = null, box = [], code = null;

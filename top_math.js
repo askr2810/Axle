@@ -23,7 +23,7 @@ TOPICS("GMAT", 0, [
   nb: { t: "Brøkregning",
     intro: "En brøk $\\frac{a}{b}$ betyr $a$ delt på $b$. Ved pluss og minus må brøkene ha felles nevner, ved ganging ganger vi teller med teller og nevner med nevner, og ved deling ganger vi med den omvendte brøken.",
     f: [[`\\frac{${mcA("a")}}{${mcA("b")}} + \\frac{${mcB("c")}}{${mcB("d")}} = \\frac{${mcA("a")}${mcC("d")}+${mcB("c")}${mcC("b")}}{${mcA("b")}${mcC("d")}}`, "addisjon (felles nevner)"], ["\\frac{a}{b}\\cdot\\frac{c}{d} = \\frac{ac}{bd}", "multiplikasjon"], ["\\frac{a}{b} : \\frac{c}{d} = \\frac{a}{b}\\cdot\\frac{d}{c}", "divisjon: gang med den omvendte brøken"]],
-    legend: [[`${mcA("a")},\\ ${mcB("c")}`, "tellere: første brøk blå, andre brøk oransje", ""], [`${mcA("b")},\\ ${mcB("d")}`, "nevnere", ""], [`${mcC("d")},\\ ${mcC("b")}`, "tallet vi utvider med, ganget over og under brøkstreken (magenta)", ""]],
+    legend: [[`${mcA("a")},\\ ${mcB("c")}`, "tellere⟦: første brøk blå, andre brøk oransje⟧", ""], [`${mcA("b")},\\ ${mcB("d")}`, "nevnere", ""], [`${mcC("d")},\\ ${mcC("b")}`, "tallet vi utvider med, ganget over og under brøkstreken⟦ (magenta)⟧", ""]],
     steps: [
       { h: "Hvorfor vi må utvide før vi legger sammen", rows: [
         [`\\frac{${mcA("a")}}{${mcA("b")}} + \\frac{${mcB("c")}}{${mcB("d")}}`, "Vi kan bare legge sammen brøker som har samme nevner, akkurat som vi bare kan legge sammen like enheter. Produktet $b\\cdot d$ passer som felles nevner, fordi både $b$ og $d$ går opp i det."],
@@ -34,7 +34,7 @@ TOPICS("GMAT", 0, [
   en: { t: "Fractions",
     intro: "A fraction $\\frac{a}{b}$ means $a$ divided by $b$. For addition and subtraction the fractions need a common denominator, for multiplication we multiply numerator by numerator and denominator by denominator, and for division we multiply by the reciprocal.",
     f: [[`\\frac{${mcA("a")}}{${mcA("b")}} + \\frac{${mcB("c")}}{${mcB("d")}} = \\frac{${mcA("a")}${mcC("d")}+${mcB("c")}${mcC("b")}}{${mcA("b")}${mcC("d")}}`, "addition (common denominator)"], ["\\frac{a}{b}\\cdot\\frac{c}{d} = \\frac{ac}{bd}", "multiplication"], ["\\frac{a}{b} \\div \\frac{c}{d} = \\frac{a}{b}\\cdot\\frac{d}{c}", "division: multiply by the reciprocal"]],
-    legend: [[`${mcA("a")},\\ ${mcB("c")}`, "numerators: first fraction blue, second fraction orange", ""], [`${mcA("b")},\\ ${mcB("d")}`, "denominators", ""], [`${mcC("d")},\\ ${mcC("b")}`, "the number we expand by, multiplied above and below the fraction bar (magenta)", ""]],
+    legend: [[`${mcA("a")},\\ ${mcB("c")}`, "numerators⟦: first fraction blue, second fraction orange⟧", ""], [`${mcA("b")},\\ ${mcB("d")}`, "denominators", ""], [`${mcC("d")},\\ ${mcC("b")}`, "the number we expand by, multiplied above and below the fraction bar⟦ (magenta)⟧", ""]],
     steps: [
       { h: "Why we expand before adding", rows: [
         [`\\frac{${mcA("a")}}{${mcA("b")}} + \\frac{${mcB("c")}}{${mcB("d")}}`, "We can only add fractions with the same denominator, just as we can only add like units. The product $b\\cdot d$ works as a common denominator, because both $b$ and $d$ divide it."],
@@ -46,7 +46,7 @@ TOPICS("GMAT", 0, [
   nb: { t: "Prosent og vekstfaktor",
     intro: "Prosent betyr hundredeler: $p\\,\\% = \\frac{p}{100}$. En økning på $p\\,\\%$ svarer til å gange med vekstfaktoren $1+\\frac{p}{100}$, og en nedgang svarer til å gange med $1-\\frac{p}{100}$. Flere endringer etter hverandre ganges sammen.",
     f: [["p\\,\\% = \\frac{p}{100}", "prosent som desimaltall"], [`\\text{ny} = ${mcA("\\text{gammel}")}\\cdot\\left(1 \\pm ${mcC("\\frac{p}{100}")}\\right)`, "vekstfaktor ved økning (+) eller nedgang (−)"], ["\\text{endring} = \\frac{\\text{ny} - \\text{gammel}}{\\text{gammel}}\\cdot 100\\,\\%", "prosentvis endring"]],
-    legend: [["p", "prosentsats", "%"], [mcA("\\text{gammel}"), "verdien før endringen (blå)", ""], [mcC("\\tfrac{p}{100}"), "endringen som andel av den gamle verdien (magenta)", ""]],
+    legend: [["p", "prosentsats", "%"], [mcA("\\text{gammel}"), "verdien før endringen⟦ (blå)⟧", ""], [mcC("\\tfrac{p}{100}"), "endringen som andel av den gamle verdien⟦ (magenta)⟧", ""]],
     steps: [
       { h: "Hvor vekstfaktoren kommer fra", rows: [
         [`\\text{ny} = ${mcA("\\text{gammel}")} + ${mcC("\\tfrac{p}{100}\\cdot\\text{gammel}")}`, "Den nye verdien er den gamle verdien pluss økningen. Økningen er $p\\,\\%$ av den gamle verdien, altså $\\frac{p}{100}$ ganger den gamle."],
@@ -59,7 +59,7 @@ TOPICS("GMAT", 0, [
   en: { t: "Percent and growth factor",
     intro: "Percent means hundredths: $p\\% = \\frac{p}{100}$. An increase of $p\\%$ corresponds to multiplying by the growth factor $1+\\frac{p}{100}$, and a decrease corresponds to multiplying by $1-\\frac{p}{100}$. Several changes in a row are multiplied together.",
     f: [["p\\% = \\frac{p}{100}", "percent as a decimal"], [`\\text{new} = ${mcA("\\text{old}")}\\cdot\\left(1 \\pm ${mcC("\\frac{p}{100}")}\\right)`, "growth factor for an increase (+) or decrease (−)"], ["\\text{change} = \\frac{\\text{new} - \\text{old}}{\\text{old}}\\cdot 100\\%", "percentage change"]],
-    legend: [["p", "percentage rate", "%"], [mcA("\\text{old}"), "the value before the change (blue)", ""], [mcC("\\tfrac{p}{100}"), "the change as a share of the old value (magenta)", ""]],
+    legend: [["p", "percentage rate", "%"], [mcA("\\text{old}"), "the value before the change⟦ (blue)⟧", ""], [mcC("\\tfrac{p}{100}"), "the change as a share of the old value⟦ (magenta)⟧", ""]],
     steps: [
       { h: "Where the growth factor comes from", rows: [
         [`\\text{new} = ${mcA("\\text{old}")} + ${mcC("\\tfrac{p}{100}\\cdot\\text{old}")}`, "The new value is the old value plus the increase. The increase is $p\\%$ of the old value, that is $\\frac{p}{100}$ times the old one."],
@@ -77,11 +77,11 @@ TOPICS("GMAT", 1, [
   nb: { t: "Potensregler",
     intro: "En potens $a^n$ er en snarvei for gjentatt multiplikasjon av $a$ med seg selv $n$ ganger. Ved ganging av like grunntall legges eksponentene sammen, ved deling trekkes de fra, og ved potens i potens ganges de. Utledningen under viser hvorfor, ved å telle $a$-ene.",
     f: [[`a^{${mcA("m")}}\\cdot a^{${mcB("n")}} = a^{${mcA("m")}+${mcB("n")}}`, "ganging: legg sammen eksponentene"], [`\\frac{a^{${mcA("m")}}}{a^{${mcB("n")}}} = a^{${mcA("m")}-${mcB("n")}}`, "deling: trekk fra eksponentene"], [`(a^{${mcA("m")}})^{${mcB("n")}} = a^{${mcA("m")}\\cdot ${mcB("n")}}`, "potens i potens: gang eksponentene"]],
-    legend: [["a", "grunntall", ""], [`${mcA("m")},\\ ${mcB("n")}`, "eksponenter: den første blå, den andre oransje", ""]],
+    legend: [["a", "grunntall", ""], [`${mcA("m")},\\ ${mcB("n")}`, "eksponenter⟦: den første blå, den andre oransje⟧", ""]],
     steps: [
       { h: "Ganging: hvorfor eksponentene legges sammen", rows: [
         [`a^{${mcA("3")}}\\cdot a^{${mcB("2")}} = (${mcA("a\\cdot a\\cdot a")})\\cdot(${mcB("a\\cdot a")})`, "En potens er gjentatt ganging: $a^3$ er tre $a$-er ganget sammen, og $a^2$ er to."],
-        [`= ${mcA("a\\cdot a\\cdot a")}\\cdot ${mcB("a\\cdot a")}`, "Ta bort parentesene. Nå står det fem $a$-er ganget sammen: tre blå og to oransje."],
+        [`= ${mcA("a\\cdot a\\cdot a")}\\cdot ${mcB("a\\cdot a")}`, "Ta bort parentesene. Nå står det fem $a$-er ganget sammen⟦: tre blå og to oransje⟧."],
         [`= a^{${mcA("3")}+${mcB("2")}} = a^5`, "Antallet er $3 + 2 = 5$. Med $m$ og $n$ $a$-er blir det $m + n$ til sammen, og derfor er $a^m\\cdot a^n = a^{m+n}$."]] },
       { h: "Deling: hvorfor eksponentene trekkes fra", rows: [
         [`\\frac{a^{${mcA("5")}}}{a^{${mcB("2")}}} = \\frac{${mcA("a\\cdot a\\cdot a\\cdot a\\cdot a")}}{${mcB("a\\cdot a")}}`, "Skriv potensene som ganging: fem $a$-er over brøkstreken og to under."],
@@ -94,11 +94,11 @@ TOPICS("GMAT", 1, [
   en: { t: "Laws of exponents",
     intro: "A power $a^n$ is a shorthand for multiplying $a$ by itself $n$ times. When multiplying the same base the exponents are added, when dividing they are subtracted, and for a power of a power they are multiplied. The derivation below shows why, by counting the $a$'s.",
     f: [[`a^{${mcA("m")}}\\cdot a^{${mcB("n")}} = a^{${mcA("m")}+${mcB("n")}}`, "multiplication: add the exponents"], [`\\frac{a^{${mcA("m")}}}{a^{${mcB("n")}}} = a^{${mcA("m")}-${mcB("n")}}`, "division: subtract the exponents"], [`(a^{${mcA("m")}})^{${mcB("n")}} = a^{${mcA("m")}\\cdot ${mcB("n")}}`, "power of a power: multiply the exponents"]],
-    legend: [["a", "base", ""], [`${mcA("m")},\\ ${mcB("n")}`, "exponents: the first blue, the second orange", ""]],
+    legend: [["a", "base", ""], [`${mcA("m")},\\ ${mcB("n")}`, "exponents⟦: the first blue, the second orange⟧", ""]],
     steps: [
       { h: "Multiplication: why the exponents are added", rows: [
         [`a^{${mcA("3")}}\\cdot a^{${mcB("2")}} = (${mcA("a\\cdot a\\cdot a")})\\cdot(${mcB("a\\cdot a")})`, "A power is repeated multiplication: $a^3$ is three $a$'s multiplied together, and $a^2$ is two."],
-        [`= ${mcA("a\\cdot a\\cdot a")}\\cdot ${mcB("a\\cdot a")}`, "Remove the brackets. Now there are five $a$'s multiplied together: three blue and two orange."],
+        [`= ${mcA("a\\cdot a\\cdot a")}\\cdot ${mcB("a\\cdot a")}`, "Remove the brackets. Now there are five $a$'s multiplied together⟦: three blue and two orange⟧."],
         [`= a^{${mcA("3")}+${mcB("2")}} = a^5`, "The count is $3 + 2 = 5$. With $m$ and $n$ $a$'s there are $m + n$ altogether, so $a^m\\cdot a^n = a^{m+n}$."]] },
       { h: "Division: why the exponents are subtracted", rows: [
         [`\\frac{a^{${mcA("5")}}}{a^{${mcB("2")}}} = \\frac{${mcA("a\\cdot a\\cdot a\\cdot a\\cdot a")}}{${mcB("a\\cdot a")}}`, "Write the powers as multiplication: five $a$'s above the fraction bar and two below."],
@@ -142,11 +142,11 @@ TOPICS("GMAT", 2, [
   // arealet av et kvadrat med side a + b: a² og b² i hjørnene, og to rektangler ab – derfor 2ab
   fig: `<svg viewBox="0 0 240 140"><rect x="70" y="22" width="70" height="70" class="ma"/><rect x="140" y="22" width="35" height="70" class="mc"/><rect x="70" y="92" width="70" height="35" class="mc"/><rect x="140" y="92" width="35" height="35" class="mb"/><path d="M70 14H139" class="mla"/><path d="M141 14H175" class="mlb"/><path d="M60 22V91" class="mla"/><path d="M60 93V127" class="mlb"/><text x="101" y="10" class="mta">a</text><text x="154" y="10" class="mtb">b</text><text x="46" y="62" class="mta">a</text><text x="46" y="115" class="mtb">b</text><text x="95" y="63" class="mta">a²</text><text x="148" y="63" class="mtc">ab</text><text x="95" y="115" class="mtc">ab</text><text x="148" y="115" class="mtb">b²</text></svg>`,
   nb: { t: "Kvadratsetningene",
-    intro: `Kvadratsetningene er snarveier for å multiplisere ut vanlige parentesuttrykk, og brukes motsatt vei ved faktorisering. Fargene viser hvor hvert ledd kommer fra: det første leddet $${mcA("a")}$ er blått, det andre leddet $${mcB("b")}$ er oransje, og midtleddet som lages av begge sammen er magenta.`,
+    intro: `Kvadratsetningene er snarveier for å multiplisere ut vanlige parentesuttrykk, og brukes motsatt vei ved faktorisering.⟦ Fargene viser hvor hvert ledd kommer fra: det første leddet $${mcA("a")}$ er blått, det andre leddet $${mcB("b")}$ er oransje, og midtleddet som lages av begge sammen er magenta.⟧`,
     f: [[`(${mcA("a")}+${mcB("b")})^2 = ${mcA("a^2")} + ${mcC("2ab")} + ${mcB("b^2")}`, "første kvadratsetning"],
         [`(${mcA("a")}-${mcB("b")})^2 = ${mcA("a^2")} - ${mcC("2ab")} + ${mcB("b^2")}`, "andre kvadratsetning"],
         [`(${mcA("a")}+${mcB("b")})(${mcA("a")}-${mcB("b")}) = ${mcA("a^2")} - ${mcB("b^2")}`, "konjugatsetningen (tredje kvadratsetning)"]],
-    legend: [[mcA("a"), "første ledd i parentesen (blått)", ""], [mcB("b"), "andre ledd i parentesen (oransje)", ""], [mcC("2ab"), "midtleddet: $a$ ganget med $b$, to ganger (magenta)", ""]],
+    legend: [[mcA("a"), "første ledd i parentesen⟦ (blått)⟧", ""], [mcB("b"), "andre ledd i parentesen⟦ (oransje)⟧", ""], [mcC("2ab"), "midtleddet: $a$ ganget med $b$, to ganger⟦ (magenta)⟧", ""]],
     steps: [
       { h: "Første kvadratsetning: $(a+b)^2$", rows: [
         [`(${mcA("a")}+${mcB("b")})^2 = (${mcA("a")}+${mcB("b")})(${mcA("a")}+${mcB("b")})`, "Å kvadrere betyr å gange med seg selv. Skriv kvadratet som to like parenteser."],
@@ -167,11 +167,11 @@ TOPICS("GMAT", 2, [
     ex: `Med $a = x$ og $b = 3$:\n$(${mcA("x")}+${mcB("3")})^2 = ${mcA("x^2")} + ${mcC("2\\cdot x\\cdot 3")} + ${mcB("3^2")}$\n$= ${mcA("x^2")} + ${mcC("6x")} + ${mcB("9")}$\n$(${mcA("2x")}-${mcB("5")})^2 = ${mcA("4x^2")} - ${mcC("20x")} + ${mcB("25")}$, fordi midtleddet er $${mcC("2\\cdot 2x\\cdot 5")} = ${mcC("20x")}$\nI hodet: $23^2 = (${mcA("20")}+${mcB("3")})^2$\n$= ${mcA("400")} + ${mcC("120")} + ${mcB("9")} = 529$\nKonjugat: $(${mcA("x")}+${mcB("3")})(${mcA("x")}-${mcB("3")}) = ${mcA("x^2")} - ${mcB("9")}$`,
     tip: `$(${mcA("a")}+${mcB("b")})^2 \\neq ${mcA("a^2")} + ${mcB("b^2")}$ - midtleddet $${mcC("2ab")}$ blir ofte glemt.` },
   en: { t: "The square rules",
-    intro: `The square rules are shortcuts for expanding common parenthesised expressions, and are used in reverse when factoring. The colours show where each term comes from: the first term $${mcA("a")}$ is blue, the second term $${mcB("b")}$ is orange, and the middle term made from both together is magenta.`,
+    intro: `The square rules are shortcuts for expanding common parenthesised expressions, and are used in reverse when factoring.⟦ The colours show where each term comes from: the first term $${mcA("a")}$ is blue, the second term $${mcB("b")}$ is orange, and the middle term made from both together is magenta.⟧`,
     f: [[`(${mcA("a")}+${mcB("b")})^2 = ${mcA("a^2")} + ${mcC("2ab")} + ${mcB("b^2")}`, "first square rule"],
         [`(${mcA("a")}-${mcB("b")})^2 = ${mcA("a^2")} - ${mcC("2ab")} + ${mcB("b^2")}`, "second square rule"],
         [`(${mcA("a")}+${mcB("b")})(${mcA("a")}-${mcB("b")}) = ${mcA("a^2")} - ${mcB("b^2")}`, "difference of squares (third square rule)"]],
-    legend: [[mcA("a"), "first term in the brackets (blue)", ""], [mcB("b"), "second term in the brackets (orange)", ""], [mcC("2ab"), "the middle term: $a$ times $b$, twice (magenta)", ""]],
+    legend: [[mcA("a"), "first term in the brackets⟦ (blue)⟧", ""], [mcB("b"), "second term in the brackets⟦ (orange)⟧", ""], [mcC("2ab"), "the middle term: $a$ times $b$, twice⟦ (magenta)⟧", ""]],
     steps: [
       { h: "First square rule: $(a+b)^2$", rows: [
         [`(${mcA("a")}+${mcB("b")})^2 = (${mcA("a")}+${mcB("b")})(${mcA("a")}+${mcB("b")})`, "Squaring means multiplying by itself. Write the square as two identical brackets."],
@@ -195,12 +195,12 @@ TOPICS("GMAT", 2, [
   nb: { t: "Lineær ligning",
     intro: "En lineær ligning har den ukjente $x$ bare i første grad. Vi løser den ved å gjøre samme operasjon på begge sider av likhetstegnet, til $x$ står alene på én side.",
     f: [[`${mcA("ax")} + ${mcB("b")} = ${mcB("c")}\\ \\Rightarrow\\ ${mcA("x")} = \\frac{${mcB("c")}-${mcB("b")}}{a}`, "løs en lineær ligning for x"]],
-    legend: [["a,\\ b,\\ c", "kjente tall", ""], [mcA("x"), "den ukjente, og ledd med $x$ (blått)", ""], [mcB("4"), "tall uten $x$ (oransje)", ""], [mcC("{}-2x"), "det vi gjør på begge sider (magenta)", ""]],
+    legend: [["a,\\ b,\\ c", "kjente tall", ""], [mcA("x"), "den ukjente, og ledd med $x$⟦ (blått)⟧", ""], [mcB("4"), "tall uten $x$⟦ (oransje)⟧", ""], [mcC("{}-2x"), "det vi gjør på begge sider⟦ (magenta)⟧", ""]],
     steps: [
       { h: "Løs $3(x-2) = 2x + 4$ steg for steg", chk: { x: 10 }, rows: [
         ["3(x-2) = 2x + 4", "Målet er å få $x$ alene på én side av likhetstegnet."],
-        [`${mcA("3x")} - ${mcB("6")} = ${mcA("2x")} + ${mcB("4")}`, "Gang ut parentesen: $3\\cdot x = 3x$ og $3\\cdot({-2}) = {-6}$. Nå er leddene med $x$ blå og tallene oransje."],
-        [`${mcA("3x")} - ${mcB("6")} ${mcC("{}- 2x")} = ${mcA("2x")} + ${mcB("4")} ${mcC("{}- 2x")}`, "Trekk fra $2x$ på begge sider (magenta). Da forsvinner $x$-leddet fra høyre side, og likheten gjelder fortsatt."],
+        [`${mcA("3x")} - ${mcB("6")} = ${mcA("2x")} + ${mcB("4")}`, "Gang ut parentesen: $3\\cdot x = 3x$ og $3\\cdot({-2}) = {-6}$.⟦ Nå er leddene med $x$ blå og tallene oransje.⟧"],
+        [`${mcA("3x")} - ${mcB("6")} ${mcC("{}- 2x")} = ${mcA("2x")} + ${mcB("4")} ${mcC("{}- 2x")}`, "Trekk fra $2x$ på begge sider⟦ (magenta)⟧. Da forsvinner $x$-leddet fra høyre side, og likheten gjelder fortsatt."],
         [`${mcA("x")} - ${mcB("6")} = ${mcB("4")}`, "Trekk sammen: $3x - 2x = x$ til venstre, og $2x - 2x = 0$ til høyre."],
         [`${mcA("x")} - ${mcB("6")} ${mcC("{}+ 6")} = ${mcB("4")} ${mcC("{}+ 6")}`, "Legg til 6 på begge sider for å bli kvitt $-6$."],
         [`${mcA("x")} = ${mcB("10")}`, "Svar: $x = 10$. Sett prøve i den opprinnelige ligningen: $3(10-2) = 24$ og $2\\cdot 10 + 4 = 24$."]] }],
@@ -209,12 +209,12 @@ TOPICS("GMAT", 2, [
   en: { t: "Linear equation",
     intro: "A linear equation has the unknown $x$ only to the first power. We solve it by performing the same operation on both sides of the equals sign, until $x$ stands alone on one side.",
     f: [[`${mcA("ax")} + ${mcB("b")} = ${mcB("c")}\\ \\Rightarrow\\ ${mcA("x")} = \\frac{${mcB("c")}-${mcB("b")}}{a}`, "solve a linear equation for x"]],
-    legend: [["a,\\ b,\\ c", "known numbers", ""], [mcA("x"), "the unknown, and terms with $x$ (blue)", ""], [mcB("4"), "numbers without $x$ (orange)", ""], [mcC("{}-2x"), "what we do to both sides (magenta)", ""]],
+    legend: [["a,\\ b,\\ c", "known numbers", ""], [mcA("x"), "the unknown, and terms with $x$⟦ (blue)⟧", ""], [mcB("4"), "numbers without $x$⟦ (orange)⟧", ""], [mcC("{}-2x"), "what we do to both sides⟦ (magenta)⟧", ""]],
     steps: [
       { h: "Solve $3(x-2) = 2x + 4$ step by step", chk: { x: 10 }, rows: [
         ["3(x-2) = 2x + 4", "The goal is to get $x$ alone on one side of the equals sign."],
-        [`${mcA("3x")} - ${mcB("6")} = ${mcA("2x")} + ${mcB("4")}`, "Expand the bracket: $3\\cdot x = 3x$ and $3\\cdot({-2}) = {-6}$. Now the terms with $x$ are blue and the numbers orange."],
-        [`${mcA("3x")} - ${mcB("6")} ${mcC("{}- 2x")} = ${mcA("2x")} + ${mcB("4")} ${mcC("{}- 2x")}`, "Subtract $2x$ from both sides (magenta). The $x$ term disappears from the right side, and the equation still holds."],
+        [`${mcA("3x")} - ${mcB("6")} = ${mcA("2x")} + ${mcB("4")}`, "Expand the bracket: $3\\cdot x = 3x$ and $3\\cdot({-2}) = {-6}$.⟦ Now the terms with $x$ are blue and the numbers orange.⟧"],
+        [`${mcA("3x")} - ${mcB("6")} ${mcC("{}- 2x")} = ${mcA("2x")} + ${mcB("4")} ${mcC("{}- 2x")}`, "Subtract $2x$ from both sides⟦ (magenta)⟧. The $x$ term disappears from the right side, and the equation still holds."],
         [`${mcA("x")} - ${mcB("6")} = ${mcB("4")}`, "Simplify: $3x - 2x = x$ on the left, and $2x - 2x = 0$ on the right."],
         [`${mcA("x")} - ${mcB("6")} ${mcC("{}+ 6")} = ${mcB("4")} ${mcC("{}+ 6")}`, "Add 6 to both sides to get rid of $-6$."],
         [`${mcA("x")} = ${mcB("10")}`, "Answer: $x = 10$. Check in the original equation: $3(10-2) = 24$ and $2\\cdot 10 + 4 = 24$."]] }],
@@ -224,7 +224,7 @@ TOPICS("GMAT", 2, [
   nb: { t: "Andregradsligning",
     intro: "En andregradsligning $ax^2+bx+c=0$ løses med abc-formelen, i motsetning til en lineær ligning som løses ved å flytte og dele. Uttrykket under rottegnet, diskriminanten $D$, forteller hvor mange løsninger vi får. Formelen kommer fra første kvadratsetning, som utledningen under viser.",
     f: [["x = \\frac{-b \\pm \\sqrt{b^2 - 4ac}}{2a}", "abc-formelen"], ["D = b^2 - 4ac", "diskriminanten"]],
-    legend: [["a,\\ b,\\ c", "koeffisienter i $ax^2+bx+c=0$", ""], ["D", "diskriminant", ""], [mcA("x"), "første ledd i kvadratet (blått)", ""], [mcB("\\tfrac{b}{2a}"), "andre ledd i kvadratet (oransje)", ""], [mcC("2\\cdot x\\cdot\\tfrac{b}{2a}"), "midtleddet $2ab$ fra første kvadratsetning (magenta)", ""]],
+    legend: [["a,\\ b,\\ c", "koeffisienter i $ax^2+bx+c=0$", ""], ["D", "diskriminant", ""], [mcA("x"), "første ledd i kvadratet⟦ (blått)⟧", ""], [mcB("\\tfrac{b}{2a}"), "andre ledd i kvadratet⟦ (oransje)⟧", ""], [mcC("2\\cdot x\\cdot\\tfrac{b}{2a}"), "midtleddet $2ab$ fra første kvadratsetning⟦ (magenta)⟧", ""]],
     steps: [
       { h: "Hvor abc-formelen kommer fra", chk: { a: 2, b: -4, c: -6, x: 3 }, rows: [
         ["ax^2 + bx + c = 0", "Start med den generelle ligningen, der $a \\neq 0$."],
@@ -239,7 +239,7 @@ TOPICS("GMAT", 2, [
   en: { t: "Quadratic equation",
     intro: "A quadratic equation $ax^2+bx+c=0$ is solved with the quadratic formula. The expression under the root sign, the discriminant $D$, tells us how many solutions we get. The formula comes from the first square rule, as the derivation below shows.",
     f: [["x = \\frac{-b \\pm \\sqrt{b^2 - 4ac}}{2a}", "the quadratic formula"], ["D = b^2 - 4ac", "the discriminant"]],
-    legend: [["a,\\ b,\\ c", "coefficients in $ax^2+bx+c=0$", ""], ["D", "discriminant", ""], [mcA("x"), "first term in the square (blue)", ""], [mcB("\\tfrac{b}{2a}"), "second term in the square (orange)", ""], [mcC("2\\cdot x\\cdot\\tfrac{b}{2a}"), "the middle term $2ab$ from the first square rule (magenta)", ""]],
+    legend: [["a,\\ b,\\ c", "coefficients in $ax^2+bx+c=0$", ""], ["D", "discriminant", ""], [mcA("x"), "first term in the square⟦ (blue)⟧", ""], [mcB("\\tfrac{b}{2a}"), "second term in the square⟦ (orange)⟧", ""], [mcC("2\\cdot x\\cdot\\tfrac{b}{2a}"), "the middle term $2ab$ from the first square rule⟦ (magenta)⟧", ""]],
     steps: [
       { h: "Where the quadratic formula comes from", chk: { a: 2, b: -4, c: -6, x: 3 }, rows: [
         ["ax^2 + bx + c = 0", "Start with the general equation, where $a \\neq 0$."],

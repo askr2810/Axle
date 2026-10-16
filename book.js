@@ -41,7 +41,7 @@ function renderBookTopic(){
       <p class="intro">${rich(x.intro)}</p>
       ${hit.tp.sim && typeof SIMS !== "undefined" ? [].concat(hit.tp.sim).filter(n => SIMS[n]).map(simHTML).join("") : ""}
       ${hit.tp.mv && typeof mvHTML === "function" ? mvHTML(hit.tp.mv) : ""}
-      ${formulas}${legend}${steps}${ex}
+      ${mcWrap(formulas + legend + steps + ex)}
       ${x.tip ? `<div class="callout">${rich(x.tip)}</div>` : ""}
       ${typeof edBtnHTML === "function" ? edBtnHTML("tp", c.code, hit.tp.id) : ""}
       <div class="tnavs">${nav(prev, "prev")}${nav(next, "next")}</div>
@@ -197,7 +197,7 @@ function renderBookUnit(){
     <main class="wrap theory bk-unit">
       <button class="gd-cta" data-a="bkguided">${I.steps}<span><b>${esc(t("gdCta"))}</b><small>${esc(t("gdCtaSub"))}</small></span>${I.chevron}</button>
       ${typeof ttsBarHTML === "function" ? ttsBarHTML() : ""}
-      ${thLayers(html, tyKeyHTML(src))}
+      ${mcWrap(thLayers(html, tyKeyHTML(src)))}
       ${typeof edBtnHTML === "function" ? edBtnHTML("th", c.code, u) : ""}
       ${catIds(c, u).calc.length + catIds(c, u).mc.length ? `<button class="qt-row cat-entry" data-a="catgo" data-c="${esc(c.code)}" data-u="${u}"><span class="qt-ic">📚</span><span><b>${esc(T("Løste eksempler i denne enheten", "Solved examples in this unit"))}</b><small>${esc(T("Se fremgangsmåten på oppgaver av samme type", "See the method for problems of the same type"))}</small></span>${I.chevron}</button>` : ""}
       ${topicsOf(c.code, u).length ? `<div class="bk-unit-tps"><div class="bk-glance-h">${esc(t("tpInUnit"))}</div><div class="tiles2">${topicsOf(c.code, u).map(tp => tpTileHTML(c.code, tp)).join("")}</div></div>` : ""}
