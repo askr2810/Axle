@@ -19,7 +19,9 @@ fs.writeFileSync(tmp, files.map(f => fs.readFileSync(path.join(ROOT, f), 'utf8')
 const M = require(tmp); fs.unlinkSync(tmp);
 const { COURSES, META, THEORY_DB, TOPIC_DB, CONFIG, ENQ, UNIT_EN, BETA_AREAS, dlStepsHTML } = M;
 // BETA-merket (samme kilder og dato som i appen, se beta.js)
-const betaBox = c => { const a = BETA_AREAS[c.study]; if(!a || a.reviewedBy) return ''; const [y, m, d] = a.checked.split('-'), TT = (x, z) => L === 'nb' ? x : z;
+const betaBox = c => { const n = BETA_AREAS.nye, a = BETA_AREAS[c.study] && !BETA_AREAS[c.study].reviewedBy ? BETA_AREAS[c.study] : n && !n.reviewedBy && n.codes.includes(c.code) ? n : null; if(!a) return '';
+  if(a.newq) { const [y, m, d] = a.checked.split('-'), TT = (x, z) => L === 'nb' ? x : z;
+    return `<p class="beta"><b>BETA</b> ${TT('Mange av oppgavene i dette faget er nye og ikke kontrollert av faglærer ennå, så det kan forekomme feil', 'Many questions in this subject are new and not yet reviewed by a teacher, so mistakes can occur')} · ${TT('lagt til', 'added')} ${d}.${m}.${y}.</p>`; } const [y, m, d] = a.checked.split('-'), TT = (x, z) => L === 'nb' ? x : z;
   return `<p class="beta"><b>BETA</b> ${TT('Innholdet er ikke kontrollert av fagperson ennå og kan inneholde feil. Sjekket mot', 'This content has not yet been reviewed by an expert and may contain mistakes. Checked against')} ${a.src.map(([n, u]) => `<a href="${u}" rel="noopener">${esc(n)}</a>`).join(', ')} · ${TT('sist kontrollert', 'last checked')} ${d}.${m}.${y}.</p>`; };
 
 // «Prøv selv»-simuleringene (titler og hvilke enheter de hører til), lastet slik test_sims.js gjør.

@@ -578,13 +578,61 @@ function poolIds(c, units){
   return P;
 }
 function pick(ids, from, n){ for(const id of shuffle(from)){ if(ids.length>=n) break; if(!ids.includes(id)) ids.push(id); } }
+// Hver enhet deles i faste porsjoner, én per nivå, så Grunnleggende, Øving, Avansert og Mester får forskjellige
+// oppgaver. Delingen er lik hver gang (frø fra fag og enhet). Generatorer som gir nye tall hver gang kan brukes på
+// alle nivåer; de som bare har noen få varianter, deles ut som faste oppgaver. Mesterprøven tar resten fra
+// enhetene før. Bare når en enhet har for få oppgaver, lånes det fra de andre nivåenes porsjoner.
+const LV_PLAN = {};
+// Hvor mange ulike oppgaver gir generatoren på 12 forsøk? Fast frø (som exGenKind), så svaret er likt hver gang.
+function genVariety(g, key){ const s = new Set(), orig = Math.random;
+  try{ Math.random = exRng(exHash(key)); for(let i=0;i<12;i++){ try{ const q = g(); s.add(String(q && q[0])); }catch(e){} } }
+  finally{ Math.random = orig; } return s.size; }
+// Nesten like faste oppgaver (samme spørsmål med samme svar, litt annerledes formulert) holdes sammen på ett nivå.
+// Oppgaver med figur sammenlignes ikke (der er det bildet som skiller dem), og med kode/formler bare når teksten er helt lik.
+function lvGroups(unit, ids){
+  const words = s => new Set(String(s).toLowerCase().replace(/[^a-z0-9æøå ]+/g, " ").split(/\s+/).filter(w => w.length > 2).map(w => w.slice(0, 5)));
+  const sim = (x, y) => { let both = 0; x.forEach(w => { if(y.has(w)) both++; }); return both / Math.max(1, x.size + y.size - both); };
+  const qs = ids.map(id => /\.g/.test(id) ? null : unit.qs[+id.split(".")[1]]), n = {};
+  const ans = q => Array.isArray(q[1]) ? String(q[1][0]) : String(q[1].n);
+  qs.forEach(q => { if(q) (n[q[0]] ||= new Set()).add(ans(q)); });
+  // samme tekst med mange ulike svar (f.eks. «Hva betyr dette skiltet?») er en mal der bildet skiller dem
+  const info = qs.map(q => { if(!q || q.fig || q.qimg || n[q[0]].size > 2) return null;
+    const a = ans(q);
+    // med kode eller formler sammenlignes bare helt lik tekst
+    return /\$|`/.test(q[0]) ? { t: q[0].replace(/\s+/g, " ").trim(), w: new Set(), a: "", aw: new Set() } : { w: words(q[0]), a, aw: words(a) }; });
+  const par = ids.map((_, i) => i), top = i => par[i] === i ? i : (par[i] = top(par[i]));
+  for(let i = 0; i < ids.length; i++) for(let j = i + 1; j < ids.length; j++){ const x = info[i], y = info[j]; if(!x || !y) continue;
+    if(x.t || y.t){ if(x.t && x.t === y.t) par[top(i)] = top(j); continue; }
+    const p = sim(x.w, y.w), same = x.a.toLowerCase() === y.a.toLowerCase() && (x.a.length > 3 || p >= 0.9), aSim = sim(x.aw, y.aw);
+    if((p >= 0.9 && (same || aSim >= 0.6)) || (p >= 0.4 && (same || aSim >= 0.7))) par[top(i)] = top(j); }
+  const g = {}; ids.forEach((id, i) => (g[top(i)] ||= []).push(id)); return Object.values(g);
+}
+function levelPlan(c, u){
+  const key = c.code + ":" + u; if(LV_PLAN[key]) return LV_PLAN[key];
+  const unit = c.units[u], P = poolIds(c, [u]), fresh = [], fixed = P.mc.concat(P.num);
+  (unit.gen || []).forEach((g, j) => (genVariety(g, key + ".g" + j) >= 8 ? fresh : fixed).push(u + ".g" + j));
+  const own = u ? 4 : LEVELS[3].n, need = LEVELS.map((L, k) => k < 3 ? L.n : own);
+  const want = need.map(n => n - Math.min(fresh.length, Math.floor(n/3))), sum = want.reduce((a, b) => a + b, 0);
+  const G = exShuffle(lvGroups(unit, fixed), exRng(exHash(key))), m = G.length;
+  // andel per nivå (i grupper): alle får det de trenger når det er nok, ellers fordeles det som finnes etter behov
+  const q = want.map(w => Math.floor(m * w / Math.max(sum, m)));
+  for(let k = 0, left = m - q.reduce((a, b) => a + b, 0); left > 0; k = (k + 1) % 4, left--) q[k]++;
+  const groups = []; let i = 0; q.forEach(x => { groups.push(G.slice(i, i + x)); i += x; });
+  return LV_PLAN[key] = { groups, fresh, want };
+}
+// Én oppgave fra hver gruppe, i tilfeldig rekkefølge
+const lvPickGroups = (ids, groups, n) => pick(ids, groups.map(g => g[Math.floor(Math.random() * g.length)]), n);
 function buildIds(c, u, k){
-  const n = LEVELS[k].n, here = poolIds(c,[u]), ids = [];
-  if(k===0){ pick(ids, here.mc, 3); pick(ids, here.gen, n); pick(ids, here.mc.concat(here.num), n); }
-  else if(k===1){ pick(ids, here.gen, 3); pick(ids, here.mc.concat(here.num), n); pick(ids, here.gen, n); }
-  else if(k===2){ const prev = poolIds(c, range(u)); pick(ids, prev.gen.concat(prev.num), 2); pick(ids, here.gen, ids.length+4); pick(ids, here.num, n); pick(ids, here.mc, n); pick(ids, here.gen, n); }
-  else { const all = poolIds(c, range(u+1)); pick(ids, all.gen, 6); pick(ids, all.num.concat(all.mc), n); pick(ids, all.gen, n); }
-  const g = here.gen; let j = 0; while(ids.length < n && g.length) ids.push(g[j++ % g.length]);
+  const n = LEVELS[k].n, pl = levelPlan(c, u), ids = [];
+  lvPickGroups(ids, pl.groups[k], pl.want[k]);
+  if(k===2 && u){ const prev = range(u).flatMap(v => levelPlan(c, v).fresh); pick(ids, prev, ids.length + Math.min(2, n - ids.length)); }
+  if(k===3 && u){ const prev = range(u).map(v => levelPlan(c, v)), gens = prev.flatMap(p => p.fresh);
+    pick(ids, gens, ids.length + Math.min(3, n - ids.length)); pick(ids, pl.fresh, ids.length + Math.min(2, n - ids.length));
+    lvPickGroups(ids, prev.flatMap(p => p.groups.flat(1)), n); }
+  pick(ids, pl.fresh, n);
+  // generatorer med nye tall kan gå igjen i samme økt; faste oppgaver bare når enheten er for tynn
+  const g = pl.fresh; let j = 0; while(ids.length < n && g.length) ids.push(g[j++ % g.length]);
+  for(const d of [3, 2, 1, 0]) if(d !== k) lvPickGroups(ids, pl.groups[d], n);
   return shuffle(ids);
 }
 function startLesson(kind, code, items, meta={}, hearts=0){
@@ -750,7 +798,7 @@ function renderLesson(){
     return;
   }
   // Illustrasjon på oppgaven (qart.js): temaets piktogram og navn øverst, og en figur over oppgaveteksten når det finnes en.
-  const art = typeof qArt === "function" ? qArt(it, L.answered) : {}, kick = `<p class="kicker">${esc(lvl)}${it.type==="mc"?t("pickAnswer"):t("writeAnswer")}</p>`;
+  const art = typeof qArt === "function" ? qArt(it, L.answered) : {}, kick = `<p class="kicker">${esc(lvl)}${it.type==="mc"?t("pickAnswer"):t("writeAnswer")}${betaTagHTML(L.code)}</p>`;
   let body = `<div class="krow ${art.pic ? "has-pic" : ""}">${art.pic ? `<div class="q-topic"><span class="q-pic">${art.pic}</span><span class="q-tt"><b>${esc(art.name)}</b>${kick}</span></div>` : kick}<button class="kbtn" data-a="scratch">${I.pencil}${t("scratch")}</button></div>${art.fig ? "\u0000QSPLIT\u0000" : ""}${qimgHTML(it.qimg, "lq")}<div class="prompt">${richBig(it.prompt)}</div>`;
   if(it.type==="mc"){
     body += `<div class="opts" role="radiogroup">` + it.opts.map((o,i)=>{
