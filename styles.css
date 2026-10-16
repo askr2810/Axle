@@ -1143,6 +1143,12 @@ a.srow{text-decoration:none;color:inherit}
 .tpfig svg .rf,.tfig svg .rf{fill:var(--bad);stroke:var(--bad)}
 .tpfig svg .fill,.tfig svg .fill{fill:var(--accent-soft);stroke:var(--accent)}
 .tpfig svg .dash,.tfig svg .dash{stroke-dasharray:5 5;stroke:var(--muted)}
+/* figurer med formelfargene (learn.js: MC): flater ma/mb/mc, linjer mla/mlb/mlc, tekst mta/mtb/mtc */
+.tpfig svg .ma,.tfig svg .ma{fill:color-mix(in srgb,var(--mc-a) 16%,transparent);stroke:var(--mc-a)}
+.tpfig svg .mb,.tfig svg .mb{fill:color-mix(in srgb,var(--mc-b) 16%,transparent);stroke:var(--mc-b)}
+.tpfig svg .mc,.tfig svg .mc{fill:color-mix(in srgb,var(--mc-c) 16%,transparent);stroke:var(--mc-c)}
+.tpfig svg .mla,.tfig svg .mla{stroke:var(--mc-a);stroke-width:3}.tpfig svg .mlb,.tfig svg .mlb{stroke:var(--mc-b);stroke-width:3}.tpfig svg .mlc,.tfig svg .mlc{stroke:var(--mc-c);stroke-width:3}
+.tpfig svg .mta,.tfig svg .mta{fill:var(--mc-a)}.tpfig svg .mtb,.tfig svg .mtb{fill:var(--mc-b)}.tpfig svg .mtc,.tfig svg .mtc{fill:var(--mc-c)}
 .topic{padding-bottom:calc(150px + env(safe-area-inset-bottom,0px));font-size:16.5px;line-height:1.6}
 .topic h1{font-family:var(--display);font-weight:800;font-size:28px;line-height:1.15;margin:16px 0 10px}
 .topic .tpfig{margin:6px 0 14px;padding:12px;background:var(--card);border:2px solid var(--line);border-radius:16px;color:var(--ink)}
@@ -1152,6 +1158,24 @@ a.srow{text-decoration:none;color:inherit}
 .fbox .fm{overflow-x:auto;font-size:1.15em;text-align:center}
 .fbox .fm math{display:block;width:fit-content;max-width:100%;margin:0 auto}
 .fbox .fd{font-size:14px;color:var(--muted);text-align:center;margin-top:4px}
+/* Farger i formler (learn.js: MC, mcA/mcB/mcC). Lyst tema bruker hex-fargen fra formelen; her byttes den i mørkt tema. */
+:root{--mc-a:#1D5FC2;--mc-b:#A64300;--mc-c:#B5177A}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--mc-a:#80B4FF;--mc-b:#FFA35E;--mc-c:#FF8FCF}}
+:root[data-theme="dark"]{--mc-a:#80B4FF;--mc-b:#FFA35E;--mc-c:#FF8FCF}
+.mc-a{color:var(--mc-a)}.mc-b{color:var(--mc-b)}.mc-c{color:var(--mc-c)}
+/* Utledning på emnesider: «Slik kommer regelen fram», trinn for trinn */
+.derive{margin:14px 0;padding:12px 14px 6px;background:var(--card);border:2px solid var(--line);border-radius:14px}
+.derive-h{font-family:var(--display);font-size:17px;margin:0 0 4px}
+.derive h3{font-size:15px;margin:12px 0 2px;color:var(--muted)}
+.derive ol{margin:0;padding:0;list-style:none;counter-reset:dv}
+.derive li{margin:6px 0 10px;position:relative;padding-left:26px;counter-increment:dv}
+.derive li::before{content:counter(dv) ".";position:absolute;left:0;top:1px;font-weight:700;color:var(--muted)} /* egen teller: WebKit viser ikke ::marker foran blokk-MathML */
+.derive .dv-m{overflow-x:auto;overflow-y:hidden;padding:2px 0}
+.derive .dv-m math{display:block;width:fit-content;max-width:100%;margin:0}
+.derive .dv-m>.katex{display:block}
+.derive .dv-m>*+*{margin-left:1.4em;margin-top:2px} /* fortsettelseslinje i en lang formel */
+.mpunct{white-space:nowrap} /* formel og tegnet rett etter (punktum, komma) brytes ikke fra hverandre */
+.derive li p{margin:2px 0 0;font-size:14.5px;line-height:1.45}
 .legend{width:100%;border-collapse:collapse;margin:14px 0;font-size:15px;background:var(--card);border:2px solid var(--line);border-radius:14px;overflow:hidden}
 .legend td{padding:7px 10px;border-top:1px solid var(--line);vertical-align:top}
 .legend tr:first-child td{border-top:0}

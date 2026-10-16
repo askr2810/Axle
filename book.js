@@ -26,6 +26,9 @@ function renderBookTopic(){
   const x = tpText(hit.tp), flat = topicsFlat(c.code), idx = flat.findIndex(f => f.tp.id === hit.tp.id), prev = flat[idx - 1], next = flat[idx + 1];
   const formulas = (x.f || []).map(([l, d]) => `<div class="fbox"><div class="fm">${texD(tpFx(l))}</div>${d ? `<div class="fd">${rich(d)}</div>` : ""}</div>`).join("");
   const legend = (x.legend || []).length ? `<table class="legend"><tbody>${x.legend.map(([s, m, un]) => `<tr><td class="ls">${tex(tpFx(s))}</td><td>${rich(m)}</td><td class="lu">${/\\/.test(un || "") ? tex(un) : esc(String(un || "").replace(/\{,\}/g, decPoint() ? "." : ","))}</td></tr>`).join("")}</tbody></table>` : "";
+  // Utledning: steps = [{ h, chk, rows: [[latex, forklaring], …] }, …] – hvert trinn med formel og én kort forklaring.
+  // En lang formel kan deles i flere linjer: [[linje1, linje2], forklaring]; linje 2 rykkes inn (aligned midtstilles i MathML).
+  const steps = (x.steps || []).length ? `<section class="derive"><h2 class="derive-h">${esc(t("tpDerive"))}</h2>${x.steps.map(g => `${g.h ? `<h3>${rich(g.h)}</h3>` : ""}<ol>${g.rows.map(([l, d]) => `<li><div class="dv-m">${[].concat(l).map(x => texD(tpFx(x))).join("")}</div>${d ? `<p>${rich(d)}</p>` : ""}</li>`).join("")}</ol>`).join("")}</section>` : "";
   const ex = x.ex ? `<div class="exbox"><div class="exbox-h">${esc(t("tpExample"))}</div>${String(x.ex).split("\n").map(l => `<p>${rich(l)}</p>`).join("")}</div>` : "";
   const nav = (tpx, dir) => tpx ? `<button class="tnav ${dir}" data-a="bktopic" data-c="${esc(c.code)}" data-id="${esc(tpx.tp.id)}"><small>${esc(t(dir === "prev" ? "bkPrev" : "bkNext"))}</small><b>${esc(tpText(tpx.tp).t)}</b></button>` : `<span></span>`;
   // Figuren for seg: på PC står den til venstre (og blir stående) mens teksten står til høyre.
@@ -38,7 +41,7 @@ function renderBookTopic(){
       <p class="intro">${rich(x.intro)}</p>
       ${hit.tp.sim && typeof SIMS !== "undefined" ? [].concat(hit.tp.sim).filter(n => SIMS[n]).map(simHTML).join("") : ""}
       ${hit.tp.mv && typeof mvHTML === "function" ? mvHTML(hit.tp.mv) : ""}
-      ${formulas}${legend}${ex}
+      ${formulas}${legend}${steps}${ex}
       ${x.tip ? `<div class="callout">${rich(x.tip)}</div>` : ""}
       ${typeof edBtnHTML === "function" ? edBtnHTML("tp", c.code, hit.tp.id) : ""}
       <div class="tnavs">${nav(prev, "prev")}${nav(next, "next")}</div>

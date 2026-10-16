@@ -5,9 +5,10 @@
 //    2. Velg selv hva som er u og v' i ∫x eˣ dx, ∫x cos x dx, ∫x² eˣ dx og ∫x ln x dx. Et komplisitetsmeter
 //       (grønt → rødt) viser om det nye integralet ble enklere eller verre.
 //    3. LIATE-regelen (logaritmisk, invers trig, algebraisk, trigonometrisk, eksponentiell) med en liten øving.
-//  Fargene: u blå, v (og v') grønn, det nye integralet oransje. Samme farger i lys og mørk modus (hex, KaTeX tar ikke CSS-variabler).
+//  Fargene følger fellesbetydningen i learn.js (MC): u blå (første), v og v' oransje (andre), det nye integralet magenta
+//  (det som er nytt i steget). Formlene får hex fra MC og byttes i mørkt tema av klassene mc-a/b/c; figuren bruker var(--mc-*).
 // ============================================================
-const PI_CU = "#3B7BE0", PI_CV = "#1E9A5E", PI_CR = "#E07B00";
+const PI_CU = MC.a, PI_CV = MC.b, PI_CR = MC.c;
 const piU = s => `\\textcolor{${PI_CU}}{${s}}`, piV = s => `\\textcolor{${PI_CV}}{${s}}`, piR = s => `\\textcolor{${PI_CR}}{${s}}`;
 // Utledningen: [tex, forklaring nb, en]
 const PI_DERIV = [
@@ -68,10 +69,10 @@ function piAreaSVG(){
   const X = t => 40 + t * 200, Y = t => 150 - t * 120, pts = Array.from({ length: 41 }, (_, i) => { const t = i / 40; return [X(t), Y(Math.pow(t, 1.8))]; });
   const curve = pts.map((p, i) => (i ? "L" : "M") + p[0].toFixed(1) + " " + p[1].toFixed(1)).join("");
   return `<svg class="pi-svg" viewBox="0 0 300 180" role="img" aria-label="${esc(T("Arealet uv delt i to deler av en kurve", "The area uv split in two by a curve"))}">
-    <path d="${curve}L${X(1)} ${Y(0)}Z" fill="${PI_CV}" fill-opacity=".22"/><path d="${curve}L${X(0)} ${Y(1)}Z" fill="${PI_CU}" fill-opacity=".22"/>
+    <path d="${curve}L${X(1)} ${Y(0)}Z" style="fill:var(--mc-b)" fill-opacity=".22"/><path d="${curve}L${X(0)} ${Y(1)}Z" style="fill:var(--mc-a)" fill-opacity=".22"/>
     <path d="${curve}" fill="none" stroke="var(--ink)" stroke-width="2"/><rect x="${X(0)}" y="${Y(1)}" width="200" height="120" fill="none" stroke="var(--muted)" stroke-dasharray="4 3"/>
     <path d="M${X(0)} ${Y(0)}H${X(1) + 18}M${X(0)} ${Y(0)}V${Y(1) - 14}" stroke="var(--muted)" stroke-width="1.4" fill="none"/>
-    <text x="${X(1) + 22}" y="${Y(0) + 4}" class="pi-ax" fill="${PI_CU}">u</text><text x="${X(0) - 4}" y="${Y(1) - 18}" class="pi-ax" fill="${PI_CV}" text-anchor="middle">v</text>
+    <text x="${X(1) + 22}" y="${Y(0) + 4}" class="pi-ax" style="fill:var(--mc-a)">u</text><text x="${X(0) - 4}" y="${Y(1) - 18}" class="pi-ax" style="fill:var(--mc-b)" text-anchor="middle">v</text>
     <text x="${X(0.68)}" y="${Y(0.18)}" class="pi-al" text-anchor="middle">∫ v du</text><text x="${X(0.26)}" y="${Y(0.7)}" class="pi-al" text-anchor="middle">∫ u dv</text>
     <text x="${X(1) + 4}" y="${Y(1) + 4}" class="pi-al">uv</text></svg>`;
 }

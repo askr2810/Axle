@@ -4,6 +4,19 @@
 //  Lastes etter oppgavebanken og en_static_*.js, før theory_*/course_*/gens_x*.
 // ============================================================
 
+// ---------- farger i formler (samme betydning i teori, emnesider, eksempler og oppgaver) ----------
+//   blå     mcA  første ledd eller størrelse (a i kvadratsetningene, den første brøken, x-leddene i en likning)
+//   oransje mcB  andre ledd eller størrelse (b, den andre brøken, tallene uten x)
+//   magenta mcC  det som er nytt i steget: leddet som oppstår av begge (2ab), det du gjør på begge sider,
+//                eller det du setter inn
+// Fargen er alltid bare en hjelp: bokstaven, plasseringen og teksten ved siden av forteller det samme.
+// KaTeX tar ikke CSS-variabler, så formlene får den lyse fargen som hex. tex()/texD() (app.js) og seo.js legger på
+// klassen mc-a/mc-b/mc-c, og styles.css bytter til lysere farger i mørkt tema. Kontrast ≥ 4,5:1 i begge temaer,
+// og blå/oransje/magenta skilles ved de vanligste formene for fargeblindhet (rød-grønn).
+const MC = { a: "#1D5FC2", b: "#A64300", c: "#B5177A" };
+const mcA = s => `\\textcolor{${MC.a}}{${s}}`, mcB = s => `\\textcolor{${MC.b}}{${s}}`, mcC = s => `\\textcolor{${MC.c}}{${s}}`;
+const mcClass = html => String(html).replace(/mathcolor="(#[0-9a-f]{6})"/gi, (m, h) => { const k = Object.keys(MC).find(x => MC[x].toLowerCase() === h.toLowerCase()); return k ? `${m} class="mc-${k}"` : m; });
+
 // ---------- teori ----------
 // THEORY(kode, enhet, { nb: "...", en: "..." })
 // Markering (én regel per linje):

@@ -404,7 +404,16 @@ I mange ingeniørformler er det en ukjent størrelse vi skal finne - da bruker v
 - Å multiplisere inn i en parentes (distributiv lov): $a(b+c)=ab+ac$. Minus foran en parentes snur fortegnet på alle ledd: $-(a-b)=-a+b$.
 - Kvadratsetningene:
 
-$$(a+b)^2=a^2+2ab+b^2 \\qquad (a-b)^2=a^2-2ab+b^2 \\qquad (a+b)(a-b)=a^2-b^2$$
+$$(${mcA("a")} + ${mcB("b")})^2 = ${mcA("a^2")} + ${mcC("2ab")} + ${mcB("b^2")}$$
+$$(${mcA("a")} - ${mcB("b")})^2 = ${mcA("a^2")} - ${mcC("2ab")} + ${mcB("b^2")}$$
+$$(${mcA("a")} + ${mcB("b")})(${mcA("a")} - ${mcB("b")}) = ${mcA("a^2")} - ${mcB("b^2")}$$
+
+**Hvor kommer $2ab$ fra?** Skriv kvadratet som to like parenteser, og gang hvert ledd i den første med hvert ledd i den andre:
+$$(${mcA("a")} + ${mcB("b")})^2 = (${mcA("a")} + ${mcB("b")})(${mcA("a")} + ${mcB("b")})$$
+$$= ${mcA("a")}\\cdot ${mcA("a")} + ${mcA("a")}\\cdot ${mcB("b")} + ${mcB("b")}\\cdot ${mcA("a")} + ${mcB("b")}\\cdot ${mcB("b")}$$
+$$= ${mcA("a^2")} + ${mcC("ab")} + ${mcC("ab")} + ${mcB("b^2")}$$
+$$= ${mcA("a^2")} + ${mcC("2ab")} + ${mcB("b^2")}$$
+De to «kryssene» $a\\cdot b$ og $b\\cdot a$ gir hvert sitt $ab$, og sammen blir de $2ab$. I $(a-b)^2$ blir begge kryssene negative ($-ab - ab = {-2ab}$), mens $({-b})\\cdot({-b}) = b^2$ er positivt. I konjugatsetningen blir kryssene $-ab$ og $+ab$, og de nuller hverandre ut. Fargene følger leddene: $a$ er blått, $b$ er oransje, og midtleddet er magenta.
 
 - Faktorisering: å skrive et uttrykk som et produkt, motsatt av å multiplisere ut. Se etter felles faktor: $6x^2-9x=3x(2x-3)$.
 - Ligning: et utsagn om at to uttrykk er like, sant for bestemte verdier av x. Å løse en ligning betyr å finne disse verdiene.
@@ -452,7 +461,16 @@ In many engineering formulas there is an unknown quantity to find - that is when
 - Multiplying into a parenthesis (the distributive law): $a(b+c)=ab+ac$. A minus sign in front of a parenthesis flips the sign of every term: $-(a-b)=-a+b$.
 - The special product formulas:
 
-$$(a+b)^2=a^2+2ab+b^2 \\qquad (a-b)^2=a^2-2ab+b^2 \\qquad (a+b)(a-b)=a^2-b^2$$
+$$(${mcA("a")} + ${mcB("b")})^2 = ${mcA("a^2")} + ${mcC("2ab")} + ${mcB("b^2")}$$
+$$(${mcA("a")} - ${mcB("b")})^2 = ${mcA("a^2")} - ${mcC("2ab")} + ${mcB("b^2")}$$
+$$(${mcA("a")} + ${mcB("b")})(${mcA("a")} - ${mcB("b")}) = ${mcA("a^2")} - ${mcB("b^2")}$$
+
+**Where does $2ab$ come from?** Write the square as two identical brackets, and multiply each term in the first by each term in the second:
+$$(${mcA("a")} + ${mcB("b")})^2 = (${mcA("a")} + ${mcB("b")})(${mcA("a")} + ${mcB("b")})$$
+$$= ${mcA("a")}\\cdot ${mcA("a")} + ${mcA("a")}\\cdot ${mcB("b")} + ${mcB("b")}\\cdot ${mcA("a")} + ${mcB("b")}\\cdot ${mcB("b")}$$
+$$= ${mcA("a^2")} + ${mcC("ab")} + ${mcC("ab")} + ${mcB("b^2")}$$
+$$= ${mcA("a^2")} + ${mcC("2ab")} + ${mcB("b^2")}$$
+The two 'crosses' $a\\cdot b$ and $b\\cdot a$ each give an $ab$, and together they make $2ab$. In $(a-b)^2$ both crosses are negative ($-ab - ab = {-2ab}$), while $({-b})\\cdot({-b}) = b^2$ is positive. In the difference of two squares the crosses are $-ab$ and $+ab$, and they cancel. The colours follow the terms: $a$ is blue, $b$ is orange, and the middle term is magenta.
 
 - Factoring: writing an expression as a product, the reverse of expanding. Look for a common factor: $6x^2-9x=3x(2x-3)$.
 - Equation: a statement that two expressions are equal, true for particular values of x. Solving an equation means finding those values.
@@ -550,7 +568,7 @@ GEN("GMAT", 2,
    const opts = uniq([correct, poly(1, 0, m2), poly(1, -2 * m, m2), poly(1, 2 * m, m2)], 4).map(s => `$${s}$`);
    return [T(`Hva er $(x+${m})(x-${m})$ multiplisert ut?`, `What is $(x+${m})(x-${m})$ expanded?`),
      opts,
-     T(`Konjugatsetningen: $(x+${m})(x-${m}) = x^2-${m2}$.`, `The conjugate rule (difference of squares): $(x+${m})(x-${m}) = x^2-${m2}$.`)]; },
+     T(`Konjugatsetningen med $a = x$ og $b = ${m}$: $(${mcA("x")}+${mcB(m)})(${mcA("x")}-${mcB(m)}) = ${mcA("x^2")} - ${mcC(m + "x")} + ${mcC(m + "x")} - ${mcB(m + "^2")} = ${mcA("x^2")} - ${mcB(m2)}$. Midtleddene $-${m}x$ og $+${m}x$ nuller hverandre ut.`, `The difference of squares with $a = x$ and $b = ${m}$: $(${mcA("x")}+${mcB(m)})(${mcA("x")}-${mcB(m)}) = ${mcA("x^2")} - ${mcC(m + "x")} + ${mcC(m + "x")} - ${mcB(m + "^2")} = ${mcA("x^2")} - ${mcB(m2)}$. The middle terms $-${m}x$ and $+${m}x$ cancel.`)]; },
  // 4) løse ut en variabel fra en formel (sirkelareal, krever rot)
  () => { const r0 = R.i(2, 20), A = Math.round(Math.PI * r0 * r0 * 100) / 100;
    return [T(`Arealet av en sirkel er $A=\\pi r^2$. Hvor stor er radien når arealet er $A=${nf(A)}$ cm²?`,

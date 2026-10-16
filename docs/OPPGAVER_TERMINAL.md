@@ -53,6 +53,8 @@ Du jobber i Axle-repoet (axle.no). Les `CLAUDE.md` først og følg den. Svar meg
 - [x] 34. Tilpassbar Lær- og Øv-side – ferdig 2026-10-16 (eierens melding: enhetene med «Du er her» skal kunne tilpasses sammen med resten av Lær på smal skjerm og som standard ligge øverst etter «Start her»; favorittemner rett under søket; Øv: labber rett etter dagens utfordring og så spill, labber og hjelpemidler i «Tilpass»-menyen; i «Spill og dueller» skal spill kunne festes som store fliser). Gjort: Lær har seksjonene Favorittfag, Start her, Enhetene (stien), Dagens utfordring og Spill i «Tilpass Lær» (før «Forsiden»); Start her og stien kan flyttes men ikke skjules. På smal skjerm (under 1100 px) står stien som seksjon i flyten, som standard rett etter Start her, og favorittene rett under søket; på PC står stien i egen kolonne som før (tegnes på nytt når bredden krysser grensen). Øv: Labber, Mitt fokus, Løste oppgaver/kodeoppgaver, Teoriprøve (førerkort) og Hjelpemidler er nye seksjoner i «Tilpass Øv»; standard er Anbefalt nå (feil og dagens utfordring), teoriprøve (bare førerkort), labber, spill, Øv mer, eksamen, uka, hjelpemidler. Lagret rekkefølge beholdes, og nye seksjoner settes inn på standardplassen. «Spill og dueller» har en nål per spill som viser det som stor flis (aria-pressed, fokus beholdes). Faneikonene er hule og fylles når fanen er valgt (også lynet for Øv). Kontrollert i Chrome på 375 og 1280 px, lyst og mørkt; npm test, test_design og check_mobile grønne.
 - [x] 35. Egne bilder i quizer og lekser – ferdig 2026-10-16 (koden; eieren må kjøre den nye delen nederst i supabase/laerer.sql) (eierens melding: «gjøre det mulig å legge inn egne bilder sånn som på kahoot … samme mulighet på lekser»). quizimg.js: «＋ Bilde» på hvert spørsmål i lærerens oppgaver og i Fellesskap-quizer, med bildetekst for skjermleser. Bildet skaleres ned i nettleseren (maks 1280 px, WebP/JPEG ≤ 400 kB) og lagres på nytt, så EXIF (GPS, kamera) ikke blir med; lastes opp til Supabase Storage (bøtta quizbilder, egen mappe per bruker, 300 bilder per bruker, elevkontoer stoppes både i appen og i databasen). Vises i livequiz (tavle og mobil), lekser, «Prøv selv», Fellesskap-quizer og forhåndsvisning. Bare stier i Axles bøtte vises; CSP img-src tillater Supabase. Fjernede bilder slettes først etter lagring, og aldri i delte quizer (kopier kan bruke dem). Personvern oppdatert (privacy.html og i appen). Test: tools/test_quizimg.js (i npm test); nettlesertest med falsk Storage: 4,3 MB JPEG med EXIF ble 138 kB WebP uten EXIF, vist i oppgaven på 375 og 1280 px. Ikke testet mot ekte Supabase (SQL ikke kjørt).
 - [x] 36. Flere quizvalg som på Kahoot – ferdig 2026-10-16 (eieren: «alle høres bra ut» om forslagene). (1) Egen tid per spørsmål (5–60 s, «Tid i live-quiz» i begge editorene); live-tidsplanen summerer tidene (mqSched), romoppsettet får lengste tid som cfg.secs (databasen anslår slutten med den) og standardtiden som cfg.d. (2) Avstemning: flervalg med poll = 1, ingen fasit og ingen poeng, bare i live (holdes utenfor lekser, lenker og «Prøv selv»); fordelingen vises etterpå. (3) Bilder som svaralternativer (oi, én sti per alternativ; teksten er påkrevd og brukes som bildetekst), i live, lekser og Fellesskap. (4) Lagmodus i live (2–4 lag, fordelt etter rekkefølgen elevene ble med i; lagpoeng = snitt), med lagstilling etter hvert spørsmål og lagvinner på pallen. (5) Bland rekkefølgen for egne oppgaver i live (samme frø for alle). I tillegg: svarfordeling (antall per alternativ) i live etter hvert spørsmål; elevens valg sendes med i tilstanden (c). Ingen ny SQL trengs (valid_questions og mq_create godtar feltene); bilder på alternativer bruker bøtta fra oppgave 35. Test: tools/test_quizimg.js utvidet; simulert live (lærer og elev, 5 spillere, 2 lag) på 1280 og 375 px: tidsplan 20/10/30/30 s, fordeling 3/1/1, lagstilling og pall riktig; npm test, test_design, check_mobile og check_flows grønne. Ikke testet med ekte rom (krever Supabase og flere enheter).
+- [x] 37. Farger og synlige mellomsteg i formler – ferdig 2026-10-16 (eierens melding fra #/teori/GMAT/emne/kvadratsetninger). Felles fargebetydning i learn.js (MC, mcA/mcB/mcC): blå = første ledd/størrelse, oransje = andre, magenta = det som er nytt i steget (2ab, det du gjør på begge sider, det du setter inn). KaTeX får hex-fargen, tex()/texD()/seo.js legger på klassen mc-a/b/c, og styles.css bytter til lysere farger i mørkt tema (kontrast ≥ 4,5:1 i begge, skilles ved rød-grønn fargeblindhet; fargen står aldri alene – bokstaven, plasseringen, klammer og teksten sier det samme). Nytt emnefelt steps («Slik kommer regelen fram», book.js og de åpne sidene), med flerlinjeformler. Forbedret: GMAT kvadratsetningene (utledning av alle tre + arealfigur a², ab, ab, b²), brøk, prosent/vekstfaktor, potensregler, lineær ligning og andregradsligning (abc-formelen fra første kvadratsetning); GFYS elektrisk effekt og bevegelseslikningene; teorien om kvadratsetningene i GMAT, 1T og S1; forklaringene i kvadratsetningsoppgavene (VG1T/S1, GMAT-generatoren for konjugatsetningen, drillkortene a2/a3; svaralternativene farges aldri); lab-en for delvis integrasjon bruker samme farger. Også: formel og punktum/parentes brytes ikke fra hverandre (inline()), og to eksisterende likningslinjer som gjorde siden for bred på 320–390 px er delt. Test: tools/test_mc.js (i npm test) regner ut hver kjede av mellomsteg uavhengig (tilfeldige tall for identiteter, kjent løsning for likninger og fysikk, begge fortegn for ±), sjekker norsk/engelsk (samme formler og farger), kontrast og at ingen svaralternativer er farget. Kontrollert visuelt i Chrome og WebKit på 320/375/390/430 px og 1280 px, lyst og mørkt (ingen formel bredere enn plassen). Gjenstår (ikke gjort): funksjoner, faktorisering og flere fysikkformler kan få samme grep; ikke testet på fysisk iPhone.
+- [ ] 38. Sinus, cosinus og tangens med huskeregel, enhetssirkel og bølger – utsatt, ikke påbegynt (lagt inn 2026-10-16). Se beskrivelsen under «Runde 5». Ikke start før eieren ber om det.
 
 ## 1. «Lær først»-leksjoner i grunnskolen (viktigst)
 
@@ -364,3 +366,49 @@ Bruk eksisterende kode og tester først. Undersøk: samme geometri for markering
 ## 23. Apple Pencil-dobbelttrykk og tegneopplevelse
 
 Skill mellom tegning i nettleser, dobbelttrykk på webplattformen, støtte via iOS/Capacitor-bro og faktisk test på fysisk iPad. Implementer native bro hvis det passer prosjektets oppsett; behold knappene. Forbedre respons og jevnhet uten forsinkelse; kontroller penn, finger og mus separat. Tester for logikk som kan testes automatisk; dokumenter hva som må verifiseres på fysisk iPad.
+
+---
+
+## Runde 5 (lagt inn 2026-10-16)
+
+## 37. Farger og synlige mellomsteg i formler
+
+Eierens melding (fra `#/teori/GMAT/emne/kvadratsetninger`): formlene skal være lettere å lese, og eleven skal forstå hvor de kommer fra. (1) Farger som følger leddene gjennom hele formelen og utregningen: i kvadratsetningene har `a` og `b` hver sin farge, og det skal være tydelig hvor de to `ab`-leddene kommer fra og hvorfor de blir `2ab`. Tilsvarende for fortegnene i $(a-b)^2$ og $(a+b)(a-b)$. (2) Kort, trinnvis utledning: to like parenteser, gang hvert ledd med hvert ledd, samle like ledd, forklar med enkle ord – og et konkret tall- eller algebraeksempel etterpå. (3) Finn andre steder i teorien der samme grep hjelper (algebra, faktorisering, brøk, prosent, likninger, funksjoner, fysikkformler), men ikke gjør sidene urolige. Én konsekvent fargebetydning på tvers av teori, eksempler, figurer og relevante oppgaver.
+
+Krav: farge må aldri være eneste bærer av informasjonen (plassering, symboler, tekst); kontrast og fargeblindhet; lyst og mørkt tema, mobil og PC; korte tekster på norsk og engelsk; alle algebraiske mellomsteg og fasiter kontrollert uavhengig; gjenbruk eksisterende formelvisning; tester som beskytter fagstoffet og språkvariantene; visuell kontroll, særlig på mobil.
+
+## 38. Framtidig oppgave (ikke påbegynt): Lær sinus, cosinus og tangens med huskeregel, enhetssirkel og bølger
+
+**Status: utsatt, ikke påbegynt.** Ikke lag leksjonen, animasjonen eller endre appen før eieren ber om det. Når den gjøres: bruk fargesystemet fra oppgave 37 (learn.js: `MC`, `mcA`/`mcB`/`mcC`, klassene `mc-a/b/c`) eller utvid det på samme måte, og les `docs/ANIMASJONER.md` hvis det blir en animasjon (`anim.js`).
+
+**Mål.** En kort, visuell og elevvennlig forklaring av sinus, cosinus og tangens for vinklene **0°, 30°, 45°, 60° og 90°**. Eleven skal både huske verdiene og forstå hvor de kommer fra.
+
+**Huskeregel og verdier (trinn for trinn).**
+1. Sett vinklene i rekkefølgen 0°, 30°, 45°, 60°, 90°.
+2. Sinus: kvadratrøttene av 0, 1, 2, 3 og 4 over nevneren 2: `sin θ = √0/2, √1/2, √2/2, √3/2, √4/2`. Vis også de forenklede verdiene `0, 1/2, √2/2, √3/2, 1`.
+3. Cosinus er sinusverdiene i motsatt rekkefølge: `cos θ = 1, √3/2, √2/2, 1/2, 0`.
+4. Tangens: `tan θ = sin θ / cos θ`, som gir `0, √3/3, 1, √3`. Ved 90° er tangens **ikke definert** (cosinus er 0, og vi kan ikke dele på 0). Ikke vis dette som et vanlig tall (ikke «∞», ikke et stort tall).
+
+**Enhetssirkelen koblet til sinus- og cosinusgrafene** – både i forklaringen og i den ferdige visningen i Axle:
+- Punktet på enhetssirkelen ved vinkelen θ har koordinatene `(cos θ, sin θ)`.
+- Følg samme punkt mens det går rundt sirkelen, og vis samtidig hvordan x-koordinaten tegner cosinuskurven og y-koordinaten tegner sinuskurven når vinkelen øker.
+- Én fast farge for cosinus/x-koordinaten hele veien, og en annen fast farge for sinus/y-koordinaten. Farge er ikke eneste kjennetegn: bruk også etiketter, plassering eller linjestiler (f.eks. heltrukket og stiplet).
+- Begge grafene har samme bølgeform og periode (2π), men er forskjøvet en kvart omdreining, altså `π/2` radianer: `cos θ = sin(θ + π/2)`. Ved `θ = 0` starter cosinus på 1 og sinus på 0. Forklar faseforskyvningen presist og elevvennlig; ikke si at bølgene «bare er like bortsett fra startverdien».
+- Marker viktige punkter (de fem vinklene, toppunkter, nullpunkter), så eleven kan følge sammenhengen mellom sirkelens koordinater, vinkelen og bølgene.
+- De fem vinklene i første kvadrant i både grader og radianer: `0`, `π/6`, `π/4`, `π/3`, `π/2`. Én hel omdreining er `2π` radianer, og første kvadrant går fra 0 til `π/2`. Formuler presist, så eleven ikke blander sammen en hel omdreining (vinkelen 2π radianer) og enhetssirkelens omkrets (lengden 2π, fordi radien er 1).
+
+**Pedagogisk rekkefølge (små steg, ikke alle formler fra start; la bildet og bevegelsen gi en grunn før formelen kommer):**
+1. Huskeregelen for sinusverdiene.
+2. Cosinus som de samme verdiene i motsatt rekkefølge.
+3. Enhetssirkelen som viser hvorfor koordinatene gir cosinus og sinus.
+4. Sinus- og cosinusgrafene som spor fra sirkelens koordinater.
+5. Tangens som sinus delt på cosinus.
+6. En samlet tabell og et kort spørsmål der eleven prøver selv.
+
+**Når oppgaven gjennomføres:**
+- Kontroller alle verdiene, grafpunktene, periodene og faseforskyvningen uavhengig (egen test i `tools/`, i `npm test`).
+- Elevvennlige tekster på norsk og engelsk.
+- Finn hvor forklaringen passer naturlig i eksisterende teori og læringsflyt (f.eks. emnene `trigonometri` og `enhetssirkel` i GMAT, R1/1T-teorien og `trig.js`), og gjenbruk det som finnes.
+- Sjekk sirkel, bølger og tabell på mobil og PC, i lyst og mørkt tema (`tools/check_views.js`, `tools/check_figs.js`).
+- Følg test- og arbeidsflyten i `CLAUDE.md` og denne fila: sett status til `[~]` når du starter og `[x]` med dato når du er ferdig.
+

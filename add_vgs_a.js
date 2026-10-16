@@ -55,8 +55,8 @@ Solve $x^2 - 5x + 6 = 0$. Here $b^2 - 4ac = 25 - 24 = 1$, so $x = \\dfrac{5 \\pm
 > Always check the answer by inserting it into the original equation.`
 });
 BIQ("VG1T", 0, [
- ["Hva er $(a+b)^2$?", ["$a^2 + 2ab + b^2$", "$a^2 + b^2$", "$a^2 + ab + b^2$", "$2a + 2b$"], "Første kvadratsetning. Det vanligste feilsvaret er å glemme leddet $2ab$.",
-  "What is $(a+b)^2$?", ["$a^2 + 2ab + b^2$", "$a^2 + b^2$", "$a^2 + ab + b^2$", "$2a + 2b$"], "The first square identity. The most common mistake is forgetting the $2ab$ term."],
+ ["Hva er $(a+b)^2$?", ["$a^2 + 2ab + b^2$", "$a^2 + b^2$", "$a^2 + ab + b^2$", "$2a + 2b$"], `Første kvadratsetning: $(${mcA("a")}+${mcB("b")})^2 = (${mcA("a")}+${mcB("b")})(${mcA("a")}+${mcB("b")}) = ${mcA("a^2")} + ${mcC("ab")} + ${mcC("ab")} + ${mcB("b^2")} = ${mcA("a^2")} + ${mcC("2ab")} + ${mcB("b^2")}$. Midtleddet $2ab$ kommer fra de to kryssene $a\\cdot b$ og $b\\cdot a$. Det vanligste feilsvaret er å glemme det.`,
+  "What is $(a+b)^2$?", ["$a^2 + 2ab + b^2$", "$a^2 + b^2$", "$a^2 + ab + b^2$", "$2a + 2b$"], `The first square identity: $(${mcA("a")}+${mcB("b")})^2 = (${mcA("a")}+${mcB("b")})(${mcA("a")}+${mcB("b")}) = ${mcA("a^2")} + ${mcC("ab")} + ${mcC("ab")} + ${mcB("b^2")} = ${mcA("a^2")} + ${mcC("2ab")} + ${mcB("b^2")}$. The middle term $2ab$ comes from the two crosses $a\\cdot b$ and $b\\cdot a$. The most common mistake is forgetting it.`],
  ["Hva er $2^{-3}$?", ["$\\dfrac{1}{8}$", "$-8$", "$-6$", "$\\dfrac{1}{6}$"], "$a^{-n} = 1/a^n$, så $2^{-3} = 1/8$.",
   "What is $2^{-3}$?", ["$\\dfrac{1}{8}$", "$-8$", "$-6$", "$\\dfrac{1}{6}$"], "$a^{-n} = 1/a^n$, so $2^{-3} = 1/8$."],
  ["Hvor mange løsninger har $x^2 + 2x + 5 = 0$?", ["Ingen", "Én", "To", "Uendelig mange"], "Diskriminanten er $4 - 20 = -16 < 0$, så det finnes ingen reelle løsninger.",

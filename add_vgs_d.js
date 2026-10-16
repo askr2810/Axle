@@ -134,8 +134,8 @@ So $P(x) = (x - 1)(x - 2)(x + 1)$, with zeros $1$, $2$ and $-1$.
 
 > Integer zeros of a polynomial with integer coefficients and leading coefficient 1 must divide the constant term. Try those first.`);
 BIQ("VG1T", U_POLY, [
- ["Faktoriser $x^2 - 25$.", ["$(x + 5)(x - 5)$", "$(x - 5)^2$", "$(x + 5)^2$", "$x(x - 25)$"], "Tredje kvadratsetning baklengs: $a^2 - b^2 = (a + b)(a - b)$.",
-  "Factorise $x^2 - 25$.", ["$(x + 5)(x - 5)$", "$(x - 5)^2$", "$(x + 5)^2$", "$x(x - 25)$"], "The third square identity backwards: $a^2 - b^2 = (a + b)(a - b)$."],
+ ["Faktoriser $x^2 - 25$.", ["$(x + 5)(x - 5)$", "$(x - 5)^2$", "$(x + 5)^2$", "$x(x - 25)$"], `Konjugatsetningen baklengs: $a^2 - b^2 = (a + b)(a - b)$ med $a = x$ og $b = 5$, så $${mcA("x^2")} - ${mcB("25")} = ${mcA("x^2")} - ${mcB("5^2")} = (${mcA("x")} + ${mcB("5")})(${mcA("x")} - ${mcB("5")})$.`,
+  "Factorise $x^2 - 25$.", ["$(x + 5)(x - 5)$", "$(x - 5)^2$", "$(x + 5)^2$", "$x(x - 25)$"], `The difference of two squares backwards: $a^2 - b^2 = (a + b)(a - b)$ with $a = x$ and $b = 5$, so $${mcA("x^2")} - ${mcB("25")} = ${mcA("x^2")} - ${mcB("5^2")} = (${mcA("x")} + ${mcB("5")})(${mcA("x")} - ${mcB("5")})$.`],
  ["Forkort $\\dfrac{x^2 + 3x}{x}$.", ["$x + 3$", "$x^2 + 3$", "$3x$", "$x + 3x$"], "$\\dfrac{x(x + 3)}{x} = x + 3$ (for $x \\ne 0$).",
   "Simplify $\\dfrac{x^2 + 3x}{x}$.", ["$x + 3$", "$x^2 + 3$", "$3x$", "$x + 3x$"], "$\\dfrac{x(x + 3)}{x} = x + 3$ (for $x \\ne 0$)."],
  ["Er det lov å stryke $x$ i $\\dfrac{x + 2}{x}$?", ["Nei, $x$ er et ledd i telleren, ikke en faktor", "Ja, det gir 2", "Ja, det gir $1 + 2$", "Bare når $x > 0$"], "Du kan bare stryke felles faktorer. $\\dfrac{x + 2}{x} = 1 + \\dfrac{2}{x}$.",
@@ -289,8 +289,8 @@ GEN("VG1T", U_EXP,
 
 // ================= VG1T: flere oppgaver i de gamle enhetene =================
 BIQ("VG1T", 0, [
- ["Forenkle $(2x - 3)^2$.", ["$4x^2 - 12x + 9$", "$4x^2 - 9$", "$4x^2 + 9$", "$2x^2 - 12x + 9$"], "Andre kvadratsetning: $(2x)^2 - 2 \\cdot 2x \\cdot 3 + 3^2$.",
-  "Simplify $(2x - 3)^2$.", ["$4x^2 - 12x + 9$", "$4x^2 - 9$", "$4x^2 + 9$", "$2x^2 - 12x + 9$"], "The second square identity: $(2x)^2 - 2 \\cdot 2x \\cdot 3 + 3^2$."],
+ ["Forenkle $(2x - 3)^2$.", ["$4x^2 - 12x + 9$", "$4x^2 - 9$", "$4x^2 + 9$", "$2x^2 - 12x + 9$"], `Andre kvadratsetning med $a = 2x$ og $b = 3$: $(${mcA("2x")} - ${mcB("3")})^2 = ${mcA("(2x)^2")} - ${mcC("2\\cdot 2x\\cdot 3")} + ${mcB("3^2")} = ${mcA("4x^2")} - ${mcC("12x")} + ${mcB("9")}$.`,
+  "Simplify $(2x - 3)^2$.", ["$4x^2 - 12x + 9$", "$4x^2 - 9$", "$4x^2 + 9$", "$2x^2 - 12x + 9$"], `The second square identity with $a = 2x$ and $b = 3$: $(${mcA("2x")} - ${mcB("3")})^2 = ${mcA("(2x)^2")} - ${mcC("2\\cdot 2x\\cdot 3")} + ${mcB("3^2")} = ${mcA("4x^2")} - ${mcC("12x")} + ${mcB("9")}$.`],
  ["Løs $\\dfrac{x}{3} + \\dfrac{x}{6} = 5$.", { n: 10, tol: 0, u: "" }, "Gang med 6: $2x + x = 30$, så $x = 10$.",
   "Solve $\\dfrac{x}{3} + \\dfrac{x}{6} = 5$.", null, "Multiply by 6: $2x + x = 30$, so $x = 10$."],
  ["Hva er $(3 \\cdot 10^4) \\cdot (2 \\cdot 10^{-6})$?", ["$6 \\cdot 10^{-2}$", "$6 \\cdot 10^{-24}$", "$5 \\cdot 10^{-2}$", "$6 \\cdot 10^{10}$"], "Gang tallene og legg sammen eksponentene: $6 \\cdot 10^{4 - 6} = 6 \\cdot 10^{-2}$.",

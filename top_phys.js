@@ -79,12 +79,24 @@ TOPICS("GFYS", 1, [
     intro: "Når akselerasjonen er konstant, knytter fire likninger sammen startfart, sluttfart, strekning, akselerasjon og tid. Kjenner du tre av de fem størrelsene, kan du finne de to andre ved å velge den likningen som mangler den størrelsen du verken kjenner eller trenger.",
     f: [["v = v_0 + at", "sluttfart etter tiden t"], ["s = v_0t + \\tfrac12 at^2", "strekning"], ["v^2 - v_0^2 = 2as", "uten tid"]],
     legend: [["v_0", "startfart", "m/s"], ["v", "sluttfart", "m/s"], ["a", "akselerasjon", "m/s²"], ["s", "strekning", "m"]],
+    steps: [
+      { h: "Hvor $s = v_0t + \\tfrac12 at^2$ kommer fra", chk: { v_0: 4, a: 3, t: 2, v: 10, s: 14 }, rows: [
+        [`s = \\frac{${mcA("v_0")} + ${mcB("v")}}{2}\\cdot t`, "Når farten endrer seg jevnt, er gjennomsnittsfarten midt mellom startfarten (blå) og sluttfarten (oransje). Strekning er gjennomsnittsfart ganger tid."],
+        [`s = \\frac{${mcA("v_0")} + ${mcC("(v_0 + at)")}}{2}\\cdot t`, "Sett inn $v = v_0 + at$ i stedet for sluttfarten (magenta)."],
+        [`= \\frac{2v_0 + at}{2}\\cdot t`, "Legg sammen de to startfartene: $v_0 + v_0 = 2v_0$."],
+        [`= v_0t + \\tfrac12 at^2`, "Del hvert ledd i telleren på 2 og gang med $t$: $\\frac{2v_0}{2}\\cdot t = v_0t$ og $\\frac{at}{2}\\cdot t = \\frac12 at^2$."]] }],
     ex: "En bil med $v_0 = 20$ m/s bremser med $a = -5{,}0$ m/s² til stillstand. Bremsestrekningen er $s = \\dfrac{v^2-v_0^2}{2a} = \\dfrac{0-400}{-10} = 40$ m.",
     tip: "Velg den likningen som ikke inneholder den størrelsen du verken kjenner eller er ute etter." },
   en: { t: "Equations of motion",
     intro: "When the acceleration is constant, four equations link the initial velocity, final velocity, displacement, acceleration and time. If you know three of the five quantities, you can find the other two by choosing the equation that leaves out the one quantity you neither know nor need.",
     f: [["v = v_0 + at", "final velocity after time t"], ["s = v_0t + \\tfrac12 at^2", "displacement"], ["v^2 - v_0^2 = 2as", "without time"]],
     legend: [["v_0", "initial velocity", "m/s"], ["v", "final velocity", "m/s"], ["a", "acceleration", "m/s²"], ["s", "displacement", "m"]],
+    steps: [
+      { h: "Where $s = v_0t + \\tfrac12 at^2$ comes from", chk: { v_0: 4, a: 3, t: 2, v: 10, s: 14 }, rows: [
+        [`s = \\frac{${mcA("v_0")} + ${mcB("v")}}{2}\\cdot t`, "When the velocity changes steadily, the average velocity is halfway between the initial velocity (blue) and the final velocity (orange). Displacement is average velocity times time."],
+        [`s = \\frac{${mcA("v_0")} + ${mcC("(v_0 + at)")}}{2}\\cdot t`, "Put in $v = v_0 + at$ in place of the final velocity (magenta)."],
+        [`= \\frac{2v_0 + at}{2}\\cdot t`, "Add the two initial velocities: $v_0 + v_0 = 2v_0$."],
+        [`= v_0t + \\tfrac12 at^2`, "Divide each term in the numerator by 2 and multiply by $t$: $\\frac{2v_0}{2}\\cdot t = v_0t$ and $\\frac{at}{2}\\cdot t = \\frac12 at^2$."]] }],
     ex: "A car with $v_0 = 20$ m/s brakes at $a = -5.0$ m/s² to a stop. The braking distance is $s = \\dfrac{v^2-v_0^2}{2a} = \\dfrac{0-400}{-10} = 40$ m.",
     tip: "Pick the equation that leaves out the quantity you neither know nor are looking for." } },
 { id: "fritt-fall",
@@ -334,14 +346,32 @@ TOPICS("GFYS", 5, [
 { id: "elektrisk-effekt",
   nb: { t: "Elektrisk effekt",
     intro: "Elektrisk effekt er energien som omdannes i en komponent per sekund, for eksempel til varme i en motstand eller lys i en lyspære. Kombinert med Ohms lov kan effekten skrives på tre likeverdige måter, som er nyttige avhengig av hvilke størrelser du kjenner.",
-    f: [["P = UI", "elektrisk effekt"], ["P = RI^2", "effekt uttrykt ved strøm og resistans"], ["P = \\dfrac{U^2}{R}", "effekt uttrykt ved spenning og resistans"]],
-    legend: [["P", "effekt", "W"], ["U", "spenning", "V"], ["I", "strøm", "A"]],
+    f: [[`P = ${mcA("U")}${mcB("I")}`, "elektrisk effekt"], [`P = R${mcB("I^2")}`, "effekt uttrykt ved strøm og resistans"], [`P = \\dfrac{${mcA("U^2")}}{R}`, "effekt uttrykt ved spenning og resistans"]],
+    legend: [["P", "effekt", "W"], [mcA("U"), "spenning (blå)", "V"], [mcB("I"), "strøm (oransje)", "A"], ["R", "resistans", "Ω"]],
+    steps: [
+      { h: "Fra $P = UI$ til $P = RI^2$", chk: { U: 12, I: 3, R: 4, P: 36 }, rows: [
+        [`P = ${mcA("U")}\\cdot ${mcB("I")}`, "Start med definisjonen: effekt er spenning ganger strøm."],
+        [`P = ${mcC("R\\cdot I")}\\cdot ${mcB("I")}`, "Ohms lov sier $U = RI$. Sett $RI$ inn i stedet for $U$ (magenta)."],
+        [`P = R\\cdot ${mcB("I")}\\cdot ${mcB("I")} = R${mcB("I^2")}`, "Strømmen står nå to ganger, og $I\\cdot I = I^2$."]] },
+      { h: "Fra $P = UI$ til $P = \\frac{U^2}{R}$", chk: { U: 12, I: 3, R: 4, P: 36 }, rows: [
+        [`P = ${mcA("U")}\\cdot ${mcB("I")}`, "Start på nytt med $P = UI$."],
+        [`P = ${mcA("U")}\\cdot ${mcC("\\frac{U}{R}")}`, "Ohms lov løst for strømmen gir $I = \\frac{U}{R}$. Sett det inn i stedet for $I$ (magenta)."],
+        [`P = \\frac{${mcA("U")}\\cdot ${mcA("U")}}{R} = \\frac{${mcA("U^2")}}{R}`, "Spenningen står nå to ganger i telleren, og $U\\cdot U = U^2$."]] }],
     ex: "En varmeovn har $R = 24$ Ω og er koblet til $U = 230$ V. Effekten er $P = U^2/R = 230^2/24 \\approx 2204$ W.",
     tip: "Velg den formen for $P$ som passer størrelsene du kjenner – de gir samme svar." },
   en: { t: "Electric power",
     intro: "Electric power is the energy converted in a component each second, for example into heat in a resistor or light in a bulb. Combined with Ohm's law, the power can be written in three equivalent ways, useful depending on which quantities you know.",
-    f: [["P = UI", "electric power"], ["P = RI^2", "power in terms of current and resistance"], ["P = \\dfrac{U^2}{R}", "power in terms of voltage and resistance"]],
-    legend: [["P", "power", "W"], ["U", "voltage", "V"], ["I", "current", "A"]],
+    f: [[`P = ${mcA("U")}${mcB("I")}`, "electric power"], [`P = R${mcB("I^2")}`, "power in terms of current and resistance"], [`P = \\dfrac{${mcA("U^2")}}{R}`, "power in terms of voltage and resistance"]],
+    legend: [["P", "power", "W"], [mcA("U"), "voltage (blue)", "V"], [mcB("I"), "current (orange)", "A"], ["R", "resistance", "Ω"]],
+    steps: [
+      { h: "From $P = UI$ to $P = RI^2$", chk: { U: 12, I: 3, R: 4, P: 36 }, rows: [
+        [`P = ${mcA("U")}\\cdot ${mcB("I")}`, "Start with the definition: power is voltage times current."],
+        [`P = ${mcC("R\\cdot I")}\\cdot ${mcB("I")}`, "Ohm's law says $U = RI$. Put $RI$ in place of $U$ (magenta)."],
+        [`P = R\\cdot ${mcB("I")}\\cdot ${mcB("I")} = R${mcB("I^2")}`, "The current now appears twice, and $I\\cdot I = I^2$."]] },
+      { h: "From $P = UI$ to $P = \\frac{U^2}{R}$", chk: { U: 12, I: 3, R: 4, P: 36 }, rows: [
+        [`P = ${mcA("U")}\\cdot ${mcB("I")}`, "Start again with $P = UI$."],
+        [`P = ${mcA("U")}\\cdot ${mcC("\\frac{U}{R}")}`, "Ohm's law solved for the current gives $I = \\frac{U}{R}$. Put it in place of $I$ (magenta)."],
+        [`P = \\frac{${mcA("U")}\\cdot ${mcA("U")}}{R} = \\frac{${mcA("U^2")}}{R}`, "The voltage now appears twice in the numerator, and $U\\cdot U = U^2$."]] }],
     ex: "A heater has $R = 24$ Ω and is connected to $U = 230$ V. The power is $P = U^2/R = 230^2/24 \\approx 2204$ W.",
     tip: "Pick the form of $P$ that matches the quantities you know – they all give the same answer." } },
 { id: "seriekobling",

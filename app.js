@@ -5,16 +5,28 @@
 const $app = document.getElementById("app");
 const esc = s => String(s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 function tex(s){
-  try{ if(window.katex) return katex.renderToString(s,{output:"mathml",throwOnError:false}); }catch(e){}
+  try{ if(window.katex) return mcClass(katex.renderToString(s,{output:"mathml",throwOnError:false})); }catch(e){}
   return '<span class="mono">'+esc(s)+'</span>';
 }
 function inline(s){
-  return s.split(/(`[^`]+`|\$\$[^$]+\$\$|\$[^$]+\$)/g).map(p=>{
+  const txt = p => esc(p).replace(/(\d) (%|‰|°C|°|kr\b|kWh\b|kW\b|kN\b|mm\b|cm\b|m\/s\b|m\b|s\b|N\b|W\b|V\b|A\b|J\b|Hz\b|kg\b|g\b)/g, "$1\u00a0$2"); // tall og enhet på samme linje
+  const parts = s.split(/(`[^`]+`|\$\$[^$]+\$\$|\$[^$]+\$)/g);
+  const out = parts.map(p=>{
     if(p.startsWith("`")&&p.endsWith("`")&&p.length>1) return "<code>"+esc(p.slice(1,-1))+"</code>";
     if(p.startsWith("$$")&&p.endsWith("$$")&&p.length>4) return '<span class="dmath-in">'+texD(p.slice(2,-2))+"</span>"; // $$…$$ midt i en linje (f.eks. i en liste)
     if(p.startsWith("$")&&p.endsWith("$")&&p.length>1) return tex(p.slice(1,-1));
-    return esc(p).replace(/(\d) (%|‰|°C|°|kr\b|kWh\b|kW\b|kN\b|mm\b|cm\b|m\/s\b|m\b|s\b|N\b|W\b|V\b|A\b|J\b|Hz\b|kg\b|g\b)/g, "$1\u00a0$2"); // tall og enhet på samme linje
-  }).join("");
+    return txt(p);
+  });
+  // $…$ med «(» rett foran eller punktum/komma/«)» rett etter: hold dem sammen, så tegnet ikke havner alene på en linje
+  for(let i = 1; i < parts.length; i += 2){
+    const p = parts[i]; if(!(p.startsWith("$") && !p.startsWith("$$"))) continue;
+    const pre = (parts[i-1].match(/[(«]+$/) || [""])[0], post = ((parts[i+1] || "").match(/^[.,;:!?»)]+/) || [""])[0];
+    if(!pre && !post) continue;
+    out[i-1] = txt(parts[i-1].slice(0, parts[i-1].length - pre.length));
+    out[i] = '<span class="mpunct">' + esc(pre) + out[i] + esc(post) + "</span>";
+    if(post){ parts[i+1] = parts[i+1].slice(post.length); out[i+1] = txt(parts[i+1]); }
+  }
+  return out.join("");
 }
 function rich(s){
   s = String(s); if(decPoint()) s = s.replace(/\{,\}/g,".");
@@ -25,7 +37,7 @@ function rich(s){
 const richBig = s => rich(s).replace(/<math(?=[\s>])/g, '<math displaystyle="true"');
 // teori-dokument (markering: ## ### - 1. > $$ ``` **fet**), se learn.js
 function texD(s){
-  try{ if(window.katex) return katex.renderToString(s,{output:"mathml",displayMode:true,throwOnError:false}); }catch(e){}
+  try{ if(window.katex) return mcClass(katex.renderToString(s,{output:"mathml",displayMode:true,throwOnError:false})); }catch(e){}
   return '<div class="mono">'+esc(s)+'</div>';
 }
 function richDoc(src){

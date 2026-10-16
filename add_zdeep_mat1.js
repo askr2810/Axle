@@ -456,14 +456,23 @@ M("VG1T", "Algebra og likninger",
 Regn i denne rekkefølgen: **parenteser → potenser → gange og dele → pluss og minus**. Når du forenkler, samler du **like ledd**: $3x + 5 - x + 2 = 2x + 7$. Du kan bare legge sammen ledd med **samme bokstav og samme potens** – $x$ og $x^2$ er ikke like ledd.
 
 ## Kvadratsetningene
-- $(a + b)^2 = a^2 + 2ab + b^2$
-- $(a - b)^2 = a^2 - 2ab + b^2$
-- $(a + b)(a - b) = a^2 - b^2$ (**konjugatsetningen**)
+- $(${mcA("a")} + ${mcB("b")})^2 = ${mcA("a^2")} + ${mcC("2ab")} + ${mcB("b^2")}$
+- $(${mcA("a")} - ${mcB("b")})^2 = ${mcA("a^2")} - ${mcC("2ab")} + ${mcB("b^2")}$
+- $(${mcA("a")} + ${mcB("b")})(${mcA("a")} - ${mcB("b")}) = ${mcA("a^2")} - ${mcB("b^2")}$ (**konjugatsetningen**)
+
+**Hvor kommer $2ab$ fra?** Skriv kvadratet som to like parenteser, og gang hvert ledd i den første med hvert ledd i den andre:
+$$(${mcA("a")} + ${mcB("b")})^2 = (${mcA("a")} + ${mcB("b")})(${mcA("a")} + ${mcB("b")})$$
+$$= ${mcA("a")}\\cdot ${mcA("a")} + ${mcA("a")}\\cdot ${mcB("b")} + ${mcB("b")}\\cdot ${mcA("a")} + ${mcB("b")}\\cdot ${mcB("b")}$$
+$$= ${mcA("a^2")} + ${mcC("ab")} + ${mcC("ab")} + ${mcB("b^2")}$$
+$$= ${mcA("a^2")} + ${mcC("2ab")} + ${mcB("b^2")}$$
+De to «kryssene» $a\\cdot b$ og $b\\cdot a$ gir hvert sitt $ab$, og sammen blir de $2ab$. I $(a-b)^2$ blir begge kryssene negative ($-ab - ab = {-2ab}$), mens $({-b})\\cdot({-b}) = b^2$ er positivt. I konjugatsetningen blir kryssene $-ab$ og $+ab$, og de nuller hverandre ut. Fargene følger leddene: $a$ er blått, $b$ er oransje, og midtleddet er magenta.
+
 De brukes begge veier: til å **gange ut** og til å **faktorisere**. $x^2 - 9 = (x+3)(x-3)$.
 
 ## Likninger av første grad
 Målet er å få $x$ alene. Du kan gjøre **det samme på begge sider**: legge til, trekke fra, gange eller dele med samme tall (ikke null).
-$$3(x - 2) = x + 8 \\Rightarrow 3x - 6 = x + 8 \\Rightarrow 2x = 14 \\Rightarrow x = 7$$
+$$3(x - 2) = x + 8 \\Rightarrow 3x - 6 = x + 8$$
+$$\\Rightarrow 2x = 14 \\Rightarrow x = 7$$
 **Sett prøve**: $3(7-2) = 15$ og $7 + 8 = 15$ ✓.
 
 ### Brøklikninger
@@ -497,14 +506,23 @@ $x + y = 10$ og $2x - y = 5$. Legg sammen: $3x = 15$, så $x = 5$ og $y = 5$.
 Calculate in this order: **brackets → powers → multiply and divide → add and subtract**. When simplifying, collect **like terms**: $3x + 5 - x + 2 = 2x + 7$. You can only add terms with the **same letter and power** – $x$ and $x^2$ are not like terms.
 
 ## The square identities
-- $(a + b)^2 = a^2 + 2ab + b^2$
-- $(a - b)^2 = a^2 - 2ab + b^2$
-- $(a + b)(a - b) = a^2 - b^2$ (**difference of two squares**)
+- $(${mcA("a")} + ${mcB("b")})^2 = ${mcA("a^2")} + ${mcC("2ab")} + ${mcB("b^2")}$
+- $(${mcA("a")} - ${mcB("b")})^2 = ${mcA("a^2")} - ${mcC("2ab")} + ${mcB("b^2")}$
+- $(${mcA("a")} + ${mcB("b")})(${mcA("a")} - ${mcB("b")}) = ${mcA("a^2")} - ${mcB("b^2")}$ (**difference of two squares**)
+
+**Where does $2ab$ come from?** Write the square as two identical brackets, and multiply each term in the first by each term in the second:
+$$(${mcA("a")} + ${mcB("b")})^2 = (${mcA("a")} + ${mcB("b")})(${mcA("a")} + ${mcB("b")})$$
+$$= ${mcA("a")}\\cdot ${mcA("a")} + ${mcA("a")}\\cdot ${mcB("b")} + ${mcB("b")}\\cdot ${mcA("a")} + ${mcB("b")}\\cdot ${mcB("b")}$$
+$$= ${mcA("a^2")} + ${mcC("ab")} + ${mcC("ab")} + ${mcB("b^2")}$$
+$$= ${mcA("a^2")} + ${mcC("2ab")} + ${mcB("b^2")}$$
+The two 'crosses' $a\\cdot b$ and $b\\cdot a$ each give an $ab$, and together they make $2ab$. In $(a-b)^2$ both crosses are negative ($-ab - ab = {-2ab}$), while $({-b})\\cdot({-b}) = b^2$ is positive. In the difference of two squares the crosses are $-ab$ and $+ab$, and they cancel. The colours follow the terms: $a$ is blue, $b$ is orange, and the middle term is magenta.
+
 They work both ways: to **expand** and to **factorise**. $x^2 - 9 = (x+3)(x-3)$.
 
 ## Linear equations
 The aim is to get $x$ alone. You can do **the same to both sides**: add, subtract, multiply or divide by the same number (not zero).
-$$3(x - 2) = x + 8 \\Rightarrow 3x - 6 = x + 8 \\Rightarrow 2x = 14 \\Rightarrow x = 7$$
+$$3(x - 2) = x + 8 \\Rightarrow 3x - 6 = x + 8$$
+$$\\Rightarrow 2x = 14 \\Rightarrow x = 7$$
 **Check**: $3(7-2) = 15$ and $7 + 8 = 15$ ✓.
 
 ### Equations with fractions
