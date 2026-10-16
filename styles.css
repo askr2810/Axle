@@ -1854,6 +1854,20 @@ textarea.fbtext{width:100%;font:13px/1.4 var(--mono,monospace);border-radius:12p
 .tg-opt.ok{border-color:var(--ok);background:var(--ok-soft);box-shadow:0 3px 0 var(--ok)}
 .tg-opt.bad{border-color:var(--bad);background:var(--bad-soft);box-shadow:0 3px 0 var(--bad);animation:gdShake .35s}
 .tg-fb{border-radius:14px;padding:10px 12px;margin:8px 0}.tg-fb p{margin:4px 0 0}
+/* Steg for steg (trig.js, stasjonen «learn»): sin oransje og heltrukket, cos blå og stiplet, vinkelen magenta (formelfargene) */
+.tgl-steps{display:flex;gap:6px;margin:10px 0 2px}
+.tgl-steps button{flex:1;min-width:0;height:40px;border-radius:12px;border:2px solid var(--line);background:var(--card);font:inherit;font-weight:800;font-size:15px;color:var(--muted);cursor:pointer}
+.tgl-steps button.done{color:var(--ok-text);border-color:color-mix(in srgb,var(--ok) 45%,var(--line))}
+.tgl-steps button.on{border-color:var(--accent);background:var(--accent-bg);color:#fff}
+.tgl-h{font-family:var(--display);font-size:20px;line-height:1.2;margin:10px 0 4px}
+.tgl-nav{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:12px 0}
+.tgl-tab table{min-width:0;table-layout:fixed}.tgl-tab th{width:74px;text-align:left;font-size:13.5px}
+.tgl-tab td{cursor:pointer;font-size:15px}.tgl-tab td.on{background:color-mix(in srgb,var(--mc-c) 12%,transparent);box-shadow:inset 0 -3px 0 var(--mc-c)}
+.tgl-tab td small{font-size:11.5px;color:var(--muted);font-weight:700;line-height:1.1;display:block}
+.tgl-tab th.s{color:var(--mc-b)}.tgl-tab th.c{color:var(--mc-a)}.tgl-tab th.t,.tgl-tab th.a{color:var(--ink)}
+.tgl-p{--k:var(--accent);margin:6px 0}
+.tgl-try{background:var(--card);border:2px solid var(--line);border-radius:16px;padding:10px 12px;margin:10px 0}.tgl-try h4{margin:0 0 4px;font-size:15px}.tgl-try .tg-opt{font-size:17px}
+@media (max-width:420px){.tgl-tab th{width:58px;font-size:12.5px}.tgl-tab td{font-size:13.5px;padding:5px 1px}}
 .tg-fb.ok{background:var(--ok-soft)}.tg-fb.ok b{color:var(--ok-deep)}.tg-fb.bad{background:var(--bad-soft)}.tg-fb.bad b{color:var(--bad-deep)}
 .fc-fig{max-width:520px}.fc-togs{gap:5px}
 .fc-dia{background:var(--card);border:2px solid var(--line);border-radius:16px;padding:4px;margin:8px 0}.fc-dia:empty{display:none}

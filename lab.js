@@ -9,7 +9,7 @@ Object.assign(UI.nb, { labTitle: "Labben", labSub: "Alt du kan dra i, samlet og 
 Object.assign(UI.en, { labTitle: "The lab", labSub: "Everything you can drag, collected and searchable" });
 const LABS = [
   { id: "trig", ic: "🎯", t: ["Enhetssirkelen", "The unit circle"], sub: ["Sin, cos, tan, eksakte verdier, radianer, grafer, likninger og øving", "Sin, cos, tan, exact values, radians, graphs, equations and practice"],
-    kw: "trigonometri trigonometry sinus cosinus tangens sin cos tan enhetssirkel unit circle radianer radians vinkel angle eksakte verdier exact values likning equation graf graph periode period", units: ["VG1T:3", "VGR2:3", "GMAT:5"], open: () => tgOpen("explore", screen) },
+    kw: "trigonometri trigonometry sinus cosinus tangens sin cos tan enhetssirkel unit circle radianer radians vinkel angle eksakte verdier exact values likning equation graf graph periode period", units: ["VG1T:3", "VGR2:3", "GMAT:5"], open: () => tgOpen((S.tgSeen || {}).learn ? "explore" : "learn", screen) },
   { id: "forces", ic: "🪢", t: ["Snorer, trinser og krefter", "Ropes, pulleys and forces"], sub: ["Lodd i to snorer, trinser med motvekter og talje, med dekomponering", "A load in two ropes, pulleys with counterweights and block and tackle, with decomposition"],
     kw: "snordrag tension kraft force krefter forces dekomponering decomposition komponenter components trinse pulley talje tackle statikk statics likevekt equilibrium vektor vector tau rope snor lodd vinkel angle newton", units: ["GFYS:2", "VGFY1:1", "MAPE1300:0", "MAPE1300:1"], open: () => fcOpen("ropes", screen) }
 ,

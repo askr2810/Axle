@@ -6,6 +6,8 @@
 // TOPICS("KODE", enhet, [ {
 //   id: "moment",                       // unik innen faget, a–z0–9-
 //   fig: `<svg viewBox="0 0 240 140">…</svg>`,   // valgfri figur (bare symboler, ingen ord – brukes på begge språk)
+//   tg: "learn",                        // valgfri knapp til en stasjon i enhetssirkelen (trig.js: TG_ST)
+//   steps (i nb/en): [{ h, chk, rows: [[latex, forklaring], …] }]   // valgfri utledning, se book.js og tools/test_mc.js
 //   nb: { t, intro, f:[[latex, forklaring], …], legend:[[symbol, betydning, enhet], …], ex, tip },
 //   en: { …samme felt på engelsk… }
 // }, … ]);

@@ -5,9 +5,9 @@
 //  Nås fra Bevis-siden, fra teorien i trigonometri-enhetene, fra spillmenyen og på #/enhetssirkel/<stasjon>.
 //  Framdrift: S.tgSeen (besøkte stasjoner), S.tgGoals (løste utfordringer), S.tgBest (rekord i Øv).
 // ============================================================
-let TG = { st: "explore", v: 30, rad: false, snap: true, tan: false, ref: false, touched: false, ex: "45", e36: 60, exSel: 210, sym: "m180",
+let TG = { st: "explore", ls: 1, lsel: 1, lq: null, v: 30, rad: false, snap: true, tan: false, ref: false, touched: false, ex: "45", e36: 60, exSel: 210, sym: "m180",
   gr: "unroll", fn: "sin", A: 1, k: 1, ph: 0, d: 0, eq: "sin", a: 0.5, from: "home", anim: 0, quiz: null };
-const TG_ST = [["explore", "🧭", "Utforsk", "Explore", "utforsk", "explore"], ["exact", "✨", "Eksakte verdier", "Exact values", "eksakte", "exact"],
+const TG_ST = [["learn", "🪜", "Steg for steg", "Step by step", "steg-for-steg", "step-by-step"], ["explore", "🧭", "Utforsk", "Explore", "utforsk", "explore"], ["exact", "✨", "Eksakte verdier", "Exact values", "eksakte", "exact"],
   ["radians", "📏", "Radianer", "Radians", "radianer", "radians"], ["sym", "🪞", "Symmetri", "Symmetry", "symmetri", "symmetry"],
   ["graphs", "〰️", "Grafer", "Graphs", "grafer", "graphs"], ["eq", "🎯", "Likninger", "Equations", "likninger", "equations"], ["quiz", "🏆", "Øv", "Practice", "ov", "practice"]];
 Object.assign(UI.nb, { tgTitle: "Enhetssirkelen", tgSub: "Dra, se og øv på trigonometri", tgKicker: "Trigonometri", tgCta: "Enhetssirkelen: interaktiv lab", tgCtaSub: "Dra i sirkelen, se sin, cos og tan, og øv med spill" });
@@ -412,9 +412,153 @@ function tgQNext(){
   bdgToast(checkBadges()); save(); render(); setTimeout(() => Q.newBest || Q.score >= 8 ? confetti("level") : sfx("complete"), 200); if(st.goalHit) setTimeout(() => toast(t("goalHitTitle")), 900);
 }
 
+// ---------- stasjon 0: Steg for steg (oppgave 38) ----------
+// Sinus, cosinus og tangens for 0°, 30°, 45°, 60° og 90° i seks små steg: huskeregel, cos baklengs, enhetssirkelen,
+// grafene som spor av koordinatene, tangens og en samlet tabell med «prøv selv». Formlene kommer etter bildet.
+// Faste farger, de samme som formelfargene (learn.js: MC, og de følger «Farger i formler»): cos og x-koordinaten blå og
+// STIPLET, sin og y-koordinaten oransje og HELTRUKKET, vinkelen magenta. Etiketter og linjestil skiller dem også uten farge.
+// Verdiene og grafpunktene kontrolleres av tools/test_trig_learn.js.
+const TGL_COS = "var(--mc-a)", TGL_SIN = "var(--mc-b)", TGL_ANG = "var(--mc-c)", TGL_DASH = 'stroke-dasharray="7 5"';
+// [grader, radianer, sin som √k/2, sin forenklet, cos, tan (null = ikke definert)]
+const TGL_V = [[0, "0", "\\tfrac{\\sqrt0}{2}", "0", "1", "0"], [30, "\\tfrac{\\pi}{6}", "\\tfrac{\\sqrt1}{2}", "\\tfrac12", "\\tfrac{\\sqrt3}{2}", "\\tfrac{\\sqrt3}{3}"],
+  [45, "\\tfrac{\\pi}{4}", "\\tfrac{\\sqrt2}{2}", "\\tfrac{\\sqrt2}{2}", "\\tfrac{\\sqrt2}{2}", "1"], [60, "\\tfrac{\\pi}{3}", "\\tfrac{\\sqrt3}{2}", "\\tfrac{\\sqrt3}{2}", "\\tfrac12", "\\sqrt3"],
+  [90, "\\tfrac{\\pi}{2}", "\\tfrac{\\sqrt4}{2}", "1", "0", null]];
+// Tangens regnet ut trinn for trinn: tan = sin / cos (LaTeX etter «= \frac{sin}{cos} =»)
+const TGL_TAN = ["\\frac{0}{1} = 0", "\\frac{\\tfrac12}{\\tfrac{\\sqrt3}{2}} = \\frac{1}{\\sqrt3} = \\frac{\\sqrt3}{3}", "\\frac{\\tfrac{\\sqrt2}{2}}{\\tfrac{\\sqrt2}{2}} = 1", "\\frac{\\tfrac{\\sqrt3}{2}}{\\tfrac12} = \\sqrt3", null];
+const TGL_TXT = [
+  { t: ["Huskeregel for sinus", "A memory trick for sine"],
+    p: ["Skriv vinklene $0^\\circ, 30^\\circ, 45^\\circ, 60^\\circ$ og $90^\\circ$ i rekkefølge. Skriv tallene 0, 1, 2, 3 og 4 under hvert sitt rottegn, og del på 2. Da har du sinusverdiene. Til slutt forenkler du: $\\sqrt{0} = 0$, $\\sqrt{1} = 1$ og $\\sqrt{4} = 2$.",
+        "Write the angles $0^\\circ, 30^\\circ, 45^\\circ, 60^\\circ$ and $90^\\circ$ in order. Put the numbers 0, 1, 2, 3 and 4 under a root sign each, and divide by 2. That gives the sine values. Finally simplify: $\\sqrt{0} = 0$, $\\sqrt{1} = 1$ and $\\sqrt{4} = 2$."],
+    f: ["I figuren er sinus høyden til punktet (den heltrukne streken). Høyden vokser fra 0 til 1 mens vinkelen går fra $0^\\circ$ til $90^\\circ$.", "In the figure, sine is the height of the point (the solid line). The height grows from 0 to 1 as the angle goes from $0^\\circ$ to $90^\\circ$."] },
+  { t: ["Cosinus er det samme baklengs", "Cosine is the same backwards"],
+    p: ["Cosinusverdiene er sinusverdiene i motsatt rekkefølge. Cosinus er hvor langt ut punktet ligger (den stiplede streken).", "The cosine values are the sine values in reverse order. Cosine is how far across the point is (the dashed line)."],
+    f: ["Hvorfor baklengs? Punktet på $30^\\circ$ ligger like langt ut som punktet på $60^\\circ$ ligger høyt, og omvendt: de er speilet i linja $y = x$. Derfor er $\\cos v = \\sin(90^\\circ - v)$.", "Why backwards? The point at $30^\\circ$ is as far across as the point at $60^\\circ$ is high, and the other way round: they are mirrored in the line $y = x$. That is why $\\cos\\theta = \\sin(90^\\circ - \\theta)$."] },
+  { t: ["Enhetssirkelen viser hvorfor", "The unit circle shows why"],
+    p: ["Tegn en sirkel med radius 1 rundt origo. Punktet $P$ på sirkelen ved vinkelen $v$ har koordinatene $(\\cos v, \\sin v)$: x-koordinaten er cosinus, og y-koordinaten er sinus. Dra punktet.", "Draw a circle with radius 1 around the origin. The point $P$ on the circle at the angle $\\theta$ has the coordinates $(\\cos\\theta, \\sin\\theta)$: the x-coordinate is cosine, and the y-coordinate is sine. Drag the point."],
+    f: ["Radien, den stiplede streken og den heltrukne streken danner en rettvinklet trekant med hypotenus 1. Derfor er $\\cos v = \\frac{x}{1} = x$ og $\\sin v = \\frac{y}{1} = y$.", "The radius, the dashed line and the solid line form a right triangle with hypotenuse 1. So $\\cos\\theta = \\frac{x}{1} = x$ and $\\sin\\theta = \\frac{y}{1} = y$."] },
+  { t: ["Bølgene er spor av punktet", "The waves are traces of the point"],
+    p: ["La punktet gå rundt sirkelen. Høyden $y$ tegner sinuskurven (heltrukket), og x-koordinaten tegner cosinuskurven (stiplet), mens vinkelen øker.", "Let the point go round the circle. The height $y$ draws the sine curve (solid), and the x-coordinate draws the cosine curve (dashed), as the angle increases."],
+    f: ["Begge grafene har samme bølgeform og samme periode: etter én hel omdreining, $2\\pi$ radianer ($360^\\circ$), gjentar de seg. De er forskjøvet en kvart omdreining, $\\frac{\\pi}{2}$: $\\cos v = \\sin\\left(v + \\frac{\\pi}{2}\\right)$. Cosinus når altså hver verdi $\\frac{\\pi}{2}$ tidligere enn sinus. Toppen til cosinus ligger ved $v = 0$, toppen til sinus ved $v = \\frac{\\pi}{2}$. Derfor starter cosinus på 1 og sinus på 0 når $v = 0$: punktet starter helt til høyre, der $x = 1$ og $y = 0$.",
+        "Both graphs have the same wave shape and the same period: after one full turn, $2\\pi$ radians ($360^\\circ$), they repeat. They are shifted by a quarter turn, $\\frac{\\pi}{2}$: $\\cos\\theta = \\sin\\left(\\theta + \\frac{\\pi}{2}\\right)$. So cosine reaches each value $\\frac{\\pi}{2}$ earlier than sine. The peak of cosine is at $\\theta = 0$, the peak of sine at $\\theta = \\frac{\\pi}{2}$. That is why cosine starts at 1 and sine at 0 when $\\theta = 0$: the point starts all the way to the right, where $x = 1$ and $y = 0$."] },
+  { t: ["Tangens er sinus delt på cosinus", "Tangent is sine divided by cosine"],
+    p: ["Tangens finner du ved å dele: $\\tan v = \\dfrac{\\sin v}{\\cos v}$. I figuren er $\\tan v$ høyden der linja fra origo gjennom $P$ treffer den loddrette linja $x = 1$.", "You find tangent by dividing: $\\tan\\theta = \\dfrac{\\sin\\theta}{\\cos\\theta}$. In the figure, $\\tan\\theta$ is the height where the line from the origin through $P$ meets the vertical line $x = 1$."],
+    f: ["Ved $90^\\circ$ er $\\cos v = 0$, og vi kan ikke dele på 0. Linja gjennom $P$ står da loddrett, parallelt med $x = 1$, og treffer den aldri. Derfor er $\\tan 90^\\circ$ ikke definert. Det er ikke et tall, og heller ikke «uendelig».", "At $90^\\circ$, $\\cos\\theta = 0$, and we cannot divide by 0. The line through $P$ is then vertical, parallel to $x = 1$, and never meets it. So $\\tan 90^\\circ$ is not defined. It is not a number, and not 'infinity' either."] },
+  { t: ["Alt samlet – prøv selv", "Everything together – try it yourself"],
+    p: ["Her er alle verdiene samlet. Prøv deg på spørsmålene under, og bruk huskeregelen og enhetssirkelen hvis du står fast.", "Here are all the values together. Try the questions below, and use the memory trick and the unit circle if you get stuck."],
+    f: ["", ""] }];
+const TGL_N = TGL_TXT.length;
+const tglV = () => tgV();
+// Grafpunktene i steg 4: x-posisjon og høyde for vinkelen d (grader), samme mål som i Grafer-stasjonen.
+const tglX = d => TG_GX + d * TG_GW / 360, tglY = y => TG_CY - y * TG_GR;
+function tglCurve(fn, a = 0, b = 360, step = 2){ const f = fn === "sin" ? Math.sin : Math.cos, out = []; for(let d = a; d < b + 1e-9; d += step) out.push([d, tglX(d), tglY(f(tgRad(d)))]); if(out[out.length - 1][0] !== b) out.push([b, tglX(b), tglY(f(tgRad(b)))]); return out; }
+const tglPath = pts => pts.map((p, i) => (i ? "L" : "M") + tf1(p[1]) + " " + tf1(p[2])).join(" ");
+const tglUndef = () => `\\text{${T("ikke definert", "not defined")}}`;
+// Fem punkter i første kvadrant (steg 1, 2 og 5)
+function tglQuad(sel, show){
+  const R = TG_R, m = "var(--muted)";
+  let g = tgL(-14, 0, R + 30, 0, m, 1.3) + tgArrow(R + 32, 0, "r", m) + tgL(0, 14, 0, -R - 30, m, 1.3) + tgArrow(0, -R - 32, "u", m) + tgT(R + 26, 13, "x", m, "middle", 13, 600) + tgT(-11, -R - 24, "y", m, "middle", 13, 600);
+  g += tgArc(R, 0, 90, "var(--ink)", 2, 0, 0, 'opacity=".55"') + tgT(R + 6, 14, "1", m, "start", 11, 600) + tgT(-7, -R, "1", m, "end", 11, 600);
+  if(show.mirror) g += tgL(-6, 6, R * 0.95, -R * 0.95, m, 1.4, 'stroke-dasharray="3 5"') + tgT(R * 0.95 + 4, -R * 0.95 - 6, "y = x", m, "start", 11, 600);
+  TGL_V.forEach(([d], i) => { const [x, y] = tgP(d), on = i === sel;
+    if(show.sin) g += tgL(x, 0, x, y, TGL_SIN, on ? 5 : 2.6, on ? "" : 'opacity=".55"');
+    if(show.cos) g += tgL(0, y, x, y, TGL_COS, on ? 5 : 2.6, TGL_DASH + (on ? "" : ' opacity=".55"'));
+    if(on && !show.tan) g += tgL(0, 0, x, y, "var(--ink)", 2) + tgArc(26, 0, d, TGL_ANG, 3);
+    g += `<circle cx="${tf1(x)}" cy="${tf1(y)}" r="${on ? 7 : 5}" style="fill:${on ? "var(--accent)" : "var(--card)"};stroke:var(--accent);stroke-width:2"/>`;
+    if(show.tan){ if(on && d > 0 && d < 90){ const [lx, ly] = tgP(d / 2, 44); g += tgT(lx, ly, d + "°", TGL_ANG, "start", 12, 800); } return; }
+    const [lx, ly] = d === 0 ? [R + 4, -12] : d === 90 ? [10, -R - 12] : tgP(d + (d === 45 ? 5 : 0), R + 18);
+    g += tgT(lx, ly, d + "°", on ? TGL_ANG : m, "start", 12, on ? 800 : 600); });
+  const [x, y] = tgP(TGL_V[sel][0]);
+  if(show.sin && sel > 0) g += tgT(x + 7, y / 2, "sin", TGL_SIN, "start", 12);
+  if(show.cos && sel < 4) g += tgT(x / 2, y - 11, "cos", TGL_COS, "middle", 12);
+  if(show.tan){ g += tgL(R, 16, R, -R * 1.8, "var(--ink)", 1.6, 'opacity=".7"') + tgT(R + 6, -R * 1.8 + 6, "x = 1", m, "start", 11, 600) + tgArc(26, 0, TGL_V[sel][0], TGL_ANG, 3);
+    if(sel < 4){ const t = Math.tan(tgRad(TGL_V[sel][0])); g += tgL(0, 0, R, -R * t, "var(--ink)", 2) + tgL(R, 0, R, -R * t, "var(--ink)", 5) + (t > 0.05 ? tgT(R + 8, -R * t / 2, "tan", "var(--ink)", "start", 12) : "") + tgL(x, 0, x, y, TGL_SIN, 4) + tgL(0, 0, x, 0, TGL_COS, 4, TGL_DASH); }
+    else g += tgL(0, 0, 0, -R * 1.8, "var(--ink)", 2, 'stroke-dasharray="2 4"') + tgT(10, -R * 1.55, "∥", "var(--ink)", "start", 15); }
+  return g;
+}
+function tglTable(rows, sel){
+  const cell = (i, x, cls = "v") => `<td class="${cls}${i === sel ? " on" : ""}" data-a="tglsel" data-i="${i}">${x == null ? `<small>${esc(T("ikke definert", "not defined"))}</small>` : tex(x)}</td>`;
+  const R = { deg: [T("Grader", "Degrees"), TGL_V.map(v => v[0] + "^\\circ"), "a"], rad: [T("Radianer", "Radians"), TGL_V.map(v => v[1]), "a"],
+    root: ["sin", TGL_V.map(v => mcB(v[2])), "s"], sin: ["sin", TGL_V.map(v => mcB(v[3])), "s"], cos: ["cos", TGL_V.map(v => mcA(v[4])), "c"], tan: ["tan", TGL_V.map(v => v[5]), "t"] };
+  if(rows.includes("root")) R.sin[0] = T("forenklet", "simplified");
+  return `<div class="tg-tab tgl-tab"><table>${rows.map(k => `<tr><th class="${R[k][2]}">${esc(R[k][0])}${k === "root" ? `<span class="sr"> ${esc(T("som rot over 2", "as a root over 2"))}</span>` : ""}</th>${R[k][1].map((x, i) => cell(i, x)).join("")}</tr>`).join("")}</table></div>`;
+}
+const tglSel = () => Math.max(0, Math.min(4, TG.lsel == null ? 1 : TG.lsel));
+// Spørsmål i steg 6: «Hva er f v?» med fire svar
+const TGL_POOL = ["0", "\\tfrac12", "\\tfrac{\\sqrt2}{2}", "\\tfrac{\\sqrt3}{2}", "1", "\\tfrac{\\sqrt3}{3}", "\\sqrt3", null];
+function tglAnswer(fn, i){ const v = TGL_V[i]; return fn === "sin" ? v[3] : fn === "cos" ? v[4] : v[5]; }
+function tglNewQ(){
+  let fn, i; do { fn = tgPick(["sin", "cos", "tan"]); i = Math.floor(Math.random() * 5); } while(TG.lq && TG.lq.fn === fn && TG.lq.i === i);
+  const right = tglAnswer(fn, i), wrong = shuffle(TGL_POOL.filter(x => x !== right && (fn === "tan" || x !== null))).slice(0, 3);
+  TG.lq = { fn, i, opts: shuffle([right, ...wrong]), pick: -1 };
+}
+function tglQuizHTML(){
+  if(!TG.lq) tglNewQ(); const q = TG.lq, v = TGL_V[q.i], right = tglAnswer(q.fn, q.i), done = q.pick >= 0, ok = done && q.opts[q.pick] === right, V = v[0] + "^\\circ";
+  const show = x => x == null ? esc(T("ikke definert", "not defined")) : tex(x);
+  const why = q.fn === "sin" ? T(`Huskeregelen: $\\sin ${V} = ${v[2]} = ${v[3]}$.`, `The memory trick: $\\sin ${V} = ${v[2]} = ${v[3]}$.`)
+    : q.fn === "cos" ? T(`Cosinus er sinus baklengs: $\\cos ${V} = \\sin ${90 - v[0]}^\\circ = ${v[4]}$.`, `Cosine is sine backwards: $\\cos ${V} = \\sin ${90 - v[0]}^\\circ = ${v[4]}$.`)
+    : v[5] == null ? T("$\\cos 90^\\circ = 0$, og vi kan ikke dele på 0, så $\\tan 90^\\circ$ er ikke definert.", "$\\cos 90^\\circ = 0$, and we cannot divide by 0, so $\\tan 90^\\circ$ is not defined.")
+    : T(`$\\tan ${V} = \\dfrac{\\sin ${V}}{\\cos ${V}} = ${TGL_TAN[q.i]}$.`, `$\\tan ${V} = \\dfrac{\\sin ${V}}{\\cos ${V}} = ${TGL_TAN[q.i]}$.`);
+  return `<div class="tgl-try"><h4>✏️ ${esc(T("Prøv selv", "Try it yourself"))}</h4><p class="tg-qp">${esc(T("Hva er", "What is"))} ${tex(`\\${q.fn} ${V}`)}?</p>
+    <div class="tg-opts">${q.opts.map((o, k) => `<button class="tg-opt ${done ? (o === right ? "ok" : q.pick === k ? "bad" : "") : ""}" data-a="tglans" data-k="${k}" ${done ? "disabled" : ""}>${show(o)}</button>`).join("")}</div>
+    ${done ? `<div class="tg-fb ${ok ? "ok" : "bad"}" aria-live="polite"><b>${esc(ok ? T("Riktig!", "Correct!") : T("Ikke helt", "Not quite"))}</b><p>${rich(why)}</p></div><button class="big" data-a="tglq">${esc(T("Nytt spørsmål", "New question"))}</button>` : ""}</div>`;
+}
+function tglLearn(){
+  const s = TG.ls || 1, sel = tglSel(), d = TGL_V[sel][0], V = tglV(), ft = `<p class="tg-where">${rich(T(TGL_TXT[s - 1].f[0], TGL_TXT[s - 1].f[1]))}</p>`;
+  if(s === 1) return { svg: tglQuad(sel, { sin: 1 }), vb: "-40 -170 210 196",
+    read: tglTable(["deg", "root", "sin"], sel) + `<div class="tg-vals">${tgValBox(TGL_SIN, `\\sin ${d}^\\circ = ${mcB(TGL_V[sel][2])} = ${mcB(TGL_V[sel][3])}`)}</div>` + ft };
+  if(s === 2) return { svg: tglQuad(sel, { sin: 1, cos: 1, mirror: 1 }), vb: "-40 -170 210 196",
+    read: tglTable(["deg", "sin", "cos"], sel) + `<div class="tg-vals">${tgValBox(TGL_COS, `\\cos ${d}^\\circ = \\sin ${90 - d}^\\circ = ${mcA(TGL_V[sel][4])}`)}</div>` + ft };
+  if(s === 5) return { svg: tglQuad(sel, { tan: 1 }), vb: "-40 -240 220 266",
+    read: tglTable(["deg", "sin", "cos", "tan"], sel) + `<div class="tg-vals">${tgValBox("var(--ink)", TGL_TAN[sel] ? `\\tan ${d}^\\circ = \\dfrac{\\sin ${d}^\\circ}{\\cos ${d}^\\circ} = ${TGL_TAN[sel]}` : `\\tan 90^\\circ = \\dfrac{\\sin 90^\\circ}{\\cos 90^\\circ} = \\dfrac{1}{0} \;\\to\; ${tglUndef()}`)}</div>` + ft };
+  if(s === 6) return { svg: tglQuad(sel, { sin: 1, cos: 1 }), vb: "-40 -170 210 196", read: tglTable(["deg", "rad", "sin", "cos", "tan"], sel) + tglQuizHTML() };
+  const v = mod360(TG.v) === 0 && TG.v > 0 ? 360 : mod360(TG.v), c = Math.cos(tgRad(v)), sn = Math.sin(tgRad(v)), ex = tgExact(v);
+  const vals = `<div class="tg-vals">${tgValBox(TGL_ANG, `${V} = ${tgDegTex(v)} = ${tgRadTex(v)}`)}${tgValBox(TGL_COS, tgValTex(`x = \\cos ${V}`, ex && ex.c, c))}${tgValBox(TGL_SIN, tgValTex(`y = \\sin ${V}`, ex && ex.s, sn))}</div>`;
+  if(s === 3){
+    const [px, py] = tgP(v); let g = tgBase(0, 0, TG_R, true);
+    g += tgArc(24, 0, v, TGL_ANG, 3) + tgL(0, 0, px, 0, TGL_COS, 5, TGL_DASH) + tgL(px, 0, px, py, TGL_SIN, 5) + tgL(0, 0, px, py, "var(--ink)", 2.4);
+    if(Math.abs(px) > 26) g += tgT(px / 2, sn >= 0 ? 15 : -15, "cos", TGL_COS, "middle", 12);
+    if(Math.abs(py) > 26) g += tgT(px + (c >= 0 ? 8 : -8), py / 2, "sin", TGL_SIN, c >= 0 ? "start" : "end", 12);
+    g += tgT(px / 2 - (sn >= 0 ? 10 : -10) * Math.sign(c || 1), py / 2 - 8, "1", "var(--ink)", "middle", 13);
+    const lx = px + (c >= 0 ? 10 : -10), ly = py + (sn >= 0 ? -14 : 16); g += tgT(lx, ly, "P", "var(--accent)", c >= 0 ? "start" : "end", 14, 800);
+    g += tgHandle(px, py, "var(--accent)", !TG.touched);
+    const rad = `<p class="tg-id">${rich(T("De fem vinklene i radianer: $0, \\tfrac{\\pi}{6}, \\tfrac{\\pi}{4}, \\tfrac{\\pi}{3}$ og $\\tfrac{\\pi}{2}$. Én hel omdreining er $360^\\circ = 2\\pi$ radianer, og første kvadrant går fra $0$ til $\\tfrac{\\pi}{2}$. Ikke bland sammen: $2\\pi$ er vinkelen for én hel runde. Omkretsen til enhetssirkelen er også $2\\pi$, men det er en lengde. Fordi radien er 1, er vinkelen i radianer lik buelengden fra $(1, 0)$ til $P$.",
+      "The five angles in radians: $0, \\tfrac{\\pi}{6}, \\tfrac{\\pi}{4}, \\tfrac{\\pi}{3}$ and $\\tfrac{\\pi}{2}$. One full turn is $360^\\circ = 2\\pi$ radians, and the first quadrant goes from $0$ to $\\tfrac{\\pi}{2}$. Do not mix them up: $2\\pi$ is the angle of one full turn. The circumference of the unit circle is also $2\\pi$, but that is a length. Because the radius is 1, the angle in radians equals the arc length from $(1, 0)$ to $P$."))}</p>`;
+    return { svg: g, vb: "-165 -165 330 330", read: vals + `<div class="tg-val tgl-p">${tex(`P = (\\,${mcA("\\cos " + V)},\\ ${mcB("\\sin " + V)}\\,)`)}</div>` + ft + rad };
+  }
+  // steg 4: sirkel til venstre, begge grafene til høyre
+  const X = tglX, Y = tglY, m = "var(--muted)";
+  let g = tgAxes(TG_GR + 22, TG_CX, TG_CY, TG_GR, false) + `<circle cx="${TG_CX}" cy="${TG_CY}" r="${TG_GR}" style="fill:none;stroke:var(--ink);stroke-width:2;opacity:.55"/>`;
+  g += tgL(TG_GX - 4, TG_CY, TG_GX + TG_GW + 16, TG_CY, m, 1.3) + tgArrow(TG_GX + TG_GW + 20, TG_CY, "r", m) + tgL(TG_GX, TG_CY + TG_GR + 16, TG_GX, TG_CY - TG_GR - 30, m, 1.3) + tgArrow(TG_GX, TG_CY - TG_GR - 32, "u", m);
+  [[90, "π/2"], [180, "π"], [270, "3π/2"], [360, "2π"]].forEach(([dd, l]) => { g += tgL(X(dd), TG_CY - 4, X(dd), TG_CY + 4, m, 1.3) + tgT(X(dd), TG_CY + 22, l, m, "middle", 21, 700); });
+  g += tgT(TG_GX - 8, Y(1), "1", m, "end", 19, 600) + tgT(TG_GX - 8, Y(-1), "−1", m, "end", 19, 600) + tgL(TG_GX - 4, Y(1), TG_GX + TG_GW, Y(1), m, 1, 'stroke-dasharray="2 5" opacity=".6"') + tgL(TG_GX - 4, Y(-1), TG_GX + TG_GW, Y(-1), m, 1, 'stroke-dasharray="2 5" opacity=".6"');
+  // forskyvningen: toppen til cos ved 0, toppen til sin ved π/2
+  const ya = Y(1) - 20; g += tgL(X(0) + 3, ya, X(90) - 3, ya, "var(--ink)", 1.6) + tgArrow(X(90) - 1, ya, "r", "var(--ink)") + `<polygon points="${tf1(X(0) + 1)},${tf1(ya)} ${tf1(X(0) + 10)},${tf1(ya - 4.5)} ${tf1(X(0) + 10)},${tf1(ya + 4.5)}" style="fill:var(--ink)"/>` + tgT((X(0) + X(90)) / 2, ya - 15, "π/2", "var(--ink)", "middle", 21, 800);
+  g += `<path d="${tglPath(tglCurve("sin"))}" style="fill:none;stroke:${TGL_SIN};stroke-width:2;opacity:.3"/><path d="${tglPath(tglCurve("cos"))}" style="fill:none;stroke:${TGL_COS};stroke-width:2;opacity:.3" ${TGL_DASH}/>`;
+  if(v > 0) g += `<path d="${tglPath(tglCurve("sin", 0, v))}" style="fill:none;stroke:${TGL_SIN};stroke-width:3.6" stroke-linecap="round"/><path d="${tglPath(tglCurve("cos", 0, v))}" style="fill:none;stroke:${TGL_COS};stroke-width:3.6" ${TGL_DASH}/>`;
+  g += tgDot(X(0), Y(1), TGL_COS, 4.5) + tgDot(X(90), Y(1), TGL_SIN, 4.5) + tgT(X(360) - 6, Y(Math.cos(tgRad(350))) - 14, "cos", TGL_COS, "end", 21) + tgT(X(180) + 10, Y(Math.sin(tgRad(160))) - 12, "sin", TGL_SIN, "start", 21);
+  const [qx, qy] = tgP(v, TG_GR), cx = TG_CX + qx, cy = TG_CY + qy, gx = X(v);
+  g += tgArc(18, 0, v, TGL_ANG, 2.6, TG_CX, TG_CY) + tgL(TG_CX, TG_CY, cx, TG_CY, TGL_COS, 4.5, TGL_DASH) + tgL(cx, TG_CY, cx, cy, TGL_SIN, 4.5) + tgL(TG_CX, TG_CY, cx, cy, "var(--ink)", 2);
+  g += tgL(cx, cy, gx, Y(sn), TGL_SIN, 1.3, 'stroke-dasharray="3 4" opacity=".7"') + tgL(gx, TG_CY, gx, Y(sn), TGL_SIN, 4) + tgL(gx + 5, TG_CY, gx + 5, Y(c), TGL_COS, 4, TGL_DASH);
+  g += tgDot(gx, Y(sn), TGL_SIN, 5.5) + tgDot(gx + 5, Y(c), TGL_COS, 5.5) + tgHandle(cx, cy, "var(--accent)", !TG.touched);
+  const keys = `<p class="tg-id">${rich(T("Viktige punkter: ved $v = 0$ er $\\cos v = 1$ og $\\sin v = 0$. Ved $\\tfrac{\\pi}{2}$ er $\\cos v = 0$ og $\\sin v = 1$. Ved $\\pi$ er $\\cos v = -1$ og $\\sin v = 0$. Ved $\\tfrac{3\\pi}{2}$ er $\\cos v = 0$ og $\\sin v = -1$. Ved $2\\pi$ er punktet tilbake der det startet.",
+    "Key points: at $\\theta = 0$, $\\cos\\theta = 1$ and $\\sin\\theta = 0$. At $\\tfrac{\\pi}{2}$, $\\cos\\theta = 0$ and $\\sin\\theta = 1$. At $\\pi$, $\\cos\\theta = -1$ and $\\sin\\theta = 0$. At $\\tfrac{3\\pi}{2}$, $\\cos\\theta = 0$ and $\\sin\\theta = -1$. At $2\\pi$ the point is back where it started."))}</p>`;
+  return { svg: g, vb: "0 0 640 300", read: vals + ft + keys };
+}
+const tglWide = () => TG.st === "learn" && (TG.ls || 1) === 4;
+function tglIntroHTML(){
+  const s = TG.ls || 1, x = TGL_TXT[s - 1];
+  return `<nav class="tgl-steps" aria-label="${esc(T("Steg", "Steps"))}">${TGL_TXT.map((st, i) => `<button class="${i + 1 === s ? "on" : i + 1 < s ? "done" : ""}" data-a="tgls" data-v="${i + 1}" aria-label="${esc(T("Steg", "Step") + " " + (i + 1) + ": " + T(st.t[0], st.t[1]))}" ${i + 1 === s ? 'aria-current="step"' : ""}>${i + 1}</button>`).join("")}</nav>
+    <h3 class="tgl-h">${esc(T("Steg", "Step"))} ${s}: ${esc(T(x.t[0], x.t[1]))}</h3><p class="tg-intro">${rich(T(x.p[0], x.p[1]))}</p>`;
+}
+function tglNavHTML(){
+  const s = TG.ls || 1;
+  return `<div class="tgl-nav">${s > 1 ? `<button class="big ghost" data-a="tgls" data-v="${s - 1}">← ${esc(T("Forrige", "Back"))}</button>` : "<span></span>"}${s < TGL_N ? `<button class="big" data-a="tgls" data-v="${s + 1}">${esc(T("Neste steg", "Next step"))} →</button>` : ""}</div>`;
+}
+
 // ---------- side og samspill ----------
-const TG_PAINT = { explore: tgExplore, exact: tgExactFig, radians: tgRadians, sym: tgSym, graphs: tgGraphs, eq: tgEq };
+const TG_PAINT = { learn: tglLearn, explore: tgExplore, exact: tgExactFig, radians: tgRadians, sym: tgSym, graphs: tgGraphs, eq: tgEq };
 const TG_INTRO = {
+  learn: ["", ""], // tglIntroHTML
   explore: ["Dra punktet rundt sirkelen. Punktet har koordinatene $(\\cos v, \\sin v)$: cos er hvor langt til siden, sin er hvor høyt opp. Radien er alltid 1.", "Drag the point around the circle. The point has coordinates $(\\cos\\theta, \\sin\\theta)$: cos is how far across, sin is how far up. The radius is always 1."],
   exact: ["Noen vinkler har eksakte verdier du bør kunne. De kommer fra to trekanter: et halvt kvadrat (45°) og en halv likesidet trekant (30° og 60°).", "Some angles have exact values you should know. They come from two triangles: half a square (45°) and half an equilateral triangle (30° and 60°)."],
   radians: ["En radian er vinkelen der buen er like lang som radien. På enhetssirkelen er vinkelen i radianer rett og slett buelengden.", "A radian is the angle where the arc is as long as the radius. On the unit circle the angle in radians is simply the arc length."],
@@ -436,6 +580,7 @@ function tgControlsHTML(){
   const range = (max = 359) => `<label class="tg-range"><span>${esc(tgVt())}</span><input type="range" id="tgrange" min="0" max="${max}" step="1" value="${Math.round(TG.v)}" aria-label="${esc(T("Vinkel i grader", "Angle in degrees"))}"></label>`;
   const spin = `<button class="tg-chip" data-a="tgspin">${TG.anim ? "⏸ " + T("Stopp", "Stop") : "▶ " + T("Snurr", "Spin")}</button>`;
   switch(TG.st){
+    case "learn": { const s = TG.ls || 1; return (s === 3 || s === 4 ? `${range(360)}<div class="tg-ctl">${spin}</div>` : s === 6 ? "" : `<p class="picknote">${esc(T("Trykk på et punkt eller en kolonne i tabellen for å velge vinkel.", "Tap a point or a column in the table to choose an angle."))}</p>`); }
     case "explore": return `${range()}<div class="tg-ctl">${units}${tog("tan", "tan")}${tog("ref", T("Referansevinkel", "Reference angle"))}${tog("snap", T("Fest til fine vinkler", "Snap to nice angles"))}${tog("eul", "Euler e<sup>i" + esc(tgVt()) + "</sup>")}${spin}</div>`;
     case "exact": return `<div class="tg-ctl">${seg("tgex", [["45", "45°"], ["3060", "30° / 60°"], ["all", T("Hele sirkelen", "Whole circle")]], TG.ex)}${TG.ex === "3060" ? seg("tge36", [[60, "60°"], [30, "30°"]], TG.e36) : ""}${TG.ex === "all" ? units : ""}</div>`;
     case "radians": return `${range(360)}<div class="tg-ctl tg-quick">${[30, 45, 60, 90, 120, 180, 270, 360].map(d => `<button class="tg-chip ${TG.v === d ? "on" : ""}" data-a="tgset" data-v="${d}">${tex(tgRadTex(d))}</button>`).join("")}${spin}</div>`;
@@ -453,20 +598,20 @@ function renderTrig(){
   const st = TG_ST.find(x => x[0] === TG.st) || TG_ST[0], i = TG_ST.indexOf(st), nx = TG_ST[i + 1], seen = S.tgSeen || {};
   const tabs = `<nav class="tg-tabs" aria-label="${esc(T("Stasjoner", "Stations"))}">${TG_ST.map(s => `<button class="${s[0] === TG.st ? "on" : ""} ${seen[s[0]] ? "seen" : ""}" data-a="tgst" data-s="${s[0]}" ${s[0] === TG.st ? 'aria-current="page"' : ""}><span aria-hidden="true">${s[1]}</span>${esc(T(s[2], s[3]))}</button>`).join("")}</nav>`;
   const top = `<div class="top"><div class="wrap"><button class="iconbtn" data-a="tgback" aria-label="${esc(t("back"))}">${I.left}</button><div class="th-t"><small>${esc(t("tgKicker"))}</small><b>${esc(t("tgTitle"))}</b></div></div></div>`;
-  const intro = `<p class="tg-intro">${rich(T(TG_INTRO[TG.st][0], TG_INTRO[TG.st][1]))}</p>`;
+  const intro = TG.st === "learn" ? tglIntroHTML() : `<p class="tg-intro">${rich(T(TG_INTRO[TG.st][0], TG_INTRO[TG.st][1]))}</p>`;
   if(TG.st === "quiz"){ $app.innerHTML = `${top}<div class="wrap tg-tw">${tabs}</div><main class="wrap tg tg-quiz">${TG.quiz ? "" : intro}${tgQuizHTML()}</main>`; tgBind(); return; }
-  const wide = TG.st === "graphs";
+  const wide = TG.st === "graphs" || tglWide();
   $app.innerHTML = `${top}<div class="wrap tg-tw">${tabs}</div><main class="wrap tg">${intro}
-    <div class="tg-figwrap ${wide ? "wide" : ""}"><svg id="tgsvg" class="tg-svg" viewBox="${wide ? "0 0 640 300" : "-165 -165 330 330"}" role="img" aria-label="${esc(T("Enhetssirkelen, dra punktet", "The unit circle, drag the point"))}"></svg></div>
+    <div class="tg-figwrap ${wide ? "wide" : ""}"><svg id="tgsvg" class="tg-svg" viewBox="${TG.st === "learn" ? tglLearn().vb : wide ? "0 0 640 300" : "-165 -165 330 330"}" role="img" aria-label="${esc(T("Enhetssirkelen, dra punktet", "The unit circle, drag the point"))}"></svg></div>
     ${tgControlsHTML()}<div id="tgread" class="tg-read" aria-live="polite"></div>
     ${TG.st === "exact" ? tgMemoHTML() : ""}<div id="tggoals">${tgGoalsHTML(TG.st === "graphs" && TG.gr !== "trans" ? "" : TG.st)}</div>
-    ${nx ? `<button class="big tg-next" data-a="tgst" data-s="${nx[0]}">${esc(T("Neste:", "Next:"))} ${nx[1]} ${esc(T(nx[2], nx[3]))}</button>` : ""}</main>`;
+    ${TG.st === "learn" ? tglNavHTML() : ""}${nx && (TG.st !== "learn" || (TG.ls || 1) === TGL_N) ? `<button class="big tg-next" data-a="tgst" data-s="${nx[0]}">${esc(T("Neste:", "Next:"))} ${nx[1]} ${esc(T(nx[2], nx[3]))}</button>` : ""}</main>`;
   tgPaint(); tgBind();
 }
 function tgPaint(){
   const svg = document.getElementById("tgsvg"); if(!svg) return;
   if(TG.st === "quiz"){ const Q = TG.quiz; if(Q && !Q.done) svg.innerHTML = tgQFig(Q.items[Q.i]); return; }
-  const r = TG_PAINT[TG.st](); svg.innerHTML = r.svg;
+  const r = TG_PAINT[TG.st](); svg.innerHTML = r.svg; if(r.vb && svg.getAttribute("viewBox") !== r.vb) svg.setAttribute("viewBox", r.vb);
   const rd = document.getElementById("tgread"); if(rd) rd.innerHTML = r.read;
   const rg = document.getElementById("tgrange"); if(rg && +rg.value !== Math.round(TG.v)) rg.value = Math.round(TG.v);
   tgCheckGoals();
@@ -480,6 +625,13 @@ function tgDragAt(svg, e){
   if(TG.st === "quiz"){ const Q = TG.quiz; if(!Q || Q.done || Q.ans) return; const it = Q.items[Q.i]; if(it.type !== "place") return;
     const d = tgSnapTo(tgAngleAt(p.x, p.y), TG_SPECIALS, 180); if(d !== it.placed){ it.placed = d; sfx("tap"); svg.innerHTML = tgQFig(it); const b = document.querySelector(".tg-check"); if(b) b.disabled = false; } return; }
   TG.touched = true;
+  if(TG.st === "learn"){ const s = TG.ls || 1;
+    if(s === 6) return;
+    if(s === 1 || s === 2 || s === 5){ let d = tgAngleAt(p.x, p.y); if(d > 225) d = 0; else if(d > 90) d = 90;
+      const i = TGL_V.reduce((b, v, k) => Math.abs(v[0] - d) < Math.abs(TGL_V[b][0] - d) ? k : b, 0); if(i !== TG.lsel){ TG.lsel = i; sfx("tap"); tgPaint(); } return; }
+    let d = s === 4 && p.x > TG_GX - 20 ? Math.max(0, Math.min(360, (p.x - TG_GX) * 360 / TG_GW)) : tgAngleAt(p.x, p.y, s === 4 ? TG_CX : 0, s === 4 ? TG_CY : 0);
+    const sn = tgSnapTo(d, TG_SPECIALS.concat(s === 4 ? [360] : []), 3), nv = sn != null ? sn : Math.round(d);
+    if(nv !== TG.v){ if(sn != null && sn !== TG.lastSnap) sfx("tap"); TG.lastSnap = sn; TG.v = nv; tgPaint(); } return; }
   if(TG.st === "exact"){ if(TG.ex !== "all") return; const d = tgSnapTo(tgAngleAt(p.x, p.y), TG_SPECIALS, 180); if(d !== TG.exSel){ TG.exSel = d; sfx("tap"); tgPaint(); } return; }
   if(TG.st === "eq"){
     let a = TG.eq === "sin" ? -p.y / TG_R : TG.eq === "cos" ? p.x / TG_R : (Math.abs(p.x) < 8 ? TG.a : -p.y / p.x);
@@ -531,6 +683,10 @@ function tgClick(a, b){
   if(a === "tggr"){ TG.gr = d.v; render(); return true; }
   if(a === "tgfn"){ TG.fn = d.v; render(); return true; }
   if(a === "tgeq"){ TG.eq = d.v; if(TG.eq !== "tan") TG.a = Math.max(-1, Math.min(1, TG.a)); render(); return true; }
+  if(a === "tgls"){ TG.ls = Math.max(1, Math.min(TGL_N, +d.v)); if(TG.ls === 3 || TG.ls === 4){ cancelAnimationFrame(TG.anim); TG.anim = 0; if(TG.v > 360) TG.v = 30; } render(); window.scrollTo(0, 0); return true; }
+  if(a === "tglsel"){ TG.lsel = +d.i; tgPaint(); return true; }
+  if(a === "tglans"){ if(TG.lq && TG.lq.pick < 0){ TG.lq.pick = +d.k; const ok = TG.lq.opts[TG.lq.pick] === tglAnswer(TG.lq.fn, TG.lq.i); sfx(ok ? "ok" : "bad"); buzz(ok); tgPaint(); } return true; }
+  if(a === "tglq"){ tglNewQ(); tgPaint(); return true; }
   if(a === "tgqstart"){ tgQStart(); return true; }
   if(a === "tgans"){ const Q = TG.quiz, it = Q.items[Q.i], i = +d.i; tgQAnswer(it.opts[i] === it.right, i); return true; }
   if(a === "tgcheck"){ const it = TG.quiz.items[TG.quiz.i]; if(it.placed != null) tgQAnswer(it.placed === it.d, null); return true; }

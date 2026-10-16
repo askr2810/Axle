@@ -41,6 +41,7 @@ function renderBookTopic(){
       <p class="intro">${rich(x.intro)}</p>
       ${hit.tp.sim && typeof SIMS !== "undefined" ? [].concat(hit.tp.sim).filter(n => SIMS[n]).map(simHTML).join("") : ""}
       ${hit.tp.mv && typeof mvHTML === "function" ? mvHTML(hit.tp.mv) : ""}
+      ${hit.tp.tg && typeof TG_ST !== "undefined" ? `<div class="pf-links"><button class="pf-link lab-link" data-a="tgopen" data-s="${esc(hit.tp.tg)}"><span aria-hidden="true">🪜</span><span><small>${esc(T("Enhetssirkelen, steg for steg", "The unit circle, step by step"))}</small><b>${esc(T("Sinus, cosinus og tangens: huskeregel, sirkel og bølger", "Sine, cosine and tangent: memory trick, circle and waves"))}</b></span>${I.chevron}</button></div>` : ""}
       ${mcWrap(formulas + legend + steps + ex)}
       ${x.tip ? `<div class="callout">${rich(x.tip)}</div>` : ""}
       ${typeof edBtnHTML === "function" ? edBtnHTML("tp", c.code, hit.tp.id) : ""}

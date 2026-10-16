@@ -343,7 +343,7 @@ TOPICS("GMAT", 4, [
 
 // Enhet 5: Trigonometri og geometri
 TOPICS("GMAT", 5, [
-{ id: "trigonometri",
+{ id: "trigonometri", tg: "learn", // knapp til «Steg for steg» i enhetssirkelen (trig.js)
   fig: `<svg viewBox="0 0 240 140"><path d="M40 120H200V30L40 120Z" class="d"/><path d="M180 120V100H200V120" class="dim"/><path d="M60 120a20 20 0 0 1 18-9" class="t"/><text x="83" y="116">v</text><text x="115" y="132">b</text><text x="207" y="78">a</text><text x="105" y="70">c</text></svg>`,
   nb: { t: "Trigonometri i rettvinklet trekant",
     intro: "I en rettvinklet trekant knytter sinus, cosinus og tangens vinkelen $v$ til forholdet mellom sidene. Pythagoras' setning knytter sidene sammen uten vinkler.",
@@ -357,7 +357,7 @@ TOPICS("GMAT", 5, [
     legend: [["v", "acute angle", "°"], ["c", "hypotenuse (longest side)", ""]],
     ex: "A ramp is 4.0 m long and rises 0.80 m: $\\sin v = \\frac{0.80}{4.0}=0.20 \\Rightarrow v\\approx 11.5^\\circ$, and the ground length is $\\sqrt{4.0^2-0.80^2}\\approx 3.92$ m.",
     tip: "Check that the calculator is in DEG mode when the angle is in degrees, otherwise the answer is completely wrong." } },
-{ id: "enhetssirkel",
+{ id: "enhetssirkel", tg: "learn", // knapp til «Steg for steg» i enhetssirkelen (trig.js)
   fig: `<svg viewBox="0 0 240 140"><path d="M60 75H180M120 15V135" class="dim"/><circle cx="120" cy="75" r="50" class="d"/><path d="M120 75L156 40" class="a"/><path d="M156 40l-16 3 3 15z" class="af"/><path d="M140 75a20 20 0 0 1-6-17" class="t"/><text x="145" y="72">v</text><text x="160" y="36">P</text></svg>`,
   nb: { t: "Enhetssirkelen og radianer",
     intro: "Enhetssirkelen definerer sinus og cosinus for alle vinkler, ikke bare de spisse: punktet med vinkel $v$ fra positiv x-akse har koordinatene $(\\cos v,\\sin v)$. Radianer er en alternativ måte å måle vinkler på, der en hel omdreining er $2\\pi$.",
