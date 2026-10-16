@@ -10,7 +10,7 @@ let TC = null;
 const TC_N = [5, 10, 15, 20], TC_SECS = [10, 20, 30, 45];
 function tcOpen(from){
   const st = S.tc || {};
-  TC = { tab: st.tab || "ax", code: COURSES.some(c => c.code === st.code) ? st.code : S.current, units: st.units || [0], cid: st.cid || null, n: st.n || 10, secs: st.secs || 20,
+  TC = { tab: st.tab || "ax", code: COURSES.some(c => c.code === st.code) ? st.code : S.current, units: st.units || [0], cid: st.cid || null, n: st.n || 10, secs: st.secs || 20, teams: st.teams || 0, mix: !!st.mix,
     from: from || (screen !== "teach" ? screen : "practice"), mine: null, busy: false, err: null, qr: null, res: null };
   screen = "teach"; render(); window.scrollTo(0, 0); tcLoad();
 }
@@ -21,23 +21,27 @@ async function tcLoad(){
   if(typeof grLoadList === "function"){ try{ await grLoadList(); }catch(e){} }
   if(TC && screen === "teach") render();
 }
-const tcSave = () => { S.tc = { tab: TC.tab, code: TC.code, units: TC.units, cid: TC.cid, n: TC.n, secs: TC.secs }; save(); };
+const tcSave = () => { S.tc = { tab: TC.tab, code: TC.code, units: TC.units, cid: TC.cid, n: TC.n, secs: TC.secs, teams: TC.teams, mix: TC.mix }; save(); };
 const tcSrc = () => TC.tab === "cc" || TC.tab === "pub" ? (TC.cid ? TC.cid : null) : `AX:${TC.code}:${TC.units.join(",")}`; // egne: «LS:id» eller «CC:id»
 // Antall spørsmål som finnes i utvalget (for å vise «≈ 24 oppgaver» og for å ikke be om flere enn det finnes)
 function tcAvail(){ const c = COURSE(TC.code); if(TC.tab === "cc"){ const r = (TC.mine || []).find(x => x.id === TC.cid); return r ? (r.n_questions ?? r.qcount ?? null) : null; }
   const P = poolIds(c, TC.units); return P.mc.length + P.num.length + P.gen.length; }
-async function tcCfg(hw){
+// live = true: avstemninger tas med, og lag, blanding og tid per spørsmål legges i romoppsettet (oppgave 36).
+async function tcCfg(hw, live){
   const src = tcSrc(); if(!src){ toast(T("Velg en quiz først.", "Pick a quiz first.")); return null; }
   const cfg = { seed: 1 + Math.floor(Math.random() * 999999999), lvl: 0, n: /^LS:|^CC:/.test(src) ? (hw ? 50 : 30) : TC.n, secs: TC.secs, src }; // egne oppgaver: alle (live-quiz maks 30)
+  if(live){ cfg.live = 1; if(TC.teams) cfg.teams = TC.teams; if(TC.mix && /^LS:/.test(src)) cfg.mix = 1; }
   if(!(await mqPrep(cfg))){ toast(T("Fant ikke spørsmålene. Sjekk nettet og prøv igjen.", "Could not load the questions. Check your connection and try again.")); return null; }
   const qs = mqQs(cfg); if(qs.length < (hw ? 1 : 3)){ toast(T("For få oppgaver – en quiz trenger minst 3.", "Too few problems – a quiz needs at least 3.")); return null; }
   cfg.n = qs.length;
+  // egen tid på noen spørsmål: databasen anslår slutten med cfg.secs, så den blir den lengste tiden, og cfg.d standardtiden
+  if(live){ const mx = Math.max(TC.secs, ...qs.map(q => q.secs || 0)); if(mx !== TC.secs){ cfg.d = TC.secs; cfg.secs = mx; } }
   if(/^LS:/.test(src) && TC.tab === "pub") frRpc("lekse_use", { p_id: src.slice(3) }).catch(() => {}); // «brukt N ganger» for den som delte
   return cfg;
 }
 async function tcLive(){
   if(!AUTH){ toast(mqErr({ kind: "auth" })); return; }
-  TC.busy = true; render(); const cfg = await tcCfg(); if(!cfg){ TC.busy = false; render(); return; }
+  TC.busy = true; render(); const cfg = await tcCfg(false, true); if(!cfg){ TC.busy = false; render(); return; }
   try{ const r = await frRpc("mq_create", { p_cfg: cfg, p_name: S.name || T("Lærer", "Teacher"), p_av: S.avatar || null });
     TC.busy = false; mqOpen(null, "teach"); MQ.cfg = cfg; MQ.view = "lobby"; mqLiveApply(r); render(); mqPoll(1000);
     if(typeof stEv === "function") stEv("teach", "live", cfg.src.split(":")[0]); }
@@ -126,7 +130,9 @@ function renderTeach(){
       ${src}</section>
     <section class="tc-card"><h3><span>2</span>${esc(T("Innstillinger", "Settings"))}</h3>
       <div class="tc-2"><div><p class="tc-l">${esc(T("Antall oppgaver", "Problems"))}</p><div class="seg">${TC_N.map(n => `<button class="${TC.n === n ? "on" : ""}" data-a="tcn" data-n="${n}">${n}</button>`).join("")}</div></div>
-        <div><p class="tc-l">${esc(T("Tid per spørsmål (bare live-quiz)", "Time per question (live quiz only)"))}</p><div class="seg">${TC_SECS.map(n => `<button class="${TC.secs === n ? "on" : ""}" data-a="tcsecs" data-n="${n}">${n} s</button>`).join("")}</div></div></div></section>
+        <div><p class="tc-l">${esc(T("Tid per spørsmål (bare live-quiz)", "Time per question (live quiz only)"))}</p><div class="seg">${TC_SECS.map(n => `<button class="${TC.secs === n ? "on" : ""}" data-a="tcsecs" data-n="${n}">${n} s</button>`).join("")}</div><small class="tc-sub">${esc(T("Spørsmål med egen tid bruker den.", "Questions with their own time use it."))}</small></div></div>
+      <div class="tc-2"><div><p class="tc-l" id="tc-teams-l">${esc(T("Lag (bare live-quiz)", "Teams (live quiz only)"))}</p><div class="seg" role="radiogroup" aria-labelledby="tc-teams-l">${[0, 2, 3, 4].map(n => `<button role="radio" aria-checked="${TC.teams === n}" class="${TC.teams === n ? "on" : ""}" data-a="tcteams" data-n="${n}">${n ? n : esc(T("Av", "Off"))}</button>`).join("")}</div></div>
+        ${TC.tab !== "ax" ? `<div class="srow tc-mix"><span class="lbl">${esc(T("Bland rekkefølgen", "Shuffle the order"))}<span class="sub">${esc(T("Live-quiz med egne oppgaver. Alle får samme rekkefølge.", "Live quiz with your own problems. Everyone gets the same order."))}</span></span><button class="tog ${TC.mix ? "on" : ""}" data-a="tcmix" role="switch" aria-checked="${TC.mix}" aria-label="${esc(T("Bland rekkefølgen", "Shuffle the order"))}"></button></div>` : ""}</div></section>
     </div><div class="tc-c2"><section class="tc-card"><h3><span>3</span>${esc(T("Del med klassen", "Share with the class"))}</h3>
       <label class="tc-f"><span>${esc(T("Navn på leksen (valgfritt)", "Name of the homework (optional)"))}</span><input id="tctitle" class="ed-in" maxlength="60" value="${esc(TC.title || "")}" placeholder="${esc(T("F.eks. «Brøk – til fredag»", "E.g. \"Fractions – for Friday\""))}"></label>
       <button class="tc-go live" data-a="tchw" ${TC.busy ? "disabled" : ""}><span>📝</span><div><b>${esc(T("Lag en lekse", "Make homework"))}</b><small>${esc(T("Elevene jobber i eget tempo – uten tidtaking, med forklaring etter hvert svar. Du ser hvem som har gjort den og hvor mange de fikk riktig.", "Students work at their own pace – no timer, with an explanation after each answer. You see who has done it and how many they got right."))}</small></div></button>
@@ -170,6 +176,8 @@ function tcClick(a, b){
     case "tccid": TC.cid = d.id; tcSave(); render(); return true;
     case "tcn": TC.n = +d.n; tcSave(); render(); return true;
     case "tcsecs": TC.secs = +d.n; tcSave(); render(); return true;
+    case "tcteams": TC.teams = +d.n; tcSave(); render(); return true;
+    case "tcmix": TC.mix = !TC.mix; tcSave(); render(); return true;
     case "tcnew": teOpen(null); return true;
     case "tcsetedit": teOpen(d.id); return true;
     case "tclive": tcLive(); return true;
@@ -338,8 +346,11 @@ function teSymMount(i){
 }
 function renderTeEdit(){
   if(!TE) return teOpen(null);
-  const q = TE.qs, mc = (x, i) => `<div class="te-ans ok"><span>✓</span>${teRT("o", i, 0, x.o[0], T("Riktig svar", "Correct answer"))}</div>
-      ${x.o.slice(1).map((o, j) => `<div class="te-ans bad"><span>✗</span>${teRT("o", i, j + 1, o, T("Feil svar", "Wrong answer"))}${x.o.length > 2 ? `<button class="te-x" data-a="teodel" data-i="${i}" data-j="${j + 1}" aria-label="${esc(T("Fjern", "Remove"))}">✕</button>` : ""}</div>`).join("")}
+  // Avstemning: alle alternativene er likeverdige (ingen ✓/✗). Hvert alternativ kan ha et bilde (qxOptImgHTML).
+  const q = TE.qs, mc = (x, i) => x.poll ? `${x.o.map((o, j) => `<div class="te-ans poll"><span>${j + 1}</span>${teRT("o", i, j, o, T(`Alternativ ${j + 1}`, `Option ${j + 1}`))}${qxOptImgHTML(x, "te", i, j)}${x.o.length > 2 ? `<button class="te-x" data-a="teodel" data-i="${i}" data-j="${j}" aria-label="${esc(T("Fjern", "Remove"))}">✕</button>` : ""}</div>`).join("")}
+      ${x.o.length < 4 ? `<button class="te-more" data-a="teoadd" data-i="${i}">＋ ${esc(T("Alternativ", "Option"))}</button>` : ""}`
+    : `<div class="te-ans ok"><span>✓</span>${teRT("o", i, 0, x.o[0], T("Riktig svar", "Correct answer"))}${qxOptImgHTML(x, "te", i, 0)}</div>
+      ${x.o.slice(1).map((o, j) => `<div class="te-ans bad"><span>✗</span>${teRT("o", i, j + 1, o, T("Feil svar", "Wrong answer"))}${qxOptImgHTML(x, "te", i, j + 1)}${x.o.length > 2 ? `<button class="te-x" data-a="teodel" data-i="${i}" data-j="${j + 1}" aria-label="${esc(T("Fjern", "Remove"))}">✕</button>` : ""}</div>`).join("")}
       ${x.o.length < 4 ? `<button class="te-more" data-a="teoadd" data-i="${i}">＋ ${esc(T("Feil svar", "Wrong answer"))}</button>` : ""}`;
   const num = (x, i) => `<div class="te-num"><div class="te-ans ok"><span>✓</span><input data-te="n" data-i="${i}" inputmode="decimal" value="${esc(x.n)}" placeholder="${esc(T("Svaret (tall)", "The answer (number)"))}" aria-label="${esc(T("Svaret", "The answer"))}"></div><input class="te-u" data-te="u" data-i="${i}" value="${esc(x.u || "")}" placeholder="${esc(T("enhet", "unit"))}" aria-label="${esc(T("Enhet", "Unit"))}"></div>
       <div class="chips te-tol">${[[0, T("Helt likt", "Exact")], [1, "± 1 %"], [5, "± 5 %"]].map(([v, l]) => `<button class="${(+x.tol || 0) === v ? "on" : ""}" data-a="tetol" data-i="${i}" data-v="${v}">${esc(l)}</button>`).join("")}</div>`;
@@ -354,6 +365,7 @@ function renderTeEdit(){
       <div class="te-qq">${teRT("q", i, null, x.q, x.t === "tf" ? T("Skriv en påstand, f.eks. «Et kvadrat har fire like lange sider.»", "Write a statement") : T("Skriv spørsmålet, f.eks. «Hva er 3 · 4?»", "Write the question, e.g. \"What is 3 · 4?\""), true, "lg")}</div>
       ${i === (TE.act || 0) ? `<div class="te-sym" id="tesym">${teSymHTML()}</div>` : ""}
       ${qimgEditHTML(x, "te", i)}
+      ${qxExtraHTML(x, "te", i)}
       ${x.t === "num" ? num(x, i) : x.t === "tf" ? tf(x, i) : mc(x, i)}
       ${x.e || x.showE ? teRT("e", i, null, x.e, T("Forklaring som vises etter svaret (valgfritt)", "Explanation shown after the answer (optional)"), true, "te-e") : `<button class="te-more" data-a="teeshow" data-i="${i}">＋ ${esc(T("Forklaring (valgfritt)", "Explanation (optional)"))}</button>`}
     </section>`).join("")}
@@ -388,9 +400,9 @@ function teClean(){
   for(const [i, x] of TE.qs.entries()){ const q = String(x.q || "").trim(); if(!q) return bad(i); if(q.length > 500) return long(i, "spørsmålet er for langt (maks 500 tegn)", "the question is too long (max 500 characters)");
     const e = String(x.e || "").trim(); if(e.length > 600) return long(i, "forklaringen er for lang (maks 600 tegn)", "the explanation is too long (max 600 characters)");
     if(x.t === "mc" && x.o.some(o => String(o || "").trim().length > 150)) return long(i, "et svaralternativ er for langt (maks 150 tegn)", "an answer option is too long (max 150 characters)");
-    if(x.t === "num"){ const n = +String(x.n).replace(/\s/g, "").replace(",", ".").replace("−", "-"); if(!Number.isFinite(n) || String(x.n).trim() === "") return bad(i); out.push({ t: "num", q, n, u: String(x.u || "").trim().slice(0, 20), tol: +x.tol || 0, e, ...qimgKeep(x) }); }
-    else if(x.t === "tf") out.push({ t: "tf", q, a: +x.a ? 1 : 0, e, ...qimgKeep(x) });
-    else { const o = x.o.map(s => String(s || "").trim()); if(o.some(s => !s)) return bad(i); if(new Set(o).size !== o.length){ TE.err = T(`Oppgave ${i + 1} har like svar.`, `Problem ${i + 1} has identical answers.`); return null; } out.push({ t: "mc", q, o, a: 0, e, ...qimgKeep(x) }); } }
+    if(x.t === "num"){ const n = +String(x.n).replace(/\s/g, "").replace(",", ".").replace("−", "-"); if(!Number.isFinite(n) || String(x.n).trim() === "") return bad(i); out.push({ t: "num", q, n, u: String(x.u || "").trim().slice(0, 20), tol: +x.tol || 0, e, ...qxKeep(x) }); }
+    else if(x.t === "tf") out.push({ t: "tf", q, a: +x.a ? 1 : 0, e, ...qxKeep(x) });
+    else { const o = x.o.map(s => String(s || "").trim()); if(o.some(s => !s)) return bad(i); if(new Set(o).size !== o.length){ TE.err = T(`Oppgave ${i + 1} har like svar.`, `Problem ${i + 1} has identical answers.`); return null; } out.push({ t: "mc", q, o, a: 0, e, ...qxKeep(x, o) }); } }
   return out;
 }
 async function teSave(){
@@ -414,7 +426,7 @@ function teClick(a, b){
     case "teqadd": TE.qs.push(teBlank(TE.qs.length ? TE.qs[TE.qs.length - 1].t : "mc")); teDraft(); render(); setTimeout(() => { const el = document.querySelector(`[data-te="q"][data-i="${TE.qs.length - 1}"]`); if(el){ el.focus(); el.scrollIntoView({ block: "center", behavior: "smooth" }); } }, 30); return true;
     case "teqdel": if(TE.qs.length > 1 && confirm(T("Slette denne oppgaven?", "Delete this problem?"))){ TE.qs.splice(+d.i, 1); teDraft(); render(); } return true;
     case "teoadd": if(x && x.o.length < 4){ x.o.push(""); teDraft(); render(); } return true;
-    case "teodel": if(x && x.o.length > 2){ x.o.splice(+d.j, 1); teDraft(); render(); } return true;
+    case "teodel": if(x && x.o.length > 2){ qxOptRemoved(x, +d.j); x.o.splice(+d.j, 1); teDraft(); render(); } return true;
     case "tetol": if(x){ x.tol = +d.v; teDraft(); render(); } return true;
     case "tetf": if(x){ x.a = +d.v; teDraft(); render(); } return true;
     case "teeshow": if(x){ x.showE = true; render(); setTimeout(() => document.querySelector(`[data-te="e"][data-i="${d.i}"]`)?.focus(), 30); } return true;

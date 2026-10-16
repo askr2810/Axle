@@ -3544,3 +3544,23 @@ details.cat-mc{margin:6px 0}details.cat-mc>summary{cursor:pointer;font-size:12px
 .qimg.sm img{max-height:180px}
 .qimg.mq{margin:0 0 14px}.qimg.mq img{max-height:min(38vh,460px)}
 .qimg-ed{display:grid;gap:8px;margin:4px 0 10px;justify-items:start}.qimg-ed .qimg{margin:0}.qimg-ed .cc-lbl{width:100%}
+/* oppgave 36: egen tid, avstemning, bilder som svaralternativer, svarfordeling og lag */
+.qx-extra{display:grid;gap:8px;margin:2px 0 10px}
+.qx-sec{display:flex;align-items:center;gap:8px;font-size:14px;font-weight:700;color:var(--muted)}
+.qx-sec select{font:inherit;font-size:16px;padding:6px 8px;border-radius:10px;border:2px solid var(--line);background:var(--card);color:var(--ink)}
+.qx-oadd{flex:none;width:40px;height:40px;border-radius:10px;border:2px dashed var(--line);background:var(--card);cursor:pointer;font-size:18px}
+.qx-oimg{position:relative;flex:none;display:inline-flex}.qx-oimg img{width:44px;height:44px;object-fit:cover;border-radius:8px;border:1px solid var(--line)}
+.qx-oimg .te-x{position:absolute;top:-8px;right:-8px;width:22px;height:22px;font-size:11px}
+.te-ans.poll>span{background:var(--accent-soft);color:var(--accent)}
+.qimg.opt{margin:0 0 6px}.qimg.opt img{max-height:120px;border-radius:10px}
+.opt.has-img{flex-wrap:wrap}.opt.has-img .qimg{flex-basis:100%;justify-content:flex-start}
+.mq-tiles.imgs .mq-tile{display:grid;align-content:start}.mq-tile .qimg.opt img{max-height:110px;background:#fff}
+.mq-cnt{display:flex;align-items:center;gap:8px;margin-top:6px;width:100%}.mq-cnt i{flex:1;height:8px;border-radius:99px;background:color-mix(in srgb,var(--c) 22%,transparent);position:relative;overflow:hidden}
+.mq-cnt i::after{content:"";position:absolute;inset:0;width:var(--p);background:var(--c);border-radius:inherit}
+.mq-tile.ok .mq-cnt i,.mq-tile.pick .mq-cnt i,.mq-tile.bad .mq-cnt i{background:rgba(255,255,255,.3)}.mq-tile.ok .mq-cnt i::after,.mq-tile.pick .mq-cnt i::after,.mq-tile.bad .mq-cnt i::after{background:#fff}.mq-cnt em{font-style:normal;font-weight:800;min-width:2ch;text-align:right}
+.mq-res.poll{background:var(--accent-soft);color:var(--accent)}
+.mq-tiles.poll.rev .mq-tile{opacity:1}
+.mq-teams .mq-tdot{width:14px;height:14px;border-radius:50%;flex:none}
+.mq-p.team{box-shadow:inset 0 -4px 0 var(--tc)}.mq-p.team small{color:var(--tc);font-weight:800}
+.mq-twin{font:800 22px var(--display,system-ui);color:var(--tc);text-align:center;margin:8px 0}
+.tc-sub{display:block;margin-top:4px;color:var(--muted);font-size:12.5px}.tc-mix{margin-top:10px}

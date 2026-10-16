@@ -756,7 +756,7 @@ function renderLesson(){
     body += `<div class="opts" role="radiogroup">` + it.opts.map((o,i)=>{
       let cls = L.sel===i ? "sel" : "";
       if(L.answered){ if(o.ok) cls="right"; else if(L.sel===i) cls="wrong"; }
-      return `<button class="opt ${cls}" role="radio" aria-checked="${L.sel===i}" data-a="sel" data-i="${i}" ${L.answered?"disabled":""}><span class="k">${i+1}</span><span>${richBig(o.t)}</span></button>`;
+      return `<button class="opt ${cls} ${o.img?"has-img":""}" role="radio" aria-checked="${L.sel===i}" data-a="sel" data-i="${i}" ${L.answered?"disabled":""}><span class="k">${i+1}</span>${o.img?qimgHTML({src:o.img, alt:plain(o.t)}, "opt"):""}<span>${richBig(o.t)}</span></button>`;
     }).join("") + `</div>`;
   } else {
     const cls = L.answered ? (L.ok?"right":"wrong") : "";

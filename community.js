@@ -123,13 +123,14 @@ async function ccFetchQuestions(id){
   return rows[0];
 }
 // Spørsmål → leksjonsoppgaver (samme motor som resten av appen).
-function ccItems(qs){
+function ccItems(qs, live){
   return qs.map((x, i) => {
-    const id = "cc." + i;
-    if(x.t === "num") return { id, type: "num", prompt: x.q, n: +x.n, tol: Math.abs(+x.n) * (Math.max(0, +x.tol || 1) / 100) || 1e-9, u: x.u || "", expl: x.e || "", qimg: qimgOf(x) };
-    const opts = x.t === "tf" ? [{ t: t("ccTrue"), ok: +x.a === 1 }, { t: t("ccFalse"), ok: +x.a === 0 }] : shuffle(x.o.map((o, k) => ({ t: o, ok: k === +x.a })));
-    return { id, type: "mc", prompt: x.q, opts, expl: x.e || "", qimg: qimgOf(x) };
-  });
+    const id = "cc." + i; if(x.poll && !live) return null;
+    const ex = { qimg: qimgOf(x), secs: qxSecs(x) };
+    if(x.t === "num") return Object.assign({ id, type: "num", prompt: x.q, n: +x.n, tol: Math.abs(+x.n) * (Math.max(0, +x.tol || 1) / 100) || 1e-9, u: x.u || "", expl: x.e || "" }, ex);
+    const opts = x.t === "tf" ? [{ t: t("ccTrue"), ok: +x.a === 1 }, { t: t("ccFalse"), ok: +x.a === 0 }] : shuffle(qxOpts(x));
+    return Object.assign({ id, type: "mc", prompt: x.q, opts, expl: x.e || "", poll: !!(x.poll && x.t === "mc") }, ex);
+  }).filter(Boolean);
 }
 async function ccPlay(id, local){
   try{
@@ -195,9 +196,9 @@ function renderCCEdit(){
 function ccQBlank(){ return { t: "mc", q: "", o: ["", "", "", ""], a: 0, n: "", tol: 1, u: "", e: "" }; }
 function renderCCQEdit(){
   const x = CC.qedit.x, tp = x.t;
-  const opts = tp === "mc" ? `<div class="cc-lbl">${esc(t("ccOptions"))}${x.o.map((o, k) => `<div class="cc-opt"><button class="cc-radio ${+x.a === k ? "on" : ""}" data-a="ccqa" data-i="${k}" aria-label="${esc(t("ccCorrect"))}">${+x.a === k ? "✓" : ""}</button>
-        <input data-o="${k}" maxlength="150" value="${esc(o)}" placeholder="${esc(t("ccOptPh", k + 1))}">${x.o.length > 2 ? `<button class="cc-x" data-a="ccqorm" data-i="${k}" aria-label="${esc(t("ccDelQ"))}">${I.x}</button>` : ""}</div>`).join("")}
-        ${x.o.length < 4 ? `<button class="exlink" data-a="ccqoadd">+ ${esc(t("ccAddOpt"))}</button>` : ""}<small class="cc-help">${esc(t("ccCorrectHelp"))}</small></div>`
+  const opts = tp === "mc" ? `<div class="cc-lbl">${esc(t("ccOptions"))}${x.o.map((o, k) => `<div class="cc-opt">${x.poll ? `<span class="cc-radio" aria-hidden="true">${k + 1}</span>` : `<button class="cc-radio ${+x.a === k ? "on" : ""}" data-a="ccqa" data-i="${k}" aria-label="${esc(t("ccCorrect"))}">${+x.a === k ? "✓" : ""}</button>`}
+        <input data-o="${k}" maxlength="150" value="${esc(o)}" placeholder="${esc(t("ccOptPh", k + 1))}">${qxOptImgHTML(x, "cc", 0, k)}${x.o.length > 2 ? `<button class="cc-x" data-a="ccqorm" data-i="${k}" aria-label="${esc(t("ccDelQ"))}">${I.x}</button>` : ""}</div>`).join("")}
+        ${x.o.length < 4 ? `<button class="exlink" data-a="ccqoadd">+ ${esc(t("ccAddOpt"))}</button>` : ""}${x.poll ? "" : `<small class="cc-help">${esc(t("ccCorrectHelp"))}</small>`}</div>`
     : tp === "tf" ? `<div class="cc-lbl">${esc(t("ccCorrect"))}<div class="seg">${[1, 0].map(v => `<button class="${+x.a === v ? "on" : ""}" data-a="ccqa" data-i="${v}">${esc(t(v ? "ccTrue" : "ccFalse"))}</button>`).join("")}</div></div>`
     : `<div class="cc-row3"><label class="cc-lbl">${esc(t("ccAnswer"))}<input id="ccqn" inputmode="decimal" value="${esc(String(x.n))}" placeholder="9,81"></label>
         <label class="cc-lbl">${esc(t("ccTol"))}<input id="ccqtol" inputmode="decimal" value="${esc(String(x.tol))}"></label>
@@ -208,6 +209,7 @@ function renderCCQEdit(){
       <div class="seg cc-types">${["mc", "tf", "num"].map(k => `<button class="${tp === k ? "on" : ""}" data-a="ccqtype" data-t="${k}">${esc(t({ mc: "ccTypeMc", tf: "ccTypeTf", num: "ccTypeNum" }[k]))}</button>`).join("")}</div>
       <label class="cc-lbl">${esc(t("ccPrompt"))}<textarea id="ccqq" maxlength="500" placeholder="${esc(t("ccPromptPh"))}">${esc(x.q)}</textarea><small class="cc-help">${esc(t("ccMathHelp"))}</small></label>
       ${qimgEditHTML(x, "cc", 0)}
+      ${qxExtraHTML(x, "cc", 0)}
       ${opts}
       <label class="cc-lbl">${esc(t("ccExpl"))}<textarea id="ccqe" maxlength="600" placeholder="${esc(t("ccExplPh"))}">${esc(x.e)}</textarea></label>
       <div class="cc-prev"><div class="cc-prev-h">${esc(t("ccPreview"))}</div><div id="ccprev"></div></div>
@@ -230,12 +232,12 @@ function ccQClean(x){
     const o = x.o.map(s => String(s || "").trim()); if(o.some(s => !s)) return [null, t("ccErrOpts")];
     if(new Set(o).size !== o.length) return [null, t("ccErrDup")];
     if(o.some(s => !isClean(s))) return [null, t("frBadWord")];
-    return [{ t: "mc", q, o, a: Math.min(+x.a || 0, o.length - 1), e, ...qimgKeep(x) }, null];
+    return [{ t: "mc", q, o, a: x.poll ? 0 : Math.min(+x.a || 0, o.length - 1), e, ...qxKeep(x, o) }, null];
   }
-  if(x.t === "tf") return [{ t: "tf", q, a: +x.a ? 1 : 0, e, ...qimgKeep(x) }, null];
+  if(x.t === "tf") return [{ t: "tf", q, a: +x.a ? 1 : 0, e, ...qxKeep(x) }, null];
   const n = parseFloat(String(x.n).replace(/\s/g, "").replace(",", ".")), tol = parseFloat(String(x.tol).replace(",", "."));
   if(!Number.isFinite(n)) return [null, t("ccErrNum")];
-  return [{ t: "num", q, n, tol: Number.isFinite(tol) && tol >= 0 ? Math.min(tol, 50) : 1, u: String(x.u || "").trim().slice(0, 20), e, ...qimgKeep(x) }, null];
+  return [{ t: "num", q, n, tol: Number.isFinite(tol) && tol >= 0 ? Math.min(tol, 50) : 1, u: String(x.u || "").trim().slice(0, 20), e, ...qxKeep(x) }, null];
 }
 // Masseimport: én linje per spørsmål. «Spørsmål | riktig | galt | galt» eller «Spørsmål = 42 m» eller «Påstand = sant/usant».
 function ccParseImport(txt){
@@ -292,7 +294,7 @@ function communityClick(a, b){
   else if(a === "ccqtype"){ const x = CC.qedit.x; x.t = b.dataset.t; if(x.t === "mc" && (!x.o || x.o.length < 2)) x.o = ["", "", "", ""]; x.a = x.t === "tf" ? 1 : 0; render(); }
   else if(a === "ccqa"){ CC.qedit.x.a = +b.dataset.i; render(); }
   else if(a === "ccqoadd"){ CC.qedit.x.o.push(""); render(); }
-  else if(a === "ccqorm"){ const x = CC.qedit.x, k = +b.dataset.i; x.o.splice(k, 1); if(+x.a >= x.o.length) x.a = 0; else if(+x.a > k) x.a--; render(); }
+  else if(a === "ccqorm"){ const x = CC.qedit.x, k = +b.dataset.i; qxOptRemoved(x, k); x.o.splice(k, 1); if(+x.a >= x.o.length) x.a = 0; else if(+x.a > k) x.a--; render(); }
   else if(a === "ccqcancel"){ CC.qedit = null; render(); }
   else if(a === "ccqsave"){ const [c, err] = ccQClean(CC.qedit.x); if(!c){ CC.qedit.err = err; render(); return true; }
     if(CC.qedit.i == null) e.questions.push(c); else e.questions[CC.qedit.i] = c; CC.qedit = null; ccDraftSave(); render(); toast(t("ccQSaved")); }
