@@ -2071,6 +2071,10 @@ textarea.fbtext{width:100%;font:13px/1.4 var(--mono,monospace);border-radius:12p
 .th-ic-img img{position:absolute;inset:2px;width:44px;height:44px;border-radius:11px}
 .th-ic-img img.half-r{clip-path:polygon(100% 0,100% 100%,0 100%)}
 .th-ic.on{color:var(--accent)}.th-ic.on .th-ic-img{box-shadow:0 0 0 3px var(--accent)}
+/* Tegnet navn ved merket (app-ikon «Tegnet»): lys eller mørk strek etter temaet */
+.bw-sk{display:inline-flex}.bw-sk img.bw-l,.bw-sk img.bw-d{display:block;height:1.4em;width:auto;border-radius:0}.bw-sk img.bw-d{display:none}
+:root[data-theme="dark"] .bw-sk img.bw-l{display:none}:root[data-theme="dark"] .bw-sk img.bw-d{display:block}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .bw-sk img.bw-l{display:none}:root:not([data-theme="light"]) .bw-sk img.bw-d{display:block}}
 .th-sw{width:34px;height:34px;border-radius:50%;border:3px solid var(--card);box-shadow:0 0 0 2px var(--line);padding:0}
 .th-sw.on{box-shadow:0 0 0 3px var(--ink)}
 .th-bgs{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;width:100%}

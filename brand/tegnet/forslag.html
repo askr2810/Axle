@@ -1,0 +1,74 @@
+<!doctype html><html><head><meta charset="utf-8">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Figtree:wght@700;800&family=Caveat:wght@600&display=swap">
+<style>
+body{margin:0;background:#EEF2EC;font-family:Figtree,sans-serif;color:#16202A}
+.sheet{padding:48px;display:grid;gap:34px;width:max-content}
+h2{font:800 15px Figtree;letter-spacing:.08em;text-transform:uppercase;color:#5A6772;margin:0 0 12px}
+.row{display:flex;gap:34px;align-items:flex-start}
+.card{background:#fff;border:2px solid #D5DDD3;border-radius:22px;padding:24px}
+.dark{background:#0F151B;border-color:#27323C}.dark h2{color:#94A2AD}
+.sizes{display:flex;gap:22px;align-items:flex-end}
+.sizes figure{margin:0;text-align:center;font:600 13px Figtree;color:#5A6772}
+svg{display:block}
+</style></head><body>
+<svg width="0" height="0" style="position:absolute"><filter id="hand" x="-10%" y="-10%" width="120%" height="120%"><feTurbulence type="fractalNoise" baseFrequency=".03" numOctaves="2" seed="4"/><feDisplacementMap in="SourceGraphic" scale="3"/></filter></svg>
+<div class="sheet" id="s"></div>
+<script src="glyphs.js"></script>
+<script>
+const BLUE="#2B59C3",GOLD="#E9A100",INK="#16202A";
+const LIGHT={u0:"#2B59C3",u1:"#0B766F",gold:"#B77C00",u2:"#7A4BC2",c1:"#D1453B",c3:"#2B6FD6",c4:"#0F8A5F"};
+const DARK={u0:"#7AA0F5",u1:"#3CC48B",gold:"#F0B429",u2:"#B48CF0",c1:"#F0706A",c3:"#6FA0FF",c4:"#3CC48B"};
+// Tegnet ord: hver bokstav to streker oppå hverandre (fra sketch.py)
+function sketchWord(text,x,y,size,cols,{sw=3.4,fills=null,fillOff=[8,7],track=.09}={}){
+  const k=size/G.upm;let cx=x,out="";
+  [...text].forEach((ch,i)=>{const g=G.glyphs[ch],c=Array.isArray(cols)?cols[i]:cols;
+    const tr=`translate(${cx} ${y}) scale(${k})`;
+    if(fills&&fills[i]) out+=`<g transform="translate(${fillOff[0]} ${fillOff[1]})"><path transform="${tr}" d="${g.fill}" fill="${fills[i]}"/></g>`;
+    out+=`<g transform="${tr}" fill="none" stroke="${c}" stroke-linecap="round" stroke-linejoin="round">
+      <path d="${g.passes[0]}" stroke-width="${sw}" vector-effect="non-scaling-stroke"/>
+      <path d="${g.passes[1]}" stroke-width="${sw*.62}" vector-effect="non-scaling-stroke" opacity=".85"/></g>`;
+    cx+=g.w*k+size*track;});
+  return out;
+}
+const wordW=(text,size,track=.09)=>[...text].reduce((a,ch)=>a+G.glyphs[ch].w*size/G.upm+size*track,0)-size*track;
+// Håndskrevne notater: skrives to ganger med litt forskyvning, som kritt/penn
+const hw=(x,y,t,sz,col,rot=0)=>`<g transform="rotate(${rot} ${x} ${y})" font-family="Caveat" font-size="${sz}" fill="${col}"><text x="${x}" y="${y}">${t}</text></g>`;
+function sk(path,col,sw,tf=""){return `<g transform="${tf}" fill="none" stroke="${col}" stroke-linecap="round" stroke-linejoin="round" filter="url(#hand)"><path d="${path}" stroke-width="${sw}"/><path d="${path}" stroke-width="${sw*.6}" transform="translate(1.6 -1.2) rotate(.8)"/></g>`}
+const CARD="M-58 -36 H58 V36 H-58 Z M22 -22 H46 V8 H22 Z M30 -12 a4 4 0 1 0 8 0 a4 4 0 1 0 -8 0 M26 8 q8 -10 16 0 M-48 4 q8 -6 16 0 t16 0 t16 0 M-48 18 q8 -6 16 0 t16 0 t16 0";
+const HEART="M0 30 C-46 2 -42 -32 -18 -32 C-6 -32 0 -22 0 -16 C0 -22 6 -32 18 -32 C42 -32 46 2 0 30 Z M-34 -4 H-14 L-7 -18 L4 10 L11 -4 H34";
+const WARN="M0 -34 L36 30 H-36 Z M0 -12 V10 M0 20 V21";
+const HOUSE="M-32 30 V-4 L0 -32 L32 -4 V30 Z M-9 30 V8 H9 V30";
+function grid(w,h,step,col,sw,x0=step/2,y0=step/2){let s="";for(let x=x0;x<=w;x+=step)s+=`M${x} 0V${h}`;for(let y=y0;y<=h;y+=step)s+=`M0 ${y}H${w}`;return `<path d="${s}" stroke="${col}" stroke-width="${sw}" fill="none" filter="url(#hand)"/>`}
+function panel(w,h,{bg,gridc,border},inner){const r=h*.08;return `<svg width="${w}" height="${h}" viewBox="0 0 ${w} ${h}"><defs><clipPath id="p${w}${h}${bg.slice(1)}"><rect x="3" y="3" width="${w-6}" height="${h-6}" rx="${r}"/></clipPath></defs><g clip-path="url(#p${w}${h}${bg.slice(1)})"><rect width="${w}" height="${h}" fill="${bg}"/>${grid(w,h,46,gridc,2)}${inner}</g>${border?`<rect x="3" y="3" width="${w-6}" height="${h-6}" rx="${r}" fill="none" stroke="${border}" stroke-width="6"/>`:""}</svg>`}
+function hero(w,h,theme){
+  const P=theme==="blue"?DARK:LIGHT, ink=theme==="blue"?"#fff":INK, size=h*.6, ww=wordW("Axle",size), x=(w-ww)/2, y=h*.74;
+  const notes=[hw(70,110,"½",80,P.gold,-8),hw(46,h/2+40,"f(x)",66,P.u1,-6),hw(w-310,84,"x²−b",64,theme==="blue"?DARK.c1:P.u2,-4),hw(w-250,h-30,"§",64,P.c3,8),
+    sk(CARD,theme==="blue"?"#fff":P.u0,3.4,`translate(${w-105} ${h/2-20}) rotate(-8) scale(.8)`),sk(HEART,P.c1,3.4,`translate(${w-110} ${h-62}) rotate(6) scale(.7)`),
+    sk(WARN,P.gold,3.4,`translate(210 ${h-50}) rotate(-7) scale(.62)`)].join("");
+  const gridc=theme==="blue"?"rgba(255,255,255,.28)":"rgba(43,89,195,.16)";
+  return panel(w,h,{bg:theme==="blue"?BLUE:"#F7F9F5",gridc,border:theme==="blue"?"#000":null},notes+sketchWord("Axle",x,y,size,ink,{sw:4}));
+}
+function icon(px,{notes=true}={}){
+  const W=600,size=520,g=G.glyphs.A,k=size/G.upm,x=(W-g.w*k)/2,y=470;
+  const sw=Math.max(2.4,40*px/600)/(px/600); // tykkere strek når ikonet er lite
+  return `<svg width="${px}" height="${px}" viewBox="0 0 ${W} ${W}"><defs><clipPath id="ic${px}${notes}"><rect x="6" y="6" width="588" height="588" rx="120"/></clipPath></defs>
+  <g clip-path="url(#ic${px}${notes})"><rect width="600" height="600" fill="${BLUE}"/>${grid(600,600,75,"rgba(255,255,255,.3)",3,37,37)}
+  ${notes?hw(52,140,"x²",90,DARK.gold,-8)+hw(470,560,"½",80,DARK.u1,6):""}
+  <g transform="translate(${x} ${y}) scale(${k})" fill="none" stroke="#fff" stroke-linecap="round" stroke-linejoin="round"><path d="${g.passes[0]}" stroke-width="${px<100?30:14}" vector-effect="none" transform=""/><path d="${g.passes[1]}" stroke-width="${px<100?0:9}"/></g>
+  </g>
+  <rect x="6" y="6" width="588" height="588" rx="120" fill="none" stroke="#000" stroke-width="12"/></svg>`;
+}
+function flex(w,h,cols,bg,opt={}){const size=h*.7,ww=wordW("Axle",size);return `<svg width="${w}" height="${h}" viewBox="0 0 ${w} ${h}">${bg||""}${sketchWord("Axle",(w-ww)/2,h*.82,size,cols,opt)}</svg>`}
+const s=document.getElementById("s");
+s.innerHTML=`
+<div><h2>1 · Hovedlogo – tegnet på ruteark (retning på sikt)</h2><div class="row"><div class="card">${hero(900,330,"light")}</div><div class="card">${hero(900,330,"blue")}</div></div></div>
+<div class="row">
+ <div class="card"><h2>App-ikon (i bruk: «Tegnet»)</h2><div class="sizes"><figure>${icon(240)}Med notater</figure><figure>${icon(240,{notes:false})}Uten</figure><figure>${icon(96,{notes:false})}96 px</figure><figure>${icon(48,{notes:false})}48 px</figure></div></div>
+ <div><h2>2 · Fleksibel logotype – fagfarger (retning på sikt)</h2><div class="row">
+  <div class="card">${flex(400,190,[LIGHT.u0,LIGHT.u1,LIGHT.gold,LIGHT.u2],"",{sw:3.6})}</div>
+  <div class="card dark">${flex(400,190,["#fff",DARK.u1,DARK.gold,DARK.c1],"",{sw:3.6})}</div></div>
+  <div class="row" style="margin-top:34px">
+  <div class="card">${flex(400,190,INK,"",{sw:3.6,fills:["#DCE5F8","#CFE9E4","#FBE7B8","#E8DDF6"]})}</div>
+  <div class="card" style="padding:0;border:0;overflow:hidden">${flex(452,242,["#fff",DARK.u1,DARK.gold,DARK.c1],`<rect width="452" height="242" fill="${BLUE}"/>`+grid(452,242,46,"rgba(255,255,255,.28)",2),{sw:3.6})}</div></div></div>
+</div>`;
+</script></body></html>

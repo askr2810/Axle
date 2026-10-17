@@ -83,11 +83,11 @@ npm run assets
 ```
 Vil du endre logoen: legg de nye flisene i `brand/` (`axle-logo-a.png` = «A»-merket, `axle-logo.png` = ordmerket, kvadratiske PNG-er), kjør `npm run icons` (`tools/make_logo.py`, krever Pillow) og deretter `npm run assets`.
 
-### Valgfritt app-ikon (black edition)
-Brukeren kan velge app-ikon i Innstillinger → Utseende (Blå, Black edition, Følger lys/mørk). På nett byttes ikonet i fanen og merket i appen automatisk. For at selve app-ikonet på telefonen skal bytte, må det alternative ikonet registreres i de native prosjektene (én gang, etter `npx cap add ios/android`):
-- Kildebildet er `assets/icon-only-black.png` (1024 × 1024, lages av `npm run icons`).
-- iOS: legg ikonet inn som alternativt ikon med navnet `black` (Xcode → App-target → «Alternate App Icons», eller `CFBundleAlternateIcons` i Info.plist).
-- Android: legg til en `activity-alias` med navnet `black` og ikonet i `AndroidManifest.xml`, slik tillegget `@capacitor-community/app-icon` beskriver.
+### Valgfrie app-ikoner (black edition og tegnet)
+Brukeren kan velge app-ikon i Innstillinger → Utseende (Blå, Black edition, Tegnet, Følger lys/mørk). På nett byttes ikonet i fanen og merket i appen automatisk. For at selve app-ikonet på telefonen skal bytte, må det alternative ikonet registreres i de native prosjektene (én gang, etter `npx cap add ios/android`):
+- Kildebildene er `assets/icon-only-black.png` (lages av `npm run icons`) og `assets/icon-only-sketch.png` (lages av `python3 tools/make_sketch_logo.py`), begge 1024 × 1024.
+- iOS: legg ikonene inn som alternative ikoner med navnene `black` og `sketch` (Xcode → App-target → «Alternate App Icons», eller `CFBundleAlternateIcons` i Info.plist).
+- Android: legg til en `activity-alias` for hvert av navnene `black` og `sketch` med ikonet i `AndroidManifest.xml`, slik tillegget `@capacitor-community/app-icon` beskriver.
 Uten dette oppsettet virker valget fortsatt i appen og i nettleseren; bare hjemskjerm-ikonet står uendret.
 
 ## 4. Android → Google Play

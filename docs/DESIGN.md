@@ -93,6 +93,8 @@ Axle står og faller på at det er lett å bruke. Funksjoner som er vanskelige �
 * Bruk `markSrc()` i appen, så følges brukerens valg av app-ikon (blå, black edition, følger lys/mørk). Bruk filene i `web/icons/` som de er.
 * Alle egne sider (også statiske sider fra `tools/seo.js`) har et lite A-merke ved navnet øverst.
 * Nye ikonstørrelser lages med `tools/make_logo.py`, ikke for hånd.
+* «Tegnet» er et valgfritt app-ikon (Innstillinger → Språk og visning → App-ikon): A-en tegnet med tynne doble streker på det blå rutearket, uten bokmerke, med notatene x² og ½. Da tegnes også navnet ved merket (`brandWord()` i `theme.js`). Alt lages av `tools/make_sketch_logo.py`; endre skriptet, ikke filene.
+* En mulig retning på sikt (tegnet hovedlogo på ruteark og fargelogotype) ligger i `brand/tegnet/`. Den er ikke tatt i bruk; spør eieren før noe av den brukes.
 
 ## 7. Slik sjekker du arbeidet
 

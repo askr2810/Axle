@@ -4,7 +4,7 @@ const CACHE = "axle-__BUILD__";
 // har åpnet virker offline. Filnavnet endres når innholdet endres; gamle versjoner ryddes bort når den nye workeren tar over.
 const CCACHE = "axle-fag", CF_V = __CF__;
 const CORE = ["./", "index.html", "app.bundle.js?v=__BUILD__", "manifest.webmanifest", "privacy.html",
-  "icons/icon-192.png", "icons/icon-512.png", "icons/apple-touch-icon.png", "icons/logo-192.png", "icons/logo-192-black.png", "icons/icon-black-48.png", "icons/icon-black-192.png", "icons/apple-touch-icon-black.png", "vendor/katex.min.js", "vendor/fonts.css"];
+  "icons/icon-192.png", "icons/icon-512.png", "icons/apple-touch-icon.png", "icons/logo-192.png", "icons/logo-192-black.png", "icons/icon-black-48.png", "icons/icon-black-192.png", "icons/apple-touch-icon-black.png", "icons/logo-192-sketch.png", "icons/icon-sketch-48.png", "icons/icon-sketch-192.png", "icons/apple-touch-icon-sketch.png", "icons/wordmark-sketch.svg", "icons/wordmark-sketch-dark.svg", "vendor/katex.min.js", "vendor/fonts.css"];
 self.addEventListener("install", e => {
   e.waitUntil(caches.open(CACHE).then(c => Promise.all(CORE.map(u => c.add(new Request(u, { cache: "reload" })).catch(() => null)))).then(() => self.skipWaiting()));
 });

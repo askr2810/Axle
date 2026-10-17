@@ -48,29 +48,34 @@ function thApply(){
   set("data-acc", S.accent && S.accent !== "blue" ? S.accent : ""); set("data-paper", S.paper || ""); set("data-bg", S.bg || "");
   thIconApply();
 }
-// ---------- App-ikon: blått, black edition eller «følger lys/mørk» ----------
+// ---------- App-ikon: blått, black edition, tegnet eller «følger lys/mørk» ----------
 // Bytter merket i appen (markSrc), ikonet i nettleserfanen og på hjemskjermen (nettappen), og i iOS/Android-appen
 // selve app-ikonet når tillegget @capacitor-community/app-icon er installert (se docs/PUBLISERING.md).
-const TH_ICONS = [["blue", "Blå", "Blue"], ["black", "Black edition", "Black edition"], ["auto", "Følger lys/mørk", "Follows light/dark"]];
+// «Tegnet» er A-en og navnet tegnet for hånd på rutearket (lages av tools/make_sketch_logo.py).
+const TH_ICONS = [["blue", "Blå", "Blue"], ["black", "Black edition", "Black edition"], ["sketch", "Tegnet", "Hand-drawn"], ["auto", "Følger lys/mørk", "Follows light/dark"]];
 function thDarkNow(){
   const t = document.documentElement.getAttribute("data-theme");
   return t === "dark" || (t !== "light" && !!(window.matchMedia && matchMedia("(prefers-color-scheme: dark)").matches));
 }
 const thIconBlack = () => { const v = S.appIcon || "blue"; return v === "black" || (v === "auto" && thDarkNow()); };
-const markSrc = () => thIconBlack() ? "icons/logo-192-black.png" : "icons/logo-192.png";
+const thIconSketch = () => S.appIcon === "sketch";
+const markSrc = () => thIconBlack() ? "icons/logo-192-black.png" : thIconSketch() ? "icons/logo-192-sketch.png" : "icons/logo-192.png";
+// Navnet ved merket: tegnet når «Tegnet» er valgt (lys eller mørk strek etter temaet, byttes med CSS), ellers vanlig tekst.
+const brandWord = () => thIconSketch() ? `<span class="bw-sk" role="img" aria-label="Axle"><img class="bw-l" src="icons/wordmark-sketch.svg" alt=""><img class="bw-d" src="icons/wordmark-sketch-dark.svg" alt=""></span>` : "Axle";
 let TH_NATIVE_ICON = null;
 function thIconApply(){
   if(typeof PLATFORM !== "undefined" && PLATFORM === "claude") return;
-  const black = thIconBlack();
+  const black = thIconBlack(), sk = thIconSketch();
   document.querySelectorAll('link[rel~="icon"], link[rel="apple-touch-icon"]').forEach(l => {
     const touch = l.rel === "apple-touch-icon", big = (l.getAttribute("sizes") || "") === "192x192";
     l.dataset.blue ||= l.getAttribute("href");
-    l.setAttribute("href", !black ? l.dataset.blue : touch ? "icons/apple-touch-icon-black.png" : big ? "icons/icon-black-192.png" : "icons/icon-black-48.png");
+    l.setAttribute("href", sk ? (touch ? "icons/apple-touch-icon-sketch.png" : big ? "icons/icon-sketch-192.png" : "icons/icon-sketch-48.png")
+      : !black ? l.dataset.blue : touch ? "icons/apple-touch-icon-black.png" : big ? "icons/icon-black-192.png" : "icons/icon-black-48.png");
   });
   // På telefonen byttes bare ved et aktivt valg (iOS viser en melding hver gang ikonet byttes), ikke når temaet skifter.
-  const want = (S.appIcon || "blue") === "black" ? "black" : "blue";
+  const want = ["black", "sketch"].includes(S.appIcon) ? S.appIcon : "blue";
   if(typeof NATIVE !== "undefined" && NATIVE && TH_NATIVE_ICON !== want){ TH_NATIVE_ICON = want;
-    try{ const P = PL.AppIcon; if(P) (want === "black" ? P.change({ name: "black", suppressNotification: true }) : P.reset({ suppressNotification: true })).catch(() => {}); }catch(e){} }
+    try{ const P = PL.AppIcon; if(P) (want !== "blue" ? P.change({ name: want, suppressNotification: true }) : P.reset({ suppressNotification: true })).catch(() => {}); }catch(e){} }
 }
 const thAccent = () => TH_ACCENTS.find(a => a[0] === (S.accent || "blue")) || TH_ACCENTS[0];
 function thIconRowHTML(){
@@ -78,7 +83,7 @@ function thIconRowHTML(){
   const cur = S.appIcon || "blue", img = (src, cls = "") => `<img class="${cls}" src="${src}" width="44" height="44" alt="">`;
   return `<div class="srow th-row th-iconrow"><span class="lbl">${esc(T("App-ikon", "App icon"))}<span class="sub">${esc(T("Merket i appen og på hjemskjermen", "The mark in the app and on the home screen"))}</span></span>
     <div class="th-ics">${TH_ICONS.map(([id, nb, en]) => `<button class="th-ic ${cur === id ? "on" : ""}" data-a="thicon" data-v="${id}" aria-pressed="${cur === id}">
-      <span class="th-ic-img">${id === "auto" ? img("icons/icon-192.png", "half-l") + img("icons/icon-black-192.png", "half-r") : img(id === "black" ? "icons/icon-black-192.png" : "icons/icon-192.png")}</span><small>${esc(T(nb, en))}</small></button>`).join("")}</div></div>`;
+      <span class="th-ic-img">${id === "auto" ? img("icons/icon-192.png", "half-l") + img("icons/icon-black-192.png", "half-r") : img(id === "black" ? "icons/icon-black-192.png" : id === "sketch" ? "icons/icon-sketch-192.png" : "icons/icon-192.png")}</span><small>${esc(T(nb, en))}</small></button>`).join("")}</div></div>`;
 }
 function thSettingsHTML(){
   const acc = S.accent || "blue", pap = S.paper || "", bg = S.bg || "";

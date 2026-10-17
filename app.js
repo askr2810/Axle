@@ -214,6 +214,7 @@ Object.assign(EMO, {
   "🔔": svg('<path d="M6 16v-5a6 6 0 0 1 12 0v5l2 2H4zM10 21h4"/>'),
   "⚠️": svg('<path d="M12 3l10 18H2z"/><path d="M12 10v5M12 18h.01"/>'),
   "🧭": svg('<circle cx="12" cy="12" r="9"/><path d="M15.5 8.5l-2 5-5 2 2-5z"/>'),
+  "🪜": svg('<path d="M7 3v18M17 3v18M7 7h10M7 12h10M7 17h10"/>'),
   "✨": svg('<path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"/>'),
   "📍": svg('<path d="M12 21s7-6 7-12a7 7 0 0 0-14 0c0 6 7 12 7 12z"/><circle cx="12" cy="9" r="2.5"/>'),
   "🖼️": svg('<rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="10" r="2"/><path d="M21 16l-5-5-9 9"/>'),
