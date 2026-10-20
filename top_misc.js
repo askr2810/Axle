@@ -341,7 +341,7 @@ TOPICS("NUM", 0, [
     tip: "Always check $|g'(x)|$ near the expected root before trusting that the iteration converges." } }
 ]);
 TOPICS("NUM", 1, [
-{ id: "trapesmetoden",
+{ id: "trapesmetoden", chk: ["1.5*(0^2/2+1.5^2+3^2/2) ≈ 10.125"],
   fig: `<svg viewBox="0 0 240 140"><path d="M30 115H220" class="dim"/><path d="M30 115V25" class="dim"/><path d="M30 100C 90 20, 160 20, 210 60" class="d"/><path d="M30 115V100L 210 60V115Z" class="fill"/><path d="M30 115V100M120 115V80M210 115V60" class="d"/><text x="24" y="130">a</text><text x="204" y="130">b</text></svg>`,
   nb: { t: "Trapesmetoden",
     seoT: "Trapesmetoden – formel og regneeksempel (numerisk integrasjon)",
@@ -357,7 +357,7 @@ TOPICS("NUM", 1, [
     legend: [["h", "step size, $(b-a)/n$", ""], ["f_i", "function value at point $i$", ""]],
     ex: "$\\int_0^3 x^2\\,dx$ with 2 intervals, $h = 1.5$:\n$h(f_0/2 + f_1 + f_2/2) = 10.125$ (exact is 9).",
     tip: "The trapezoidal rule overestimates the area for a convex (upward-curving) function." } },
-{ id: "simpsons-metode",
+{ id: "simpsons-metode", chk: ["1.5/3*(0^2+4*1.5^2+3^2) ≈ 9"],
   nb: { t: "Simpsons metode",
     seoT: "Simpsons metode – formel, feil O(h⁴) og regneeksempel",
     seoD: "Simpsons regel for numerisk integrasjon: formelen h/3·(f₀ + 4f₁ + f₂), feil av orden O(h⁴) og et utregnet eksempel.",
@@ -400,7 +400,7 @@ TOPICS("NUM", 1, [
     tip: "Gaussian quadrature needs far fewer points than trapezoid/Simpson for the same accuracy, but the points are not evenly spaced." } }
 ]);
 TOPICS("NUM", 2, [
-{ id: "eulers-metode",
+{ id: "eulers-metode", chk: ["2*1.1^2 ≈ 2.42"],
   fig: `<svg viewBox="0 0 240 140"><path d="M25 110H225" class="dim"/><path d="M25 110V20" class="dim"/><path d="M35 95C 90 30, 150 25, 210 45" class="dash"/><path d="M35 95L80 78L125 68L170 60L210 55" class="d"/><circle cx="35" cy="95" r="3" class="af"/><circle cx="80" cy="78" r="3" class="af"/><circle cx="125" cy="68" r="3" class="af"/><circle cx="170" cy="60" r="3" class="af"/><text x="6" y="99">y₀</text></svg>`,
   nb: { t: "Eulers metode",
     intro: "Eulers eksplisitte metode løser en ODE $y' = f(t, y)$ numerisk ved å følge stigningstallet fra hvert punkt et lite steg $h$ fremover. Den er enkel, men har lav orden: den globale feilen er $O(h)$, så det trengs korte steg for god nøyaktighet.",
@@ -673,7 +673,7 @@ TOPICS("OKON", 0, [
     legend: [["r_{\\text{nom}}", "nominal annual rate", ""], ["m", "compounding periods per year", ""], ["r_{\\text{eff}}", "effective annual rate", ""]],
     ex: "Nominal rate 5% with monthly compounding ($m=12$):\n$r_{\\text{eff}} = (1 + 0.05/12)^{12} - 1 \\approx 5.12\\%$.",
     tip: "The more compounding periods per year, the bigger the gap between nominal and effective rate." } },
-{ id: "realrente",
+{ id: "realrente", chk: ["100*(1.06/1.02-1) ≈ 3.92"],
   nb: { t: "Realrente",
     intro: "Realrenten er renten justert for inflasjon, og viser hvor mye kjøpekraften faktisk vokser. Er nominell rente lavere enn inflasjonen, blir realrenten negativ — pengene vokser i kroner, men taper kjøpekraft.",
     f: [["1 + r_{\\text{real}} = \\frac{1 + r_{\\text{nom}}}{1 + i}", "sammenhengen mellom nominell rente, inflasjon og realrente"]],
@@ -701,7 +701,7 @@ TOPICS("OKON", 1, [
     legend: [["I_0", "investment today", "kr"], ["C_t", "cash flow in year $t$", "kr"], ["r", "discount rate", ""]],
     ex: "Investment 100,000 kr, yields 80,000 kr/year for 6 years, $r = 7\\%$:\nAnnuity factor $\\approx 4.7665$, $NPV \\approx -100000 + 80000\\cdot 4.7665 \\approx 281{,}323$ kr — profitable.",
     tip: "NPV > 0 means a profitable investment at the given discount rate; NPV < 0 means not profitable." } },
-{ id: "irr",
+{ id: "irr", chk: ["100*(1/((-140+sqrt(140^2+4*200*140))/(2*140))-1) ≈ 25.7"],
   nb: { t: "Internrente (IRR)",
     intro: "Internrenten er den renten som gjør netto nåverdi lik null — det stedet der prosjektet akkurat dekker sin egen kalkulasjonsrente. Investeringen er lønnsom hvis IRR er høyere enn avkastningskravet.",
     f: [["-I_0 + \\sum_{t=1}^{n} \\frac{C_t}{(1+IRR)^t} = 0", "IRR løser denne ligningen"]],
@@ -1149,7 +1149,7 @@ TOPICS("MATS1500", 0, [
     tip: "A phase diagram tells you which phases exist at equilibrium — not how fast they form on cooling." } }
 ]);
 TOPICS("MATS1500", 1, [
-{ id: "spenning-toyning",
+{ id: "spenning-toyning", chk: ["pi*16^2/4 ≈ 201.1", "79000/(pi*16^2/4) ≈ 392.9", "40/0.0015/1000 ≈ 26.7"],
   art: () => FL.stressStrain(),
   fig: `<svg viewBox="0 0 240 140"><path d="M30 120H220" class="dim"/><path d="M30 120V20" class="dim"/><path d="M30 120L90 55" class="d"/><path d="M90 55C 130 35, 160 30, 195 45" class="d"/><path d="M195 45L205 70" class="d"/><path d="M30 120H90V55" class="dash"/><text x="12" y="60">σ</text><text x="205" y="132">ε</text><text x="75" y="132">ε₀</text></svg>`,
   nb: { t: "Spenning–tøyning-kurve",
@@ -1312,7 +1312,7 @@ TOPICS("KJEMI", 0, [
     legend: [],
     ex: "32 g CH4 ($M = 16.04$) gives $n = 1.995$ mol, giving the same number of moles of CO2 ($M = 44.01$):\n$1.995\\cdot 44.01 \\approx 87.8$ g CO2.",
     tip: "Always compare moles, not grams, when finding the limiting reactant — the equation's coefficients apply to moles." } },
-{ id: "utbytteprosent",
+{ id: "utbytteprosent", chk: ["80/87.8*100 ≈ 91"],
   nb: { t: "Utbytteprosent",
     intro: "Utbytteprosent viser hvor mye produkt som faktisk dannes i en reaksjon, sammenlignet med det teoretiske maksimum beregnet fra støkiometrien. Den er sjelden 100 % i praksis, på grunn av sidereaksjoner, ufullstendig reaksjon eller tap ved rensing.",
     f: [["\\text{utbytte} = \\frac{\\text{faktisk mengde}}{\\text{teoretisk mengde}}\\times 100\\%", "utbytteprosent"]],
@@ -1327,7 +1327,7 @@ TOPICS("KJEMI", 0, [
     tip: "Always calculate the theoretical yield from the limiting reactant, not from a reagent in excess." } }
 ]);
 TOPICS("KJEMI", 1, [
-{ id: "ph-skala",
+{ id: "ph-skala", chk: ["10^(7-3) ≈ 10000"],
   nb: { t: "pH-skalaen",
     intro: "pH måler surhetsgraden til en løsning ut fra konsentrasjonen av $\\mathrm{H^+}$-ioner: lav pH betyr sur løsning, høy pH betyr basisk. Ved 25 °C er summen av pH og pOH alltid 14, siden vannets ioneprodukt $K_w = 10^{-14}$.",
     f: [["\\mathrm{pH} = -\\log[\\mathrm{H^+}]", "definisjon av pH"], ["\\mathrm{pH} + \\mathrm{pOH} = 14", "ved 25 °C"]],
@@ -1340,7 +1340,7 @@ TOPICS("KJEMI", 1, [
     legend: [["[\\mathrm{H^+}]", "hydrogen ion concentration", "mol/L"]],
     ex: "A solution has pH 3, neutral water has pH 7:\n$[\\mathrm{H^+}]$ is $10^{7-3} = 10{,}000$ times higher.",
     tip: "The pH scale is logarithmic: each unit down means ten times higher $\\mathrm{H^+}$ concentration." } },
-{ id: "sterk-svak-syre",
+{ id: "sterk-svak-syre", chk: ["-log10(0.05) ≈ 1.3"],
   nb: { t: "Sterke og svake syrer",
     intro: "En sterk syre, som HCl eller HNO₃, protolyserer (dissosierer) fullstendig i vann, så $[\\mathrm{H^+}]$ er lik den oppgitte konsentrasjonen. En svak syre dissosierer bare delvis, og gir dermed en lavere $[\\mathrm{H^+}]$ og høyere pH enn en sterk syre med samme konsentrasjon.",
     f: [["[\\mathrm{H^+}] = c \\ \\text{(sterk syre, fullstendig dissosiert)}", "for en sterk syre med konsentrasjon $c$"]],

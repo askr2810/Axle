@@ -15,7 +15,7 @@ TOPICS("GFYS", 0, [
     legend: [["m", "meter, base unit of length", ""], ["kg", "kilogram, base unit of mass", ""], ["s", "second, base unit of time", ""]],
     ex: "A load has mass $m = 250$ kg. Its weight is $G = mg = 250\\cdot 9.81 \\approx 2453$ N, about $2.45$ kN – a force, not a mass.",
     tip: "Always write the unit together with the number at every step – without a unit, a number is meaningless in physics." } },
-{ id: "prefikser-omregning",
+{ id: "prefikser-omregning", chk: ["90/3.6 ≈ 25", "2.0*1000 ≈ 2000"],
   fig: `<svg viewBox="0 0 240 140"><path d="M20 115H220" class="dim"/><path d="M40 115v-8M80 115v-8M120 115v-8M160 115v-8M200 115v-8" class="dim"/><text x="30" y="132">n</text><text x="70" y="132">µ</text><text x="110" y="132">m</text><text x="150" y="132">1</text><text x="190" y="132">k</text><path d="M50 60H190" class="a"/><path d="M190 60l-12-5v10z" class="af"/><path d="M50 60l12-5v10z" class="af"/><text x="105" y="50">10³</text></svg>`,
   nb: { t: "Prefikser og omregning",
     intro: "Prefikser som kilo, milli og mikro er tierpotenser foran en enhet, og gjør at vi slipper å skrive svært store eller små tall. Før du setter tall inn i en formel, må du regne alt om til SI-grunnenheter: meter, kilogram og sekund, ikke km, gram eller minutter.",
@@ -161,7 +161,7 @@ TOPICS("GFYS", 2, [
     legend: [["G", "weight", "N"], ["N", "normal force", "N"], ["g", "gravitational acceleration", "9.81 m/s²"]],
     ex: "A 40 kg crate rests on the floor. Its weight is $G = 40\\cdot 9.81 \\approx 392$ N, and since no other vertical forces act, $N = 392$ N.",
     tip: "Mass is the same everywhere, but weight and normal force depend on the situation – do not set $N = mg$ without checking." } },
-{ id: "friksjon",
+{ id: "friksjon", chk: ["10*9.81 ≈ 98.1", "0.25*10*9.81 ≈ 24.5"],
   art: () => FL.incline({ angle: 30 }),
   fig: `<svg viewBox="0 0 240 140"><rect x="70" y="60" width="60" height="30" class="fill"/><path d="M70 60h60v30h-60z" class="d"/><path d="M20 100H220" class="d"/><path d="M130 75H190" class="a"/><path d="M190 75l-12-5v10z" class="af"/><path d="M70 75H30" class="r"/><path d="M30 75l12-5v10z" class="rf"/><text x="195" y="70">F</text><text x="12" y="70">R</text></svg>`,
   nb: { t: "Friksjon",
@@ -282,7 +282,7 @@ TOPICS("GFYS", 4, [
     legend: [["p_0", "pressure at the surface (often $p_{atm}$)", "Pa"], ["\\rho", "density", "kg/m³"], ["h", "depth", "m"]],
     ex: "A diver is $h = 10$ m below the surface. The gauge pressure is $\\rho gh = 1000\\cdot 9.81\\cdot 10 \\approx 98.1$ kPa, so the absolute pressure is $101.3 + 98.1 \\approx 199.4$ kPa.",
     tip: "The pressure in a liquid depends only on the depth, not on the shape or total volume of the container." } },
-{ id: "oppdrift",
+{ id: "oppdrift", chk: ["1000*0.002*9.81 ≈ 19.6"],
   art: () => FL.fluid({ kind: "buoyancy" }),
   fig: `<svg viewBox="0 0 240 140"><path d="M30 60H210" class="dash"/><rect x="90" y="60" width="60" height="45" class="fill"/><path d="M90 60h60v45h-60z" class="d"/><path d="M120 60V25" class="a"/><path d="M120 25l-6 13h12z" class="af"/><path d="M120 105V135" class="g"/><path d="M120 135l-6-13h12z" class="gf"/><text x="130" y="40">F<tspan dy="4" font-size="10">B</tspan></text><text x="130" y="122">G</text></svg>`,
   nb: { t: "Oppdrift",
@@ -297,7 +297,7 @@ TOPICS("GFYS", 4, [
     legend: [["F_B", "buoyant force", "N"], ["\\rho_{fluid}", "density of the fluid", "kg/m³"], ["V", "submerged volume", "m³"]],
     ex: "A rock with $V = 0.002$ m³ is fully submerged in water ($\\rho = 1000$ kg/m³). The buoyant force is $F_B = 1000\\cdot 0.002\\cdot 9.81 \\approx 19.6$ N.",
     tip: "Always use the density of the fluid, not of the object, in the buoyancy formula." } },
-{ id: "varmekapasitet",
+{ id: "varmekapasitet", chk: ["1.5*4180*(100-15)/1000 ≈ 533"],
   fig: `<svg viewBox="0 0 240 140"><path d="M30 120H100V50H30z" class="d"/><path d="M45 115V65 M60 115V65 M75 115V65 M90 115V65" class="dim"/><path d="M130 85H180" class="a"/><path d="M180 85l-12-5v10z" class="af"/><text x="140" y="75">Q</text><text x="55" y="40">T</text></svg>`,
   nb: { t: "Varmekapasitet",
     intro: "Varme er energi som overføres på grunn av en temperaturforskjell. Hvor mye varme som trengs for å endre temperaturen til et stoff, avhenger av massen og av den spesifikke varmekapasiteten, som forteller hvor mye energi 1 kg av stoffet trenger for å endre temperaturen 1 grad.",
@@ -374,7 +374,7 @@ TOPICS("GFYS", 5, [
         [`P = \\frac{${mcA("U")}\\cdot ${mcA("U")}}{R} = \\frac{${mcA("U^2")}}{R}`, "The voltage now appears twice in the numerator, and $U\\cdot U = U^2$."]] }],
     ex: "A heater has $R = 24$ Ω and is connected to $U = 230$ V. The power is $P = U^2/R = 230^2/24 \\approx 2204$ W.",
     tip: "Pick the form of $P$ that matches the quantities you know – they all give the same answer." } },
-{ id: "seriekobling",
+{ id: "seriekobling", chk: ["5.0+7.0 ≈ 12.0"],
   art: () => FL.circuit({ kind: "series" }),
   fig: `<svg viewBox="0 0 240 140"><path d="M20 70H60" class="d"/><rect x="60" y="55" width="40" height="30" class="d"/><path d="M100 70H140" class="d"/><rect x="140" y="55" width="40" height="30" class="d"/><path d="M180 70H220" class="d"/><text x="72" y="75">R₁</text><text x="152" y="75">R₂</text></svg>`,
   nb: { t: "Seriekobling",
@@ -468,7 +468,7 @@ TOPICS("MEK1400", 0, [
 
 // ================= MEK1400 – enhet 1: Elektrisitet og magnetisme =================
 TOPICS("MEK1400", 1, [
-{ id: "coulombs-lov",
+{ id: "coulombs-lov", chk: ["8.99e9*(2.0e-6)^2/0.30^2 ≈ 0.40"],
   fig: `<svg viewBox="0 0 240 140"><circle cx="60" cy="70" r="12" class="fill"/><circle cx="180" cy="70" r="12" class="fill"/><text x="57" y="77">+</text><text x="177" y="77">+</text><path d="M75 70H110" class="a"/><path d="M110 70l-12-5v10z" class="af"/><path d="M165 70H130" class="a"/><path d="M130 70l12-5v10z" class="af"/><text x="80" y="55">F</text><text x="150" y="55">F</text></svg>`,
   nb: { t: "Coulombs lov",
     intro: "Ladde partikler virker på hverandre med en elektrisk kraft som avtar med kvadratet av avstanden. Like ladninger frastøter hverandre, mens ulike ladninger tiltrekker hverandre. Kreftene på de to ladningene er alltid like store og motsatt rettet, som Newtons tredje lov.",
@@ -555,7 +555,7 @@ TOPICS("MEK1400", 2, [
     legend: [["p", "momentum", "kg·m/s"], ["v,\\ v'", "speed before/after", "m/s"]],
     ex: "A 1200 kg car at 15 m/s hits a stationary 800 kg car and they stick together. $v' = \\dfrac{1200\\cdot 15}{2000} = 9.0$ m/s.",
     tip: "Use momentum in collisions, not kinetic energy – that is only conserved in perfectly elastic collisions." } },
-{ id: "treghetsmoment",
+{ id: "treghetsmoment", chk: ["0.5*4.0*0.20^2 ≈ 0.080"],
   fig: `<svg viewBox="0 0 240 140"><circle cx="120" cy="75" r="45" class="d"/><circle cx="120" cy="75" r="3" class="af"/><path d="M120 75L165 75" class="a"/><path d="M165 75l-12-5v10z" class="af"/><text x="136" y="70">R</text></svg>`,
   nb: { t: "Rotasjon og treghetsmoment",
     intro: "Treghetsmomentet er rotasjonens motstykke til masse: det forteller hvor vanskelig det er å endre et legemes vinkelfart, og avhenger både av massen og av hvordan den er fordelt i forhold til rotasjonsaksen. Jo lenger unna aksen massen ligger, desto større blir treghetsmomentet.",
@@ -569,7 +569,7 @@ TOPICS("MEK1400", 2, [
     legend: [["I", "moment of inertia", "kg·m²"], ["M", "total mass", "kg"], ["R", "radius", "m"]],
     ex: "A solid cylinder with $M = 4.0$ kg and $R = 0.20$ m has $I = \\tfrac12\\cdot 4.0\\cdot 0.20^2 = 0.080$ kg·m².",
     tip: "A thin hoop has $I = MR^2$, a solid cylinder only $\\tfrac12MR^2$ – mass close to the axis contributes less." } },
-{ id: "moment-spinn", sim: ["torque", "spin"],
+{ id: "moment-spinn", chk: ["2.0/0.50 ≈ 4.0"], sim: ["torque", "spin"],
   fig: `<svg viewBox="0 0 240 140"><circle cx="120" cy="75" r="4" class="af"/><path d="M120 75H190" class="b"/><path d="M90 55a34 34 0 0 1 24 -18" class="t"/><path d="M114 37l-11 1 6 8z" class="tf"/><text x="200" y="78">F</text><text x="95" y="30">τ</text></svg>`,
   nb: { t: "Moment og spinn",
     intro: "Kraftmoment er «vrikraft»: hvor godt en kraft klarer å få noe til å snurre. Det blir større jo lenger ut du tar tak og jo mer vinkelrett du drar – derfor er en lang skiftenøkkel lettere å bruke. Spinn er «snurremengde». Det forsvinner ikke av seg selv: trekker en kunstløper armene inn, blir hun lettere å snurre (mindre treghetsmoment $I$) og snurrer derfor fortere. Formlene er rotasjonsutgavene av $F = ma$ og $p = mv$.",
@@ -601,7 +601,7 @@ TOPICS("MEK1400", 2, [
 
 // ================= MATS2100 – enhet 0: Grunnbegreper =================
 TOPICS("MATS2100", 0, [
-{ id: "idealgassloven",
+{ id: "idealgassloven", chk: ["200000*0.010/(8.314*300) ≈ 0.802"],
   fig: `<svg viewBox="0 0 240 140"><rect x="70" y="30" width="90" height="80" class="d"/><path d="M70 60h90" class="dash"/><path d="M100 30v-10M120 30v-10" class="dim"/><text x="105" y="75">p,V</text></svg>`,
   nb: { t: "Idealgassloven",
     intro: "Idealgassloven knytter sammen trykk, volum, temperatur og mengden gass for en ideell gass. Den brukes til å finne én tilstandsstørrelse når de andre er kjent, og gjelder like godt før som etter en prosess, så lenge temperaturen alltid settes inn i kelvin.",
@@ -698,7 +698,7 @@ TOPICS("MATS2100", 1, [
     legend: [["S", "entropy", "J/K"], ["Q", "heat transferred", "J"], ["T", "temperature", "K"]],
     ex: "500 J of heat is transferred from a reservoir at 400 K. The entropy change there is $\\Delta S = -500/400 = -1.25$ J/K, and a colder reservoir receiving the heat gets a larger positive increase.",
     tip: "Remember the temperature in kelvin in $\\Delta S = Q/T$, and that heat leaving a system has a negative sign." } },
-{ id: "carnot-virkningsgrad",
+{ id: "carnot-virkningsgrad", chk: ["1-300/600 ≈ 0.50"],
   nb: { t: "Carnot-virkningsgrad",
     intro: "Carnot-virkningsgraden er den høyest mulige virkningsgraden en varmekraftmaskin kan ha når den arbeider mellom to gitte temperaturer, og gjelder bare for en ideell, reversibel maskin. Ingen ekte maskin kan overgå den, og den brukes derfor som en fornuftskontroll av beregnede virkningsgrader.",
     f: [["\\eta_{Carnot} = 1 - \\dfrac{T_C}{T_H}", "Carnot-virkningsgrad, temperaturer i kelvin"]],
@@ -715,7 +715,7 @@ TOPICS("MATS2100", 1, [
 
 // ================= MATS2100 – enhet 2: Kretsprosesser =================
 TOPICS("MATS2100", 2, [
-{ id: "varmekraftmaskin",
+{ id: "varmekraftmaskin", chk: ["800-500 ≈ 300", "(800-500)/800 ≈ 0.375"],
   fig: `<svg viewBox="0 0 240 140"><circle cx="120" cy="75" r="35" class="d"/><path d="M60 40H90" class="a"/><path d="M90 40l-12-5v10z" class="af"/><path d="M150 105H180" class="a"/><path d="M180 105l-12-5v10z" class="af"/><path d="M155 55H190" class="a"/><path d="M190 55l-12-5v10z" class="af"/><text x="30" y="45">Q<tspan dy="4" font-size="10">H</tspan></text><text x="185" y="100">Q<tspan dy="4" font-size="10">C</tspan></text><text x="195" y="50">W</text></svg>`,
   nb: { t: "Varmekraftmaskin",
     intro: "En varmekraftmaskin tar opp varme fra et varmt reservoar, avgir noe til et kaldt reservoar, og leverer resten som nyttig arbeid. Virkningsgraden forteller hvor stor andel av den tilførte varmen som blir til arbeid, og er alltid mindre enn 1.",
@@ -832,7 +832,7 @@ TOPICS("FLUID", 0, [
 
 // ================= FLUID – enhet 1: Kontinuitet og Bernoulli =================
 TOPICS("FLUID", 1, [
-{ id: "kontinuitet",
+{ id: "kontinuitet", chk: ["2*(100/60)^2 ≈ 5.56"],
   fig: `<svg viewBox="0 0 240 140"><path d="M20 50H100L150 70L100 90H20Z" class="d"/><path d="M150 60H220V80H150Z" class="d"/><path d="M50 75H80" class="a"/><path d="M80 75l-10-4v8z" class="af"/><path d="M175 70H200" class="a"/><path d="M200 70l-10-4v8z" class="af"/><text x="56" y="65">v₁</text><text x="175" y="58">v₂</text></svg>`,
   nb: { t: "Kontinuitet",
     intro: "Kontinuitetsligningen sier at like mye volum (eller masse) må passere hvert tverrsnitt av et rør per sekund, siden væsken verken kan skapes eller forsvinne underveis. Der røret er trangt, må farten derfor øke, og der det er vidt, avtar farten tilsvarende.",
@@ -846,19 +846,19 @@ TOPICS("FLUID", 1, [
     legend: [["Q", "volumetric flow rate", "m³/s"], ["A", "cross-sectional area", "m²"], ["v", "speed", "m/s"]],
     ex: "A pipe narrows from $d_1 = 100$ mm to $d_2 = 60$ mm with $v_1 = 2$ m/s. $v_2 = v_1(d_1/d_2)^2 = 2\\cdot(100/60)^2 \\approx 5.56$ m/s.",
     tip: "Use area, not diameter, in the continuity equation: $A = \\pi d^2/4$." } },
-{ id: "bernoulli", sim: "bernpipe",
+{ id: "bernoulli", chk: ["0.5*1000*(5.56^2-2^2)/1000 ≈ 13.5"], sim: "bernpipe",
   fig: `<svg viewBox="0 0 240 140"><path d="M20 100Q90 40 220 60" class="d"/><circle cx="40" cy="93" r="4" class="af"/><circle cx="190" cy="63" r="4" class="af"/><path d="M40 93V70" class="dim"/><path d="M190 63V40" class="dim"/><text x="20" y="65">z₁</text><text x="195" y="35">z₂</text></svg>`,
   nb: { t: "Bernoullis ligning",
     intro: "Når et rør blir smalere, må vannet gå fortere for at like mye skal komme gjennom. Energien til den ekstra farten tas fra trykket – derfor er trykket lavest der vannet går fortest. Løfter du røret, koster høyden også trykk. Bernoullis ligning sier at trykk + fartsenergi + høydeenergi er like stor overalt langs strømmen (uten friksjon og pumper).",
     f: [["p + \\tfrac12\\rho v^2 + \\rho gz = \\text{konstant}", "Bernoullis ligning langs en strømlinje"]],
     legend: [["p", "statisk trykk", "Pa"], ["v", "fart", "m/s"], ["z", "høyde", "m"]],
-    ex: "Vann strømmer horisontalt: $v_1 = 2$ m/s ved $p_1$, og $v_2 = 5{,}56$ m/s der røret er trangt. $p_1 - p_2 = \\tfrac12\\cdot 1000\\cdot(5{,}56^2 - 2^2) \\approx 13{,}4$ kPa.",
+    ex: "Vann strømmer horisontalt: $v_1 = 2$ m/s ved $p_1$, og $v_2 = 5{,}56$ m/s der røret er trangt. $p_1 - p_2 = \\tfrac12\\cdot 1000\\cdot(5{,}56^2 - 2^2) \\approx 13{,}5$ kPa.",
     tip: "Bernoulli gjelder bare uten tap og uten pumpe mellom punktene – legg til slike ledd separat hvis de finnes." },
   en: { t: "Bernoulli's equation",
     intro: "When a pipe gets narrower, the water must flow faster so that the same amount gets through. The energy for the extra speed is taken from the pressure – so the pressure is lowest where the water flows fastest. Lifting the pipe also costs pressure. Bernoulli's equation says that pressure + speed energy + height energy is the same everywhere along the flow (without friction and pumps).",
     f: [["p + \\tfrac12\\rho v^2 + \\rho gz = \\text{constant}", "Bernoulli's equation along a streamline"]],
     legend: [["p", "static pressure", "Pa"], ["v", "speed", "m/s"], ["z", "height", "m"]],
-    ex: "Water flows horizontally: $v_1 = 2$ m/s at $p_1$, and $v_2 = 5.56$ m/s where the pipe narrows. $p_1 - p_2 = \\tfrac12\\cdot 1000\\cdot(5.56^2 - 2^2) \\approx 13.4$ kPa.",
+    ex: "Water flows horizontally: $v_1 = 2$ m/s at $p_1$, and $v_2 = 5.56$ m/s where the pipe narrows. $p_1 - p_2 = \\tfrac12\\cdot 1000\\cdot(5.56^2 - 2^2) \\approx 13.5$ kPa.",
     tip: "Bernoulli only holds with no losses and no pump between the points – add such terms separately if they are present." } },
 { id: "torricelli",
   fig: `<svg viewBox="0 0 240 140"><rect x="40" y="20" width="90" height="80" class="d"/><path d="M40 30H130" class="dash"/><path d="M130 80h20" class="d"/><path d="M150 80H210" class="a"/><path d="M210 80l-12-5v10z" class="af"/><path d="M85 30V80" class="dim"/><text x="90" y="55">h</text></svg>`,
@@ -892,7 +892,7 @@ TOPICS("FLUID", 1, [
 
 // ================= FLUID – enhet 2: Rørstrømning og dimensjonsløse tall =================
 TOPICS("FLUID", 2, [
-{ id: "reynoldstall",
+{ id: "reynoldstall", chk: ["1000*1.2*0.04/1e-3 ≈ 48000"],
   fig: `<svg viewBox="0 0 240 140"><path d="M20 70H110" class="d"/><path d="M20 60H110M20 80H110" class="dim"/><path d="M130 40Q150 60 130 80T170 100T130 110" class="d"/><text x="55" y="50">L</text><text x="145" y="30">T</text></svg>`,
   nb: { t: "Reynoldstall",
     intro: "Reynoldstallet er et dimensjonsløst tall som forteller om strømningen er rolig og lagdelt (laminær) eller kaotisk med virvler (turbulent). Det uttrykker forholdet mellom treghetskrefter og viskøse krefter i fluidet, og bestemmer hvilken formel du bruker for friksjonsfaktoren.",
@@ -993,7 +993,7 @@ TOPICS("VARME", 0, [
     legend: [["r_1,\\ r_2", "inner/outer radius", "m"], ["L", "pipe length", "m"]],
     ex: "Insulation from $r_1 = 40$ mm to $r_2 = 70$ mm, $k = 0.045$ W/(m·K), $L = 8$ m. $R = \\ln(70/40)/(2\\pi\\cdot 0.045\\cdot 8) \\approx 0.247$ K/W.",
     tip: "Never use the plane-wall formula $R = L/(kA)$ for a pipe – use the $\\ln(r_2/r_1)$ formula instead." } },
-{ id: "u-verdi",
+{ id: "u-verdi", chk: ["1/3.5 ≈ 0.286", "15*30/3.5 ≈ 128.6"],
   nb: { t: "U-verdi",
     intro: "U-verdien samler den totale termiske motstanden til en konstruksjon i ett tall: varmetapet per kvadratmeter og grad temperaturforskjell. Lav U-verdi betyr god isolasjon. Byggeforskrifter stiller ofte krav til maks U-verdi for vegger, tak og vinduer.",
     f: [["U = \\dfrac{1}{R_{tot}A}", "U-verdi fra total motstand"], ["\\dot Q = UA\\Delta T", "varmetap fra U-verdien"]],

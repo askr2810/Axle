@@ -43,7 +43,7 @@ $120 + 45 + 18 = 183$ kN.`, "Swap which load is leading, and use the combination
 
 // ---------- BYGG 1: Bygningsfysikk ----------
 TOPICS("BYGG", 1, [
-{ id: "u-verdi",
+{ id: "u-verdi", chk: ["0.2/0.036 ≈ 5.56", "0.2/0.036+0.17 ≈ 5.73", "1/(0.2/0.036+0.17) ≈ 0.17"],
   fig: `<svg viewBox="0 0 240 140"><rect x="95" y="15" width="50" height="110" class="fill"/><rect x="75" y="15" width="20" height="110" class="d"/><rect x="145" y="15" width="12" height="110" class="d"/><path d="M30 70H80" class="r"/><path d="M92 70l-12-6v12z" class="rf"/><path d="M160 70H210" class="r"/><path d="M222 70l-12-6v12z" class="rf"/><text x="30" y="60">T<tspan dy="4" font-size="10">i</tspan></text><text x="198" y="56">T<tspan dy="4" font-size="10">u</tspan></text></svg>`,
   nb: O("U-verdi", "U-verdien forteller hvor mye varme som lekker gjennom én kvadratmeter vegg for hver grad forskjell mellom inne og ute. Lav U-verdi betyr god isolasjon. Den regnes ut fra summen av varmemotstandene i alle lagene.",
     [[R`R = \frac{d}{\lambda}`, "varmemotstand for ett lag"], [R`U = \frac{1}{R_{si} + \sum R_i + R_{se}}`, "U-verdi for hele veggen"]],
@@ -81,7 +81,7 @@ $RH \approx 50\,\%$. Cooled to about 9 °C, the air is saturated and condensatio
 
 // ---------- BYGG 2: Landmåling ----------
 TOPICS("BYGG", 2, [
-{ id: "nivellering",
+{ id: "nivellering", chk: ["45.200+1.520-0.840 ≈ 45.880"],
   fig: `<svg viewBox="0 0 240 140"><path d="M20 120L220 90" class="d"/><path d="M50 117V30M190 96V30" class="b"/><path d="M50 50H190" class="dash"/><circle cx="120" cy="50" r="6" class="fill"/><text x="30" y="84">B</text><text x="198" y="70">F</text><text x="112" y="36">⊕</text></svg>`,
   nb: O("Nivellering", "Nivellering måler høydeforskjeller med et instrument som gir en vannrett siktelinje. Du leser av en stav på et kjent punkt (bakover) og på det nye punktet (framover). Forskjellen mellom avlesningene er høydeforskjellen.",
     [[R`\Delta h = B - F`, "høydeforskjell fra bak- og framavlesning"], [R`H_{ny} = H_{kjent} + B - F`, "høyde på nytt punkt"]],
