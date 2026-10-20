@@ -306,7 +306,7 @@ $E = 1000\cdot 0{,}02 = 20$ kg CO₂e.`, "The same electricity use can give ten 
 
 // ---------- ELFT2400 3: Stegrespons og førsteordens systemer ----------
 TOPICS("ELFT2400", 3, [
-{ id: "forsteordens",
+{ id: "forsteordens", chk: ["2*(1-exp(-5/5)) ≈ 1.26"],
   fig: `<svg viewBox="0 0 240 140"><path d="M30 120H220M30 120V15" class="dim"/><path d="M30 30H215" class="dash"/><path d="M30 120C60 70 90 45 130 36S190 31 215 30" class="a"/><path d="M78 120V63" class="dash"/><circle cx="78" cy="63" r="3" class="af"/><text x="72" y="133">τ</text><text x="11" y="34">K</text></svg>`,
   nb: O("Førsteordens system", "Et førsteordens system reagerer på et sprang med en jevn, eksponentiell overgang uten oversving. Eksempler er temperaturen i en tank eller spenningen over en kondensator. To tall beskriver det: forsterkningen K og tidskonstanten τ.",
     [[R`G(s) = \frac{K}{\tau s + 1}`, "overføringsfunksjon"], [R`y(t) = K\left(1 - e^{-t/\tau}\right)`, "respons på et enhetssprang"]],
@@ -457,7 +457,7 @@ $f'(x) = 12x^3 - 2$.`, "The constant term (here 7) always disappears when you di
 
 // ---------- GMAT 8: Statistikk og sannsynlighet ----------
 TOPICS("GMAT", 8, [
-{ id: "gjennomsnitt-median", sim: "meanmed",
+{ id: "gjennomsnitt-median", chk: ["(2+3+3+4+8)/5 ≈ 4"], sim: "meanmed",
   // Fem venner med 2, 3, 3, 4 og 8 hundrelapper: gjennomsnittet er nivået om alt fordeles likt, medianen er den midterste søylen.
   art: () => { const v = [2, 3, 3, 4, 8], X = i => 30 + i * 40, Y = n => 118 - n * 12, en = LANG === "en";
     // tallene står inne i søylene, så den stiplede gjennomsnittslinjen aldri krysser tekst

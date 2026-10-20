@@ -300,7 +300,7 @@ TOPICS("GMAT", 3, [
 
 // Enhet 4: Eksponential- og logaritmefunksjoner
 TOPICS("GMAT", 4, [
-{ id: "eksponentialfunksjon",
+{ id: "eksponentialfunksjon", chk: ["200*1.05^3 ≈ 231.5"],
   nb: { t: "Eksponentialfunksjon",
     intro: "En eksponentialfunksjon $f(x)=a\\cdot b^x$ ganger med samme faktor $b$ for hver økning av $x$ med 1, i motsetning til en lineær funksjon som legger til det samme. I fysikk og kalkulus brukes ofte grunntallet $e$.",
     f: [["f(x) = a\\cdot b^x", "eksponentialfunksjon, $a=f(0)$"], ["N(t) = N_0 e^{kt}", "med naturlig grunntall e"]],
@@ -357,7 +357,7 @@ TOPICS("GMAT", 5, [
     legend: [["v", "acute angle", "°"], ["c", "hypotenuse (longest side)", ""]],
     ex: "A ramp is 4.0 m long and rises 0.80 m: $\\sin v = \\frac{0.80}{4.0}=0.20 \\Rightarrow v\\approx 11.5^\\circ$, and the ground length is $\\sqrt{4.0^2-0.80^2}\\approx 3.92$ m.",
     tip: "Check that the calculator is in DEG mode when the angle is in degrees, otherwise the answer is completely wrong." } },
-{ id: "enhetssirkel", tg: "learn", // knapp til «Steg for steg» i enhetssirkelen (trig.js)
+{ id: "enhetssirkel", chk: ["210*pi/180 ≈ 3.67", "sin(210*deg) ≈ -0.5"], tg: "learn", // knapp til «Steg for steg» i enhetssirkelen (trig.js)
   fig: `<svg viewBox="0 0 240 140"><path d="M60 75H180M120 15V135" class="dim"/><circle cx="120" cy="75" r="50" class="d"/><path d="M120 75L156 40" class="a"/><path d="M156 40l-16 3 3 15z" class="af"/><path d="M140 75a20 20 0 0 1-6-17" class="t"/><text x="145" y="72">v</text><text x="160" y="36">P</text></svg>`,
   nb: { t: "Enhetssirkelen og radianer",
     intro: "Enhetssirkelen definerer sinus og cosinus for alle vinkler, ikke bare de spisse: punktet med vinkel $v$ fra positiv x-akse har koordinatene $(\\cos v,\\sin v)$. Radianer er en alternativ måte å måle vinkler på, der en hel omdreining er $2\\pi$.",
@@ -371,7 +371,7 @@ TOPICS("GMAT", 5, [
     legend: [["v", "angle", "rad or °"], ["P", "the point $(\\cos v,\\sin v)$ on the circle", ""]],
     ex: "$210^\\circ = 210\\cdot\\frac{\\pi}{180} = \\frac{7\\pi}{6}\\approx 3.67$ rad, and $\\sin 210^\\circ=-0.5$.",
     tip: "The sign of $\\sin$ and $\\cos$ depends on which quadrant the point $P$ is in." } },
-{ id: "sinus-cosinussetning",
+{ id: "sinus-cosinussetning", chk: ["sqrt(3^2+5^2-2*3*5*cos(60*deg)) ≈ 4.36"],
   fig: `<svg viewBox="0 0 240 140"><path d="M40 120L190 120L140 30Z" class="d"/><text x="105" y="132">c</text><text x="170" y="79">a</text><text x="70" y="70">b</text><text x="30" y="128">A</text><text x="195" y="128">B</text><text x="140" y="22">C</text></svg>`,
   nb: { t: "Sinus- og cosinussetningen",
     intro: "I en vilkårlig trekant, uten rett vinkel, brukes sinussetningen når vi kjenner en side og vinkelen rett overfor den, og cosinussetningen når vi kjenner to sider og vinkelen mellom dem.",
@@ -597,7 +597,7 @@ TOPICS("MEK2000", 0, [
     legend: [["A^T", "transpose of A (rows and columns swapped)", ""]],
     ex: "$A=\\begin{pmatrix}-3&-2\\\\3&-3\\end{pmatrix}$, $B=\\begin{pmatrix}-2&-2\\\\-1&0\\end{pmatrix}$: $(AB)_{11}=(-3)(-2)+(-2)(-1)=8$.",
     tip: "$AB\\neq BA$ in general - the order of the matrices matters, just like the order of rotations." } },
-{ id: "invers-matrise",
+{ id: "invers-matrise", chk: ["2*4-1*3 ≈ 5"],
   nb: { t: "Invers matrise",
     intro: "Den inverse matrisen $A^{-1}$ oppfyller $AA^{-1}=I$, og finnes bare når $\\det A\\neq0$. Den fungerer omtrent som «å dele på en matrise»: den brukes til å løse $A\\vec x=\\vec b$ direkte som $\\vec x=A^{-1}\\vec b$. For en 2×2-matrise finnes det en enkel formel.",
     f: [["A^{-1} = \\frac{1}{\\det A}\\begin{pmatrix}d&-b\\\\-c&a\\end{pmatrix}", "invers av $A=\\begin{pmatrix}a&b\\\\c&d\\end{pmatrix}$"]],
