@@ -1188,8 +1188,8 @@ GEN("MATS1600", 1,
    return [T(`Et hull er merket Ø${nom} med øvre avvik $+${up}$ µm og nedre avvik ${loMath} µm. Hva er det ${which === "max" ? "største" : "minste"} tillatte hullmålet?`,
              `A hole is marked Ø${nom} with an upper deviation of $+${up}$ µm and a lower deviation of ${loMath} µm. What is the ${which === "max" ? "largest" : "smallest"} allowable hole size?`),
      { n: val, tol: 0.001, u: "mm" },
-     T(`${which === "max" ? "Største" : "Minste"} mål = nominelt mål + ${which === "max" ? "øvre" : "nedre"} avvik: $${nom}\\text{ mm} ${dev >= 0 ? "+" : "-"} ${Math.abs(dev)}\\text{ µm} = ${mf(val, 3)}\\text{ mm}$ (1 µm = 0,001 mm).`,
-       `${which === "max" ? "Largest" : "Smallest"} size = nominal size + ${which === "max" ? "upper" : "lower"} deviation: $${nom}\\text{ mm} ${dev >= 0 ? "+" : "-"} ${Math.abs(dev)}\\text{ µm} = ${mf(val, 3)}\\text{ mm}$ (1 µm = 0.001 mm).`)]; },
+     T(`${which === "max" ? "Største" : "Minste"} mål = nominelt mål + ${which === "max" ? "øvre" : "nedre"} avvik: $${nom}\\text{ mm} ${dev >= 0 ? "+" : "-"} ${Math.abs(dev)}\\,\\mu\\text{m} = ${mf(val, 3)}\\text{ mm}$ (1 µm = 0,001 mm).`,
+       `${which === "max" ? "Largest" : "Smallest"} size = nominal size + ${which === "max" ? "upper" : "lower"} deviation: $${nom}\\text{ mm} ${dev >= 0 ? "+" : "-"} ${Math.abs(dev)}\\,\\mu\\text{m} = ${mf(val, 3)}\\text{ mm}$ (1 µm = 0.001 mm).`)]; },
  // middels: største klaring
  () => { const holeU = R.i(15, 60), shaftL = -R.i(5, 40); const maxC = holeU - shaftL; const shaftLMath = "$" + shaftL + "$";
    return [T(`Et hull har øvre avvik $+${holeU}$ µm (nedre avvik $0$), og en aksel har nedre avvik ${shaftLMath} µm. Hva er den største klaringen?`,
