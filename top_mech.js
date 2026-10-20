@@ -83,6 +83,8 @@ TOPICS("MAPE1300", 2, [
 { id: "newtons-2-lov",
   fig: `<svg viewBox="0 0 240 140"><rect x="90" y="60" width="60" height="40" class="b"/><path d="M150 80H210" class="a"/><path d="M210 80l-14-6v12z" class="af"/><path d="M90 80H35" class="dash"/><text x="215" y="76">F</text><text x="30" y="76">f</text><path d="M120 60V15" class="dim"/><text x="105" y="30">a</text></svg>`,
   nb: { t: "Newtons 2. lov",
+    seoT: "Newtons 2. lov (ΣF = m·a) – forklaring og regneeksempel",
+    seoD: "Newtons andre lov: summen av kreftene er masse ganger akselerasjon. Formel, symboler og et utregnet eksempel med friksjon.",
     intro: "Newtons 2. lov kobler kreftene som virker på et legeme til akselerasjonen det får. Summen av alle kreftene, funnet fra et frilegemediagram, er lik masse ganger akselerasjon. Loven gjelder i hver retning for seg.",
     f: [["\\sum F = ma", "Newtons 2. lov"]],
     legend: [["F", "kraft", "N"], ["m", "masse", "kg"], ["a", "akselerasjon", "m/s²"]],

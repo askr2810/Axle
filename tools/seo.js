@@ -341,7 +341,7 @@ ${drv ? `<h2>${L === 'nb' ? 'Spørsmål og svar' : 'Questions and answers'}</h2>
 // ---------- emneside ----------
 function topicPage(c, u, tp, prev, next){
   const x = tpX(tp), nm = name(c), cu = courseUrl(c);
-  const desc = plain(x.intro).slice(0, 155);
+  const desc = x.seoD || plain(x.intro).slice(0, 155); // seoT/seoD: egen tittel/beskrivelse for søk der standarden ikke treffer
   const lc = s => L === 'nb' ? s.toLowerCase() : s.charAt(0).toLowerCase() + s.slice(1);
   const body = `<h1>${esc(x.t)}</h1>
 ${tp.art ? `<div class="tpart">${tp.art()}</div>` : tp.fig ? `<div class="fig" aria-hidden="true">${tp.fig}</div>` : ''}
@@ -358,7 +358,7 @@ ${x.tip ? `<div class="note">${inline(x.tip)}</div>` : ''}
 <p>${X().partOf} <a href="${cu}#${L === 'nb' ? 'del' : 'part'}-${u + 1}">${esc(nm)}: ${esc(unitName(c, u))}</a>.</p>`;
   const jsonld = { '@context': 'https://schema.org', '@type': 'LearningResource', name: x.t, description: desc, inLanguage: L, isAccessibleForFree: true,
     learningResourceType: 'Concept overview', url: `${SITE}${topicUrl(c, tp)}`, isPartOf: { '@type': 'Course', name: nm, url: `${SITE}${cu}` } };
-  return page({ url: topicUrl(c, tp), alt: topicUrl(c, tp, other()), title: X().tpTitle(x.t, nm), desc, body, jsonld, crumbs: `<a href="${hubUrl()}">${X().all}</a> › <a href="${cu}">${esc(nm)}</a> › ${esc(x.t)}` });
+  return page({ url: topicUrl(c, tp), alt: topicUrl(c, tp, other()), title: x.seoT ? `${x.seoT} | Axle` : X().tpTitle(x.t, nm), desc, body, jsonld, crumbs: `<a href="${hubUrl()}">${X().all}</a> › <a href="${cu}">${esc(nm)}</a> › ${esc(x.t)}` });
 }
 // ---------- oversikt ----------
 function hubPage(){
