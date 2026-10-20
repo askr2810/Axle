@@ -34,7 +34,7 @@ TOPICS("ELPE1300", 0, [
     legend: [["R_{tot}", "total resistance", "\\Omega"], ["R_1,\\ R_2", "individual resistors", "\\Omega"], ["U", "voltage across the whole combination", "V"]],
     ex: "$R_1=12$ Ω and $R_2=6$ Ω in parallel:\n$1/R_{tot}=1/12+1/6=1/4$, so $R_{tot}=4$ Ω.",
     tip: "In series the current is shared, in parallel the voltage is shared – identify which quantity is common before combining." } },
-{ id: "kirchhoff",
+{ id: "kirchhoff", chk: ["5+3 ≈ 8"],
   art: () => FL.circuit({ kind: "parallel" }),
   fig: `<svg viewBox="0 0 240 140"><circle cx="120" cy="70" r="3" class="d"/><path d="M30 40L118 68" class="a"/><path d="M118 68l-16-2 6 14z" class="af"/><path d="M30 100L118 72" class="a"/><path d="M118 72l-16 2 6-14z" class="af"/><path d="M122 70H210" class="a"/><path d="M210 70l-14-6v12z" class="af"/><text x="20" y="35">I<tspan dy="4" font-size="10">1</tspan></text><text x="19" y="111">I<tspan dy="4" font-size="10">2</tspan></text><text x="195" y="55">I<tspan dy="4" font-size="10">3</tspan></text></svg>`,
   nb: { t: "Kirchhoffs lover",
@@ -53,7 +53,7 @@ TOPICS("ELPE1300", 0, [
 
 // ================= ELPE1300 – enhet 1: Kondensator og spole =================
 TOPICS("ELPE1300", 1, [
-{ id: "kondensator",
+{ id: "kondensator", chk: ["220e-6*15*1000 ≈ 3.3"],
   fig: `<svg viewBox="0 0 240 140"><path d="M40 30H200M200 30V62M200 78V110M200 110H40M40 88V110M40 30V52" class="d"/><circle cx="40" cy="70" r="18" class="d"/><path d="M185 62H215M185 78H215" class="d"/><text x="6" y="75">U</text><text x="222" y="74">C</text></svg>`,
   nb: { t: "Kondensator",
     intro: "En kondensator lagrer energi i et elektrisk felt mellom to plater. Ladningen den lagrer er proporsjonal med spenningen over den, og den «liker» konstant spenning – strømmen gjennom den avhenger av hvor fort spenningen endrer seg. I en likestrømskrets i stasjonær tilstand oppfører den seg som et brudd.",
@@ -81,7 +81,7 @@ TOPICS("ELPE1300", 1, [
     legend: [["L", "inductance", "H"], ["I", "current through the inductor", "A"], ["u", "voltage across the inductor", "V"], ["E", "stored energy", "J"]],
     ex: "$L=10$ mH carries $I=2$ A:\n$E=\\tfrac12LI^2=\\tfrac12\\cdot0.01\\cdot4=0.02$ J.",
     tip: "The current through an inductor cannot jump instantaneously – only the voltage can." } },
-{ id: "rc-tidskonstant",
+{ id: "rc-tidskonstant", chk: ["2000*100e-6 ≈ 0.2","(1-exp(-1))*10 ≈ 6.3"],
   art: () => FL.rc({ type: "charge" }),
   fig: `<svg viewBox="0 0 240 140"><path d="M30 120H220M30 120V20" class="dim"/><path d="M30 110C70 40 120 20 210 20" class="d"/><path d="M30 20H210" class="dash"/><path d="M95 120V70M95 70H30" class="dash"/><text x="212" y="16">U</text><text x="215" y="132">t</text><text x="10" y="70">u</text><text x="90" y="132">τ</text></svg>`,
   nb: { t: "RC-tidskonstant",
@@ -100,7 +100,7 @@ TOPICS("ELPE1300", 1, [
 
 // ================= ELPE1300 – enhet 2: Vekselstrøm =================
 TOPICS("ELPE1300", 2, [
-{ id: "sinus-rms",
+{ id: "sinus-rms", chk: ["325/sqrt(2) ≈ 230"],
   fig: `<svg viewBox="0 0 240 140"><path d="M20 70H220M20 120V20" class="dim"/><path d="M20 70C45 20 65 20 90 70S135 120 160 70S205 20 220 45" class="d"/><text x="222" y="45">t</text><text x="8" y="20">u</text><text x="30" y="34">U<tspan dy="4" font-size="10">p</tspan></text></svg>`,
   nb: { t: "Sinus og effektivverdi",
     intro: "En vekselspenning svinger sinusformet i tid, med en toppverdi og en vinkelfrekvens som avhenger av frekvensen. Fordi den skifter fortegn, bruker vi effektivverdien (RMS) til å angi en «jevn» spenning som gir samme effekt som en tilsvarende likespenning. Nettspenningen på 230 V er alltid en RMS-verdi, ikke toppverdien.",
@@ -114,7 +114,7 @@ TOPICS("ELPE1300", 2, [
     legend: [["U_p", "peak value", "V"], ["\\omega", "angular frequency", "rad/s"], ["f", "frequency", "Hz"], ["U", "RMS value", "V"]],
     ex: "Peak value $U_p=325$ V:\n$U=325/\\sqrt2\\approx230$ V, i.e. the usual mains voltage.",
     tip: "230 V is an RMS value – the peak of the mains voltage is actually about 325 V." } },
-{ id: "reaktans-impedans",
+{ id: "reaktans-impedans", chk: ["sqrt(30^2+31.4^2) ≈ 43.4"],
   fig: `<svg viewBox="0 0 240 140"><path d="M40 110H180M40 110V40" class="d"/><path d="M40 40L180 110" class="a"/><path d="M40 110h14v-14h-14z" class="dim"/><text x="100" y="128">R</text><text x="20" y="78">X</text><text x="106" y="64">Z</text></svg>`,
   nb: { t: "Reaktans og impedans",
     intro: "I vekselstrøm får kondensatorer og spoler en frekvensavhengig «motstand» kalt reaktans. Reaktansen til en spole øker med frekvensen, mens reaktansen til en kondensator avtar. Sammen med den vanlige motstanden danner reaktansen impedansen, som bestemmer både strømmens størrelse og faseforskyvning.",
@@ -128,7 +128,7 @@ TOPICS("ELPE1300", 2, [
     legend: [["X_L,\\ X_C", "reactance (inductor, capacitor)", "\\Omega"], ["Z", "impedance", "\\Omega"], ["\\varphi", "phase angle", "°"]],
     ex: "$R=30$ Ω, $X_L=31.4$ Ω:\n$Z=\\sqrt{30^2+31.4^2}\\approx43.4$ Ω.",
     tip: "$X_C$ decreases as frequency rises, while $X_L$ increases – they behave oppositely." } },
-{ id: "effekttrekant",
+{ id: "effekttrekant", chk: ["230*5.29*0.69 ≈ 840"],
   fig: `<svg viewBox="0 0 240 140"><path d="M40 110H180M40 110V40" class="d"/><path d="M40 40L180 110" class="a"/><path d="M40 110h14v-14h-14z" class="dim"/><text x="100" y="128">P</text><text x="20" y="78">Q</text><text x="106" y="64">S</text></svg>`,
   nb: { t: "Aktiv, reaktiv og tilsynelatende effekt",
     intro: "I en vekselstrømskrets skiller vi mellom tre typer effekt: den aktive effekten som gjør nyttig arbeid, den reaktive effekten som pendler fram og tilbake i reaktive komponenter, og den tilsynelatende effekten kilden faktisk må levere. Effektfaktoren forteller hvor stor andel av den tilsynelatende effekten som er nyttig.",
@@ -146,7 +146,7 @@ TOPICS("ELPE1300", 2, [
 
 // ================= ELPE1300 – enhet 3: Nettverksanalyse =================
 TOPICS("ELPE1300", 3, [
-{ id: "superposisjon",
+{ id: "superposisjon", chk: ["1.2+0.8 ≈ 2"],
   fig: `<svg viewBox="0 0 240 140"><path d="M40 30H200M40 110H200M40 30V54M40 86V110M120 30V55M120 85V110M200 30V54M200 86V110" class="d"/><circle cx="40" cy="70" r="16" class="d"/><rect x="105" y="55" width="30" height="30" class="d"/><circle cx="200" cy="70" r="16" class="d"/><path d="M200 60V80" class="a"/><path d="M200 80l-5-9h10z" class="af"/><text x="7" y="75">U</text><text x="140" y="75">R</text><text x="223" y="75">I</text></svg>`,
   nb: { t: "Superposisjon",
     intro: "I en lineær krets med flere uavhengige kilder kan du finne strømmen eller spenningen i en gren ved å legge sammen bidraget fra hver kilde alene. Da slår du av alle de andre kildene: en spenningskilde kortsluttes til 0 V, og en strømkilde brytes til 0 A. Metoden gjelder aldri direkte for effekt, siden effekt er kvadratisk i strøm og spenning.",
@@ -160,7 +160,7 @@ TOPICS("ELPE1300", 3, [
     legend: [["I'", "contribution from source 1 (other sources off)", "A"], ["I''", "contribution from source 2 (other sources off)", "A"]],
     ex: "$U_1=12$ V gives $I'=1.2$ A, $I_2=2$ A gives $I''=0.8$ A:\n$I=I'+I''=1.2+0.8=2$ A.",
     tip: "Turn off sources by shorting voltage sources and opening current sources – never the other way around." } },
-{ id: "thevenin",
+{ id: "thevenin", chk: ["10/2 ≈ 5"],
   art: () => FL.thevenin(),
   fig: `<svg viewBox="0 0 240 140"><rect x="20" y="30" width="70" height="60" class="d"/><path d="M55 90V110M40 110h30" class="d"/><circle cx="40" cy="110" r="3" class="d"/><circle cx="70" cy="110" r="3" class="d"/><path d="M100 65H140" class="a"/><path d="M140 65l-10-5v10z" class="af"/><circle cx="170" cy="60" r="14" class="d"/><rect x="185" y="52" width="26" height="16" class="d"/><path d="M170 74V110M211 60H225V110M170 110H225" class="d"/><circle cx="170" cy="110" r="3" class="d"/><circle cx="225" cy="110" r="3" class="d"/><text x="35" y="60">?</text><text x="132" y="95">U<tspan dy="4" font-size="10">th</tspan></text><text x="189" y="42">R<tspan dy="4" font-size="10">th</tspan></text></svg>`,
   nb: { t: "Thévenin-ekvivalent",
@@ -175,7 +175,7 @@ TOPICS("ELPE1300", 3, [
     legend: [["U_{th}", "Thévenin voltage", "V"], ["R_{th}", "Thévenin resistance", "\\Omega"], ["U_{\\text{open}}", "open-circuit voltage", "V"], ["I_{\\text{short}}", "short-circuit current", "A"]],
     ex: "Open circuit $U_{\\text{open}}=10$ V, short circuit $I_{\\text{short}}=2$ A:\n$R_{th}=10/2=5$ Ω.",
     tip: "Find $R_{th}$ with the sources turned off, or from the ratio of the open-circuit voltage to the short-circuit current." } },
-{ id: "maks-effekt",
+{ id: "maks-effekt", chk: ["10^2/(4*5) ≈ 5"],
   art: () => FL.thevenin(),
   fig: `<svg viewBox="0 0 240 140"><path d="M30 120H220M30 120V20" class="dim"/><path d="M30 115C70 40 110 25 130 25S190 60 215 115" class="d"/><path d="M130 25V120M30 120H130" class="dash"/><text x="222" y="45">P</text><text x="215" y="132">R<tspan dy="4" font-size="10">L</tspan></text><text x="122" y="132">R<tspan dy="4" font-size="10">th</tspan></text></svg>`,
   nb: { t: "Maksimal effektoverføring",
@@ -194,7 +194,7 @@ TOPICS("ELPE1300", 3, [
 
 // ================= ELEK – enhet 0: Dioder og transistorer =================
 TOPICS("ELEK", 0, [
-{ id: "diode-likeretter",
+{ id: "diode-likeretter", chk: ["(5-0.7)/330*1000 ≈ 13"],
   fig: `<svg viewBox="0 0 240 140"><path d="M40 30H200M200 30V55M200 85V110M200 110H40M40 88V110M40 30V52" class="d"/><circle cx="40" cy="70" r="18" class="d"/><rect x="185" y="55" width="30" height="30" class="d"/><text x="6" y="75">U</text><text x="221" y="75">D</text></svg>`,
   nb: { t: "Diode og likeretter",
     intro: "En diode slipper strøm gjennom i én retning, med et nesten konstant spenningsfall når den leder. En silisiumdiode har typisk et spenningsfall på omtrent 0,7 V uavhengig av strømmen. En brolikeretter bruker fire dioder til å gjøre begge halvperiodene av en vekselspenning om til samme polaritet.",
@@ -208,7 +208,7 @@ TOPICS("ELEK", 0, [
     legend: [["V_D", "voltage drop across the diode", "V"], ["V_S", "source voltage", "V"], ["R", "series resistor", "\\Omega"]],
     ex: "$V_S=5$ V, $R=330$ Ω:\n$I=(5-0.7)/330\\approx13$ mA.",
     tip: "Reverse bias means (almost) no current – do not mix up forward and reverse bias." } },
-{ id: "zenerdiode",
+{ id: "zenerdiode", chk: ["(12-5.6)/0.02 ≈ 320"],
   fig: `<svg viewBox="0 0 240 140"><path d="M40 30H200M200 30V55M200 85V110M200 110H40M40 88V110M40 30V52" class="d"/><circle cx="40" cy="70" r="18" class="d"/><rect x="185" y="55" width="30" height="30" class="d"/><text x="6" y="75">U</text><text x="221" y="75">Z</text></svg>`,
   nb: { t: "Zenerdiode",
     intro: "En zenerdiode kobles bakvendt, i sperreretning, og holder en fast spenning $V_Z$ over seg selv når den leder i denne retningen. Den brukes ofte som en enkel spenningsregulator: en seriemotstand tar opp resten av spenningen fra kilden, og strømmen gjennom motstanden setter zenerstrømmen.",
@@ -222,7 +222,7 @@ TOPICS("ELEK", 0, [
     legend: [["V_Z", "zener voltage", "V"], ["V_{in}", "input voltage", "V"], ["I_Z", "desired zener current", "A"], ["R_S", "series resistor", "\\Omega"]],
     ex: "$V_{in}=12$ V, $V_Z=5.6$ V, $I_Z=20$ mA:\n$R_S=(12-5.6)/0.02=320$ Ω.",
     tip: "A zener diode is connected in reverse bias to regulate voltage – the opposite of an ordinary diode." } },
-{ id: "bjt-transistor",
+{ id: "bjt-transistor", chk: ["100*20 ≈ 2000"],
   fig: `<svg viewBox="0 0 240 140"><rect x="90" y="40" width="50" height="60" class="d"/><path d="M90 50H50M90 90H50M140 70H190" class="d"/><text x="30" y="54">B</text><text x="30" y="94">E</text><text x="195" y="74">C</text></svg>`,
   nb: { t: "BJT-transistor",
     intro: "En BJT er en strømstyrt transistor: en liten basestrøm styrer en mye større kollektorstrøm. I aktivt område er kollektorstrømmen proporsjonal med basestrømmen gjennom forsterkningen β. I metning (brukt som svitsj) er $V_{CE}$ svært lav, og kollektorstrømmen bestemmes da av resten av kretsen, ikke lenger av β.",
@@ -255,7 +255,7 @@ TOPICS("ELEK", 1, [
     legend: [["V_+,\\ V_-", "voltage on the + and - input respectively", "V"], ["I_+,\\ I_-", "current into the inputs", "A"]],
     ex: "Non-inverting amplifier with $V_+=2$ V:\nThe virtual short gives $V_-=2$ V as well.",
     tip: "The two rules only hold with negative feedback – without it the output saturates." } },
-{ id: "inverterende-forsterker",
+{ id: "inverterende-forsterker", chk: ["-10/1*0.2 ≈ -2"],
   art: () => FL.opamp({ type: "inv", gain: 3 }),
   fig: `<svg viewBox="0 0 240 140"><path d="M90 35L90 105L190 70Z" class="d"/><path d="M20 50H90M190 70H220" class="d"/><rect x="35" y="42" width="35" height="16" class="d"/><path d="M90 30H160V50H190" class="d"/><rect x="115" y="22" width="35" height="16" class="d"/><path d="M90 90H60V110H110" class="d"/><text x="48" y="40">R<tspan dy="4" font-size="10">i</tspan></text><text x="127" y="20">R<tspan dy="4" font-size="10">f</tspan></text></svg>`,
   nb: { t: "Inverterende forsterker",
@@ -270,7 +270,7 @@ TOPICS("ELEK", 1, [
     legend: [["R_{in}", "input resistor", "\\Omega"], ["R_f", "feedback resistor", "\\Omega"], ["A", "voltage gain", ""]],
     ex: "$R_{in}=1$ kΩ, $R_f=10$ kΩ, $V_{in}=0.2$ V:\n$V_o=-10\\cdot0.2=-2$ V.",
     tip: "The minus sign means a 180° phase shift – do not forget it when computing the output." } },
-{ id: "ikke-inverterende-forsterker",
+{ id: "ikke-inverterende-forsterker", chk: ["1+22/2.2 ≈ 11"],
   art: () => FL.opamp({ type: "noninv", gain: 3 }),
   fig: `<svg viewBox="0 0 240 140"><path d="M90 35L90 105L190 70Z" class="d"/><path d="M20 90H90M190 70H220" class="d"/><path d="M90 30H160V50H190" class="d"/><rect x="115" y="22" width="35" height="16" class="d"/><path d="M90 50H60V110H90" class="d"/><rect x="45" y="102" width="30" height="16" class="d"/><text x="127" y="20">R<tspan dy="4" font-size="10">f</tspan></text><text x="50" y="117">R<tspan dy="4" font-size="10">g</tspan></text></svg>`,
   nb: { t: "Ikke-inverterende forsterker",
@@ -289,7 +289,7 @@ TOPICS("ELEK", 1, [
 
 // ================= ELEK – enhet 2: Filtre og signaler =================
 TOPICS("ELEK", 2, [
-{ id: "rc-lavpass",
+{ id: "rc-lavpass", chk: ["1/(2*pi*1e4*1e-7) ≈ 159"],
   art: () => FL.rc({ type: "low" }),
   fig: `<svg viewBox="0 0 240 140"><path d="M20 50H70" class="d"/><rect x="70" y="42" width="40" height="16" class="d"/><path d="M110 50H190" class="d"/><path d="M150 50V80" class="d"/><path d="M135 80H165M135 95H165" class="d"/><path d="M150 95V110M20 110H190M20 50V110M190 50V110" class="d"/><text x="80" y="38">R</text><text x="172" y="70">C</text><text x="192" y="54">U<tspan dy="4" font-size="10">o</tspan></text></svg>`,
   nb: { t: "RC-lavpassfilter",
@@ -304,7 +304,7 @@ TOPICS("ELEK", 2, [
     legend: [["R", "resistance", "\\Omega"], ["C", "capacitance", "F"], ["f_c", "corner frequency", "Hz"]],
     ex: "$R=10$ kΩ, $C=100$ nF:\n$f_c=1/(2\\pi\\cdot10^4\\cdot10^{-7})\\approx159$ Hz.",
     tip: "At $f_c$ the gain is $1/\\sqrt2\\approx0.707$, i.e. $-3$ dB, regardless of the values of R and C." } },
-{ id: "rc-hoypass",
+{ id: "rc-hoypass", chk: ["1/(2*pi*1e3*1e-6) ≈ 159"],
   art: () => FL.rc({ type: "high" }),
   fig: `<svg viewBox="0 0 240 140"><path d="M20 50H62M78 50H190" class="d"/><path d="M65 35V65M75 35V65" class="d"/><path d="M150 50V80" class="d"/><rect x="135" y="80" width="30" height="20" class="d"/><path d="M150 100V110M20 110H190M20 50V110M190 50V110" class="d"/><text x="63" y="28">C</text><text x="170" y="93">R</text><text x="192" y="54">U<tspan dy="4" font-size="10">o</tspan></text></svg>`,
   nb: { t: "RC-høypassfilter",
@@ -319,7 +319,7 @@ TOPICS("ELEK", 2, [
     legend: [["R", "resistance", "\\Omega"], ["C", "capacitance", "F"], ["f_c", "corner frequency", "Hz"]],
     ex: "$R=1$ kΩ, $C=1$ µF:\n$f_c=1/(2\\pi\\cdot10^3\\cdot10^{-6})\\approx159$ Hz.",
     tip: "High-pass and low-pass share the same corner-frequency formula – it is the placement of R and C that decides the type." } },
-{ id: "db-skala",
+{ id: "db-skala", chk: ["20*log10(0.5) ≈ -6"],
   nb: { t: "Desibel (dB)",
     intro: "Desibel er en logaritmisk måte å angi forholdet mellom to spenninger (eller andre størrelser) på, og brukes fordi forsterkning og demping i kaskadekoblede systemer da bare kan legges sammen i stedet for å multipliseres. En halvering av amplituden tilsvarer omtrent $-6$ dB.",
     f: [["|H|_{dB}=20\\log_{10}|H|", "desibel fra et spenningsforhold"]],
@@ -336,7 +336,7 @@ TOPICS("ELEK", 2, [
 
 // ================= ELFT2500 – enhet 0: Tallsystemer og digital logikk =================
 TOPICS("ELFT2500", 0, [
-{ id: "tallsystemer",
+{ id: "tallsystemer", chk: ["1*16+15 ≈ 31"],
   nb: { t: "Tallsystemer",
     intro: "Datamaskiner regner internt med binære tall (grunntall 2), men heksadesimale tall (grunntall 16) brukes ofte som en kompakt stenografi for binærtall, siden to heksadesimale siffer alltid utgjør nøyaktig én byte. Et siffer på plass $k$ har vekt $b^k$, der $b$ er grunntallet.",
     f: [["\\text{verdi}=\\sum_k d_k\\cdot b^k", "posisjonssystem: hvert siffer d_k vektes med b^k"]],
@@ -349,7 +349,7 @@ TOPICS("ELFT2500", 0, [
     legend: [["b", "base (2, 16 or 10)", ""], ["d_k", "digit at position k", ""]],
     ex: "$\\texttt{0x1F}$ in decimal:\n$1\\cdot16+15\\cdot1=31$.",
     tip: "Two hex digits are always exactly one byte – handy for reading memory addresses and color codes." } },
-{ id: "toerkomplement",
+{ id: "toerkomplement", chk: ["2^8-5 ≈ 251"],
   nb: { t: "Toerkomplement",
     intro: "Toerkomplement er standardmåten datamaskiner representerer negative heltall på i et fast antall bit. Det øverste bitet forteller fortegnet, og et negativt tall $-x$ representeres som det usignerte bitmønsteret til $2^n-x$. Dette gjør at addisjon fungerer likt for positive og negative tall, uten spesialtilfeller.",
     f: [["-x \\to 2^n-x", "bitmønster for et negativt tall i n-bits toerkomplement"], ["[-2^{n-1},\\ 2^{n-1}-1]", "verdiområde for et n-bits signert heltall"]],
@@ -379,7 +379,7 @@ TOPICS("ELFT2500", 0, [
 
 // ================= ELFT2500 – enhet 1: Mikrokontrollere =================
 TOPICS("ELFT2500", 1, [
-{ id: "gpio-pullup",
+{ id: "gpio-pullup", chk: ["3.3/10000*1000 ≈ 0.33"],
   fig: `<svg viewBox="0 0 240 140"><path d="M120 20V45" class="d"/><rect x="105" y="45" width="30" height="30" class="d"/><path d="M120 75V90" class="d"/><circle cx="120" cy="90" r="4" class="d"/><path d="M120 94V115M100 130L120 108L140 130" class="d"/><path d="M20 90H116" class="d"/><text x="112" y="15">V<tspan dy="4" font-size="10">cc</tspan></text><text x="121" y="60">R</text></svg>`,
   nb: { t: "Pull-up-motstand",
     intro: "En digital inngang som ikke er koblet til noe bestemt kan «flyte» og lese tilfeldige verdier. En pull-up-motstand trekker inngangen til et definert høyt nivå når ingenting annet driver den, for eksempel når en knapp er åpen. Når knappen trykkes inn, trekkes inngangen lav i stedet.",
@@ -393,7 +393,7 @@ TOPICS("ELFT2500", 1, [
     legend: [["V_{cc}", "supply voltage", "V"], ["R_{pu}", "pull-up resistor", "\\Omega"], ["I", "current through the resistor", "A"]],
     ex: "$V_{cc}=3.3$ V, $R_{pu}=10$ kΩ, switch closed:\n$I=3.3/10000=0.33$ mA.",
     tip: "Without a pull-up an open input floats and can read random values – always define the level." } },
-{ id: "pwm",
+{ id: "pwm", chk: ["0.25*5 ≈ 1.25"],
   fig: `<svg viewBox="0 0 240 140"><path d="M20 105H220M20 105V25" class="dim"/><path d="M20 105H40V35H90V105H110V35H160V105H180V35H220" class="d"/><text x="7" y="30">V</text><text x="222" y="110">t</text></svg>`,
   nb: { t: "PWM",
     intro: "Et PWM-signal svitsjer raskt mellom høy og lav spenning med en bestemt duty cycle, altså andelen av perioden signalet er høyt. Belastningen eller filteret etter signalet ser i praksis bare gjennomsnittsspenningen, som er proporsjonal med duty cyclen – dette brukes til å styre alt fra LED-lysstyrke til motorhastighet.",
@@ -407,7 +407,7 @@ TOPICS("ELFT2500", 1, [
     legend: [["D", "duty cycle (fraction of the period the signal is high)", ""], ["V_{high}", "voltage level when the signal is high", "V"], ["V_{avg}", "average voltage", "V"]],
     ex: "5 V PWM with 25% duty cycle:\n$V_{avg}=0.25\\cdot5=1.25$ V.",
     tip: "Duty cycle is the pulse length divided by the whole period, not by the time the signal is low." } },
-{ id: "seriell-kommunikasjon",
+{ id: "seriell-kommunikasjon", chk: ["1e6/8 ≈ 125000"],
   nb: { t: "Seriell kommunikasjon",
     intro: "UART, SPI og I²C er de vanligste seriellprotokollene mellom en mikrokontroller og eksterne enheter. UART er asynkron uten felles klokke og bruker start- og stoppbit; SPI er synkron med felles klokke og ingen start-/stoppbit; I²C bruker bare to linjer med åpne utganger og krever pull-up-motstander.",
     f: [["\\text{SPI byte/s}=\\dfrac{f_{SCK}}{8}", "gjennomstrømning for SPI (ingen start-/stoppbit)"]],
@@ -452,7 +452,7 @@ TOPICS("ELFT2500", 2, [
     legend: [["f_s", "sampling frequency", "Hz"], ["f_{max}", "highest frequency component in the signal", "Hz"]],
     ex: "Signal up to $1$ kHz:\nMinimum theoretical sampling frequency: $f_s>2\\cdot1=2$ kHz.",
     tip: "Filter out everything above $f_s/2$ *before* sampling – aliasing cannot be removed afterward." } },
-{ id: "wheatstone-bro",
+{ id: "wheatstone-bro", chk: ["2*0.001*120 ≈ 0.24"],
   art: () => FL.bridge(),
   fig: `<svg viewBox="0 0 240 140"><path d="M120 20L200 70L120 120L40 70Z" class="d"/><rect x="65" y="35" width="30" height="14" class="d"/><rect x="145" y="35" width="30" height="14" class="d"/><rect x="65" y="91" width="30" height="14" class="d"/><rect x="145" y="91" width="30" height="14" class="d"/><path d="M120 20V10M120 130V120" class="d"/><path d="M40 70H20M200 70H220" class="d"/><text x="127" y="15">+</text><text x="127" y="136">−</text></svg>`,
   nb: { t: "Wheatstone-bro",
@@ -500,7 +500,7 @@ TOPICS("ELFT2400", 0, [
     legend: [["K", "static gain (final value)", ""], ["\\tau", "time constant", "s"]],
     ex: "$G(s)=\\dfrac{4}{2s+1}$:\nFinal value $G(0)=4$. Time constant $\\tau=2$ s.",
     tip: "The pole is at $s=-1/\\tau$ – read $\\tau$ directly from the denominator's form $\\tau s+1$." } },
-{ id: "andreordens-system",
+{ id: "andreordens-system", chk: ["exp(-pi*0.3/sqrt(1-0.3^2)) ≈ 0.37"],
   art: () => FL.step({ order: 2, zeta: 0.3 }),
   fig: `<svg viewBox="0 0 240 140"><path d="M30 120H220M30 120V20" class="dim"/><path d="M30 110C60 50 80 25 100 30S130 55 140 55S155 45 165 48S180 42 190 44S205 40 215 40" class="d"/><path d="M30 45H215" class="dash"/><text x="217" y="41">K</text><text x="215" y="132">t</text></svg>`,
   nb: { t: "Andreordens system og oversving",
@@ -519,7 +519,7 @@ TOPICS("ELFT2400", 0, [
 
 // ================= ELFT2400 – enhet 1: PID-regulering =================
 TOPICS("ELFT2400", 1, [
-{ id: "p-i-d-ledd",
+{ id: "p-i-d-ledd", chk: ["3/0.5 ≈ 6"],
   nb: { t: "P-, I- og D-leddet",
     intro: "En PID-regulator kombinerer tre virkninger som hver løser et problem: P-leddet gir en rask respons proporsjonal med avviket, I-leddet integrerer avviket over tid og fjerner stasjonært avvik, og D-leddet reagerer på hvor fort avviket endrer seg og demper oversving. God regulering handler om å balansere de tre mot hverandre.",
     f: [["C(s)=K_p+\\dfrac{K_i}{s}+K_ds", "ideell PID-regulator"]],
@@ -532,7 +532,7 @@ TOPICS("ELFT2400", 1, [
     legend: [["K_p", "proportional gain", ""], ["K_i", "integral gain", ""], ["K_d", "derivative gain", ""]],
     ex: "$K_p=3$, $T_i=0.5$ s:\n$K_i=K_p/T_i=3/0.5=6$.",
     tip: "More $K_p$ gives a faster response but more overshoot – add an I term instead to remove steady-state error." } },
-{ id: "lukket-sloyfe",
+{ id: "lukket-sloyfe", chk: ["10/(1+10) ≈ 0.909"],
   art: () => FL.loop(),
   fig: `<svg viewBox="0 0 240 140"><path d="M20 70H55" class="a"/><path d="M55 70l-10-5v10z" class="af"/><circle cx="65" cy="70" r="10" class="d"/><path d="M75 70H105" class="a"/><path d="M105 70l-10-5v10z" class="af"/><rect x="105" y="55" width="40" height="30" class="d"/><path d="M145 70H190" class="a"/><path d="M190 70l-10-5v10z" class="af"/><path d="M170 70V110H65V80" class="d"/><rect x="90" y="102" width="40" height="16" class="d"/><path d="M65 80l-5-8h10z" class="af"/><text x="60" y="62">+</text><text x="51" y="90">-</text><text x="120" y="75">G</text><text x="105" y="113">H</text></svg>`,
   nb: { t: "Lukket sløyfe",
@@ -565,7 +565,7 @@ TOPICS("ELFT2400", 1, [
 
 // ================= ELFT2400 – enhet 2: Frekvensanalyse =================
 TOPICS("ELFT2400", 2, [
-{ id: "bode-diagram",
+{ id: "bode-diagram", chk: ["20*log10(0.1) ≈ -20"],
   fig: `<svg viewBox="0 0 240 140"><path d="M20 100H220M20 100V20" class="dim"/><path d="M20 40H110" class="d"/><path d="M110 40L200 100" class="d"/><path d="M110 40V110M20 40H110" class="dash"/><text x="25" y="33">|G|</text><text x="105" y="128">ω<tspan dy="4" font-size="10">c</tspan></text></svg>`,
   nb: { t: "Bodediagram",
     intro: "Et Bodediagram viser hvordan forsterkningen (i desibel) og fasen til et system endrer seg med frekvensen, begge plottet mot en logaritmisk frekvensakse. En enkelt pol gir en asymptote som faller 20 dB per dekade over knekkfrekvensen, mens et nullpunkt gir en tilsvarende stigning. Dette lar deg lese av systemets oppførsel uten å regne responsen i tidsplanet.",
@@ -579,7 +579,7 @@ TOPICS("ELFT2400", 2, [
     legend: [["|G|_{dB}", "gain in decibels", "dB"], ["\\omega_c", "corner frequency", "rad/s"]],
     ex: "$|G|=0.1$:\n$|G|_{dB}=20\\log_{10}(0.1)=-20$ dB.",
     tip: "A single pole gives $-20$ dB/decade above the corner frequency; a zero gives $+20$ dB/decade." } },
-{ id: "fasemargin",
+{ id: "fasemargin", chk: ["180-120 ≈ 60"],
   fig: `<svg viewBox="0 0 240 140"><path d="M20 100H220M20 100V20" class="dim"/><path d="M20 40C80 40 100 60 140 90S190 110 220 115" class="d"/><path d="M20 115H220" class="dash"/><path d="M140 90V115" class="d"/><text x="8" y="40">φ</text><text x="145" y="128">ω<tspan dy="4" font-size="10">c</tspan></text></svg>`,
   nb: { t: "Fasemargin",
     intro: "Fasemarginen forteller hvor mye ekstra faseforsinkelse den lukkede sløyfen tåler ved gjennomskjæringsfrekvensen (der forsterkningen er 0 dB) før systemet blir ustabilt. En typisk målsetting er 45–60°. Jo mindre fasemargin, desto nærmere er systemet ustabilitet og desto mer svinger det gjerne før det stabiliserer seg.",
@@ -593,7 +593,7 @@ TOPICS("ELFT2400", 2, [
     legend: [["PM", "phase margin", "°"], ["\\omega_c", "crossover frequency (where |L|=1)", "rad/s"], ["L", "the loop gain GH", ""]],
     ex: "The phase at $\\omega_c$ is $-120^\\circ$:\n$PM=180^\\circ-120^\\circ=60^\\circ$.",
     tip: "The phase margin is read at 0 dB (the crossover frequency), not at $-180^\\circ$." } },
-{ id: "dodtid-fase",
+{ id: "dodtid-fase", chk: ["20*0.05 ≈ 1","20*0.05/deg ≈ 57.3"],
   nb: { t: "Dødtid og fase",
     intro: "En ren tidsforsinkelse (dødtid) i et system endrer aldri forsterkningen, men gir en faseforsinkelse som vokser lineært med frekvensen. Ved lave frekvenser er dette ubetydelig, men ved høyere frekvenser kan dødtiden alene spise opp store deler av fasemarginen og gjøre en ellers stabil sløyfe ustabil.",
     f: [["\\varphi=-\\omega T", "faseforsinkelse fra dødtid T, i radianer"]],
@@ -624,7 +624,7 @@ TOPICS("ELVE3610", 0, [
     legend: [["\\theta", "rotation angle", "°"], ["R", "rotation matrix", ""]],
     ex: "The point $(1,0)$ is rotated $90°$ counterclockwise:\n$(\\cos90^\\circ,\\sin90^\\circ)=(0,1)$.",
     tip: "$R^{-1}=R^T$ – transposing is a cheap way to find the opposite rotation." } },
-{ id: "homogen-transformasjon",
+{ id: "homogen-transformasjon", chk: ["cos(90*deg)*1+5 ≈ 5","sin(90*deg)*1 ≈ 1"],
   fig: `<svg viewBox="0 0 240 140"><path d="M40 110H90M40 110V60" class="dim"/><path d="M150 90H200M150 90V40" class="a"/><path d="M40 110L150 90" class="d"/><circle cx="185" cy="55" r="3" class="rf"/><text x="29" y="122">A</text><text x="155" y="35">B</text></svg>`,
   nb: { t: "Homogen transformasjon",
     intro: "En homogen transformasjonsmatrise kombinerer en rotasjon og en forflytning (translasjon) i én operasjon, og gjør det enkelt å regne koordinater om fra én ramme til en annen. Kjeder du sammen flere rammer, ledd for ledd langs en robotarm, multipliserer du transformasjonsmatrisene i riktig rekkefølge.",
@@ -655,7 +655,7 @@ TOPICS("ELVE3610", 0, [
 
 // ================= ELVE3610 – enhet 1: Kinematikk =================
 TOPICS("ELVE3610", 1, [
-{ id: "foroverkinematikk",
+{ id: "foroverkinematikk", chk: ["1+cos(90*deg) ≈ 1"],
   fig: `<svg viewBox="0 0 240 140"><path d="M40 120H220" class="dim"/><circle cx="40" cy="120" r="3" class="d"/><path d="M40 120L120 60" class="b"/><circle cx="120" cy="60" r="3" class="d"/><path d="M120 60L190 90" class="b"/><circle cx="190" cy="90" r="3" class="af"/><text x="62" y="78">L<tspan dy="4" font-size="10">1</tspan></text><text x="152" y="62">L<tspan dy="4" font-size="10">2</tspan></text></svg>`,
   nb: { t: "Foroverkinematikk",
     intro: "Foroverkinematikk regner ut verktøyets posisjon og orientering direkte fra de kjente leddvinklene. For en planar 2-leddsarm summeres bidraget fra hvert ledd med enkel trigonometri. Dette er alltid entydig: gitt leddvinklene, er det bare én mulig verktøyposisjon.",
@@ -669,7 +669,7 @@ TOPICS("ELVE3610", 1, [
     legend: [["L_1,\\ L_2", "link lengths", "m"], ["\\theta_1,\\ \\theta_2", "joint angles", "°"]],
     ex: "$L_1=L_2=1$ m, $\\theta_1=0$, $\\theta_2=90°$:\n$x=1+\\cos90°=1$, $y=0+\\sin90°=1$.",
     tip: "Forward kinematics always has exactly one solution – it is inverse kinematics that can have several." } },
-{ id: "inverskinematikk-2ledd",
+{ id: "inverskinematikk-2ledd", chk: ["(1.2^2+0.4^2-1-0.6^2)/(2*1*0.6) ≈ 0.200","(180/pi)*(pi/2-0.2-0.2^3/6-3*0.2^5/40-15*0.2^7/336) ≈ 78.5"],
   fig: `<svg viewBox="0 0 240 140"><path d="M40 120H220" class="dim"/><circle cx="40" cy="120" r="3" class="d"/><path d="M40 120L110 65" class="b"/><circle cx="110" cy="65" r="3" class="d"/><path d="M110 65L170 100" class="b"/><path d="M170 100l6 3-3-7z" class="rf"/><circle cx="170" cy="100" r="4" class="r"/><text x="179" y="98">P</text></svg>`,
   nb: { t: "Inverskinematikk (2 ledd)",
     intro: "Inverskinematikk går motsatt vei av foroverkinematikk: gitt en ønsket verktøyposisjon, finner vi leddvinklene som gir den. For en planar 2-leddsarm løses $\\theta_2$ med cosinussetningen, og løsningen kan gi to muligheter (albue opp eller albue ned) eller ingen løsning hvis målet ligger utenfor arbeidsområdet.",
@@ -726,7 +726,7 @@ TOPICS("ELVE3610", 2, [
     legend: [["n", "number of bits", ""], ["\\Delta\\theta", "angular resolution", "°"]],
     ex: "$n=12$ bits:\n$\\Delta\\theta=360/2^{12}=360/4096\\approx0.088°$.",
     tip: "Incremental encoders must be homed after a power loss – absolute ones remember the angle directly." } },
-{ id: "girkasse-moment",
+{ id: "girkasse-moment", chk: ["0.6*100*0.85 ≈ 51"],
   nb: { t: "Girkasse og moment",
     intro: "De fleste robotledd drives av en elektrisk motor gjennom en girkasse som øker momentet og reduserer hastigheten. Utgangsmomentet er motormomentet multiplisert med utvekslingen og virkningsgraden, som alltid er mindre enn 1 fordi noe energi går tapt som friksjon og varme i giret.",
     f: [["\\tau_{ut}=\\tau_{inn}\\cdot N\\cdot\\eta", "moment ut av en girkasse"]],
