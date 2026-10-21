@@ -1552,6 +1552,7 @@ function renderNow(){
   else if(screen==="guided") renderGuided();
   else if(screen==="lf") renderLf();
   else if(screen==="proofs") renderProofs();
+  else if(screen==="lk") renderLk();
   else if(screen==="trig") renderTrig();
   else if(screen==="drive") renderDrive();
   else if(screen==="forces") renderForces();
@@ -1631,6 +1632,7 @@ document.addEventListener("click", async e=>{
   if(grClick(a, b)) return; // grupper (handlinger som starter med "gr")
   if(studyClick(a, b)) return; // studier (studies.js)
   if(pfClick(a, b)) return; // bevis (proofs.js)
+  if(lkClick(a, b)) return; // læringskart (laeringskart.js)
   if(qimgClick(a, b) || snEntryClick(a) || snClick(a, b) || spClick(a, b) || gmClick(a, b) || gmMenuClick(a, b) || duClick(a, b) || mdClick(a, b) || unitsClick(a, b) || tgClick(a, b) || fcClick(a, b) || labClick(a, b) || geClick(a, b) || mvClick(a) || anClick(a, b) || elClick(a, b) || piClick(a, b) || ctClick(a, b) || ekClick(a, b) || lsClick(a, b) || catClick(a, b) || focClick(a, b) || poClick(a, b) || welClick(a, b) || edClick(a, b) || mqClick(a, b) || tcClick(a, b) || hwClick(a) || teClick(a, b) || nudgeClick(a, b) || shareClick(a, b) || ibClick(a, b) || dvClick(a, b) || scClick(a, b) || cdClick(a, b) || thClick(a, b)) return; // snacks og lynrunde (snacks.js)
   if(typeof rvClick === "function" && rvClick(a, b)) return; // gjennomgang for fagpersoner
   if(adminClick(a, b)) return; // adminpanel og kunngjøringer (admin.js)

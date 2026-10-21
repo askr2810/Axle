@@ -39,6 +39,7 @@ function renderBookTopic(){
       <h1>${esc(x.t)}</h1>
       ${typeof rvBadgeHTML === "function" ? rvBadgeHTML(c.code, hit.tp.id) : ""}
       ${media ? `<div class="tp-media">${media}</div>` : ""}<div class="tp-body">
+      ${typeof lkChipHTML === "function" ? lkChipHTML(c.code) : ""}
       <p class="intro">${rich(x.intro)}</p>
       ${hit.tp.sim && typeof SIMS !== "undefined" ? [].concat(hit.tp.sim).filter(n => SIMS[n]).map(simHTML).join("") : ""}
       ${hit.tp.mv && typeof mvHTML === "function" ? mvHTML(hit.tp.mv) : ""}

@@ -1,20 +1,21 @@
 // ============================================================
 //  NAVIGASJON OG PROFIL
-//  - Tab-meny nederst: Lær, Teori, Venner, Profil.
+//  - Tab-meny nederst: Lær, Øv, Teori, Læringskart, Venner, Profil.
 //  - Infoark når du trykker på rekke, kroner eller XP.
 //  - Profilside med avatar, navn, statistikk, merker og fag.
 // ============================================================
-const TABS = [["home", "book2", "tabLearn"], ["practice", "bolt", "tabPractice"], ["book", "book", "tabTheory"], ["friends", "users", "tabFriends"], ["profile", "person", "tabProfile"]];
+const TABS = [["home", "book2", "tabLearn"], ["practice", "bolt", "tabPractice"], ["book", "book", "tabTheory"], ["lk", "map", "tabMaps"], ["friends", "users", "tabFriends"], ["profile", "person", "tabProfile"]];
 // Faneikoner: hule når fanen ikke er valgt, fylte når den er valgt. [form som fylles, strek som alltid tegnes]
 const TAB_IC = {
   home: ['<path d="M4 20V10l8-6 8 6v10h-5v-6H9v6z"/>', ""],
   practice: ['<path d="M13.5 2 4 14h6.5L9.5 22 20 9.5h-6.6z"/>', ""],
   book: ['<path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v15H6.5A2.5 2.5 0 0 0 4 20.5z"/>', '<path d="M4 20.5A2.5 2.5 0 0 0 6.5 23H20v-5"/>'],
   friends: ['<circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0z"/>', '<path d="M16 4.5a3.5 3.5 0 0 1 0 7M18 14.2a6.5 6.5 0 0 1 3.5 5.8"/>'],
+  lk: ['<circle cx="6" cy="5" r="2.5"/><circle cx="18" cy="12" r="2.5"/><circle cx="6" cy="19" r="2.5"/>', '<path d="M8.5 5H12a4 4 0 0 1 4 4v.5M15.5 14.5v.5a4 4 0 0 1-4 4H8.5"/>'],
   profile: ['<circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0z"/>', ""]
 };
 const tabIc = (k, on) => `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><g${on ? ' fill="currentColor"' : ""}>${TAB_IC[k][0]}</g>${TAB_IC[k][1]}</svg>`;
-function tabOf(){ return screen === "review" ? null : screen === "home" ? "home" : (screen === "practice" || screen === "community" || screen === "mydecks") ? "practice" : (screen === "book" && BK.v !== "unit" && BK.v !== "topic") || screen === "proofs" ? "book" : screen === "friends" ? "friends" : (screen === "profile" || screen === "badges") ? "profile" : screen === "person" ? (["badges", "profile", "admin"].includes(PS.from) ? "profile" : "friends") : screen === "admin" ? "profile" : null; }
+function tabOf(){ return screen === "review" ? null : screen === "home" ? "home" : (screen === "practice" || screen === "community" || screen === "mydecks") ? "practice" : (screen === "book" && BK.v !== "unit" && BK.v !== "topic") || screen === "proofs" ? "book" : screen === "lk" ? "lk" : screen === "friends" ? "friends" : (screen === "profile" || screen === "badges") ? "profile" : screen === "person" ? (["badges", "profile", "admin"].includes(PS.from) ? "profile" : "friends") : screen === "admin" ? "profile" : null; }
 function tabbarHTML(active){
   return `<nav class="tabbar" aria-label="${esc(t("tabNav"))}"><div class="wrap"><button class="tab-brand" data-a="tab" data-t="home" tabindex="-1" aria-hidden="true"><img src="${markSrc()}" alt="" width="36" height="36"><b>${brandWord()}</b></button>${TABS.map(([k, ic, lab]) =>
     `<button class="${k === active ? "on" : ""}" data-a="tab" data-t="${k}" aria-current="${k === active ? "page" : "false"}">${(k === "practice" && !dcDoneToday() && S.xp > 0) || (k === "friends" && ((FR.reqs && FR.reqs.length) || (GR.inv && GR.inv.length) || IB.unread)) ? `<i class="tab-dot"></i>` : ""}${k === "profile" && hasMeAv() ? meAvHTML(26, "tab-av") : tabIc(k, k === active)}<span>${esc(t(lab))}</span></button>`).join("")}<div class="tab-foot"><button class="exlink" data-a="dlopen">${esc(T("Last ned", "Download"))}</button> · <a href="${LANG === "en" ? "/en/about/" : "/about/"}" target="_blank" rel="noopener">${esc(T("Om Axle", "About"))}</a></div></div></nav>`;
@@ -29,6 +30,7 @@ function goTab(k){
   if(k === "home") return goHome();
   if(k === "book") return openBook();
   if(k === "friends") return openFriends();
+  if(k === "lk") return lkOpen(null);
   if(k === "profile" || k === "practice"){ screen = k; render(); window.scrollTo(0, 0); }
 }
 
