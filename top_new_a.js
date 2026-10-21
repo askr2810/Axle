@@ -243,7 +243,7 @@ $\bar x = 2$, $b = 3/2 = 1{,}5$ og $a = 11/3 - 3 \approx 0{,}67$.`, "Bruk bare l
     [["b", "slope", ""], ["a", "intercept", ""], [R`\bar x,\ \bar y`, "means", ""]],
     R`The points (1, 2), (2, 4), (3, 5):
 $\bar x = 2$, $b = 3/2 = 1.5$ and $a = 11/3 - 3 \approx 0.67$.`, "Only use the line within the range of your data. Outside it the relationship may be completely different.") },
-{ id: "korrelasjon",
+{ id: "korrelasjon", chk: ["0.95 ≈ 0.95"],
   nb: O("Korrelasjonskoeffisient", "Korrelasjonskoeffisienten r måler hvor godt punktene følger en rett linje. Den ligger mellom −1 og 1. Verdier nær 1 eller −1 betyr sterk lineær sammenheng, og verdier nær 0 betyr svak eller ingen lineær sammenheng.",
     [[R`r = \frac{\sum (x_i - \bar x)(y_i - \bar y)}{\sqrt{\sum (x_i - \bar x)^2\sum (y_i - \bar y)^2}}`, "Pearsons r"]],
     [["r", "korrelasjonskoeffisient", ""], [R`\bar x,\ \bar y`, "gjennomsnitt", ""]],
@@ -269,7 +269,7 @@ the model explains 81 % of the variation.`, "A high R² does not mean the model 
 
 // ---------- STKD6610 2: Livsløp og klimaregnskap ----------
 TOPICS("STKD6610", 2, [
-{ id: "funksjonell-enhet",
+{ id: "funksjonell-enhet", chk: ["150/15000*1000 ≈ 10","100/5000*1000 ≈ 20"],
   nb: O("Funksjonell enhet", "For å sammenligne to produkter rettferdig må utslippene regnes per nytte, ikke per produkt. Den funksjonelle enheten beskriver nytten, for eksempel én kilometer transport eller ett års bruk. Et produkt som varer dobbelt så lenge, deler utslippene på flere enheter.",
     [[R`e = \frac{E_{tot}}{N}`, "utslipp per funksjonell enhet"]],
     [["e", "utslipp per enhet", R`kg CO_2e`], ["E_{tot}", "samlet utslipp i livsløpet", R`kg CO_2e`], ["N", "antall funksjonelle enheter levert", ""]],
@@ -344,7 +344,7 @@ $\lim_{s\to 0} s\cdot\frac{4}{2s+1}\cdot\frac1s = 4$.`, "Check stability first. 
 
 // ---------- FLUID 3: Pumper og rørsystemer ----------
 TOPICS("FLUID", 3, [
-{ id: "serie-parallell",
+{ id: "serie-parallell", chk: ["20+20 ≈ 40","10+10 ≈ 20"],
   art: () => FL.circuit({ kind: "series" }),
   nb: O("Pumper i serie og parallell", "Når én pumpe ikke er nok, kan flere kobles sammen. I serie går den samme vannstrømmen gjennom begge, og løftehøydene legges sammen. I parallell deler de strømmen, og volumstrømmene legges sammen ved samme løftehøyde.",
     [[R`H_{serie}(Q) = H_1(Q) + H_2(Q)`, "serie: høyde legges sammen"], [R`Q_{par}(H) = Q_1(H) + Q_2(H)`, "parallell: strøm legges sammen"]],

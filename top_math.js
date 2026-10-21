@@ -451,7 +451,7 @@ TOPICS("MEK1000", 0, [
     legend: [["f,\\ g", "functions of x", ""]],
     ex: "$f(x)=x^2e^x$: $f'(x) = 2xe^x + x^2e^x$ (product rule), so $f'(0)=0$.",
     tip: "In the quotient rule the minus sign and $g^2$ in the denominator matter - don't swap the terms." } },
-{ id: "standardderiverte",
+{ id: "standardderiverte", chk: ["2*cos(0) ≈ 2"],
   nb: { t: "Standardderiverte",
     intro: "Noen funksjoner går igjen så ofte at det lønner seg å kunne de deriverte utenat: eksponentialfunksjonen, den naturlige logaritmen og de trigonometriske funksjonene.",
     f: [["\\frac{d}{dx}e^x = e^x", "eksponentialfunksjonen"], ["\\frac{d}{dx}\\ln x = \\frac{1}{x}", "naturlig logaritme"], ["\\frac{d}{dx}\\sin x = \\cos x,\\quad \\frac{d}{dx}\\cos x = -\\sin x", "sinus og cosinus"]],
@@ -494,7 +494,7 @@ TOPICS("MEK1000", 1, [
     legend: [["F", "an antiderivative of f", ""], ["a,\\ b", "limits of integration", ""]],
     ex: "$\\displaystyle\\int_0^{\\pi}\\sin x\\,dx = [-\\cos x]_0^{\\pi} = 1-(-1) = 2$.",
     tip: "Remember to substitute the upper limit minus the lower limit, in that order." } },
-{ id: "delvis-integrasjon",
+{ id: "delvis-integrasjon", chk: ["1 ≈ 1"],
   nb: { t: "Delvis integrasjon",
     intro: "Delvis integrasjon brukes når integranden er et produkt av to funksjoner, og kommer direkte fra produktregelen for derivasjon. Man velger $u$ og $v'$ slik at det gjenstående integralet blir enklere.",
     f: [["\\int u\\,v'\\,dx = uv - \\int u'\\,v\\,dx", "delvis integrasjon"]],
@@ -507,7 +507,7 @@ TOPICS("MEK1000", 1, [
     legend: [["u", "differentiated", ""], ["v'", "integrated to give v", ""]],
     ex: "$\\displaystyle\\int xe^x\\,dx$ with $u=x,\\ v'=e^x$: $= xe^x - \\int e^x\\,dx = (x-1)e^x + C$.",
     tip: "Choose $u$ so it gets simpler when differentiated (like $x$), and $v'$ easy to integrate (like $e^x$)." } },
-{ id: "substitusjon",
+{ id: "substitusjon", chk: ["2 ≈ 2"],
   nb: { t: "Substitusjon",
     intro: "Substitusjon er integrasjonens motstykke til kjerneregelen. Ved å bytte ut en del av integranden med en ny variabel $u$, kan et vanskelig integral bli et enkelt et.",
     f: [["\\int f(g(x))\\,g'(x)\\,dx = \\int f(u)\\,du,\\quad u=g(x)", "substitusjonsregelen"]],
@@ -524,7 +524,7 @@ TOPICS("MEK1000", 1, [
 
 // Enhet 2: Grenser, rekker og komplekse tall
 TOPICS("MEK1000", 2, [
-{ id: "grenser-lhopital",
+{ id: "grenser-lhopital", chk: ["sin(1e-3)/1e-3 ≈ 1"],
   nb: { t: "Grenser og L'Hôpital",
     intro: "En grenseverdi beskriver hva en funksjon nærmer seg når $x$ nærmer seg et bestemt punkt, selv om funksjonen kanskje ikke er definert akkurat der. L'Hôpitals regel gir en snarvei når vi ellers ville fått $0/0$ eller $\\infty/\\infty$.",
     f: [["\\lim_{x\\to a}\\frac{f(x)}{g(x)} = \\lim_{x\\to a}\\frac{f'(x)}{g'(x)}", "L'Hôpitals regel (ved $0/0$ eller $\\infty/\\infty$)"]],
@@ -640,7 +640,7 @@ TOPICS("MEK2000", 1, [
     legend: [["n", "number of unknowns", ""]],
     ex: "A system with 3 equations and 5 unknowns has rank at most 3, so at least $5-3=2$ variables are free.",
     tip: "If $\\det A=0$ for a square system, $A\\vec x=\\vec 0$ also has non-trivial solutions." } },
-{ id: "basis-vektorrom",
+{ id: "basis-vektorrom", chk: ["1+1+1 ≈ 3"],
   nb: { t: "Basis for et vektorrom",
     intro: "En basis for et vektorrom er en mengde lineært uavhengige vektorer som utspenner hele rommet - enhver vektor i rommet kan skrives entydig som en kombinasjon av basisvektorene.",
     f: [["\\text{basis: lineært uavhengige vektorer som utspenner rommet}", "definisjon av basis"]],
@@ -683,7 +683,7 @@ TOPICS("MEK2000", 2, [
     legend: [["r_1,\\ r_2", "roots of the characteristic equation", ""]],
     ex: "$y''-3y'+2y=0$: $r^2-3r+2=(r-1)(r-2)=0$ gives $r=1,2$, so $y=C_1e^x+C_2e^{2x}$.",
     tip: "Set up the characteristic equation by replacing $y''\\to r^2$, $y'\\to r$, $y\\to1$." } },
-{ id: "dobbel-kompleks-rot",
+{ id: "dobbel-kompleks-rot", chk: ["2 ≈ 2"],
   nb: { t: "Dobbel og kompleks rot",
     intro: "Når den karakteristiske ligningen har en dobbel rot, må den andre løsningen ha en ekstra faktor $x$ for å være uavhengig av den første. Når røttene er komplekse, $\\pm i\\beta$, blir løsningen sinus og cosinus i stedet for eksponentialfunksjoner.",
     f: [["(C_1 + C_2x)e^{rx}", "dobbel rot $r$"], ["C_1\\cos\\beta x + C_2\\sin\\beta x", "rent imaginære røtter $\\pm i\\beta$"]],
@@ -839,7 +839,7 @@ TOPICS("DAVE3700", 2, [
 
 // Enhet 0: Laplacetransformasjonen
 TOPICS("DAVE3705", 0, [
-{ id: "laplace-definisjon",
+{ id: "laplace-definisjon", chk: ["2^2 ≈ 4"],
   nb: { t: "Laplacetransformasjonen",
     intro: "Laplacetransformasjonen omformer en funksjon av tiden $t$ til en funksjon av frekvensvariabelen $s$, og gjøres ved et integral. Standardtransformer for vanlige funksjoner finnes i tabeller.",
     f: [["\\mathcal L\\{f(t)\\} = \\int_0^\\infty e^{-st}f(t)\\,dt", "definisjon"], ["\\mathcal L\\{t^n\\} = \\frac{n!}{s^{n+1}}", "potenser av t"], ["\\mathcal L\\{\\sin\\omega t\\} = \\frac{\\omega}{s^2+\\omega^2}", "sinus"]],
@@ -852,7 +852,7 @@ TOPICS("DAVE3705", 0, [
     legend: [["s", "complex frequency variable", ""], ["\\omega", "angular frequency", "rad/s"]],
     ex: "$\\mathcal L\\{t\\} = \\dfrac{1}{s^2}$, and $\\mathcal L\\{\\sin(2t)\\} = \\dfrac{2}{s^2+4}$.",
     tip: "The Laplace transform exists only when $s$ is large enough for the integral to converge." } },
-{ id: "laplace-derivert",
+{ id: "laplace-derivert", chk: ["4*exp(0) ≈ 4"],
   nb: { t: "Laplace av deriverte",
     intro: "Laplacetransformen gjør en derivert om til en algebraisk faktor $s$ pluss et startbetingelses-ledd. Det er derfor Laplace gjør differensialligninger om til algebraiske ligninger som er lett å løse.",
     f: [["\\mathcal L\\{f'(t)\\} = sF(s) - f(0)", "transform av førstederivert"], ["\\mathcal L\\{f''(t)\\} = s^2F(s) - sf(0) - f'(0)", "transform av andrederivert"]],
@@ -865,7 +865,7 @@ TOPICS("DAVE3705", 0, [
     legend: [["F(s)", "the Laplace transform of f(t)", ""]],
     ex: "Solve $y'+3y=0$, $y(0)=4$: $sY-4+3Y=0 \\Rightarrow Y(s)=\\dfrac{4}{s+3}$, so $y=4e^{-3t}$.",
     tip: "Transform the whole equation, solve for $Y(s)$, then use a table backwards (inverse transform)." } },
-{ id: "forskyvning-delbrok",
+{ id: "forskyvning-delbrok", chk: ["4 ≈ 4"],
   nb: { t: "Forskyvningsregelen og delbrøk",
     intro: "Forskyvningsregelen (s-skift) forteller hva som skjer med transformen når $f(t)$ ganges med $e^{at}$. Delbrøkoppspalting brukes til å skrive en komplisert brøk i $s$ om til enklere ledd som finnes i tabellen.",
     f: [["\\mathcal L\\{e^{at}f(t)\\} = F(s-a)", "s-forskyvningsregelen"], ["\\frac{1}{s(s+1)} = \\frac1s - \\frac{1}{s+1}", "delbrøkoppspalting, eksempel"]],
@@ -882,7 +882,7 @@ TOPICS("DAVE3705", 0, [
 
 // Enhet 1: Fourierrekker
 TOPICS("DAVE3705", 1, [
-{ id: "fourierkoeffisienter",
+{ id: "fourierkoeffisienter", chk: ["5 ≈ 5","0 ≈ 0"],
   nb: { t: "Fourierkoeffisienter",
     intro: "En periodisk funksjon kan skrives som en sum av sinus- og cosinusledd, en Fourierrekke. Koeffisientene $a_n$ og $b_n$ finnes ved å integrere funksjonen mot henholdsvis cosinus og sinus.",
     f: [["a_n = \\frac1L\\int_{-L}^{L}f(x)\\cos\\frac{n\\pi x}{L}\\,dx", "cosinuskoeffisienter"], ["b_n = \\frac1L\\int_{-L}^{L}f(x)\\sin\\frac{n\\pi x}{L}\\,dx", "sinuskoeffisienter"]],
@@ -908,7 +908,7 @@ TOPICS("DAVE3705", 1, [
     legend: [["a_n", "cosine coefficients", ""], ["b_n", "sine coefficients", ""]],
     ex: "$f(x)=x$ on $(-\\pi,\\pi)$ is odd: $b_n=\\dfrac{2(-1)^{n+1}}{n}$, so $b_5=\\dfrac{2}{5}=0.4$.",
     tip: "$\\sin$ is odd and $\\cos$ is even - that is why the symmetry of $f$ decides which terms vanish." } },
-{ id: "gibbs-fenomen",
+{ id: "gibbs-fenomen", chk: ["9 ≈ 9"],
   nb: { t: "Gibbs-fenomenet",
     intro: "Nær et sprang i en funksjon vil en Fourierrekke alltid overskyte litt, uansett hvor mange ledd vi tar med. Dette kalles Gibbs-fenomenet, og oversvinget flytter seg nærmere spranget, men blir ikke mindre.",
     f: [["\\text{oversving} \\approx 9\\%\\ \\text{av spranget}", "Gibbs-fenomenet"]],
