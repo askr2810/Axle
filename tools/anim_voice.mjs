@@ -59,15 +59,18 @@ const outRoot = sample ? path.join(ROOT, 'local', 'anim-voice-sample', id) : pro
 const ext = provider === 'elevenlabs' ? 'mp3' : 'm4a';
 const manPath = path.join(outRoot, 'manifest.json');
 const man = fs.existsSync(manPath) ? JSON.parse(fs.readFileSync(manPath, 'utf8')) : {};
-// standardstemmer (AX-15): nb «Dennis - Norwegian», en «Alice - Clear, Engaging Educator»; ELEVENLABS_VOICE_ID_NB/_EN eller ELEVENLABS_VOICE_ID overstyrer
-const DEF_VOICE = { nb: 's2xtA7B2CTXPPlJzch1v', en: 'Xb7hH8MSUJpSbSDYk0k2' };
+// standardstemmer (AX-15b): nb «Sebastian» (eleven_flash_v2_5), en «Alice - Clear, Engaging Educator» (eleven_multilingual_v2);
+// ELEVENLABS_VOICE_ID_NB/_EN eller ELEVENLABS_VOICE_ID overstyrer stemmen, ELEVENLABS_MODEL_NB/_EN eller ELEVENLABS_MODEL modellen
+const DEF_VOICE = { nb: '4kCDY3HJwvO7Zp3con83', en: 'Xb7hH8MSUJpSbSDYk0k2' };
+const DEF_MODEL = { nb: 'eleven_flash_v2_5', en: 'eleven_multilingual_v2' };
+const model = process.env['ELEVENLABS_MODEL_' + lang.toUpperCase()] || process.env.ELEVENLABS_MODEL || DEF_MODEL[lang] || 'eleven_multilingual_v2';
 const voice = provider === 'elevenlabs' ? (process.env['ELEVENLABS_VOICE_ID_' + lang.toUpperCase()] || process.env.ELEVENLABS_VOICE_ID || DEF_VOICE[lang]) : (opt('--voice') || 'Nora (Enhanced)');
 const rate = +(opt('--rate') || 150); // say: ord per minutt (≈ 2,5 ord/s)
-const voiceKey = provider === 'elevenlabs' ? `elevenlabs:${voice}:${process.env.ELEVENLABS_MODEL || 'eleven_multilingual_v2'}` : `say:${voice}:${rate}`;
+const voiceKey = provider === 'elevenlabs' ? `elevenlabs:${voice}:${model}` : `say:${voice}:${rate}`;
 man[lang] = man[lang] || {};
 const todo = sample ? D.lines.filter(l => sampleIds.includes(l.id)) : D.lines.filter(l => force || !man[lang][l.id] || man[lang][l.id].sha !== sha(spoken(l)) || man[lang][l.id].voice !== voiceKey);
 console.log(`${D.t[li]} (${lang}, ${provider}${sample ? ', privat prøve' : ''}): ${D.lines.length} replikker, ${D.lines.reduce((n, l) => n + spoken(l).length, 0)} tegn; ${todo.length} skal lages (${todo.reduce((n, l) => n + spoken(l).length, 0)} tegn).`);
-if (provider === 'elevenlabs') console.log(`Stemme-ID: ${voice || '(ELEVENLABS_VOICE_ID er ikke satt)'}  modell: ${process.env.ELEVENLABS_MODEL || 'eleven_multilingual_v2'}  API-nøkkel: ${KEY() ? 'funnet (vises ikke)' : 'ikke satt'}`);
+if (provider === 'elevenlabs') console.log(`Stemme-ID: ${voice || '(ELEVENLABS_VOICE_ID er ikke satt)'}  modell: ${model}  API-nøkkel: ${KEY() ? 'funnet (vises ikke)' : 'ikke satt'}`);
 console.log('Mappe: ' + path.relative(ROOT, outRoot));
 if (dry) { todo.forEach(l => console.log(`  ${l.id} (${l.d} s)  ${spoken(l)}`)); process.exit(0); }
 
@@ -94,7 +97,7 @@ for (const l of todo) {
     execFileSync('say', ['-v', voice, '-r', String(rate), '-o', aiff, text]);
     execFileSync('afconvert', ['-f', 'm4af', '-d', 'aac', aiff, file]); fs.unlinkSync(aiff);
   } else {
-    const body = { text, model_id: process.env.ELEVENLABS_MODEL || 'eleven_multilingual_v2', language_code: lang === 'en' ? 'en' : 'no', seed: 7,
+    const body = { text, model_id: model, language_code: lang === 'en' ? 'en' : 'no', seed: 7,
       previous_text: k > 0 ? spoken(D.lines[k - 1]) : undefined, next_text: k < D.lines.length - 1 ? spoken(D.lines[k + 1]) : undefined,
       voice_settings: { speed: +(process.env.ELEVENLABS_SPEED || 0.95) } };
     const r = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${encodeURIComponent(voice)}?output_format=mp3_44100_128`, {
