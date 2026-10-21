@@ -5,6 +5,7 @@
 --   Alle (også uten konto) kan sende inn via submit_feedback – aldri lese.
 --   Mod/admin leser og markerer som behandlet i adminpanelet (fanen «Tilbakemeldinger»). Bare admin ser e-postadressen.
 --   Claude (eller et skript) kan hente dem med en hemmelig eksportnøkkel, se nederst. Nøkkelen lagres bare som hash.
+--   Tabellene er ikke åpne for anon/authenticated. service_role har eksplisitt select, insert, update og delete (AX-19).
 
 create table if not exists public.app_feedback (
   id bigint generated always as identity primary key,
@@ -16,10 +17,14 @@ create table if not exists public.app_feedback (
   handled boolean not null default false, handled_at timestamptz, note text
 );
 alter table public.app_feedback enable row level security; -- ingen policyer: bare funksjonene under slipper til
+revoke all on public.app_feedback from public, anon, authenticated;
+grant select, insert, update, delete on public.app_feedback to service_role;
 create index if not exists app_feedback_open on public.app_feedback (handled, created_at desc);
 
 create table if not exists public.feedback_export_keys (key_hash text primary key, label text, created_at timestamptz not null default now());
 alter table public.feedback_export_keys enable row level security;
+revoke all on public.feedback_export_keys from public, anon, authenticated;
+grant select, insert, update, delete on public.feedback_export_keys to service_role;
 
 -- ---------- sende inn (alle) ----------
 create or replace function public.submit_feedback(p jsonb)
