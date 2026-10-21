@@ -6,7 +6,7 @@ const O = (t, intro, f, legend, ex, tip) => ({ t, intro, f, legend, ex, tip });
 
 // ---------- BYGG 0: Laster og lastkombinasjoner ----------
 TOPICS("BYGG", 0, [
-{ id: "lasttyper",
+{ id: "lasttyper", chk: ["5*4*0.2 ≈ 4", "25*4 ≈ 100"],
   nb: O("Permanente og variable laster", "En bygning må tåle sin egen vekt og alt som kommer i tillegg. Egenlast er permanent og kjent ganske nøyaktig. Nyttelast, snø og vind er variable laster som kommer og går, og de er mer usikre.",
     [[R`G = \gamma_{mat}\cdot V`, "egenlast fra materialets tyngdetetthet"], [R`q = q_k\cdot A`, "nyttelast på et areal"]],
     [["G", "egenlast", "kN"], [R`\gamma_{mat}`, "tyngdetetthet (betong ca. 25)", "kN/m³"], ["q_k", "karakteristisk nyttelast", "kN/m²"], ["A", "areal", "m²"]],
@@ -17,7 +17,7 @@ $G = 25\cdot 4 = 100$ kN.`, "Egenlast virker alltid. Variable laster virker bare
     [["G", "self-weight", "kN"], [R`\gamma_{mat}`, "unit weight (concrete about 25)", "kN/m³"], ["q_k", "characteristic imposed load", "kN/m²"], ["A", "area", "m²"]],
     R`A concrete slab 5 × 4 × 0.2 m:
 $G = 25\cdot 4 = 100$ kN.`, "Self-weight always acts. Variable loads act only sometimes and are therefore combined with their own factors.") },
-{ id: "lastfaktorer",
+{ id: "lastfaktorer", chk: ["1.2*100+1.5*40 ≈ 180"],
   nb: O("Lastfaktorer", "I bruddgrensetilstanden ganges lastene med lastfaktorer for å få en sikkerhetsmargin. Egenlast har lavere faktor enn variable laster, fordi den er bedre kjent. Etter Eurokode brukes ofte 1,2 for egenlast og 1,5 for variable laster.",
     [[R`F_d = \gamma_G\,G_k + \gamma_Q\,Q_k`, "dimensjonerende last"], [R`\gamma_G = 1{,}2,\ \gamma_Q = 1{,}5`, "vanlige lastfaktorer"]],
     [["F_d", "dimensjonerende last", "kN"], ["G_k", "karakteristisk egenlast", "kN"], ["Q_k", "karakteristisk variabel last", "kN"]],
@@ -28,7 +28,7 @@ $F_d = 1{,}2\cdot 100 + 1{,}5\cdot 40 = 180$ kN.`, "Karakteristisk last er det s
     [["F_d", "design load", "kN"], ["G_k", "characteristic self-weight", "kN"], ["Q_k", "characteristic variable load", "kN"]],
     R`$G_k = 100$ kN and $Q_k = 40$ kN:
 $F_d = 1{,}2\cdot 100 + 1{,}5\cdot 40 = 180$ kN.`, "The characteristic load is what is actually expected. The design load is what you calculate with.") },
-{ id: "lastkombinasjon",
+{ id: "lastkombinasjon", chk: ["1.2*100 ≈ 120", "1.5*30 ≈ 45", "1.5*0.6*20 ≈ 18", "120+45+18 ≈ 183"],
   nb: O("Lastkombinasjoner", "Det er lite sannsynlig at full snø, full vind og full nyttelast kommer samtidig. Derfor tas én variabel last som dominerende med full verdi, mens de andre reduseres med en kombinasjonsfaktor ψ. Alle kombinasjoner prøves, og den verste brukes.",
     [[R`F_d = 1{,}2\,G_k + 1{,}5\,Q_{k,1} + 1{,}5\,\psi_0\,Q_{k,2}`, "én dominerende og én medvirkende last"]],
     [["Q_{k,1}", "dominerende variabel last", "kN"], ["Q_{k,2}", "medvirkende variabel last", "kN"], [R`\psi_0`, "kombinasjonsfaktor", ""]],
@@ -55,7 +55,7 @@ $U = 1/5{,}73 \approx 0{,}17$ W/m²K.`, "Motstandene legges sammen, U-verdiene g
     [["U", "thermal transmittance", "W/m²K"], ["d", "thickness", "m"], [R`\lambda`, "thermal conductivity", "W/mK"], ["R_{si},\\ R_{se}", "inside and outside surface resistance", "m²K/W"]],
     R`200 mm insulation ($\lambda = 0.036$) gives $R = 5.56$. With $R_{si} + R_{se} = 0.17$:
 $U = 1/5.73 \approx 0.17$ W/m²K.`, "Resistances add up, U-values do not.") },
-{ id: "varmetap",
+{ id: "varmetap", chk: ["0.8*2*25 ≈ 40"],
   nb: O("Varmetap gjennom konstruksjoner", "Varmetapet gjennom en vegg, et tak eller et vindu er U-verdien ganger arealet ganger temperaturforskjellen. Summen over alle flatene gir transmisjonstapet for bygningen. Vinduer har ofte mye høyere U-verdi enn vegger.",
     [[R`\Phi = U\,A\,\Delta T`, "varmetap gjennom en flate"], [R`Q = \Phi\cdot t`, "energi over tid"]],
     [[R`\Phi`, "varmetap (effekt)", "W"], ["A", "areal", "m²"], [R`\Delta T`, "temperaturforskjell", "K"]],
@@ -93,7 +93,7 @@ $H = 45{,}200 + 1{,}520 - 0{,}840 = 45{,}880$ moh.`, "Stor avlesning betyr at st
     [["B", "backsight (known point)", "m"], ["F", "foresight (new point)", "m"], ["H", "height above sea level", "m"]],
     R`Known point 45.200 m, $B = 1{,}520$ and $F = 0{,}840$:
 $H = 45{,}200 + 1{,}520 - 0{,}840 = 45{,}880$ m.`, "A large reading means the staff stands low, because the line of sight hits higher up the staff.") },
-{ id: "koordinater",
+{ id: "koordinater", chk: ["sqrt(30^2+40^2) ≈ 50"],
   nb: O("Koordinater og avstand", "I landmåling angis punkter med koordinater, ofte nord og øst i meter. Avstanden mellom to punkter finnes med Pytagoras, og retningen med arcus tangens. Slik kan et bygg settes ut nøyaktig på tomta.",
     [[R`s = \sqrt{\Delta N^2 + \Delta E^2}`, "horisontal avstand"], [R`\alpha = \arctan\frac{\Delta E}{\Delta N}`, "retning målt fra nord"]],
     [[R`\Delta N,\ \Delta E`, "koordinatforskjeller nord og øst", "m"], ["s", "avstand", "m"], [R`\alpha`, "retningsvinkel", "°"]],
@@ -139,7 +139,7 @@ $p \Rightarrow q$ is false only if it rains and the ground is dry.`, "Anything f
     [[R`\lnot(p \land q) \equiv \lnot p \lor \lnot q`, "first law"], [R`\lnot(p \lor q) \equiv \lnot p \land \lnot q`, "second law"]],
     [["p,\\ q", "propositions", ""]],
     R`"Not (Saturday or Sunday)" is the same as "not Saturday and not Sunday", in other words a weekday.`, "When not moves inside the brackets, and and or swap places.") },
-{ id: "mengder",
+{ id: "mengder", chk: ["30+20-12 ≈ 38"],
   fig: `<svg viewBox="0 0 240 140"><circle cx="95" cy="70" r="45" class="fill"/><circle cx="145" cy="70" r="45" class="d"/><text x="60" y="74">A</text><text x="172" y="74">B</text><text x="112" y="74">∩</text></svg>`,
   nb: O("Mengder", "En mengde er en samling av ulike elementer. Unionen inneholder alt som er i minst én av mengdene, og snittet det som er i begge. Antall elementer i en union finnes med inklusjon og eksklusjon, så ingen telles to ganger.",
     [[R`A \cup B`, "union: i A eller B"], [R`A \cap B`, "snitt: i både A og B"], [R`|A \cup B| = |A| + |B| - |A \cap B|`, "inklusjon og eksklusjon"]],
@@ -166,7 +166,7 @@ $10^4 = 10\,000$ muligheter.`, "Sjekk om valgene er uavhengige. Hvis ett valg be
     [["n_i", "number of options in choice i", ""], ["k", "number of choices", ""]],
     R`A 4-digit PIN:
 $10^4 = 10\,000$ possibilities.`, "Check whether the choices are independent. If one choice limits another, count more carefully.") },
-{ id: "permutasjoner",
+{ id: "permutasjoner", chk: ["8*7*6 ≈ 336"],
   nb: O("Permutasjoner", "En permutasjon er en ordning der rekkefølgen betyr noe. Antall måter å stille opp n ting på er n fakultet. Velger du bare k av dem i rekkefølge, blir det færre muligheter.",
     [[R`n! = n\cdot(n-1)\cdots 2\cdot 1`, "alle n i rekkefølge"], [R`P(n,k) = \frac{n!}{(n-k)!}`, "k av n i rekkefølge"]],
     [["n", "antall ting", ""], ["k", "antall som velges", ""]],
@@ -177,7 +177,7 @@ $P(8,3) = 8\cdot 7\cdot 6 = 336$.`, "Per definisjon er 0! = 1."),
     [["n", "number of things", ""], ["k", "number chosen", ""]],
     R`Gold, silver and bronze among 8 runners:
 $P(8,3) = 8\cdot 7\cdot 6 = 336$.`, "By definition 0! = 1.") },
-{ id: "kombinasjoner",
+{ id: "kombinasjoner", chk: ["10*9*8/6 ≈ 120"],
   nb: O("Kombinasjoner", "En kombinasjon er et utvalg der rekkefølgen ikke betyr noe. Det er færre kombinasjoner enn permutasjoner, fordi hver gruppe på k kan ordnes på k fakultet måter. Binomialkoeffisienten gir antallet.",
     [[R`\binom{n}{k} = \frac{n!}{k!\,(n-k)!}`, "k av n uten rekkefølge"], [R`\binom{n}{k} = \binom{n}{n-k}`, "symmetri"]],
     [[R`\binom{n}{k}`, "«n over k»", ""]],
@@ -192,7 +192,7 @@ $\binom{10}{3} = \frac{10\cdot 9\cdot 8}{6} = 120$.`, "Ask yourself: is it a new
 
 // ---------- DISK 2: Grafer og modulregning ----------
 TOPICS("DISK", 2, [
-{ id: "grafer",
+{ id: "grafer", chk: ["2+3+3+2+2 ≈ 12", "12/2 ≈ 6"],
   fig: `<svg viewBox="0 0 240 140"><path d="M50 40L130 25L190 70L130 115L50 100Z M50 40L50 100 M130 25L130 115" class="d"/><circle cx="50" cy="40" r="7" class="af"/><circle cx="130" cy="25" r="7" class="af"/><circle cx="190" cy="70" r="7" class="af"/><circle cx="130" cy="115" r="7" class="af"/><circle cx="50" cy="100" r="7" class="af"/></svg>`,
   nb: O("Grafer", "En graf består av noder (hjørner) og kanter mellom dem. Den brukes til å modellere nettverk, veier, rørsystemer og avhengigheter. Graden til en node er antall kanter som går ut fra den.",
     [[R`\sum_v \deg(v) = 2|E|`, "håndhilselemmaet"], [R`|E|_{maks} = \binom{n}{2}`, "flest mulige kanter i en enkel graf"]],
@@ -215,7 +215,7 @@ $100 \bmod 7 = 2$, så det blir onsdag.`, "Reduser tallene underveis, så slippe
     [[R`\bmod`, "remainder of integer division", ""], ["n", "modulus", ""]],
     R`Which weekday is it in 100 days if today is Monday?
 $100 \bmod 7 = 2$, so it will be Wednesday.`, "Reduce the numbers along the way, so you never have to handle huge numbers.") },
-{ id: "euklid",
+{ id: "euklid", chk: ["84-2*36 ≈ 12"],
   nb: O("Største felles divisor", "Største felles divisor er det største tallet som deler to heltall. Euklids algoritme finner den raskt ved å dele gjentatte ganger og bytte ut tallene med resten, til resten blir null. Den siste resten som ikke er null, er svaret.",
     [[R`\gcd(a, b) = \gcd(b,\ a \bmod b)`, "Euklids algoritme"], [R`\text{lcm}(a,b) = \frac{a\,b}{\gcd(a,b)}`, "minste felles multiplum"]],
     [[R`\gcd`, "største felles divisor", ""], [R`\text{lcm}`, "minste felles multiplum", ""]],
@@ -276,7 +276,7 @@ TOPICS("DBNET", 1, [
     [[R`\text{192.168.1.10/24}`, "address with a 24-bit network part"], [R`/24 \leftrightarrow \text{255.255.255.0}`, "prefix and netmask"]],
     [[R`/p`, "prefix: number of network bits", ""], [R`\text{octet}`, "8 bits, a number 0–255", ""]],
     R`$\text{10.0.5.77/24}$: the network is $\text{10.0.5.0}$, and the machine is number 77 in it.`, "Each octet is 8 bits, so four octets give 32 bits.") },
-{ id: "subnetting",
+{ id: "subnetting", chk: ["2^6-2 ≈ 62"],
   nb: O("Subnetting", "Et nettverk deles i mindre subnett ved å bruke flere bit til nettverksdelen. Antall adresser i et subnett er to opphøyd i antall vertsbit. To adresser går bort: nettverksadressen og kringkastingsadressen.",
     [[R`N = 2^{32 - p}`, "adresser i et /p-nett"], [R`H = 2^{32 - p} - 2`, "brukbare vertsadresser"]],
     [["p", "prefikslengde", ""], ["H", "antall maskiner som får plass", ""]],
@@ -287,7 +287,7 @@ $2^{6} - 2 = 62$ brukbare adresser.`, "Ett prefiks lenger halverer antall adress
     [["p", "prefix length", ""], ["H", "number of machines that fit", ""]],
     R`A /26 network:
 $2^{6} - 2 = 62$ usable addresses.`, "One step longer prefix halves the number of addresses.") },
-{ id: "overforingstid",
+{ id: "overforingstid", chk: ["100*8/50 ≈ 16"],
   nb: O("Overføringstid", "Hvor lang tid en fil tar å sende, avhenger av størrelsen og båndbredden. Filstørrelser oppgis ofte i byte, mens båndbredde oppgis i bit per sekund. Én byte er 8 bit, så det må regnes om først.",
     [[R`t = \frac{8\cdot S}{B}`, "tid fra størrelse i byte og båndbredde i bit/s"]],
     [["S", "filstørrelse", "MB"], ["B", "båndbredde", "Mbit/s"], ["t", "tid", "s"]],

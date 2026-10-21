@@ -4,7 +4,7 @@
 
 // ================= ELPE1300 – enhet 0: Likestrøm =================
 TOPICS("ELPE1300", 0, [
-{ id: "ohms-lov",
+{ id: "ohms-lov", chk: ["12/4 ≈ 3", "12*3 ≈ 36"],
   art: () => FL.circuit({ kind: "ohm" }),
   fig: `<svg viewBox="0 0 240 140"><path d="M40 30H200M200 30V55M200 85V110M200 110H40M40 88V110M40 30V52" class="d"/><circle cx="40" cy="70" r="18" class="d"/><rect x="185" y="55" width="30" height="30" class="d"/><text x="6" y="75">U</text><text x="221" y="75">R</text><text x="34" y="60">+</text><text x="37" y="86">-</text></svg>`,
   nb: { t: "Ohms lov og effekt",
@@ -362,7 +362,7 @@ TOPICS("ELFT2500", 0, [
     legend: [["n", "number of bits", ""], ["x", "the number's absolute value", ""]],
     ex: "$-5$ as 8-bit two's complement:\n$2^8-5=251=\\texttt{0xFB}$.",
     tip: "Remember to subtract from $2^n$, not just flip the sign bit – that gives the wrong answer." } },
-{ id: "logiske-porter",
+{ id: "logiske-porter", chk: ["1*0 ≈ 0"],
   nb: { t: "Logiske porter",
     intro: "Logiske porter er byggesteinene i digital elektronikk og programvare: AND gir 1 bare når begge innganger er 1, OR gir 1 når minst én inngang er 1, XOR gir 1 når inngangene er ulike, og NOT snur en enkelt inngang. NAND og NOR er rett og slett AND og OR etterfulgt av en NOT.",
     f: [["Y=A\\cdot B", "AND: 1 bare når A=1 og B=1"], ["Y=A\\oplus B", "XOR: 1 bare når A og B er ulike"]],
@@ -438,7 +438,7 @@ TOPICS("ELFT2500", 2, [
     legend: [["\\bar x", "average of the measurements", ""], ["s", "standard deviation (spread)", ""], ["x_i", "individual measurement", ""]],
     ex: "Five measurements clustered tightly around 10.0 (true value 10.0):\nAverage $\\approx10.0$ (accurate) and little spread (precise).",
     tip: "Precise is not the same as accurate – a scale can give the same (wrong) result every time." } },
-{ id: "sampling-nyquist",
+{ id: "sampling-nyquist", chk: ["2*1 ≈ 2"],
   fig: `<svg viewBox="0 0 240 140"><path d="M20 70H220" class="dim"/><path d="M20 70C40 30 60 30 80 70S120 110 140 70S180 30 200 70S220 90 220 70" class="d"/><circle cx="30" cy="55" r="3" class="rf"/><circle cx="80" cy="70" r="3" class="rf"/><circle cx="130" cy="82" r="3" class="rf"/><circle cx="180" cy="55" r="3" class="rf"/></svg>`,
   nb: { t: "Sampling og Nyquist",
     intro: "For å digitalisere et signal riktig må vi ta nok prøver per sekund. Nyquist-kriteriet sier at samplingsfrekvensen må være mer enn dobbelt så høy som den høyeste frekvenskomponenten i signalet. Samples vi for sjelden, oppstår aliasing: signalet ser ut som en helt annen (lavere) frekvens etter sampling, og denne feilen kan ikke rettes opp i etterkant.",
@@ -485,7 +485,7 @@ TOPICS("ELFT2400", 0, [
     legend: [["G(s)", "transfer function", ""], ["Y(s),\\ U(s)", "Laplace-transformed output/input", ""], ["D(s)", "the denominator (characteristic polynomial)", ""]],
     ex: "$G(s)=\\dfrac{5}{s+2}$:\nPole at $s=-2$, which lies in the left half-plane $\\Rightarrow$ stable system.",
     tip: "It is the poles, not the zeros, that determine whether a system is stable." } },
-{ id: "forsteordens-system",
+{ id: "forsteordens-system", chk: ["4/(2*0+1) ≈ 4"],
   art: () => FL.step({ order: 1 }),
   fig: `<svg viewBox="0 0 240 140"><path d="M30 120H220M30 120V20" class="dim"/><path d="M30 110C70 40 120 20 210 20" class="d"/><path d="M30 20H210" class="dash"/><text x="212" y="16">K</text><text x="215" y="132">t</text></svg>`,
   nb: { t: "Førsteordens system",
@@ -610,7 +610,7 @@ TOPICS("ELFT2400", 2, [
 
 // ================= ELVE3610 – enhet 0: Rotasjoner og transformasjoner =================
 TOPICS("ELVE3610", 0, [
-{ id: "rotasjonsmatrise",
+{ id: "rotasjonsmatrise", chk: ["sin(90*deg) ≈ 1"],
   fig: `<svg viewBox="0 0 240 140"><path d="M40 115H210M40 115V15" class="dim"/><path d="M40 115L150 45" class="a"/><path d="M150 45l-14 3 5 11z" class="af"/><path d="M40 115L170 115" class="d"/><path d="M78 115a38 38 0 0 1-8 -24" class="t"/><text x="83" y="72">v'</text><text x="84" y="106">θ</text></svg>`,
   nb: { t: "Rotasjonsmatrise",
     intro: "En rotasjonsmatrise dreier en vektor eller et punkt om origo uten å endre lengden. Den er ortogonal, slik at den inverse rotasjonen ganske enkelt er transponeringen. To rotasjoner kan settes sammen ved matrisemultiplikasjon, men i 3D spiller rekkefølgen som regel en rolle.",

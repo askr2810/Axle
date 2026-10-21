@@ -6,7 +6,7 @@
 
 // Enhet 0: Tall, brøk og prosent
 TOPICS("GMAT", 0, [
-{ id: "regnerekkefolge",
+{ id: "regnerekkefolge", chk: ["10-2*(3-5) ≈ 14"],
   nb: { t: "Regnerekkefølge",
     intro: "Når et regnestykke har flere regneoperasjoner, må vi vite hvilken som skal gjøres først for å få samme svar hver gang. Rekkefølgen er: parenteser, så potenser, så ganging og deling, og til slutt pluss og minus.",
     f: [["()\\ \\to\\ a^n\\ \\to\\ \\times,\\div\\ \\to\\ +,-", "rekkefølgen regnestykket skal utføres i"], ["-a^2 = -(a^2),\\quad (-a)^2 = a^2", "potensen gjelder bare tallet uten parentes"]],
@@ -19,7 +19,7 @@ TOPICS("GMAT", 0, [
     legend: [["()", "computed first", ""], ["a^n", "power, computed before $\\times$ and $\\div$", ""]],
     ex: "$10 - 2\\cdot(3 - 5) = 10 - 2\\cdot(-2) = 10 + 4 = 14$.",
     tip: "Subtracting a negative number is the same as adding it." } },
-{ id: "brok",
+{ id: "brok", chk: ["3+2 ≈ 5", "2*3 ≈ 6", "(2/3)*(3/4)*2 ≈ 1"],
   nb: { t: "Brøkregning",
     intro: "En brøk $\\frac{a}{b}$ betyr $a$ delt på $b$. Ved pluss og minus må brøkene ha felles nevner, ved ganging ganger vi teller med teller og nevner med nevner, og ved deling ganger vi med den omvendte brøken.",
     f: [[`\\frac{${mcA("a")}}{${mcA("b")}} + \\frac{${mcB("c")}}{${mcB("d")}} = \\frac{${mcA("a")}${mcC("d")}+${mcB("c")}${mcC("b")}}{${mcA("b")}${mcC("d")}}`, "addisjon (felles nevner)"], ["\\frac{a}{b}\\cdot\\frac{c}{d} = \\frac{ac}{bd}", "multiplikasjon"], ["\\frac{a}{b} : \\frac{c}{d} = \\frac{a}{b}\\cdot\\frac{d}{c}", "divisjon: gang med den omvendte brøken"]],
@@ -42,7 +42,7 @@ TOPICS("GMAT", 0, [
         [`= \\frac{${mcA("a")}${mcC("d")} + ${mcB("c")}${mcC("b")}}{${mcA("b")}${mcC("d")}}`, "Now both fractions have the denominator $bd$. Add the numerators and keep the denominator."]] }],
     ex: `$\\frac{${mcA("1")}}{${mcA("2")}} + \\frac{${mcB("1")}}{${mcB("3")}} = \\frac{${mcA("1")}\\cdot ${mcC("3")}}{${mcA("2")}\\cdot ${mcC("3")}} + \\frac{${mcB("1")}\\cdot ${mcC("2")}}{${mcB("3")}\\cdot ${mcC("2")}} = \\frac{3}{6} + \\frac{2}{6} = \\frac{5}{6}$.\n$\\frac{2}{3}\\cdot\\frac{3}{4} = \\frac{6}{12} = \\frac{1}{2}$.`,
     tip: "Never add the denominators directly, as in $\\frac12+\\frac13 \\neq \\frac25$." } },
-{ id: "prosent",
+{ id: "prosent", chk: ["8000*1.25*0.80 ≈ 8000"],
   nb: { t: "Prosent og vekstfaktor",
     intro: "Prosent betyr hundredeler: $p\\,\\% = \\frac{p}{100}$. En økning på $p\\,\\%$ svarer til å gange med vekstfaktoren $1+\\frac{p}{100}$, og en nedgang svarer til å gange med $1-\\frac{p}{100}$. Flere endringer etter hverandre ganges sammen.",
     f: [["p\\,\\% = \\frac{p}{100}", "prosent som desimaltall"], [`\\text{ny} = ${mcA("\\text{gammel}")}\\cdot\\left(1 \\pm ${mcC("\\frac{p}{100}")}\\right)`, "vekstfaktor ved økning (+) eller nedgang (−)"], ["\\text{endring} = \\frac{\\text{ny} - \\text{gammel}}{\\text{gammel}}\\cdot 100\\,\\%", "prosentvis endring"]],
@@ -73,7 +73,7 @@ TOPICS("GMAT", 0, [
 
 // Enhet 1: Potenser, røtter og tierpotenser
 TOPICS("GMAT", 1, [
-{ id: "potensregler",
+{ id: "potensregler", chk: ["2^(3+4) ≈ 128"],
   nb: { t: "Potensregler",
     intro: "En potens $a^n$ er en snarvei for gjentatt multiplikasjon av $a$ med seg selv $n$ ganger. Ved ganging av like grunntall legges eksponentene sammen, ved deling trekkes de fra, og ved potens i potens ganges de. Utledningen under viser hvorfor, ved å telle $a$-ene.",
     f: [[`a^{${mcA("m")}}\\cdot a^{${mcB("n")}} = a^{${mcA("m")}+${mcB("n")}}`, "ganging: legg sammen eksponentene"], [`\\frac{a^{${mcA("m")}}}{a^{${mcB("n")}}} = a^{${mcA("m")}-${mcB("n")}}`, "deling: trekk fra eksponentene"], [`(a^{${mcA("m")}})^{${mcB("n")}} = a^{${mcA("m")}\\cdot ${mcB("n")}}`, "potens i potens: gang eksponentene"]],
@@ -108,7 +108,7 @@ TOPICS("GMAT", 1, [
         [`= a^{${mcA("2")}+${mcA("2")}+${mcA("2")}} = a^{${mcA("2")}\\cdot ${mcB("3")}} = a^6`, "Use the multiplication rule and add the exponents: three twos are $2\\cdot 3 = 6$."]] }],
     ex: `$2^{${mcA("3")}}\\cdot 2^{${mcB("4")}} = 2^{${mcA("3")}+${mcB("4")}} = 2^7 = 128$.`,
     tip: "$a^m\\cdot a^n \\neq a^{mn}$ - the exponents are added, not multiplied." } },
-{ id: "rotter",
+{ id: "rotter", chk: ["64^(1/3) ≈ 4", "4*4^(-1) ≈ 1"],
   nb: { t: "Røtter",
     intro: "Roten $\\sqrt[n]{a}$ er tallet som gir $a$ når det opphøyes i $n$-te. En rot kan alltid skrives som en brøkeksponent, og negativ eksponent betyr at brøken snus.",
     f: [["\\sqrt[n]{a} = a^{1/n}", "rot som brøkeksponent"], ["\\sqrt{ab} = \\sqrt{a}\\cdot\\sqrt{b}", "produktregel for røtter"], ["a^{-n} = \\frac{1}{a^n}", "negativ eksponent"]],
@@ -121,7 +121,7 @@ TOPICS("GMAT", 1, [
     legend: [["n", "degree of the root", ""], ["a", "radicand, the number under the root sign", ""]],
     ex: "$\\sqrt[3]{64}\\cdot 4^{-1} = 4\\cdot\\frac{1}{4} = 1$, since $4^3 = 64$.",
     tip: "$\\sqrt{a+b} \\neq \\sqrt{a}+\\sqrt{b}$ - roots only split over multiplication and division." } },
-{ id: "normalform",
+{ id: "normalform", chk: ["(2.0e5*3.0e-2)/(4.0e3) ≈ 1.5"],
   nb: { t: "Normalform",
     intro: "Normalform (vitenskapelig notasjon) er en kompakt måte å skrive svært store eller svært små tall på. Tallet skrives som en mantisse mellom 1 og 10 ganget med en tierpotens, og enhetsprefikser som kilo og milli bygger på det samme.",
     f: [["t = a\\cdot 10^n,\\quad 1 \\le |a| < 10", "normalform"], ["\\text{k} = 10^3,\\ \\text{m} = 10^{-3},\\ \\mu = 10^{-6}", "vanlige enhetsprefikser"]],
@@ -138,7 +138,7 @@ TOPICS("GMAT", 1, [
 
 // Enhet 2: Algebra og ligninger
 TOPICS("GMAT", 2, [
-{ id: "kvadratsetninger",
+{ id: "kvadratsetninger", chk: ["20^2+2*20*3+3^2 ≈ 529", "2*2*5 ≈ 20"],
   // arealet av et kvadrat med side a + b: a² og b² i hjørnene, og to rektangler ab – derfor 2ab
   fig: `<svg viewBox="0 0 240 140"><rect x="70" y="22" width="70" height="70" class="ma"/><rect x="140" y="22" width="35" height="70" class="mc"/><rect x="70" y="92" width="70" height="35" class="mc"/><rect x="140" y="92" width="35" height="35" class="mb"/><path d="M70 14H139" class="mla"/><path d="M141 14H175" class="mlb"/><path d="M60 22V91" class="mla"/><path d="M60 93V127" class="mlb"/><text x="101" y="10" class="mta">a</text><text x="154" y="10" class="mtb">b</text><text x="46" y="62" class="mta">a</text><text x="46" y="115" class="mtb">b</text><text x="95" y="63" class="mta">a²</text><text x="148" y="63" class="mtc">ab</text><text x="95" y="115" class="mtc">ab</text><text x="148" y="115" class="mtb">b²</text></svg>`,
   nb: { t: "Kvadratsetningene",
@@ -191,7 +191,7 @@ TOPICS("GMAT", 2, [
         [`= ${mcA("a^2")} - ${mcB("b^2")}`, "Only $a^2 - b^2$ is left. That is why this rule has no middle term."]] }],
     ex: `With $a = x$ and $b = 3$:\n$(${mcA("x")}+${mcB("3")})^2 = ${mcA("x^2")} + ${mcC("2\\cdot x\\cdot 3")} + ${mcB("3^2")}$\n$= ${mcA("x^2")} + ${mcC("6x")} + ${mcB("9")}$\n$(${mcA("2x")}-${mcB("5")})^2 = ${mcA("4x^2")} - ${mcC("20x")} + ${mcB("25")}$, because the middle term is $${mcC("2\\cdot 2x\\cdot 5")} = ${mcC("20x")}$\nIn your head: $23^2 = (${mcA("20")}+${mcB("3")})^2$\n$= ${mcA("400")} + ${mcC("120")} + ${mcB("9")} = 529$\nDifference of squares: $(${mcA("x")}+${mcB("3")})(${mcA("x")}-${mcB("3")}) = ${mcA("x^2")} - ${mcB("9")}$`,
     tip: `$(${mcA("a")}+${mcB("b")})^2 \\neq ${mcA("a^2")} + ${mcB("b^2")}$ - the middle term $${mcC("2ab")}$ is often forgotten.` } },
-{ id: "linearligning",
+{ id: "linearligning", chk: ["6+4 ≈ 10"],
   nb: { t: "Lineær ligning",
     intro: "En lineær ligning har den ukjente $x$ bare i første grad. Vi løser den ved å gjøre samme operasjon på begge sider av likhetstegnet, til $x$ står alene på én side.",
     f: [[`${mcA("ax")} + ${mcB("b")} = ${mcB("c")}\\ \\Rightarrow\\ ${mcA("x")} = \\frac{${mcB("c")}-${mcB("b")}}{a}`, "løs en lineær ligning for x"]],
@@ -220,7 +220,7 @@ TOPICS("GMAT", 2, [
         [`${mcA("x")} = ${mcB("10")}`, "Answer: $x = 10$. Check in the original equation: $3(10-2) = 24$ and $2\\cdot 10 + 4 = 24$."]] }],
     ex: "$3(x-2) = 2x+4$\n$\\Rightarrow 3x - 6 = 2x + 4$\n$\\Rightarrow x = 10$",
     tip: "Whatever you do to one side of the equals sign, you must do to the other." } },
-{ id: "andregradsligning",
+{ id: "andregradsligning", chk: ["4+32 ≈ 36", "(2+6)/2 ≈ 4", "(2-6)/2 ≈ -2"],
   nb: { t: "Andregradsligning",
     intro: "En andregradsligning $ax^2+bx+c=0$ løses med abc-formelen, i motsetning til en lineær ligning som løses ved å flytte og dele. Uttrykket under rottegnet, diskriminanten $D$, forteller hvor mange løsninger vi får. Formelen kommer fra første kvadratsetning, som utledningen under viser.",
     f: [["x = \\frac{-b \\pm \\sqrt{b^2 - 4ac}}{2a}", "abc-formelen"], ["D = b^2 - 4ac", "diskriminanten"]],
@@ -255,7 +255,7 @@ TOPICS("GMAT", 2, [
 
 // Enhet 3: Funksjoner og grafer
 TOPICS("GMAT", 3, [
-{ id: "linearfunksjon",
+{ id: "linearfunksjon", chk: ["(12-3)/(4-1) ≈ 3"],
   fig: `<svg viewBox="0 0 240 140"><path d="M30 120H225" class="dim"/><path d="M30 130V15" class="dim"/><path d="M30 100L205 18" class="a"/><path d="M205 18l-15 3 5 12z" class="af"/><path d="M100 67H160V39" class="dim"/><text x="120" y="82">Δx</text><text x="163" y="55">Δy</text><text x="14" y="103">b</text><text x="208" y="15">f</text></svg>`,
   nb: { t: "Lineær funksjon",
     intro: "En lineær funksjon $f(x)=ax+b$ har en graf som er en rett linje. Stigningstallet $a$ er endring i $y$ per endring i $x$, og $b$ er skjæringspunktet med y-aksen.",
@@ -269,7 +269,7 @@ TOPICS("GMAT", 3, [
     legend: [["a", "slope", ""], ["b", "y-intercept (where $x=0$)", ""]],
     ex: "The line through $(1,3)$ and $(4,12)$: $a = \\frac{12-3}{4-1}=3$, and $3 = 3\\cdot 1+b \\Rightarrow b=0$, so $f(x)=3x$.",
     tip: "It is $a$, not $b$, that is the slope - easy to mix up." } },
-{ id: "andregradsfunksjon",
+{ id: "andregradsfunksjon", chk: ["-8/(2*(-2)) ≈ 2", "-2*2^2+8*2+3 ≈ 11"],
   fig: `<svg viewBox="0 0 240 140"><path d="M20 125H225" class="dim"/><path d="M30 125V15" class="dim"/><path d="M35 35Q120 135 205 35" class="d"/><circle cx="120" cy="85" r="3" class="af"/><path d="M120 125V85" class="dash"/><text x="106" y="132">x<tspan dy="4" font-size="10">t</tspan></text><text x="129" y="73">V</text></svg>`,
   nb: { t: "Andregradsfunksjon",
     intro: "En andregradsfunksjon $f(x)=ax^2+bx+c$ har en parabel som graf. Er $a>0$ vender parabelen oppover med et bunnpunkt (minimum), er $a<0$ vender den nedover med et toppunkt (maksimum).",
@@ -283,7 +283,7 @@ TOPICS("GMAT", 3, [
     legend: [["a", "sets direction (up/down) and width", ""], ["x_t", "x-coordinate of the vertex", ""]],
     ex: "$f(x)=-2x^2+8x+3$: $x_t = -\\frac{8}{2\\cdot(-2)}=2$, and $f(2)=-8+16+3=11$. Since $a<0$, $(2,11)$ is a maximum.",
     tip: "Plug $x_t$ back into the function to find the y-coordinate of the vertex." } },
-{ id: "nullpunkter",
+{ id: "nullpunkter", chk: ["16-16 ≈ 0", "4-20 ≈ -16"],
   nb: { t: "Nullpunkter og diskriminant",
     intro: "Nullpunktene til en funksjon er der grafen krysser x-aksen, altså løsningene av $f(x)=0$. For en andregradsfunksjon forteller fortegnet til diskriminanten $D$ hvor mange nullpunkter grafen har.",
     f: [["D>0:\\ \\text{to nullpunkter}", "parabelen krysser x-aksen to steder"], ["D=0:\\ \\text{ett nullpunkt}", "parabelen tangerer x-aksen"], ["D<0:\\ \\text{ingen nullpunkter}", "parabelen når ikke x-aksen"]],
@@ -313,7 +313,7 @@ TOPICS("GMAT", 4, [
     legend: [["a,\\ N_0", "initial value", ""], ["b", "growth factor per step", ""], ["k", "growth rate ($k>0$ growth, $k<0$ decay)", "1/time"]],
     ex: "$N_0=200$, 5% growth per year: $N(3)=200\\cdot 1.05^3 \\approx 231.5$.",
     tip: "10% growth two years in a row gives $1.1^2=1.21$, i.e. 21%, not 20%." } },
-{ id: "logaritmer",
+{ id: "logaritmer", chk: ["ln(1.5)/ln(1.05) ≈ 8.31"],
   nb: { t: "Logaritmer",
     intro: "Logaritmen er den omvendte operasjonen av potens: $\\log_b x=y$ betyr $b^y=x$. Vi bruker logaritmer til å løse ligninger der den ukjente står i eksponenten.",
     f: [["\\log_b x = y \\iff b^y = x", "definisjon av logaritme"], ["\\ln(ab) = \\ln a + \\ln b,\\quad \\ln(a^n) = n\\ln a", "regneregler for logaritmer"]],
@@ -326,7 +326,7 @@ TOPICS("GMAT", 4, [
     legend: [["b", "base", ""], ["x", "argument, $x>0$", ""]],
     ex: "Solve $1.05^t = 1.5$: $t = \\dfrac{\\ln 1.5}{\\ln 1.05} \\approx 8.31$.",
     tip: "$\\ln(a+b)$ is not $\\ln a + \\ln b$ - the logarithm of a sum cannot be simplified that way." } },
-{ id: "halveringstid",
+{ id: "halveringstid", chk: ["ln(0.88) ≈ -0.128", "ln(2)/0.128 ≈ 5.42"],
   nb: { t: "Halverings- og doblingstid",
     intro: "Halveringstiden er tiden det tar før en avtagende størrelse er halvert, og doblingstiden er den tilsvarende tiden for en voksende størrelse. Begge finnes direkte fra vekstraten $k$.",
     f: [["T = \\frac{\\ln 2}{|k|}", "halverings- eller doblingstid"]],
@@ -343,7 +343,7 @@ TOPICS("GMAT", 4, [
 
 // Enhet 5: Trigonometri og geometri
 TOPICS("GMAT", 5, [
-{ id: "trigonometri", tg: "learn", // knapp til «Steg for steg» i enhetssirkelen (trig.js)
+{ id: "trigonometri", chk: ["0.80/4.0 ≈ 0.20", "sqrt(4.0^2-0.80^2) ≈ 3.92"], tg: "learn", // knapp til «Steg for steg» i enhetssirkelen (trig.js)
   fig: `<svg viewBox="0 0 240 140"><path d="M40 120H200V30L40 120Z" class="d"/><path d="M180 120V100H200V120" class="dim"/><path d="M60 120a20 20 0 0 1 18-9" class="t"/><text x="83" y="116">v</text><text x="115" y="132">b</text><text x="207" y="78">a</text><text x="105" y="70">c</text></svg>`,
   nb: { t: "Trigonometri i rettvinklet trekant",
     intro: "I en rettvinklet trekant knytter sinus, cosinus og tangens vinkelen $v$ til forholdet mellom sidene. Pythagoras' setning knytter sidene sammen uten vinkler.",
@@ -389,7 +389,7 @@ TOPICS("GMAT", 5, [
 
 // Enhet 6: Vektorer
 TOPICS("GMAT", 6, [
-{ id: "vektorkomponenter",
+{ id: "vektorkomponenter", chk: ["10*cos(37*deg) ≈ 7.99", "10*sin(37*deg) ≈ 6.02"],
   fig: `<svg viewBox="0 0 240 140"><path d="M40 115H210M40 115V15" class="dim"/><path d="M40 115L150 45" class="a"/><path d="M150 45l-14 1 6 12z" class="af"/><path d="M40 115H150" class="d"/><path d="M150 115V45" class="d"/><path d="M75 115a35 35 0 0 0-4-17" class="t"/><text x="88" y="68">a</text><text x="85" y="132">a<tspan dy="4" font-size="10">x</tspan></text><text x="157" y="82">a<tspan dy="4" font-size="10">y</tspan></text><text x="82" y="107">θ</text></svg>`,
   nb: { t: "Vektorkomponenter",
     intro: "En vektor $\\vec a$ har både størrelse og retning, og kan deles opp i en x- og en y-komponent. Det gjør det enkelt å legge sammen flere vektorer: legg sammen komponentene hver for seg.",
@@ -403,7 +403,7 @@ TOPICS("GMAT", 6, [
     legend: [["a_x,\\ a_y", "components", ""], ["\\theta", "angle from the x-axis", "°"]],
     ex: "A vector of length 10 at angle $37^\\circ$: $a_x=10\\cos37^\\circ\\approx 7.99$ and $a_y=10\\sin37^\\circ\\approx 6.02$.",
     tip: "Vectors are added by adding the components, never by adding the magnitudes directly." } },
-{ id: "skalarprodukt",
+{ id: "skalarprodukt", chk: ["3*4+4*(-3) ≈ 0"],
   nb: { t: "Skalarproduktet",
     intro: "Skalarproduktet (prikkproduktet) av to vektorer gir et tall, ikke en vektor. Det brukes til å finne vinkelen mellom vektorer, og til å regne ut arbeid: $W=\\vec F\\cdot\\vec s$.",
     f: [["\\vec a\\cdot\\vec b = a_xb_x + a_yb_y", "skalarprodukt, komponentform"], ["\\vec a\\cdot\\vec b = |\\vec a||\\vec b|\\cos\\theta", "skalarprodukt, geometrisk form"]],
@@ -416,7 +416,7 @@ TOPICS("GMAT", 6, [
     legend: [["\\theta", "angle between the vectors", "°"]],
     ex: "$\\vec a=(3,4)$ and $\\vec b=(4,-3)$: $\\vec a\\cdot\\vec b=12-12=0$, so the vectors are perpendicular.",
     tip: "The dot product is zero exactly when the vectors are perpendicular." } },
-{ id: "moment-kryssprodukt",
+{ id: "moment-kryssprodukt", chk: ["0.3*50 ≈ 15"],
   fig: `<svg viewBox="0 0 240 140"><circle cx="50" cy="105" r="4" class="af"/><path d="M50 105L170 60" class="d"/><path d="M170 60L170 20" class="a"/><path d="M170 20l-7 12h14z" class="af"/><path d="M75 95a30 25 0 0 1 15-22" class="t"/><text x="35" y="94">O</text><text x="179" y="42">F</text><text x="104" y="101">r</text><text x="68" y="79">M</text></svg>`,
   nb: { t: "Moment som kryssprodukt",
     intro: "Momentet av en kraft om et punkt kan regnes ut med vektorer i planet, uten å måle vinkler direkte. Det er $z$-komponenten av kryssproduktet mellom armvektoren og kraften.",
@@ -438,7 +438,7 @@ TOPICS("GMAT", 6, [
 
 // Enhet 0: Derivasjon
 TOPICS("MEK1000", 0, [
-{ id: "derivasjonsregler",
+{ id: "derivasjonsregler", chk: ["2*0*exp(0)+0^2*exp(0) ≈ 0"],
   nb: { t: "Produkt- og kjerneregel",
     intro: "Når en funksjon er satt sammen av flere funksjoner, må vi bruke egne regler for å derivere den. Produktregelen gjelder for et produkt av to funksjoner, og kjerneregelen for en funksjon inni en annen funksjon.",
     f: [["(fg)' = f'g + fg'", "produktregelen"], ["\\left(\\frac{f}{g}\\right)' = \\frac{f'g - fg'}{g^2}", "brøkregelen"], ["\\big(f(g(x))\\big)' = f'(g(x))\\cdot g'(x)", "kjerneregelen"]],
@@ -464,7 +464,7 @@ TOPICS("MEK1000", 0, [
     legend: [["e", "Euler's number, $\\approx 2.718$", ""]],
     ex: "With the chain rule: $\\dfrac{d}{dx}\\sin(2x) = 2\\cos(2x)$ and $\\dfrac{d}{dx}e^{x^2} = 2x\\,e^{x^2}$.",
     tip: "Don't forget to multiply by the inner derivative when the argument is not just $x$." } },
-{ id: "kritiske-punkter",
+{ id: "kritiske-punkter", chk: ["2*2-4 ≈ 0", "2^2-4*2 ≈ -4"],
   nb: { t: "Ekstremalpunkter",
     intro: "I et ekstremalpunkt (topp- eller bunnpunkt) er stigningstallet til tangenten null. Fortegnet til den andrederiverte forteller om det er et maksimum eller et minimum.",
     f: [["f'(x) = 0", "kritisk punkt"], ["f''(x) > 0 \\Rightarrow \\text{minimum},\\quad f''(x) < 0 \\Rightarrow \\text{maksimum}", "andrederiverttesten"]],
@@ -481,7 +481,7 @@ TOPICS("MEK1000", 0, [
 
 // Enhet 1: Integrasjon
 TOPICS("MEK1000", 1, [
-{ id: "bestemt-integral",
+{ id: "bestemt-integral", chk: ["(-cos(pi))-(-cos(0)) ≈ 2"],
   nb: { t: "Bestemt integral",
     intro: "Analysens fundamentalteorem knytter derivasjon og integrasjon sammen: for å regne ut et bestemt integral finner vi en antiderivert $F$ og setter inn grensene.",
     f: [["\\int_a^b f(x)\\,dx = F(b) - F(a)", "analysens fundamentalteorem, der $F'=f$"]],
@@ -537,7 +537,7 @@ TOPICS("MEK1000", 2, [
     legend: [["a", "the point the limit is taken towards", ""]],
     ex: "$\\displaystyle\\lim_{x\\to0}\\frac{\\sin x}{x} = 1$ (the type $0/0$).",
     tip: "L'Hôpital only applies to $0/0$ or $\\infty/\\infty$ - other forms must be rewritten first." } },
-{ id: "taylorrekke",
+{ id: "taylorrekke", chk: ["1+0.1+0.1^2/2 ≈ 1.105", "exp(0.1) ≈ 1.1052"],
   nb: { t: "Taylorrekke",
     intro: "En Taylorrekke tilnærmer en funksjon med et polynom bygd av funksjonens deriverte i ett punkt. Jo flere ledd vi tar med, desto bedre blir tilnærmingen nær punktet.",
     f: [["e^x = 1 + x + \\frac{x^2}{2!} + \\frac{x^3}{3!} + \\dots", "Taylorrekken til $e^x$ om $x=0$"]],
@@ -550,7 +550,7 @@ TOPICS("MEK1000", 2, [
     legend: [["n!", "$n$ factorial", ""]],
     ex: "Approximate $e^{0.1}$ to degree 2: $1+0.1+\\frac{0.1^2}{2}=1.105$ (exact value $\\approx 1.1052$).",
     tip: "Closer to the expansion point gives a better approximation for a given number of terms." } },
-{ id: "komplekse-tall",
+{ id: "komplekse-tall", chk: ["sqrt(9+16) ≈ 5", "cos(pi) ≈ -1"],
   nb: { t: "Komplekse tall",
     intro: "Et komplekst tall $z=a+bi$ har en reell og en imaginær del, der $i^2=-1$. Eulers formel knytter komplekse eksponentialfunksjoner til sinus og cosinus.",
     f: [["z = a+bi,\\quad i^2=-1", "kartesisk form"], ["|z| = \\sqrt{a^2+b^2}", "modulus (lengde)"], ["e^{i\\theta} = \\cos\\theta + i\\sin\\theta", "Eulers formel"]],
@@ -571,7 +571,7 @@ TOPICS("MEK1000", 2, [
 
 // Enhet 0: Matriser
 TOPICS("MEK2000", 0, [
-{ id: "determinant",
+{ id: "determinant", chk: ["2*4-1*3 ≈ 5"],
   nb: { t: "Determinant (2×2)",
     intro: "Determinanten til en kvadratisk matrise er et enkelt tall som forteller mye om matrisen, blant annet om den har en invers. For en 2×2-matrise regnes den ut direkte fra elementene.",
     f: [["\\det\\begin{pmatrix}a&b\\\\c&d\\end{pmatrix} = ad-bc", "2×2-determinant"]],
@@ -584,7 +584,7 @@ TOPICS("MEK2000", 0, [
     legend: [["\\det A", "the determinant of A", ""]],
     ex: "$\\det\\begin{pmatrix}2&1\\\\3&4\\end{pmatrix} = 2\\cdot4-1\\cdot3 = 5$.",
     tip: "$\\det A=0$ means $A$ is not invertible, and that the columns are linearly dependent." } },
-{ id: "matrisemultiplikasjon",
+{ id: "matrisemultiplikasjon", chk: ["(-3)*(-2)+(-2)*(-1) ≈ 8"],
   nb: { t: "Matrisemultiplikasjon",
     intro: "Å multiplisere matriser gjøres rad ganger kolonne, og er ikke det samme som å gange elementvis. Rekkefølgen betyr noe: generelt er $AB\\neq BA$.",
     f: [["(AB)_{ij} = \\sum_k A_{ik}B_{kj}", "element $ij$ i produktet, rad i A ganger kolonne j i B"], ["(AB)^T = B^TA^T", "transponert av et produkt (rekkefølgen snus)"]],
@@ -614,7 +614,7 @@ TOPICS("MEK2000", 0, [
 
 // Enhet 1: Lineære systemer og egenverdier
 TOPICS("MEK2000", 1, [
-{ id: "egenverdier",
+{ id: "egenverdier", chk: ["4+3 ≈ 7", "4*3-1*2 ≈ 10", "(7+sqrt(49-40))/2 ≈ 5", "(7-sqrt(49-40))/2 ≈ 2"],
   nb: { t: "Egenverdier og egenvektorer",
     intro: "En egenvektor $\\vec v$ til matrisen $A$ er en vektor som bare skaleres, ikke dreies, når vi multipliserer med $A$. Skaleringsfaktoren $\\lambda$ kalles egenverdien.",
     f: [["A\\vec v = \\lambda\\vec v,\\quad \\vec v\\neq\\vec 0", "egenverdiligningen"], ["\\det(A-\\lambda I) = 0", "karakteristisk ligning, gir egenverdiene"]],
@@ -627,7 +627,7 @@ TOPICS("MEK2000", 1, [
     legend: [["\\lambda", "eigenvalue", ""], ["\\vec v", "eigenvector", ""]],
     ex: "$A=\\begin{pmatrix}4&1\\\\2&3\\end{pmatrix}$: $\\lambda^2-7\\lambda+10=0$ gives $\\lambda=5$ and $\\lambda=2$.",
     tip: "The sum of the eigenvalues is the trace of $A$, and the product is $\\det A$ - a quick check." } },
-{ id: "linere-systemer",
+{ id: "linere-systemer", chk: ["5-3 ≈ 2"],
   nb: { t: "Lineære systemer og rang",
     intro: "Rangen til en matrise er antall pivotelementer i trappeformen, og forteller hvor mange av likningene som faktisk er uavhengige. Har systemet flere ukjente enn rangen, blir noen variabler frie.",
     f: [["\\text{rang}(A) = \\text{antall pivotelementer}", "rangen til A"], ["\\text{antall frie variabler} = n - \\text{rang}(A)", "$n$ er antall ukjente"]],
@@ -657,7 +657,7 @@ TOPICS("MEK2000", 1, [
 
 // Enhet 2: Differensialligninger
 TOPICS("MEK2000", 2, [
-{ id: "forste-ordens-de",
+{ id: "forste-ordens-de", chk: ["5*2^(-2) ≈ 1.25"],
   nb: { t: "Første ordens differensialligning",
     intro: "En separabel differensialligning $y'=ky$ har løsning $y=Ce^{kx}$, der $C$ bestemmes av en initialbetingelse. For en mer generell lineær ligning $y'+p(x)y=q(x)$ bruker vi en integrerende faktor.",
     f: [["y' = ky\\ \\Rightarrow\\ y = Ce^{kx}", "separabel ligning, eksponentiell vekst/nedgang"], ["\\mu(x) = e^{\\int p(x)\\,dx}", "integrerende faktor for $y'+p(x)y=q(x)$"]],
@@ -670,7 +670,7 @@ TOPICS("MEK2000", 2, [
     legend: [["k", "growth rate (constant)", ""], ["C", "constant, determined by $y(0)$", ""]],
     ex: "$y'=-2y$, $y(0)=5$: $y=5e^{-2x}$, so $y(\\ln 2)=5\\cdot2^{-2}=1.25$.",
     tip: "Multiplying the equation by the integrating factor $\\mu$ turns the left side into $(\\mu y)'$." } },
-{ id: "andre-ordens-homogen",
+{ id: "andre-ordens-homogen", chk: ["1+2 ≈ 3", "1*2 ≈ 2"],
   nb: { t: "Andre ordens, reelle røtter",
     intro: "For en homogen andreordens ligning $y''+ay'+by=0$ med konstante koeffisienter setter vi opp den karakteristiske ligningen. Har den to forskjellige reelle røtter, blir den generelle løsningen en sum av to eksponentialfunksjoner.",
     f: [["r^2 + ar + b = 0", "karakteristisk ligning for $y''+ay'+by=0$"], ["y = C_1e^{r_1x} + C_2e^{r_2x}", "generell løsning, to forskjellige reelle røtter"]],
@@ -704,7 +704,7 @@ TOPICS("MEK2000", 2, [
 
 // Enhet 0: Partielle deriverte
 TOPICS("DAVE3700", 0, [
-{ id: "partiellderivert-gradient",
+{ id: "partiellderivert-gradient", chk: ["sqrt(36+64) ≈ 10"],
   nb: { t: "Partiellderivert og gradient",
     intro: "En partiellderivert deriverer med hensyn på én variabel om gangen, mens de andre holdes konstante. Gradienten $\\nabla f$ samler alle partiellderiverte i en vektor som peker i retningen der $f$ vokser raskest.",
     f: [["f_x = \\frac{\\partial f}{\\partial x}", "partiellderivert mhp x (y holdes konstant)"], ["\\nabla f = (f_x, f_y)", "gradienten"]],
@@ -717,7 +717,7 @@ TOPICS("DAVE3700", 0, [
     legend: [["\\nabla f", "gradient vector, points towards steepest increase", ""]],
     ex: "$f=x^2+y^2$ at $(3,4)$: $\\nabla f=(6,8)$, and $|\\nabla f|=\\sqrt{36+64}=10$.",
     tip: "The gradient is always perpendicular to the level curves of $f$." } },
-{ id: "andrederiverttest",
+{ id: "andrederiverttest", chk: ["6*4-0^2 ≈ 24"],
   nb: { t: "Andrederiverttesten",
     intro: "I et kritisk punkt der $\\nabla f=\\vec 0$ avgjør andrederiverttesten om det er et lokalt minimum, maksimum eller et sadelpunkt, ved hjelp av en diskriminant $D$ bygd av de andre partiellderiverte.",
     f: [["D = f_{xx}f_{yy} - f_{xy}^2", "testverdien"], ["D>0,\\ f_{xx}>0:\\ \\text{minimum}", "lokalt minimum"], ["D<0:\\ \\text{sadelpunkt}", "sadelpunkt"]],
@@ -730,7 +730,7 @@ TOPICS("DAVE3700", 0, [
     legend: [["D", "discriminant for the second derivative test", ""], ["f_{xx},\\,f_{yy},\\,f_{xy}", "second partial derivatives", ""]],
     ex: "$f=3x^2+2y^2$ at the origin: $f_{xx}=6,\\,f_{yy}=4,\\,f_{xy}=0$, $D=24>0$ and $f_{xx}>0$ - local minimum.",
     tip: "$D<0$ always gives a saddle point, whatever the sign of $f_{xx}$." } },
-{ id: "lagrange-multiplikator",
+{ id: "lagrange-multiplikator", chk: ["5*5 ≈ 25"],
   nb: { t: "Lagranges metode",
     intro: "Lagranges metode finner ekstremalpunkter for $f$ når $(x,y)$ er bundet til en kurve $g(x,y)=0$. I ekstremalpunktet er nivåkurven til $f$ tangent til bibetingelsen, så gradientene er parallelle.",
     f: [["\\nabla f = \\lambda\\nabla g", "Lagrange-betingelsen, sammen med $g=0$"]],
@@ -747,7 +747,7 @@ TOPICS("DAVE3700", 0, [
 
 // Enhet 1: Multiple integraler
 TOPICS("DAVE3700", 1, [
-{ id: "dobbeltintegral",
+{ id: "dobbeltintegral", chk: ["(1/2)*(1/2) ≈ 0.25"],
   nb: { t: "Dobbeltintegral",
     intro: "Et dobbeltintegral summerer en funksjon over et areal, og regnes vanligvis ut som to vanlige integraler etter hverandre. Fubinis teorem sier at rekkefølgen på integrasjonen ikke spiller noen rolle for kontinuerlige funksjoner på et rektangel.",
     f: [["\\iint_R f(x,y)\\,dA = \\int\\!\\!\\int f(x,y)\\,dx\\,dy", "dobbeltintegral, Fubinis teorem"]],
@@ -760,7 +760,7 @@ TOPICS("DAVE3700", 1, [
     legend: [["dA", "area element", "m²"]],
     ex: "$\\displaystyle\\iint_{[0,1]\\times[0,1]} xy\\,dA = \\int_0^1 x\\,dx\\cdot\\int_0^1 y\\,dy = \\tfrac12\\cdot\\tfrac12 = 0.25$.",
     tip: "When the integrand is a product $f(x)g(y)$ on a rectangle, the integral splits into two simple integrals." } },
-{ id: "polarkoordinater",
+{ id: "polarkoordinater", chk: ["2*pi*(1/2)/pi ≈ 1"],
   fig: `<svg viewBox="0 0 240 140"><path d="M50 115H210M50 115V25" class="dim"/><path d="M50 115L160 45" class="a"/><path d="M160 45l-15 2 7 12z" class="af"/><path d="M85 115a45 45 0 0 1 20-38" class="t"/><text x="106" y="98">r</text><text x="90" y="115">θ</text></svg>`,
   nb: { t: "Polarkoordinater",
     intro: "I polarkoordinater beskrives et punkt med avstand $r$ fra origo og vinkel $\\theta$. Arealelementet får en ekstra faktor $r$, som kommer fra Jacobi-determinanten ved variabelbyttet.",
@@ -774,7 +774,7 @@ TOPICS("DAVE3700", 1, [
     legend: [["r", "distance from the origin", ""], ["\\theta", "angle", "rad"]],
     ex: "Area of a unit disk: $\\displaystyle\\int_0^{2\\pi}\\!\\int_0^1 r\\,dr\\,d\\theta = 2\\pi\\cdot\\tfrac12 = \\pi$.",
     tip: "Don't forget the factor $r$ in the area element - that is the most common mistake when switching to polar coordinates." } },
-{ id: "kulekoordinater",
+{ id: "kulekoordinater", chk: ["(4/3)*pi*2^3 ≈ 33.51"],
   nb: { t: "Kulekoordinater",
     intro: "Kulekoordinater beskriver et punkt med avstand $\\rho$ fra origo, en polvinkel $\\varphi$ fra z-aksen og en asimutvinkel $\\theta$ i xy-planet. De er nyttige for integraler over kuler og kuleskall.",
     f: [["dV = \\rho^2\\sin\\varphi\\,d\\rho\\,d\\varphi\\,d\\theta", "volumelement i kulekoordinater"]],
@@ -791,7 +791,7 @@ TOPICS("DAVE3700", 1, [
 
 // Enhet 2: Vektoranalyse
 TOPICS("DAVE3700", 2, [
-{ id: "divergens-curl",
+{ id: "divergens-curl", chk: ["1+1+1 ≈ 3"],
   nb: { t: "Divergens og curl",
     intro: "Divergensen til et vektorfelt måler hvor mye feltet «strømmer ut» fra et punkt, mens curl måler hvor mye det virvler rundt et punkt. Begge er bygd av partiellderiverte av komponentene.",
     f: [["\\nabla\\cdot\\vec F = \\frac{\\partial F_x}{\\partial x}+\\frac{\\partial F_y}{\\partial y}+\\frac{\\partial F_z}{\\partial z}", "divergens"], ["\\nabla\\times(\\nabla f) = \\vec 0", "curl av et gradientfelt er alltid null"]],
@@ -804,7 +804,7 @@ TOPICS("DAVE3700", 2, [
     legend: [["\\vec F", "vector field", ""]],
     ex: "$\\nabla\\cdot(x,y,z) = 1+1+1 = 3$.",
     tip: "A gradient field is always irrotational: $\\nabla\\times(\\nabla f)=\\vec 0$." } },
-{ id: "greens-teorem",
+{ id: "greens-teorem", chk: ["1-0 ≈ 1"],
   fig: `<svg viewBox="0 0 240 140"><path d="M60 75a60 40 0 1 0 120 0a60 40 0 1 0-120 0Z" class="fill"/><path d="M60 75a60 40 0 1 0 120 0a60 40 0 1 0-120 0Z" class="d"/><path d="M170 75l10-4-2 11z" class="af"/><text x="115" y="80">D</text><text x="175" y="60">C</text></svg>`,
   nb: { t: "Greens teorem",
     intro: "Greens teorem knytter et linjeintegral rundt en lukket kurve $C$ til et dobbeltintegral over området $D$ innenfor. Det er en snarvei når linjeintegralet er vanskelig, men dobbeltintegralet er enkelt.",
@@ -818,7 +818,7 @@ TOPICS("DAVE3700", 2, [
     legend: [["C", "closed curve, counterclockwise around D", ""], ["D", "the region inside C", ""]],
     ex: "$\\vec F=(0,x)$ around the unit square: $\\oint = \\iint_D (1-0)\\,dA = 1$.",
     tip: "The curve $C$ must go counterclockwise around $D$, otherwise the sign of the result flips." } },
-{ id: "divergensteorem-stokes",
+{ id: "divergensteorem-stokes", chk: ["2*2^3 ≈ 16"],
   nb: { t: "Divergensteoremet og Stokes",
     intro: "Divergensteoremet (Gauss) knytter fluksen ut av en lukket flate til volumintegralet av divergensen innenfor. Stokes' teorem er analogen for en åpen flate: sirkulasjonen langs randkurven er lik fluksen av curl gjennom flaten.",
     f: [["\\oiint_S \\vec F\\cdot d\\vec S = \\iiint_V \\nabla\\cdot\\vec F\\,dV", "divergensteoremet (Gauss)"], ["\\oint_C \\vec F\\cdot d\\vec r = \\iint_S(\\nabla\\times\\vec F)\\cdot d\\vec S", "Stokes' teorem"]],
@@ -895,7 +895,7 @@ TOPICS("DAVE3705", 1, [
     legend: [["2L", "period", ""], ["a_0/2", "mean value of f", ""]],
     ex: "$f(x)=5+4\\cos x$ on $[-\\pi,\\pi]$: the mean value is $a_0/2=5$, because the cosine term has mean value 0.",
     tip: "The integrand with sine gives $b_n$, and the one with cosine gives $a_n$ - easy to mix up." } },
-{ id: "odde-like-funksjoner",
+{ id: "odde-like-funksjoner", chk: ["2/5 ≈ 0.4"],
   nb: { t: "Odde og like funksjoner",
     intro: "Symmetrien til en funksjon forenkler Fourierrekken kraftig: en odde funksjon har bare sinusledd, og en like funksjon har bare cosinusledd (og et konstantledd).",
     f: [["\\text{odde } f:\\ a_n=0\\ (\\text{bare sinusledd})", "odde funksjon"], ["\\text{like } f:\\ b_n=0\\ (\\text{bare cosinusledd})", "like funksjon"]],
@@ -925,7 +925,7 @@ TOPICS("DAVE3705", 1, [
 
 // Enhet 2: Partielle differensialligninger
 TOPICS("DAVE3705", 2, [
-{ id: "varmeligningen",
+{ id: "varmeligningen", chk: ["4*9 ≈ 36"],
   fig: `<svg viewBox="0 0 240 140"><path d="M30 90H210" class="b"/><path d="M30 70Q120 30 210 70" class="d"/><path d="M30 90V110M210 90V110" class="dim"/><text x="20" y="125">0</text><text x="200" y="125">L</text><text x="115" y="40">u</text></svg>`,
   nb: { t: "Varmeligningen",
     intro: "Varmeligningen beskriver hvordan temperaturen $u(x,t)$ i en stav utvikler seg over tid, og løses ofte ved separasjon av variable. Løsningen blir en sum av moder som hver dør ut med sin egen fart - høye moder raskest.",
@@ -939,7 +939,7 @@ TOPICS("DAVE3705", 2, [
     legend: [["c^2", "diffusion coefficient", ""], ["L", "length of the rod", "m"]],
     ex: "$c^2=4$, $L=\\pi$, $n=3$: the decay rate is $\\lambda=c^2(n\\pi/L)^2=4\\cdot9=36$.",
     tip: "Because higher modes decay fastest, the temperature profile smooths out faster as time passes." } },
-{ id: "bolgeligningen",
+{ id: "bolgeligningen", chk: ["sqrt(25) ≈ 5", "2*2*pi/2 ≈ 6.28"],
   fig: `<svg viewBox="0 0 240 140"><path d="M20 90H220" class="dim"/><path d="M20 90Q60 40 100 90T180 90" class="d"/><path d="M140 60L170 60" class="a"/><path d="M170 60l-10-5v10z" class="af"/><text x="150" y="48">c</text></svg>`,
   nb: { t: "Bølgeligningen",
     intro: "Bølgeligningen beskriver forstyrrelser som forplanter seg med en fast fart $c$, som på en streng. d'Alemberts løsning viser at enhver løsning er en sum av to bølger som går hver sin vei uten å endre form.",
@@ -953,7 +953,7 @@ TOPICS("DAVE3705", 2, [
     legend: [["c", "wave speed", "m/s"]],
     ex: "$u_{tt}=25u_{xx}$: $c=\\sqrt{25}=5$ m/s. A string with $L=2$ m and $c=2$ m/s has mode 2 with angular frequency $\\omega_2=\\dfrac{c\\cdot2\\pi}{L}=2\\pi\\approx6.28$ rad/s.",
     tip: "Unlike the heat equation, wave solutions are not damped - they oscillate without dying out." } },
-{ id: "separasjon-laplace",
+{ id: "separasjon-laplace", chk: ["(93-25)/10 ≈ 6.8", "25+6.8*10 ≈ 93"],
   nb: { t: "Separasjon og Laplaces ligning",
     intro: "Separasjon av variable antar at løsningen kan skrives som et produkt $u(x,t)=X(x)T(t)$, som gjør en PDE om til to enklere ordinære differensialligninger. Laplaces ligning beskriver en stasjonær (tidsuavhengig) tilstand, som stasjonær varmefordeling.",
     f: [["u(x,t) = X(x)\\,T(t)", "separasjonsansatsen"], ["\\nabla^2u = 0", "Laplaces ligning (stasjonær tilstand)"]],

@@ -195,7 +195,7 @@ TOPICS("GFYS", 2, [
 
 // ================= GFYS – enhet 3: Arbeid, energi og effekt =================
 TOPICS("GFYS", 3, [
-{ id: "arbeid",
+{ id: "arbeid", chk: ["60*15*cos(30*deg) ≈ 779"],
   fig: `<svg viewBox="0 0 240 140"><rect x="60" y="70" width="40" height="26" class="fill"/><path d="M60 70h40v26h-40z" class="d"/><path d="M100 83H180" class="a"/><path d="M180 83l-12-5v10z" class="af"/><path d="M60 108H200" class="dim"/><text x="130" y="75">F</text><text x="120" y="128">s</text></svg>`,
   nb: { t: "Arbeid",
     intro: "Arbeid er energien en kraft overfører når den virker mens noe flytter seg. Bare komponenten av kraften langs bevegelsen gjør arbeid: en kraft vinkelrett på bevegelsen gjør null arbeid, og en kraft som virker mot bevegelsen, som friksjon, gjør negativt arbeid.",
@@ -209,7 +209,7 @@ TOPICS("GFYS", 3, [
     legend: [["W", "work", "J"], ["F", "force", "N"], ["s", "displacement", "m"], ["\\theta", "angle between force and motion", "°"]],
     ex: "You pull a sled with $F = 60$ N in a rope at $30^\\circ$ to the ground, over $15$ m. The work is $W = 60\\cdot 15\\cdot\\cos 30^\\circ \\approx 779$ J.",
     tip: "If you carry something horizontally at constant height, the upward force does zero work – it is perpendicular to the motion." } },
-{ id: "kinetisk-potensiell-energi",
+{ id: "kinetisk-potensiell-energi", chk: ["0.5*80*10^2 ≈ 4000"],
   fig: `<svg viewBox="0 0 240 140"><path d="M30 120H220" class="dim"/><circle cx="60" cy="40" r="8" class="fill"/><path d="M60 48V105" class="dash"/><path d="M60 105l-6-13h12z" class="gf"/><circle cx="190" cy="105" r="8" class="fill"/><path d="M190 90H220" class="a"/><path d="M220 90l-12-5v10z" class="af"/><text x="15" y="80">h</text><text x="195" y="78">v</text></svg>`,
   nb: { t: "Kinetisk og potensiell energi",
     intro: "Kinetisk energi er energien i bevegelse og øker med kvadratet av farten. Potensiell energi er lagret energi på grunn av posisjon, for eksempel høyde i tyngdefeltet. Høyden måles fra et nullnivå du velger selv, og bare forskjeller i høyde har betydning.",
@@ -223,7 +223,7 @@ TOPICS("GFYS", 3, [
     legend: [["E_k", "kinetic energy", "J"], ["E_p", "potential energy", "J"], ["v", "speed", "m/s"], ["h", "height above the reference level", "m"]],
     ex: "A bicycle with rider, $m = 80$ kg, moves at $v = 10$ m/s. Kinetic energy: $E_k = \\tfrac12\\cdot 80\\cdot 10^2 = 4000$ J $= 4.0$ kJ.",
     tip: "Doubling the speed quadruples the kinetic energy – it depends on $v^2$, not $v$." } },
-{ id: "energibevaring",
+{ id: "energibevaring", chk: ["sqrt(2*9.81*5.0) ≈ 9.9"],
   fig: `<svg viewBox="0 0 240 140"><path d="M30 30L30 110L210 110" class="d"/><path d="M30 30Q30 100 210 110" class="dash"/><circle cx="35" cy="35" r="7" class="fill"/><circle cx="180" cy="107" r="7" class="fill"/><text x="10" y="25">1</text><text x="185" y="129">2</text></svg>`,
   nb: { t: "Energibevaring",
     intro: "Energi kan ikke oppstå eller forsvinne, bare skifte form. Uten friksjon er summen av kinetisk og potensiell energi konstant, så du kan finne en fart fra en høyde eller omvendt uten å kjenne kreftene underveis. Med friksjon går en del av energien over til varme.",
@@ -328,7 +328,7 @@ TOPICS("GFYS", 4, [
 
 // ================= GFYS – enhet 5: Elektrisitet =================
 TOPICS("GFYS", 5, [
-{ id: "ohms-lov",
+{ id: "ohms-lov", chk: ["12/8.0 ≈ 1.5"],
   art: () => FL.circuit({ kind: "ohm" }),
   fig: `<svg viewBox="0 0 240 140"><path d="M40 70H90" class="d"/><path d="M90 55h50v30h-50z" class="d"/><path d="M140 70H200" class="d"/><path d="M40 70V110H200V70" class="d"/><path d="M55 100H80" class="a"/><path d="M80 100l-10-4v8z" class="af"/><text x="105" y="75">R</text><text x="55" y="95">I</text></svg>`,
   nb: { t: "Ohms lov",
