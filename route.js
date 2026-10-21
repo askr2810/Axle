@@ -6,7 +6,7 @@
 //  Ord på norsk eller engelsk etter språket; begge forstås når adressen leses.
 // ============================================================
 const RT = { anim: ["animasjon", "animation"], elever: ["elever", "students"], klasse: ["klasse", "class"], geo: ["kartspill", "map-game"], motion: ["bevegelse", "motion"], parts: ["delvis-integrasjon", "integration-by-parts"], ctl: ["regulering", "control"], ekalk: ["elementkalkulator", "element-calculator"], pomo: ["pomodoro", "pomodoro"], mq: ["hoderegning", "mental-maths"], teach: ["laerer", "teacher"], hw: ["lekse", "homework"], catalog: ["oppgaver", "problems"], practice: ["ov", "practice"], book: ["teori", "theory"], friends: ["venner", "friends"], profile: ["profil", "profile"], badges: ["merker", "badges"],
-  settings: ["innstillinger", "settings"], community: ["fellesskap", "community"], pick: ["fag", "courses"], groups: ["grupper", "groups"], theory: ["les", "read"], guided: ["steg", "steps"], topic: ["emne", "topic"], proofs: ["bevis", "proofs"], snacks: ["snacks", "snacks"], sprint: ["lynrunde", "sprint"], match: ["parjakt", "match"], truefalse: ["santusant", "truefalse"], duel: ["duell", "duel"], mydecks: ["kort", "cards"], local: ["lynduell", "sameduel"], sheet: ["formler", "formulas"], person: ["person", "person"], admin: ["admin", "admin"], trig: ["enhetssirkel", "unitcircle"], forces: ["krefter", "forces"], lab: ["lab", "lab"], messages: ["meldinger", "messages"], code: ["kode", "code"], lf: ["laer", "learn"] };
+  settings: ["innstillinger", "settings"], community: ["fellesskap", "community"], pick: ["fag", "courses"], groups: ["grupper", "groups"], theory: ["les", "read"], guided: ["steg", "steps"], topic: ["emne", "topic"], proofs: ["bevis", "proofs"], snacks: ["snacks", "snacks"], sprint: ["lynrunde", "sprint"], match: ["parjakt", "match"], truefalse: ["santusant", "truefalse"], duel: ["duell", "duel"], mydecks: ["kort", "cards"], local: ["lynduell", "sameduel"], sheet: ["formler", "formulas"], person: ["person", "person"], admin: ["admin", "admin"], review: ["gjennomgang", "review"], trig: ["enhetssirkel", "unitcircle"], forces: ["krefter", "forces"], lab: ["lab", "lab"], messages: ["meldinger", "messages"], code: ["kode", "code"], lf: ["laer", "learn"] };
 const rtW = k => RT[k][LANG === "en" ? 1 : 0];
 const rtKey = w => Object.keys(RT).find(k => RT[k].includes(String(w || "").toLowerCase()));
 const rtCourse = code => COURSES.some(c => c.code === code) ? code : null;
@@ -20,6 +20,7 @@ function routeOf(){
     case "avatar": return rtW("profile");
     case "person": return PS.id ? rtW("person") + "/" + PS.id : null;
     case "admin": return rtW("admin") + (ADM.tab !== "overview" ? "/" + ADM.tab : "");
+    case "review": return rtW("review") + (typeof RV !== "undefined" && RV.code ? "/" + RV.code : "");
     case "ccedit": return rtW("community");
     case "book":
       if(BK.v === "course" && BK.code) return [rtW("book"), BK.code].concat(BK.tab === "sheet" ? [rtW("sheet")] : []).join("/");
@@ -134,6 +135,13 @@ function routeBoot(){
     if(!psIsId(p[1])) return false;
     if(PS.id !== p[1]){ PS = { id: p[1], from: "friends", gid: null, row: psLocal(p[1]), busy: false, err: null, gone: false, confirm: null }; setTimeout(psLoad, 0); }
     screen = "person"; return true;
+  }
+  if(k === "review"){ // #/gjennomgang eller #/gjennomgang/VG1T. Tilgang sjekkes i databasen.
+    const code = rtCourse(p[1]) || "";
+    screen = "review";
+    if(typeof RV !== "undefined" && RV.code !== code) RV.forUser = null;
+    if(typeof RV !== "undefined") RV.code = code;
+    return true;
   }
   if(k === "topic" || k === "sheet") return false;
   if(k === "community"){ screen = "community"; CC.view = null; const id = p[1] && /^[0-9a-f-]{36}$/i.test(p[1]) ? p[1] : null; setTimeout(() => { if(screen !== "community") return; if(CC.rows === null) ccLoad(); if(id && AUTH) ccOpenId(id); else if(id){ CC.tab = "explore"; toast(t("ccLoginToOpen")); } }, 0); return true; }

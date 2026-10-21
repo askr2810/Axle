@@ -1587,6 +1587,7 @@ function renderNow(){
   else if(screen==="badges") renderBadges();
   else if(screen==="person") renderPerson();
   else if(screen==="admin") renderAdmin();
+  else if(screen==="review") renderReview();
   else if(screen==="profile") renderProfile();
   else if(screen==="practice") renderPractice();
   else if(screen==="examSetup") renderExamSetup();
@@ -1631,6 +1632,7 @@ document.addEventListener("click", async e=>{
   if(studyClick(a, b)) return; // studier (studies.js)
   if(pfClick(a, b)) return; // bevis (proofs.js)
   if(qimgClick(a, b) || snEntryClick(a) || snClick(a, b) || spClick(a, b) || gmClick(a, b) || gmMenuClick(a, b) || duClick(a, b) || mdClick(a, b) || unitsClick(a, b) || tgClick(a, b) || fcClick(a, b) || labClick(a, b) || geClick(a, b) || mvClick(a) || anClick(a, b) || elClick(a, b) || piClick(a, b) || ctClick(a, b) || ekClick(a, b) || lsClick(a, b) || catClick(a, b) || focClick(a, b) || poClick(a, b) || welClick(a, b) || edClick(a, b) || mqClick(a, b) || tcClick(a, b) || hwClick(a) || teClick(a, b) || nudgeClick(a, b) || shareClick(a, b) || ibClick(a, b) || dvClick(a, b) || scClick(a, b) || cdClick(a, b) || thClick(a, b)) return; // snacks og lynrunde (snacks.js)
+  if(typeof rvClick === "function" && rvClick(a, b)) return; // gjennomgang for fagpersoner
   if(adminClick(a, b)) return; // adminpanel og kunngjøringer (admin.js)
   if(psClick(a, b)) return; // profilsiden til andre + hvilke merker du viser (person.js)
   if(friendsClick(a, b)) return; // venner (handlinger som starter med "fr")
@@ -1781,6 +1783,7 @@ document.addEventListener("keydown", e=>{
 });
 document.addEventListener("keydown", e=>{
   if(overlay){ if(e.key==="Escape"){ const wasScratch = !!overlay.scratch; overlay=null; renderOverlay(); if(wasScratch && (screen==="lesson"||screen==="exam")) render(); } return; }
+  if(screen==="review" && typeof rvKey === "function" && rvKey(e)) return;
   if(screen==="exam"){ examKey(e); return; }
   if(screen!=="lesson"){ if((screen==="done"||screen==="fail") && e.key==="Enter"){ goHome(); } else if(screen==="theory" && e.key==="Escape"){ goHome(); } return; }
   if(e.key==="Enter"){ e.preventDefault(); L.answered ? nextQuestion() : checkAnswer(); }
