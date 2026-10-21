@@ -206,3 +206,10 @@ Brukes i trinn 2 (manus) og trinn 4 (før animasjonen vises for eieren). Punkten
 - [ ] Starter ikke av seg selv; lyd bare når eleven slår den på.
 - [ ] Lyttet gjennom med den valgte stemmen, og uttalen av symboler er rettet med `say`.
 - [ ] Sett av eieren på mobil før den vurderes for appen.
+
+### AX-15: innlest fortellerstemme for derivasjon (2026-10-21)
+
+- Lyden for `derivasjon` (nb og en, 16 + 16 replikker, 3064 tegn) er laget én gang via ElevenLabs (MCP-tilkoblingen, `creative_generate_speech`), modell `eleven_multilingual_v2`. Stemmer: nb «Dennis - Norwegian» (`s2xtA7B2CTXPPlJzch1v`), en «Alice - Clear, Engaging Educator» (`Xb7hH8MSUJpSbSDYk0k2`). Filene er 64 kbit/s mono mp3 i `assets/anim/derivasjon/<lang>/<replikk>-<fingeravtrykk av stemme+tekst>.mp3`, med `manifest.json`.
+- Appen velger «Fortellerstemme» automatisk når manifestet finnes (med mindre eleven selv har valgt noe annet). Mangler en replikk lyd, eller feiler fila, leses akkurat den replikken med enhetens stemme.
+- **Plan:** MCP-verktøyene viser ikke abonnementet. Eieren bekreftet 2026-10-21 02:24 (Oslo) i chat at planen er betalt og aktiv og godkjente publisering; dette står som `plan.verifiedBy` i manifestet. `node tools/anim_voice.mjs --plan` er ikke kjørt.
+- Regenerering: `ELEVENLABS_API_KEY=… node tools/anim_voice.mjs derivasjon --provider elevenlabs [--lang en]` (nøkkelen bare fra miljøet). Bare endrede replikker lages på nytt.

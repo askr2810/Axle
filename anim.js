@@ -234,7 +234,9 @@ function renderAnim(){
   const D = ANIMS[AN.id];
   const uses = D.units.map(([code, title]) => { const c = COURSE(code), u = c ? c.units.findIndex(x => x.title === title) : -1; return c && u >= 0 && inMyStudies(c) ? `<button class="bk-hit" data-a="bkunit" data-c="${code}" data-u="${u}"><small>${esc(courseName(c))}</small><b>${esc(unitTitle(c, u))}</b></button>` : ""; }).join("");
   const sndOpts = [["off", T("Av", "Off")], ...(anFiles() ? [["file", T("Fortellerstemme", "Narrator")]] : []), ...(typeof TTS_OK !== "undefined" && TTS_OK ? [["device", T("Les opp (enhetens stemme)", "Read aloud (device voice)")]] : [])];
-  if(!sndOpts.some(o => o[0] === AN.snd)) AN.snd = "off";
+  // ønsket lyd: lagret valg, men ferdig innspilling foretrekkes framfor enhetens stemme (til eleven selv velger igjen); manifestet kan komme etter første tegning
+  const want = (S.anSnd === "device" || S.anSnd == null) && !S.anSndPicked && anFiles() ? "file" : (S.anSnd || "off");
+  if(sndOpts.some(o => o[0] === want)) AN.snd = want; else if(!sndOpts.some(o => o[0] === AN.snd)) AN.snd = "off";
   $app.innerHTML = `<div class="top"><div class="wrap"><button class="iconbtn" data-a="anback" aria-label="${esc(t("back"))}">${I.left}</button><div class="th-t"><small>${esc(T("Animasjon", "Animation"))}</small><b>${esc(T(D.t[0], D.t[1]))}</b></div></div></div>
   <main class="wrap an-main">
     <p class="an-sub">${esc(T(D.sub[0], D.sub[1]))}</p>
@@ -290,7 +292,7 @@ function anBind(){
   $("an-time").addEventListener("input", e => { const v = +e.target.value / 10; anPause(); anSeek(v); }); // les verdien før pausen tegner glidebryteren på nytt
   $("an-cc").addEventListener("change", e => { AN.cc = e.target.checked; S.anCC = AN.cc; save(); anRefresh(); });
   $("an-step").addEventListener("change", e => { AN.step = e.target.checked; anPause(); AN.waitAt = -1; if(AN.step) AN.t = D.lines[anLineAt(D, AN.t)].t0 + D.lines[anLineAt(D, AN.t)].d - 1e-3; anRefresh(true); });
-  $("an-snd").addEventListener("change", e => { AN.snd = e.target.value; S.anSnd = AN.snd; save(); anAudioStop(); if(AN.playing) anAudioLine(true); });
+  $("an-snd").addEventListener("change", e => { AN.snd = e.target.value; S.anSnd = AN.snd; S.anSndPicked = true; save(); anAudioStop(); if(AN.playing) anAudioLine(true); });
   if(!anRefresh.rs){ anRefresh.rs = true; window.addEventListener("resize", () => { if(screen === "anim" && AN) anRefresh(true); }); }
 }
 function anRefresh(full){
@@ -371,15 +373,20 @@ function anAudioLine(resume){
 function anAudioSay(i, off){
   const D = ANIMS[AN.id], l = D.lines[i], seq = ++AN_A.seq; AN_A.i = i; AN_A.busy = true;
   const done = () => { if(AN_A.seq === seq) AN_A.busy = false; };
-  if(AN.snd === "file"){ const m = anFiles(), a = m && m[l.id]; if(!a){ done(); return; }
+  const dev = () => { if(AN_A.seq !== seq) return; if(off > 0.4 || typeof TTS_OK === "undefined" || !TTS_OK){ done(); return; } anDevSay(l, seq, done); };
+  // ferdig innspilling; mangler replikken (ny tekst uten ny lyd) eller feiler fila, brukes enhetens stemme for denne replikken
+  if(AN.snd === "file"){ const m = anFiles(), a = m && m[l.id]; if(!a){ dev(); return; }
     if(off >= a.dur){ done(); return; }
-    const el = AN_A.el || (AN_A.el = new Audio()); el.onended = done; el.onerror = done; el.src = `anim/${AN.id}/${a.file}`; try{ el.currentTime = off; }catch(e){} el.play().catch(done); return; }
-  if(AN.snd === "device" && typeof TTS_OK !== "undefined" && TTS_OK){
+    const el = AN_A.el || (AN_A.el = new Audio()); el.onended = done; el.onerror = dev; el.src = `anim/${AN.id}/${a.file}`; try{ el.currentTime = off; }catch(e){} el.play().catch(e => { if(e && e.name === "NotAllowedError") done(); else dev(); }); return; }
+  if(AN.snd === "device" && typeof TTS_OK !== "undefined" && TTS_OK){ anDevSay(l, seq, done); return; }
+  done();
+}
+function anDevSay(l, seq, done){
+  {
     try{ speechSynthesis.cancel(); const u = new SpeechSynthesisUtterance(typeof ttsSay === "function" ? ttsSay(T(l.vo[0], l.vo[1])) : T(l.vo[0], l.vo[1])), v = typeof ttsVoice === "function" ? ttsVoice() : null;
       if(v) u.voice = v; u.lang = LANG === "en" ? "en-GB" : "nb-NO"; u.rate = 0.95; u.onend = done; u.onerror = done; AN_A.dev = true; speechSynthesis.speak(u);
       setTimeout(() => { if(AN_A.seq === seq && AN_A.busy && !speechSynthesis.speaking && !speechSynthesis.pending) done(); }, 1500); }catch(e){ done(); }
-    return; }
-  done();
+  }
 }
 
 function anClick(a, b){
