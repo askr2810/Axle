@@ -6,7 +6,11 @@
 (() => {
 
 // tallformatering for FASTE (statiske) oppgaver, uavhengig av LANG ved innlasting
-const nbnum = (x, d = 0) => x.toLocaleString("nb-NO", { minimumFractionDigits: d, maximumFractionDigits: d });
+const nbnum = (x, d = 0) => {
+  const [a, b] = x.toFixed(d).split(".");
+  const body = a.replace(/\B(?=(\d{3})+(?!\d))/g, "\\,");
+  return b != null && d ? body + "{,}" + b : body;
+};
 const ennum = (x, d = 0) => x.toLocaleString("en-US", { minimumFractionDigits: d, maximumFractionDigits: d });
 
 // ================= OKON – enhet 0: Rente og tidsverdi =================

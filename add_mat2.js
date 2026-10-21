@@ -602,8 +602,8 @@ Termokjemi handler om energien som følger med kjemiske reaksjoner – hvor mye 
 ### Eksempel
 Gitt $\\Delta H_1$ for $\\mathrm{C(s) + O_2(g) \\to CO_2(g)}$: $-393,5$ kJ/mol, og $\\Delta H_2$ for $\\mathrm{CO(g) + \\tfrac12O_2(g) \\to CO_2(g)}$: $-283,0$ kJ/mol. Finn $\\Delta H$ for $\\mathrm{C(s) + \\tfrac12O_2(g) \\to CO(g)}$.
 1. Målreaksjonen pluss reaksjon 2 skal gi reaksjon 1: $[\\mathrm{C + \\tfrac12O_2 \\to CO}] + [\\mathrm{CO + \\tfrac12O_2 \\to CO_2}] = [\\mathrm{C + O_2 \\to CO_2}]$.
-2. Derfor er $\\Delta H_{mål} = \\Delta H_1 - \\Delta H_2 = -393,5 - (-283,0)$.
-3. $\\Delta H_{mål} = -110,5$ kJ/mol.
+2. Derfor er $\\Delta H_{\\text{mål}} = \\Delta H_1 - \\Delta H_2 = -393,5 - (-283,0)$.
+3. $\\Delta H_{\\text{mål}} = -110,5$ kJ/mol.
 
 Svar: $\\Delta H \\approx -110,5$ kJ/mol (eksotermt).
 
@@ -688,7 +688,7 @@ GEN("KJEMI", 2,
    return [T(`Du får oppgitt $\\Delta H_1 = ${mf(dH1, 1)}$ kJ/mol for $\\mathrm{C(s) + O_2(g) \\to CO_2(g)}$, og $\\Delta H_2 = ${mf(dH2, 1)}$ kJ/mol for $\\mathrm{CO(g) + \\tfrac12O_2(g) \\to CO_2(g)}$. Bruk Hess' lov til å finne $\\Delta H$ for $\\mathrm{C(s) + \\tfrac12O_2(g) \\to CO(g)}$.`,
              `You are given $\\Delta H_1 = ${mf(dH1, 1)}$ kJ/mol for $\\mathrm{C(s) + O_2(g) \\to CO_2(g)}$, and $\\Delta H_2 = ${mf(dH2, 1)}$ kJ/mol for $\\mathrm{CO(g) + \\tfrac12O_2(g) \\to CO_2(g)}$. Use Hess's law to find $\\Delta H$ for $\\mathrm{C(s) + \\tfrac12O_2(g) \\to CO(g)}$.`),
      { n: dHt, tol: rel(dHt, 0.02, 0.5), u: "kJ/mol" },
-     T(`Målreaksjonen pluss reaksjon 2 gir reaksjon 1, så $\\Delta H_{mål} = \\Delta H_1 - \\Delta H_2 = ${mf(dH1, 1)} - (${mf(dH2, 1)}) \\approx ${mf(dHt, 1)}$ kJ/mol.`,
+     T(`Målreaksjonen pluss reaksjon 2 gir reaksjon 1, så $\\Delta H_{\\text{mål}} = \\Delta H_1 - \\Delta H_2 = ${mf(dH1, 1)} - (${mf(dH2, 1)}) \\approx ${mf(dHt, 1)}$ kJ/mol.`,
        `The target reaction plus reaction 2 gives reaction 1, so $\\Delta H_{target} = \\Delta H_1 - \\Delta H_2 = ${mf(dH1, 1)} - (${mf(dH2, 1)}) \\approx ${mf(dHt, 1)}$ kJ/mol.`)]; }
 );
 

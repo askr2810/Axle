@@ -464,7 +464,7 @@ En mikrokontroller er en liten datamaskin på én brikke: prosessor, minne og in
 ## Begreper og formler
 - GPIO-pinne: en generell inn/ut-pinne som settes opp i programvare som inngang (leser spenning) eller utgang (driver spenning høy/lav).
 - Pull-up/pull-down-motstand: gir en inngang et definert nivå når ingenting annet driver den (f.eks. en åpen bryter).
-- PWM: et digitalt signal som svitsjer mellom høy og lav med en bestemt duty cycle $D$ (andelen av perioden signalet er høyt). Gjennomsnittsspenning: $V_{gj} = D\\cdot V_{høy}$.
+- PWM: et digitalt signal som svitsjer mellom høy og lav med en bestemt duty cycle $D$ (andelen av perioden signalet er høyt). Gjennomsnittsspenning: $V_{gj} = D\\cdot V_{\\text{høy}}$.
 - Klokkefrekvens og instruksjonstid: en instruksjon som tar $c$ klokkesykler på en klokke $f$, tar tiden $t = c/f$.
 - Timer med prescaler $P$ og telleverdi $N$: periode mellom overflyt $= (N+1)\\cdot P/f_{klokke}$.
 - UART: asynkron seriell kommunikasjon (ingen felles klokke), med en baudrate og et fast antall bit per overført ord (f.eks. 1 start + 8 data + 1 stopp = 10 bit).
@@ -475,7 +475,7 @@ En mikrokontroller er en liten datamaskin på én brikke: prosessor, minne og in
 
 ## Slik løser du oppgavene
 1. Identifiser hva slags størrelse du skal finne: spenning/duty cycle, tidsintervall, eller byte-/bitrate.
-2. For PWM: bruk $V_{gj}=D\\cdot V_{høy}$, eller finn $D$ fra pulslengde delt på periode.
+2. For PWM: bruk $V_{gj}=D\\cdot V_{\\text{høy}}$, eller finn $D$ fra pulslengde delt på periode.
 3. For timing: regn ut tid per klokkesykel ($1/f$) og gang med antall sykler eller instruksjoner.
 4. For kommunikasjon: tell bit per overført enhet (UART har start-/stoppbit, SPI og I²C har det normalt ikke) og del klokkefrekvensen på det tallet.
 5. Sjekk om svaret er realistisk: mikrosekunder for enkeltinstruksjoner, millisekunder for typiske timerperioder.

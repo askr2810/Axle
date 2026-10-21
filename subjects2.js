@@ -51,7 +51,7 @@ COURSES.push(
 { code:"FLUID", name:"Fluidmekanikk", group:"Energi og strømning", isNew:true, also:"NTNU TEP4100 · NMBU TPS200", units:[
  { title:"Hydrostatikk", qs:[
   ["Hva bestemmer trykket i en væske i ro?",["Bare dybden (og væskens tetthet)","Formen på beholderen","Volumet av væsken","Arealet av bunnen"],"$p = p_0 + \\rho gh$. Dette er det hydrostatiske paradokset."],
-  ["Hva sier Arkimedes' prinsipp?",["Oppdriften er lik tyngden av fortrengt væske","Trykket er likt i alle retninger","Tyngden er lik massen","Oppdriften avhenger av dybden"],"$F_B = \\rho_{væske}gV_{fortrengt}$."],
+  ["Hva sier Arkimedes' prinsipp?",["Oppdriften er lik tyngden av fortrengt væske","Trykket er likt i alle retninger","Tyngden er lik massen","Oppdriften avhenger av dybden"],"$F_B = \\rho_{\\text{væske}}gV_{fortrengt}$."],
   ["Hva er forskjellen på overtrykk og absolutt trykk?",["Overtrykk måles relativt til atmosfæretrykket","Absolutt trykk er alltid lavere","Det er det samme","Overtrykk gjelder bare gasser"],"$p_{abs} = p_{atm} + p_{over}$, der $p_{atm} \\approx 101{,}3$ kPa."],
   ["Hvorfor kan en hydraulisk presse gi stor kraft?",["Trykket er likt på begge stempler, så stort areal gir stor kraft","Væsken komprimeres","Væsken forsterker energien","Friksjonen hjelper til"],"$F_2 = F_1A_2/A_1$. Energien er bevart, så det lille stempelet må gå lenger."]
  ], gen:[

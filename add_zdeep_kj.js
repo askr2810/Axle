@@ -164,7 +164,7 @@ Når to stoffer reagerer, brukes ofte det ene opp først – den **begrensende r
 
 ## Konsentrasjon og fortynning
 **Konsentrasjon** forteller hvor mye stoff det er løst i en løsning:
-$$c = \\frac{n}{V} \\quad (\\text{mol/L, «molar», M})$$
+$$c = \\frac{n}{V} \\quad (\\text{mol/L, 'molar', M})$$
 - Å lage en løsning: 250 mL av 0,20 mol/L NaCl trenger $n = 0{,}20\\cdot 0{,}250 = 0{,}050$ mol, altså $0{,}050\\cdot 58{,}44 \\approx 2{,}9$ g salt. Løs saltet og fyll opp til 250 mL i en målekolbe.
 - **Fortynning**: stoffmengden er den samme før og etter, så $c_1V_1 = c_2V_2$. Skal du lage 500 mL av 0,10 M fra en 2,0 M stamløsning, trenger du $V_1 = \\frac{0{,}10\\cdot 500}{2{,}0} = 25$ mL stamløsning, fylt opp med vann til 500 mL.
 - Andre konsentrasjonsmål: **masseprosent**, **g/L** og **ppm** (milliondeler, brukt for små mengder som forurensning).

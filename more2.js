@@ -176,7 +176,7 @@ GEN("ELPE1300",2,
 { const u = UNIT("ELPE1300","Nettverksanalyse",[
   ["Hva er en Thévenin-ekvivalent?",["En ideell spenningskilde i serie med én motstand","En strømkilde i parallell med en motstand","En kortsluttet krets","En kondensator i serie med en spole"],"Norton-ekvivalenten er strømkilden i parallell."],
   ["Når overføres maksimal effekt til en lastmotstand $R_L$?",["Når $R_L = R_{th}$","Når $R_L = 0$","Når $R_L$ er uendelig","Når $R_L = 2R_{th}$"],"Da er virkningsgraden bare 50 %."],
-  ["Hvordan finner du $R_{th}$ i en krets med bare uavhengige kilder?",["Slå av kildene (spenningskilder kortsluttes, strømkilder brytes) og beregn motstanden sett fra klemmene","Kortslutt klemmene og mål strømmen","Legg sammen alle motstander","Ta største motstand"],"Alternativt: $R_{th} = U_{åpen}/I_{kort}$."],
+  ["Hvordan finner du $R_{th}$ i en krets med bare uavhengige kilder?",["Slå av kildene (spenningskilder kortsluttes, strømkilder brytes) og beregn motstanden sett fra klemmene","Kortslutt klemmene og mål strømmen","Legg sammen alle motstander","Ta største motstand"],"Alternativt: $R_{th} = U_{\\text{åpen}}/I_{kort}$."],
   ["Hva sier superposisjonsprinsippet?",["I en lineær krets er responsen summen av bidragene fra hver kilde alene","Effekter kan legges sammen","Strøm og spenning er alltid i fase","Motstander i parallell legges sammen"],"Det gjelder ikke for effekt, fordi effekt er kvadratisk."],
   ["Hvor mange uavhengige knutepunktsligninger trenger en krets med $n$ knutepunkter?",["$n - 1$","$n$","$n + 1$","$2n$"],"Ett knutepunkt velges som jord (referanse)."]
  ]);

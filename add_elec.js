@@ -410,7 +410,7 @@ Disse metodene er spesielt nyttige når en krets skal analyseres for mange forsk
 - Superposisjon: i en lineær krets med flere uavhengige kilder er responsen (strøm eller spenning) summen av bidragene fra hver kilde alene, med de andre kildene slått av (spenningskilder kortsluttes, strømkilder brytes).
 - Thévenin-ekvivalent: enhver lineær to-polet krets kan erstattes med én spenningskilde $U_{th}$ i serie med én motstand $R_{th}$, sett fra to gitte klemmer.
 - Norton-ekvivalent: samme krets som en strømkilde $I_N = U_{th}/R_{th}$ i parallell med $R_{th}$.
-- $R_{th}$ finnes ved å slå av alle uavhengige kilder og beregne motstanden sett fra klemmene, eller ved $R_{th} = U_{åpen}/I_{kort}$.
+- $R_{th}$ finnes ved å slå av alle uavhengige kilder og beregne motstanden sett fra klemmene, eller ved $R_{th} = U_{\\text{åpen}}/I_{kort}$.
 - Maksimal effektoverføring til en last skjer når $R_L = R_{th}$, og da er $P_{maks} = U_{th}^2/(4R_{th})$.
 
 ## Slik løser du oppgavene

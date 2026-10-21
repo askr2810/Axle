@@ -739,8 +739,8 @@ For en ingeniør er dette grunnlaget for å dimensjonere tanker, demninger, dykk
 ## Begreper og formler
 - Hydrostatisk trykk: $p = p_0 + \rho gh$, der $p_0$ er trykket ved overflaten (ofte atmosfæretrykket) og $h$ er dybden.
 - Overtrykk (manometertrykk) måles relativt til atmosfæren; absolutt trykk er $p_{abs} = p_{atm} + p_{over}$, med $p_{atm} \approx 101{,}3$ kPa.
-- Arkimedes' prinsipp: oppdriften på et neddykket legeme er $F_B = \rho_{væske}gV_{fortrengt}$.
-- Et flytende legeme fortrenger nøyaktig sin egen vekt i væske: $\rho_{legeme}V_{legeme}g = \rho_{væske}V_{fortrengt}g$, så den nedsenkede volumandelen er $\rho_{legeme}/\rho_{væske}$.
+- Arkimedes' prinsipp: oppdriften på et neddykket legeme er $F_B = \rho_{\text{væske}}gV_{fortrengt}$.
+- Et flytende legeme fortrenger nøyaktig sin egen vekt i væske: $\rho_{legeme}V_{legeme}g = \rho_{\text{væske}}V_{fortrengt}g$, så den nedsenkede volumandelen er $\rho_{legeme}/\rho_{\text{væske}}$.
 - Hydraulisk presse (Pascals prinsipp): trykket er likt på begge stempler, $F_2 = F_1A_2/A_1$.
 - U-rørmanometer: trykkforskjellen svarer til en høydeforskjell i en væskesøyle, $\Delta p = \rho g\,\Delta h$.
 
@@ -751,10 +751,10 @@ For en ingeniør er dette grunnlaget for å dimensjonere tanker, demninger, dykk
 4. Ved hydraulikk og manometre: sett opp trykklikevekten og løs for det som er ukjent.
 
 ### Eksempel
-Et isfjell ($\rho_{is} = 917$ kg/m³) flyter i sjøvann ($\rho_{sjø} = 1025$ kg/m³). Hvor stor andel av volumet stikker opp over overflaten?
+Et isfjell ($\rho_{is} = 917$ kg/m³) flyter i sjøvann ($\rho_{\text{sjø}} = 1025$ kg/m³). Hvor stor andel av volumet stikker opp over overflaten?
 
-1. Flyting: vekten av isfjellet er lik oppdriften, $\rho_{is}Vg = \rho_{sjø}V_{under}g$.
-2. Andelen under vann: $V_{under}/V = \rho_{is}/\rho_{sjø} = 917/1025 \approx 0{,}895$.
+1. Flyting: vekten av isfjellet er lik oppdriften, $\rho_{is}Vg = \rho_{\text{sjø}}V_{under}g$.
+2. Andelen under vann: $V_{under}/V = \rho_{is}/\rho_{\text{sjø}} = 917/1025 \approx 0{,}895$.
 3. Andelen over vann: $1 - 0{,}895 = 0{,}105$, altså ca. 10,5 %.
 
 Svar: Bare rundt 10,5 % av isfjellet er synlig over vannflaten.
@@ -765,7 +765,7 @@ Svar: Bare rundt 10,5 % av isfjellet er synlig over vannflaten.
 - Å glemme å gange med $g$ i $\rho gh$, eller å bruke $\rho$ i g/cm³ i stedet for kg/m³.
 - Å tro at et flytende legeme har oppdrift lik hele sin egen vekt fortrengt i luft; det er bare den nedsenkede delen som teller.
 
-> Trykk: $p = p_0 + \rho gh$. Oppdrift: $F_B = \rho gV_{fortrengt}$. Flyting: nedsenket andel $= \rho_{legeme}/\rho_{væske}$.`,
+> Trykk: $p = p_0 + \rho gh$. Oppdrift: $F_B = \rho gV_{fortrengt}$. Flyting: nedsenket andel $= \rho_{legeme}/\rho_{\text{væske}}$.`,
 en: S`## What is it about?
 Hydrostatics deals with fluids at rest. Even though nothing is flowing, the fluid still exerts pressure on everything it touches – the bottom and walls of a tank, a dam, a submerged body or the piston in a hydraulic cylinder. Pressure increases with depth because every column of fluid must support the weight of everything above it.
 
@@ -829,7 +829,7 @@ GEN("FLUID", 0,
    return [T(S`Et flytende legeme har tetthet ${rhoO} kg/m³ og flyter i ${fl[0]} ($\rho = ${fl[1]}$ kg/m³). Hvor stor prosentandel av volumet er under overflaten?`,
              S`A floating body has a density of ${rhoO} kg/m³ and floats in ${fl[2]} ($\rho = ${fl[1]}$ kg/m³). What percentage of its volume is below the surface?`),
      { n: frac, tol: rel(frac), u: "%" },
-     T(S`Flyting: $\rho_{legeme}Vg = \rho_{væske}V_{under}g$, så $V_{under}/V = \rho_{legeme}/\rho_{væske} = ${rhoO}/${fl[1]} \approx ${mf(frac / 100, 3)} = ${mf(frac, 1)}$ %.`,
+     T(S`Flyting: $\rho_{legeme}Vg = \rho_{\text{væske}}V_{under}g$, så $V_{under}/V = \rho_{legeme}/\rho_{\text{væske}} = ${rhoO}/${fl[1]} \approx ${mf(frac / 100, 3)} = ${mf(frac, 1)}$ %.`,
        S`Floating: $\rho_{body}Vg = \rho_{fluid}V_{under}g$, so $V_{under}/V = \rho_{body}/\rho_{fluid} = ${rhoO}/${fl[1]} \approx ${mf(frac / 100, 3)} = ${mf(frac, 1)}$ %.`)]; },
  () => { let dh, patm = 101.3, p, g = 0;
    do { dh = R.i(50, 400); p = patm + 13600 * G_ * (dh / 1000) / 1000; } while ((p < 110 || p > 400) && ++g < 200);
