@@ -3729,15 +3729,28 @@ button.lk-card:hover,button.lk-card:focus-visible{border-color:var(--lk);backgro
 .lk-hl .lk-e{opacity:.12}.lk-hl .lk-e.on{opacity:1}.lk-hl .lk-e.on path{opacity:1;stroke-width:3.5}.lk-hl .lk-e.on polygon{opacity:1}
 .lk-node{transition:opacity .15s}.lk-hl .lk-node:not(.lk-rel){opacity:.45}
 .lk-node:focus-visible{outline:none}.lk-node:focus-visible .lk-card{outline:3px solid var(--lk);outline-offset:2px}
-@media (min-width:760px){
-  main.lk{max-width:1080px}
-  .lk-graph::before{content:"";position:absolute;left:50%;top:0;bottom:0;width:4px;margin-left:-2px;border-radius:4px;background:linear-gradient(var(--accent),var(--ok));opacity:.22}
-  .lk-sec{position:relative;margin:26px 0 0;padding:8px 14px 14px;text-align:center}
-  .lk-sec h2{justify-content:center;position:relative;z-index:2}
-  .lk-sec h2 span{padding:3px 14px;border-radius:99px;background:var(--card);border:2px solid var(--line)}
-  .lk-path{display:flex;flex-wrap:wrap;justify-content:center;gap:34px 22px;padding:6px 0 0}
-  .lk-path::before,.lk-node::before,.lk-dot,.lk-pre{display:none}
-  .lk-node{flex:0 1 calc((100% - 44px) / 3);max-width:300px;margin:0;text-align:left;z-index:2}
-  .lk-card{padding:9px 12px 9px 13px;gap:3px;position:relative}
-  .lk-card b{font-size:15px}.lk-card small{font-size:12px;line-height:1.35}
+/* Svømmebaner (≥ 700 px): én kolonne per fagområde, én rad per trinn. Smal skjerm bruker .lk-list. */
+.lk-scroll{display:none}
+.lk-e{display:none}
+@media (min-width:700px){
+  main.lk{max-width:1240px}
+  .lk-list{display:none}
+  .lk-scroll{display:block;overflow-x:auto;margin:6px 0 0;padding:12px 10px 14px}
+  .lk-lanes{position:relative;display:grid;grid-template-columns:84px repeat(var(--cols),minmax(124px,1fr));column-gap:18px;row-gap:34px;min-width:calc(84px + var(--cols) * 142px)}
+  .lk-band{border-radius:14px;margin:-12px -10px;background:color-mix(in srgb,var(--accent) 5%,transparent);z-index:0}
+  .lk-band.alt{background:color-mix(in srgb,var(--ok) 5%,transparent)}
+  .lk-lanehd{z-index:3;display:flex;align-items:center;gap:7px;padding:7px 10px;border-radius:12px;border:1.5px solid var(--lk);background:color-mix(in srgb,var(--lk) 14%,var(--card));color:var(--lkt);font-weight:800;font-size:13px;line-height:1.2}
+  .lk-lanehd i{flex:none;width:10px;height:10px;border-radius:50%;background:var(--lk)}
+  .lk-stage{grid-column:1;z-index:2;display:grid;align-content:start;gap:2px;padding-top:6px}
+  .lk-stage b{font-family:var(--display);font-size:17px}.lk-stage small{color:var(--muted);font-size:11.5px;line-height:1.3}
+  .lk-cell{list-style:none;margin:0;padding:0;display:grid;align-content:start;gap:22px;z-index:2}
+  .lk-cell .lk-node{margin:0}.lk-cell .lk-node::before,.lk-cell .lk-dot{display:none}
+  .lk-cell .lk-card{padding:8px 10px 8px 12px;gap:3px}
+  .lk-cell .lk-card b{font-size:14px;line-height:1.25}.lk-cell .lk-card small{font-size:11.5px;line-height:1.35}
+  .lk-cell .lk-pre{display:none}.lk-cell .lk-cur .lk-pre{display:block}
+  .lk-edges{z-index:1}
+  .lk-c{stroke:var(--ec);stroke-width:3;stroke-linecap:round;opacity:.5;transition:opacity .15s}
+  .lk-hl .lk-c{opacity:.1}
+  .lk .lk-legend{display:none}
+  .lk-hl .lk-e.on{display:inline}
 }

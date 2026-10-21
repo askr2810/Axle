@@ -1,5 +1,7 @@
 // ============================================================
-//  LÆRINGSKART (AX-22): tegner kartene i laeringskart_data.js som en loddrett sti, trinn for trinn.
+//  LÆRINGSKART (AX-22, AX-22b): tegner kartene i laeringskart_data.js. Bred skjerm (≥ 700 px): svømmebaner, én kolonne per
+//  fagområde og én rad per trinn, med rette linjer bare mellom steg i samme kolonne. Forkunnskaper på tvers vises som buede
+//  piler først når man peker på / fokuserer et kort (resten tones ned). Smal skjerm: loddrett sti uten linjer.
 //  Hver node lenker til fagets teoriside i appen. Fremgangen er den som allerede lagres per fag
 //  (courseProgress i app.js) – ingen nye data eller tabeller. Noder uten fag vises som «kommer».
 // ============================================================
@@ -37,15 +39,21 @@ function renderLk(){
       <p class="pf-intro">${esc(m.intro)}</p>
       <p class="lk-disc" role="note">${esc(LK_DISCLAIMER)}</p>
       <ul class="lk-legend" aria-label="Fagområder">${m.areas.map(a => `<li class="lk-a-${esc(a.id)}"><i aria-hidden="true"></i>${esc(a.t)}</li>`).join("")}</ul>
-      <div class="lk-graph" id="lkgraph"><svg class="lk-edges" id="lkedges" aria-hidden="true"></svg>
+      <div class="lk-scroll"><div class="lk-lanes" id="lkgraph" style="--cols:${m.areas.length};--rows:${m.sections.length}"><svg class="lk-edges" id="lkedges" aria-hidden="true"></svg>
+        <span class="lk-corner" style="grid-row:1;grid-column:1"></span>
+        ${m.areas.map((a, i) => `<div class="lk-lanehd lk-a-${esc(a.id)}" style="grid-row:1;grid-column:${i + 2}"><i aria-hidden="true"></i>${esc(a.t)}</div>`).join("")}
+        ${m.sections.map((sc, r) => `<div class="lk-band${r % 2 ? " alt" : ""}" style="grid-row:${r + 2};grid-column:1/-1"></div><div class="lk-stage" style="grid-row:${r + 2}"><b>${esc(sc.t)}</b><small>${esc(sc.sub)}</small></div>` +
+          m.areas.map((a, i) => { const ns = m.nodes.filter(n => n.sec === sc.id && n.area === a.id); return ns.length ? `<ol class="lk-cell" style="grid-row:${r + 2};grid-column:${i + 2}">${ns.map(n => lkNodeHTML(m, n)).join("")}</ol>` : ""; }).join("")).join("")}
+      </div></div>
+      <div class="lk-list">
       ${m.sections.map(s => { const ns = m.nodes.filter(n => n.sec === s.id); return ns.length ? `<section class="lk-sec"><h2><span>${esc(s.t)}</span><small>${esc(s.sub)}</small></h2><ol class="lk-path">${ns.map(n => lkNodeHTML(m, n)).join("")}</ol></section>` : ""; }).join("")}</div>
-      <p class="fr-hint">${has.length} av ${m.nodes.length} steg finnes i Axle. Steg merket «Kommer» er ikke laget ennå. Linjene viser hva hvert steg bygger på.</p>
+      <p class="fr-hint">${has.length} av ${m.nodes.length} steg finnes i Axle. Steg merket «Kommer» er ikke laget ennå. Pek på et steg for å se hva det bygger på og hva det leder til.</p>
     </main>`;
   requestAnimationFrame(() => { lkDraw(m); lkFocus(); });
 }
 // Fra «Del av»-lenken: rull noden fram og fremhev den (og kantene dens) en stund.
 function lkFocus(){
-  const id = LK.focus, g = document.getElementById("lkgraph"); if(!id || !g) return; LK.focus = null;
+  const id = LK.focus, wide = document.getElementById("lkgraph"), g = wide && wide.offsetParent ? wide : document.querySelector(".lk-list"); if(!id || !g) return; LK.focus = null;
   const li = g.querySelector(`.lk-node[data-id="${id}"]`); if(!li) return;
   li.classList.add("lk-focus"); li.scrollIntoView({ block: "center" }); lkHl(g, id);
   setTimeout(() => { li.classList.remove("lk-focus"); if(!g.matches(":hover")) lkHl(g, null); }, 4000);
@@ -58,13 +66,19 @@ function lkDraw(m){
   if(!LK_RO && typeof ResizeObserver !== "undefined"){ LK_RO = new ResizeObserver(() => { const mm = lkMap(LK.id); if(screen === "lk" && mm) lkDraw(mm); }); }
   if(LK_RO && g.dataset.ro !== "1"){ LK_RO.disconnect(); LK_RO.observe(g); g.dataset.ro = "1"; if(document.fonts && document.fonts.ready) document.fonts.ready.then(() => lkDraw(m)); }
   const W = g.clientWidth, H = g.clientHeight; sv.setAttribute("viewBox", `0 0 ${W} ${H}`); sv.setAttribute("width", W); sv.setAttribute("height", H);
-  if(W < 700){ sv.innerHTML = ""; return; }
+  if(!g.offsetParent || W < 600){ sv.innerHTML = ""; return; }
   const gr = g.getBoundingClientRect(), box = id => { const el = g.querySelector(`.lk-node[data-id="${id}"] .lk-card`); if(!el) return null; const r = el.getBoundingClientRect(); return { x: r.left - gr.left, y: r.top - gr.top, w: r.width, h: r.height }; };
   const col = id => { const el = g.querySelector(`.lk-node[data-id="${id}"]`); return el ? getComputedStyle(el).getPropertyValue("--lk").trim() : "#888"; };
   // flere kanter inn til samme kort spres litt langs toppkanten, så pilene ikke ligger oppå hverandre
   const into = {}, outof = {}; m.edges.forEach(([a, b]) => { (into[b] ||= []).push(a); (outof[a] ||= []).push(b); });
   const spread = (list, k, w) => list.length < 2 ? 0 : (k / (list.length - 1) - .5) * Math.min(w * .5, 24 * (list.length - 1));
+  // Standard: bare rette, loddrette linjer mellom steg som følger etter hverandre i samme kolonne (samme fagområde).
   let out = "";
+  for(const a of m.areas){
+    const ids = m.sections.flatMap(sc => m.nodes.filter(n => n.sec === sc.id && n.area === a.id).map(n => n.id));
+    for(let i = 1; i < ids.length; i++){ const A = box(ids[i - 1]), B = box(ids[i]); if(!A || !B) continue; const x = A.x + A.w / 2;
+      out += `<line class="lk-c" data-from="${ids[i - 1]}" data-to="${ids[i]}" x1="${x}" y1="${A.y + A.h}" x2="${x}" y2="${B.y}" style="--ec:${col(ids[i])}"/>`; }
+  }
   for(const [a, b] of m.edges){
     const A = box(a), B = box(b); if(!A || !B) continue;
     const c = col(a), sx = A.x + A.w / 2 + spread(outof[a], outof[a].indexOf(b), A.w), tx = B.x + B.w / 2 + spread(into[b], into[b].indexOf(a), B.w);
@@ -93,7 +107,8 @@ function lkDraw(m){
 function lkHl(g, id){
   g.classList.toggle("lk-hl", !!id); const rel = new Set(id ? [id] : []);
   g.querySelectorAll(".lk-e").forEach(e => { const hit = !!id && (e.dataset.from === id || e.dataset.to === id); e.classList.toggle("on", hit); if(hit){ rel.add(e.dataset.from); rel.add(e.dataset.to); } });
-  g.querySelectorAll(".lk-node").forEach(n => n.classList.toggle("lk-rel", rel.has(n.dataset.id)));
+  g.querySelectorAll(".lk-c").forEach(e => e.classList.toggle("on", rel.has(e.dataset.from) && rel.has(e.dataset.to)));
+  g.querySelectorAll(".lk-node").forEach(n => { n.classList.toggle("lk-rel", rel.has(n.dataset.id)); n.classList.toggle("lk-cur", n.dataset.id === id); });
 }
 function lkClick(a, b){
   if(!a.startsWith("lk")) return false;
