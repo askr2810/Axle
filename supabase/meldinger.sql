@@ -329,3 +329,5 @@ grant execute on function public.get_chat_members(uuid)                      to 
 grant execute on function public.leave_chat(uuid)                            to authenticated;
 grant execute on function public.get_conversations()                         to authenticated;
 grant execute on function public.unread_messages()                           to authenticated;
+-- AX-19: eksplisitt service_role (Supabase-endring 30.10.2026)
+grant all on public.messages, public.chat_groups, public.chat_members to service_role;

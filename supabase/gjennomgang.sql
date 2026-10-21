@@ -382,3 +382,5 @@ end;
 $$;
 revoke all on function public.review_export_mark(text, text, bigint[]) from public;
 grant execute on function public.review_export_mark(text, text, bigint[]) to anon, authenticated;
+-- AX-19: eksplisitt service_role (Supabase-endring 30.10.2026)
+grant all on public.reviewers, public.content_reviews, public.content_suggestions, public.review_export_keys to service_role;

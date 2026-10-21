@@ -241,3 +241,5 @@ grant execute on function public.admin_user_action(uuid, text)  to authenticated
 grant execute on function public.admin_set_notice(text, text)   to authenticated;
 grant execute on function public.admin_log_list()               to authenticated;
 grant execute on function public.get_notice()                   to anon, authenticated;
+-- AX-19: eksplisitt service_role (Supabase-endring 30.10.2026)
+grant all on public.admin_log, public.app_notices to service_role;

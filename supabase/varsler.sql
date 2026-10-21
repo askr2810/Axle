@@ -65,3 +65,5 @@ select cron.schedule('axle-varsler', '*/15 * * * *', $cron$
     body := '{}'::jsonb
   );
 $cron$);
+-- AX-19: eksplisitt service_role (Supabase-endring 30.10.2026)
+grant all on public.push_subs to service_role;

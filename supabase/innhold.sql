@@ -109,3 +109,5 @@ begin
 end $$;
 revoke all on function public.admin_set_editor(uuid, boolean) from public, anon;
 grant execute on function public.admin_set_editor(uuid, boolean) to authenticated;
+-- AX-19: eksplisitt service_role (Supabase-endring 30.10.2026)
+grant all on public.content_editors, public.content_edits to service_role;

@@ -260,3 +260,5 @@ grant execute on function public.klasse_create(text), public.klasse_rename(uuid,
   public.klasse_list(), public.elev_results(uuid), public.elev_remove(uuid), public.elev_me() to authenticated;
 grant execute on function public.elev_reserve(uuid, uuid, text, text), public.elev_reserve_code(text, text, text), public.elev_bind(uuid, uuid),
   public.elev_unreserve(uuid), public.elev_owned(uuid, uuid), public.elev_slug(text), public.elev_rand(int, text), public.is_student(uuid) to service_role;
+-- AX-19: eksplisitt service_role (Supabase-endring 30.10.2026)
+grant all on public.teacher_classes, public.class_students to service_role;
