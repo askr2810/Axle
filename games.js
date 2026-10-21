@@ -184,6 +184,9 @@ const LAYOUT = {
     ["tools", "laySec_tools", () => `<h4 class="grp">🧰 ${esc(T("Hjelpemidler", "Study tools"))}</h4><div class="tools2">${poCardHTML()}
       <button class="tc-entry" data-a="tcopen"><span aria-hidden="true">🎓</span><div><b>${esc(T("Lærerverktøy", "Teacher tools"))}</b><small>${esc(T("Live-quiz og lekser", "Live quiz and homework"))}</small></div></button></div>`]]
 };
+// Teori: kortene øverst på forsiden (book.js). Læringskartene (laeringskart.js) kan flyttes og skjules som de andre.
+LAYOUT.book = [["proofs", "laySec_proofs", () => bkPfCtaHTML()], ["lk", "laySec_lk", () => typeof lkCtaHTML === "function" ? lkCtaHTML() : ""],
+  ["lab", "laySec_lab", () => hasFeature("lab") ? labCtaHTML() : ""]];
 // Seksjoner som kan flyttes, men ikke skjules (ellers forsvinner veien videre i faget).
 const LAY_FIXED = { home: ["start", "path"] };
 // Lagret rekkefølge, med nye seksjoner satt inn på standardplassen (etter den nærmeste seksjonen foran dem i standarden).
@@ -208,7 +211,7 @@ function layoutParts(place, ctx){
   }
   return out;
 }
-const layLinkHTML = place => `<button class="exlink lay-link" data-a="layopen" data-p="${place}">${I.gear}${esc(t(place === "home" ? "layHome" : "layPractice"))}</button>`;
+const layLinkHTML = place => `<button class="exlink lay-link" data-a="layopen" data-p="${place}">${I.gear}${esc(t(place === "home" ? "layHome" : place === "book" ? "layBook" : "layPractice"))}</button>`;
 // Nål for «vis som stor flis» i spillmenyen (fylles når spillet er festet).
 const GM_PIN = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 3h6l-1 6 3 3v2H7v-2l3-3z"/><path d="M12 14v7"/></svg>`;
 function gamesMenuHTML(place){
@@ -225,19 +228,19 @@ function gamesMenuHTML(place){
 function layoutEditHTML(place){
   const order = layOrder(place), pins = pinsOf(place);
   return `<div class="dialog gm-menu lay-ed" role="dialog" aria-label="${esc(t("layTitle"))}"><div class="sheet-h"><h3>${esc(t("layTitle"))}</h3><button class="iconbtn" data-a="closeov" aria-label="${esc(t("back"))}">${I.x}</button></div>
-    <div class="seg lay-tabs">${["home", "practice"].map(p => `<button class="${p === place ? "on" : ""}" data-a="layopen" data-p="${p}">${esc(t("layPlace_" + p))}</button>`).join("")}</div>
+    <div class="seg lay-tabs">${["home", "practice", "book"].map(p => `<button class="${p === place ? "on" : ""}" data-a="layopen" data-p="${p}">${esc(t("layPlace_" + p))}</button>`).join("")}</div>
     <p class="lp-note">${esc(t("layHint"))}</p>
     <div class="lay-list">${order.map((id, i) => { const sec = LAYOUT[place].find(s => s[0] === id), on = !layHidden(place, id);
       return `<div class="lay-row ${on ? "" : "off"}"><span class="lbl">${esc(t(sec[1]))}</span>
         <button class="iconbtn lay-mv" data-a="laymove" data-p="${place}" data-id="${id}" data-d="-1" ${i === 0 ? "disabled" : ""} aria-label="${esc(t("layUp"))}">↑</button><button class="iconbtn lay-mv" data-a="laymove" data-p="${place}" data-id="${id}" data-d="1" ${i === order.length - 1 ? "disabled" : ""} aria-label="${esc(t("layDown"))}">↓</button>
         ${(LAY_FIXED[place] || []).includes(id) ? `<span class="lay-fixed" title="${esc(t("layFixed"))}">${esc(T("Fast", "Fixed"))}</span>` : `<button class="tog ${on ? "on" : ""}" data-a="laytog" data-p="${place}" data-id="${id}" role="switch" aria-checked="${on}" aria-label="${esc(t(sec[1]))}"></button>`}</div>`; }).join("")}</div>
     ${place === "home" ? `<p class="lp-note lay-wide">${esc(t("layWideNote"))}</p>` : ""}
-    <h4 class="lay-h">${esc(t("layPinned"))}</h4>
-    <div class="lay-games">${gmList().map(g => { const on = pins.includes(g[0]); return `<button class="lay-g ${on ? "on" : ""}" data-a="gmpin" data-g="${g[0]}" data-p="${place}" aria-pressed="${on}"><span class="gm-ic ${g[4]}">${ico(g[2])}</span><small>${esc(t(g[3]))}</small></button>`; }).join("")}</div>
+    ${place === "book" ? "" : `<h4 class="lay-h">${esc(t("layPinned"))}</h4>
+    <div class="lay-games">${gmList().map(g => { const on = pins.includes(g[0]); return `<button class="lay-g ${on ? "on" : ""}" data-a="gmpin" data-g="${g[0]}" data-p="${place}" aria-pressed="${on}"><span class="gm-ic ${g[4]}">${ico(g[2])}</span><small>${esc(t(g[3]))}</small></button>`; }).join("")}</div>`}
     <button class="exlink lay-reset" data-a="layreset" data-p="${place}">${esc(t("layReset"))}</button></div>`;
 }
 function gmMenuClick(a, b){
-  const place = b && b.dataset.p === "practice" ? "practice" : "home";
+  const place = b && (b.dataset.p === "practice" || b.dataset.p === "book") ? b.dataset.p : "home";
   if(a === "gamesmenu"){ overlay = { games: place }; renderOverlay(); return true; }
   if(a === "layopen" || a === "homecustom"){ overlay = { layout: a === "homecustom" ? "home" : place }; renderOverlay(); return true; }
   if(a === "gmpin"){ const id = b.dataset.g, cur = pinsOf(place), on = !cur.includes(id), p = on ? [...cur, id] : cur.filter(x => x !== id);

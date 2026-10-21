@@ -12,8 +12,10 @@ const { LK_MAPS, LK_DISCLAIMER } = require(path.join(ROOT, 'laeringskart_data.js
 let bad = 0; const fail = m => { bad++; console.log('FEIL: ' + m); };
 if(LK_DISCLAIMER !== 'Forslag til læringsvei, ikke et offisielt studieløp. Innholdet er AI-laget og ikke kvalitetssikret av lærere.') fail('ansvarsfraskrivelsen er endret');
 const js = fs.readFileSync(path.join(ROOT, 'laeringskart.js'), 'utf8'); if(!js.includes('LK_DISCLAIMER')) fail('laeringskart.js viser ikke ansvarsfraskrivelsen');
-for(const [f, re, what] of [['profile.js', /\["lk", "map", "tabMaps"\]/, 'fanen «Læringskart» i hovedmenyen'], ['i18n.js', /tabMaps: "Læringskart"/, 'teksten «Læringskart» i menyen'], ['book.js', /lkChipHTML\(c\.code\)/, '«Del av»-lenken på emnesidene'], ['route.js', /k === "lk"/, 'adressen #\/laeringskart']])
+for(const [f, re, what] of [['book.js', /layoutParts\("book"\)/, 'kortene på forsiden av Teori via «Tilpass menyer»'], ['book.js', /layLinkHTML\("book"\)/, 'lenken «Tilpass Teori»'], ['games.js', /LAYOUT\.book = \[[^\n]*\["lk", "laySec_lk", \(\) => [^\n]*lkCtaHTML\(\)/, 'læringskartet i LAYOUT.book (Tilpass menyer)'], ['games.js', /\["home", "practice", "book"\]/, 'Teori som fane i «Tilpass menyer»'], ['i18n.js', /laySec_lk: "Læringskart"/, 'navnet «Læringskart» i «Tilpass menyer»'], ['laeringskart.js', /Skal du velge fag\?/, 'teksten «Skal du velge fag?»'], ['book.js', /lkChipHTML\(c\.code\)/, '«Del av»-lenken på emnesidene'], ['route.js', /k === "lk"/, 'adressen #\/laeringskart']])
   if(!re.test(fs.readFileSync(path.join(ROOT, f), 'utf8'))) fail(f + ': mangler ' + what);
+{ const g = fs.readFileSync(path.join(ROOT, 'games.js'), 'utf8'), m = g.match(/const LAY_FIXED = (\{[^\n]*\});/); if(m && /book:[^}]*"lk"/.test(m[1])) fail('games.js: læringskartet skal kunne skjules (ikke i LAY_FIXED)'); }
+if(/\["lk",/.test(fs.readFileSync(path.join(ROOT, 'profile.js'), 'utf8'))) fail('profile.js: Læringskart skal ikke være en fane i hovedmenyen');
 const build = fs.readFileSync(path.join(ROOT, 'build.py'), 'utf8'); for(const f of ['laeringskart_data.js', 'laeringskart.js']) if(!build.includes('"' + f + '"')) fail(f + ' mangler i build.py');
 const ids = new Set(); let linked = 0, soon = 0;
 for(const m of LK_MAPS){

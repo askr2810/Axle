@@ -128,6 +128,8 @@ function bkTop(back, small, title, right){
   return `<div class="top"><div class="wrap">${back === "home" ? "" : `<button class="iconbtn" data-a="${back}" aria-label="${esc(t("back"))}">${I.left}</button>`}
     <div class="th-t"><small>${esc(small)}</small><b>${esc(title)}</b></div>${right || `<span class="th-ic" aria-hidden="true">${I.book}</span>`}</div></div>`;
 }
+// Kortene øverst på forsiden av Teori (bevis, læringskart, laben). Står i LAYOUT.book i games.js, så de kan flyttes og skjules i «Tilpass menyer».
+const bkPfCtaHTML = () => hasFeature("proofs") ? `<button class="pf-cta" data-a="pflist"><span class="pf-cta-ic" aria-hidden="true">${svg('<path d="M4 20 20 4M4 20h16V4"/><path d="M8 20a6 6 0 0 0-1.6-4.1" />', 24)}</span><span><b>${esc(t("pfTitle"))}</b><small>${esc(t("pfCtaSub", PROOFS.length))}</small></span>${I.chevron}</button>` : "";
 function renderBook(){
   if(BK.code && BK.v !== "home" && !cfNeed(BK.code)){ const c = COURSE(BK.code); $app.innerHTML = `${bkTop("bkback", t("bkSub"), courseName(c))}<main class="wrap">${cfWaitHTML(BK.code)}</main>`; return; } // fagfila lastes
   if(BK.v === "topic") return renderBookTopic();
@@ -151,7 +153,7 @@ function renderBook(){
     <main class="wrap bk">
       <label class="bk-search">${I.search}<input type="search" id="bkq" placeholder="${esc(t("bkSearch"))}" aria-label="${esc(t("bkSearch"))}" value="${esc(BK.q)}" autocomplete="off"></label>
       <div id="bkres">${BK.q.trim() ? bkResultsHTML() : ""}</div>
-      <div id="bklist" ${BK.q.trim() ? "hidden" : ""}>${hasFeature("proofs") ? `<button class="pf-cta" data-a="pflist"><span class="pf-cta-ic" aria-hidden="true">${svg('<path d="M4 20 20 4M4 20h16V4"/><path d="M8 20a6 6 0 0 0-1.6-4.1" />', 24)}</span><span><b>${esc(t("pfTitle"))}</b><small>${esc(t("pfCtaSub", PROOFS.length))}</small></span>${I.chevron}</button>` : ""}${hasFeature("lab") ? labCtaHTML() : ""}${studyTabsHTML()}${list || `<p class="fr-hint">${esc(t("stNoTheory"))}</p>`}${studyMoreHTML()}</div>
+      <div id="bklist" ${BK.q.trim() ? "hidden" : ""}>${layoutParts("book").map(x => x.h).join("")}${studyTabsHTML()}${list || `<p class="fr-hint">${esc(t("stNoTheory"))}</p>`}${studyMoreHTML()}<div class="hm-more">${layLinkHTML("book")}</div></div>
     </main>`;
   const inp = document.getElementById("bkq");
   inp.addEventListener("input", ()=>{ BK.q = inp.value; const has = !!BK.q.trim();
