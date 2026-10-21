@@ -7,9 +7,9 @@ const order = ['config.js', 'i18n.js', 'data.js', 'gens.js', 'gens_b.js', 'more.
 const extra = [...fs.readdirSync(ROOT).filter(f => /^en_static_.*\.js$/.test(f)).sort(), 'learn.js', ...fs.readdirSync(ROOT).filter(f => /^add_.*\.js$/.test(f)).sort()];
 const files = [...order, ...extra.filter(f => !order.includes(f))].filter(f => fs.existsSync(path.join(ROOT, f)));
 global.navigator = { language: 'nb' }; global.localStorage = { getItem(){ return null; }, setItem(){} };
-const stub = 'var S = {}, screen = "home", document = { addEventListener(){} }, esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", \'"\': "&quot;" }[c]));\n';
+const stub = 'var S = {}, screen = "home", document = { addEventListener(){}, getElementById(id){ return (global.AXLE_EL || {})[id] || null; }, querySelector(){ return null; } }, esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", \'"\': "&quot;" }[c]));\n';
 const src = stub + files.map(f => fs.readFileSync(path.join(ROOT, f), 'utf8')).join('\n;\n') + '\n;\n' + fs.readFileSync(path.join(ROOT, 'anim.js'), 'utf8') +
-  ';module.exports={ANIMS,anSVG,AN_MAP,withAnim,anCardHTML,AN_SEE,AN_LAY,setLang:l=>{LANG=l},COURSES};';
+  ';module.exports={ANIMS,anSVG,AN_MAP,withAnim,anCardHTML,AN_SEE,AN_LAY,setLang:l=>{LANG=l},COURSES,anOpen,anNoteAudio};';
 const tmp = path.join(require('os').tmpdir(), 'axle_anim_' + process.pid + '.js'); fs.writeFileSync(tmp, src);
 const M = require(tmp); fs.unlinkSync(tmp);
 const errs = []; let checks = 0; const ok = (c, m) => { checks++; if(!c) errs.push(m); };
@@ -96,6 +96,17 @@ for(const id of Object.keys(M.ANIMS)){
       ok(a && a.sha === sha(text), `${id} ${lang} ${l.id}: lyden er laget av en annen tekst enn manuset (lag den på nytt med tools/anim_voice.mjs)`);
       ok(a && a.dur > 0 && a.dur <= l.d + 4, `${id} ${lang} ${l.id}: lyden (${a && a.dur} s) er mye lengre enn replikken (${l.d} s)`); } }
   M.setLang('nb');
+}
+
+// manifestet kommer etter første tegning: lydmenyen har bare «Av», og skal få fortellerstemmen uten å tegne hele skjermen på nytt
+{
+  global.window = global; global.matchMedia = () => ({ matches: false }); global.fetch = () => new Promise(() => {});
+  const sel = { options: [{ value: "off" }], value: "off", innerHTML: "" }; global.AXLE_EL = { "an-snd": sel };
+  M.anOpen("derivasjon", "home", true);
+  const man = JSON.parse(fs.readFileSync(path.join(ROOT, "assets", "anim", "derivasjon", "manifest.json"), "utf8"));
+  ok(M.anNoteAudio("derivasjon", man) === "file", "manifest etter første tegning velger ikke fortellerstemmen");
+  ok(sel.innerHTML.includes('value="file"') && sel.innerHTML.includes("Fortellerstemme"), "lydmenyen får ikke valget Fortellerstemme når manifestet kommer");
+  ok(sel.innerHTML.includes("l00") === false, "lydmenyen skal ikke liste filnavn");
 }
 
 console.log(`animasjoner: ${Object.keys(M.ANIMS).length}, ${checks} sjekker, feil: ${errs.length}`);

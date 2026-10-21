@@ -227,16 +227,40 @@ function anOpen(id, from, quiet){
 }
 function anLoadAudio(id){
   if(AN_AUDIO[id] !== undefined) return; AN_AUDIO[id] = null;
-  try{ fetch(`anim/${id}/manifest.json`, { cache: "no-cache" }).then(r => r.ok ? r.json() : null).then(m => { if(!m) return; AN_AUDIO[id] = m; if(AN && AN.id === id && screen === "anim") anRefresh(true); }).catch(() => {}); }catch(e){}
+  try{ fetch(`anim/${id}/manifest.json`, { cache: "no-cache" }).then(r => r.ok ? r.json() : null).then(m => anNoteAudio(id, m)).catch(() => {}); }catch(e){}
+}
+// manifestet hentes etter at skjermen er tegnet; da må lydvalget oppdateres, ellers blir fortellerstemmen aldri valgt
+function anNoteAudio(id, m){
+  if(!m) return AN && AN.snd;
+  AN_AUDIO[id] = m;
+  if(!(AN && AN.id === id && screen === "anim")) return AN && AN.snd;
+  const snd = anApplyNarration(); anRefresh(true); return snd;
 }
 const anFiles = () => { const m = AN && AN_AUDIO[AN.id]; return m && m[LANG] ? m[LANG] : null; };
+function anSndOpts(){
+  return [["off", T("Av", "Off")], ...(anFiles() ? [["file", T("Fortellerstemme", "Narrator")]] : []), ...(typeof TTS_OK !== "undefined" && TTS_OK ? [["device", T("Les opp (enhetens stemme)", "Read aloud (device voice)")]] : [])];
+}
+// ønsket lyd: lagret valg, men ferdig innspilling foretrekkes framfor enhetens stemme (til eleven selv velger igjen)
+function anSndWant(opts){
+  const want = (S.anSnd === "device" || S.anSnd == null) && !S.anSndPicked && anFiles() ? "file" : (S.anSnd || "off");
+  if(opts.some(o => o[0] === want)) return want;
+  if(AN && opts.some(o => o[0] === AN.snd)) return AN.snd;
+  return "off";
+}
+function anApplyNarration(){
+  if(!AN || screen !== "anim") return AN && AN.snd;
+  const opts = anSndOpts(), next = anSndWant(opts), prev = AN.snd; AN.snd = next;
+  const sel = document.getElementById("an-snd"); if(!sel) return next;
+  const have = [...sel.options].map(o => o.value).join("\0"), need = opts.map(o => o[0]).join("\0");
+  if(have !== need) sel.innerHTML = opts.map(([v, l]) => `<option value="${v}"${v === next ? " selected" : ""}>${esc(l)}</option>`).join("");
+  else if(sel.value !== next) sel.value = next;
+  if(AN.playing && next === "file" && prev !== "file") anAudioLine(true);
+  return next;
+}
 function renderAnim(){
   const D = ANIMS[AN.id];
   const uses = D.units.map(([code, title]) => { const c = COURSE(code), u = c ? c.units.findIndex(x => x.title === title) : -1; return c && u >= 0 && inMyStudies(c) ? `<button class="bk-hit" data-a="bkunit" data-c="${code}" data-u="${u}"><small>${esc(courseName(c))}</small><b>${esc(unitTitle(c, u))}</b></button>` : ""; }).join("");
-  const sndOpts = [["off", T("Av", "Off")], ...(anFiles() ? [["file", T("Fortellerstemme", "Narrator")]] : []), ...(typeof TTS_OK !== "undefined" && TTS_OK ? [["device", T("Les opp (enhetens stemme)", "Read aloud (device voice)")]] : [])];
-  // ønsket lyd: lagret valg, men ferdig innspilling foretrekkes framfor enhetens stemme (til eleven selv velger igjen); manifestet kan komme etter første tegning
-  const want = (S.anSnd === "device" || S.anSnd == null) && !S.anSndPicked && anFiles() ? "file" : (S.anSnd || "off");
-  if(sndOpts.some(o => o[0] === want)) AN.snd = want; else if(!sndOpts.some(o => o[0] === AN.snd)) AN.snd = "off";
+  const sndOpts = anSndOpts(); AN.snd = anSndWant(sndOpts);
   $app.innerHTML = `<div class="top"><div class="wrap"><button class="iconbtn" data-a="anback" aria-label="${esc(t("back"))}">${I.left}</button><div class="th-t"><small>${esc(T("Animasjon", "Animation"))}</small><b>${esc(T(D.t[0], D.t[1]))}</b></div></div></div>
   <main class="wrap an-main">
     <p class="an-sub">${esc(T(D.sub[0], D.sub[1]))}</p>
