@@ -213,3 +213,10 @@ Brukes i trinn 2 (manus) og trinn 4 (før animasjonen vises for eieren). Punkten
 - Appen velger «Fortellerstemme» automatisk når manifestet finnes (med mindre eleven selv har valgt noe annet). Mangler en replikk lyd, eller feiler fila, leses akkurat den replikken med enhetens stemme.
 - **Plan:** MCP-verktøyene viser ikke abonnementet. Eieren bekreftet 2026-10-21 02:24 (Oslo) i chat at planen er betalt og aktiv og godkjente publisering; dette står som `plan.verifiedBy` i manifestet. `node tools/anim_voice.mjs --plan` er ikke kjørt.
 - Regenerering: `ELEVENLABS_API_KEY=… node tools/anim_voice.mjs derivasjon --provider elevenlabs [--lang en]` (nøkkelen bare fra miljøet). Bare endrede replikker lages på nytt.
+
+### AX-15b: norsk stemme byttet (2026-10-21)
+
+- Dennis hørtes dansk ut. De 16 nb-replikkene er laget på nytt med «Sebastian» (`4kCDY3HJwvO7Zp3con83`), modell `eleven_flash_v2_5`, `language_code: "no"` (eieren valgte flash-prøven). Engelsk (Alice, `eleven_multilingual_v2`) er uendret.
+- `tools/anim_voice.mjs` har nå stemme og modell per språk (`DEF_VOICE`, `DEF_MODEL`); `ELEVENLABS_MODEL_NB/_EN` eller `ELEVENLABS_MODEL` overstyrer modellen.
+- Kontroll: Scribe (`eleven_scribe_v1`, uten tvunget språk) på hver nb-replikk. 8 av 16 ble gjenkjent som `nor`; de 8 andre (l01, l03, l04, l12 `nn`; l02, l08, l13 `dan`; l11 `swe`) ble laget på nytt én gang og ga samme resultat. Sannsynlighetene er lave (0,33–0,90), så dette bør vurderes ved å lytte.
+- Uttale: «h» ble ikke lest som norsk «hå». l07, l08, l10, l12 og l15 har derfor `say:` der `h` er skrevet `hå` (bare talen endres, tekstingen er uendret), og de fem klippene er laget på nytt. x, f, P og Q er ikke endret.
