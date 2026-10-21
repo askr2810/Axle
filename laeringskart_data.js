@@ -7,6 +7,7 @@
 //   sections  [{ id, t, sub }] – trinn i rekkefølge, ovenfra og ned
 //   nodes     [{ id, sec, t, code?, why }] – code = fagkoden i COURSES (lenkes til fagets teoriside).
 //             Uten code vises noden som «kommer» (faget finnes ikke i Axle ennå). Ikke finn på innhold.
+//   areas     [{ id, t }] – fagområder; hver node har area, og fargen kommer fra .lk-a-<id> i styles.css
 //   edges     [[fra, til], …] – «til» bygger på «fra» (forkunnskap). Bare mellom noder i samme kart.
 //  Rekkefølgen i VGS følger LK20: 1T (vg1) → R1 og Fysikk 1 (vg2) → R2 og Fysikk 2 (vg3).
 // ============================================================
@@ -16,6 +17,10 @@ const LK_MAPS = [
     id: "maskiningenior",
     t: "Veien til maskiningeniør",
     intro: "Fra matte og fysikk på videregående til de sentrale ingeniørfagene i en maskinbachelor. Hvert steg bygger på de forrige.",
+    areas: [
+      { id: "mat", t: "Matematikk" }, { id: "fys", t: "Fysikk" }, { id: "mek", t: "Mekanikk og fasthet" },
+      { id: "ene", t: "Energi og strømning" }, { id: "kon", t: "Konstruksjon og materialer" }, { id: "prog", t: "Programmering og beregning" }
+    ],
     sections: [
       { id: "vg1", t: "Vg1", sub: "Felles grunnlag" },
       { id: "vg2", t: "Vg2", sub: "Programfag: R1 og Fysikk 1" },
@@ -25,32 +30,32 @@ const LK_MAPS = [
       { id: "aar3", t: "Fordypning", sub: "Konstruksjon, energi og beregning" }
     ],
     nodes: [
-      { id: "1t", sec: "vg1", t: "Matematikk 1T", code: "VG1T", why: "Algebra, funksjoner og trigonometri du trenger videre." },
-      { id: "r1", sec: "vg2", t: "Matematikk R1", code: "VGR1", why: "Derivasjon, vektorer og logaritmer." },
-      { id: "fy1", sec: "vg2", t: "Fysikk 1", code: "VGFY1", why: "Bevegelse, krefter og energi." },
-      { id: "r2", sec: "vg3", t: "Matematikk R2", code: "VGR2", why: "Integrasjon, rekker og differensiallikninger." },
-      { id: "fy2", sec: "vg3", t: "Fysikk 2", code: "VGFY2", why: "Kast, sirkelbevegelse og elektromagnetisme." },
-      { id: "mat1", sec: "aar1", t: "Matematikk 1000", code: "MEK1000", why: "Kalkulus på ingeniørnivå." },
-      { id: "mek", sec: "aar1", t: "Mekanikk: statikk og dynamikk", code: "MAPE1300", why: "Likevekt, fagverk, bjelker og bevegelse." },
-      { id: "fys", sec: "aar1", t: "Fysikk", code: "MEK1400", why: "Svingninger, bølger og rotasjon." },
-      { id: "prog1", sec: "aar1", t: "Programmering 1", code: "MEK1300", why: "Python fra bunnen av." },
-      { id: "mat", sec: "aar1", t: "Materialteknologi", code: "MATS1500", why: "Struktur og mekaniske egenskaper til materialer." },
-      { id: "cad", sec: "aar1", t: "Teknisk tegning og CAD", why: "Tegningslesing og 3D-modellering." },
-      { id: "linalg", sec: "aar2", t: "Matematikk 2000: lineær algebra og differensiallikninger", code: "MEK2000", why: "Matriser, egenverdier og differensiallikninger." },
-      { id: "fast", sec: "aar2", t: "Fasthetslære", code: "FAST", why: "Spenning, tøyning, bøyning og knekking." },
-      { id: "termo", sec: "aar2", t: "Termodynamikk", code: "MATS2100", why: "Energi, entropi og kretsprosesser." },
-      { id: "fluid", sec: "aar2", t: "Fluidmekanikk", code: "FLUID", why: "Trykk, Bernoulli og rørstrømning." },
-      { id: "stat", sec: "aar2", t: "Statistikk og risikoanalyse", code: "MEK2200", why: "Sannsynlighet, fordelinger og regresjon." },
-      { id: "prog2", sec: "aar2", t: "Programmering 2", code: "MEK3100", why: "Algoritmer og numerikk med NumPy." },
-      { id: "mat3", sec: "aar2", t: "Matematikk 3000", code: "DAVE3700", why: "Partielle deriverte, multiple integraler og vektoranalyse." },
-      { id: "design", sec: "aar3", t: "Mekanisk design", code: "MATS1600", why: "Dimensjonering og maskinelementer." },
-      { id: "sving", sec: "aar3", t: "Maskindynamikk og svingninger", code: "SVING", why: "Frie, dempede og tvungne svingninger." },
-      { id: "varme", sec: "aar3", t: "Varmeoverføring", code: "VARME", why: "Ledning, konveksjon og stråling." },
-      { id: "num", sec: "aar3", t: "Numeriske metoder", code: "NUM", why: "Regn ut det som ikke kan løses for hånd." },
-      { id: "fem", sec: "aar3", t: "Elementmetoden", code: "FEM", why: "Beregning av konstruksjoner med datamaskin." },
-      { id: "kyb", sec: "aar3", t: "Kybernetikk", code: "ELFT2400", why: "Regulering og PID." },
-      { id: "prod", sec: "aar3", t: "Produktutvikling", code: "PROD", why: "Fra kundebehov til ferdig produkt." },
-      { id: "tilv", sec: "aar3", t: "Produksjonsteknikk", why: "Maskinering, støping og sammenføying." }
+      { id: "1t", sec: "vg1", area: "mat", t: "Matematikk 1T", code: "VG1T", why: "Algebra, funksjoner og trigonometri du trenger videre." },
+      { id: "r1", sec: "vg2", area: "mat", t: "Matematikk R1", code: "VGR1", why: "Derivasjon, vektorer og logaritmer." },
+      { id: "fy1", sec: "vg2", area: "fys", t: "Fysikk 1", code: "VGFY1", why: "Bevegelse, krefter og energi." },
+      { id: "r2", sec: "vg3", area: "mat", t: "Matematikk R2", code: "VGR2", why: "Integrasjon, rekker og differensiallikninger." },
+      { id: "fy2", sec: "vg3", area: "fys", t: "Fysikk 2", code: "VGFY2", why: "Kast, sirkelbevegelse og elektromagnetisme." },
+      { id: "mat1", sec: "aar1", area: "mat", t: "Matematikk 1000", code: "MEK1000", why: "Kalkulus på ingeniørnivå." },
+      { id: "mek", sec: "aar1", area: "mek", t: "Mekanikk: statikk og dynamikk", code: "MAPE1300", why: "Likevekt, fagverk, bjelker og bevegelse." },
+      { id: "fys", sec: "aar1", area: "fys", t: "Fysikk", code: "MEK1400", why: "Svingninger, bølger og rotasjon." },
+      { id: "prog1", sec: "aar1", area: "prog", t: "Programmering 1", code: "MEK1300", why: "Python fra bunnen av." },
+      { id: "mat", sec: "aar1", area: "kon", t: "Materialteknologi", code: "MATS1500", why: "Struktur og mekaniske egenskaper til materialer." },
+      { id: "cad", sec: "aar1", area: "kon", t: "Teknisk tegning og CAD", why: "Tegningslesing og 3D-modellering." },
+      { id: "linalg", sec: "aar2", area: "mat", t: "Matematikk 2000: lineær algebra og differensiallikninger", code: "MEK2000", why: "Matriser, egenverdier og differensiallikninger." },
+      { id: "fast", sec: "aar2", area: "mek", t: "Fasthetslære", code: "FAST", why: "Spenning, tøyning, bøyning og knekking." },
+      { id: "termo", sec: "aar2", area: "ene", t: "Termodynamikk", code: "MATS2100", why: "Energi, entropi og kretsprosesser." },
+      { id: "fluid", sec: "aar2", area: "ene", t: "Fluidmekanikk", code: "FLUID", why: "Trykk, Bernoulli og rørstrømning." },
+      { id: "stat", sec: "aar2", area: "mat", t: "Statistikk og risikoanalyse", code: "MEK2200", why: "Sannsynlighet, fordelinger og regresjon." },
+      { id: "prog2", sec: "aar2", area: "prog", t: "Programmering 2", code: "MEK3100", why: "Algoritmer og numerikk med NumPy." },
+      { id: "mat3", sec: "aar2", area: "mat", t: "Matematikk 3000", code: "DAVE3700", why: "Partielle deriverte, multiple integraler og vektoranalyse." },
+      { id: "design", sec: "aar3", area: "kon", t: "Mekanisk design", code: "MATS1600", why: "Dimensjonering og maskinelementer." },
+      { id: "sving", sec: "aar3", area: "mek", t: "Maskindynamikk og svingninger", code: "SVING", why: "Frie, dempede og tvungne svingninger." },
+      { id: "varme", sec: "aar3", area: "ene", t: "Varmeoverføring", code: "VARME", why: "Ledning, konveksjon og stråling." },
+      { id: "num", sec: "aar3", area: "prog", t: "Numeriske metoder", code: "NUM", why: "Regn ut det som ikke kan løses for hånd." },
+      { id: "fem", sec: "aar3", area: "mek", t: "Elementmetoden", code: "FEM", why: "Beregning av konstruksjoner med datamaskin." },
+      { id: "kyb", sec: "aar3", area: "prog", t: "Kybernetikk", code: "ELFT2400", why: "Regulering og PID." },
+      { id: "prod", sec: "aar3", area: "kon", t: "Produktutvikling", code: "PROD", why: "Fra kundebehov til ferdig produkt." },
+      { id: "tilv", sec: "aar3", area: "kon", t: "Produksjonsteknikk", why: "Maskinering, støping og sammenføying." }
     ],
     edges: [
       ["1t", "r1"], ["1t", "fy1"], ["r1", "r2"], ["r1", "fy1"], ["fy1", "fy2"], ["r2", "fy2"],

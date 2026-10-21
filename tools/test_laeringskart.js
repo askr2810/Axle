@@ -21,6 +21,8 @@ for(const m of LK_MAPS){
   for(const n of m.nodes){
     if(nid.has(n.id)) fail(`${m.id}: node-id brukt to ganger: ${n.id}`); nid.set(n.id, n);
     if(!sec.includes(n.sec)) fail(`${m.id}/${n.id}: ukjent trinn ${n.sec}`);
+    if(!(m.areas || []).some(a => a.id === n.area)) fail(`${m.id}/${n.id}: ukjent fagområde ${n.area}`);
+    if(!fs.readFileSync(path.join(ROOT, 'styles.css'), 'utf8').includes('.lk-a-' + n.area + '{')) fail(`${m.id}/${n.id}: fargen .lk-a-${n.area} mangler i styles.css`);
     if(!n.t || !n.why) fail(`${m.id}/${n.id}: mangler tittel eller beskrivelse`);
     if(n.code){ if(!COURSES.some(c => c.code === n.code)) fail(`${m.id}/${n.id}: faget ${n.code} finnes ikke i COURSES`); else linked++; } else soon++;
   }

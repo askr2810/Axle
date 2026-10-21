@@ -8,9 +8,9 @@ function lkOpen(id){ LK = { id: lkMap(id) ? id : LK_MAPS[0].id }; screen = "lk";
 const lkHas = n => !!(n.code && COURSES.some(c => c.code === n.code));
 function lkNodeHTML(m, n){
   const pre = lkPrereq(m, n.id), preHTML = pre.length ? `<span class="lk-pre">Bygger på: ${pre.map(p => esc(p.t)).join(", ")}</span>` : "";
-  if(!lkHas(n)) return `<li class="lk-node lk-soon"><span class="lk-dot" aria-hidden="true"></span><div class="lk-card"><b>${esc(n.t)}</b><small>${esc(n.why)}</small>${preHTML}<span class="lk-tag">Kommer</span></div></li>`;
+  if(!lkHas(n)) return `<li class="lk-node lk-soon lk-a-${esc(n.area)}"><span class="lk-dot" aria-hidden="true"></span><div class="lk-card"><b>${esc(n.t)}</b><small>${esc(n.why)}</small>${preHTML}<span class="lk-tag">Kommer</span></div></li>`;
   const c = COURSE(n.code), p = courseProgress(c), pct = p.tot ? Math.round(p.d / p.tot * 100) : 0, done = p.tot && p.d >= p.tot;
-  return `<li class="lk-node${done ? " lk-done" : p.d ? " lk-going" : ""}"><span class="lk-dot" aria-hidden="true"></span><button class="lk-card" data-a="lkgo" data-code="${esc(n.code)}">
+  return `<li class="lk-node lk-a-${esc(n.area)}${done ? " lk-done" : p.d ? " lk-going" : ""}"><span class="lk-dot" aria-hidden="true"></span><button class="lk-card" data-a="lkgo" data-code="${esc(n.code)}">
     <b>${esc(n.t)}</b><small>${esc(n.why)}</small>${preHTML}
     <span class="lk-prog"><span class="pf-bar"><i style="width:${pct}%"></i></span><span>${p.d ? `${p.d} av ${p.tot} steg` : "Ikke startet"}</span></span></button></li>`;
 }
@@ -22,6 +22,7 @@ function renderLk(){
     <main class="wrap lk">
       <p class="pf-intro">${esc(m.intro)}</p>
       <p class="lk-disc" role="note">${esc(LK_DISCLAIMER)}</p>
+      <ul class="lk-legend" aria-label="Fagområder">${m.areas.map(a => `<li class="lk-a-${esc(a.id)}"><i aria-hidden="true"></i>${esc(a.t)}</li>`).join("")}</ul>
       ${m.sections.map(s => { const ns = m.nodes.filter(n => n.sec === s.id); return ns.length ? `<section class="lk-sec"><h2><span>${esc(s.t)}</span><small>${esc(s.sub)}</small></h2><ol class="lk-path">${ns.map(n => lkNodeHTML(m, n)).join("")}</ol></section>` : ""; }).join("")}
       <p class="fr-hint">${has.length} av ${m.nodes.length} steg finnes i Axle. Steg merket «Kommer» er ikke laget ennå.</p>
     </main>`;
