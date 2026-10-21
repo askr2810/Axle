@@ -826,8 +826,7 @@ body.has-tabs .toast{bottom:calc(84px + env(safe-area-inset-bottom,0px))}
 .precard{padding:10px 12px}
 .precard .prechips{gap:6px}
 
-.tabbar .wrap{grid-template-columns:repeat(6,1fr)}
-@media (max-width:420px){.tabbar button{font-size:10.5px;letter-spacing:-.01em}}
+.tabbar .wrap{grid-template-columns:repeat(5,1fr)}
 .tab-dot{position:absolute;top:3px;left:calc(50% + 8px);width:9px;height:9px;border-radius:50%;background:var(--bad);box-shadow:0 0 0 2px var(--card)}
 .prac{padding-top:4px;padding-bottom:20px}
 .prac-h{font-family:var(--display);font-weight:800;font-size:18px;margin:20px 0 0}
@@ -3716,6 +3715,11 @@ button.lk-card:hover,button.lk-card:focus-visible{border-color:var(--lk);backgro
 .lk-soon .lk-card{border-style:dashed;border-left-style:dashed;cursor:default;background:color-mix(in srgb,var(--lk) 5%,var(--card))}
 .lk-tag{justify-self:start;padding:2px 8px;border-radius:9px;background:color-mix(in srgb,var(--lk) 18%,var(--card));color:var(--lkt);font-size:12px;font-weight:700}
 .lk-graph{position:relative}
+.lk-entry{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:6px 14px;width:100%;margin:4px 0 14px;padding:0 16px 14px;border:2px solid var(--line);border-radius:18px;background:var(--card);color:var(--ink);font:inherit;text-align:left;cursor:pointer;overflow:hidden}
+.lk-entry:hover{border-color:var(--accent)}.lk-entry .lk-mapbar{grid-column:1/-1;margin:0 -16px 6px}
+.lk-entry-ic{display:grid;place-items:center;width:46px;height:46px;border-radius:14px;background:var(--accent-soft);color:var(--accent)}
+.lk-entry-t{display:grid;gap:2px}.lk-entry-t small{font-family:var(--mono);font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.lk-entry-t b{font-family:var(--display);font-size:18px}.lk-entry-t span{font-size:13px;color:var(--muted)}
 .lk-chip{display:inline-flex;align-items:center;gap:7px;margin:2px 6px 10px 0;padding:5px 12px;border-radius:99px;border:1.5px solid var(--lk);background:color-mix(in srgb,var(--lk) 12%,var(--card));color:var(--lkt);font:inherit;font-size:13px;font-weight:700;cursor:pointer}
 .lk-chip i{width:9px;height:9px;border-radius:50%;background:var(--lk)}.lk-chip:hover{background:color-mix(in srgb,var(--lk) 20%,var(--card))}
 .lk-mapcard{display:grid;grid-template-columns:1fr auto;gap:4px 10px;width:100%;margin:0 0 12px;padding:0 16px 14px;border:2px solid var(--line);border-radius:18px;background:var(--card);color:var(--ink);font:inherit;text-align:left;cursor:pointer;overflow:hidden}

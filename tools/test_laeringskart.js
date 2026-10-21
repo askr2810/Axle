@@ -12,8 +12,9 @@ const { LK_MAPS, LK_DISCLAIMER } = require(path.join(ROOT, 'laeringskart_data.js
 let bad = 0; const fail = m => { bad++; console.log('FEIL: ' + m); };
 if(LK_DISCLAIMER !== 'Forslag til læringsvei, ikke et offisielt studieløp. Innholdet er AI-laget og ikke kvalitetssikret av lærere.') fail('ansvarsfraskrivelsen er endret');
 const js = fs.readFileSync(path.join(ROOT, 'laeringskart.js'), 'utf8'); if(!js.includes('LK_DISCLAIMER')) fail('laeringskart.js viser ikke ansvarsfraskrivelsen');
-for(const [f, re, what] of [['profile.js', /\["lk", "map", "tabMaps"\]/, 'fanen «Læringskart» i hovedmenyen'], ['i18n.js', /tabMaps: "Læringskart"/, 'teksten «Læringskart» i menyen'], ['book.js', /lkChipHTML\(c\.code\)/, '«Del av»-lenken på emnesidene'], ['route.js', /k === "lk"/, 'adressen #\/laeringskart']])
+for(const [f, re, what] of [['book.js', /lkCtaHTML\(\)/, 'inngangen på forsiden av Teori'], ['laeringskart.js', /Skal du velge fag\?/, 'teksten «Skal du velge fag?»'], ['book.js', /lkChipHTML\(c\.code\)/, '«Del av»-lenken på emnesidene'], ['route.js', /k === "lk"/, 'adressen #\/laeringskart']])
   if(!re.test(fs.readFileSync(path.join(ROOT, f), 'utf8'))) fail(f + ': mangler ' + what);
+if(/\["lk",/.test(fs.readFileSync(path.join(ROOT, 'profile.js'), 'utf8'))) fail('profile.js: Læringskart skal ikke være en fane i hovedmenyen');
 const build = fs.readFileSync(path.join(ROOT, 'build.py'), 'utf8'); for(const f of ['laeringskart_data.js', 'laeringskart.js']) if(!build.includes('"' + f + '"')) fail(f + ' mangler i build.py');
 const ids = new Set(); let linked = 0, soon = 0;
 for(const m of LK_MAPS){

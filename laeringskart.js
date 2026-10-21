@@ -11,8 +11,13 @@ function lkOpen(id, focus){ LK = { id: lkMap(id) ? id : null, focus: focus || nu
 // Kartene et fag er med i (til «Del av: …» på emnesidene)
 const lkMapsOf = code => LK_MAPS.map(m => ({ m, n: m.nodes.find(n => n.code === code) })).filter(x => x.n);
 function lkChipHTML(code){ return lkMapsOf(code).map(({ m, n }) => `<button class="lk-chip lk-a-${esc(n.area)}" data-a="lkopen" data-id="${esc(m.id)}" data-node="${esc(n.id)}"><i aria-hidden="true"></i>Del av: ${esc(m.t)}</button>`).join(""); }
+// Inngangen på forsiden av Teori: brukes sjelden, mest når man skal velge fag.
+function lkCtaHTML(){ const areas = [...new Set(LK_MAPS.flatMap(m => m.nodes.map(n => n.area)))];
+  return `<button class="lk-entry" data-a="lkopen"><span class="lk-mapbar" aria-hidden="true">${areas.map(a => `<i class="lk-a-${esc(a)}"></i>`).join("")}</span>
+    <span class="lk-entry-ic" aria-hidden="true">${svg('<circle cx="6" cy="5" r="2"/><circle cx="18" cy="12" r="2"/><circle cx="6" cy="19" r="2"/><path d="M8 5h4a4 4 0 0 1 4 4v1M16 14v1a4 4 0 0 1-4 4H8"/>', 26)}</span>
+    <span class="lk-entry-t"><small>Skal du velge fag?</small><b>Se læringskartene</b><span>Forslag til rekkefølge fra videregående til studiet: ${esc(LK_MAPS.map(m => m.t).join(", "))}.</span></span>${I.chevron}</button>`; }
 function renderLkHome(){
-  $app.innerHTML = `<div class="top"><div class="wrap"><div class="th-t"><small>Læringskart</small><b>Velg en læringsvei</b></div></div></div>
+  $app.innerHTML = `<div class="top"><div class="wrap"><button class="iconbtn" data-a="lkbook" aria-label="Tilbake">${I.left}</button><div class="th-t"><small>Læringskart</small><b>Velg en læringsvei</b></div></div></div>
     <main class="wrap lk lk-home"><p class="pf-intro">Læringskartene viser en mulig rekkefølge gjennom fagene i Axle, fra videregående til studiet. Hvert steg lenker til faget, og fremgangen din vises underveis.</p>
       <p class="lk-disc" role="note">${esc(LK_DISCLAIMER)}</p>
       ${LK_MAPS.map(m => { const has = m.nodes.filter(lkHas), st = has.filter(n => courseProgress(COURSE(n.code)).d > 0).length, areas = [...new Set(m.nodes.map(n => n.area))];
@@ -114,6 +119,7 @@ function lkClick(a, b){
   if(!a.startsWith("lk")) return false;
   if(a === "lkopen") lkOpen(b.dataset.id, b.dataset.node);
   else if(a === "lkback") lkOpen(null);
+  else if(a === "lkbook") openBook(true);
   else if(a === "lkgo"){ const code = b.dataset.code; if(!COURSES.some(c => c.code === code)) return true; BK = { v: "course", code, u: 0, tab: "topics", q: "" }; screen = "book"; render(); window.scrollTo(0, 0); }
   else return false;
   return true;
