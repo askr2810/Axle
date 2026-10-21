@@ -43,7 +43,7 @@ TOPICS("MAPE1300", 0, [
     legend: [["\\sum", "the sum of", ""], ["O", "any moment point", ""]],
     ex: "4 m beam, load $P = 10$ kN 1 m from A.\nMoments about A: $B\\cdot 4 = 10\\cdot 1 \\Rightarrow B = 2.5$ kN.\nVertical: $A = 10 - 2.5 = 7.5$ kN.",
     tip: "Take moments about a point where an unknown force acts – it then drops out of the equation." } },
-{ id: "opplagre",
+{ id: "opplagre", chk: ["2+1 ≈ 3"],
   art: () => FL.supports(),
   fig: `<svg viewBox="0 0 240 140"><path d="M20 50h50" class="b"/><path d="M45 50l-12 20h24z" class="d"/><path d="M28 76h34" class="d"/><path d="M100 50h50" class="b"/><path d="M125 50l-12 18h24z" class="d"/><circle cx="117" cy="73" r="4" class="d"/><circle cx="133" cy="73" r="4" class="d"/><path d="M185 30v50" class="d"/><path d="M185 30l-8 8M185 42l-8 8M185 54l-8 8M185 66l-8 8M185 78l-8 8" class="d"/><path d="M185 55h40" class="b"/><text x="30" y="110">2</text><text x="120" y="110">1</text><text x="200" y="110">3</text></svg>`,
   nb: { t: "Opplagre og reaksjoner",

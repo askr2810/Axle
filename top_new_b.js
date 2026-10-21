@@ -66,7 +66,7 @@ $\Phi = 0{,}8\cdot 2\cdot 25 = 40$ W.`, "Temperaturforskjell i K og °C er det s
     [[R`\Phi`, "heat loss (power)", "W"], ["A", "area", "m²"], [R`\Delta T`, "temperature difference", "K"]],
     R`A 2 m² window with $U = 0.8$ and a 25 K difference:
 $\Phi = 0.8\cdot 2\cdot 25 = 40$ W.`, "A temperature difference in K and in °C is the same, so either can be used.") },
-{ id: "duggpunkt",
+{ id: "duggpunkt", chk: ["8.6/17.3*100 ≈ 50","237.7*(ln(8.6/17.3)+17.27*20/(237.7+20))/(17.27-(ln(8.6/17.3)+17.27*20/(237.7+20))) ≈ 9"],
   nb: O("Fukt og duggpunkt", "Varm luft kan holde mer vanndamp enn kald luft. Når fuktig inneluft kjøles ned inne i en vegg, kan den nå duggpunktet, og vannet kondenserer. Derfor har vegger en dampsperre på den varme siden og en vindsperre som slipper fukt ut.",
     [[R`RF = \frac{v}{v_{mett}}\cdot 100\,\%`, "relativ fuktighet"]],
     [["RF", "relativ fuktighet", "%"], ["v", "faktisk vanndampinnhold", "g/m³"], [R`v_{mett}`, "metningsinnhold ved temperaturen", "g/m³"]],
@@ -104,7 +104,7 @@ $s = \sqrt{30^2 + 40^2} = 50$ m.`, "Sjekk hvilken kvadrant retningen ligger i. A
     [[R`\Delta N,\ \Delta E`, "coordinate differences north and east", "m"], ["s", "distance", "m"], [R`\alpha`, "bearing", "°"]],
     R`From (N 100, E 200) to (N 130, E 240):
 $s = \sqrt{30^2 + 40^2} = 50$ m.`, "Check which quadrant the direction lies in. The arctangent alone cannot tell opposite directions apart.") },
-{ id: "arealberegning",
+{ id: "arealberegning", chk: ["(0+200+200+0)/2 ≈ 200"],
   nb: O("Areal fra koordinater", "Arealet av en tomt med kjente hjørnekoordinater kan regnes ut direkte med koordinatmetoden. Du går rundt polygonet og summerer kryssprodukter. Metoden virker for alle polygoner som ikke krysser seg selv.",
     [[R`A = \tfrac12\left|\sum_{i} (x_i\,y_{i+1} - x_{i+1}\,y_i)\right|`, "koordinatmetoden (skolissformelen)"]],
     [["x_i,\\ y_i", "koordinatene til hjørne i", "m"], ["A", "areal", "m²"]],
@@ -155,7 +155,7 @@ $|M \cup F| = 30 + 20 - 12 = 38$.`, "Subtract the intersection, or you count tho
 
 // ---------- DISK 1: Kombinatorikk ----------
 TOPICS("DISK", 1, [
-{ id: "multiplikasjonsprinsippet",
+{ id: "multiplikasjonsprinsippet", chk: ["10^4 ≈ 10000"],
   nb: O("Multiplikasjonsprinsippet", "Hvis et valg kan gjøres på n måter og et annet på m måter, kan de to gjøres sammen på n ganger m måter. Prinsippet er grunnlaget for all telling, fra passordkombinasjoner til antall mulige konstruksjonsvarianter.",
     [[R`N = n_1\cdot n_2\cdots n_k`, "antall kombinasjoner av k uavhengige valg"], [R`N = n^k`, "k valg med n muligheter hver"]],
     [["n_i", "antall muligheter i valg i", ""], ["k", "antall valg", ""]],
@@ -204,7 +204,7 @@ summen er 12, så grafen har $12/2 = 6$ kanter.`, "Summen av gradene er alltid e
     [[R`\deg(v)`, "degree of node v", ""], [R`|E|`, "number of edges", ""], ["n", "number of nodes", ""]],
     R`5 nodes with degrees 2, 3, 3, 2 and 2:
 the sum is 12, so the graph has $12/2 = 6$ edges.`, "The sum of the degrees is always even, because each edge counts twice.") },
-{ id: "modulregning",
+{ id: "modulregning", chk: ["100-14*7 ≈ 2"],
   nb: O("Modulregning", "Modulregning handler om resten etter heltallsdivisjon, som en klokke som starter på nytt. To tall er kongruente modulo n hvis de gir samme rest. Det brukes i kontrollsiffer, hashing og kryptografi.",
     [[R`a \equiv b \pmod n`, "a og b gir samme rest ved deling på n"], [R`(a\cdot b) \bmod n = ((a \bmod n)(b \bmod n)) \bmod n`, "regn med restene underveis"]],
     [[R`\bmod`, "rest ved heltallsdivisjon", ""], ["n", "modulus", ""]],
@@ -241,7 +241,7 @@ TOPICS("DBNET", 0, [
     [[R`\text{PK}`, "primary key: unique per row", ""], [R`\text{FK}`, "foreign key: link to another table", ""]],
     R`Student(id, name) and Exam(id, student_id, course, grade):
 one student can have many exams, but each exam belongs to one student.`, "Store each fact in one place. Then it cannot get out of step with itself.") },
-{ id: "select",
+{ id: "select", chk: ["3 ≈ 3"],
   nb: O("SELECT og WHERE", "En SQL-spørring henter ut data. FROM sier hvilken tabell, WHERE hvilke rader, og SELECT hvilke kolonner som vises. ORDER BY sorterer resultatet. Databasen utfører delene i en annen rekkefølge enn du skriver dem.",
     [[R`\texttt{SELECT navn FROM Student WHERE alder > 20;}`, "hent navn på studenter over 20"], [R`\texttt{... ORDER BY navn;}`, "sorter resultatet"]],
     [[R`\texttt{FROM}`, "hvilken tabell", ""], [R`\texttt{WHERE}`, "hvilke rader", ""], [R`\texttt{SELECT}`, "hvilke kolonner", ""]],
@@ -252,7 +252,7 @@ $\texttt{SELECT COUNT(*) FROM Ansatt WHERE lonn > 500}$ gir 3.`, "Glemmer du WHE
     [[R`\texttt{FROM}`, "which table", ""], [R`\texttt{WHERE}`, "which rows", ""], [R`\texttt{SELECT}`, "which columns", ""]],
     R`Salaries 520, 610, 480 and 700 (thousand):
 $\texttt{SELECT COUNT(*) FROM Employee WHERE salary > 500}$ gives 3.`, "If you forget WHERE in an UPDATE or DELETE, every row is changed.") },
-{ id: "join-group",
+{ id: "join-group", chk: ["4 ≈ 4","2 ≈ 2"],
   nb: O("JOIN og GROUP BY", "JOIN setter sammen rader fra to tabeller der nøklene passer. GROUP BY samler rader med samme verdi, slik at aggregatfunksjoner som COUNT, SUM og AVG regnes per gruppe. HAVING filtrerer gruppene etterpå.",
     [[R`\texttt{... JOIN Eksamen e ON e.student\_id = s.id}`, "koble tabeller"], [R`\texttt{SELECT emne, AVG(karakter) ... GROUP BY emne}`, "snitt per emne"]],
     [[R`\texttt{COUNT, SUM, AVG}`, "aggregatfunksjoner", ""], [R`\texttt{HAVING}`, "filter på grupper", ""]],
@@ -267,7 +267,7 @@ $\texttt{SELECT course, COUNT(*) ... GROUP BY course}$ gives MAT 4 and PHY 2.`, 
 
 // ---------- DBNET 1: IP-nettverk og subnetting ----------
 TOPICS("DBNET", 1, [
-{ id: "ip-adresse",
+{ id: "ip-adresse", chk: ["24 ≈ 24","77 ≈ 77"],
   nb: O("IP-adresser", "En IPv4-adresse består av 32 bit, skrevet som fire tall fra 0 til 255. Prefikset etter skråstreken sier hvor mange bit som hører til nettverket. Resten av bitene nummererer maskinene i nettverket.",
     [[R`\text{192.168.1.10/24}`, "adresse med 24 bit nettverksdel"], [R`/24 \leftrightarrow \text{255.255.255.0}`, "prefiks og nettmaske"]],
     [[R`/p`, "prefiks: antall nettverksbit", ""], [R`\text{oktett}`, "8 bit, et tall 0–255", ""]],
@@ -302,7 +302,7 @@ $t = 800/50 = 16$ s.`, "Capital B means byte and small b means bit. MB/s and Mbi
 
 // ---------- DBNET 2: IKT-sikkerhet ----------
 TOPICS("DBNET", 2, [
-{ id: "passordstyrke",
+{ id: "passordstyrke", chk: ["12*ln(26)/ln(2) ≈ 56"],
   nb: O("Passordstyrke", "Et passord er sterkt når det finnes svært mange mulige kombinasjoner. Antallet vokser med tegnsettet og raskt med lengden. Entropi i bit er totallogaritmen av antall kombinasjoner, og hver ekstra bit dobler tiden det tar å prøve alle.",
     [[R`K = N^L`, "antall mulige passord"], [R`E = L\cdot\log_2 N`, "entropi i bit"]],
     [["N", "antall mulige tegn", ""], ["L", "lengde", ""], ["E", "entropi", "bit"]],

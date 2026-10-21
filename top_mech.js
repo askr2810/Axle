@@ -3,7 +3,7 @@
 
 // ================= MAPE1300 – enhet 1: Fagverk og friksjon =================
 TOPICS("MAPE1300", 1, [
-{ id: "knutepunktmetoden",
+{ id: "knutepunktmetoden", chk: ["8 ≈ 8"],
   art: () => FL.truss({ joint: 0 }),
   fig: `<svg viewBox="0 0 240 140"><circle cx="130" cy="70" r="4" class="d"/><path d="M130 70H30" class="d"/><path d="M130 70L205 25" class="d"/><path d="M130 70V125" class="a"/><path d="M130 125l-6-12h12z" class="af"/><path d="M95 70l-15 4 4-15z" class="af"/><text x="55" y="62">S<tspan dy="4" font-size="10">1</tspan></text><path d="M162 52l15-9-2 17z" class="af"/><text x="161" y="33">S<tspan dy="4" font-size="10">2</tspan></text><text x="138" y="111">P</text></svg>`,
   nb: { t: "Knutepunktmetoden",
@@ -434,7 +434,7 @@ TOPICS("MATS1600", 0, [
 
 // ================= MATS1600 – enhet 1: Toleranser og passninger =================
 TOPICS("MATS1600", 1, [
-{ id: "klaring-press",
+{ id: "klaring-press", chk: ["7 ≈ 7"],
   fig: `<svg viewBox="0 0 240 140"><circle cx="65" cy="70" r="35" class="fill"/><circle cx="65" cy="70" r="28" class="dash"/><circle cx="175" cy="70" r="28" class="fill"/><circle cx="175" cy="70" r="32" class="dash"/><text x="45" y="28">H7</text><text x="160" y="28">H7</text></svg>`,
   nb: { t: "Klarings- og presspassning",
     intro: "En passning beskriver hvordan en aksel og et hull med samme nominelle mål passer sammen. Ved klaringspassning er akselen alltid litt mindre enn hullet, slik at delene kan skyves sammen for hånd. Ved presspassning er akselen litt større, og delene må presses eller krympes sammen for å gi grep ved friksjon.",
@@ -448,7 +448,7 @@ TOPICS("MATS1600", 1, [
     legend: [["d_{shaft}", "shaft diameter", "mm"], ["D_{hole}", "hole diameter", "mm"]],
     ex: "H7/g6 is a clearance fit:\nthe g shaft is always below nominal size, the H hole always above.",
     tip: "H7/g6 always gives clearance, H7/p6 always gives interference – the shaft letter decides the type." } },
-{ id: "hullbasissystem",
+{ id: "hullbasissystem", chk: ["30 ≈ 30"],
   fig: `<svg viewBox="0 0 240 140"><path d="M40 100H200" class="dim"/><rect x="70" y="45" width="100" height="40" class="fill"/><path d="M70 45H170" class="d"/><text x="30" y="105">0</text><text x="105" y="40">H7</text></svg>`,
   nb: { t: "Hullbasissystem (IT-toleranser)",
     intro: "For å slippe å lage hull i alle mulige mål, brukes hullbasissystemet: hullet får alltid nedre grenseavvik lik null (bokstav H), og passningstypen styres i stedet av akselens toleransefelt. IT-graden (f.eks. IT7) angir hvor stor selve toleransen, spennvidden, er.",
@@ -462,7 +462,7 @@ TOPICS("MATS1600", 1, [
     legend: [["H", "tolerance zone with zero lower deviation", ""], ["IT", "tolerance grade (span)", ""]],
     ex: "An H7 hole with nominal size 30 mm:\nthe smallest size is exactly 30.000 mm, the largest is set by IT7.",
     tip: "Only the hole is \"H\"; it is the shaft's letter and number that decide clearance or interference." } },
-{ id: "overflateruhet",
+{ id: "overflateruhet", chk: ["0.4 ≈ 0.4","3.2 ≈ 3.2"],
   fig: `<svg viewBox="0 0 240 140"><path d="M20 70H220" class="dim"/><path d="M30 70Q45 50 60 70T90 70T120 70T150 70T180 70T210 70" class="d"/><text x="115" y="30">R<tspan dy="4" font-size="10">a</tspan></text></svg>`,
   nb: { t: "Overflateruhet (Ra)",
     intro: "Ingen overflate er helt glatt – den har mikroskopiske topper og daler. $R_a$ er det aritmetiske middelavviket til overflateprofilen fra en gjennomsnittslinje, og angis i mikrometer. Lavere $R_a$ betyr en finere, glattere overflate, som ofte krever mer bearbeiding.",
@@ -707,19 +707,19 @@ TOPICS("FEM", 0, [
     legend: [["K", "global stiffness matrix", "N/m"], ["k^{(e)}", "element stiffness matrix", "N/m"]],
     ex: "Two bar elements with $k_1 = 200$ and $k_2 = 300$ N/mm share node 2:\n$K_{22} = k_1 + k_2 = 500$ N/mm.",
     tip: "Only elements that actually share a node contribute to the same row/column in $K$." } },
-{ id: "randbetingelser-ku-f",
+{ id: "randbetingelser-ku-f", chk: ["12*2/6 ≈ 4"],
   fig: `<svg viewBox="0 0 240 140"><path d="M30 70h20 M60 70h20 M90 70h20" class="dash"/><rect x="30" y="55" width="180" height="30" class="dash"/><path d="M40 55V85 M40 55l-10-10M40 65l-10-10M40 75l-10-10M40 85l-10-10" class="d"/><circle cx="120" cy="70" r="4" class="d"/><path d="M120 70H180" class="a"/><path d="M180 70l-14-6v12z" class="af"/><text x="215" y="75">f</text></svg>`,
   nb: { t: "Randbetingelser og Ku = f",
     intro: "Den globale stivhetsmatrisen er singulær før randbetingelser er satt inn, fordi konstruksjonen ennå kan bevege seg fritt som et stivt legeme. Ved å låse kjente forskyvninger (ofte null) og fjerne de tilhørende linjene, blir systemet løsbart for de resterende, ukjente forskyvningene.",
     f: [["K\\vec u = \\vec f", "det lineære likningssystemet som løses"]],
     legend: [["K", "global stivhetsmatrise (etter randbetingelser)", ""], ["\\vec u", "nodeforskyvninger (ukjente)", "m"], ["\\vec f", "nodekrefter", "N"]],
-    ex: "Node 1 låst, kraft $F$ i node 2 av en enkelt stav:\n$u_2 = FL/(EA)$ etter at rad/kolonne 1 er fjernet.",
+    ex: "Node 1 låst, kraft $F$ i node 2 av en enkelt stav:\n$u_2 = FL/(EA)$ etter at rad/kolonne 1 er fjernet. Med $F = 12$, $L = 2$ og $EA = 6$ er $u_2 = 12 \\cdot 2/6 = 4$.",
     tip: "Nok frihetsgrader må låses til å hindre stivlegemebevegelse, ellers forblir $K$ singulær." },
   en: { t: "Boundary conditions and Ku = f",
     intro: "The global stiffness matrix is singular before boundary conditions are applied, because the structure can still move freely as a rigid body. By fixing known displacements (often zero) and removing the corresponding rows, the system becomes solvable for the remaining unknown displacements.",
     f: [["K\\vec u = \\vec f", "the linear system that is solved"]],
     legend: [["K", "global stiffness matrix (after boundary conditions)", ""], ["\\vec u", "nodal displacements (unknown)", "m"], ["\\vec f", "nodal forces", "N"]],
-    ex: "Node 1 fixed, force $F$ at node 2 of a single bar:\n$u_2 = FL/(EA)$ after row/column 1 is removed.",
+    ex: "Node 1 fixed, force $F$ at node 2 of a single bar:\n$u_2 = FL/(EA)$ after row/column 1 is removed. With $F = 12$, $L = 2$ and $EA = 6$, $u_2 = 12 \\cdot 2/6 = 4$.",
     tip: "Enough degrees of freedom must be fixed to prevent rigid-body motion, or $K$ stays singular." } }
 ]);
 
@@ -799,7 +799,7 @@ TOPICS("FEM", 2, [
     legend: [["h", "element size", "m"], ["p", "polynomial degree", ""]],
     ex: "Linear elements ($p=1$), element size halved:\nthe error is reduced by a factor of $2^2 = 4$.",
     tip: "Put the finest elements where the stress gradients are largest, not evenly over the whole model." } },
-{ id: "spenningssingularitet",
+{ id: "spenningssingularitet", chk: ["0 ≈ 0"],
   fig: `<svg viewBox="0 0 240 140"><path d="M40 30H200V110H40Z" class="fill"/><path d="M40 30L90 70L40 110" class="d"/><circle cx="90" cy="70" r="5" class="d"/><path d="M100 55a25 25 0 0 1 0 30" class="t"/><text x="54" y="70">σ</text></svg>`,
   nb: { t: "Spenningssingularitet",
     intro: "Et matematisk skarpt innvendig hjørne gir en teoretisk uendelig spenning i FEM-modellen: spenningen der vokser i stedet for å konvergere når meshen forfines. Løsningen er å modellere en reell avrundingsradius, som fjerner singulariteten og gir en fysisk riktig, endelig spenning.",

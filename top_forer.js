@@ -36,7 +36,7 @@ TOPICS("FKB", 0, [
 
 // ================= FKB – enhet 1: Skilt og vegoppmerking =================
 TOPICS("FKB", 1, [
-{ id: "skiltgrupper", pic: "skiltgrupper",
+{ id: "skiltgrupper", chk: ["60 ≈ 60"], pic: "skiltgrupper",
   nb: { t: "Skiltgruppene",
     intro: "Skiltene er delt i grupper du kjenner igjen på formen og fargen. Fareskilt er trekanter med rød kant og spissen opp. Forbudsskilt er runde med rød kant. Påbudsskilt er runde og blå. Opplysningsskilt er blå firkanter. Vikeplikt (trekant med spissen ned) og stopp (åttekant) har egne former, så du kjenner dem igjen bakfra og i snø.",
     ex: "Et rundt skilt med rød kant og tallet 60 er et forbudsskilt: det er forbudt å kjøre fortere enn 60 km/t.\nEt rundt blått skilt med en pil er et påbud om å kjøre i pilens retning.",
@@ -67,7 +67,7 @@ TOPICS("FKB", 1, [
 
 // ================= FKB – enhet 2: Fart, avstand og stopplengde =================
 TOPICS("FKB", 2, [
-{ id: "stopplengde", pic: "stopplengde", sim: ["dvstopp", "dvtreff"],
+{ id: "stopplengde", chk: ["50/3.6 ≈ 13.9","13.9^2/(2*7) ≈ 13.8","13.9+13.8 ≈ 28"], pic: "stopplengde", sim: ["dvstopp", "dvtreff"],
   nb: { t: "Stopplengde",
     intro: "Stopplengden er strekningen fra du oppdager en fare til bilen står stille. Den er summen av reaksjonslengden (mens du reagerer) og bremselengden (mens bilen bremser). Reaksjonslengden øker i takt med farten, mens bremselengden øker med kvadratet av farten. Derfor blir stopplengden mye lengre når farten øker litt.",
     f: [["s_{\\text{stopp}} = s_{\\text{reaksjon}} + s_{\\text{brems}}", "stopplengde"], ["s_{\\text{reaksjon}} = v \\cdot t_r", "reaksjonslengde med farten i m/s"], ["s_{\\text{brems}} = \\dfrac{v^2}{2a}", "bremselengde med retardasjonen a"]],
@@ -80,7 +80,7 @@ TOPICS("FKB", 2, [
     legend: [["v", "speed", "m/s"], ["t_r", "reaction time, often about 1 s", "s"], ["a", "deceleration, about 7 on dry tarmac", "m/s²"]],
     ex: "At 50 km/h, $v \\approx 13.9$ m/s.\nReaction distance with 1 s: $13.9$ m. Braking distance: $13.9^2/(2\\cdot 7) \\approx 13.8$ m.\nThe stopping distance is about 28 m.",
     tip: "Double the speed gives four times the braking distance. Divide km/h by 3.6 to get m/s." } },
-{ id: "avstand-tresekunder", pic: "avstand-tresekunder", sim: "dvavstand",
+{ id: "avstand-tresekunder", chk: ["80/3.6 ≈ 22.2","22.2*3 ≈ 67"], pic: "avstand-tresekunder", sim: "dvavstand",
   nb: { t: "Tresekundersregelen",
     intro: "Avstanden til bilen foran bør være minst tre sekunder under gode forhold. Velg et fast punkt, for eksempel et skilt. Når bilen foran passerer det, teller du sakte til tre. Kommer du fram til punktet før du er ferdig, ligger du for tett. På glatt føre, i mørke og i regn bør avstanden være mye større.",
     f: [["d = v \\cdot 3\\ \\text{s}", "tresekundersavstand i meter med farten i m/s"]],
@@ -93,20 +93,20 @@ TOPICS("FKB", 2, [
     legend: [["d", "distance to the car in front", "m"], ["v", "speed", "m/s"]],
     ex: "At 80 km/h, $v \\approx 22.2$ m/s.\nThree seconds gives $d \\approx 22.2 \\cdot 3 \\approx 67$ m.",
     tip: "A gap in seconds works at every speed. A gap in metres must grow with speed." } },
-{ id: "krasjkrefter", pic: "krasjvekt", sim: ["dvkrasj", "dvfall"],
+{ id: "krasjkrefter", chk: ["50/3.6 ≈ 13.9","75*13.9^2/(2*0.4*9.81) ≈ 1846","75*13.9^2/(2*0.1*9.81) ≈ 7386"], pic: "krasjvekt", sim: ["dvkrasj", "dvfall"],
   nb: { t: "Krefter i et krasj",
     intro: "Når bilen stanser brått, fortsetter kroppen din med samme fart til noe stopper den. Med belte tar beltet og knusesonen imot over noen titalls centimeter. Uten belte stopper kroppen mot rattet, dashbordet eller frontruta på bare noen få centimeter, og kreftene blir mange ganger større. Fordi bevegelsesenergien vokser med kvadratet av farten, gir dobbel fart fire ganger så store krefter.",
     f: [["W = \\dfrac{m \\cdot v^2}{2 \\cdot d \\cdot g}", "omtrentlig «vekt» kroppen presses med, i kg"]],
     legend: [["m", "kroppsvekt", "kg"], ["v", "fart før krasjet", "m/s"], ["d", "strekningen kroppen bremses på, omtrent 0,4 med belte og 0,1 uten", "m"], ["g", "tyngdeakselerasjonen, 9,81", "m/s²"]],
-    ex: "Du veier 75 kg og kjører i 50 km/t, altså $v \\approx 13{,}9$ m/s.\nMed belte: $W = 75 \\cdot 13{,}9^2 / (2 \\cdot 0{,}4 \\cdot 9{,}81) \\approx 1800$ kg, omtrent som en bil.\nUten belte ($d = 0{,}1$ m) blir det omtrent 7400 kg, mer enn en elefant.",
+    ex: "Du veier 75 kg og kjører i 50 km/t, altså $v \\approx 13{,}9$ m/s.\nMed belte: $W = 75 \\cdot 13{,}9^2 / (2 \\cdot 0{,}4 \\cdot 9{,}81) \\approx 1846$ kg, omtrent som en bil.\nUten belte ($d = 0{,}1$ m) blir det omtrent 7386 kg, mer enn en elefant.",
     tip: "Et barn på 20 kg på fanget i 50 km/t tilsvarer nesten 2 tonn. Ingen klarer å holde igjen det, derfor skal barn alltid sikres i eget sete." },
   en: { t: "Forces in a crash",
     intro: "When the car stops suddenly, your body keeps going at the same speed until something stops it. With a belt, the belt and the crumple zone take the load over a few tens of centimetres. Without a belt the body stops against the wheel, dashboard or windscreen within just a few centimetres, and the forces become many times larger. Because kinetic energy grows with the square of speed, double the speed gives four times the force.",
     f: [["W = \\dfrac{m \\cdot v^2}{2 \\cdot d \\cdot g}", "rough \"weight\" pressing on the body, in kg"]],
     legend: [["m", "body weight", "kg"], ["v", "speed before the crash", "m/s"], ["d", "distance over which the body stops, about 0.4 with a belt and 0.1 without", "m"], ["g", "gravitational acceleration, 9.81", "m/s²"]],
-    ex: "You weigh 75 kg and drive at 50 km/h, so $v \\approx 13.9$ m/s.\nWith a belt: $W = 75 \\cdot 13.9^2 / (2 \\cdot 0.4 \\cdot 9.81) \\approx 1800$ kg, about a car.\nWithout a belt ($d = 0.1$ m) it is about 7400 kg, more than an elephant.",
+    ex: "You weigh 75 kg and drive at 50 km/h, so $v \\approx 13.9$ m/s.\nWith a belt: $W = 75 \\cdot 13.9^2 / (2 \\cdot 0.4 \\cdot 9.81) \\approx 1846$ kg, about a car.\nWithout a belt ($d = 0.1$ m) it is about 7386 kg, more than an elephant.",
     tip: "A 20 kg child on a lap at 50 km/h equals almost 2 tonnes. Nobody can hold that back, which is why children must always be restrained in their own seat." } },
-{ id: "fartsgrenser", pic: "fartsgrenser", sim: "dvsving",
+{ id: "fartsgrenser", chk: ["80 ≈ 80"], pic: "fartsgrenser", sim: "dvsving",
   nb: { t: "Fartsgrensene",
     intro: "Den generelle fartsgrensen er 50 km/t i tettbygd strøk og 80 km/t utenfor. Skilt kan sette andre grenser, fra 30 km/t ved skoler til 110 km/t på enkelte motorveger. Med tilhenger uten bremser er grensen 60 km/t, med bremser 80 km/t. Du skal alltid tilpasse farten til forholdene, også under fartsgrensen.",
     f: [["v_{\\text{tettbygd}} = 50\\ \\tfrac{\\text{km}}{\\text{t}}, \\quad v_{\\text{ellers}} = 80\\ \\tfrac{\\text{km}}{\\text{t}}", "generelle fartsgrenser"], ["1\\ \\tfrac{\\text{m}}{\\text{s}} = 3{,}6\\ \\tfrac{\\text{km}}{\\text{t}}", "omregning"]],
@@ -121,7 +121,7 @@ TOPICS("FKB", 2, [
 
 // ================= FKB – enhet 6: Rus, trøtthet og oppmerksomhet =================
 TOPICS("FKB", 6, [
-{ id: "promille", pic: "promille", sim: "dvpromille",
+{ id: "promille", chk: ["1.2/0.15 ≈ 8"], pic: "promille", sim: "dvpromille",
   nb: { t: "Promille og forbrenning",
     intro: "Promillegrensen for å kjøre bil i Norge er 0,2. Kroppen forbrenner omtrent 0,15 promille i timen, og ingenting får det til å gå fortere: verken kaffe, mat, søvn eller kald dusj. Har du drukket mye kvelden før, kan du fortsatt ha promille neste morgen.",
     f: [["t \\approx \\dfrac{\\text{promille}}{0{,}15}\\ \\text{timer}", "tid før alkoholen er ute av kroppen"], ["\\text{grense: } 0{,}2\\ \\text{‰}", "promillegrensen for bil"]],
@@ -132,7 +132,7 @@ TOPICS("FKB", 6, [
     f: [["t \\approx \\dfrac{\\text{per mille}}{0.15}\\ \\text{hours}", "time until the alcohol is gone"], ["\\text{limit: } 0.2\\ \\text{‰}", "the limit for cars"]],
     ex: "You have 1.2 per mille at midnight.\n$t \\approx 1.2/0.15 = 8$ hours. You are not sober until about eight o'clock.",
     tip: "If in doubt, do not drive. Many are caught in checks the morning after." } },
-{ id: "trotthet", pic: "trotthet",
+{ id: "trotthet", chk: ["90/3.6 ≈ 25","25*3 ≈ 75"], pic: "trotthet",
   nb: { t: "Trøtthet og mikrosøvn",
     intro: "Trøtthet gjør reaksjonstiden lengre og kan gi mikrosøvn: du sovner i noen sekunder uten å merke det. Tegn på trøtthet er gjesping, tunge øyelokk, at du ikke husker de siste kilometerne og at du vingler i feltet. Kaffe og åpent vindu hjelper bare kort. Det eneste som virker, er å stoppe og sove.",
     f: [["s = v \\cdot t", "strekningen du kjører uten å se på vegen under mikrosøvn"]],
@@ -145,7 +145,7 @@ TOPICS("FKB", 6, [
     legend: [["v", "speed", "m/s"], ["t", "time asleep", "s"]],
     ex: "You fall asleep for 3 seconds at 90 km/h ($v = 25$ m/s).\n$s = 25 \\cdot 3 = 75$ m without control of the car.",
     tip: "Take a break at least every two hours on long trips, and stop as soon as you notice the first signs." } },
-{ id: "mobil-blind", pic: "mobil-blind", sim: "dvblind",
+{ id: "mobil-blind", chk: ["80/3.6*2 ≈ 44"], pic: "mobil-blind", sim: "dvblind",
   nb: { t: "Blikket bort fra vegen",
     intro: "Håndholdt mobil er forbudt mens du kjører, og selv et kort blikk på en skjerm gjør at du kjører langt uten å se på vegen. Håndfri samtale er lov, men tar også oppmerksomhet. Still inn navigasjon og musikk før du kjører, og la meldinger vente til du står stille.",
     f: [["s = \\dfrac{v_{\\text{km/t}}}{3{,}6} \\cdot t", "strekning uten å se på vegen, med farten i km/t"]],
@@ -162,7 +162,7 @@ TOPICS("FKB", 6, [
 
 // ================= FKB – enhet 9: Ulykker og førstehjelp =================
 TOPICS("FKB", 9, [
-{ id: "sikre-ulykke", pic: "sikre-ulykke",
+{ id: "sikre-ulykke", chk: ["113 ≈ 113"], pic: "sikre-ulykke",
   nb: { t: "Sikre ulykkesstedet",
     intro: "Kommer du til en ulykke, skal du stanse og hjelpe. Sikre først stedet så ingen flere blir skadet: parker trygt med nødblinklys, ta på refleksvest og sett ut varseltrekanten godt bak. Skaff deg oversikt, ring nødnummeret og start førstehjelp. Flytt bare skadde som er i fare der de ligger.",
     ex: "Du kommer til en utforkjøring i 80-sone.\nNødblinklys og refleksvest på, varseltrekanten 150–250 m bak, ring 113 og sjekk om de skadde puster.",
@@ -171,7 +171,7 @@ TOPICS("FKB", 9, [
     intro: "If you come to an accident, you must stop and help. First secure the scene so nobody else is hurt: park safely with hazard lights, put on a reflective vest and place the warning triangle well behind. Get an overview, call the emergency number and start first aid. Only move injured people who are in danger where they lie.",
     ex: "You come to a car off the road in an 80 zone.\nHazard lights and vest on, warning triangle 150–250 m behind, call 113 and check whether the injured are breathing.",
     tip: "If you lack an overview, call 113. They will guide you through the rest." } },
-{ id: "hlr", pic: "hlr",
+{ id: "hlr", chk: ["30 ≈ 30","2 ≈ 2"], pic: "hlr",
   nb: { t: "HLR: hjerte-lunge-redning",
     intro: "Puster personen ikke normalt, skal du ringe 113 og starte HLR med en gang. Gi 30 brystkompresjoner midt på brystet, omtrent 5–6 cm dype og i takt 100–120 i minuttet, og så 2 innblåsninger. Fortsett til hjelpen kommer eller personen begynner å puste. Bruk hjertestarter så fort du får tak i en.",
     ex: "En person er livløs og puster ikke normalt.\nRing 113 på høyttaler, start 30 kompresjoner og 2 innblåsninger, og be noen hente hjertestarter.",

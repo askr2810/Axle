@@ -105,7 +105,7 @@ ved 22 kV er $I \approx 45$ A og tapet ca. 4,1 kW, ved 11 kV blir tapet fire gan
     [["P_{loss}", "loss", "W"], ["R", "line resistance", "Ω"], ["I", "current", "A"], ["U", "voltage", "V"]],
     R`1 MW over a line with $R = 2$ Ω:
 at 22 kV $I \approx 45$ A and the loss is about 4.1 kW, at 11 kV the loss is four times as large.`, "Double the voltage gives half the current and only a quarter of the loss.") },
-{ id: "kraftbalanse",
+{ id: "kraftbalanse", chk: ["50 ≈ 50"],
   nb: O("Balanse og frekvens", "I et kraftsystem må produksjonen hele tiden være lik forbruket. Er det for lite produksjon, bremses generatorene og frekvensen synker under 50 Hz. Vannkraftverk kan skrues raskt opp og ned og er derfor gode til å holde balansen.",
     [[R`P_{prod} = P_{forbruk} + P_{tap}`, "balansen som alltid må holde"], [R`f_{nom} = 50\ \text{Hz}`, "nominell frekvens i Europa"]],
     [["P_{prod}", "produsert effekt", "MW"], ["P_{forbruk}", "forbruk", "MW"], ["f", "frekvens", "Hz"]],
@@ -118,7 +118,7 @@ at 22 kV $I \approx 45$ A and the loss is about 4.1 kW, at 11 kV the loss is fou
 
 // ---------- GEO 0: Jord og klassifisering ----------
 TOPICS("GEO", 0, [
-{ id: "fasediagram",
+{ id: "fasediagram", chk: ["190-160 ≈ 30","30/160*100 ≈ 19"],
   fig: `<svg viewBox="0 0 240 140"><rect x="80" y="15" width="80" height="25" class="d"/><rect x="80" y="40" width="80" height="35" class="fill"/><rect x="80" y="75" width="80" height="50" class="dash"/><path d="M80 75H160V125H80Z" class="d"/><text x="40" y="32">V<tspan dy="4" font-size="10">a</tspan></text><text x="40" y="62">V<tspan dy="4" font-size="10">w</tspan></text><text x="40" y="104">V<tspan dy="4" font-size="10">s</tspan></text><text x="172" y="62">m<tspan dy="4" font-size="10">w</tspan></text><text x="172" y="104">m<tspan dy="4" font-size="10">s</tspan></text></svg>`,
   nb: O("Fasediagram og vanninnhold", "Jord består av korn, vann og luft. I et fasediagram tegnes de tre delene over hverandre, slik at masser og volumer blir oversiktlige. Vanninnholdet er massen av vann delt på massen av de tørre kornene.",
     [[R`w = \frac{m_w}{m_s}`, "vanninnhold"], [R`\rho = \frac{m}{V}`, "densitet"]],
@@ -231,7 +231,7 @@ $F = 0.700/0.466 \approx 1.5$.`, "F below 1 means the slope will slide. Water in
 
 // ---------- ML 0: Data og grunnbegreper ----------
 TOPICS("ML", 0, [
-{ id: "trening-test",
+{ id: "trening-test", chk: ["5000*80/100 ≈ 4000","5000*20/100 ≈ 1000"],
   nb: O("Trenings- og testdata", "En modell lærer av treningsdata og måles på testdata den aldri har sett. Da får du et ærlig bilde av hvor godt den virker på nye tilfeller. Er modellen mye bedre på treningsdata enn på testdata, har den overtilpasset.",
     [[R`N_{test} = f\cdot N`, "antall testrader ved andel f"], [R`\text{gap} = \text{nøyaktighet}_{trening} - \text{nøyaktighet}_{test}`, "stort gap tyder på overtilpasning"]],
     [["N", "antall rader", ""], ["f", "andel til test, ofte 0,2", ""]],
@@ -289,7 +289,7 @@ $w \leftarrow 3 - 0{,}4 = 2{,}6$.`, "Glem ikke minustegnet. Vi skal nedover, mot
     [[R`\eta`, "learning rate", ""], ["L", "loss function", ""], [R`\frac{\partial L}{\partial w}`, "gradient", ""]],
     R`$w = 3$, gradient 4 and $\eta = 0.1$:
 $w \leftarrow 3 - 0.4 = 2.6$.`, "Do not forget the minus sign. We want to go downhill, towards lower loss.") },
-{ id: "laeringsrate",
+{ id: "laeringsrate", chk: ["5 ≈ 5"],
   nb: O("Læringsrate", "Læringsraten er det viktigste valget i gradientnedstigning. Er den for stor, hopper vektene over minimumet og tapet kan eksplodere. Er den for liten, går læringen svært sakte. Ofte prøver man flere verdier og ser på tapskurven.",
     [[R`\eta \in [10^{-4},\ 10^{-1}]`, "vanlig område å prøve"], [R`L_{t+1} > L_t`, "tegn på for stor læringsrate"]],
     [[R`\eta`, "læringsrate", ""], ["L_t", "tap etter steg t", ""]],

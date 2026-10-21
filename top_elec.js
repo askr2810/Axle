@@ -240,7 +240,7 @@ TOPICS("ELEK", 0, [
 
 // ================= ELEK – enhet 1: Operasjonsforsterkere =================
 TOPICS("ELEK", 1, [
-{ id: "opamp-grunnregler",
+{ id: "opamp-grunnregler", chk: ["2 ≈ 2"],
   art: () => FL.opamp({ type: "noninv", gain: 3 }),
   fig: `<svg viewBox="0 0 240 140"><path d="M70 35L70 105L170 70Z" class="d"/><path d="M30 50H70M30 90H70M170 70H210" class="d"/><text x="77" y="56">-</text><text x="76" y="90">+</text><text x="185" y="65">V<tspan dy="4" font-size="10">o</tspan></text></svg>`,
   nb: { t: "Op-amp: grunnregler",
@@ -424,7 +424,7 @@ TOPICS("ELFT2500", 1, [
 
 // ================= ELFT2500 – enhet 2: Måleteknikk =================
 TOPICS("ELFT2500", 2, [
-{ id: "noyaktighet-presisjon",
+{ id: "noyaktighet-presisjon", chk: ["10.0 ≈ 10.0"],
   fig: `<svg viewBox="0 0 240 140"><circle cx="70" cy="70" r="45" class="dim"/><circle cx="70" cy="70" r="28" class="dim"/><circle cx="70" cy="70" r="12" class="dim"/><circle cx="65" cy="68" r="2" class="rf"/><circle cx="74" cy="72" r="2" class="rf"/><circle cx="68" cy="75" r="2" class="rf"/><circle cx="72" cy="65" r="2" class="rf"/><circle cx="170" cy="70" r="45" class="dim"/><circle cx="170" cy="70" r="28" class="dim"/><circle cx="170" cy="70" r="12" class="dim"/><circle cx="130" cy="40" r="2" class="rf"/><circle cx="135" cy="45" r="2" class="rf"/><circle cx="132" cy="50" r="2" class="rf"/><circle cx="128" cy="46" r="2" class="rf"/></svg>`,
   nb: { t: "Nøyaktighet og presisjon",
     intro: "Nøyaktighet forteller hvor nær målingene i gjennomsnitt er den sanne verdien, altså hvor liten den systematiske feilen er. Presisjon forteller hvor tett målingene er samlet rundt hverandre, altså hvor liten spredningen (støyen) er. En sensor kan være presis uten å være nøyaktig, og omvendt – de to egenskapene er uavhengige av hverandre.",
@@ -471,7 +471,7 @@ TOPICS("ELFT2500", 2, [
 
 // ================= ELFT2400 – enhet 0: Laplace og overføringsfunksjoner =================
 TOPICS("ELFT2400", 0, [
-{ id: "overforingsfunksjon-poler",
+{ id: "overforingsfunksjon-poler", chk: ["0-2 ≈ -2"],
   fig: `<svg viewBox="0 0 240 140"><path d="M120 20V120M20 70H220" class="dim"/><path d="M70 65L80 75M80 65L70 75" class="d"/><text x="205" y="65">Re</text><text x="125" y="25">Im</text></svg>`,
   nb: { t: "Overføringsfunksjon og poler",
     intro: "En overføringsfunksjon $G(s)$ beskriver forholdet mellom et systems utgang og inngang i Laplace-planet. Polene er verdiene av $s$ som gjør nevneren null, og de bestemmer om systemet er stabilt: er realdelen til alle polene negativ, ligger de i venstre halvplan og systemet er stabilt. Nullpunktene former responsen, men avgjør ikke stabiliteten.",
@@ -683,7 +683,7 @@ TOPICS("ELVE3610", 1, [
     legend: [["x,\\ y", "desired tool position", "m"], ["L_1,\\ L_2", "link lengths", "m"], ["\\theta_2", "elbow angle", "°"]],
     ex: "$L_1=1$ m, $L_2=0.6$ m, target $(1.2,\\ 0.4)$ m:\n$\\cos\\theta_2\\approx0.200 \\Rightarrow \\theta_2\\approx78.5°$.",
     tip: "Always check the target lies within the workspace $|L_1-L_2|\\le r\\le L_1+L_2$ before solving the IK." } },
-{ id: "jacobi-singularitet",
+{ id: "jacobi-singularitet", chk: ["6 ≈ 6"],
   nb: { t: "Jacobimatrise og singularitet",
     intro: "Jacobimatrisen knytter leddhastighetene til verktøyets hastighet: en liten endring i leddvinklene gir en tilsvarende endring i verktøyets posisjon, skalert med $J$. En singularitet er en konfigurasjon der $J$ mister rang, slik at selv en liten ønsket verktøyhastighet krever urealistisk store leddhastigheter.",
     f: [["\\dot{\\mathbf x}=J(\\mathbf q)\\,\\dot{\\mathbf q}", "Jacobimatrisen relaterer leddhastighet til verktøyhastighet"]],
