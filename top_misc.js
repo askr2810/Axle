@@ -257,7 +257,7 @@ TOPICS("MEK3100", 2, [
     legend: [["a,\\ b", "start and end value", ""], ["n", "number of points", ""]],
     ex: "`np.linspace(0, 1, 5)` gives `[0, 0.25, 0.5, 0.75, 1]`, spacing $1/4 = 0.25$.",
     tip: "`linspace` takes the number of points, `arange` takes the step size — easy to mix up." } },
-{ id: "matrisemultiplikasjon",
+{ id: "matrisemultiplikasjon", chk: ["12/4 ≈ 3"],
   nb: { t: "Matriseoperasjoner",
     intro: "`A * B` mellom to NumPy-arrays er elementvis multiplikasjon, mens `np.dot(A, B)` eller `A @ B` er ordentlig matrisemultiplikasjon. `reshape` endrer formen på et array uten å endre dataene, og `-1` lar NumPy regne ut den siste dimensjonen selv.",
     f: [["A \\,@\\, B", "matrisemultiplikasjon"], ["A * B", "elementvis multiplikasjon (krever samme form)"]],
@@ -286,7 +286,7 @@ TOPICS("MEK3100", 2, [
 ]);
 // ---------------- NUM: Numeriske metoder ----------------
 TOPICS("NUM", 0, [
-{ id: "halveringsmetoden",
+{ id: "halveringsmetoden", chk: ["(1+7)/2 ≈ 4", "4^2-7 ≈ 9"],
   fig: `<svg viewBox="0 0 240 140"><path d="M20 110H220" class="dim"/><path d="M40 105V115M200 105V115M120 100V120" class="d"/><path d="M30 40C 80 20, 140 120, 210 60" class="d"/><text x="34" y="132">a</text><text x="196" y="132">b</text><text x="114" y="98">m</text></svg>`,
   nb: { t: "Halveringsmetoden",
     intro: "Halveringsmetoden (bisection) finner en rot av $f(x) = 0$ ved å starte med et intervall $[a, b]$ der $f$ skifter fortegn, og gjentatte ganger halvere det. Metoden er robust og garantert å konvergere, men treg: hvert steg halverer bare usikkerheten.",
@@ -300,7 +300,7 @@ TOPICS("NUM", 0, [
     legend: [["a,\\ b", "the endpoints of the interval", ""], ["m", "the midpoint, new endpoint", ""]],
     ex: "$f(x) = x^2 - 7$ on $[1, 7]$: $m = 4$, $f(4) = 9 > 0$.\nThe sign change is now in $[1, 4]$, which becomes the new interval.",
     tip: "The number of steps to reach tolerance $\\varepsilon$ is $n \\geq \\log_2\\!\\big((b-a)/\\varepsilon\\big)$." } },
-{ id: "newtons-metode",
+{ id: "newtons-metode", chk: ["3-(27-5)/27 ≈ 2.1852"],
   nb: { t: "Newtons metode",
     intro: "Newtons metode finner en rot ved å følge tangenten til $f$ ned til den krysser x-aksen, gjentatte ganger. Nær en enkel rot konvergerer den kvadratisk — antall riktige siffer dobles omtrent for hvert steg — men den trenger den deriverte og kan divergere med dårlig startgjetning.",
     f: [["x_{n+1} = x_n - \\frac{f(x_n)}{f'(x_n)}", "iterasjonsformelen"]],
@@ -313,7 +313,7 @@ TOPICS("NUM", 0, [
     legend: [["x_n", "current approximation", ""], ["f'(x_n)", "the derivative at $x_n$", ""]],
     ex: "$f(x) = x^3 - 5$, $x_0 = 3$:\n$x_1 = 3 - \\frac{27-5}{27} \\approx 2.1852$.",
     tip: "Newton's method can diverge if $f'(x_n)$ is near zero or the initial guess is poor." } },
-{ id: "sekantmetoden",
+{ id: "sekantmetoden", chk: ["2-1*(2-1)/(1-(-2)) ≈ 1.6667"],
   nb: { t: "Sekantmetoden",
     intro: "Sekantmetoden ligner Newtons metode, men bruker en sekantlinje gjennom to punkter i stedet for tangenten, slik at den deriverte ikke trengs. Den konvergerer litt saktere enn Newton (orden $\\approx 1{,}618$), men er nyttig når $f'$ er vanskelig å regne ut.",
     f: [["x_{n+1} = x_n - f(x_n)\\,\\frac{x_n - x_{n-1}}{f(x_n) - f(x_{n-1})}", "iterasjonsformelen, bruker to forrige punkter"]],
@@ -456,7 +456,7 @@ TOPICS("NUM", 2, [
 ]);
 // ---------------- MEK2200: Statistikk og risikoanalyse ----------------
 TOPICS("MEK2200", 0, [
-{ id: "union-og-komplement",
+{ id: "union-og-komplement", chk: ["0.45+0.65-0.15 ≈ 0.95"],
   nb: { t: "Union, snitt og komplement",
     intro: "For to hendelser $A$ og $B$ gir unionsregelen sannsynligheten for at minst én av dem skjer; snittet $A\\cap B$ må trekkes fra så det ikke telles to ganger. Komplementet $A^c$ er nyttig for «minst én»-spørsmål, siden det ofte er lettere å regne ut motsatt hendelse.",
     f: [["P(A\\cup B) = P(A) + P(B) - P(A\\cap B)", "sannsynlighet for $A$ eller $B$"], ["P(A^c) = 1 - P(A)", "komplementregelen"]],
@@ -483,7 +483,7 @@ TOPICS("MEK2200", 0, [
     legend: [["R_i", "reliability (probability that component $i$ works)", ""]],
     ex: "Two components with $R = 0.9$ each:\nIn series: $0.9^2 = 0.81$. In parallel: $1 - 0.1^2 = 0.99$.",
     tip: "A parallel connection always increases reliability compared to one component — series always lowers it." } },
-{ id: "bayes-setning",
+{ id: "bayes-setning", chk: ["0.99*0.06/(0.99*0.06+0.1*0.94) ≈ 0.387"],
   nb: { t: "Bayes' setning",
     intro: "Bayes' setning snur en betinget sannsynlighet: fra $P(B|A)$ finner du $P(A|B)$. Den brukes mye i testing, der man kjenner sannsynligheten for et positivt testresultat gitt sykdom, men ønsker sannsynligheten for sykdom gitt et positivt resultat.",
     f: [["P(A|B) = \\frac{P(B|A)\\,P(A)}{P(B)}", "Bayes' setning"]],
@@ -538,7 +538,7 @@ TOPICS("MEK2200", 1, [
     legend: [["n", "number of trials", ""], ["p", "success probability per trial", ""], ["X", "number of successes", ""]],
     ex: "$X \\sim \\text{Bin}(10,\\ 0.5)$:\n$E[X] = 10\\cdot 0.5 = 5$.",
     tip: "Use the binomial distribution when each trial is independent with the same success probability." } },
-{ id: "poisson-eksponential",
+{ id: "poisson-eksponential", chk: ["4^2*exp(-4)/2 ≈ 0.1465", "exp(-0.5) ≈ 0.6065"],
   nb: { t: "Poisson- og eksponentialfordeling",
     intro: "Poissonfordelingen modellerer antall hendelser i et fast tidsintervall, som antall feil per time. Eksponentialfordelingen modellerer tiden mellom slike hendelser, og brukes ofte for levetid ved konstant feilrate. De to henger sammen: hvis hendelser er Poisson-fordelt, er tiden mellom dem eksponentialfordelt.",
     f: [["P(X = k) = \\frac{\\lambda^k e^{-\\lambda}}{k!}", "Poisson: sannsynlighet for $k$ hendelser"], ["P(T > t) = e^{-t/\\theta}", "eksponential: sannsynlighet for levetid over $t$"]],
@@ -579,7 +579,7 @@ TOPICS("MEK2200", 2, [
     legend: [["\\alpha", "significance level, often 0.05", ""], ["p", "p-value from the test", ""]],
     ex: "With $\\alpha = 0.05$ and $p = 0.02$, $H_0$ is rejected: the data fits it poorly.",
     tip: "A low p-value means the data is unlikely under $H_0$ — it does not mean $H_0$ is certainly false." } },
-{ id: "konfidensintervall",
+{ id: "konfidensintervall", chk: ["18/6 ≈ 3", "35+1.96*3 ≈ 40.88"],
   nb: { t: "Konfidensintervall",
     intro: "Et konfidensintervall gir et intervall av sannsynlige verdier for en ukjent størrelse, som forventningen $\\mu$, basert på et utvalg. Standardfeilen til gjennomsnittet avtar med $\\sqrt n$, så et større utvalg gir et smalere intervall. Et høyere konfidensnivå gir et bredere intervall.",
     f: [["\\bar x \\pm z_{\\alpha/2}\\,\\frac{\\sigma}{\\sqrt n}", "konfidensintervall for $\\mu$ ved kjent $\\sigma$"], ["SE = \\frac{\\sigma}{\\sqrt n}", "standardfeilen til gjennomsnittet"]],
@@ -634,7 +634,7 @@ TOPICS("MEK2200", 2, [
 ]);
 // ---------------- OKON: Ingeniørøkonomi ----------------
 TOPICS("OKON", 0, [
-{ id: "naverdi-diskontering",
+{ id: "naverdi-diskontering", chk: ["10000/1.08^14 ≈ 3405"],
   nb: { t: "Nåverdi og diskontering",
     intro: "Penger i dag er verdt mer enn samme beløp i fremtiden, fordi de kan forrentes i mellomtiden. Nåverdien av et fremtidig beløp finnes ved å diskontere det med en kalkulasjonsrente. Motsatt gir sluttverdien hva et beløp i dag vokser til etter $n$ år med rentes rente.",
     f: [["P = \\frac{F}{(1+r)^n}", "nåverdi av beløpet $F$ om $n$ år"], ["F = P(1+r)^n", "sluttverdi av beløpet $P$ i dag"]],
@@ -647,7 +647,7 @@ TOPICS("OKON", 0, [
     legend: [["P", "present value (today)", "kr"], ["F", "future value", "kr"], ["r", "discount rate per year", ""], ["n", "number of years", ""]],
     ex: "10,000 kr in 14 years, discount rate 8%:\n$P = 10000/1.08^{14} \\approx 3405$ kr.",
     tip: "The further in time and the higher the rate, the smaller the present value of a future amount." } },
-{ id: "rentes-rente",
+{ id: "rentes-rente", chk: ["1000*1.1^5 ≈ 1611"],
   nb: { t: "Rentes rente",
     intro: "Med rentes rente beregnes renten også av tidligere opptjente renter, ikke bare av det opprinnelige beløpet. Det gir eksponentiell vekst i stedet for lineær. Tommelfingerregelen 72/rente gir et raskt anslag på hvor mange år det tar å doble et beløp.",
     f: [["F = P(1+r)^n", "sluttverdi med rentes rente"], ["n \\approx \\frac{72}{100r}", "tommelfingerregel for doblingstid ($r$ i %)"]],
@@ -660,7 +660,7 @@ TOPICS("OKON", 0, [
     legend: [["P", "starting amount", "kr"], ["r", "annual interest rate", ""], ["n", "number of years", ""]],
     ex: "1000 kr at 10% interest for 5 years:\n$F = 1000\\cdot 1.1^5 \\approx 1611$ kr.",
     tip: "The rule of 72 is a rule of thumb — for the exact doubling time use $n = \\ln 2/\\ln(1+r)$." } },
-{ id: "effektiv-rente",
+{ id: "effektiv-rente", chk: ["((1+0.05/12)^12-1)*100 ≈ 5.12"],
   nb: { t: "Effektiv og nominell rente",
     intro: "Nominell rente er den oppgitte årsrenten, mens effektiv rente er den faktiske årlige renten når rentes rente innenfor året (og eventuelle gebyrer) er tatt med. Forrentes renten $m$ ganger i året, blir effektiv rente høyere enn nominell, siden renten legges til flere ganger.",
     f: [["r_{\\text{eff}} = \\left(1 + \\frac{r_{\\text{nom}}}{m}\\right)^m - 1", "effektiv rente ved $m$ forrentninger per år"]],
@@ -688,7 +688,7 @@ TOPICS("OKON", 0, [
     tip: "A simple approximation is $r_{\\text{real}} \\approx r_{\\text{nom}} - i$, but the exact formula uses the ratio." } }
 ]);
 TOPICS("OKON", 1, [
-{ id: "npv",
+{ id: "npv", chk: ["(1-1.07^(-6))/0.07 ≈ 4.7665", "-100000+80000*(1-1.07^(-6))/0.07 ≈ 281323"],
   nb: { t: "Netto nåverdi (NPV)",
     intro: "Netto nåverdi summerer nåverdien av alle fremtidige kontantstrømmer og trekker fra investeringen. Er NPV positiv, gir investeringen bedre avkastning enn kalkulasjonsrenten og er lønnsom. Like store årlige kontantstrømmer kan summeres raskt med annuitetsfaktoren.",
     f: [["NPV = -I_0 + \\sum_{t=1}^{n} \\frac{C_t}{(1+r)^t}", "netto nåverdi"], ["\\text{annuitetsfaktor} = \\frac{1-(1+r)^{-n}}{r}", "for like store kontantstrømmer $C$ hvert år"]],
@@ -727,7 +727,7 @@ TOPICS("OKON", 1, [
     legend: [["I_0", "investment", "kr"], ["C", "annual savings/income", "kr"], ["T", "payback period", "years"]],
     ex: "Machine costing 100,000 kr saves 40,000 kr/year:\n$T = 100000/40000 = 2.5$ years.",
     tip: "A short payback period does not necessarily mean high profitability — the method ignores cash flows afterwards." } },
-{ id: "annuitet-serielan",
+{ id: "annuitet-serielan", chk: ["500000*0.03/(1-1.03^(-10)) ≈ 58615"],
   nb: { t: "Annuitetslån og serielån",
     intro: "Et annuitetslån har like store terminbeløp gjennom hele løpetiden, der andelen renter synker og andelen avdrag øker over tid. Et serielån har like store avdrag, slik at terminbeløpet synker etter hvert som gjelden minker — det gir lavere totale renter enn et annuitetslån med samme rente og løpetid.",
     f: [["A = P\\,\\frac{r}{1-(1+r)^{-n}}", "terminbeløp i et annuitetslån"]],
@@ -944,7 +944,7 @@ TOPICS("PROD", 2, [
     legend: [["k_1", "cost per part, method with no fixed cost (e.g. 3D printing)", "kr"], ["F_2", "fixed cost of method 2 (e.g. mold)", "kr"], ["k_2", "cost per part, method 2", "kr"]],
     ex: "3D printing 100 kr/unit. Injection molding: mold 20,000 kr + 10 kr/unit.\n$100Q = 20000 + 10Q \\Rightarrow Q = 20000/90 \\approx 222$ units.",
     tip: "Below the break-even quantity, the method with low fixed cost is cheapest; above it, the opposite is true." } },
-{ id: "materialkostnad",
+{ id: "materialkostnad", chk: ["100*7.85 ≈ 785", "0.785*20 ≈ 15.7"],
   nb: { t: "Materialkostnad fra volum og tetthet",
     intro: "Materialkostnaden for en del kan regnes ut fra volumet, materialets tetthet og prisen per kilo. Først finner man massen ved å gange volum med tetthet, deretter ganges massen med prisen per kilo.",
     f: [["m = V\\cdot \\rho", "masse fra volum og tetthet"], ["K = m\\cdot p_{\\text{kg}}", "materialkostnad"]],
@@ -1257,7 +1257,7 @@ TOPICS("MATS1500", 2, [
     legend: [["T_g", "glass transition temperature", "°C"]],
     ex: "A rubber gasket that becomes stiff and cracks in severe cold has likely dropped below its $T_g$.",
     tip: "Creep only becomes significant at a high homologous temperature (near the melting point), not at room temperature for most metals." } },
-{ id: "termisk-ekspansjon",
+{ id: "termisk-ekspansjon", chk: ["17e-6*3*75*1000 ≈ 3.825"],
   nb: { t: "Termisk ekspansjon",
     intro: "De fleste materialer utvider seg når temperaturen øker. Lengdeutvidelsen er tilnærmet proporsjonal med opprinnelig lengde, temperaturendringen og materialets lineære utvidelseskoeffisient $\\alpha$. Dette må tas hensyn til i konstruksjoner med store temperatursvingninger, som broer og rørledninger.",
     f: [["\\Delta L = \\alpha\\, L_0\\, \\Delta T", "lengdeøkning ved temperaturendring"]],
@@ -1273,7 +1273,7 @@ TOPICS("MATS1500", 2, [
 ]);
 // ---------------- KJEMI: Generell kjemi ----------------
 TOPICS("KJEMI", 0, [
-{ id: "mol-og-molar-masse",
+{ id: "mol-og-molar-masse", chk: ["180/44.01 ≈ 4.09"],
   nb: { t: "Mol og molar masse",
     intro: "Mol er den kjemiske enheten for mengde stoff: én mol inneholder Avogadros tall, $6{,}022\\cdot10^{23}$, partikler. Molar masse er massen av én mol av et stoff, i g/mol, og finnes ved å summere atommassene fra periodesystemet. Sammen lar de deg gå mellom antall mol og masse i gram.",
     f: [["n = \\frac{m}{M}", "antall mol fra masse og molar masse"], ["N = n\\cdot N_A", "antall partikler, $N_A = 6{,}022\\cdot10^{23}$/mol"]],
@@ -1394,7 +1394,7 @@ TOPICS("KJEMI", 2, [
     legend: [["\\Delta H", "reaction enthalpy", "kJ/mol"]],
     ex: "Combustion of methane releases heat to the surroundings: the reaction is exothermic with $\\Delta H < 0$.",
     tip: "Exothermic reactions can still proceed slowly without heat input — the sign of $\\Delta H$ says nothing about reaction rate." } },
-{ id: "gibbs-fri-energi",
+{ id: "gibbs-fri-energi", chk: ["50-250*0.05 ≈ 37.5"],
   nb: { t: "Gibbs frie energi og spontanitet",
     intro: "Gibbs frie energi $\\Delta G$ avgjør om en reaksjon er spontan ved konstant temperatur og trykk: er $\\Delta G < 0$, går reaksjonen av seg selv i den retningen. Den kombinerer entalpi (varmeeffekt) og entropi (uorden) via temperaturen. Spontan betyr ikke nødvendigvis rask.",
     f: [["\\Delta G = \\Delta H - T\\Delta S", "Gibbs frie energi"], ["\\Delta G < 0", "spontan reaksjon"]],
@@ -1420,7 +1420,7 @@ TOPICS("KJEMI", 2, [
     legend: [],
     ex: "In the reaction $\\mathrm{Zn + Cu^{2+} \\to Zn^{2+} + Cu}$, zinc is oxidized (loses electrons) and the copper ion is reduced (gains electrons).",
     tip: "Zinc is used as a sacrificial anode to protect steel in seawater because it is less noble and oxidizes instead of the steel." } },
-{ id: "elektrolyse-faraday",
+{ id: "elektrolyse-faraday", chk: ["10*600*107.87/96485 ≈ 6.71"],
   nb: { t: "Elektrolyse og Faradays lov",
     intro: "I en galvanisk celle gir en spontan redoksreaksjon elektrisk strøm, som i et batteri. I elektrolyse går det motsatt vei: elektrisk strøm driver en ikke-spontan redoksreaksjon. Faradays lov knytter massen som felles ut ved en elektrode til strømmen, tiden og antall elektroner som overføres per ion.",
     f: [["m = \\frac{I\\,t\\,M}{z\\,F}", "masse felt ut ved elektrolyse"]],
@@ -1433,7 +1433,7 @@ TOPICS("KJEMI", 2, [
     legend: [["I", "current", "A"], ["t", "time", "s"], ["M", "molar mass of the substance", "g/mol"], ["z", "number of electrons transferred per ion", ""], ["F", "Faraday's constant, $96{,}485$ C/mol", ""]],
     ex: "10 A for 10 min ($t=600$ s) on Ag+ ($M = 107.87$, $z=1$):\n$m = \\dfrac{10\\cdot 600\\cdot 107.87}{1\\cdot 96{,}485} \\approx 6.71$ g.",
     tip: "Remember to convert time to seconds — Faraday's constant is defined per second via amperes." } },
-{ id: "ideell-gasslov",
+{ id: "ideell-gasslov", chk: ["8.314*373/100 ≈ 31.01"],
   nb: { t: "Ideell gasslov",
     intro: "Den ideelle gassloven knytter sammen trykk, volum, mengde og temperatur for en gass som oppfører seg ideelt. Den brukes til å regne ut volum, trykk eller mengde gass når de andre størrelsene er kjent.",
     f: [["pV = nRT", "ideell gasslov"]],
