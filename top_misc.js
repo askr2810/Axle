@@ -893,7 +893,7 @@ TOPICS("PROD", 1, [
 { id: "prototyping-og-idemyldring",
   nb: { t: "Idémyldring og prototyping",
     intro: "I idémyldring (brainstorming) er hovedregelen å ikke kritisere ideer underveis og gå for mengde — vurderingen kommer i en senere fase. Man bør utvikle flere konsepter før man velger, for å utforske løsningsrommet og unngå å låse seg for tidlig. En «looks-like»-prototyp viser formen, mens en «works-like» (funksjonell) prototyp tester om løsningen virker.",
-    f: [["\\text{«looks-like»} \\neq \\text{«works-like»}", "utseende og funksjon testes ofte hver for seg"]],
+    f: [["\\text{``looks-like''} \\neq \\text{``works-like''}", "utseende og funksjon testes ofte hver for seg"]],
     legend: [],
     ex: "En skumplastmodell viser hvordan produktet ser ut og føles i hånden (looks-like), mens en enkel elektronikkrigg tester om kretsen fungerer (works-like).",
     tip: "Det første konseptet man kommer på er sjelden det beste — bredde tidlig gir bedre valg senere." },

@@ -976,7 +976,7 @@ I virkelige maskindeler virker sjelden bare én lasttype om gangen. En bolt kan 
 En kort søyle med rektangulært tverrsnitt 40 × 30 mm belastes med en aksiell trykkraft på 40 kN som angriper 15 mm utenfor tyngdepunktsaksen. $W = bh^2/6 = 40\\cdot 30^2/6 = 6000$ mm³ og $A = 1200$ mm². Finn den største trykkspenningen.
 1. Aksialspenning: $\\sigma_{aks} = F/A = 40\\,000/1200 \\approx 33{,}3$ MPa.
 2. Bøyemoment fra eksentrisiteten: $M = Fe = 40\\,000\\cdot 15 = 600\\,000$ Nmm $= 600$ Nm.
-3. Bøyespenning: $\\sigma_{bøy} = M/W = 600\\,000/6000 = 100$ MPa.
+3. Bøyespenning: $\\sigma_{\\text{bøy}} = M/W = 600\\,000/6000 = 100$ MPa.
 4. På siden hvor begge bidragene er trykk, legges de sammen: $\\sigma_{maks} = 33{,}3+100 = 133{,}3$ MPa.
 
 Svar: $\\sigma_{maks} \\approx 133{,}3$ MPa.
@@ -1065,7 +1065,7 @@ GEN("MATS1600", 0,
    return [T(`En kort søyle med rektangulært tverrsnitt ${b} × ${h} mm belastes med en aksiell trykkraft på ${nf(F)} kN som angriper ${nf(e)} mm utenfor tyngdepunktsaksen. Hvor stor blir den største trykkspenningen?`,
              `A short column with a rectangular cross-section of ${b} × ${h} mm carries an axial compressive force of ${nf(F)} kN acting ${nf(e)} mm outside the centroidal axis. What is the largest compressive stress?`),
      { n: sigMax, tol: rel(sigMax), u: "MPa" },
-     T(`$A = ${b}\\cdot ${h} = ${A}$ mm² og $W = bh^2/6 = ${mf(W, 0)}$ mm³. Aksialspenning $\\sigma_{aks} = F/A \\approx ${mf(sigAx, 1)}$ MPa. Bøyemoment $M = Fe \\approx ${mf(M, 0)}$ Nmm gir $\\sigma_{bøy} = M/W \\approx ${mf(sigBend, 1)}$ MPa. Sum på trykksiden: $\\sigma_{maks} = ${mf(sigAx, 1)}+${mf(sigBend, 1)} \\approx ${mf(sigMax, 1)}$ MPa.`,
+     T(`$A = ${b}\\cdot ${h} = ${A}$ mm² og $W = bh^2/6 = ${mf(W, 0)}$ mm³. Aksialspenning $\\sigma_{aks} = F/A \\approx ${mf(sigAx, 1)}$ MPa. Bøyemoment $M = Fe \\approx ${mf(M, 0)}$ Nmm gir $\\sigma_{\\text{bøy}} = M/W \\approx ${mf(sigBend, 1)}$ MPa. Sum på trykksiden: $\\sigma_{maks} = ${mf(sigAx, 1)}+${mf(sigBend, 1)} \\approx ${mf(sigMax, 1)}$ MPa.`,
        `$A = ${b}\\cdot ${h} = ${A}$ mm² and $W = bh^2/6 = ${mf(W, 0)}$ mm³. Axial stress $\\sigma_{ax} = F/A \\approx ${mf(sigAx, 1)}$ MPa. Bending moment $M = Fe \\approx ${mf(M, 0)}$ Nmm gives $\\sigma_{bend} = M/W \\approx ${mf(sigBend, 1)}$ MPa. Sum on the compression side: $\\sigma_{max} = ${mf(sigAx, 1)}+${mf(sigBend, 1)} \\approx ${mf(sigMax, 1)}$ MPa.`)]; },
  // eksamen: spenningskonsentrasjon + sikkerhetsfaktor
  () => { const bb = R.p([30, 40, 50, 60]), tt = R.p([5, 6, 8, 10]), F = R.f(6, 30, 1), Kt = R.f(2, 3, 0.1), Re = R.p([235, 275, 355]);

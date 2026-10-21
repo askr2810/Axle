@@ -182,7 +182,7 @@ $$v = \frac{m_1 v_1 + m_2 v_2}{m_1 + m_2}$$
 ## Slik løser du oppgavene
 1. Velg metode: spør oppgaven om fart og høyde, bruk energi. Spør den om et støt eller en kort, kraftig kraft, bruk bevegelsesmengde og impuls.
 2. Skriv opp situasjonen **før** og **etter**.
-3. Energi: $E_{k,før} + E_{p,før} = E_{k,etter} + E_{p,etter} + W_f$. Bevegelsesmengde: $\sum p_{før} = \sum p_{etter}$.
+3. Energi: $E_{k,\text{før}} + E_{p,\text{før}} = E_{k,etter} + E_{p,etter} + W_f$. Bevegelsesmengde: $\sum p_{\text{før}} = \sum p_{etter}$.
 4. Velg positiv retning og husk fortegn på farter.
 
 ### Eksempel
