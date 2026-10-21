@@ -40,3 +40,5 @@ $$;
 
 revoke all on function public.delete_my_account() from public, anon;
 grant execute on function public.delete_my_account() to authenticated;
+-- AX-19: eksplisitt service_role (Supabase-endring 30.10.2026)
+grant all on public.progress to service_role;

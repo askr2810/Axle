@@ -644,3 +644,5 @@ end;
 $$;
 revoke all on function public.set_username(text) from public, anon;
 grant execute on function public.set_username(text) to authenticated;
+-- AX-19: eksplisitt service_role (Supabase-endring 30.10.2026)
+grant all on public.profiles, public.friendships, public.friend_requests, public.user_blocks, public.content_reports, public.member_numbers, public.app_roles to service_role;

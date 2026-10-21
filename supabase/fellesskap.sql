@@ -322,3 +322,5 @@ as $$
 $$;
 revoke all on function public.get_community(uuid) from public, anon;
 grant execute on function public.get_community(uuid) to authenticated;
+-- AX-19: eksplisitt service_role (Supabase-endring 30.10.2026)
+grant all on public.community_courses, public.community_likes, public.community_plays to service_role;

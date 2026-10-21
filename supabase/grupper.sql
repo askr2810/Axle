@@ -532,3 +532,5 @@ grant execute on function public.list_my_groups()                               
 grant execute on function public.get_group(uuid)                                 to authenticated;
 grant execute on function public.peek_group(text)                                to authenticated;
 grant execute on function public.report_content(text, uuid, text, text, text)    to authenticated;
+-- AX-19: eksplisitt service_role (Supabase-endring 30.10.2026)
+grant all on public.groups, public.group_members, public.group_bans, public.group_invites to service_role;

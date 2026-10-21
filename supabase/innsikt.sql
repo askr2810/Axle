@@ -169,3 +169,5 @@ do $$ begin
 exception when others then
   raise warning 'Fikk ikke planlagt oppryddingen (%). Slå på «pg_cron» under Database → Extensions i Supabase og kjør fila på nytt.', sqlerrm;
 end $$;
+-- AX-19: eksplisitt service_role (Supabase-endring 30.10.2026)
+grant all on public.app_events to service_role;

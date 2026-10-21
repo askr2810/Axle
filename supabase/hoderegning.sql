@@ -184,3 +184,5 @@ $$;
 
 grant execute on function public.mq_create(jsonb, text, text), public.mq_join(text, text, text), public.mq_get(text), public.mq_start(text),
   public.mq_push(text, jsonb), public.mq_leave(text), public.mq_submit(text, int, int, text, text), public.mq_board(text) to authenticated;
+-- AX-19: eksplisitt service_role (Supabase-endring 30.10.2026)
+grant all on public.mq_rooms, public.mq_players, public.mq_results to service_role;

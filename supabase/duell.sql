@@ -168,3 +168,5 @@ revoke all on function public.duel_create(text, jsonb, text, text, uuid), public
   public.duel_start(text), public.duel_push(text, jsonb), public.duel_leave(text), public.duel_invites(), public.duel_invite(text, uuid) from public, anon;
 grant execute on function public.duel_create(text, jsonb, text, text, uuid), public.duel_join(text, text, text), public.duel_get(text),
   public.duel_start(text), public.duel_push(text, jsonb), public.duel_leave(text), public.duel_invites(), public.duel_invite(text, uuid) to authenticated;
+-- AX-19: eksplisitt service_role (Supabase-endring 30.10.2026)
+grant all on public.duels to service_role;

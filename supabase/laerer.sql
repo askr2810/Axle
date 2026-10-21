@@ -198,3 +198,5 @@ create policy "quizbilder: se egne" on storage.objects for select to authenticat
 drop policy if exists "quizbilder: slett egne" on storage.objects;
 create policy "quizbilder: slett egne" on storage.objects for delete to authenticated
   using (bucket_id = 'quizbilder' and split_part(name, '/', 1) = auth.uid()::text);
+-- AX-19: eksplisitt service_role (Supabase-endring 30.10.2026)
+grant all on public.lekse_sets, public.lekse_reports to service_role;
