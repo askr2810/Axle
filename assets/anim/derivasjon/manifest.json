@@ -1,0 +1,224 @@
+{
+ "nb": {
+  "l00": {
+   "file": "nb/l00-2a7231b3fb.mp3",
+   "dur": 5.15,
+   "sha": "b011424d1f2c",
+   "voice": "elevenlabs:s2xtA7B2CTXPPlJzch1v:eleven_multilingual_v2"
+  },
+  "l01": {
+   "file": "nb/l01-990080d5e6.mp3",
+   "dur": 4.13,
+   "sha": "480bea1a1956",
+   "voice": "elevenlabs:s2xtA7B2CTXPPlJzch1v:eleven_multilingual_v2"
+  },
+  "l02": {
+   "file": "nb/l02-befef7a681.mp3",
+   "dur": 4.0,
+   "sha": "386980f7fb98",
+   "voice": "elevenlabs:s2xtA7B2CTXPPlJzch1v:eleven_multilingual_v2"
+  },
+  "l03": {
+   "file": "nb/l03-9d96fc9b90.mp3",
+   "dur": 6.4,
+   "sha": "8cca0fbebf8e",
+   "voice": "elevenlabs:s2xtA7B2CTXPPlJzch1v:eleven_multilingual_v2"
+  },
+  "l04": {
+   "file": "nb/l04-e8a23cc820.mp3",
+   "dur": 5.28,
+   "sha": "220937316a15",
+   "voice": "elevenlabs:s2xtA7B2CTXPPlJzch1v:eleven_multilingual_v2"
+  },
+  "l05": {
+   "file": "nb/l05-e54454f91d.mp3",
+   "dur": 6.3,
+   "sha": "952fbf663042",
+   "voice": "elevenlabs:s2xtA7B2CTXPPlJzch1v:eleven_multilingual_v2"
+  },
+  "l06": {
+   "file": "nb/l06-2e93d28d7f.mp3",
+   "dur": 4.41,
+   "sha": "6713d7f6a14e",
+   "voice": "elevenlabs:s2xtA7B2CTXPPlJzch1v:eleven_multilingual_v2"
+  },
+  "l07": {
+   "file": "nb/l07-c121013ad2.mp3",
+   "dur": 5.51,
+   "sha": "6f3e214853e4",
+   "voice": "elevenlabs:s2xtA7B2CTXPPlJzch1v:eleven_multilingual_v2"
+  },
+  "l08": {
+   "file": "nb/l08-70f98dbd82.mp3",
+   "dur": 7.6,
+   "sha": "87c0cc5d2438",
+   "voice": "elevenlabs:s2xtA7B2CTXPPlJzch1v:eleven_multilingual_v2"
+  },
+  "l09": {
+   "file": "nb/l09-64c7cfdd7a.mp3",
+   "dur": 5.69,
+   "sha": "021933883420",
+   "voice": "elevenlabs:s2xtA7B2CTXPPlJzch1v:eleven_multilingual_v2"
+  },
+  "l10": {
+   "file": "nb/l10-51fe461cc6.mp3",
+   "dur": 5.46,
+   "sha": "1ea54e2cd08d",
+   "voice": "elevenlabs:s2xtA7B2CTXPPlJzch1v:eleven_multilingual_v2"
+  },
+  "l11": {
+   "file": "nb/l11-406bbb4e9f.mp3",
+   "dur": 6.77,
+   "sha": "0cfd268e3015",
+   "voice": "elevenlabs:s2xtA7B2CTXPPlJzch1v:eleven_multilingual_v2"
+  },
+  "l12": {
+   "file": "nb/l12-be7fc1f8a5.mp3",
+   "dur": 8.8,
+   "sha": "55d30e0df7aa",
+   "voice": "elevenlabs:s2xtA7B2CTXPPlJzch1v:eleven_multilingual_v2"
+  },
+  "l13": {
+   "file": "nb/l13-ea359b577b.mp3",
+   "dur": 7.65,
+   "sha": "d5e629f3a726",
+   "voice": "elevenlabs:s2xtA7B2CTXPPlJzch1v:eleven_multilingual_v2"
+  },
+  "l14": {
+   "file": "nb/l14-908d61eb5e.mp3",
+   "dur": 7.84,
+   "sha": "066ee6ae44ca",
+   "voice": "elevenlabs:s2xtA7B2CTXPPlJzch1v:eleven_multilingual_v2"
+  },
+  "l15": {
+   "file": "nb/l15-2687770e6a.mp3",
+   "dur": 6.03,
+   "sha": "e237a20faa53",
+   "voice": "elevenlabs:s2xtA7B2CTXPPlJzch1v:eleven_multilingual_v2"
+  }
+ },
+ "en": {
+  "l00": {
+   "file": "en/l00-96136ee781.mp3",
+   "dur": 6.03,
+   "sha": "092fbb1e83f1",
+   "voice": "elevenlabs:Xb7hH8MSUJpSbSDYk0k2:eleven_multilingual_v2"
+  },
+  "l01": {
+   "file": "en/l01-42ae277dfb.mp3",
+   "dur": 6.16,
+   "sha": "b61b84debf8b",
+   "voice": "elevenlabs:Xb7hH8MSUJpSbSDYk0k2:eleven_multilingual_v2"
+  },
+  "l02": {
+   "file": "en/l02-6712bf99c8.mp3",
+   "dur": 5.46,
+   "sha": "a438800fdc5b",
+   "voice": "elevenlabs:Xb7hH8MSUJpSbSDYk0k2:eleven_multilingual_v2"
+  },
+  "l03": {
+   "file": "en/l03-3b7b18e51b.mp3",
+   "dur": 7.94,
+   "sha": "c15c7ae6b371",
+   "voice": "elevenlabs:Xb7hH8MSUJpSbSDYk0k2:eleven_multilingual_v2"
+  },
+  "l04": {
+   "file": "en/l04-815dec14e8.mp3",
+   "dur": 7.71,
+   "sha": "bf5f317c7fdb",
+   "voice": "elevenlabs:Xb7hH8MSUJpSbSDYk0k2:eleven_multilingual_v2"
+  },
+  "l05": {
+   "file": "en/l05-944273146e.mp3",
+   "dur": 8.62,
+   "sha": "a4088256a5e9",
+   "voice": "elevenlabs:Xb7hH8MSUJpSbSDYk0k2:eleven_multilingual_v2"
+  },
+  "l06": {
+   "file": "en/l06-61cf806f0b.mp3",
+   "dur": 6.22,
+   "sha": "d43abb46a0b3",
+   "voice": "elevenlabs:Xb7hH8MSUJpSbSDYk0k2:eleven_multilingual_v2"
+  },
+  "l07": {
+   "file": "en/l07-6549204cca.mp3",
+   "dur": 7.0,
+   "sha": "958a299018be",
+   "voice": "elevenlabs:Xb7hH8MSUJpSbSDYk0k2:eleven_multilingual_v2"
+  },
+  "l08": {
+   "file": "en/l08-3a35a4fcf4.mp3",
+   "dur": 8.12,
+   "sha": "ccda36526867",
+   "voice": "elevenlabs:Xb7hH8MSUJpSbSDYk0k2:eleven_multilingual_v2"
+  },
+  "l09": {
+   "file": "en/l09-3a1b5501aa.mp3",
+   "dur": 6.35,
+   "sha": "d68f231f4df2",
+   "voice": "elevenlabs:Xb7hH8MSUJpSbSDYk0k2:eleven_multilingual_v2"
+  },
+  "l10": {
+   "file": "en/l10-9ad2cab7ad.mp3",
+   "dur": 7.34,
+   "sha": "8ef5153f851f",
+   "voice": "elevenlabs:Xb7hH8MSUJpSbSDYk0k2:eleven_multilingual_v2"
+  },
+  "l11": {
+   "file": "en/l11-0be8bbe38b.mp3",
+   "dur": 6.45,
+   "sha": "28efd5a3d54a",
+   "voice": "elevenlabs:Xb7hH8MSUJpSbSDYk0k2:eleven_multilingual_v2"
+  },
+  "l12": {
+   "file": "en/l12-20a49a9f96.mp3",
+   "dur": 11.6,
+   "sha": "0ec3ced777f0",
+   "voice": "elevenlabs:Xb7hH8MSUJpSbSDYk0k2:eleven_multilingual_v2"
+  },
+  "l13": {
+   "file": "en/l13-6b43acf393.mp3",
+   "dur": 10.58,
+   "sha": "24f9d721f66a",
+   "voice": "elevenlabs:Xb7hH8MSUJpSbSDYk0k2:eleven_multilingual_v2"
+  },
+  "l14": {
+   "file": "en/l14-9b56761005.mp3",
+   "dur": 7.97,
+   "sha": "846cf0f46238",
+   "voice": "elevenlabs:Xb7hH8MSUJpSbSDYk0k2:eleven_multilingual_v2"
+  },
+  "l15": {
+   "file": "en/l15-ea39179004.mp3",
+   "dur": 6.27,
+   "sha": "a06053aca2ad",
+   "voice": "elevenlabs:Xb7hH8MSUJpSbSDYk0k2:eleven_multilingual_v2"
+  }
+ },
+ "_meta": {
+  "provider": "elevenlabs",
+  "voices": {
+   "nb": {
+    "id": "s2xtA7B2CTXPPlJzch1v",
+    "name": "Dennis - Norwegian"
+   },
+   "en": {
+    "id": "Xb7hH8MSUJpSbSDYk0k2",
+    "name": "Alice - Clear, Engaging Educator"
+   }
+  },
+  "model": "eleven_multilingual_v2",
+  "made": "2026-10-21",
+  "publish": true,
+  "via": "ElevenLabs MCP (creative_generate_speech), AX-15",
+  "plan": {
+   "tier": null,
+   "status": "active",
+   "paid": true,
+   "checked": "2026-10-21",
+   "verifiedBy": "owner-confirmed 2026-10-21 02:24 (Europe/Oslo)",
+   "note": "Eieren (Ask) bekreftet i chat aktiv betalt ElevenLabs-plan og godkjente publisering. API-sjekken node tools/anim_voice.mjs --plan er ikke kjørt (nivå ukjent)."
+  },
+  "sample": false
+ }
+}

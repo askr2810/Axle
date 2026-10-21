@@ -84,7 +84,7 @@ const SIZES = [[375, 667, 'light'], [375, 667, 'dark'], [768, 1024, 'light'], [1
           anSeek(l.t0 + l.d - 0.6); anPlay(); await new Promise(r => setTimeout(r, 1500));
           const src = AN_A.el && AN_A.el.src, line = anLineAt(D, AN.t), playing = AN_A.el && !AN_A.el.paused, ct = AN_A.el && AN_A.el.currentTime;
           anPause(); const paused = AN_A.el.paused; AN.snd = 'off'; return { src, line, playing, ct, paused }; });
-        if(r.err) fail(tag, r.err); else { if(!/l05\./.test(r.src || '') || r.line !== 5 || !r.playing || !(r.ct > 0.3)) fail(tag, `lydfila følger ikke replikken (${JSON.stringify(r)})`); if(!r.paused) fail(tag, 'Pause stopper ikke lyden'); }
+        if(r.err) fail(tag, r.err); else { if(!/\/l05[-.]/.test(r.src || '') || r.line !== 5 || !r.playing || !(r.ct > 0.3)) fail(tag, `lydfila følger ikke replikken (${JSON.stringify(r)})`); if(!r.paused) fail(tag, 'Pause stopper ikke lyden'); }
       }
     }
     if(errs.length) fail(tag, 'JS-feil: ' + errs.join(' | '));
