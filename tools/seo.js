@@ -447,9 +447,14 @@ for(const l of ['nb', 'en']){ setL(l); const html = aboutPage(); write((l === 'n
     const body = `<h1>${esc(m.t)}</h1><p class="lead">${esc(m.intro)}</p><p class="beta">${esc(LK_DISCLAIMER)}</p>
 ${m.sections.map(s => { const ns = m.nodes.filter(n => n.sec === s.id); return ns.length ? `<h2>${esc(s.t)}: ${esc(s.sub)}</h2><ol>${ns.map(nodeLi).join('')}</ol>` : ''; }).join('\n')}
 <p><a class="cta" href="/#/laeringskart/${m.id}">Åpne læringskartet i Axle →</a></p>`;
-    write(url.slice(1) + 'index.html', page({ url, alt: null, title: `${m.t} – læringskart | Axle`, desc: `${m.intro} ${LK_DISCLAIMER}`, body, crumbs: `<a href="${hubUrl()}">${esc(X().all)}</a> › Læringskart` }));
+    write(url.slice(1) + 'index.html', page({ url, alt: null, title: `${m.t} – læringskart | Axle`, desc: `${m.intro} ${LK_DISCLAIMER}`, body, crumbs: `<a href="${hubUrl()}">${esc(X().all)}</a> › <a href="/laeringskart/">Læringskart</a>` }));
     pairs.push([url, null]);
-  } }
+  }
+  const body = `<h1>Læringskart</h1><p class="lead">Forslag til rekkefølge gjennom fagene i Axle, fra videregående til studiet.</p><p class="beta">${esc(LK_DISCLAIMER)}</p>
+<div class="tp">${LK_MAPS.map(m => `<a href="/laeringskart/${m.id}/"><b>${esc(m.t)}</b><span>${esc(m.intro)}</span></a>`).join('')}</div>
+<p><a class="cta" href="/#/laeringskart">Åpne læringskartene i Axle →</a></p>`;
+  write('laeringskart/index.html', page({ url: '/laeringskart/', alt: null, title: 'Læringskart – forslag til læringsveier | Axle', desc: `Læringsveier gjennom fagene i Axle. ${LK_DISCLAIMER}`, body, crumbs: `<a href="${hubUrl()}">${esc(X().all)}</a> › Læringskart` }));
+  pairs.push(['/laeringskart/', null]); }
 setL('nb');
 write('sitemap.xml', `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">\n${pairs.map(([u, a]) => `<url><loc>${SITE}${u}</loc><lastmod>${today}</lastmod>${a ? [[langOf(u), u], [langOf(a), a]].sort().map(([l, x]) => `<xhtml:link rel="alternate" hreflang="${l}" href="${SITE}${x}"/>`).join('') + `<xhtml:link rel="alternate" hreflang="x-default" href="${SITE}${langOf(u) === 'nb' ? u : a}"/>` : ''}</url>`).join('\n')}\n</urlset>\n`);
 // axle.no/en og axle.no/english: starter appen på engelsk (appen leser ?lang=en og husker valget).

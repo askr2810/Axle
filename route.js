@@ -29,7 +29,7 @@ function routeOf(){
       return rtW("book");
     case "theory": return TH ? [rtW("theory"), TH.code, TH.u + 1].join("/") : "";
     case "proofs": return rtW("proofs");
-    case "lk": return rtW("lk") + "/" + LK.id;
+    case "lk": return LK.id ? rtW("lk") + "/" + LK.id : rtW("lk");
     case "snacks": case "sprint": case "match": case "truefalse": case "local": return rtW(screen);
     case "mydecks": return rtW("mydecks");
     case "trig": return rtW("trig") + "/" + tgSlug();
@@ -95,7 +95,7 @@ function routeBoot(){
     if(LF && Number.isInteger(i) && i > 0 && i < L.cards.length && !L.cards.slice(0, i).some(c => c.try || c.q)) LF.i = i; // hopper ikke forbi oppgaver
     return true;
   }
-  if(k === "lk"){ LK = { id: lkMap(p[1]) ? p[1] : LK_MAPS[0].id }; screen = "lk"; return true; }
+  if(k === "lk"){ const m = lkMap(p[1]); LK = { id: m ? m.id : null, focus: m && p[2] && m.nodes.some(n => n.id === p[2]) ? p[2] : null }; screen = "lk"; return true; } // #/laeringskart (oversikt) eller #/laeringskart/<kart>
   if(k === "snacks"){ SN = null; screen = "snacks"; return true; }
   if(k === "sprint"){ SP = null; screen = "sprint"; return true; }
   if(k === "match"){ MT = null; screen = "match"; return true; }
