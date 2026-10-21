@@ -3685,3 +3685,22 @@ details.cat-mc{margin:6px 0}details.cat-mc>summary{cursor:pointer;font-size:12px
 @media (min-width:700px){.rv-picks{grid-template-columns:1fr 1fr}}
 @media (max-width:640px){.rv-acts,.rv-editacts{flex-direction:column}.rv-acts .big,.rv-editacts .big{width:100%}}
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .rv-chk li.ok,:root:not([data-theme="light"]) .rv-chksum.ok,:root:not([data-theme="light"]) .rv-badge{color:var(--ok)}}
+/* Læringskart (laeringskart.js) */
+.lk-cta{background:linear-gradient(135deg,var(--ok-deep),var(--accent-deep))}
+.lk{padding-bottom:30px}
+.lk-disc{margin:0 0 14px;padding:10px 12px;border:2px dashed var(--line);border-radius:12px;font-size:13px;color:var(--muted)}
+.lk-sec h2{display:flex;flex-wrap:wrap;align-items:baseline;gap:8px;margin:18px 0 8px;font-family:var(--display);font-size:18px}
+.lk-sec h2 small{font-family:var(--body);font-weight:500;font-size:13px;color:var(--muted)}
+.lk-path{list-style:none;margin:0;padding:0 0 0 22px;position:relative}
+.lk-path::before{content:"";position:absolute;left:8px;top:6px;bottom:6px;width:3px;border-radius:3px;background:var(--line)}
+.lk-node{position:relative;margin:0 0 10px}
+.lk-dot{position:absolute;left:-20px;top:16px;width:13px;height:13px;border-radius:50%;background:var(--card);border:3px solid var(--line)}
+.lk-going .lk-dot{border-color:var(--accent)}.lk-done .lk-dot{border-color:var(--ok);background:var(--ok)}
+.lk-card{display:grid;gap:4px;width:100%;padding:12px 14px;text-align:left;border:2px solid var(--line);border-radius:14px;background:var(--card);color:var(--ink);font:inherit;cursor:pointer}
+button.lk-card:hover{border-color:var(--accent)}
+.lk-card b{font-size:16px}.lk-card small{color:var(--muted);font-size:13px}
+.lk-pre{font-size:12px;color:var(--muted)}
+.lk-prog{display:grid;grid-template-columns:1fr auto;align-items:center;gap:10px;font-size:12px;color:var(--muted)}
+.lk-soon .lk-card{border-style:dashed;cursor:default;opacity:.8}
+.lk-tag{justify-self:start;padding:2px 8px;border-radius:9px;background:var(--line);font-size:12px;font-weight:700}
+@media (min-width:760px){.lk-path{display:grid;grid-template-columns:1fr 1fr;column-gap:12px}}

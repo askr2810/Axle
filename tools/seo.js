@@ -185,7 +185,7 @@ table{border-collapse:collapse;width:100%;background:var(--card);border:2px soli
 footer{margin-top:40px;padding-bottom:40px;font-size:14px;color:var(--muted)}footer .more a{display:inline-block;margin:0 10px 6px 0}`;
 // ---------- adresser ----------
 const SLUGS = { nb: new Map(), en: new Map() }, TPS = new Map(); // TPS: kode → Map(emne-id → engelsk slug)
-const RESERVED = ['fag', 'icons', 'vendor', 'en', 'english', 'courses', 'privacy-html'];
+const RESERVED = ['fag', 'icons', 'vendor', 'en', 'english', 'courses', 'privacy-html', 'laeringskart'];
 function courseSlug(c, l = L){
   const m = SLUGS[l]; if(m.has(c.code)) return m.get(c.code);
   const nm = (META[c.code] && META[c.code][l]) || c.name;
@@ -439,6 +439,17 @@ ${faq.map(([q, a]) => `<details><summary>${q}</summary><p>${a}</p></details>`).j
       { '@context': 'https://schema.org', '@type': 'FAQPage', mainEntity: faq.map(([q, a]) => ({ '@type': 'Question', name: q, acceptedAnswer: { '@type': 'Answer', text: a } })) }] });
 }
 for(const l of ['nb', 'en']){ setL(l); const html = aboutPage(); write((l === 'nb' ? 'about' : 'en/about') + '/index.html', html); if(l === 'nb') write('om/index.html', html); pairs.push(['/about/', '/en/about/']); }
+// ---------- læringskart (laeringskart_data.js): én åpen side per kart, bare på norsk ----------
+{ const { LK_MAPS, LK_DISCLAIMER, lkPrereq } = require(path.join(ROOT, 'laeringskart_data.js')); setL('nb');
+  for(const m of LK_MAPS){
+    const url = `/laeringskart/${m.id}/`, nodeLi = n => { const c = n.code && COURSES.find(x => x.code === n.code), pre = lkPrereq(m, n.id);
+      return `<li>${c ? `<a href="${courseUrl(c)}"><b>${esc(n.t)}</b></a>` : `<b>${esc(n.t)}</b> <em>(kommer)</em>`} – ${esc(n.why)}${pre.length ? `<br><small>Bygger på: ${pre.map(p => esc(p.t)).join(', ')}</small>` : ''}</li>`; };
+    const body = `<h1>${esc(m.t)}</h1><p class="lead">${esc(m.intro)}</p><p class="beta">${esc(LK_DISCLAIMER)}</p>
+${m.sections.map(s => { const ns = m.nodes.filter(n => n.sec === s.id); return ns.length ? `<h2>${esc(s.t)}: ${esc(s.sub)}</h2><ol>${ns.map(nodeLi).join('')}</ol>` : ''; }).join('\n')}
+<p><a class="cta" href="/#/laeringskart/${m.id}">Åpne læringskartet i Axle →</a></p>`;
+    write(url.slice(1) + 'index.html', page({ url, alt: null, title: `${m.t} – læringskart | Axle`, desc: `${m.intro} ${LK_DISCLAIMER}`, body, crumbs: `<a href="${hubUrl()}">${esc(X().all)}</a> › Læringskart` }));
+    pairs.push([url, null]);
+  } }
 setL('nb');
 write('sitemap.xml', `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">\n${pairs.map(([u, a]) => `<url><loc>${SITE}${u}</loc><lastmod>${today}</lastmod>${a ? [[langOf(u), u], [langOf(a), a]].sort().map(([l, x]) => `<xhtml:link rel="alternate" hreflang="${l}" href="${SITE}${x}"/>`).join('') + `<xhtml:link rel="alternate" hreflang="x-default" href="${SITE}${langOf(u) === 'nb' ? u : a}"/>` : ''}</url>`).join('\n')}\n</urlset>\n`);
 // axle.no/en og axle.no/english: starter appen på engelsk (appen leser ?lang=en og husker valget).

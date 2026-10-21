@@ -5,7 +5,7 @@
 //  Adressen byttes med replaceState, så tilbakeknappen i nettleseren oppfører seg som før.
 //  Ord på norsk eller engelsk etter språket; begge forstås når adressen leses.
 // ============================================================
-const RT = { anim: ["animasjon", "animation"], elever: ["elever", "students"], klasse: ["klasse", "class"], geo: ["kartspill", "map-game"], motion: ["bevegelse", "motion"], parts: ["delvis-integrasjon", "integration-by-parts"], ctl: ["regulering", "control"], ekalk: ["elementkalkulator", "element-calculator"], pomo: ["pomodoro", "pomodoro"], mq: ["hoderegning", "mental-maths"], teach: ["laerer", "teacher"], hw: ["lekse", "homework"], catalog: ["oppgaver", "problems"], practice: ["ov", "practice"], book: ["teori", "theory"], friends: ["venner", "friends"], profile: ["profil", "profile"], badges: ["merker", "badges"],
+const RT = { lk: ["laeringskart", "learning-map"], anim: ["animasjon", "animation"], elever: ["elever", "students"], klasse: ["klasse", "class"], geo: ["kartspill", "map-game"], motion: ["bevegelse", "motion"], parts: ["delvis-integrasjon", "integration-by-parts"], ctl: ["regulering", "control"], ekalk: ["elementkalkulator", "element-calculator"], pomo: ["pomodoro", "pomodoro"], mq: ["hoderegning", "mental-maths"], teach: ["laerer", "teacher"], hw: ["lekse", "homework"], catalog: ["oppgaver", "problems"], practice: ["ov", "practice"], book: ["teori", "theory"], friends: ["venner", "friends"], profile: ["profil", "profile"], badges: ["merker", "badges"],
   settings: ["innstillinger", "settings"], community: ["fellesskap", "community"], pick: ["fag", "courses"], groups: ["grupper", "groups"], theory: ["les", "read"], guided: ["steg", "steps"], topic: ["emne", "topic"], proofs: ["bevis", "proofs"], snacks: ["snacks", "snacks"], sprint: ["lynrunde", "sprint"], match: ["parjakt", "match"], truefalse: ["santusant", "truefalse"], duel: ["duell", "duel"], mydecks: ["kort", "cards"], local: ["lynduell", "sameduel"], sheet: ["formler", "formulas"], person: ["person", "person"], admin: ["admin", "admin"], review: ["gjennomgang", "review"], trig: ["enhetssirkel", "unitcircle"], forces: ["krefter", "forces"], lab: ["lab", "lab"], messages: ["meldinger", "messages"], code: ["kode", "code"], lf: ["laer", "learn"] };
 const rtW = k => RT[k][LANG === "en" ? 1 : 0];
 const rtKey = w => Object.keys(RT).find(k => RT[k].includes(String(w || "").toLowerCase()));
@@ -29,6 +29,7 @@ function routeOf(){
       return rtW("book");
     case "theory": return TH ? [rtW("theory"), TH.code, TH.u + 1].join("/") : "";
     case "proofs": return rtW("proofs");
+    case "lk": return rtW("lk") + "/" + LK.id;
     case "snacks": case "sprint": case "match": case "truefalse": case "local": return rtW(screen);
     case "mydecks": return rtW("mydecks");
     case "trig": return rtW("trig") + "/" + tgSlug();
@@ -94,6 +95,7 @@ function routeBoot(){
     if(LF && Number.isInteger(i) && i > 0 && i < L.cards.length && !L.cards.slice(0, i).some(c => c.try || c.q)) LF.i = i; // hopper ikke forbi oppgaver
     return true;
   }
+  if(k === "lk"){ LK = { id: lkMap(p[1]) ? p[1] : LK_MAPS[0].id }; screen = "lk"; return true; }
   if(k === "snacks"){ SN = null; screen = "snacks"; return true; }
   if(k === "sprint"){ SP = null; screen = "sprint"; return true; }
   if(k === "match"){ MT = null; screen = "match"; return true; }
