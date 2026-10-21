@@ -1552,8 +1552,10 @@ X,var(--ink))}.sim-eq .q2{color:color-mix(in srgb,var(--c2) 70%,var(--ink))}.sim
 .pf-cta{display:flex;align-items:center;gap:12px;width:100%;margin:4px 0 14px;padding:14px 16px;border:0;border-radius:18px;text-align:left;color:#fff;cursor:pointer;
   background:#1c2b5a;box-shadow:0 4px 0 #15173a;font:inherit;position:relative;overflow:hidden}
 .pf-cta::after{content:"";position:absolute;inset:0;background:linear-gradient(110deg,transparent 30%,rgba(255,255,255,.18) 50%,transparent 70%);transform:translateX(-100%);animation:shimmer 3.5s ease-in-out infinite}
-.pf-cta b{display:block;font-size:17px}.pf-cta small{opacity:.85;font-size:13px}.pf-cta svg{margin-left:auto;flex:none}
-.pf-cta-ic{display:grid;place-items:center;width:44px;height:44px;border-radius:12px;background:rgba(255,255,255,.14);font-size:24px;font-weight:900;flex:none}
+.pf-cta b{display:block;font-size:17px}.pf-cta small{opacity:.85;font-size:13px}.pf-cta>svg{margin-left:auto;flex:none}
+.pf-cta-ic{display:flex;align-items:center;justify-content:center;width:44px;height:44px;border-radius:12px;background:rgba(255,255,255,.14);font-size:24px;line-height:1;font-weight:900;flex:none}
+/* Ikonet midt i boksen: pilen til høyre i kortet (.pf-cta>svg) skal ikke dytte ikonet (AX-22c). */
+.pf-cta-ic>svg,.pf-cta-ic>img{display:block;margin:0;flex:none}
 .pf-list{padding-bottom:30px}.pf-intro{color:var(--muted);margin:4px 0 10px}
 .pf-bar{height:8px;border-radius:99px;background:var(--line);overflow:hidden;margin-bottom:12px}.pf-bar i{display:block;height:100%;background:var(--accent-bg);border-radius:99px}
 .pf-count{font-weight:800;color:var(--accent);font-variant-numeric:tabular-nums}
