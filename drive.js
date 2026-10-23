@@ -16,9 +16,16 @@ const dvData = code => { S.drive ||= {}; return S.drive[code] ||= { st: {}, test
 function dvQ(code, qid){
   const [u, i] = qid.split(":").map(Number), c = COURSE(code), unit = c.units[u]; if(!unit || !unit.qs[i]) return null;
   const nb = unit.qs[i], en = LANG === "en" && ((ENQ[code] || [])[u] || [])[i];
-  const src = unit.shared ? unit.shared + ":" + unit.sharedU : code + ":" + u;
-  return { q: en ? en[0] : nb[0], opts: (en && en[1]) || nb[1], expl: en ? en[2] : nb[2], img: DRIVE_IMG[src + ":" + i] || null, u, i };
+  return { q: en ? en[0] : nb[0], opts: (en && en[1]) || nb[1], expl: en ? en[2] : nb[2], img: dvImg(code, u, i), u, i };
 }
+// Skiltbildet til spørsmål i i enhet u (AX-23). Delte enheter (SHAREUNIT) har bildet under fagets og enhetens opprinnelige nøkkel.
+// Brukes av dvQ og av itemFromId (app.js), så også quizer startet fra Teori («Sjekk deg selv», veiledet gjennomgang, vanlige økter) viser skiltet.
+function dvImg(code, u, i){
+  const c = COURSE(code), unit = c && c.units[u]; if(!unit || typeof DRIVE_IMG === "undefined") return null;
+  const src = unit.shared ? unit.shared + ":" + unit.sharedU : code + ":" + u;
+  return DRIVE_IMG[src + ":" + i] || null;
+}
+const dvImgHTML = (it, n = 150) => it && it.dimg && typeof fkSign === "function" ? `<div class="dv-img">${fkSign(it.dimg, n)}</div>` : "";
 const dvCats = c => c.units.map((u, i) => i);
 const dvAllIds = (c, u) => (u == null ? dvCats(c) : [u]).flatMap(k => c.units[k].qs.map((_, i) => k + ":" + i));
 // Kategoristatistikk: [riktige, besvarte, antall spørsmål, sett]

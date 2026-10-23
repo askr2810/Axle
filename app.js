@@ -582,7 +582,8 @@ function rawQ(c, id){
 function itemFromId(c, id, opt={}){
   const q = rawQ(c, id); if(!q) return null;
   const it = makeItem(q, id); it.cc = c.code; it.cu = +id.split(".")[0]; // fag og enhet: til illustrasjonen over oppgaven (qart.js)
-  if(it.type==="num" && opt.mc) return Object.assign(toMC(it), { cc: it.cc, cu: it.cu, fig: it.fig, ansN: it.n });
+  if(typeof dvImg === "function" && isDrive(c) && /^\d+\.\d+$/.test(id)){ const [u, i] = id.split(".").map(Number), im = dvImg(c.code, u, i); if(im) it.dimg = im; } // førerkort: skiltbildet (AX-23)
+  if(it.type==="num" && opt.mc) return Object.assign(toMC(it), { cc: it.cc, cu: it.cu, fig: it.fig, ansN: it.n, dimg: it.dimg });
   if(it.type==="num" && opt.strict) it.tol = it.tol/2;
   return it;
 }
@@ -813,7 +814,7 @@ function renderLesson(){
   }
   // Illustrasjon på oppgaven (qart.js): temaets piktogram og navn øverst, og en figur over oppgaveteksten når det finnes en.
   const art = typeof qArt === "function" ? qArt(it, L.answered) : {}, kick = `<p class="kicker">${esc(lvl)}${it.type==="mc"?t("pickAnswer"):t("writeAnswer")}${betaTagHTML(L.code)}</p>`;
-  let body = `<div class="krow ${art.pic ? "has-pic" : ""}">${art.pic ? `<div class="q-topic"><span class="q-pic">${art.pic}</span><span class="q-tt"><b>${esc(art.name)}</b>${kick}</span></div>` : kick}<button class="kbtn" data-a="scratch">${I.pencil}${t("scratch")}</button></div>${art.fig ? "\u0000QSPLIT\u0000" : ""}${qimgHTML(it.qimg, "lq")}<div class="prompt">${richBig(it.prompt)}</div>`;
+  let body = `<div class="krow ${art.pic ? "has-pic" : ""}">${art.pic ? `<div class="q-topic"><span class="q-pic">${art.pic}</span><span class="q-tt"><b>${esc(art.name)}</b>${kick}</span></div>` : kick}<button class="kbtn" data-a="scratch">${I.pencil}${t("scratch")}</button></div>${art.fig ? "\u0000QSPLIT\u0000" : ""}${typeof dvImgHTML === "function" ? dvImgHTML(it) : ""}${qimgHTML(it.qimg, "lq")}<div class="prompt">${richBig(it.prompt)}</div>`;
   if(it.type==="mc"){
     body += `<div class="opts" role="radiogroup">` + it.opts.map((o,i)=>{
       let cls = L.sel===i ? "sel" : "";
